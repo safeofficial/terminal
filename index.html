@@ -98,6 +98,7 @@
   .grid2{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
   .grid-half{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
   @media(max-width:940px){.grid2,.grid-half{grid-template-columns:1fr}}
+  @media(max-width:760px){#pieBox{height:420px} .trade-foot button{flex:1 1 100%}}
 
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
   .row > label{font-size:.79rem;font-weight:600;color:var(--text-sub);min-width:52px}
@@ -130,10 +131,14 @@
   .xbtn:hover{background:var(--danger-soft)}
 
   #chartBox,#pieBox,#pnlBox,#benchBox{width:100%;border-radius:11px;overflow:hidden}
-  #chartBox{height:460px} #pieBox{height:460px} #pnlBox,#benchBox{height:280px}
+  #chartBox{height:460px} #pieBox{height:580px} #pnlBox,#benchBox{height:280px}
+  .trade-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:0 20px}
+  .trade-foot{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-top:4px}
+  .trade-foot .hint{flex:1 1 320px;margin:0}
+  .trade-foot button{flex:0 0 210px}
   .pie-wrap{background:linear-gradient(180deg,#fbfcfe 0%,#f4f6fb 100%);border-radius:12px;padding:6px}
-  .pie-center{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
-  .pie-center .cv{font-size:1.5rem;font-weight:700;color:var(--primary);line-height:1.1;font-variant-numeric:tabular-nums}
+  .pie-center{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+  .pie-center .cv{font-size:1.9rem;font-weight:700;color:var(--primary);line-height:1.1;font-variant-numeric:tabular-nums}
   .pie-center .ck{font-size:11px;color:var(--text-sub);margin-top:3px}
   .pie-host{position:relative}
   /* 전략 편집기 */
@@ -481,12 +486,12 @@
           <div id="stratHist" class="strat-hist"></div>
         </div>
 
-        <div class="grid-half">
-          <div class="card" id="manualCard">
-            <h2>매매 입력</h2>
+        <div class="card" id="manualCard">
+          <h2>매매 입력</h2>
+          <div class="trade-form">
             <div class="row">
               <label>시장</label>
-              <select id="tMarket" onchange="onMarketChange()">
+              <select id="tMarket" class="grow" onchange="onMarketChange()">
                 <option value="KR">국내 (KOSPI·KOSDAQ)</option>
                 <option value="US">해외 (미국)</option>
               </select>
@@ -503,26 +508,32 @@
             <div class="row">
               <label>구분</label>
               <select id="tSide"><option value="buy">매수</option><option value="sell">매도</option></select>
-              <input type="number" id="tQty" placeholder="수량" min="1" step="1" style="width:110px">
+              <input type="number" id="tQty" class="grow" placeholder="수량" min="1" step="1">
             </div>
             <div class="row">
               <label>단가</label>
               <input type="number" id="tPrice" class="grow" placeholder="체결 단가" step="0.0001">
-              <input type="date" id="tDate">
             </div>
-            <div class="msg" id="tradeMsg"></div>
-            <button class="btn-sm btn-solid" style="width:100%" id="tradeBtn" onclick="submitTrade()">기록하기</button>
-            <div class="hint" style="font-size:11px;color:var(--text-sub);margin-top:9px;line-height:1.6">
-              <b>종가 조회</b>를 누르면 가장 최근 종가가 자동으로 채워집니다. 분할매수는 여러 번 나눠 기록하면 평단가가 자동 계산됩니다.
+            <div class="row">
+              <label>날짜</label>
+              <input type="date" id="tDate" class="grow">
             </div>
           </div>
-
-          <div class="card">
-            <h2>포트폴리오 구성</h2>
-            <div class="pie-wrap pie-host">
-              <div id="pieBox"></div>
-              <div class="pie-center" id="pieCenter"></div>
+          <div class="msg" id="tradeMsg"></div>
+          <div class="trade-foot">
+            <button class="btn-sm btn-solid" id="tradeBtn" onclick="submitTrade()">기록하기</button>
+            <div class="hint" style="font-size:11px;color:var(--text-sub);line-height:1.6">
+              <b>종가 조회</b>를 누르면 가장 최근 종가가 자동으로 채워집니다.
+              분할매수는 여러 번 나눠 기록하면 평단가가 자동 계산됩니다.
             </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>포트폴리오 구성</h2>
+          <div class="pie-wrap pie-host">
+            <div id="pieBox"></div>
+            <div class="pie-center" id="pieCenter"></div>
           </div>
         </div>
 
@@ -1377,19 +1388,20 @@ function renderPie(){
       backgroundColor:'rgba(26,31,54,.92)', textStyle:{ color:'#fff', fontSize:12.5 },
       formatter:function(p){
         return '<b>'+p.name+'</b><br/>'+num(p.value)+' 원<br/>비중 '+p.percent+'%'; } },
-    legend:{ type:'scroll', bottom:4, itemWidth:11, itemHeight:11, itemGap:14,
-      textStyle:{ fontSize:12, color:'#5a6278' } },
+    legend:{ type:'scroll', bottom:6, itemWidth:12, itemHeight:12, itemGap:18,
+      textStyle:{ fontSize:12.5, color:'#5a6278' } },
     series:[{
-      type:'pie', radius:['52%','78%'], center:['50%','44%'],
+      type:'pie', radius:['45%','64%'], center:['50%','47%'],
       avoidLabelOverlap:true, minAngle:3,
       padAngle:1.5,
       itemStyle:{ borderColor:'#fff', borderWidth:3, borderRadius:5 },
-      label:{ show:true, formatter:'{b}\n{d}%', fontSize:12, fontWeight:600,
-        color:'#1a1f36', lineHeight:16 },
-      labelLine:{ length:14, length2:12, lineStyle:{ color:'#c3cad8' } },
-      emphasis:{ scale:true, scaleSize:8,
+      /* 라벨이 위아래로 잘리지 않도록 반지름을 줄이고 여백을 확보했습니다 */
+      label:{ show:true, formatter:'{b}\n{d}%', fontSize:13, fontWeight:600,
+        color:'#1a1f36', lineHeight:17 },
+      labelLine:{ length:20, length2:16, lineStyle:{ color:'#c3cad8' } },
+      emphasis:{ scale:true, scaleSize:10,
         itemStyle:{ shadowBlur:18, shadowColor:'rgba(44,62,107,.28)' },
-        label:{ fontSize:13, fontWeight:700 } },
+        label:{ fontSize:14, fontWeight:700 } },
       data:data }]
   }, true);
 }
