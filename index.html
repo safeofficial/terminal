@@ -116,6 +116,15 @@
   .series-top .code{font-size:10.5px;color:var(--text-sub);font-weight:400}
   .series-ctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
   .series-ctl select{padding:5px 8px;font-size:11.5px;border-radius:7px}
+  .series-item{position:relative}
+  .sw-btn{width:26px;height:26px;border-radius:7px;border:1px solid var(--border);cursor:pointer;padding:0;flex:none}
+  .sw-pop{position:absolute;z-index:60;background:var(--white);border:1px solid var(--border);border-radius:11px;
+    padding:10px;box-shadow:0 10px 30px rgba(20,30,60,.16);display:grid;grid-template-columns:repeat(6,26px);gap:7px}
+  .sw-pop .sw{width:26px;height:26px;border-radius:6px;border:1px solid rgba(0,0,0,.12);cursor:pointer;padding:0}
+  .sw-pop .sw-more{grid-column:1/-1;display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-sub);
+    border-top:1px solid var(--border);padding-top:8px;margin-top:2px}
+  .pal-row{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+  .pal-row input[type=text]{flex:1;font-size:11.5px;text-transform:uppercase;padding:5px 8px;border-radius:7px}
   .xbtn{border:none;background:none;color:var(--danger);cursor:pointer;font-size:16px;
     font-weight:700;line-height:1;padding:2px 5px;border-radius:5px}
   .xbtn:hover{background:var(--danger-soft)}
@@ -333,8 +342,18 @@
                 지수화 (시작=100)
               </label>
             </div>
+            <div class="row">
+              <label>차트 크기</label>
+              <input type="number" id="wSel" placeholder="자동" min="320" max="3000" step="20"
+                     oninput="applyChartSize()" style="width:72px">
+              <span style="color:var(--text-sub);font-size:12px">&times;</span>
+              <input type="number" id="hSel" value="460" min="200" max="2000" step="20"
+                     oninput="applyChartSize()" style="width:72px">
+              <button class="btn-sm" onclick="resetChartSize()">자동</button>
+            </div>
             <div class="hint" style="font-size:11px;color:var(--text-sub);line-height:1.6">
-              단위가 다른 지표를 비교할 때는 <b>좌우 축을 나누거나</b> 지수화를 켜세요.
+              단위가 다른 지표를 비교할 때는 <b>좌우 축을 나누거나</b> 지수화를 켜세요.<br>
+              가로를 비우면 화면 폭에 맞춰집니다. 발표 자료용으로 크기를 키운 뒤 JPG로 저장하세요.
             </div>
           </div>
 
@@ -350,6 +369,14 @@
             <div class="row"><label>왼쪽축</label><input type="color" id="thAxisL"><span class="grow" style="font-size:11.5px;color:var(--text-sub)">좌측 세로축</span></div>
             <div class="row"><label>오른쪽</label><input type="color" id="thAxisR"><span class="grow" style="font-size:11.5px;color:var(--text-sub)">우측 세로축</span></div>
             <div class="row"><label>글자</label><input type="color" id="thText"><span class="grow" style="font-size:11.5px;color:var(--text-sub)">축 글씨·범례</span></div>
+            <div style="border-top:1px solid var(--border);margin:11px 0 9px;padding-top:11px">
+              <div style="font-size:12px;font-weight:600;margin-bottom:8px">선 색 팔레트</div>
+              <div id="palList"></div>
+              <button class="btn-sm" style="width:100%;margin-top:4px" onclick="addPaletteColor()">+ 색 추가</button>
+              <div class="hint" style="font-size:11px;color:var(--text-sub);margin-top:7px;line-height:1.6">
+                여기 등록한 색이 <b>선 목록의 색 상자</b>에 나타납니다. 학회원은 매번 RGB를 입력하지 않고 골라 쓰면 됩니다.
+              </div>
+            </div>
             <div class="row" style="margin-top:6px">
               <button class="btn-sm btn-solid grow" onclick="saveTheme()">전체에 적용</button>
               <button class="btn-sm" onclick="applyThemeInputs()">미리보기</button>
@@ -804,7 +831,34 @@ async function loadTheme(){
     $('thBg').value = theme.bg; $('thGrid').value = theme.grid;
     $('thAxisL').value = theme.axis_left; $('thAxisR').value = theme.axis_right;
     $('thText').value = theme.text_color;
+    renderPalette();
   }
+}
+
+/* 팔레트 관리 (임원진 전용 화면) */
+function renderPalette(){
+  var box = $('palList'); if (!box) return;
+  box.innerHTML = (theme.palette||[]).map(function(c,i){
+    return '<div class="pal-row">'
+      + '<input type="color" value="'+esc(c)+'" oninput="setPaletteColor('+i+',this.value)">'
+      + '<input type="text" value="'+esc(c)+'" maxlength="7" onchange="setPaletteColor('+i+',this.value)">'
+      + '<button class="xbtn" onclick="delPaletteColor('+i+')" title="삭제">&times;</button>'
+      + '</div>';
+  }).join('');
+}
+function setPaletteColor(i,v){
+  v = String(v||'').trim();
+  if (!/^#[0-9a-fA-F]{6}$/.test(v)){ renderPalette(); return; }
+  theme.palette[i] = v.toLowerCase();
+  renderPalette(); drawChart();
+}
+function addPaletteColor(){
+  if ((theme.palette||[]).length >= 16){ warn('researchWarn','팔레트는 최대 16색까지입니다.'); return; }
+  theme.palette.push('#2c3e6b'); renderPalette();
+}
+function delPaletteColor(i){
+  if ((theme.palette||[]).length <= 1) return;
+  theme.palette.splice(i,1); renderPalette(); drawChart();
 }
 function applyThemeInputs(){
   theme.bg = $('thBg').value; theme.grid = $('thGrid').value;
@@ -815,7 +869,8 @@ function applyThemeInputs(){
 async function saveTheme(){
   applyThemeInputs();
   var patch = { bg:theme.bg, grid:theme.grid, axis_left:theme.axis_left,
-                axis_right:theme.axis_right, text_color:theme.text_color };
+                axis_right:theme.axis_right, text_color:theme.text_color,
+                palette:theme.palette };
   var r = theme.id
     ? await sb.from('chart_themes').update(patch).eq('id', theme.id)
     : await sb.from('chart_themes').insert(Object.assign({ name:'SAFE 기본', is_default:true }, patch));
@@ -871,7 +926,9 @@ function addSeries(s){
   s.key = key;
   s.color = theme.palette[series.length % theme.palette.length];
   s.axis = series.length === 0 ? 0 : 1;
-  s.width = 2;
+  s.width = 3;
+  s.type = 'line';
+  s.tf = 'raw';
   s.points = null;
   series.push(s);
   renderSeriesList();
@@ -880,16 +937,27 @@ function addSeries(s){
 
 function renderSeriesList(){
   var box = $('seriesList');
+  closePalette();
   if (!series.length) { box.innerHTML = '<div class="empty" style="padding:22px">지표를 추가해 주세요.</div>'; return; }
   box.innerHTML = series.map(function(s,i){
+    var tf = s.tf || 'raw';
     return '<div class="series-item">'
       + '<div class="series-top">'
-      +   '<input type="color" value="'+esc(s.color)+'" oninput="setColor('+i+',this.value)">'
+      +   '<button id="sw'+i+'" class="sw-btn" style="background:'+esc(s.color)+'" '
+      +     'title="색 고르기" onclick="openPalette('+i+',this)"></button>'
       +   '<div class="nm">'+esc(s.label)+'<div class="code">'+esc(s.source.toUpperCase())+' · '+esc(s.code)
       +     (s.points ? '' : ' <span class="spin"></span>')+'</div></div>'
       +   '<button class="xbtn" onclick="removeSeries('+i+')" title="삭제">&times;</button>'
       + '</div>'
       + '<div class="series-ctl">'
+      +   '<select style="flex:1 1 100%" onchange="setTf('+i+',this.value)">'
+      +     '<option value="raw"' +(tf==='raw' ?' selected':'')+'>원지수 그대로</option>'
+      +     '<option value="yoy"' +(tf==='yoy' ?' selected':'')+'>전년동기비 (YoY, %)</option>'
+      +     '<option value="mom"' +(tf==='mom' ?' selected':'')+'>전기비 (MoM, %)</option>'
+      +     '<option value="yoyd"'+(tf==='yoyd'?' selected':'')+'>전년동기 차이 (%p)</option></select>'
+      +   '<select onchange="setType('+i+',this.value)">'
+      +     '<option value="line"'+(s.type!=='bar'?' selected':'')+'>선</option>'
+      +     '<option value="bar"' +(s.type==='bar'?' selected':'')+'>막대</option></select>'
       +   '<select onchange="setAxis('+i+',this.value)">'
       +     '<option value="0"'+(s.axis===0?' selected':'')+'>왼쪽 축</option>'
       +     '<option value="1"'+(s.axis===1?' selected':'')+'>오른쪽 축</option></select>'
@@ -900,13 +968,123 @@ function renderSeriesList(){
       + '</div></div>';
   }).join('');
 }
+
+/* 선 색 고르기 — 저장된 팔레트에서 선택 */
+var palPop = null;
+function openPalette(i, el){
+  var wasOpen = palPop && palPop.dataset.idx === String(i);
+  closePalette();
+  if (wasOpen) return;
+  var pop = document.createElement('div');
+  pop.className = 'sw-pop';
+  pop.dataset.idx = String(i);
+  pop.innerHTML = (theme.palette||[]).map(function(c){
+    return '<button class="sw" style="background:'+esc(c)+'" title="'+esc(c)
+         + '" onclick="pickColor('+i+',\''+esc(c)+'\')"></button>';
+  }).join('')
+  + '<div class="sw-more">직접 지정 <input type="color" value="'+esc(series[i].color)
+  + '" oninput="pickColor('+i+',this.value,true)"></div>';
+  var item = el.parentNode.parentNode;
+  item.appendChild(pop);
+  pop.style.left = '12px';
+  pop.style.top  = (el.offsetTop + el.offsetHeight + 7) + 'px';
+  palPop = pop;
+  setTimeout(function(){ document.addEventListener('mousedown', onDocDown); }, 0);
+}
+function onDocDown(e){ if (palPop && !palPop.contains(e.target)) closePalette(); }
+function closePalette(){
+  if (palPop){ palPop.remove(); palPop = null; document.removeEventListener('mousedown', onDocDown); }
+}
+function pickColor(i, v, keepOpen){
+  series[i].color = v;
+  var btn = $('sw'+i); if (btn) btn.style.background = v;
+  drawChart();
+  if (!keepOpen) closePalette();
+}
+
 function setColor(i,v){ series[i].color = v; drawChart(); }
 function setAxis(i,v){ series[i].axis = Number(v); drawChart(); }
 function setWidth(i,v){ series[i].width = Number(v); drawChart(); }
+function setType(i,v){ series[i].type = v; drawChart(); }
+function setTf(i,v){ series[i].tf = v; drawChart(); }
 function removeSeries(i){ series.splice(i,1); renderSeriesList(); drawChart(); }
 
-function startDate(){
+/* ══════════ 지표 변환 (원지수 / YoY / MoM) ══════════ */
+var TF_SUFFIX = { raw:'', yoy:' (YoY)', mom:' (MoM)', yoyd:' (YoY 차)' };
+var TF_UNIT   = { raw:null, yoy:'%', mom:'%', yoyd:'%p' };
+function tfSuffix(s){ return TF_SUFFIX[s.tf||'raw'] || ''; }
+function unitOf(s){ return TF_UNIT[s.tf||'raw'] || s.unit || ''; }
+
+function shiftIso(iso, years, months){
+  var p = iso.slice(0,10).split('-');
+  var t = new Date(Date.UTC(Number(p[0]) + (years||0), Number(p[1]) - 1 + (months||0), Number(p[2]||1)));
+  return t.toISOString().slice(0,10);
+}
+function idxAtOrBefore(dates, target){
+  var lo = 0, hi = dates.length - 1, ans = -1;
+  while (lo <= hi){
+    var mid = (lo + hi) >> 1;
+    if (dates[mid] <= target){ ans = mid; lo = mid + 1; } else hi = mid - 1;
+  }
+  return ans;
+}
+/* 화면·CSV 에 쓸 값. 원본 s.points 는 건드리지 않습니다. */
+function viewPoints(s){
+  var pts = s.points || [];
+  if (!pts.length) return pts;
+  var from = startDate();
+  var tf = s.tf || 'raw';
+  if (tf === 'raw') return pts.filter(function(p){ return p.d >= from; });
+
+  var dates = pts.map(function(p){ return p.d; });
+  var out = [];
+  for (var i = 0; i < pts.length; i++){
+    var target = (tf === 'mom') ? shiftIso(pts[i].d, 0, -1) : shiftIso(pts[i].d, -1, 0);
+    var j = idxAtOrBefore(dates, target);
+    if (j < 0 || j >= i) continue;
+    var base = pts[j].v;
+    if (!isFinite(base)) continue;
+    var v = (tf === 'yoyd') ? (pts[i].v - base)
+          : (base === 0 ? NaN : (pts[i].v / base - 1) * 100);
+    if (isFinite(v) && pts[i].d >= from) out.push({ d: pts[i].d, v: v });
+  }
+  return out;
+}
+
+/* 날짜 한글 표기 */
+function fmtDateKo(v){
+  if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)){
+    var p = v.slice(0,10).split('-');
+    return Number(p[0])+'년 '+Number(p[1])+'월 '+Number(p[2])+'일';
+  }
+  var t = new Date(v);
+  if (isNaN(t.getTime())) return String(v);
+  return t.getFullYear()+'년 '+(t.getMonth()+1)+'월 '+t.getDate()+'일';
+}
+
+/* 차트 크기 */
+function applyChartSize(){
+  var box = $('chartBox'); if (!box) return;
+  var w = Number($('wSel') && $('wSel').value);
+  var h = Number($('hSel') && $('hSel').value) || 460;
+  box.style.height   = Math.max(200, h) + 'px';
+  box.style.width    = (w >= 320) ? (w + 'px') : '100%';
+  box.style.maxWidth = '100%';
+  if (chart) chart.resize();
+}
+function resetChartSize(){
+  if ($('wSel')) $('wSel').value = '';
+  if ($('hSel')) $('hSel').value = 460;
+  applyChartSize();
+}
+
+function startDate(){          /* 화면에 보일 시작일 */
   var y = Number($('rangeSel').value||3);
+  var d = new Date(); d.setFullYear(d.getFullYear()-y);
+  return d.toISOString().slice(0,10);
+}
+function fetchStart(){         /* 실제로 받아올 시작일 — YoY 계산용 1년 여유 */
+  var y = Number($('rangeSel').value||3) + 1;
   var d = new Date(); d.setFullYear(d.getFullYear()-y);
   return d.toISOString().slice(0,10);
 }
@@ -914,7 +1092,7 @@ function startDate(){
 async function loadSeries(s){
   try {
     var d = await edge({ source:s.source, code:s.code, item_code:s.item_code,
-                         cycle:s.cycle, start:startDate() });
+                         cycle:s.cycle, start:fetchStart() });
     s.points = d.points || [];
     if (!s.points.length) warn('researchWarn','"'+esc(s.label)+'" 에 해당 기간 데이터가 없습니다.');
     renderSeriesList(); drawChart();
@@ -942,7 +1120,12 @@ function drawChart(){
   if (!chartsReady()) return;
   if (!chart) chart = echarts.init($('chartBox'), null, { renderer:'canvas' });
   var norm = $('normSel') && $('normSel').checked;
-  var loaded = series.filter(function(s){ return s.points && s.points.length; });
+
+  var loaded = [];
+  series.forEach(function(s){
+    var pts = viewPoints(s);
+    if (pts.length) loaded.push({ s:s, pts:pts });
+  });
 
   if (!loaded.length){
     chart.clear();
@@ -953,9 +1136,9 @@ function drawChart(){
     return;
   }
 
-  var usedRight = loaded.some(function(s){ return s.axis === 1; });
+  var usedRight = loaded.some(function(x){ return x.s.axis === 1; });
   var axisName = ['',''];
-  loaded.forEach(function(s){ if (!axisName[s.axis]) axisName[s.axis] = s.unit || ''; });
+  loaded.forEach(function(x){ if (!axisName[x.s.axis]) axisName[x.s.axis] = unitOf(x.s); });
 
   var opt = {
     backgroundColor: theme.bg,
@@ -963,10 +1146,25 @@ function drawChart(){
     textStyle:{ color:theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
     grid:{ left:58, right: usedRight?62:26, top:52, bottom:64 },
     legend:{ top:8, textStyle:{ color:theme.text_color, fontSize:12 }, itemWidth:18, itemHeight:3 },
-    tooltip:{ trigger:'axis', axisPointer:{ type:'line' },
-      valueFormatter:function(v){ return v==null?'-':Number(v).toLocaleString('ko-KR',{maximumFractionDigits:2}); } },
+    tooltip:{ trigger:'axis',
+      axisPointer:{ type:'line', label:{ formatter:function(p){ return fmtDateKo(p.value); } } },
+      formatter:function(ps){
+        if (!ps || !ps.length) return '';
+        var head = '<div style="font-size:11px;opacity:.7;margin-bottom:4px">'
+                 + fmtDateKo(ps[0].value[0]) + '</div>';
+        return head + ps.map(function(p){
+          var v = p.value[1];
+          return p.marker + ' ' + p.seriesName + ' &nbsp;<b>'
+               + (v == null ? '-' : Number(v).toLocaleString('ko-KR',{maximumFractionDigits:2}))
+               + '</b>';
+        }).join('<br>');
+      } },
     xAxis:{ type:'time', axisLine:{ lineStyle:{ color:theme.grid } },
-      axisLabel:{ color:theme.text_color, fontSize:11 }, splitLine:{ show:false } },
+      axisLabel:{ color:theme.text_color, fontSize:11, hideOverlap:true,
+        formatter:{ year:'{yyyy}년', month:'{M}월', day:'{M}/{d}',
+                    hour:'{HH}:{mm}', minute:'{HH}:{mm}', second:'{HH}:{mm}:{ss}',
+                    millisecond:'{HH}:{mm}:{ss}', none:'{yyyy}-{MM}-{dd}' } },
+      splitLine:{ show:false } },
     yAxis:[
       { type:'value', scale:true, name:norm?'지수':axisName[0], nameTextStyle:{ color:theme.axis_left, fontSize:11 },
         position:'left', axisLine:{ show:true, lineStyle:{ color:theme.axis_left } },
@@ -977,31 +1175,46 @@ function drawChart(){
         axisLabel:{ show:usedRight, color:theme.axis_right, fontSize:11 },
         splitLine:{ show:false } }
     ],
-    dataZoom:[{ type:'inside' }, { type:'slider', height:18, bottom:16,
+    dataZoom:[{ type:'inside' }, { type:'slider', show:true, height:18, bottom:16,
       borderColor:theme.grid, fillerColor:'rgba(107,140,218,.15)',
       handleStyle:{ color:theme.axis_left }, textStyle:{ color:theme.text_color, fontSize:10 } }],
-    series: loaded.map(function(s){
-      var base = norm ? s.points[0].v : 1;
+    series: loaded.map(function(x){
+      var s = x.s, pts = x.pts;
+      var base = norm ? pts[0].v : 1;
+      var isBar = s.type === 'bar';
       return {
-        name: s.label, type:'line', yAxisIndex: norm ? 0 : s.axis, showSymbol:false,
-        lineStyle:{ color:s.color, width:s.width }, itemStyle:{ color:s.color },
-        data: s.points.map(function(p){ return [p.d, norm ? (base? p.v/base*100 : 0) : p.v]; })
+        name: s.label + tfSuffix(s),
+        type: isBar ? 'bar' : 'line',
+        yAxisIndex: norm ? 0 : s.axis,
+        showSymbol:false,
+        barMaxWidth: 18,
+        lineStyle:{ color:s.color, width:s.width },
+        itemStyle:{ color:s.color },
+        data: pts.map(function(p){ return [p.d, norm ? (base ? p.v/base*100 : 0) : p.v]; })
       };
     })
   };
   chart.setOption(opt, true);
+
+  var anyTf = series.some(function(s){ return (s.tf||'raw') !== 'raw'; });
   $('chartMsg').textContent = loaded.length + '개 지표 · ' + $('rangeSel').selectedOptions[0].text
-    + (norm ? ' · 지수화' : (usedRight ? ' · 좌우 축 분리' : ''));
+    + (norm ? ' · 지수화' : (usedRight ? ' · 좌우 축 분리' : ''))
+    + (anyTf ? ' · 변환 적용' : '');
 }
 
 function downloadJPG(){
   if (!chart){ warn('researchWarn','먼저 지표를 추가해 차트를 그려주세요.'); return; }
-  var url = chart.getDataURL({ type:'jpeg', pixelRatio:2, backgroundColor: theme.bg });
-  // data: URL 을 그대로 내려받으면 일부 브라우저가 막습니다. blob 으로 바꿔서 저장합니다.
-  var bin = atob(url.split(',')[1]);
-  var buf = new Uint8Array(bin.length);
-  for (var i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-  saveBlob(new Blob([buf], { type:'image/jpeg' }), 'SAFE_chart_' + today() + '.jpg');
+  // 아래 타임라인 막대를 잠시 숨기고 차트·축만 저장합니다
+  chart.setOption({ dataZoom:[{ type:'inside' }, { type:'slider', show:false }], grid:{ bottom:36 } });
+  setTimeout(function(){
+    var url = chart.getDataURL({ type:'jpeg', pixelRatio:2, backgroundColor: theme.bg });
+    chart.setOption({ dataZoom:[{ type:'inside' }, { type:'slider', show:true }], grid:{ bottom:64 } });
+    // data: URL 을 그대로 내려받으면 일부 브라우저가 막습니다. blob 으로 바꿔서 저장합니다.
+    var bin = atob(url.split(',')[1]);
+    var buf = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    saveBlob(new Blob([buf], { type:'image/jpeg' }), 'SAFE_chart_' + today() + '.jpg');
+  }, 90);
 }
 
 function saveBlob(blob, filename){
@@ -1013,15 +1226,16 @@ function saveBlob(blob, filename){
 }
 
 function downloadCSV(){
-  var loaded = series.filter(function(s){ return s.points && s.points.length; });
+  var loaded = [];
+  series.forEach(function(s){ var pts = viewPoints(s); if (pts.length) loaded.push({ s:s, pts:pts }); });
   if (!loaded.length) { warn('researchWarn','내보낼 데이터가 없습니다.'); return; }
   var dates = {};
-  loaded.forEach(function(s){ s.points.forEach(function(p){ dates[p.d] = 1; }); });
+  loaded.forEach(function(x){ x.pts.forEach(function(p){ dates[p.d] = 1; }); });
   var keys = Object.keys(dates).sort();
-  var maps = loaded.map(function(s){
-    var m = {}; s.points.forEach(function(p){ m[p.d] = p.v; }); return m;
+  var maps = loaded.map(function(x){
+    var m = {}; x.pts.forEach(function(p){ m[p.d] = p.v; }); return m;
   });
-  var rows = [['날짜'].concat(loaded.map(function(s){ return s.label; }))];
+  var rows = [['날짜'].concat(loaded.map(function(x){ return x.s.label + tfSuffix(x.s); }))];
   keys.forEach(function(d){
     rows.push([d].concat(maps.map(function(m){ return m[d] != null ? m[d] : ''; })));
   });
