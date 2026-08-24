@@ -133,6 +133,9 @@
     border-radius:9px;background:var(--white);cursor:pointer;font-size:.86rem;text-align:left}
   .co-hit:hover{border-color:var(--accent);background:var(--accent-soft)}
   .co-hit .code{font-size:11px;color:var(--text-sub)}
+  .dlt{font-size:11px;font-weight:600;margin-left:5px;white-space:nowrap}
+  .dlt.up{color:#2e7d32} .dlt.dn{color:#c62828} .dlt.flat{color:var(--text-sub);font-weight:400}
+  .co-num{display:flex;align-items:baseline;justify-content:flex-end;gap:2px}
   .xbtn{border:none;background:none;color:var(--danger);cursor:pointer;font-size:16px;
     font-weight:700;line-height:1;padding:2px 5px;border-radius:5px}
   .xbtn:hover{background:var(--danger-soft)}
@@ -633,9 +636,53 @@
           <button id="coTab-own"   onclick="coShow('own')">지분 · 배당</button>
         </div>
 
+        <div class="card">
+          <h2>표시 설정</h2>
+          <div class="row">
+            <label>기간</label>
+            <select id="coPeriod" onchange="setCoPeriod(this.value)" style="width:110px">
+              <option value="annual">연간</option>
+              <option value="quarter">분기</option>
+            </select>
+            <label style="min-width:auto">표시 개수</label>
+            <select id="coRange" onchange="setCoRange(this.value)" style="width:120px">
+              <option value="4">최근 4개</option>
+              <option value="6">최근 6개</option>
+              <option value="8" selected>최근 8개</option>
+              <option value="12">최근 12개</option>
+              <option value="0">전체</option>
+            </select>
+          </div>
+          <div class="row">
+            <label style="min-width:auto">
+              <input type="checkbox" id="coGrid" onchange="setCoGrid()" style="width:auto;vertical-align:-2px">
+              눈금선
+            </label>
+            <input type="color" id="coGridColor" value="#c8d0e0" oninput="setCoGrid()">
+            <label style="min-width:auto">진하기</label>
+            <input type="range" id="coGridAlpha" min="5" max="100" value="45" oninput="setCoGrid()" style="width:130px">
+            <span id="coGridAlphaV" style="font-size:11.5px;color:var(--text-sub);min-width:38px">45%</span>
+          </div>
+          <div class="row">
+            <label>차트 크기</label>
+            <input type="number" id="coW" placeholder="자동" min="320" max="3000" step="20"
+                   oninput="applyCoSize()" style="width:72px">
+            <span style="color:var(--text-sub);font-size:12px">&times;</span>
+            <input type="number" id="coH" value="420" min="200" max="2000" step="20"
+                   oninput="applyCoSize()" style="width:72px">
+            <button class="btn-sm" onclick="resetCoSize()">자동</button>
+            <label style="min-width:auto;margin-left:6px">
+              <input type="checkbox" id="coNorm" onchange="drawCoPrice()" style="width:auto;vertical-align:-2px">
+              주가 지수화 (시작=100)
+            </label>
+          </div>
+        </div>
+
         <div id="coPane-fin">
           <div class="card">
-            <h2>실적 추이 <span id="coFinUnit" style="font-size:12px;color:var(--text-sub);font-weight:400"></span></h2>
+            <h2>실적 추이 <span id="coFinUnit" style="font-size:12px;color:var(--text-sub);font-weight:400"></span>
+              <span class="tools"><button class="btn-sm" onclick="coFinJpg()">JPG 저장</button></span>
+            </h2>
             <div id="coFinBox"></div>
           </div>
           <div class="card">
@@ -645,7 +692,32 @@
         </div>
 
         <div id="coPane-price" class="hidden">
-          <div class="card"><h2>주가 (최근 3년)</h2><div id="coPriceBox"></div></div>
+          <div class="card">
+            <h2>비교 대상 추가</h2>
+            <div class="row">
+              <select id="coCmpSel" class="grow"></select>
+              <button class="btn-sm btn-solid" onclick="addCoCompare()">+ 지표 추가</button>
+            </div>
+            <div class="row">
+              <select id="coCmpMk" style="width:130px">
+                <option value="US">해외 주가</option>
+                <option value="KR">국내 주가</option>
+              </select>
+              <input type="text" id="coCmpCode" class="grow" placeholder="티커 · 종목코드 직접 입력 (예: NVDA, 000660)"
+                     onkeydown="if(event.key==='Enter'){event.preventDefault();addCoCompareManual();}">
+              <button class="btn-sm" onclick="addCoCompareManual()">추가</button>
+            </div>
+            <div class="hint" style="font-size:11px;color:var(--text-sub);margin-top:6px;line-height:1.6">
+              단위가 다른 것을 겹칠 때는 <b>오른쪽 축</b>으로 보내거나 위의 <b>지수화</b>를 켜세요.
+            </div>
+            <div id="coSeriesList" style="margin-top:10px"></div>
+          </div>
+          <div class="card">
+            <h2>주가 (최근 3년)
+              <span class="tools"><button class="btn-sm" onclick="coPriceJpg()">JPG 저장</button></span>
+            </h2>
+            <div id="coPriceBox"></div>
+          </div>
         </div>
 
         <div id="coPane-disc" class="hidden">
@@ -1057,19 +1129,23 @@ function renderSeriesList(){
 
 /* 선 색 고르기 — 저장된 팔레트에서 선택 */
 var palPop = null;
-function openPalette(i, el){
-  var wasOpen = palPop && palPop.dataset.idx === String(i);
+function seriesArr(which){ return which === 'co' ? coSeries : series; }
+function openPalette(i, el, which){
+  which = which || 'main';
+  var arr = seriesArr(which);
+  var tag = which + ':' + i;
+  var wasOpen = palPop && palPop.dataset.idx === tag;
   closePalette();
   if (wasOpen) return;
   var pop = document.createElement('div');
   pop.className = 'sw-pop';
-  pop.dataset.idx = String(i);
+  pop.dataset.idx = tag;
   pop.innerHTML = (theme.palette||[]).map(function(c){
     return '<button class="sw" style="background:'+esc(c)+'" title="'+esc(c)
-         + '" onclick="pickColor('+i+',\''+esc(c)+'\')"></button>';
+         + '" onclick="pickColor('+i+',\''+esc(c)+'\',false,\''+which+'\')"></button>';
   }).join('')
-  + '<div class="sw-more">직접 지정 <input type="color" value="'+esc(series[i].color)
-  + '" oninput="pickColor('+i+',this.value,true)"></div>';
+  + '<div class="sw-more">직접 지정 <input type="color" value="'+esc(arr[i].color)
+  + '" oninput="pickColor('+i+',this.value,true,\''+which+'\')"></div>';
   var item = el.parentNode.parentNode;
   item.appendChild(pop);
   pop.style.left = '12px';
@@ -1081,10 +1157,12 @@ function onDocDown(e){ if (palPop && !palPop.contains(e.target)) closePalette();
 function closePalette(){
   if (palPop){ palPop.remove(); palPop = null; document.removeEventListener('mousedown', onDocDown); }
 }
-function pickColor(i, v, keepOpen){
-  series[i].color = v;
-  var btn = $('sw'+i); if (btn) btn.style.background = v;
-  drawChart();
+function pickColor(i, v, keepOpen, which){
+  which = which || 'main';
+  seriesArr(which)[i].color = v;
+  var btn = $((which === 'co' ? 'cosw' : 'sw') + i);
+  if (btn) btn.style.background = v;
+  if (which === 'co') drawCoPrice(); else drawChart();
   if (!keepOpen) closePalette();
 }
 
@@ -1337,6 +1415,54 @@ window.addEventListener('resize', function(){
 
 /* ══════════ 기업 분석 (DART · SEC) ══════════ */
 var co = null, coHits = [], coFin = null, coFinChart = null, coPriceChart = null;
+var coSeries = [], coPricePts = [];
+var coView = { period:'annual', range:8, grid:false, gridColor:'#c8d0e0', gridAlpha:45, h:420, w:null };
+
+/* 눈금선 — 기본은 꺼져 있습니다 */
+function coSplit(){
+  return coView.grid
+    ? { show:true, lineStyle:{ color: coView.gridColor, opacity: coView.gridAlpha/100 } }
+    : { show:false };
+}
+function setCoGrid(){
+  coView.grid       = $('coGrid').checked;
+  coView.gridColor  = $('coGridColor').value;
+  coView.gridAlpha  = Number($('coGridAlpha').value);
+  $('coGridAlphaV').textContent = coView.gridAlpha + '%';
+  renderCoFinChart(); drawCoPrice();
+}
+function applyCoSize(){
+  var w = Number($('coW') && $('coW').value);
+  var h = Number($('coH') && $('coH').value) || 420;
+  coView.h = Math.max(200, h);
+  coView.w = (w >= 320) ? w : null;
+  ['coFinBox','coPriceBox'].forEach(function(id){
+    var b = $(id); if (!b) return;
+    b.style.height   = coView.h + 'px';
+    b.style.width    = coView.w ? (coView.w + 'px') : '100%';
+    b.style.maxWidth = '100%';
+  });
+  if (coFinChart)   coFinChart.resize();
+  if (coPriceChart) coPriceChart.resize();
+}
+function resetCoSize(){
+  if ($('coW')) $('coW').value = '';
+  if ($('coH')) $('coH').value = 420;
+  applyCoSize();
+}
+function setCoRange(v){
+  coView.range = Number(v) || 0;
+  renderCoTiles(); renderCoFinChart(); renderCoFinTable();
+}
+async function setCoPeriod(v){
+  coView.period = v;
+  if (co) await loadCoFin();
+}
+/* 화면에 그릴 구간만 잘라냅니다 */
+function coRows(){
+  if (!coFin) return [];
+  return coView.range > 0 ? coFin.slice(-coView.range) : coFin;
+}
 
 /* 회사 규모에 맞춰 표시 단위를 자동으로 고릅니다.
    (삼성전자를 '억 원' 으로 쓰면 3,008,709 처럼 읽기 힘들어집니다) */
@@ -1384,6 +1510,8 @@ async function initCompany(){
   } else {
     warn('coWarn', '');
   }
+  fillCoCmpSel();
+  applyCoSize();
   if (coFinChart)   setTimeout(function(){ coFinChart.resize(); }, 60);
   if (coPriceChart) setTimeout(function(){ coPriceChart.resize(); }, 60);
 }
@@ -1446,6 +1574,7 @@ function coShow(which){
   });
   if (which === 'fin'   && coFinChart)   setTimeout(function(){ coFinChart.resize(); }, 60);
   if (which === 'price' && coPriceChart) setTimeout(function(){ coPriceChart.resize(); }, 60);
+  if (which === 'price') fillCoCmpSel();
 }
 
 async function pickCompany(i){
@@ -1460,7 +1589,8 @@ async function pickCompany(i){
   $('coTiles').innerHTML = '<div class="empty">불러오는 중…</div>';
   $('coFinTable').innerHTML = ''; $('coDiscTable').innerHTML = '';
   $('coDivTable').innerHTML = ''; $('coMajorTable').innerHTML = ''; $('coElestTable').innerHTML = '';
-  coFin = null;
+  coFin = null; coSeries = []; coPricePts = [];
+  renderCoSeriesList(); fillCoCmpSel(); applyCoSize();
   coShow('fin');
 
   await loadCoFin();
@@ -1472,10 +1602,17 @@ async function pickCompany(i){
 /* ── 재무제표 ── */
 async function loadCoFin(){
   var key = (co.market === 'KR') ? co.corp_code : co.cik;
+  var q = coView.period === 'quarter';
+  var act = co.market === 'KR' ? (q ? 'kr_fin_q' : 'kr_fin') : (q ? 'us_fin_q' : 'us_fin');
+  $('coTiles').innerHTML = '<div class="empty">불러오는 중…</div>';
   try {
-    var d = await edgeCo({ action: co.market === 'KR' ? 'kr_fin' : 'us_fin', code: key });
-    coFin = d.rows || [];
-    $('coFinUnit').textContent = coFin.length ? '단위: ' + coUnit().label : '';
+    var d = await edgeCo({ action: act, code: key });
+    /* 손익이 하나도 없는 구간은 빈 칸만 만들어서 제외합니다 */
+    coFin = (d.rows || []).filter(function(r){
+      return r.revenue != null || r.op != null || r.net != null;
+    });
+    $('coFinUnit').textContent = coFin.length
+      ? '단위: ' + coUnit().label + (q ? ' · 분기' : ' · 연간') : '';
     if (!coFin.length){
       $('coTiles').innerHTML = '<div class="empty">' + esc(d.note || '재무 자료를 찾지 못했습니다.') + '</div>';
       if (coFinChart) coFinChart.clear();
@@ -1488,7 +1625,9 @@ async function loadCoFin(){
 }
 
 function renderCoTiles(){
-  var last = coFin[coFin.length - 1], prev = coFin[coFin.length - 2];
+  var rs = coRows();
+  if (!rs.length) return;
+  var last = rs[rs.length - 1], prev = rs[rs.length - 2];
   var u = coUnit();
   function grow(k){
     if (!prev || prev[k] == null || last[k] == null || !prev[k]) return '';
@@ -1497,7 +1636,7 @@ function renderCoTiles(){
   var opm  = coRatio(last.op,  last.revenue);
   var roe  = coRatio(last.net, last.equity);
   $('coTiles').innerHTML = '<div class="tiles">'
-    + tile('매출액',   coAmt(last.revenue), last.year + '년 · ' + u.label, '')
+    + tile('매출액',   coAmt(last.revenue), coLabel(last) + ' · ' + u.label, '')
     + tile('영업이익', coAmt(last.op),      grow('op'), Number(last.op) < 0 ? 'neg' : '')
     + tile('당기순이익', coAmt(last.net),   grow('net'), Number(last.net) < 0 ? 'neg' : '')
     + tile('영업이익률', opm == null ? '—' : opm.toFixed(1) + '%', '영업이익 ÷ 매출액', '')
@@ -1505,21 +1644,26 @@ function renderCoTiles(){
     + '</div>';
 }
 
+function coLabel(r){
+  return r.q ? (String(r.year).slice(2) + "'" + ' ' + r.q + 'Q') : (r.year + '년');
+}
 function renderCoFinChart(){
   if (typeof echarts === 'undefined') return;
+  if (!coFin || !coFin.length) return;
   if (!coFinChart) coFinChart = echarts.init($('coFinBox'));
   var u = coUnit();
-  var yrs = coFin.map(function(r){ return r.year + '년'; });
+  var rows = coRows();
+  var yrs = rows.map(coLabel);
   var pal = theme.palette;
   var series = [
-    { name:'매출액',     type:'bar',  data: coFin.map(function(r){ return r.revenue == null ? null : r.revenue/u.div; }),
+    { name:'매출액',     type:'bar',  data: rows.map(function(r){ return r.revenue == null ? null : r.revenue/u.div; }),
       itemStyle:{ color: pal[0] }, barMaxWidth: 34 },
-    { name:'영업이익',   type:'bar',  data: coFin.map(function(r){ return r.op == null ? null : r.op/u.div; }),
+    { name:'영업이익',   type:'bar',  data: rows.map(function(r){ return r.op == null ? null : r.op/u.div; }),
       itemStyle:{ color: pal[1] }, barMaxWidth: 34 },
-    { name:'당기순이익', type:'bar',  data: coFin.map(function(r){ return r.net == null ? null : r.net/u.div; }),
+    { name:'당기순이익', type:'bar',  data: rows.map(function(r){ return r.net == null ? null : r.net/u.div; }),
       itemStyle:{ color: pal[2] }, barMaxWidth: 34 },
     { name:'영업이익률', type:'line', yAxisIndex:1, smooth:false,
-      data: coFin.map(function(r){ var v = coRatio(r.op, r.revenue); return v == null ? null : Number(v.toFixed(2)); }),
+      data: rows.map(function(r){ var v = coRatio(r.op, r.revenue); return v == null ? null : Number(v.toFixed(2)); }),
       lineStyle:{ color: pal[3], width:3 }, itemStyle:{ color: pal[3] }, symbolSize:7 }
   ];
   coFinChart.setOption({
@@ -1535,7 +1679,7 @@ function renderCoFinChart(){
       { type:'value', name:u.label, nameTextStyle:{ color: theme.axis_left, fontSize:11 },
         axisLine:{ show:true, lineStyle:{ color: theme.axis_left } },
         axisLabel:{ color: theme.axis_left, fontSize:11 },
-        splitLine:{ lineStyle:{ color: theme.grid } } },
+        splitLine: coSplit() },
       { type:'value', name:'%', nameTextStyle:{ color: theme.axis_right, fontSize:11 },
         position:'right', axisLine:{ show:true, lineStyle:{ color: theme.axis_right } },
         axisLabel:{ color: theme.axis_right, fontSize:11, formatter:'{value}%' },
@@ -1543,6 +1687,24 @@ function renderCoFinChart(){
     ],
     series: series
   }, true);
+}
+
+/* 값 옆의 증감 표시 — 오르면 초록, 내리면 빨강 */
+function dlt(cur, prev, mode){
+  if (cur == null || prev == null || !isFinite(cur) || !isFinite(prev)) return '';
+  var v, txt;
+  if (mode === 'pp'){                       // 비율 항목은 %p 차이
+    v = cur - prev;
+    if (Math.abs(v) < 0.05) return '<span class="dlt flat">(–)</span>';
+    txt = (v > 0 ? '+' : '') + v.toFixed(1) + '%p';
+  } else {                                  // 금액 항목은 % 증감
+    if (!prev) return '';
+    v = (cur / Math.abs(prev) - 1) * 100;
+    if (!isFinite(v)) return '';
+    if (Math.abs(v) < 0.05) return '<span class="dlt flat">(–)</span>';
+    txt = (v > 0 ? '+' : '') + v.toFixed(1) + '%';
+  }
+  return '<span class="dlt ' + (v > 0 ? 'up' : 'dn') + '">(' + txt + ')</span>';
 }
 
 function renderCoFinTable(){
@@ -1565,21 +1727,48 @@ function renderCoFinTable(){
     rows.push(['EPS (희석)', function(r){ return r.eps == null ? '—' : '$' + num(r.eps, 2); }]);
     rows.push(['주당배당금', function(r){ return r.dps == null ? '—' : '$' + num(r.dps, 2); }]);
   }
+  /* 비율 항목은 %p, 금액 항목은 % 로 비교합니다 */
+  var PP = { '영업이익률':1, '순이익률':1, '부채비율':1, 'ROE':1, 'ROA':1 };
+  var RAW = {
+    '매출액':'revenue', '영업이익':'op', '당기순이익':'net',
+    '자산총계':'assets', '부채총계':'liab', '자본총계':'equity',
+    'EPS (희석)':'eps', '주당배당금':'dps'
+  };
+  var RATIO = {
+    '영업이익률': function(r){ return coRatio(r.op,  r.revenue); },
+    '순이익률':   function(r){ return coRatio(r.net, r.revenue); },
+    '부채비율':   function(r){ return coRatio(r.liab, r.equity); },
+    'ROE':        function(r){ return coRatio(r.net,  r.equity); },
+    'ROA':        function(r){ return coRatio(r.net,  r.assets); }
+  };
+  var rs = coRows();
+
   $('coFinTable').innerHTML =
-    '<thead><tr><th>항목</th>' + coFin.map(function(r){ return '<th class="num">' + r.year + '</th>'; }).join('')
+    '<thead><tr><th>항목</th>'
+    + rs.map(function(r){ return '<th class="num">' + esc(coLabel(r)) + '</th>'; }).join('')
     + '</tr></thead><tbody>'
     + rows.map(function(x){
-        return '<tr><td><b>' + esc(x[0]) + '</b></td>'
-          + coFin.map(function(r){ return '<td class="num">' + x[1](r) + '</td>'; }).join('') + '</tr>';
+        var nm = x[0], isPP = !!PP[nm];
+        return '<tr><td><b>' + esc(nm) + '</b></td>'
+          + rs.map(function(r, i){
+              var prev = i > 0 ? rs[i-1] : null;
+              var d = '';
+              if (prev){
+                if (isPP)          d = dlt(RATIO[nm](r),  RATIO[nm](prev),  'pp');
+                else if (RAW[nm])  d = dlt(Number(r[RAW[nm]]), Number(prev[RAW[nm]]), 'pct');
+              }
+              return '<td class="num"><span class="co-num">' + x[1](r) + d + '</span></td>';
+            }).join('')
+          + '</tr>';
       }).join('')
     + '</tbody>';
 }
 
 function coCsv(){
   if (!coFin || !coFin.length){ warn('coWarn','먼저 기업을 선택해주세요.'); return; }
-  var head = ['연도','매출액','영업이익','당기순이익','자산총계','부채총계','자본총계','EPS','주당배당금'];
-  var rows = [head].concat(coFin.map(function(r){
-    return [r.year, r.revenue, r.op, r.net, r.assets, r.liab, r.equity,
+  var head = ['구간','매출액','영업이익','당기순이익','자산총계','부채총계','자본총계','EPS','주당배당금'];
+  var rows = [head].concat(coRows().map(function(r){
+    return [coLabel(r), r.revenue, r.op, r.net, r.assets, r.liab, r.equity,
             r.eps == null ? '' : r.eps, r.dps == null ? '' : r.dps];
   }));
   var csv = rows.map(function(r){
@@ -1589,45 +1778,187 @@ function coCsv(){
            'SAFE_' + (co.sub || 'company') + '_재무_' + today() + '.csv');
 }
 
-/* ── 주가 ── */
+function coJpg(chart, name){
+  if (!chart){ warn('coWarn','먼저 기업을 선택해주세요.'); return; }
+  var url = chart.getDataURL({ type:'jpeg', pixelRatio:2, backgroundColor: theme.bg });
+  var bin = atob(url.split(',')[1]);
+  var buf = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+  saveBlob(new Blob([buf], { type:'image/jpeg' }),
+           'SAFE_' + ((co && co.sub) || 'company') + '_' + name + '_' + today() + '.jpg');
+}
+function coFinJpg(){   coJpg(coFinChart,   '재무'); }
+function coPriceJpg(){ coJpg(coPriceChart, '주가'); }
+
+/* ── 주가 · 비교 차트 ── */
+function coCmpKey(x){ return x.source + '|' + x.code + '|' + (x.item_code||''); }
+
+function fillCoCmpSel(){
+  var sel = $('coCmpSel'); if (!sel) return;
+  if (!catalog || !catalog.length){
+    sel.innerHTML = '<option value="">지표 목록을 불러오지 못했습니다</option>';
+    return;
+  }
+  var cats = {};
+  catalog.forEach(function(c){ (cats[c.category] = cats[c.category] || []).push(c); });
+  var html = '<option value="">경제지표 선택…</option>';
+  Object.keys(cats).forEach(function(k){
+    html += '<optgroup label="'+esc(k)+'">';
+    cats[k].forEach(function(c){ html += '<option value="'+c.id+'">'+esc(c.label)+'</option>'; });
+    html += '</optgroup>';
+  });
+  sel.innerHTML = html;
+}
+
+function addCoSeries(x){
+  if (coSeries.length >= 6){ warn('coWarn','비교 대상은 6개까지 넣을 수 있습니다.'); return; }
+  if (coSeries.some(function(y){ return coCmpKey(y) === coCmpKey(x); })){
+    warn('coWarn','이미 추가된 항목입니다.'); return;
+  }
+  warn('coWarn','');
+  x.color = theme.palette[(coSeries.length + 1) % theme.palette.length];
+  x.width = 2;
+  x.axis  = 1;
+  x.points = null;
+  coSeries.push(x);
+  renderCoSeriesList();
+  loadCoSeries(x);
+}
+function addCoCompare(){
+  var id = $('coCmpSel').value; if (!id) return;
+  var c = catalog.filter(function(x){ return String(x.id) === String(id); })[0];
+  if (!c) return;
+  addCoSeries({ source:c.source, code:c.code, item_code:c.item_code||'', cycle:c.cycle||'M',
+                label:c.label, unit:c.unit||'' });
+}
+function addCoCompareManual(){
+  var code = $('coCmpCode').value.trim();
+  if (!code){ warn('coWarn','티커나 종목코드를 입력해주세요.'); return; }
+  addCoSeries({ source: $('coCmpMk').value === 'KR' ? 'quote_kr' : 'quote_us',
+                code: code, item_code:'', cycle:'D', label: code.toUpperCase(), unit:'' });
+  $('coCmpCode').value = '';
+}
+function removeCoSeries(i){ coSeries.splice(i,1); renderCoSeriesList(); drawCoPrice(); }
+function setCoWidth(i,v){ coSeries[i].width = Number(v); drawCoPrice(); }
+function setCoAxis(i,v){  coSeries[i].axis  = Number(v); drawCoPrice(); }
+
+function renderCoSeriesList(){
+  var box = $('coSeriesList'); if (!box) return;
+  closePalette();
+  if (!coSeries.length){
+    box.innerHTML = '<div class="empty" style="padding:12px">비교할 지표나 종목을 추가해 보세요.</div>';
+    return;
+  }
+  box.innerHTML = coSeries.map(function(s,i){
+    return '<div class="series-item">'
+      + '<div class="series-top">'
+      +   '<button id="cosw'+i+'" class="sw-btn" style="background:'+esc(s.color)+'" '
+      +     'title="색 고르기" onclick="openPalette('+i+',this,\'co\')"></button>'
+      +   '<div class="nm">'+esc(s.label)+'<div class="code">'+esc(s.source.toUpperCase())+' · '+esc(s.code)
+      +     (s.points ? '' : ' <span class="spin"></span>')+'</div></div>'
+      +   '<button class="xbtn" onclick="removeCoSeries('+i+')" title="삭제">&times;</button>'
+      + '</div>'
+      + '<div class="series-ctl">'
+      +   '<select onchange="setCoAxis('+i+',this.value)">'
+      +     '<option value="0"'+(s.axis===0?' selected':'')+'>왼쪽 축</option>'
+      +     '<option value="1"'+(s.axis===1?' selected':'')+'>오른쪽 축</option></select>'
+      +   '<select onchange="setCoWidth('+i+',this.value)">'
+      +     '<option value="1"'+(s.width==1?' selected':'')+'>얇게</option>'
+      +     '<option value="2"'+(s.width==2?' selected':'')+'>보통</option>'
+      +     '<option value="3"'+(s.width==3?' selected':'')+'>굵게</option></select>'
+      + '</div></div>';
+  }).join('');
+}
+
+function coFrom(){
+  var d = new Date(); d.setFullYear(d.getFullYear() - 3);
+  return d.toISOString().slice(0,10);
+}
+async function loadCoSeries(x){
+  try {
+    var d = await edge({ source:x.source, code:x.code, item_code:x.item_code,
+                         cycle:x.cycle, start: coFrom() });
+    x.points = d.points || [];
+    if (!x.points.length) warn('coWarn','"'+esc(x.label)+'" 자료를 찾지 못했습니다.');
+  } catch(e){
+    x.points = [];
+    warn('coWarn', esc(e.message));
+  }
+  renderCoSeriesList(); drawCoPrice();
+}
+
+function drawCoPrice(){
+  if (typeof echarts === 'undefined') return;
+  if (!coPriceChart) coPriceChart = echarts.init($('coPriceBox'));
+  if (!coPricePts.length && !coSeries.some(function(x){ return x.points && x.points.length; })) return;
+
+  var norm = $('coNorm') && $('coNorm').checked;
+  var mark = (co && co.market === 'US') ? '$' : '';
+  var lines = [];
+
+  function push(name, pts, color, width, axis){
+    if (!pts || !pts.length) return;
+    var base = norm ? pts[0].v : 1;
+    lines.push({ name:name, type:'line', showSymbol:false, yAxisIndex: norm ? 0 : axis,
+      lineStyle:{ color:color, width:width }, itemStyle:{ color:color },
+      data: pts.map(function(p){ return [p.d, norm ? (base ? p.v/base*100 : 0) : p.v]; }) });
+  }
+  push((co ? co.name : '주가'), coPricePts, theme.palette[0], 3, 0);
+  coSeries.forEach(function(x){ push(x.label, x.points, x.color, x.width, x.axis); });
+
+  var usedRight = !norm && coSeries.some(function(x){ return x.axis === 1 && x.points && x.points.length; });
+
+  coPriceChart.setOption({
+    backgroundColor: theme.bg, animation:false,
+    textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+    grid:{ left:72, right: usedRight?66:26, top: lines.length>1?48:24, bottom:40 },
+    legend: lines.length>1 ? { top:8, textStyle:{ color:theme.text_color, fontSize:12 },
+                               itemWidth:18, itemHeight:3 } : { show:false },
+    tooltip:{ trigger:'axis',
+      axisPointer:{ type:'line', label:{ formatter:function(p){ return fmtDateKo(p.value); } } },
+      formatter:function(ps){
+        if (!ps || !ps.length) return '';
+        return '<div style="font-size:11px;opacity:.7;margin-bottom:4px">'
+             + fmtDateKo(ps[0].value[0]) + '</div>'
+             + ps.map(function(p){
+                 return p.marker + ' ' + p.seriesName + ' &nbsp;<b>'
+                      + num(p.value[1], 2) + '</b>'; }).join('<br>'); } },
+    xAxis:{ type:'time', axisLine:{ lineStyle:{ color: theme.grid } },
+      axisLabel:{ color: theme.text_color, fontSize:11, hideOverlap:true,
+        formatter:{ year:'{yyyy}년', month:'{M}월', day:'{M}/{d}', none:'{yyyy}-{MM}-{dd}' } },
+      splitLine:{ show:false } },
+    yAxis:[
+      { type:'value', scale:true, name: norm ? '지수' : (mark ? 'USD' : '원'),
+        nameTextStyle:{ color: theme.axis_left, fontSize:11 },
+        axisLine:{ show:true, lineStyle:{ color: theme.axis_left } },
+        axisLabel:{ color: theme.axis_left, fontSize:11 },
+        splitLine: coSplit() },
+      { type:'value', scale:true, position:'right',
+        axisLine:{ show:usedRight, lineStyle:{ color: theme.axis_right } },
+        axisLabel:{ show:usedRight, color: theme.axis_right, fontSize:11 },
+        splitLine:{ show:false } }
+    ],
+    dataZoom:[{ type:'inside' }],
+    series: lines
+  }, true);
+}
+
 async function loadCoPrice(){
   if (typeof echarts === 'undefined') return;
   if (!coPriceChart) coPriceChart = echarts.init($('coPriceBox'));
+  coPricePts = [];
   coPriceChart.clear();
   try {
-    var from = new Date(); from.setFullYear(from.getFullYear() - 3);
     var d = await edge({ source: co.market === 'KR' ? 'quote_kr' : 'quote_us',
-                         code: co.code, start: from.toISOString().slice(0,10) });
-    var pts = d.points || [];
-    if (!pts.length){
+                         code: co.code, start: coFrom() });
+    coPricePts = d.points || [];
+    if (!coPricePts.length){
       coPriceChart.setOption({ backgroundColor: theme.bg,
         title:{ text:'주가 자료를 찾지 못했습니다', left:'center', top:'45%',
           textStyle:{ fontSize:13, fontWeight:'normal', color: theme.text_color } } });
       return;
     }
-    var mark = co.market === 'US' ? '$' : '';
-    coPriceChart.setOption({
-      backgroundColor: theme.bg, animation:false,
-      textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-      grid:{ left:70, right:26, top:24, bottom:40 },
-      tooltip:{ trigger:'axis',
-        formatter:function(ps){
-          if (!ps || !ps.length) return '';
-          return '<div style="font-size:11px;opacity:.7;margin-bottom:4px">'
-               + fmtDateKo(ps[0].value[0]) + '</div>' + mark + num(ps[0].value[1], 2); } },
-      xAxis:{ type:'time', axisLine:{ lineStyle:{ color: theme.grid } },
-        axisLabel:{ color: theme.text_color, fontSize:11, hideOverlap:true,
-          formatter:{ year:'{yyyy}년', month:'{M}월', day:'{M}/{d}', none:'{yyyy}-{MM}-{dd}' } },
-        splitLine:{ show:false } },
-      yAxis:{ type:'value', scale:true, axisLine:{ show:true, lineStyle:{ color: theme.axis_left } },
-        axisLabel:{ color: theme.axis_left, fontSize:11 },
-        splitLine:{ lineStyle:{ color: theme.grid } } },
-      dataZoom:[{ type:'inside' }],
-      series:[{ type:'line', showSymbol:false, lineStyle:{ color: theme.palette[0], width:2 },
-        itemStyle:{ color: theme.palette[0] },
-        areaStyle:{ color:'rgba(44,62,107,.07)' },
-        data: pts.map(function(p){ return [p.d, p.v]; }) }]
-    }, true);
+    drawCoPrice();
   } catch(e){
     coPriceChart.setOption({ backgroundColor: theme.bg,
       title:{ text: e.message, left:'center', top:'45%',
