@@ -126,6 +126,13 @@
     border-top:1px solid var(--border);padding-top:8px;margin-top:2px}
   .pal-row{display:flex;align-items:center;gap:7px;margin-bottom:6px}
   .pal-row input[type=text]{flex:1;font-size:11.5px;text-transform:uppercase;padding:5px 8px;border-radius:7px}
+  #coFinBox{width:100%;height:420px} #coPriceBox{width:100%;height:400px}
+  @media(max-width:760px){#coFinBox{height:340px} #coPriceBox{height:300px}}
+  .co-hits{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .co-hit{display:flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--border);
+    border-radius:9px;background:var(--white);cursor:pointer;font-size:.86rem;text-align:left}
+  .co-hit:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .co-hit .code{font-size:11px;color:var(--text-sub)}
   .xbtn{border:none;background:none;color:var(--danger);cursor:pointer;font-size:16px;
     font-weight:700;line-height:1;padding:2px 5px;border-radius:5px}
   .xbtn:hover{background:var(--danger-soft)}
@@ -281,6 +288,7 @@
     <div class="tabs-in">
       <button class="tab on" data-tab="research" onclick="showTab('research')">경제지표 · 주식 분석</button>
       <button class="tab" data-tab="trading" onclick="showTab('trading')">모의투자</button>
+      <button class="tab" data-tab="company" onclick="showTab('company')">기업 분석</button>
       <button class="tab" data-tab="links" onclick="showTab('links')">자료실</button>
       <button class="tab hidden" id="tabAccess" data-tab="access" onclick="showTab('access')">접속 기록</button>
       <button class="tab hidden" id="tabAdmin" data-tab="admin" onclick="showTab('admin')">설정</button>
@@ -588,6 +596,70 @@
     </div>
 
     <!-- ════ 자료실 ════ -->
+    <!-- ════ 기업 분석 ════ -->
+    <div id="pane-company" class="hidden">
+      <div class="page-head">
+        <h1>기업 분석</h1>
+        <p>회사명 · 종목코드 · 티커로 찾습니다. 국내는 DART 전자공시, 미국은 SEC EDGAR 자료입니다.</p>
+      </div>
+      <div id="coWarn"></div>
+
+      <div class="card">
+        <h2>기업 검색
+          <span class="tools">
+            <button class="btn-sm admin-only hidden" id="coSyncBtn" onclick="syncCorps()">기업 목록 새로 받기</button>
+          </span>
+        </h2>
+        <div class="row">
+          <input type="text" id="coQ" class="grow" placeholder="삼성전자 · 005930 · NVDA · Apple"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();searchCompany();}">
+          <button class="btn-sm btn-solid" onclick="searchCompany()">검색</button>
+        </div>
+        <div id="coResults"></div>
+      </div>
+
+      <div id="coBody" class="hidden">
+        <div class="card">
+          <h2><span id="coName">—</span>
+            <span class="tools"><button class="btn-sm" onclick="coCsv()">재무 CSV</button></span>
+          </h2>
+          <div id="coTiles"></div>
+        </div>
+
+        <div class="mode-seg" id="coSeg">
+          <button id="coTab-fin"   onclick="coShow('fin')">재무제표</button>
+          <button id="coTab-price" onclick="coShow('price')">주가</button>
+          <button id="coTab-disc"  onclick="coShow('disc')">공시</button>
+          <button id="coTab-own"   onclick="coShow('own')">지분 · 배당</button>
+        </div>
+
+        <div id="coPane-fin">
+          <div class="card">
+            <h2>실적 추이 <span id="coFinUnit" style="font-size:12px;color:var(--text-sub);font-weight:400"></span></h2>
+            <div id="coFinBox"></div>
+          </div>
+          <div class="card">
+            <h2>재무 요약</h2>
+            <div class="scroll"><table id="coFinTable"></table></div>
+          </div>
+        </div>
+
+        <div id="coPane-price" class="hidden">
+          <div class="card"><h2>주가 (최근 3년)</h2><div id="coPriceBox"></div></div>
+        </div>
+
+        <div id="coPane-disc" class="hidden">
+          <div class="card"><h2>최근 공시</h2><div class="scroll"><table id="coDiscTable"></table></div></div>
+        </div>
+
+        <div id="coPane-own" class="hidden">
+          <div class="card"><h2>배당</h2><div class="scroll"><table id="coDivTable"></table></div></div>
+          <div class="card"><h2>대량보유 상황보고 (5% 룰)</h2><div class="scroll"><table id="coMajorTable"></table></div></div>
+          <div class="card"><h2>임원 · 주요주주 소유보고</h2><div class="scroll"><table id="coElestTable"></table></div></div>
+        </div>
+      </div>
+    </div>
+
     <div id="pane-links" class="hidden">
       <div class="page-head">
         <h1>자료실</h1>
@@ -800,11 +872,12 @@ async function enterApp(){
 }
 
 function showTab(name){
-  ['research','trading','links','access','admin'].forEach(function(t){
+  ['research','trading','company','links','access','admin'].forEach(function(t){
     var p = $('pane-'+t); if (p) p.classList.toggle('hidden', t !== name);
   });
   document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('on', b.dataset.tab === name); });
   if (name==='trading') initTrading();
+  if (name==='company') initCompany();
   if (name==='links')   loadLinks();
   if (name==='access')  loadAccess();
   if (name==='admin')   loadAdmin();
@@ -812,21 +885,23 @@ function showTab(name){
 }
 
 /* ══════════ 데이터 호출 ══════════ */
-async function edge(body){
+async function edgeCall(fn, body){
   var s = (await sb.auth.getSession()).data.session;
   if (!s) throw new Error('로그인이 만료되었습니다. 다시 로그인해주세요.');
-  var r = await fetch(SUPABASE_URL + '/functions/v1/market-data', {
+  var r = await fetch(SUPABASE_URL + '/functions/v1/' + fn, {
     method:'POST',
     headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+s.access_token, 'apikey':SUPABASE_KEY },
     body: JSON.stringify(body)
   });
   var d = await r.json().catch(function(){ return {}; });
   if (!r.ok || d.error) {
-    if (r.status === 404) throw new Error('market-data 함수가 배포되지 않았습니다. Supabase → Edge Functions 에서 배포해주세요.');
+    if (r.status === 404) throw new Error(fn + ' 함수가 배포되지 않았습니다. Supabase → Edge Functions 에서 배포해주세요.');
     throw new Error(d.error || ('데이터 조회 실패 (' + r.status + ')'));
   }
   return d;
 }
+function edge(body){    return edgeCall('market-data',  body); }
+function edgeCo(body){  return edgeCall('company-data', body); }
 
 /* ══════════ 테마 ══════════ */
 var DEFAULT_THEME = { bg:'#ffffff', grid:'#e8ecf4', axis_left:'#2c3e6b', axis_right:'#b26a00',
@@ -1257,8 +1332,359 @@ function downloadCSV(){
 }
 
 window.addEventListener('resize', function(){
-  [chart,pieChart,pnlChart,benchChart].forEach(function(c){ if (c) c.resize(); });
+  [chart,pieChart,pnlChart,benchChart,coFinChart,coPriceChart].forEach(function(c){ if (c) c.resize(); });
 });
+
+/* ══════════ 기업 분석 (DART · SEC) ══════════ */
+var co = null, coHits = [], coFin = null, coFinChart = null, coPriceChart = null;
+
+/* 회사 규모에 맞춰 표시 단위를 자동으로 고릅니다.
+   (삼성전자를 '억 원' 으로 쓰면 3,008,709 처럼 읽기 힘들어집니다) */
+function coUnit(){
+  var us = co && co.market === 'US';
+  var mx = 0;
+  (coFin || []).forEach(function(r){
+    ['revenue','op','net','assets','liab','equity'].forEach(function(k){
+      var v = Math.abs(Number(r[k] || 0)); if (v > mx) mx = v;
+    });
+  });
+  if (us){
+    return mx >= 1e11 ? { div:1e9, label:'십억 달러', cur:'USD', dp:1 }
+                      : { div:1e6, label:'백만 달러', cur:'USD', dp:0 };
+  }
+  return mx >= 1e13 ? { div:1e12, label:'조 원', cur:'KRW', dp:1 }
+                    : { div:1e8,  label:'억 원', cur:'KRW', dp:0 };
+}
+function coAmt(v){
+  if (v == null || !isFinite(v)) return '—';
+  var u = coUnit();
+  return num(v / u.div, u.dp);
+}
+function coRatio(a, b){
+  if (a == null || b == null || !b) return null;
+  return a / b * 100;
+}
+
+async function initCompany(){
+  if (isOfficer()){
+    document.querySelectorAll('#pane-company .admin-only')
+      .forEach(function(e){ e.classList.remove('hidden'); });
+  }
+  var st = await sb.rpc('company_db_status');
+  if (st.error){
+    warn('coWarn', /does not exist|function/i.test(st.error.message)
+      ? 'terminal-기업분석.sql 을 아직 실행하지 않았습니다.' : esc(errMsg(st.error)));
+    return;
+  }
+  var d = st.data || {};
+  if (!Number(d.kr) && !Number(d.us)){
+    warn('coWarn', isOfficer()
+      ? '기업 목록이 비어 있습니다. 오른쪽 위 "기업 목록 새로 받기" 를 한 번 눌러주세요. (1~2분 걸립니다)'
+      : '기업 목록이 아직 준비되지 않았습니다. 임원진에게 알려주세요.');
+  } else {
+    warn('coWarn', '');
+  }
+  if (coFinChart)   setTimeout(function(){ coFinChart.resize(); }, 60);
+  if (coPriceChart) setTimeout(function(){ coPriceChart.resize(); }, 60);
+}
+
+async function syncCorps(){
+  var b = $('coSyncBtn');
+  b.disabled = true; b.textContent = '받는 중…';
+  warn('coWarn', '기업 목록을 받아오는 중입니다. 1~2분 걸립니다.', 'info');
+  try {
+    var d = await edgeCo({ action: 'sync' });
+    warn('coWarn', '✅ 국내 ' + num(d.kr) + '개 · 미국 ' + num(d.us) + '개 기업을 등록했습니다.', 'info');
+  } catch(e){
+    warn('coWarn', esc(e.message));
+  }
+  b.disabled = false; b.textContent = '기업 목록 새로 받기';
+}
+
+async function searchCompany(){
+  var q = $('coQ').value.trim();
+  if (!q){ return; }
+  $('coResults').innerHTML = '<div class="empty" style="padding:12px">찾는 중…</div>';
+  var r = await sb.rpc('company_search', { q: q });
+  if (r.error){ warn('coWarn', esc(errMsg(r.error))); $('coResults').innerHTML = ''; return; }
+  coHits = r.data || [];
+  if (!coHits.length){
+    $('coResults').innerHTML = '<div class="empty" style="padding:14px">검색 결과가 없습니다. '
+      + '회사명 일부, 6자리 종목코드, 또는 미국 티커로 찾아보세요.</div>';
+    return;
+  }
+  $('coResults').innerHTML = '<div class="co-hits">' + coHits.map(function(x, i){
+    return '<button class="co-hit" onclick="pickCompany(' + i + ')">'
+      + '<span class="pill ' + esc(x.market) + '">' + esc(x.market) + '</span>'
+      + '<b>' + esc(x.name) + '</b><span class="code">' + esc(x.sub) + '</span></button>';
+  }).join('') + '</div>';
+}
+
+function coShow(which){
+  ['fin','price','disc','own'].forEach(function(k){
+    var p = $('coPane-' + k); if (p) p.classList.toggle('hidden', k !== which);
+    var b = $('coTab-' + k);  if (b) b.classList.toggle('on', k === which);
+  });
+  if (which === 'fin'   && coFinChart)   setTimeout(function(){ coFinChart.resize(); }, 60);
+  if (which === 'price' && coPriceChart) setTimeout(function(){ coPriceChart.resize(); }, 60);
+}
+
+async function pickCompany(i){
+  co = coHits[i];
+  if (!co) return;
+  $('coResults').innerHTML = '';
+  $('coQ').value = co.name;
+  show('coBody');
+  $('coName').innerHTML = esc(co.name)
+    + ' <span style="font-size:12px;color:var(--text-sub);font-weight:400">'
+    + esc(co.market) + ' · ' + esc(co.sub) + '</span>';
+  $('coTiles').innerHTML = '<div class="empty">불러오는 중…</div>';
+  $('coFinTable').innerHTML = ''; $('coDiscTable').innerHTML = '';
+  $('coDivTable').innerHTML = ''; $('coMajorTable').innerHTML = ''; $('coElestTable').innerHTML = '';
+  coFin = null;
+  coShow('fin');
+
+  await loadCoFin();
+  loadCoPrice();
+  loadCoDisc();
+  loadCoOwn();
+}
+
+/* ── 재무제표 ── */
+async function loadCoFin(){
+  var key = (co.market === 'KR') ? co.corp_code : co.cik;
+  try {
+    var d = await edgeCo({ action: co.market === 'KR' ? 'kr_fin' : 'us_fin', code: key });
+    coFin = d.rows || [];
+    $('coFinUnit').textContent = coFin.length ? '단위: ' + coUnit().label : '';
+    if (!coFin.length){
+      $('coTiles').innerHTML = '<div class="empty">' + esc(d.note || '재무 자료를 찾지 못했습니다.') + '</div>';
+      if (coFinChart) coFinChart.clear();
+      return;
+    }
+    renderCoTiles(); renderCoFinChart(); renderCoFinTable();
+  } catch(e){
+    $('coTiles').innerHTML = '<div class="empty">' + esc(e.message) + '</div>';
+  }
+}
+
+function renderCoTiles(){
+  var last = coFin[coFin.length - 1], prev = coFin[coFin.length - 2];
+  var u = coUnit();
+  function grow(k){
+    if (!prev || prev[k] == null || last[k] == null || !prev[k]) return '';
+    return pct((last[k] / prev[k] - 1) * 100) + ' YoY';
+  }
+  var opm  = coRatio(last.op,  last.revenue);
+  var roe  = coRatio(last.net, last.equity);
+  $('coTiles').innerHTML = '<div class="tiles">'
+    + tile('매출액',   coAmt(last.revenue), last.year + '년 · ' + u.label, '')
+    + tile('영업이익', coAmt(last.op),      grow('op'), Number(last.op) < 0 ? 'neg' : '')
+    + tile('당기순이익', coAmt(last.net),   grow('net'), Number(last.net) < 0 ? 'neg' : '')
+    + tile('영업이익률', opm == null ? '—' : opm.toFixed(1) + '%', '영업이익 ÷ 매출액', '')
+    + tile('ROE',      roe == null ? '—' : roe.toFixed(1) + '%', '순이익 ÷ 자본총계', '')
+    + '</div>';
+}
+
+function renderCoFinChart(){
+  if (typeof echarts === 'undefined') return;
+  if (!coFinChart) coFinChart = echarts.init($('coFinBox'));
+  var u = coUnit();
+  var yrs = coFin.map(function(r){ return r.year + '년'; });
+  var pal = theme.palette;
+  var series = [
+    { name:'매출액',     type:'bar',  data: coFin.map(function(r){ return r.revenue == null ? null : r.revenue/u.div; }),
+      itemStyle:{ color: pal[0] }, barMaxWidth: 34 },
+    { name:'영업이익',   type:'bar',  data: coFin.map(function(r){ return r.op == null ? null : r.op/u.div; }),
+      itemStyle:{ color: pal[1] }, barMaxWidth: 34 },
+    { name:'당기순이익', type:'bar',  data: coFin.map(function(r){ return r.net == null ? null : r.net/u.div; }),
+      itemStyle:{ color: pal[2] }, barMaxWidth: 34 },
+    { name:'영업이익률', type:'line', yAxisIndex:1, smooth:false,
+      data: coFin.map(function(r){ var v = coRatio(r.op, r.revenue); return v == null ? null : Number(v.toFixed(2)); }),
+      lineStyle:{ color: pal[3], width:3 }, itemStyle:{ color: pal[3] }, symbolSize:7 }
+  ];
+  coFinChart.setOption({
+    backgroundColor: theme.bg, animation:false,
+    textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+    grid:{ left:70, right:62, top:52, bottom:40 },
+    legend:{ top:8, textStyle:{ color: theme.text_color, fontSize:12 } },
+    tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' },
+      valueFormatter:function(v){ return v == null ? '-' : num(v, 1); } },
+    xAxis:{ type:'category', data: yrs, axisLine:{ lineStyle:{ color: theme.grid } },
+      axisLabel:{ color: theme.text_color, fontSize:11 } },
+    yAxis:[
+      { type:'value', name:u.label, nameTextStyle:{ color: theme.axis_left, fontSize:11 },
+        axisLine:{ show:true, lineStyle:{ color: theme.axis_left } },
+        axisLabel:{ color: theme.axis_left, fontSize:11 },
+        splitLine:{ lineStyle:{ color: theme.grid } } },
+      { type:'value', name:'%', nameTextStyle:{ color: theme.axis_right, fontSize:11 },
+        position:'right', axisLine:{ show:true, lineStyle:{ color: theme.axis_right } },
+        axisLabel:{ color: theme.axis_right, fontSize:11, formatter:'{value}%' },
+        splitLine:{ show:false } }
+    ],
+    series: series
+  }, true);
+}
+
+function renderCoFinTable(){
+  var u = coUnit();
+  var isUS = co.market === 'US';
+  var rows = [
+    ['매출액',     function(r){ return coAmt(r.revenue); }],
+    ['영업이익',   function(r){ return coAmt(r.op); }],
+    ['영업이익률', function(r){ var v = coRatio(r.op, r.revenue);  return v == null ? '—' : v.toFixed(1) + '%'; }],
+    ['당기순이익', function(r){ return coAmt(r.net); }],
+    ['순이익률',   function(r){ var v = coRatio(r.net, r.revenue); return v == null ? '—' : v.toFixed(1) + '%'; }],
+    ['자산총계',   function(r){ return coAmt(r.assets); }],
+    ['부채총계',   function(r){ return coAmt(r.liab); }],
+    ['자본총계',   function(r){ return coAmt(r.equity); }],
+    ['부채비율',   function(r){ var v = coRatio(r.liab, r.equity); return v == null ? '—' : v.toFixed(1) + '%'; }],
+    ['ROE',        function(r){ var v = coRatio(r.net,  r.equity); return v == null ? '—' : v.toFixed(1) + '%'; }],
+    ['ROA',        function(r){ var v = coRatio(r.net,  r.assets); return v == null ? '—' : v.toFixed(1) + '%'; }]
+  ];
+  if (isUS){
+    rows.push(['EPS (희석)', function(r){ return r.eps == null ? '—' : '$' + num(r.eps, 2); }]);
+    rows.push(['주당배당금', function(r){ return r.dps == null ? '—' : '$' + num(r.dps, 2); }]);
+  }
+  $('coFinTable').innerHTML =
+    '<thead><tr><th>항목</th>' + coFin.map(function(r){ return '<th class="num">' + r.year + '</th>'; }).join('')
+    + '</tr></thead><tbody>'
+    + rows.map(function(x){
+        return '<tr><td><b>' + esc(x[0]) + '</b></td>'
+          + coFin.map(function(r){ return '<td class="num">' + x[1](r) + '</td>'; }).join('') + '</tr>';
+      }).join('')
+    + '</tbody>';
+}
+
+function coCsv(){
+  if (!coFin || !coFin.length){ warn('coWarn','먼저 기업을 선택해주세요.'); return; }
+  var head = ['연도','매출액','영업이익','당기순이익','자산총계','부채총계','자본총계','EPS','주당배당금'];
+  var rows = [head].concat(coFin.map(function(r){
+    return [r.year, r.revenue, r.op, r.net, r.assets, r.liab, r.equity,
+            r.eps == null ? '' : r.eps, r.dps == null ? '' : r.dps];
+  }));
+  var csv = rows.map(function(r){
+    return r.map(function(c){ return '"' + String(c == null ? '' : c).replace(/"/g,'""') + '"'; }).join(',');
+  }).join('\n');
+  saveBlob(new Blob(['﻿' + csv], { type:'text/csv;charset=utf-8;' }),
+           'SAFE_' + (co.sub || 'company') + '_재무_' + today() + '.csv');
+}
+
+/* ── 주가 ── */
+async function loadCoPrice(){
+  if (typeof echarts === 'undefined') return;
+  if (!coPriceChart) coPriceChart = echarts.init($('coPriceBox'));
+  coPriceChart.clear();
+  try {
+    var from = new Date(); from.setFullYear(from.getFullYear() - 3);
+    var d = await edge({ source: co.market === 'KR' ? 'quote_kr' : 'quote_us',
+                         code: co.code, start: from.toISOString().slice(0,10) });
+    var pts = d.points || [];
+    if (!pts.length){
+      coPriceChart.setOption({ backgroundColor: theme.bg,
+        title:{ text:'주가 자료를 찾지 못했습니다', left:'center', top:'45%',
+          textStyle:{ fontSize:13, fontWeight:'normal', color: theme.text_color } } });
+      return;
+    }
+    var mark = co.market === 'US' ? '$' : '';
+    coPriceChart.setOption({
+      backgroundColor: theme.bg, animation:false,
+      textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+      grid:{ left:70, right:26, top:24, bottom:40 },
+      tooltip:{ trigger:'axis',
+        formatter:function(ps){
+          if (!ps || !ps.length) return '';
+          return '<div style="font-size:11px;opacity:.7;margin-bottom:4px">'
+               + fmtDateKo(ps[0].value[0]) + '</div>' + mark + num(ps[0].value[1], 2); } },
+      xAxis:{ type:'time', axisLine:{ lineStyle:{ color: theme.grid } },
+        axisLabel:{ color: theme.text_color, fontSize:11, hideOverlap:true,
+          formatter:{ year:'{yyyy}년', month:'{M}월', day:'{M}/{d}', none:'{yyyy}-{MM}-{dd}' } },
+        splitLine:{ show:false } },
+      yAxis:{ type:'value', scale:true, axisLine:{ show:true, lineStyle:{ color: theme.axis_left } },
+        axisLabel:{ color: theme.axis_left, fontSize:11 },
+        splitLine:{ lineStyle:{ color: theme.grid } } },
+      dataZoom:[{ type:'inside' }],
+      series:[{ type:'line', showSymbol:false, lineStyle:{ color: theme.palette[0], width:2 },
+        itemStyle:{ color: theme.palette[0] },
+        areaStyle:{ color:'rgba(44,62,107,.07)' },
+        data: pts.map(function(p){ return [p.d, p.v]; }) }]
+    }, true);
+  } catch(e){
+    coPriceChart.setOption({ backgroundColor: theme.bg,
+      title:{ text: e.message, left:'center', top:'45%',
+        textStyle:{ fontSize:12.5, fontWeight:'normal', color:'#c62828' } } });
+  }
+}
+
+/* ── 공시 ── */
+async function loadCoDisc(){
+  $('coDiscTable').innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  try {
+    var key = (co.market === 'KR') ? co.corp_code : co.cik;
+    var d = await edgeCo({ action: co.market === 'KR' ? 'kr_list' : 'us_list', code: key });
+    var rows = d.rows || [];
+    if (!rows.length){ $('coDiscTable').innerHTML = '<tr><td class="empty">최근 공시가 없습니다.</td></tr>'; return; }
+    $('coDiscTable').innerHTML =
+      '<thead><tr><th style="width:110px">날짜</th><th>제목</th><th style="width:150px">제출인</th></tr></thead><tbody>'
+      + rows.map(function(x){
+          return '<tr><td>' + esc(x.date) + '</td>'
+            + '<td><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a></td>'
+            + '<td>' + esc(x.filer || '') + '</td></tr>';
+        }).join('') + '</tbody>';
+  } catch(e){
+    $('coDiscTable').innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>';
+  }
+}
+
+/* ── 지분 · 배당 ── */
+async function loadCoOwn(){
+  if (co.market !== 'KR'){
+    var note = '<tr><td class="empty">미국 기업의 지분·배당 정보는 공시 탭의 DEF 14A · Form 4 원문에서 확인하세요. '
+             + '주당배당금은 재무 요약 표에 있습니다.</td></tr>';
+    $('coDivTable').innerHTML = note;
+    $('coMajorTable').innerHTML = note;
+    $('coElestTable').innerHTML = note;
+    return;
+  }
+  var cc = co.corp_code;
+
+  try {
+    var dv = await edgeCo({ action:'kr_div', code: cc });
+    var r1 = dv.rows || [];
+    $('coDivTable').innerHTML = r1.length
+      ? '<thead><tr><th>항목</th><th>주식 종류</th><th class="num">당기</th><th class="num">전기</th><th class="num">전전기</th></tr></thead><tbody>'
+        + r1.map(function(x){ return '<tr><td>' + esc(x.item || '') + '</td><td>' + esc(x.kind || '') + '</td>'
+            + '<td class="num">' + esc(x.thstrm || '') + '</td><td class="num">' + esc(x.frmtrm || '') + '</td>'
+            + '<td class="num">' + esc(x.lwfr || '') + '</td></tr>'; }).join('') + '</tbody>'
+      : '<tr><td class="empty">배당 공시가 없습니다.</td></tr>';
+  } catch(e){ $('coDivTable').innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>'; }
+
+  try {
+    var mj = await edgeCo({ action:'kr_major', code: cc });
+    var r2 = mj.rows || [];
+    $('coMajorTable').innerHTML = r2.length
+      ? '<thead><tr><th style="width:110px">날짜</th><th>보고자</th><th class="num">보유주식</th>'
+        + '<th class="num">증감</th><th class="num">비율</th><th>사유</th></tr></thead><tbody>'
+        + r2.map(function(x){ return '<tr><td>' + esc(x.date || '') + '</td><td>' + esc(x.holder || '') + '</td>'
+            + '<td class="num">' + esc(x.qty || '') + '</td><td class="num">' + esc(x.qty_chg || '') + '</td>'
+            + '<td class="num">' + esc(x.rate || '') + '%</td><td>' + esc(x.reason || '') + '</td></tr>'; }).join('')
+        + '</tbody>'
+      : '<tr><td class="empty">대량보유 공시가 없습니다.</td></tr>';
+  } catch(e){ $('coMajorTable').innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>'; }
+
+  try {
+    var el = await edgeCo({ action:'kr_elest', code: cc });
+    var r3 = el.rows || [];
+    $('coElestTable').innerHTML = r3.length
+      ? '<thead><tr><th style="width:110px">날짜</th><th>보고자</th><th>직위</th>'
+        + '<th class="num">소유주식</th><th class="num">증감</th><th class="num">비율</th></tr></thead><tbody>'
+        + r3.map(function(x){ return '<tr><td>' + esc(x.date || '') + '</td><td>' + esc(x.holder || '') + '</td>'
+            + '<td>' + esc(x.position || '') + '</td><td class="num">' + esc(x.qty || '') + '</td>'
+            + '<td class="num">' + esc(x.qty_chg || '') + '</td><td class="num">' + esc(x.rate || '') + '</td></tr>'; }).join('')
+        + '</tbody>'
+      : '<tr><td class="empty">임원·주요주주 공시가 없습니다.</td></tr>';
+  } catch(e){ $('coElestTable').innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>'; }
+}
 
 /* ══════════ 모의투자 ══════════ */
 async function initTrading(){
@@ -1337,6 +1763,16 @@ function renderSummary(){
     + tile('현금', num(tstate.cash), '미투자분')
     + tile('주식 평가액', num(tstate.holdings), (tstate.positions||[]).length + '개 종목')
     + '</div>';
+
+  // 미국 주식이 있는데 환율이 없으면 평가액이 틀립니다 — 눈에 띄게 알립니다
+  var hasUS = (tstate.positions||[]).some(function(x){ return x.market === 'US'; });
+  var fx = Number(tstate.fx || 0);
+  if (hasUS && !(fx > 0)){
+    warn('tradingWarn', '⚠️ 원/달러 환율을 아직 불러오지 못해 미국 주식 평가액이 정확하지 않습니다. '
+       + '경제지표 탭에서 "원/달러 환율"을 한 번 조회하면 자동으로 반영됩니다.');
+  } else if (hasUS){
+    warn('tradingWarn', '미국 주식은 ' + num(fx,2) + '원/달러 기준으로 환산했습니다.', 'info');
+  }
 }
 function tile(k,v,d,cls){
   return '<div class="tile"><div class="k">'+esc(k)+'</div><div class="v '+(cls||'')+'">'+esc(v)
@@ -1350,16 +1786,19 @@ function renderPositions(){
   var total = Number(tstate.total||1);
   t.innerHTML =
     '<thead><tr><th>시장</th><th>종목</th><th class="num">수량</th><th class="num">평단가</th>'
-    + '<th class="num">현재가</th><th class="num">평가액</th><th class="num">손익</th>'
+    + '<th class="num">현재가</th><th class="num">평가액 (원)</th><th class="num">손익 (원)</th>'
     + '<th class="num">수익률</th><th class="num">비중</th></tr></thead><tbody>'
     + pos.map(function(p){
         var cls = Number(p.pnl) > 0 ? 'pos' : (Number(p.pnl) < 0 ? 'neg' : '');
+        var usd = (p.ccy || (p.market==='US' ? 'USD':'KRW')) === 'USD';
+        var mark = usd ? '$' : '';
         return '<tr>'
           + '<td><span class="pill '+esc(p.market)+'">'+esc(p.market)+'</span></td>'
-          + '<td><b>'+esc(p.name||p.symbol)+'</b><div style="font-size:11px;color:var(--text-sub)">'+esc(p.symbol)+'</div></td>'
+          + '<td><b>'+esc(p.name||p.symbol)+'</b><div style="font-size:11px;color:var(--text-sub)">'+esc(p.symbol)
+          +   (usd ? ' · 환율 '+num(p.fx,2)+'원' : '')+'</div></td>'
           + '<td class="num">'+num(p.qty)+'</td>'
-          + '<td class="num">'+num(p.avg_cost,2)+'</td>'
-          + '<td class="num">'+num(p.last_price,2)+'</td>'
+          + '<td class="num">'+mark+num(p.avg_cost,2)+'</td>'
+          + '<td class="num">'+mark+num(p.last_price,2)+'</td>'
           + '<td class="num">'+num(p.market_value)+'</td>'
           + '<td class="num '+cls+'">'+(Number(p.pnl)>=0?'+':'')+num(p.pnl)+'</td>'
           + '<td class="num '+cls+'">'+pct(p.pnl_pct)+'</td>'
@@ -1576,6 +2015,17 @@ function onMarketChange(){
   $('tName').placeholder = kr ? '삼성전자' : 'Apple';
 }
 
+/* 해당 날짜의 원/달러 환율. 보관함이 비어 있으면 한 번 받아옵니다. */
+async function getFx(d){
+  var r = await sb.rpc('fx_rate', { p_date: d || null });
+  var v = (r.data == null) ? null : Number(r.data);
+  if (v > 0) return v;
+  try { await edge({ source:'fred', code:'DEXKOUS', cycle:'D', start:'2015-01-01' }); } catch(e){}
+  r = await sb.rpc('fx_rate', { p_date: d || null });
+  v = (r.data == null) ? null : Number(r.data);
+  return (v > 0) ? v : null;
+}
+
 async function fetchPrice(){
   var sym = $('tSymbol').value.trim();
   if (!sym){ $('tradeMsg').textContent = '종목 코드를 입력해주세요.'; return; }
@@ -1589,7 +2039,15 @@ async function fetchPrice(){
     $('tPrice').value = last.v;
     if (last.n && !$('tName').value) $('tName').value = last.n;
     $('tradeMsg').style.color = 'var(--text-sub)';
-    $('tradeMsg').textContent = last.d + ' 종가 ' + num(last.v,2) + ' 을(를) 넣었습니다.';
+
+    if (mk === 'US'){
+      var fx = await getFx($('tDate').value || today());
+      $('tradeMsg').textContent = last.d + ' 종가 $' + num(last.v,2)
+        + (fx ? '  ·  환율 ' + num(fx,2) + '원 적용 → ' + num(last.v*fx) + '원'
+              : '  ·  ⚠️ 환율을 불러오지 못했습니다');
+    } else {
+      $('tradeMsg').textContent = last.d + ' 종가 ' + num(last.v,2) + '원 을(를) 넣었습니다.';
+    }
   } catch(e){
     $('tradeMsg').style.color = 'var(--danger)';
     $('tradeMsg').textContent = e.message;
@@ -1605,13 +2063,29 @@ async function submitTrade(){
   if (!(price > 0)){ msg.textContent = '단가를 입력해주세요. (종가 조회를 눌러보세요)'; return; }
 
   var side = $('tSide').value;
-  if (side === 'buy' && tstate && qty*price > Number(tstate.cash)){
-    msg.textContent = '현금이 부족합니다. 남은 현금: ' + num(tstate.cash) + '원';
+  var mk   = $('tMarket').value;
+
+  // 미국 주식은 그날 환율로 원화 환산해서 기록합니다
+  var fx = 1;
+  if (mk === 'US'){
+    msg.style.color = 'var(--text-sub)';
+    msg.textContent = '환율 확인 중…';
+    fx = await getFx($('tDate').value || today());
+    msg.style.color = 'var(--danger)';
+    if (!fx){
+      msg.textContent = '환율을 불러오지 못했습니다. 경제지표 탭에서 "원/달러 환율"을 한 번 조회한 뒤 다시 시도해주세요.';
+      return;
+    }
+  }
+  var krw = qty * price * fx;
+
+  if (side === 'buy' && tstate && krw > Number(tstate.cash)){
+    msg.textContent = '현금이 부족합니다. 필요 ' + num(krw) + '원 / 남은 현금 ' + num(tstate.cash) + '원';
     return;
   }
   if (side === 'sell'){
     var held = ((tstate && tstate.positions) || []).filter(function(p){
-      return p.symbol === sym && p.market === $('tMarket').value; })[0];
+      return p.symbol === sym && p.market === mk; })[0];
     if (!held || Number(held.qty) < qty){
       msg.textContent = '보유 수량이 부족합니다.' + (held ? ' 보유: '+num(held.qty) : '');
       return;
@@ -1621,15 +2095,16 @@ async function submitTrade(){
   $('tradeBtn').disabled = true;
   var u = (await sb.auth.getUser()).data.user;
   var r = await sb.from('trades').insert({
-    team_id: team, market: $('tMarket').value, symbol: sym,
-    name: $('tName').value.trim() || sym, side: side, qty: qty, price: price,
+    team_id: team, market: mk, symbol: sym,
+    name: $('tName').value.trim() || sym, side: side, qty: qty, price: price, fx: fx,
     traded_on: $('tDate').value || today(), created_by: u ? u.id : null
   });
   $('tradeBtn').disabled = false;
 
   if (r.error){ msg.textContent = errMsg(r.error); return; }
   msg.style.color = 'var(--ok)';
-  msg.textContent = '기록했습니다.';
+  msg.textContent = '기록했습니다.'
+    + (mk === 'US' ? '  ($' + num(price,2) + ' × ' + num(fx,2) + '원 = ' + num(krw) + '원)' : '');
   $('tQty').value = ''; $('tPrice').value = '';
   await loadTeam();
   loadLeaderboard();
