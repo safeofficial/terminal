@@ -133,6 +133,23 @@
     border-radius:9px;background:var(--white);cursor:pointer;font-size:.86rem;text-align:left}
   .co-hit:hover{border-color:var(--accent);background:var(--accent-soft)}
   .co-hit .code{font-size:11px;color:var(--text-sub)}
+  .steps{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .step{flex:1 1 190px;display:flex;gap:9px;align-items:flex-start;padding:11px 13px;
+    border:1px solid var(--border);border-radius:10px;background:var(--bg)}
+  .step .n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;
+    font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .t{font-size:.82rem;line-height:1.5}
+  .step .t b{display:block;font-size:.86rem;margin-bottom:2px}
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .preset{flex:1 1 210px;text-align:left;padding:10px 12px;border:1px solid var(--border);
+    border-radius:10px;background:var(--white);cursor:pointer}
+  .preset:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .preset b{display:block;font-size:.84rem;color:var(--primary);margin-bottom:3px}
+  .preset span{font-size:11.5px;color:var(--text-sub);line-height:1.5}
+  .alloc-bar{height:7px;border-radius:4px;background:var(--border);overflow:hidden;margin:6px 0 4px}
+  .alloc-bar i{display:block;height:100%;background:var(--primary);transition:width .2s}
+  .alloc-bar.over i{background:var(--danger)}
+  #stratPrevBox{width:100%;height:260px}
   .dlt{font-size:11px;font-weight:600;margin-left:5px;white-space:nowrap}
   .dlt.up{color:#2e7d32} .dlt.dn{color:#c62828} .dlt.flat{color:var(--text-sub);font-weight:400}
   .co-num{display:flex;align-items:baseline;justify-content:flex-end;gap:2px}
@@ -141,7 +158,7 @@
   .xbtn:hover{background:var(--danger-soft)}
 
   #chartBox,#pieBox,#pnlBox,#benchBox{width:100%;border-radius:11px;overflow:hidden}
-  #chartBox{height:460px} #pieBox{height:580px} #pnlBox,#benchBox{height:280px}
+  #chartBox{height:460px} #pieBox{height:580px} #pnlBox,#benchBox{height:320px}
   .trade-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:0 20px}
   .trade-foot{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-top:4px}
   .trade-foot .hint{flex:1 1 320px;margin:0}
@@ -453,13 +470,28 @@
             </span>
           </h2>
 
+          <div class="steps">
+            <div class="step"><div class="n">1</div><div class="t"><b>종목과 배분</b>
+              살 종목을 넣고 시드를 몇 %씩 나눌지 정합니다.</div></div>
+            <div class="step"><div class="n">2</div><div class="t"><b>매수 · 매도 조건</b>
+              아래 템플릿을 눌러 시작하면 빠릅니다.</div></div>
+            <div class="step"><div class="n">3</div><div class="t"><b>미리 돌려보기</b>
+              기록에 남기지 않고 결과만 확인합니다.</div></div>
+            <div class="step"><div class="n">4</div><div class="t"><b>저장하고 다시 돌리기</b>
+              이때 실제 거래 기록이 만들어집니다.</div></div>
+          </div>
+
           <div class="note info" style="margin-bottom:16px">
             조건에 맞는 날의 <b>종가로 매매를 기록</b>합니다. 실제 주문이 아니라 전부 모의(페이퍼)입니다.<br>
             전략을 바꾸면 <b>바꾼 날부터</b> 새 전략이 적용되고, 그 전 거래는 그대로 남습니다.
           </div>
 
+          <h4 style="font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:9px">전략 템플릿 <span style="font-weight:400;color:var(--text-sub);font-size:.8rem">— 누르면 조건이 채워집니다</span></h4>
+          <div class="presets" id="stratPresets"></div>
+
           <h4 style="font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:9px">대상 종목과 배분</h4>
           <div id="symRows"></div>
+          <div id="allocMsg"></div>
           <button class="btn-sm" style="width:100%;margin-bottom:16px" onclick="addSymRow()">+ 종목 추가</button>
 
           <h4 style="font-size:.85rem;font-weight:700;color:var(--up);margin-bottom:9px">매수 조건 <span style="font-weight:400;color:var(--text-sub);font-size:.8rem">— 모두 만족할 때</span></h4>
@@ -493,7 +525,21 @@
             </select>
           </div>
 
+          <div class="row" style="margin-top:4px">
+            <button class="btn-sm grow" id="stratPrevBtn" onclick="previewStrategy()">미리 돌려보기 (기록 안 남김)</button>
+          </div>
+
           <div class="msg" id="stratMsg"></div>
+
+          <div id="stratPreview" class="hidden" style="border:1px solid var(--border);border-radius:11px;
+               padding:14px;margin-top:12px;background:var(--bg)">
+            <div style="font-size:.86rem;font-weight:700;color:var(--primary);margin-bottom:10px">
+              미리보기 결과 <span style="font-weight:400;color:var(--text-sub);font-size:11.5px">— 아직 저장되지 않았습니다</span>
+            </div>
+            <div id="stratPrevTiles"></div>
+            <div id="stratPrevBox"></div>
+          </div>
+
           <div id="stratHist" class="strat-hist"></div>
         </div>
 
@@ -1215,6 +1261,21 @@ function viewPoints(s){
   return out;
 }
 
+/* 금액 축 라벨 — 규모에 맞춰 단위를 바꿉니다 (1000백만 → 10.0억) */
+function wonAxis(v){
+  var a = Math.abs(v);
+  function trim(x, dp){
+    var t = x.toFixed(dp);
+    if (t.indexOf('.') >= 0) t = t.replace(/0+$/, '').replace(/\.$/, '');
+    return t;
+  }
+  /* 값이 촘촘할 때 1.0억 이 반복되지 않도록 자릿수를 늘립니다 */
+  if (a >= 1e12) return trim(v/1e12, Math.abs(v/1e12) < 10 ? 2 : 1) + '조';
+  if (a >= 1e8)  return trim(v/1e8,  Math.abs(v/1e8)  < 10 ? 2 : 1) + '억';
+  if (a >= 1e4)  return Math.round(v/1e4) + '만';
+  return String(Math.round(v));
+}
+
 /* 날짜 한글 표기 */
 function fmtDateKo(v){
   if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)){
@@ -1410,7 +1471,8 @@ function downloadCSV(){
 }
 
 window.addEventListener('resize', function(){
-  [chart,pieChart,pnlChart,benchChart,coFinChart,coPriceChart].forEach(function(c){ if (c) c.resize(); });
+  [chart,pieChart,pnlChart,benchChart,coFinChart,coPriceChart,prevChart]
+    .forEach(function(c){ if (c) c.resize(); });
 });
 
 /* ══════════ 기업 분석 (DART · SEC) ══════════ */
@@ -2071,6 +2133,7 @@ async function loadTeam(){
   show('tradingBody');
 
   // 보유 종목의 최신 종가를 먼저 갱신
+  await loadFxFixed();
   var st = await sb.rpc('team_state', { p_team_id: team });
   if (st.error) { warn('tradingWarn', esc(errMsg(st.error))); return; }
   var pos = (st.data && st.data.positions) || [];
@@ -2121,7 +2184,8 @@ function renderSummary(){
     warn('tradingWarn', '⚠️ 원/달러 환율을 아직 불러오지 못해 미국 주식 평가액이 정확하지 않습니다. '
        + '경제지표 탭에서 "원/달러 환율"을 한 번 조회하면 자동으로 반영됩니다.');
   } else if (hasUS){
-    warn('tradingWarn', '미국 주식은 ' + num(fx,2) + '원/달러 기준으로 환산했습니다.', 'info');
+    warn('tradingWarn', '미국 주식은 ' + num(fx,0) + '원/달러 기준으로 환산했습니다.'
+       + (fxFixed ? ' (학회 고정 환율)' : ''), 'info');
   }
 }
 function tile(k,v,d,cls){
@@ -2210,11 +2274,11 @@ async function loadHistory(){
     var seed = Number(tstate.seed||1);
     pnlChart.setOption({
       backgroundColor:'transparent', animation:false,
-      grid:{ left:64, right:20, top:20, bottom:34 },
+      grid:{ left:74, right:22, top:22, bottom:36 },
       tooltip:{ trigger:'axis', valueFormatter:function(v){ return num(v)+' 원'; } },
       xAxis:{ type:'time', axisLine:{ lineStyle:{ color:'#e2e6f0' } }, axisLabel:{ fontSize:10, color:'#5a6278' } },
       yAxis:{ type:'value', scale:true, splitLine:{ lineStyle:{ color:'#eef1f7' } },
-        axisLabel:{ fontSize:10, color:'#5a6278', formatter:function(v){ return (v/1e6).toFixed(0)+'백만'; } } },
+        axisLabel:{ fontSize:10, color:'#5a6278', formatter: wonAxis } },
       series:[{ type:'line', showSymbol:false, smooth:false,
         lineStyle:{ color:'#2c3e6b', width:2 }, itemStyle:{ color:'#2c3e6b' },
         areaStyle:{ color:'rgba(44,62,107,.08)' },
@@ -2255,7 +2319,7 @@ async function drawBenchmark(hist){
     tooltip:{ trigger:'axis', valueFormatter:function(v){ return num(v)+' 원'; } },
     xAxis:{ type:'time', axisLine:{ lineStyle:{ color:'#e2e6f0' } }, axisLabel:{ fontSize:10, color:'#5a6278' } },
     yAxis:{ type:'value', scale:true, splitLine:{ lineStyle:{ color:'#eef1f7' } },
-      axisLabel:{ fontSize:10, color:'#5a6278', formatter:function(v){ return (v/1e6).toFixed(0)+'백만'; } } },
+      axisLabel:{ fontSize:10, color:'#5a6278', formatter: wonAxis } },
     series:[
       { name:'우리 팀', type:'line', showSymbol:false, lineStyle:{ color:'#2c3e6b', width:2.4 },
         itemStyle:{ color:'#2c3e6b' }, data: hist.map(function(h){ return [h.d, Number(h.total)]; }) },
@@ -3038,6 +3102,41 @@ function testRule(rule, ctx, i){
 /* ── 전략 재생 ──
    날짜 순서대로 하루씩 진행하면서 모든 종목을 함께 처리합니다.
    현금을 한 곳에서 관리하므로 없는 돈으로 사는 일이 없습니다. */
+/* ── 전략 재생용 환율 ──
+   미국 종목은 그날 환율로 원화 환산해야 현금·평가액이 맞습니다. */
+var fxPts = [], fxDates = [], fxFixed = null;
+
+/* 학회가 정한 고정 환율을 먼저 확인합니다.
+   설정돼 있으면 매매일·평가일 모두 같은 값을 써서
+   대회 성적이 환율 등락에 흔들리지 않습니다. */
+async function loadFxFixed(){
+  try {
+    var r = await sb.rpc('fx_status');
+    var v = r.data && r.data.fixed;
+    fxFixed = (v != null && Number(v) > 0) ? Number(v) : null;
+  } catch(e){ fxFixed = null; }
+  return fxFixed;
+}
+
+async function loadFxSeries(start){
+  await loadFxFixed();
+  if (fxFixed) return 1;                    // 고정 환율이면 시세를 받을 필요가 없습니다
+  try {
+    var d = await edge({ source:'fred', code:'DEXKOUS', cycle:'D', start: start });
+    fxPts = (d.points || []).filter(function(p){ return isFinite(p.v) && p.v > 0; });
+  } catch(e){ fxPts = []; }
+  fxDates = fxPts.map(function(p){ return p.d; });
+  return fxPts.length;
+}
+
+function fxAt(day, market){
+  if (market !== 'US') return 1;
+  if (fxFixed) return fxFixed;
+  if (!fxPts.length) return null;
+  var j = idxAtOrBefore(fxDates, day);
+  return fxPts[j < 0 ? 0 : j].v;
+}
+
 function replayStrategy(strategies, priceMap, seed, startDate){
   var trades = [];
 
@@ -3095,15 +3194,17 @@ function replayStrategy(strategies, priceMap, seed, startDate){
 
       if (sellRules.some(function(r){ return testRule(r, b.ctx, i); })){
         var price = b.pts[i].v;
+        var rate  = fxAt(day, symbols[k].market);
+        if (rate == null) return;                    // 환율을 모르면 건너뜁니다
         var sq = Math.floor(b.qty * sellPct);
         if (sq > 0){
           trades.push({ market:symbols[k].market, symbol:symbols[k].symbol, name:symbols[k].name,
-                        side:'sell', qty:sq, price:price, traded_on:day });
+                        side:'sell', qty:sq, price:price, fx:rate, traded_on:day });
           var keepRatio = (b.qty - sq) / b.qty;
           b.spent = Math.max(0, b.spent * keepRatio);
           b.buys  = Math.round(b.buys * keepRatio);   // 다 팔면 0 → 처음부터 다시 분할매수
           b.qty -= sq;
-          cash += sq * price;
+          cash += sq * price * rate;                 // 원화로 입금
           b.lastAct = dayNo;
         }
       }
@@ -3128,15 +3229,18 @@ function replayStrategy(strategies, priceMap, seed, startDate){
 
       if (buyRules.every(function(r){ return testRule(r, b.ctx, i); })){
         var price = b.pts[i].v;
+        var rate  = fxAt(day, symbols[k].market);
+        if (rate == null) return;                    // 환율을 모르면 건너뜁니다
+        var unit = price * rate;                     // 1주당 원화
         var tranche = Math.min(budget * buyPct, budget - b.spent, cash);
-        var bq = Math.floor(tranche / price);
+        var bq = Math.floor(tranche / unit);
         if (bq > 0){
           trades.push({ market:symbols[k].market, symbol:symbols[k].symbol, name:symbols[k].name,
-                        side:'buy', qty:bq, price:price, traded_on:day });
+                        side:'buy', qty:bq, price:price, fx:rate, traded_on:day });
           b.qty += bq;
-          b.spent += bq * price;
+          b.spent += bq * unit;                      // 배정금·지출 모두 원화 기준
           b.buys += 1;
-          cash -= bq * price;
+          cash -= bq * unit;
           b.lastAct = dayNo;
         }
       }
@@ -3172,9 +3276,9 @@ function rebuildSnapshots(allTrades, priceMap, seed, startDate){
   days.forEach(function(day){
     while (ti < sorted.length && sorted[ti].traded_on <= day){
       var t = sorted[ti], k = t.market+'|'+t.symbol;
-      var q = Number(t.qty), pr = Number(t.price);
-      if (t.side === 'buy'){ pos[k] = (pos[k]||0) + q; cash -= q*pr; }
-      else { pos[k] = Math.max(0, (pos[k]||0) - q); cash += q*pr; }
+      var q = Number(t.qty), pr = Number(t.price), fx = Number(t.fx || 1);
+      if (t.side === 'buy'){ pos[k] = (pos[k]||0) + q; cash -= q*pr*fx; }
+      else { pos[k] = Math.max(0, (pos[k]||0) - q); cash += q*pr*fx; }
       ti++;
     }
     Object.keys(priceMap).forEach(function(k){
@@ -3182,7 +3286,13 @@ function rebuildSnapshots(allTrades, priceMap, seed, startDate){
       for (var i=arr.length-1;i>=0;i--){ if (arr[i].d <= day){ lastPrice[k] = arr[i].v; break; } }
     });
     var hold = 0;
-    Object.keys(pos).forEach(function(k){ if (pos[k] > 0 && lastPrice[k]) hold += pos[k]*lastPrice[k]; });
+    Object.keys(pos).forEach(function(k){
+      if (pos[k] > 0 && lastPrice[k]){
+        var mk = k.split('|')[0];
+        var rate = fxAt(day, mk);
+        hold += pos[k] * lastPrice[k] * (rate == null ? 1 : rate);
+      }
+    });
     out.push({ d: day, cash: Math.round(cash*100)/100,
                holdings: Math.round(hold*100)/100, total: Math.round((cash+hold)*100)/100 });
   });
@@ -3270,8 +3380,71 @@ function symRowHTML(sy, i){
     + '</div>';
 }
 
+/* ── 전략 템플릿 ──
+   학회원이 빈 화면에서 시작하지 않도록 검증된 조합을 넣어 둡니다. */
+var STRAT_PRESETS = [
+  { name:'RSI 과매도 반등', desc:'많이 빠졌을 때 나눠 사고, 과열되면 전량 매도',
+    buy:[{ind:'RSI',period:14,op:'<',value:30}],
+    sell:[{ind:'RSI',period:14,op:'>',value:70}],
+    buy_pct:50, sell_pct:100, cooldown:3 },
+  { name:'이동평균 골든크로스', desc:'단기선이 장기선을 위로 뚫으면 매수, 아래로 뚫으면 매도',
+    buy:[{ind:'CROSS',period:5,period2:20,op:'up'}],
+    sell:[{ind:'CROSS',period:5,period2:20,op:'down'}],
+    buy_pct:100, sell_pct:100, cooldown:5 },
+  { name:'추세 추종 (MACD + ADX)', desc:'추세가 살아 있을 때만 진입',
+    buy:[{ind:'MACD_CROSS',period:12,period2:26,op:'up'},{ind:'ADX',period:14,op:'>',value:20}],
+    sell:[{ind:'MACD_CROSS',period:12,period2:26,op:'down'}],
+    buy_pct:100, sell_pct:100, cooldown:5 },
+  { name:'볼린저 하단 분할매수', desc:'밴드 하단에서 4회로 나눠 담고 상단에서 매도',
+    buy:[{ind:'BB_PCT',period:20,op:'<',value:5}],
+    sell:[{ind:'BB_PCT',period:20,op:'>',value:95}],
+    buy_pct:25, sell_pct:100, cooldown:3 }
+];
+
+function renderPresets(){
+  var box = $('stratPresets'); if (!box) return;
+  box.innerHTML = STRAT_PRESETS.map(function(p,i){
+    return '<button class="preset" onclick="applyPreset('+i+')">'
+      + '<b>'+esc(p.name)+'</b><span>'+esc(p.desc)+'</span></button>';
+  }).join('');
+}
+function applyPreset(i){
+  var p = STRAT_PRESETS[i]; if (!p || !strat) return;
+  strat.buy      = JSON.parse(JSON.stringify(p.buy));
+  strat.sell     = JSON.parse(JSON.stringify(p.sell));
+  strat.buy_pct  = p.buy_pct;
+  strat.sell_pct = p.sell_pct;
+  strat.cooldown = p.cooldown;
+  renderStrategyEditor();
+  warnStrat('"' + p.name + '" 조건을 넣었습니다. 종목을 확인하고 미리 돌려보세요.', 'info');
+}
+function warnStrat(msg, kind){
+  var m = $('stratMsg'); if (!m) return;
+  m.style.color = kind === 'info' ? 'var(--ok)' : 'var(--danger)';
+  m.textContent = msg;
+}
+
+/* 배분 합계를 눈에 보이게 — 100%를 넘으면 현금이 모자랍니다 */
+function renderAlloc(){
+  var box = $('allocMsg'); if (!box) return;
+  var syms = (strat && strat.symbols) || [];
+  if (!syms.length){ box.innerHTML = ''; return; }
+  var sum = syms.reduce(function(a,x){ return a + Number(x.alloc||0); }, 0);
+  var over = sum > 100.001;
+  var short = sum < 99.999;
+  box.innerHTML =
+    '<div class="alloc-bar'+(over?' over':'')+'"><i style="width:'+Math.min(100,sum)+'%"></i></div>'
+    + '<div style="font-size:11.5px;color:'+(over?'var(--danger)':(short?'var(--text-sub)':'var(--ok)'))
+    + ';margin-bottom:12px">배분 합계 <b>'+sum.toFixed(0)+'%</b>'
+    + (over  ? ' — 100%를 넘어 일부 종목은 현금이 모자라 못 삽니다.'
+             : (short ? ' — 나머지 '+(100-sum).toFixed(0)+'%는 현금으로 남습니다.'
+                      : ' — 시드를 모두 배분했습니다.'))
+    + '</div>';
+}
+
 function renderStrategyEditor(){
   if (!strat) return;
+  renderPresets(); renderAlloc();
   $('symRows').innerHTML = (strat.symbols||[]).map(symRowHTML).join('')
     || '<div class="empty" style="padding:16px">종목을 추가해 주세요.</div>';
   $('buyRows').innerHTML = (strat.buy||[]).map(function(r,i){ return ruleRowHTML('buy', r, i); }).join('')
@@ -3285,7 +3458,10 @@ function renderStrategyEditor(){
 function addSymRow(){ strat.symbols = strat.symbols||[];
   strat.symbols.push({ market:'KR', symbol:'', name:'', alloc:0 }); renderStrategyEditor(); }
 function delSym(i){ strat.symbols.splice(i,1); renderStrategyEditor(); }
-function updSym(i,k,v){ strat.symbols[i][k] = (k==='alloc') ? Number(v) : v.trim(); }
+function updSym(i,k,v){
+  strat.symbols[i][k] = (k==='alloc') ? Number(v) : v.trim();
+  renderAlloc();
+}
 function addRule(kind){
   strat[kind] = strat[kind]||[];
   var sp = specOf('RSI');
@@ -3375,6 +3551,124 @@ async function saveStrategy(){
 }
 
 /* ── 전략 실행 (재생) ── */
+/* ── 미리 돌려보기 ──
+   DB 를 건드리지 않고 결과만 계산해서 보여줍니다.
+   저장 전에 "이 조건이 말이 되나" 를 확인하는 용도입니다. */
+var prevChart = null;
+
+function collectStrategy(){
+  if (!strat) return null;
+  strat.buy_pct  = Number($('stBuyPct').value);
+  strat.sell_pct = Number($('stSellPct').value);
+  strat.cooldown = Number($('stCooldown').value);
+  return strat;
+}
+
+function previewStats(trades, snaps, seed){
+  var last = snaps.length ? Number(snaps[snaps.length-1].total) : seed;
+  var peak = -Infinity, mdd = 0;
+  snaps.forEach(function(s){
+    var v = Number(s.total);
+    if (v > peak) peak = v;
+    var dd = peak > 0 ? (v/peak - 1)*100 : 0;
+    if (dd < mdd) mdd = dd;
+  });
+  var avg = {}, win = 0, lose = 0;
+  trades.forEach(function(t){
+    var k = t.market+'|'+t.symbol, f = Number(t.fx||1);
+    avg[k] = avg[k] || { q:0, c:0 };
+    if (t.side === 'buy'){ avg[k].c += t.qty*t.price*f; avg[k].q += t.qty; }
+    else {
+      var ac = avg[k].q > 0 ? avg[k].c/avg[k].q : 0;
+      if (ac > 0){ if (t.price*f > ac) win++; else lose++; }
+      var keep = Math.max(0, avg[k].q - t.qty);
+      avg[k].c = avg[k].q > 0 ? avg[k].c * (keep/avg[k].q) : 0;
+      avg[k].q = keep;
+    }
+  });
+  var closed = win + lose;
+  return { n:trades.length, last:last, ret:(last/seed-1)*100, mdd:mdd,
+           win: closed ? win/closed*100 : null, closed:closed };
+}
+
+async function previewStrategy(){
+  var btn = $('stratPrevBtn');
+  var cfg = collectStrategy();
+  if (!cfg){ warnStrat('전략을 먼저 불러와 주세요.'); return; }
+  var syms = (cfg.symbols||[]).filter(function(x){ return x.symbol; });
+  if (!syms.length){ warnStrat('종목을 한 개 이상 넣어주세요.'); return; }
+  if (!(cfg.buy||[]).length){ warnStrat('매수 조건을 한 개 이상 넣어주세요.'); return; }
+
+  btn.disabled = true;
+  var tinfo = teams.filter(function(t){ return t.id === team; })[0] || {};
+  var startDate = tinfo.started_on || today();
+  var seed = Number(tinfo.seed || 100000000);
+
+  try {
+    if (syms.some(function(x){ return x.market === 'US'; })){
+      btn.textContent = '환율 확인 중…';
+      if (!await loadFxSeries(backDate(startDate, 400))){
+        warnStrat('원/달러 환율을 받지 못했습니다. 경제지표 탭에서 "원/달러 환율"을 한 번 조회해주세요.');
+        btn.disabled = false; btn.textContent = '미리 돌려보기 (기록 안 남김)'; return;
+      }
+    }
+    var priceMap = {};
+    for (var i = 0; i < syms.length; i++){
+      btn.textContent = '종가 수집 ' + (i+1) + '/' + syms.length + '…';
+      var d = await edge({ source: syms[i].market==='KR' ? 'quote_kr' : 'quote_us',
+                           code: syms[i].symbol, start: backDate(startDate, 200) });
+      priceMap[syms[i].market+'|'+syms[i].symbol] = d.points || [];
+    }
+    btn.textContent = '계산 중…';
+    var list  = [{ effective_from: startDate, config: cfg }];
+    var trades = replayStrategy(list, priceMap, seed, startDate);
+    var snaps  = rebuildSnapshots(trades, priceMap, seed, startDate);
+    renderPreview(previewStats(trades, snaps, seed), snaps, seed);
+    warnStrat('미리보기입니다 — 아직 저장되지 않았습니다. 마음에 들면 "저장하고 다시 돌리기"를 누르세요.', 'info');
+  } catch(e){
+    warnStrat(e.message);
+  }
+  btn.disabled = false; btn.textContent = '미리 돌려보기 (기록 안 남김)';
+}
+
+function renderPreview(st, snaps, seed){
+  show('stratPreview');
+  var cls = st.ret >= 0 ? 'pos' : 'neg';
+  $('stratPrevTiles').innerHTML = '<div class="tiles">'
+    + tile('최종 자산', num(st.last), '시드 ' + num(seed), cls)
+    + tile('수익률', pct(st.ret), snaps.length + '일 기준', cls)
+    + tile('최대 낙폭', st.mdd.toFixed(1) + '%', '고점 대비 최대 하락', 'neg')
+    + tile('매매 횟수', num(st.n) + '회', st.closed + '회 청산 완료')
+    + tile('승률', st.win == null ? '—' : st.win.toFixed(0) + '%',
+           st.closed ? '청산 ' + st.closed + '회 기준' : '아직 청산 없음')
+    + '</div>';
+
+  if (typeof echarts === 'undefined') return;
+  if (!prevChart) prevChart = echarts.init($('stratPrevBox'));
+  if (!snaps.length){ prevChart.clear(); return; }
+  prevChart.setOption({
+    backgroundColor:'transparent', animation:false,
+    grid:{ left:70, right:20, top:18, bottom:34 },
+    tooltip:{ trigger:'axis',
+      formatter:function(ps){
+        return fmtDateKo(ps[0].value[0]) + '<br><b>' + num(ps[0].value[1]) + '원</b>'; } },
+    xAxis:{ type:'time', axisLine:{ lineStyle:{ color:'#e2e6f0' } },
+      axisLabel:{ fontSize:10, color:'#5a6278', hideOverlap:true,
+        formatter:{ year:'{yyyy}년', month:'{M}월', day:'{M}/{d}', none:'{yyyy}-{MM}-{dd}' } } },
+    yAxis:{ type:'value', scale:true, splitLine:{ lineStyle:{ color:'#eef1f7' } },
+      axisLabel:{ fontSize:10, color:'#5a6278',
+        formatter: wonAxis } },
+    series:[{ type:'line', showSymbol:false,
+      lineStyle:{ color: st.ret >= 0 ? '#1f8a70' : '#c0392b', width:2 },
+      areaStyle:{ color: st.ret >= 0 ? 'rgba(31,138,112,.10)' : 'rgba(192,57,43,.10)' },
+      data: snaps.map(function(s){ return [s.d, Number(s.total)]; }),
+      markLine:{ silent:true, symbol:'none',
+        lineStyle:{ color:'#9aa3b8', type:'dashed' },
+        label:{ formatter:'시드', fontSize:10, color:'#5a6278' },
+        data:[{ yAxis: seed }] } }]
+  }, true);
+}
+
 async function runStrategy(){
   var msg = $('stratMsg');
   msg.style.color = 'var(--text-sub)';
@@ -3388,6 +3682,19 @@ async function runStrategy(){
   var tinfo = teams.filter(function(t){ return t.id === team; })[0] || {};
   var startDate = tinfo.started_on || '2026-01-01';
   var seed = Number(tinfo.seed || 100000000);
+
+  // 미국 종목이 있으면 환율이 먼저 있어야 합니다
+  var hasUS = stratList.some(function(st){
+    return (st.config.symbols||[]).some(function(sy){ return sy.market === 'US'; }); });
+  if (hasUS){
+    msg.textContent = '환율을 받아오는 중…';
+    if (!await loadFxSeries(backDate(startDate, 400))){
+      msg.style.color = 'var(--danger)';
+      msg.textContent = '원/달러 환율을 받지 못해 해외 종목을 계산할 수 없습니다. '
+                      + '경제지표 탭에서 "원/달러 환율"을 한 번 조회한 뒤 다시 시도해주세요.';
+      return;
+    }
+  }
 
   // 필요한 종목의 과거 종가를 모읍니다
   var need = {};
@@ -3423,8 +3730,8 @@ async function runStrategy(){
     var u = (await sb.auth.getUser()).data.user;
     var rows = generated.map(function(t){
       return { team_id: team, market:t.market, symbol:t.symbol, name:t.name,
-               side:t.side, qty:t.qty, price:t.price, traded_on:t.traded_on,
-               auto: true, created_by: u ? u.id : null };
+               side:t.side, qty:t.qty, price:t.price, fx: t.fx || 1,
+               traded_on:t.traded_on, auto: true, created_by: u ? u.id : null };
     });
     for (var j=0;j<rows.length;j+=200){
       var ins = await sb.from('trades').insert(rows.slice(j, j+200));
@@ -3434,7 +3741,7 @@ async function runStrategy(){
 
   // 과거 스냅샷까지 전부 다시 계산
   msg.textContent = '일별 기록을 다시 계산하는 중…';
-  var man = await sb.from('trades').select('market,symbol,side,qty,price,traded_on').eq('team_id', team);
+  var man = await sb.from('trades').select('market,symbol,side,qty,price,fx,traded_on').eq('team_id', team);
   var snaps = rebuildSnapshots(man.data || [], priceMap, seed, startDate);
   if (snaps.length){
     var rs = await sb.rpc('replace_snapshots', { p_team_id: team, p_rows: snaps });
