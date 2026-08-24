@@ -615,6 +615,16 @@
           <!-- ⑤ 확인 -->
           <div class="st-sec" style="border:none;padding-bottom:0;margin-bottom:0">
             <div class="st-h"><span class="st-n">5</span>돌려보고 저장</div>
+            <div class="row">
+              <label>백테스트 기간</label>
+              <select id="stBackDays" onchange="lastPreview=null" style="width:130px">
+                <option value="30">최근 1개월</option>
+                <option value="90" selected>최근 3개월</option>
+                <option value="180">최근 6개월</option>
+                <option value="365">최근 1년</option>
+              </select>
+              <span class="st-hint">활동 기간과 같은 3개월로 보는 게 가장 현실적입니다</span>
+            </div>
             <button class="btn-sm" style="width:100%" id="stratPrevBtn" onclick="previewStrategy()">
               미리 돌려보기 — 기록에 남지 않습니다
             </button>
@@ -626,6 +636,7 @@
               </div>
               <div id="stratPrevTiles"></div>
               <div id="stratPrevBox"></div>
+              <div id="stratPrevQuant" style="margin-top:16px"></div>
             </div>
             <div id="stratHist" class="strat-hist"></div>
           </div>
@@ -713,7 +724,7 @@
       </div>
 
       <div class="card">
-        <h2>팀 순위</h2>
+        <h2>팀 성적표 <span style="font-size:11.5px;font-weight:400;color:var(--text-sub)">— 항목을 눌러 정렬</span></h2>
         <div class="scroll"><table id="lbTable"></table></div>
       </div>
 
@@ -1002,7 +1013,7 @@ var DOMAIN       = String(CFG.LOGIN_DOMAIN || '@safe.sogang').trim();
 var sb = null, configError = null, me = null, loggedThisSession = false;
 var theme = null, catalog = [], series = [], chart = null;
 var teams = [], team = null, tstate = null, pieChart = null, pnlChart = null, benchChart = null;
-var benchCache = null;
+var benchCache = null, rfCache = null;
 
 if (!window.SAFE_CONFIG) {
   configError = 'config.js 파일을 찾을 수 없습니다. index.html 과 같은 폴더에 있어야 합니다.';
@@ -1592,6 +1603,7 @@ function downloadCSV(){
 
 window.addEventListener('resize', function(){
   [chart,pieChart,pnlChart,benchChart,coFinChart,coPriceChart,prevChart]
+    .concat(Object.keys(distCharts).map(function(k){ return distCharts[k]; }))
     .forEach(function(c){ if (c) c.resize(); });
 });
 
@@ -2455,19 +2467,52 @@ async function getBenchmark(from){
   return benchCache;
 }
 
-/* ── 퀀트 지표 ── */
-async function loadQuant(){
-  if (!team) return;
-  var box = $('quantBody');
-  var r = await sb.rpc('team_history', { p_team_id: team });
-  var hist = (r.data && !r.error) ? r.data : [];
-  if (hist.length < 5){
-    box.innerHTML = '<div class="empty">일별 기록이 5일 이상 쌓이면 계산됩니다. (현재 '+hist.length+'일)</div>';
-    return;
-  }
-  var bench = await getBenchmark(hist[0].d);
-  var rf = await getRiskFree();
+/* ══════════ 퀀트 지표 ══════════
+   기관 리포트에서 쓰는 지표들을 한 화면에 모았습니다.
+   실제 운용 성과와 백테스트 결과 모두 같은 함수로 계산합니다. */
 
+function pctl(sorted, q){
+  if (!sorted.length) return 0;
+  var i = (sorted.length - 1) * q;
+  var lo = Math.floor(i), hi = Math.ceil(i);
+  return lo === hi ? sorted[lo] : sorted[lo] + (sorted[hi]-sorted[lo])*(i-lo);
+}
+function skewness(a){
+  var n=a.length; if (n<3) return 0;
+  var m=avg(a), sd=std(a); if (!sd) return 0;
+  return a.reduce(function(s,x){ return s + Math.pow((x-m)/sd,3); },0) * n/((n-1)*(n-2));
+}
+function kurtosis(a){                       // 초과첨도
+  var n=a.length; if (n<4) return 0;
+  var m=avg(a), sd=std(a); if (!sd) return 0;
+  var s4=a.reduce(function(s,x){ return s + Math.pow((x-m)/sd,4); },0);
+  return (n*(n+1)*s4)/((n-1)*(n-2)*(n-3)) - 3*(n-1)*(n-1)/((n-2)*(n-3));
+}
+function ulcerIndex(v){
+  if (!v.length) return 0;
+  var peak = v[0], sum = 0;
+  v.forEach(function(x){ if (x>peak) peak=x; var d = peak>0 ? (x/peak-1)*100 : 0; sum += d*d; });
+  return Math.sqrt(sum/v.length);
+}
+function maxLossStreak(rets){
+  var cur=0, mx=0;
+  rets.forEach(function(r){ if (r<0){ cur++; if (cur>mx) mx=cur; } else cur=0; });
+  return mx;
+}
+function recoveryDays(v){                   // 최대낙폭 저점에서 회복까지
+  var peak=v[0], pi=0, mdd=0, ti=0, pAt=0;
+  for (var i=0;i<v.length;i++){
+    if (v[i]>peak){ peak=v[i]; pi=i; }
+    var d = peak>0 ? v[i]/peak-1 : 0;
+    if (d<mdd){ mdd=d; ti=i; pAt=peak; }
+  }
+  if (mdd>=0) return { days:0, done:true };
+  for (var j=ti;j<v.length;j++){ if (v[j]>=pAt) return { days:j-ti, done:true }; }
+  return { days:v.length-1-ti, done:false };
+}
+
+/* 일별 자산 곡선에서 지표 일체를 계산합니다 */
+function quantMetrics(hist, bench, rf, seed){
   var vals = hist.map(function(h){ return Number(h.total); });
   var rets = [];
   for (var i=1;i<vals.length;i++){ if (vals[i-1] > 0) rets.push(vals[i]/vals[i-1]-1); }
@@ -2482,41 +2527,218 @@ async function loadQuant(){
 
   var days = rets.length || 1;
   var mean = avg(rets), sd = std(rets);
-  var totalRet = vals[0] > 0 ? (vals[vals.length-1]/vals[0]-1) : 0;
+  var base = seed || vals[0];
+  var totalRet = base > 0 ? (vals[vals.length-1]/base - 1) : 0;
   var years = Math.max(days/252, 1/252);
   var cagr = Math.pow(1+totalRet, 1/years) - 1;
-  var vol = sd * Math.sqrt(252);
-  var sharpe = vol > 0 ? (mean*252 - rf) / vol : 0;
-  var down = rets.filter(function(x){ return x < 0; });
-  var dsd = std(down) * Math.sqrt(252);
+  var vol  = sd * Math.sqrt(252);
+
+  var neg = rets.map(function(r){ return Math.min(r,0); });
+  var dsd = Math.sqrt(avg(neg.map(function(x){ return x*x; }))) * Math.sqrt(252);
+
+  var sharpe  = vol > 0 ? (mean*252 - rf) / vol : 0;
   var sortino = dsd > 0 ? (mean*252 - rf) / dsd : 0;
-  var mdd = maxDrawdown(vals);
-  var beta = variance(brets) > 0 ? covariance(rets, brets) / variance(brets) : 0;
+  var mdd     = maxDrawdown(vals);
+  var calmar  = mdd < 0 ? cagr / Math.abs(mdd) : 0;
+
+  var bvar = variance(brets);
+  var beta = bvar > 0 ? covariance(rets, brets) / bvar : 0;
   var bTotal = (bvals[0] && bvals[bvals.length-1]) ? (bvals[bvals.length-1]/bvals[0]-1) : 0;
   var bCagr = Math.pow(1+bTotal, 1/years) - 1;
   var alpha = cagr - (rf + beta*(bCagr - rf));
-  var calmar = mdd < 0 ? cagr / Math.abs(mdd) : 0;
-  var winRate = rets.length ? rets.filter(function(x){ return x>0; }).length / rets.length * 100 : 0;
+  var corr  = (sd>0 && std(brets)>0) ? covariance(rets,brets)/(sd*std(brets)) : 0;
 
-  var s = function(k,v,d,cls){ return tile(k,v,d,cls); };
-  box.innerHTML = '<div class="tiles">'
-    + s('누적 수익률', pct(totalRet*100), hist.length+'일', totalRet>=0?'pos':'neg')
-    + s('연환산 (CAGR)', pct(cagr*100), '연 기준', cagr>=0?'pos':'neg')
-    + s('변동성', (vol*100).toFixed(2)+'%', '연환산 표준편차')
-    + s('샤프지수', sharpe.toFixed(2), '위험 대비 수익', sharpe>=1?'pos':'')
-    + s('소르티노', sortino.toFixed(2), '하락 위험 대비')
-    + s('최대낙폭', (mdd*100).toFixed(2)+'%', 'MDD', 'neg')
-    + s('칼마지수', calmar.toFixed(2), 'CAGR ÷ MDD')
-    + s('베타', beta.toFixed(2), 'S&P500 민감도')
-    + s('알파', pct(alpha*100), '시장 초과 성과', alpha>=0?'pos':'neg')
-    + s('승률', winRate.toFixed(1)+'%', '상승 마감일 비율')
-    + '</div>'
-    + '<div class="note info" style="margin-top:4px;margin-bottom:0">'
-    + '무위험수익률은 <b>미국 국채 3개월(' + (rf*100).toFixed(2) + '%)</b>, 벤치마크는 <b>S&amp;P 500</b> 입니다. '
-    + '표본이 짧으면 샤프·알파·베타는 크게 흔들립니다. <b>최소 한 달 이상</b> 쌓인 뒤 해석하세요.</div>';
+  var diff = rets.map(function(r,k){ return r - (brets[k]||0); });
+  var te = std(diff) * Math.sqrt(252);
+  var ir = te > 0 ? (avg(diff)*252) / te : 0;
+  var treynor = beta !== 0 ? (mean*252 - rf) / beta : 0;
+
+  var gain = rets.filter(function(r){ return r>0; }).reduce(function(a,x){ return a+x; },0);
+  var loss = rets.filter(function(r){ return r<0; }).reduce(function(a,x){ return a-x; },0);
+  var omega = loss > 0 ? gain/loss : 0;
+
+  var sorted = rets.slice().sort(function(a,b){ return a-b; });
+  var var95  = pctl(sorted, 0.05);
+  var tail   = sorted.filter(function(r){ return r <= var95; });
+  var cvar95 = tail.length ? avg(tail) : var95;
+
+  var upB = [], upP = [], dnB = [], dnP = [];
+  brets.forEach(function(b,k){
+    if (b > 0){ upB.push(b); upP.push(rets[k]); }
+    else if (b < 0){ dnB.push(b); dnP.push(rets[k]); }
+  });
+  var upCap = avg(upB) !== 0 ? avg(upP)/avg(upB)*100 : 0;
+  var dnCap = avg(dnB) !== 0 ? avg(dnP)/avg(dnB)*100 : 0;
+
+  var rec = recoveryDays(vals);
+
+  return {
+    days: hist.length, rets: rets, brets: brets,
+    totalRet: totalRet, cagr: cagr, bTotal: bTotal, excess: totalRet - bTotal,
+    vol: vol, dsd: dsd, mdd: mdd, ulcer: ulcerIndex(vals),
+    var95: var95, cvar95: cvar95,
+    sharpe: sharpe, sortino: sortino, calmar: calmar, ir: ir, treynor: treynor, omega: omega,
+    beta: beta, alpha: alpha, corr: corr, te: te, upCap: upCap, dnCap: dnCap,
+    winRate: rets.length ? rets.filter(function(x){ return x>0; }).length/rets.length*100 : 0,
+    lossStreak: maxLossStreak(rets), recovery: rec,
+    skew: skewness(rets), kurt: kurtosis(rets), rf: rf
+  };
 }
 
-var rfCache = null;
+function quantHTML(m, note){
+  function g(title, hint, tiles){
+    return '<div class="q-group"><div class="q-title">' + esc(title)
+         + (hint ? '<span>' + esc(hint) + '</span>' : '') + '</div>'
+         + '<div class="tiles">' + tiles + '</div></div>';
+  }
+  var p = function(v){ return v>=0?'pos':'neg'; };
+
+  return g('수익', '벤치마크는 S&P 500',
+      tile('누적 수익률', pct(m.totalRet*100), m.days + '일', p(m.totalRet))
+    + tile('연환산 (CAGR)', pct(m.cagr*100), '연 기준', p(m.cagr))
+    + tile('벤치마크', pct(m.bTotal*100), '같은 기간 S&P 500')
+    + tile('초과 수익', pct(m.excess*100), '벤치마크 대비', p(m.excess)))
+
+  + g('위험', '낮을수록 좋습니다',
+      tile('변동성', (m.vol*100).toFixed(2)+'%', '연환산 표준편차')
+    + tile('하방 변동성', (m.dsd*100).toFixed(2)+'%', '손실 구간만')
+    + tile('최대 낙폭', (m.mdd*100).toFixed(2)+'%', 'MDD', 'neg')
+    + tile('울서 지수', m.ulcer.toFixed(2), '낙폭의 깊이×기간')
+    + tile('VaR 95%', (m.var95*100).toFixed(2)+'%', '하루 최악 5% 경계', 'neg')
+    + tile('CVaR 95%', (m.cvar95*100).toFixed(2)+'%', '그 5%의 평균', 'neg'))
+
+  + g('위험조정 수익', '위험 1단위당 얼마를 벌었나',
+      tile('샤프지수', m.sharpe.toFixed(2), '1 이상이면 양호', m.sharpe>=1?'pos':'')
+    + tile('소르티노', m.sortino.toFixed(2), '하락 위험 대비', m.sortino>=1?'pos':'')
+    + tile('칼마지수', m.calmar.toFixed(2), 'CAGR ÷ MDD')
+    + tile('정보비율', m.ir.toFixed(2), '초과수익 ÷ 추적오차', m.ir>=0.5?'pos':'')
+    + tile('트레이너', pct(m.treynor*100), '베타 1단위당 초과수익')
+    + tile('오메가', m.omega.toFixed(2), '이익 합 ÷ 손실 합', m.omega>=1?'pos':'neg'))
+
+  + g('시장 대비', 'S&P 500 기준',
+      tile('베타', m.beta.toFixed(2), '시장 민감도')
+    + tile('알파', pct(m.alpha*100), '시장으로 설명 안 되는 성과', p(m.alpha))
+    + tile('상관계수', m.corr.toFixed(2), '−1 ~ +1')
+    + tile('추적오차', (m.te*100).toFixed(2)+'%', '벤치마크와 벌어진 정도')
+    + tile('상승장 포착', m.upCap.toFixed(0)+'%', '시장이 오를 때', m.upCap>=100?'pos':'')
+    + tile('하락장 포착', m.dnCap.toFixed(0)+'%', '낮을수록 방어 잘함', m.dnCap<=100?'pos':'neg'))
+
+  + g('분포 · 매매', '수익률이 어떤 모양인가',
+      tile('승률', m.winRate.toFixed(1)+'%', '상승 마감일 비율')
+    + tile('최대 연속 손실', m.lossStreak + '일', '가장 길었던 하락 구간')
+    + tile('낙폭 회복', m.recovery.done ? (m.recovery.days + '일') : '미회복',
+           m.recovery.done ? '저점에서 전고점까지' : '아직 전고점 아래')
+    + tile('왜도', m.skew.toFixed(2), '양수면 큰 이익 쪽 꼬리')
+    + tile('첨도', m.kurt.toFixed(2), '높을수록 극단값 잦음'))
+
+  + '<div class="note info" style="margin-top:4px;margin-bottom:0">'
+  + (note ? note + ' ' : '')
+  + '무위험수익률은 <b>미국 국채 3개월(' + (m.rf*100).toFixed(2) + '%)</b>, 벤치마크는 <b>S&amp;P 500</b> 입니다. '
+  + '표본이 짧으면 샤프·알파·베타가 크게 흔들립니다. <b>최소 한 달 이상</b> 쌓인 뒤 해석하세요.</div>';
+}
+
+/* 종목별 손익 기여도 — 실현 + 평가 */
+function attribution(trades, positions){
+  var acc = {};
+  trades.slice().sort(function(a,b){ return String(a.traded_on).localeCompare(String(b.traded_on)); })
+  .forEach(function(t){
+    var k = t.market+'|'+t.symbol, f = Number(t.fx||1), q = Number(t.qty), pr = Number(t.price);
+    acc[k] = acc[k] || { market:t.market, symbol:t.symbol, name:t.name||t.symbol,
+                         qty:0, cost:0, realized:0, trades:0 };
+    var a = acc[k]; a.trades++;
+    if (t.side === 'buy'){ a.qty += q; a.cost += q*pr*f; }
+    else {
+      var avgc = a.qty > 0 ? a.cost/a.qty : 0;
+      a.realized += q*(pr*f - avgc);
+      var keep = Math.max(0, a.qty - q);
+      a.cost = a.qty > 0 ? a.cost*(keep/a.qty) : 0;
+      a.qty = keep;
+    }
+  });
+  (positions||[]).forEach(function(p){
+    var k = p.market+'|'+p.symbol;
+    if (acc[k]) acc[k].unreal = Number(p.pnl||0);
+  });
+  return Object.keys(acc).map(function(k){
+    var a = acc[k];
+    a.unreal = Number(a.unreal || 0);
+    a.total = a.realized + a.unreal;
+    return a;
+  }).sort(function(x,y){ return y.total - x.total; });
+}
+
+function attributionHTML(rows){
+  if (!rows.length) return '';
+  var sum = rows.reduce(function(a,x){ return a + Math.abs(x.total); }, 0) || 1;
+  return '<div class="q-group"><div class="q-title">종목별 기여도 <span>실현 + 평가손익</span></div>'
+    + '<div class="scroll"><table><thead><tr><th>종목</th><th class="num">매매</th>'
+    + '<th class="num">실현손익</th><th class="num">평가손익</th><th class="num">합계</th>'
+    + '<th class="num">기여 비중</th></tr></thead><tbody>'
+    + rows.map(function(x){
+        var c = x.total > 0 ? 'pos' : (x.total < 0 ? 'neg' : '');
+        return '<tr><td><span class="pill '+esc(x.market)+'">'+esc(x.market)+'</span> <b>'
+          + esc(x.name)+'</b></td>'
+          + '<td class="num">'+x.trades+'회</td>'
+          + '<td class="num">'+(x.realized>=0?'+':'')+num(x.realized)+'</td>'
+          + '<td class="num">'+(x.unreal>=0?'+':'')+num(x.unreal)+'</td>'
+          + '<td class="num '+c+'">'+(x.total>=0?'+':'')+num(x.total)+'</td>'
+          + '<td class="num">'+(Math.abs(x.total)/sum*100).toFixed(0)+'%</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+}
+
+/* 일간 수익률 분포 */
+var distCharts = {};
+function drawDist(boxId, rets){
+  if (typeof echarts === 'undefined' || !rets.length) return;
+  var box = $(boxId); if (!box) return;
+  if (!distCharts[boxId]) distCharts[boxId] = echarts.init(box);
+  var distChart = distCharts[boxId];
+  var pctv = rets.map(function(r){ return r*100; });
+  var lo = Math.min.apply(null, pctv), hi = Math.max.apply(null, pctv);
+  var n = 21, w = (hi-lo)/n || 1, bins = new Array(n).fill(0), labels = [];
+  for (var i=0;i<n;i++) labels.push((lo + w*(i+0.5)).toFixed(1)+'%');
+  pctv.forEach(function(v){ var i = Math.min(n-1, Math.max(0, Math.floor((v-lo)/w))); bins[i]++; });
+  distChart.setOption({
+    backgroundColor:'transparent', animation:false,
+    grid:{ left:46, right:20, top:18, bottom:40 },
+    tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' },
+      formatter:function(ps){ return ps[0].name + '<br>' + ps[0].value + '일'; } },
+    xAxis:{ type:'category', data:labels, axisLine:{ lineStyle:{ color:'#e2e6f0' } },
+      axisLabel:{ fontSize:10, color:'#5a6278', interval: 3 } },
+    yAxis:{ type:'value', splitLine:{ lineStyle:{ color:'#eef1f7' } },
+      axisLabel:{ fontSize:10, color:'#5a6278' } },
+    series:[{ type:'bar', data:bins, barMaxWidth:22,
+      itemStyle:{ color:function(p){ return parseFloat(labels[p.dataIndex]) < 0 ? '#c0392b' : '#1f8a70'; } } }]
+  }, true);
+}
+
+async function loadQuant(){
+  if (!team) return;
+  var box = $('quantBody');
+  var r = await sb.rpc('team_history', { p_team_id: team });
+  var hist = (r.data && !r.error) ? r.data : [];
+  if (hist.length < 5){
+    box.innerHTML = '<div class="empty">일별 기록이 5일 이상 쌓이면 계산됩니다. (현재 '+hist.length+'일)</div>';
+    return;
+  }
+  box.innerHTML = '<div class="empty">계산 중…</div>';
+  var bench = await getBenchmark(hist[0].d);
+  var rf = await getRiskFree();
+  var seed = Number((tstate && tstate.seed) || hist[0].total);
+  var m = quantMetrics(hist, bench, rf, seed);
+
+  var tr = await sb.from('trades')
+    .select('market,symbol,name,side,qty,price,fx,traded_on').eq('team_id', team);
+
+  box.innerHTML = quantHTML(m)
+    + attributionHTML(attribution(tr.data || [], (tstate && tstate.positions) || []))
+    + '<div class="q-group" style="margin-bottom:0"><div class="q-title">일간 수익률 분포 '
+    + '<span>가운데가 두툼하고 왼쪽 꼬리가 짧을수록 안정적입니다</span></div>'
+    + '<div id="distBox"></div></div>';
+  drawDist('distBox', m.rets);
+}
+
+/* 무위험수익률 — 미국 국채 3개월 */
 async function getRiskFree(){
   if (rfCache != null) return rfCache;
   try {
@@ -3940,7 +4162,8 @@ async function previewStrategy(){
 
   btn.disabled = true;
   var tinfo = teams.filter(function(t){ return t.id === team; })[0] || {};
-  var startDate = contest.scan_start || tinfo.started_on || today();
+  var backDays = Number(($('stBackDays') && $('stBackDays').value) || 90);
+  var startDate = backDate(today(), backDays);
   var seed = Number(tinfo.seed || 100000000);
 
   try {
@@ -3965,7 +4188,18 @@ async function previewStrategy(){
     var trades = replayStrategy(list, priceMap, seed, startDate, manual);
     var snaps  = rebuildSnapshots(manual.concat(trades), priceMap, seed, startDate);
     var st     = previewStats(trades, snaps, seed);
-    renderPreview(st, snaps, seed);
+
+    // 실제 운용과 같은 방식으로 퀀트 지표까지 계산합니다
+    var m = null;
+    if (snaps.length >= 5){
+      btn.textContent = '지표 계산 중…';
+      try {
+        var bench = await getBenchmark(snaps[0].d);
+        var rf    = await getRiskFree();
+        m = quantMetrics(snaps, bench, rf, seed);
+      } catch(e){ m = null; }
+    }
+    renderPreview(st, snaps, seed, m, trades, backDays);
     lastPreview = st;
 
     var need = Number(contest.min_auto_trades || 10);
@@ -3981,9 +4215,19 @@ async function previewStrategy(){
   btn.disabled = false; btn.textContent = '미리 돌려보기 — 기록에 남지 않습니다';
 }
 
-function renderPreview(st, snaps, seed){
+function renderPreview(st, snaps, seed, m, trades, backDays){
   show('stratPreview');
   var cls = st.ret >= 0 ? 'pos' : 'neg';
+  var q = $('stratPrevQuant');
+  if (q){
+    q.innerHTML = m
+      ? quantHTML(m, '<b>지난 ' + (backDays||90) + '일</b>을 그대로 재생한 결과입니다.')
+        + attributionHTML(attribution(trades || [], []))
+        + '<div class="q-group" style="margin-bottom:0"><div class="q-title">일간 수익률 분포</div>'
+        + '<div id="prevDistBox" style="width:100%;height:230px"></div></div>'
+      : '';
+    if (m) setTimeout(function(){ drawDist('prevDistBox', m.rets); }, 30);
+  }
   $('stratPrevTiles').innerHTML = '<div class="tiles">'
     + tile('최종 자산', num(st.last), '시드 ' + num(seed), cls)
     + tile('수익률', pct(st.ret), snaps.length + '일 기준', cls)
