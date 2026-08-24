@@ -140,6 +140,22 @@
     font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
   .step .t{font-size:.82rem;line-height:1.5}
   .step .t b{display:block;font-size:.86rem;margin-bottom:2px}
+  .st-sec{border-bottom:1px solid var(--border);padding-bottom:18px;margin-bottom:18px}
+  .st-h{display:flex;align-items:center;gap:9px;font-size:.92rem;font-weight:700;
+    color:var(--primary);margin-bottom:12px}
+  .st-n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;
+    font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .st-sub{font-weight:400;color:var(--text-sub);font-size:.8rem}
+  .st-hint{font-size:11.5px;color:var(--text-sub);line-height:1.6}
+  .st-big{font-size:1.15rem;font-weight:700;color:var(--primary);min-width:56px;text-align:right;
+    font-variant-numeric:tabular-nums}
+  .exit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+  .exit-card{border:1px solid var(--border);border-radius:11px;padding:12px 14px;background:var(--bg)}
+  .exit-card.danger{border-left:3px solid var(--danger)}
+  .exit-card.ok{border-left:3px solid var(--ok)}
+  .exit-top{display:flex;align-items:center;gap:8px;margin-bottom:9px;cursor:pointer}
+  .exit-top input{width:auto}
+  .exit-top b{font-size:.88rem}
   .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
   .preset{flex:1 1 210px;text-align:left;padding:10px 12px;border:1px solid var(--border);
     border-radius:10px;background:var(--white);cursor:pointer}
@@ -455,92 +471,164 @@
       </div>
 
       <div id="tradingBody" class="hidden">
-        <div class="mode-seg" id="modeSeg">
-          <button id="modeManual" onclick="setMode('manual')">직접 매매</button>
-          <button id="modeStrategy" onclick="setMode('strategy')">전략 자동매매</button>
+        <div class="note info" style="margin-bottom:16px">
+          <b>직접 매매와 자동매매를 함께 쓸 수 있습니다.</b>
+          아래에서 직접 사고팔고, 남은 현금 중 정한 비중만큼을 자동매매에 맡기세요.
+          자동매매를 다시 돌려도 <b>직접 넣은 거래는 지워지지 않습니다.</b>
         </div>
 
         <!-- ── 전략 ── -->
-        <div id="strategyCard" class="card hidden">
+        <div id="strategyCard" class="card">
           <h2>
-            <span>매매 전략</span>
+            <span>자동매매 전략</span>
             <span class="tools">
               <button class="btn-sm" onclick="loadStrategy()">되돌리기</button>
-              <button class="btn-sm btn-solid" id="stratSaveBtn" onclick="saveStrategy()">저장하고 다시 돌리기</button>
+              <button class="btn-sm btn-solid" id="stratSaveBtn" onclick="saveStrategy()">저장하고 실행</button>
             </span>
           </h2>
 
-          <div class="steps">
-            <div class="step"><div class="n">1</div><div class="t"><b>종목과 배분</b>
-              살 종목을 넣고 시드를 몇 %씩 나눌지 정합니다.</div></div>
-            <div class="step"><div class="n">2</div><div class="t"><b>매수 · 매도 조건</b>
-              아래 템플릿을 눌러 시작하면 빠릅니다.</div></div>
-            <div class="step"><div class="n">3</div><div class="t"><b>미리 돌려보기</b>
-              기록에 남기지 않고 결과만 확인합니다.</div></div>
-            <div class="step"><div class="n">4</div><div class="t"><b>저장하고 다시 돌리기</b>
-              이때 실제 거래 기록이 만들어집니다.</div></div>
-          </div>
+          <div id="uniNote"></div>
 
-          <div class="note info" style="margin-bottom:16px">
-            조건에 맞는 날의 <b>종가로 매매를 기록</b>합니다. 실제 주문이 아니라 전부 모의(페이퍼)입니다.<br>
-            전략을 바꾸면 <b>바꾼 날부터</b> 새 전략이 적용되고, 그 전 거래는 그대로 남습니다.
-          </div>
-
-          <h4 style="font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:9px">전략 템플릿 <span style="font-weight:400;color:var(--text-sub);font-size:.8rem">— 누르면 조건이 채워집니다</span></h4>
-          <div class="presets" id="stratPresets"></div>
-
-          <h4 style="font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:9px">대상 종목과 배분</h4>
-          <div id="symRows"></div>
-          <div id="allocMsg"></div>
-          <button class="btn-sm" style="width:100%;margin-bottom:16px" onclick="addSymRow()">+ 종목 추가</button>
-
-          <h4 style="font-size:.85rem;font-weight:700;color:var(--up);margin-bottom:9px">매수 조건 <span style="font-weight:400;color:var(--text-sub);font-size:.8rem">— 모두 만족할 때</span></h4>
-          <div id="buyRows"></div>
-          <button class="btn-sm" style="width:100%;margin-bottom:16px" onclick="addRule('buy')">+ 매수 조건 추가</button>
-
-          <h4 style="font-size:.85rem;font-weight:700;color:var(--down);margin-bottom:9px">매도 조건 <span style="font-weight:400;color:var(--text-sub);font-size:.8rem">— 하나라도 만족하면</span></h4>
-          <div id="sellRows"></div>
-          <button class="btn-sm" style="width:100%;margin-bottom:16px" onclick="addRule('sell')">+ 매도 조건 추가</button>
-
-          <div class="row">
-            <label>매수량</label>
-            <select id="stBuyPct" style="width:130px">
-              <option value="100">배정금 전액</option>
-              <option value="50">배정금의 50%</option>
-              <option value="33">배정금의 33%</option>
-              <option value="25">배정금의 25%</option>
-            </select>
-            <label style="min-width:auto">매도량</label>
-            <select id="stSellPct" style="width:120px">
-              <option value="100">전량</option>
-              <option value="50">절반</option>
-              <option value="33">1/3</option>
-            </select>
-            <label style="min-width:auto">재진입</label>
-            <select id="stCooldown" style="width:110px">
-              <option value="0">제한 없음</option>
-              <option value="3" selected>3일 후</option>
-              <option value="5">5일 후</option>
-              <option value="10">10일 후</option>
-            </select>
-          </div>
-
-          <div class="row" style="margin-top:4px">
-            <button class="btn-sm grow" id="stratPrevBtn" onclick="previewStrategy()">미리 돌려보기 (기록 안 남김)</button>
-          </div>
-
-          <div class="msg" id="stratMsg"></div>
-
-          <div id="stratPreview" class="hidden" style="border:1px solid var(--border);border-radius:11px;
-               padding:14px;margin-top:12px;background:var(--bg)">
-            <div style="font-size:.86rem;font-weight:700;color:var(--primary);margin-bottom:10px">
-              미리보기 결과 <span style="font-weight:400;color:var(--text-sub);font-size:11.5px">— 아직 저장되지 않았습니다</span>
+          <!-- ① 무엇을 살까 -->
+          <div class="st-sec">
+            <div class="st-h"><span class="st-n">1</span>무엇을 살까</div>
+            <div class="mode-seg" id="stModeSeg" style="margin-bottom:12px">
+              <button id="stMode-scan"  onclick="setStMode('scan')">전 종목 스캔</button>
+              <button id="stMode-fixed" onclick="setStMode('fixed')">종목 직접 지정</button>
             </div>
-            <div id="stratPrevTiles"></div>
-            <div id="stratPrevBox"></div>
+
+            <div id="stScanBox">
+              <div class="note info" style="margin-bottom:12px">
+                학회가 정한 <b id="uniCount">전</b> 종목을 매일 훑어서 조건에 맞는 것을 삽니다.
+                종목을 미리 고를 필요가 없고, 3개월 안에 신호가 안 나올 걱정도 훨씬 적습니다.
+              </div>
+              <div class="row">
+                <label>최대 보유</label>
+                <select id="stMaxPos" onchange="stratChanged()" style="width:110px">
+                  <option value="3">3종목</option>
+                  <option value="5" selected>5종목</option>
+                  <option value="8">8종목</option>
+                  <option value="10">10종목</option>
+                </select>
+                <label style="min-width:auto">종목당 배정</label>
+                <select id="stPerPct" onchange="stratChanged()" style="width:110px">
+                  <option value="10">10%</option>
+                  <option value="20" selected>20%</option>
+                  <option value="25">25%</option>
+                  <option value="33">33%</option>
+                </select>
+                <span id="stScanHint" class="st-hint"></span>
+              </div>
+            </div>
+
+            <div id="stFixedBox" class="hidden">
+              <div id="symRows"></div>
+              <div id="allocMsg"></div>
+              <button class="btn-sm" style="width:100%" onclick="addSymRow()">+ 종목 추가</button>
+            </div>
           </div>
 
-          <div id="stratHist" class="strat-hist"></div>
+          <!-- ② 얼마나 굴릴까 -->
+          <div class="st-sec">
+            <div class="st-h"><span class="st-n">2</span>자동매매에 얼마를 맡길까</div>
+            <div class="row">
+              <input type="range" id="stAutoPct" min="0" max="100" step="5" value="100"
+                     oninput="stratChanged()" style="flex:1;min-width:180px">
+              <span id="stAutoV" class="st-big">100%</span>
+            </div>
+            <div class="st-hint" id="stAutoHint"></div>
+          </div>
+
+          <!-- ③ 언제 살까 -->
+          <div class="st-sec">
+            <div class="st-h"><span class="st-n">3</span>언제 살까 <span class="st-sub">— 조건을 모두 만족할 때</span></div>
+            <div class="presets" id="stratPresets"></div>
+            <div id="buyRows"></div>
+            <button class="btn-sm" style="width:100%" onclick="addRule('buy')">+ 매수 조건 추가</button>
+            <div class="row" style="margin-top:12px">
+              <label>나눠 사기</label>
+              <select id="stBuyPct" onchange="stratChanged()" style="width:150px">
+                <option value="100">한 번에 전액</option>
+                <option value="50">2번에 나눠서</option>
+                <option value="33">3번에 나눠서</option>
+                <option value="25">4번에 나눠서</option>
+              </select>
+              <label style="min-width:auto">재진입 대기</label>
+              <select id="stCooldown" onchange="stratChanged()" style="width:110px">
+                <option value="0">제한 없음</option>
+                <option value="3" selected>3일</option>
+                <option value="5">5일</option>
+                <option value="10">10일</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- ④ 언제 팔까 -->
+          <div class="st-sec">
+            <div class="st-h"><span class="st-n">4</span>언제 팔까 <span class="st-sub">— 하나라도 걸리면 매도</span></div>
+
+            <div class="exit-grid">
+              <div class="exit-card danger">
+                <label class="exit-top">
+                  <input type="checkbox" id="stSlOn" onchange="stratChanged()">
+                  <b>손절</b>
+                </label>
+                <div class="row" style="margin:0">
+                  <span class="st-hint">평단 대비</span>
+                  <input type="number" id="stSl" value="7" min="1" max="50" step="1"
+                         oninput="stratChanged()" style="width:70px">
+                  <span class="st-hint">% 하락</span>
+                </div>
+                <div class="st-hint" style="margin-top:6px">잃을 때 어떻게 할지 정하는 게 이 활동의 핵심입니다. 꼭 켜세요.</div>
+              </div>
+
+              <div class="exit-card ok">
+                <label class="exit-top">
+                  <input type="checkbox" id="stTpOn" onchange="stratChanged()">
+                  <b>익절</b>
+                </label>
+                <div class="row" style="margin:0">
+                  <span class="st-hint">평단 대비</span>
+                  <input type="number" id="stTp" value="15" min="1" max="200" step="1"
+                         oninput="stratChanged()" style="width:70px">
+                  <span class="st-hint">% 상승</span>
+                </div>
+                <div class="st-hint" style="margin-top:6px">손절·익절은 걸리면 <b>전량</b> 매도됩니다.</div>
+              </div>
+            </div>
+
+            <div style="margin-top:12px">
+              <div class="st-hint" style="margin-bottom:7px">지표 조건 (선택)</div>
+              <div id="sellRows"></div>
+              <button class="btn-sm" style="width:100%" onclick="addRule('sell')">+ 매도 조건 추가</button>
+              <div class="row" style="margin-top:10px">
+                <label>지표 매도량</label>
+                <select id="stSellPct" onchange="stratChanged()" style="width:130px">
+                  <option value="100">전량</option>
+                  <option value="50">절반</option>
+                  <option value="33">1/3</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- ⑤ 확인 -->
+          <div class="st-sec" style="border:none;padding-bottom:0;margin-bottom:0">
+            <div class="st-h"><span class="st-n">5</span>돌려보고 저장</div>
+            <button class="btn-sm" style="width:100%" id="stratPrevBtn" onclick="previewStrategy()">
+              미리 돌려보기 — 기록에 남지 않습니다
+            </button>
+            <div class="msg" id="stratMsg"></div>
+            <div id="stratPreview" class="hidden" style="border:1px solid var(--border);border-radius:11px;
+                 padding:14px;margin-top:12px;background:var(--bg)">
+              <div style="font-size:.86rem;font-weight:700;color:var(--primary);margin-bottom:10px">
+                미리보기 결과 <span style="font-weight:400;color:var(--text-sub);font-size:11.5px">— 아직 저장되지 않았습니다</span>
+              </div>
+              <div id="stratPrevTiles"></div>
+              <div id="stratPrevBox"></div>
+            </div>
+            <div id="stratHist" class="strat-hist"></div>
+          </div>
         </div>
 
         <div class="card" id="manualCard">
@@ -641,6 +729,38 @@
           <button class="btn-sm" onclick="assignMembers()">팀원 배정</button>
         </div>
         <div class="msg" id="teamAdminMsg"></div>
+
+        <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
+          <div style="font-size:.88rem;font-weight:700;color:var(--primary);margin-bottom:8px">
+            허용 종목 (유니버스)
+            <span id="uniStat" style="font-weight:400;color:var(--text-sub);font-size:11.5px"></span>
+          </div>
+          <div class="st-hint" style="margin-bottom:9px">
+            한 줄에 하나씩 <code>시장,종목코드,이름</code> 형식으로 넣으세요.
+            예) <code>KR,005930,삼성전자</code> &nbsp; <code>US,NVDA,NVIDIA</code><br>
+            등록하면 <b>그 안에서만</b> 매매와 전략이 가능합니다. 비워두면 제한이 없습니다.
+            전 종목 스캔 전략을 쓰려면 <b>40~80종목</b> 정도가 적당합니다.
+          </div>
+          <textarea id="uniText" rows="7" spellcheck="false"
+            style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:9px;
+                   font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;line-height:1.7;
+                   background:var(--white);color:var(--text);resize:vertical"
+            placeholder="KR,005930,삼성전자&#10;KR,000660,SK하이닉스&#10;US,NVDA,NVIDIA"></textarea>
+          <div class="row" style="margin-top:9px">
+            <label style="min-width:auto">
+              <input type="checkbox" id="uniReplace" checked style="width:auto;vertical-align:-2px">
+              기존 목록을 지우고 새로 등록
+            </label>
+            <button class="btn-sm btn-solid" onclick="saveUniverse()">종목 등록</button>
+            <button class="btn-sm" onclick="showUniverse()">현재 목록 보기</button>
+            <button class="btn-sm" id="uniWarmBtn" onclick="warmUniverse()">시세 미리 받기</button>
+          </div>
+          <div class="msg" id="uniMsg"></div>
+          <div class="st-hint" style="margin-top:6px">
+            <b>시세 미리 받기</b>는 유니버스 전 종목의 종가를 공용 보관함에 채웁니다.
+            한 번 받아두면 <b>모든 팀이 같이 쓰기 때문에</b> 전략 실행이 훨씬 빨라집니다. 하루 한 번이면 충분합니다.
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2153,11 +2273,8 @@ async function loadTeam(){
   // 팀의 운영 방식(직접 매매 / 전략)에 맞춰 화면 전환
   var tinfo = teams.filter(function(t){ return t.id === team; })[0] || {};
   teamMode = tinfo.mode || 'manual';
-  $('modeManual').classList.toggle('on', teamMode==='manual');
-  $('modeStrategy').classList.toggle('on', teamMode==='strategy');
-  $('strategyCard').classList.toggle('hidden', teamMode!=='strategy');
-  $('manualCard').classList.toggle('hidden', teamMode==='strategy');
-  if (teamMode === 'strategy' && !strat) await loadStrategy();
+  await loadContest();
+  if (!strat) await loadStrategy();
 }
 
 function startOfYear(){
@@ -2569,6 +2686,49 @@ async function loadLeaderboard(){
           + '<td class="num '+cls+'">'+(Number(x.pnl)>=0?'+':'')+num(x.pnl)+'</td>'
           + '<td class="num '+cls+'">'+pct(x.pnl_pct)+'</td></tr>';
       }).join('') + '</tbody>';
+}
+
+/* ── 허용 종목 관리 (임원진) ── */
+async function showUniverse(){
+  await loadContest();
+  $('uniText').value = universe.map(function(u){
+    return u.market + ',' + u.symbol + (u.name ? ',' + u.name : '');
+  }).join('\n');
+  $('uniStat').textContent = universe.length
+    ? '· ' + universe.length + '개 등록됨' : '· 미등록 (제한 없음)';
+}
+
+async function saveUniverse(){
+  var m = $('uniMsg'); m.style.color = 'var(--danger)';
+  var txt = $('uniText').value;
+  var r = await sb.rpc('universe_bulk', { p_text: txt, p_replace: $('uniReplace').checked });
+  if (r.error){ m.textContent = errMsg(r.error); return; }
+  await loadContest();
+  m.style.color = 'var(--ok)';
+  m.textContent = '✅ ' + num(r.data) + '개 처리 — 현재 ' + num(universe.length) + '개 등록됨.';
+  $('uniStat').textContent = '· ' + universe.length + '개 등록됨';
+}
+
+async function warmUniverse(){
+  var b = $('uniWarmBtn'), m = $('uniMsg');
+  await loadContest();
+  if (!universe.length){ m.style.color='var(--danger)'; m.textContent='등록된 종목이 없습니다.'; return; }
+  b.disabled = true;
+  m.style.color = 'var(--text-sub)';
+  var tinfo = teams.filter(function(t){ return t.id === team; })[0] || {};
+  var start = contest.scan_start || tinfo.started_on || today();
+  try {
+    await gatherPrices(universe, start, function(done, all){
+      b.textContent = done + '/' + all;
+      m.textContent = '시세를 받아오는 중… ' + done + '/' + all;
+    });
+    m.style.color = 'var(--ok)';
+    m.textContent = '✅ ' + num(universe.length) + '개 종목 시세를 받아 두었습니다. 이제 모든 팀이 같이 씁니다.';
+  } catch(e){
+    m.style.color = 'var(--danger)';
+    m.textContent = e.message;
+  }
+  b.disabled = false; b.textContent = '시세 미리 받기';
 }
 
 /* ── 팀 관리 (임원진) ── */
@@ -3137,113 +3297,167 @@ function fxAt(day, market){
   return fxPts[j < 0 ? 0 : j].v;
 }
 
-function replayStrategy(strategies, priceMap, seed, startDate){
-  var trades = [];
+/* ══════════ 전략 재생 엔진 ══════════
 
-  // 전략에 등장하는 모든 종목
-  var symbols = {};
-  strategies.forEach(function(st){
-    (st.config.symbols||[]).forEach(function(sy){
-      symbols[sy.market+'|'+sy.symbol] = { market:sy.market, symbol:sy.symbol, name:sy.name || sy.symbol };
-    });
-  });
-  var keys = Object.keys(symbols);
+   두 가지 방식을 지원합니다.
+     지정 종목  — 내가 고른 몇 종목만 매일 검사
+     유니버스 스캔 — 학회가 정한 전 종목을 매일 훑어 조건에 맞는 것을 매수
+
+   매도는 세 가지 중 하나라도 걸리면 실행됩니다.
+     손절(평단 대비 −N%) · 익절(평단 대비 +N%) · 지표 조건
+   손절과 익절은 전량, 지표 조건은 설정한 비율만큼 팝니다.
+
+   손매매(직접 매매)가 있으면 그만큼 현금이 줄어든 상태에서 자동매매가 돌아갑니다. */
+
+function replayStrategy(strategies, priceMap, seed, startDate, manualTrades){
+  var trades = [];
+  var keys = Object.keys(priceMap);
   if (!keys.length) return trades;
 
-  // 종목별 가격 배열 · 지표 · 날짜 색인
+  // 지표를 미리 계산해 두기 위해 모든 규칙을 모읍니다
   var allRules = [];
   strategies.forEach(function(st){
-    (st.config.buy||[]).forEach(function(r){ allRules.push(r); });
-    (st.config.sell||[]).forEach(function(r){ allRules.push(r); });
+    (st.config.buy  || []).forEach(function(r){ allRules.push(r); });
+    (st.config.sell || []).forEach(function(r){ allRules.push(r); });
   });
 
-  var book = {};
-  var dateSet = {};
+  var book = {}, dateSet = {};
   keys.forEach(function(k){
-    var pts = (priceMap[k]||[]).filter(function(p){ return p.d >= startDate; });
-    if (pts.length < 30) { book[k] = null; return; }
+    var pts = (priceMap[k] || []).filter(function(p){ return p.d >= startDate; });
+    if (pts.length < 30){ book[k] = null; return; }        // 자료가 짧으면 제외
     var idx = {};
     pts.forEach(function(p,i){ idx[p.d] = i; dateSet[p.d] = 1; });
-    book[k] = { pts: pts, ctx: buildCtx(pts, allRules), idx: idx,
-                qty: 0, spent: 0, buys: 0, lastAct: -999 };
+    book[k] = { pts:pts, ctx:buildCtx(pts, allRules), idx:idx,
+                qty:0, spent:0, buys:0, lastAct:-999,
+                market:k.split('|')[0], symbol:k.split('|')[1],
+                name:(priceMap[k][0] && priceMap[k][0].n) || k.split('|')[1] };
   });
 
+  // 손매매도 같은 시간축 위에서 현금에 반영합니다
+  var manual = (manualTrades || []).slice()
+    .filter(function(t){ return t.traded_on >= startDate; })
+    .sort(function(a,b){ return a.traded_on.localeCompare(b.traded_on); });
+  manual.forEach(function(t){ dateSet[t.traded_on] = 1; });
+
   var days = Object.keys(dateSet).sort();
-  var cash = seed;
+  var cash = seed, mi = 0;
 
   days.forEach(function(day, dayNo){
+
+    // 0) 그날의 손매매를 먼저 반영 — 남은 현금이 자동매매의 상한이 됩니다
+    while (mi < manual.length && manual[mi].traded_on <= day){
+      var mt = manual[mi];
+      var amt = Number(mt.qty) * Number(mt.price) * Number(mt.fx || 1);
+      cash += (mt.side === 'buy' ? -amt : amt);
+      mi++;
+    }
+
     // 이 날짜에 유효한 전략
     var st = null;
-    for (var k2=0;k2<strategies.length;k2++){
+    for (var k2 = 0; k2 < strategies.length; k2++){
       if (strategies[k2].effective_from <= day) st = strategies[k2];
     }
     if (!st) return;
+    var cfg = st.config || {};
 
-    var buyRules  = st.config.buy  || [];
-    var sellRules = st.config.sell || [];
-    var buyPct  = Number(st.config.buy_pct  != null ? st.config.buy_pct  : 100)/100;
-    var sellPct = Number(st.config.sell_pct != null ? st.config.sell_pct : 100)/100;
-    var cool    = Number(st.config.cooldown || 0);
+    var scan      = cfg.mode === 'scan';
+    var buyRules  = cfg.buy  || [];
+    var sellRules = cfg.sell || [];
+    var buyPct    = Number(cfg.buy_pct  != null ? cfg.buy_pct  : 100)/100;
+    var sellPct   = Number(cfg.sell_pct != null ? cfg.sell_pct : 100)/100;
+    var cool      = Number(cfg.cooldown || 0);
+    var tp        = Number(cfg.tp_pct || 0);
+    var sl        = Number(cfg.sl_pct || 0);
+    var autoCap   = seed * (Number(cfg.auto_budget_pct != null ? cfg.auto_budget_pct : 100)/100);
+    var maxPos    = scan ? Math.max(1, Number(cfg.max_positions || 5)) : 9999;
+    var perPct    = scan ? Math.max(1, Number(cfg.per_position_pct || 20))/100 : 0;
 
-    // 1) 매도 먼저 — 현금이 생겨야 다른 종목을 살 수 있습니다
+    // ── 1) 매도 : 손절 · 익절 · 지표 조건 ──
     keys.forEach(function(k){
-      var b = book[k]; if (!b) return;
+      var b = book[k]; if (!b || b.qty <= 0) return;
       var i = b.idx[day]; if (i == null || i < 1) return;
-      if (b.qty <= 0 || !sellRules.length) return;
-      if ((dayNo - b.lastAct) <= cool) return;
+      var rate = fxAt(day, b.market); if (rate == null) return;
 
-      if (sellRules.some(function(r){ return testRule(r, b.ctx, i); })){
-        var price = b.pts[i].v;
-        var rate  = fxAt(day, symbols[k].market);
-        if (rate == null) return;                    // 환율을 모르면 건너뜁니다
-        var sq = Math.floor(b.qty * sellPct);
-        if (sq > 0){
-          trades.push({ market:symbols[k].market, symbol:symbols[k].symbol, name:symbols[k].name,
-                        side:'sell', qty:sq, price:price, fx:rate, traded_on:day });
-          var keepRatio = (b.qty - sq) / b.qty;
-          b.spent = Math.max(0, b.spent * keepRatio);
-          b.buys  = Math.round(b.buys * keepRatio);   // 다 팔면 0 → 처음부터 다시 분할매수
-          b.qty -= sq;
-          cash += sq * price * rate;                 // 원화로 입금
-          b.lastAct = dayNo;
-        }
-      }
+      var price = b.pts[i].v;
+      var cur   = price * rate;
+      var avg   = b.qty > 0 ? b.spent / b.qty : 0;
+
+      var hitSl   = sl > 0 && avg > 0 && cur <= avg * (1 - sl/100);
+      var hitTp   = tp > 0 && avg > 0 && cur >= avg * (1 + tp/100);
+      var hitRule = sellRules.length > 0 && (dayNo - b.lastAct) > cool
+                    && sellRules.some(function(r){ return testRule(r, b.ctx, i); });
+      if (!hitSl && !hitTp && !hitRule) return;
+
+      // 손절·익절은 전량, 지표 조건은 설정 비율
+      var sq = (hitSl || hitTp) ? b.qty : Math.floor(b.qty * sellPct);
+      if (sq <= 0) return;
+
+      trades.push({ market:b.market, symbol:b.symbol, name:b.name,
+                    side:'sell', qty:sq, price:price, fx:rate, traded_on:day,
+                    reason: hitSl ? '손절' : (hitTp ? '익절' : '조건') });
+
+      var keep = (b.qty - sq) / b.qty;
+      b.spent = Math.max(0, b.spent * keep);
+      b.buys  = Math.round(b.buys * keep);
+      b.qty  -= sq;
+      cash   += sq * price * rate;
+      b.lastAct = dayNo;
     });
 
-    // 2) 매수 — 배정금과 남은 현금 중 작은 쪽까지만
+    // ── 2) 매수 ──
+    var held = 0, autoSpent = 0;
     keys.forEach(function(k){
       var b = book[k]; if (!b) return;
-      var i = b.idx[day]; if (i == null || i < 1) return;
+      if (b.qty > 0) held++;
+      autoSpent += b.spent;
+    });
+
+    var candidates = scan
+      ? keys.filter(function(k){ return book[k] && book[k].qty <= 0; })   // 스캔: 새 종목만
+      : keys;
+
+    candidates.forEach(function(k){
+      var b = book[k]; if (!b) return;
       if (!buyRules.length) return;
+      if (scan && held >= maxPos) return;
+      var i = b.idx[day]; if (i == null || i < 1) return;
       if ((dayNo - b.lastAct) <= cool) return;
 
-      var my = (st.config.symbols||[]).filter(function(x){
-        return x.market===symbols[k].market && x.symbol===symbols[k].symbol; })[0];
-      if (!my) return;
+      var budget;
+      if (scan){
+        budget = autoCap * perPct;
+      } else {
+        var my = (cfg.symbols || []).filter(function(x){
+          return x.market === b.market && x.symbol === b.symbol; })[0];
+        if (!my) return;
+        budget = autoCap * (Number(my.alloc || 0)/100);
+      }
+      if (!(budget > 0)) return;
 
-      var budget = seed * (Number(my.alloc||0)/100);
-      // 몇 번에 나눠 살지 — 100%면 1번, 25%면 최대 4번
       var maxTranches = Math.max(1, Math.round(1 / Math.max(buyPct, 0.01)));
       if (b.buys >= maxTranches) return;
       if (b.spent >= budget * 0.999) return;
+      if (autoSpent >= autoCap * 0.999) return;
+      if (cash <= 0) return;
 
-      if (buyRules.every(function(r){ return testRule(r, b.ctx, i); })){
-        var price = b.pts[i].v;
-        var rate  = fxAt(day, symbols[k].market);
-        if (rate == null) return;                    // 환율을 모르면 건너뜁니다
-        var unit = price * rate;                     // 1주당 원화
-        var tranche = Math.min(budget * buyPct, budget - b.spent, cash);
-        var bq = Math.floor(tranche / unit);
-        if (bq > 0){
-          trades.push({ market:symbols[k].market, symbol:symbols[k].symbol, name:symbols[k].name,
-                        side:'buy', qty:bq, price:price, fx:rate, traded_on:day });
-          b.qty += bq;
-          b.spent += bq * unit;                      // 배정금·지출 모두 원화 기준
-          b.buys += 1;
-          cash -= bq * unit;
-          b.lastAct = dayNo;
-        }
-      }
+      if (!buyRules.every(function(r){ return testRule(r, b.ctx, i); })) return;
+
+      var rate = fxAt(day, b.market); if (rate == null) return;
+      var price = b.pts[i].v, unit = price * rate;
+      var tranche = Math.min(budget * buyPct, budget - b.spent, autoCap - autoSpent, cash);
+      var bq = Math.floor(tranche / unit);
+      if (bq <= 0) return;
+
+      trades.push({ market:b.market, symbol:b.symbol, name:b.name,
+                    side:'buy', qty:bq, price:price, fx:rate, traded_on:day, reason:'조건' });
+
+      if (b.qty <= 0) held++;
+      b.qty   += bq;
+      b.spent += bq * unit;
+      b.buys  += 1;
+      cash      -= bq * unit;
+      autoSpent += bq * unit;
+      b.lastAct  = dayNo;
     });
   });
 
@@ -3257,9 +3471,6 @@ function replayStrategy(strategies, priceMap, seed, startDate){
   return trades;
 }
 
-/* ── 과거 스냅샷 역산 ──
-   거래 내역 + 과거 종가로 지난 날짜의 팀 자산을 전부 계산합니다.
-   매일 접속하지 않아도 퀀트 지표가 정확해집니다. */
 function rebuildSnapshots(allTrades, priceMap, seed, startDate){
   var dates = {};
   Object.keys(priceMap).forEach(function(k){
@@ -3383,22 +3594,19 @@ function symRowHTML(sy, i){
 /* ── 전략 템플릿 ──
    학회원이 빈 화면에서 시작하지 않도록 검증된 조합을 넣어 둡니다. */
 var STRAT_PRESETS = [
-  { name:'RSI 과매도 반등', desc:'많이 빠졌을 때 나눠 사고, 과열되면 전량 매도',
-    buy:[{ind:'RSI',period:14,op:'<',value:30}],
-    sell:[{ind:'RSI',period:14,op:'>',value:70}],
-    buy_pct:50, sell_pct:100, cooldown:3 },
-  { name:'이동평균 골든크로스', desc:'단기선이 장기선을 위로 뚫으면 매수, 아래로 뚫으면 매도',
+  { name:'과매도 반등 (기본)', desc:'RSI 40 아래로 내려온 종목을 나눠 담고 손절 7% · 익절 15%',
+    buy:[{ind:'RSI',period:14,op:'<',value:40}], sell:[],
+    buy_pct:50, sell_pct:100, cooldown:3, sl_pct:7, tp_pct:15 },
+  { name:'눌림목 매수', desc:'20일선보다 3% 이상 아래로 밀린 종목. 신호가 자주 나옵니다',
+    buy:[{ind:'VS_SMA',period:20,op:'<',value:-3}], sell:[],
+    buy_pct:50, sell_pct:100, cooldown:3, sl_pct:6, tp_pct:12 },
+  { name:'추세 진입 (골든크로스)', desc:'5일선이 20일선을 위로 뚫는 순간 매수',
     buy:[{ind:'CROSS',period:5,period2:20,op:'up'}],
     sell:[{ind:'CROSS',period:5,period2:20,op:'down'}],
-    buy_pct:100, sell_pct:100, cooldown:5 },
-  { name:'추세 추종 (MACD + ADX)', desc:'추세가 살아 있을 때만 진입',
-    buy:[{ind:'MACD_CROSS',period:12,period2:26,op:'up'},{ind:'ADX',period:14,op:'>',value:20}],
-    sell:[{ind:'MACD_CROSS',period:12,period2:26,op:'down'}],
-    buy_pct:100, sell_pct:100, cooldown:5 },
-  { name:'볼린저 하단 분할매수', desc:'밴드 하단에서 4회로 나눠 담고 상단에서 매도',
-    buy:[{ind:'BB_PCT',period:20,op:'<',value:5}],
-    sell:[{ind:'BB_PCT',period:20,op:'>',value:95}],
-    buy_pct:25, sell_pct:100, cooldown:3 }
+    buy_pct:100, sell_pct:100, cooldown:5, sl_pct:8, tp_pct:0 },
+  { name:'볼린저 하단', desc:'밴드 하단(%B 10 이하)에서 4번에 나눠 담기',
+    buy:[{ind:'BB_PCT',period:20,op:'<',value:10}], sell:[],
+    buy_pct:25, sell_pct:100, cooldown:3, sl_pct:7, tp_pct:15 }
 ];
 
 function renderPresets(){
@@ -3415,6 +3623,9 @@ function applyPreset(i){
   strat.buy_pct  = p.buy_pct;
   strat.sell_pct = p.sell_pct;
   strat.cooldown = p.cooldown;
+  strat.sl_pct   = p.sl_pct;
+  strat.tp_pct   = p.tp_pct;
+  lastPreview = null;
   renderStrategyEditor();
   warnStrat('"' + p.name + '" 조건을 넣었습니다. 종목을 확인하고 미리 돌려보세요.', 'info');
 }
@@ -3442,8 +3653,60 @@ function renderAlloc(){
     + '</div>';
 }
 
+function setStMode(m){
+  if (!strat) return;
+  strat.mode = m;
+  lastPreview = null;
+  renderStrategyEditor();
+}
+/* 사용자가 설정을 바꾸면 이전 미리보기 결과를 무효로 만듭니다 */
+function stratChanged(){ lastPreview = null; syncStratNums(); }
+
+function syncStratNums(){
+  if (!strat) return;
+  strat.max_positions    = Number($('stMaxPos').value);
+  strat.per_position_pct = Number($('stPerPct').value);
+  strat.auto_budget_pct  = Number($('stAutoPct').value);
+  strat.sl_pct = $('stSlOn').checked ? Number($('stSl').value) : 0;
+  strat.tp_pct = $('stTpOn').checked ? Number($('stTp').value) : 0;
+
+  var tinfo = teams.filter(function(t){ return t.id === team; })[0] || {};
+  var seed  = Number(tinfo.seed || 100000000);
+  var cap   = seed * strat.auto_budget_pct/100;
+
+  $('stAutoV').textContent = strat.auto_budget_pct + '%';
+  $('stAutoHint').innerHTML = '시드 ' + num(seed) + '원 중 <b>' + num(cap)
+    + '원</b>까지 자동매매에 씁니다.'
+    + (strat.auto_budget_pct < 100
+        ? ' 나머지 ' + num(seed - cap) + '원은 직접 매매용으로 남습니다.' : '');
+
+  if (strat.mode === 'scan'){
+    var per = seed * strat.auto_budget_pct/100 * strat.per_position_pct/100;
+    var tot = strat.max_positions * strat.per_position_pct;
+    $('stScanHint').innerHTML = '종목당 약 <b>' + num(per) + '원</b>'
+      + (tot > 100 ? ' · ⚠️ 최대 보유 × 배정 = ' + tot + '% 로 100%를 넘어 뒤쪽 종목은 못 삽니다'
+                   : ' · 최대 ' + tot + '% 사용');
+  }
+}
+
 function renderStrategyEditor(){
   if (!strat) return;
+  if (!strat.mode) strat.mode = 'scan';
+  var scan = strat.mode === 'scan';
+
+  $('stMode-scan').classList.toggle('on', scan);
+  $('stMode-fixed').classList.toggle('on', !scan);
+  $('stScanBox').classList.toggle('hidden', !scan);
+  $('stFixedBox').classList.toggle('hidden', scan);
+
+  $('stMaxPos').value = String(strat.max_positions || 5);
+  $('stPerPct').value = String(strat.per_position_pct || 20);
+  $('stAutoPct').value = String(strat.auto_budget_pct != null ? strat.auto_budget_pct : 100);
+  $('stSlOn').checked = Number(strat.sl_pct || 0) > 0;
+  $('stTpOn').checked = Number(strat.tp_pct || 0) > 0;
+  if (strat.sl_pct) $('stSl').value = strat.sl_pct;
+  if (strat.tp_pct) $('stTp').value = strat.tp_pct;
+
   renderPresets(); renderAlloc();
   $('symRows').innerHTML = (strat.symbols||[]).map(symRowHTML).join('')
     || '<div class="empty" style="padding:16px">종목을 추가해 주세요.</div>';
@@ -3454,23 +3717,27 @@ function renderStrategyEditor(){
   $('stBuyPct').value = String(strat.buy_pct||100);
   $('stSellPct').value = String(strat.sell_pct||100);
   $('stCooldown').value = String(strat.cooldown != null ? strat.cooldown : 3);
+  syncStratNums();
 }
-function addSymRow(){ strat.symbols = strat.symbols||[];
+function addSymRow(){ strat.symbols = strat.symbols||[]; lastPreview = null;
   strat.symbols.push({ market:'KR', symbol:'', name:'', alloc:0 }); renderStrategyEditor(); }
-function delSym(i){ strat.symbols.splice(i,1); renderStrategyEditor(); }
+function delSym(i){ strat.symbols.splice(i,1); lastPreview = null; renderStrategyEditor(); }
 function updSym(i,k,v){
   strat.symbols[i][k] = (k==='alloc') ? Number(v) : v.trim();
+  lastPreview = null;
   renderAlloc();
 }
 function addRule(kind){
+  lastPreview = null;
   strat[kind] = strat[kind]||[];
   var sp = specOf('RSI');
   strat[kind].push({ ind:'RSI', period:sp.d1, op: kind==='buy'?'<':'>',
                      value: kind==='buy'?30:70 });
   renderStrategyEditor();
 }
-function delRule(kind,i){ strat[kind].splice(i,1); renderStrategyEditor(); }
+function delRule(kind,i){ strat[kind].splice(i,1); lastPreview = null; renderStrategyEditor(); }
 function updRule(kind,i,k,v){
+  lastPreview = null;
   var r = strat[kind][i];
   if (k === 'ind'){
     var sp = specOf(v);
@@ -3485,15 +3752,27 @@ function updRule(kind,i,k,v){
   r[k] = (k === 'op') ? v : Number(v);
 }
 
-async function setMode(mode){
-  if (!team) return;
-  teamMode = mode;
-  $('modeManual').classList.toggle('on', mode==='manual');
-  $('modeStrategy').classList.toggle('on', mode==='strategy');
-  $('strategyCard').classList.toggle('hidden', mode!=='strategy');
-  $('manualCard').classList.toggle('hidden', mode==='strategy');
-  await sb.from('teams').update({ mode: mode }).eq('id', team);
-  if (mode==='strategy') await loadStrategy();
+/* 대회 설정과 종목 유니버스 */
+var contest = {}, universe = [];
+
+async function loadContest(){
+  try {
+    var r = await sb.rpc('contest_settings');
+    contest = (r.data && !r.error) ? r.data : {};
+  } catch(e){ contest = {}; }
+
+  var u = await sb.from('universe').select('market,symbol,name').order('market').order('symbol');
+  universe = (u.data && !u.error) ? u.data : [];
+
+  var n = universe.length;
+  if ($('uniCount')) $('uniCount').textContent = n ? (n + '개') : '전';
+  if ($('uniNote')){
+    $('uniNote').innerHTML = n
+      ? ''
+      : '<div class="note warn" style="margin-bottom:14px">아직 <b>허용 종목이 등록되지 않았습니다.</b> '
+        + '전 종목 스캔을 쓰려면 임원진이 아래 <b>팀 관리</b>에서 종목을 먼저 넣어야 합니다.</div>';
+  }
+  return contest;
 }
 
 async function loadStrategy(){
@@ -3502,8 +3781,10 @@ async function loadStrategy(){
   stratList = r.data || [];
   strat = stratList.length
     ? JSON.parse(JSON.stringify(stratList[stratList.length-1].config))
-    : { symbols:[], buy:[{ind:'RSI',period:14,op:'<',value:30}],
-        sell:[{ind:'RSI',period:14,op:'>',value:70}], buy_pct:100, sell_pct:100, cooldown:3 };
+    : { mode:'scan', symbols:[], max_positions:5, per_position_pct:20, auto_budget_pct:100,
+        sl_pct:7, tp_pct:15,
+        buy:[{ind:'RSI',period:14,op:'<',value:40}],
+        sell:[], buy_pct:50, sell_pct:100, cooldown:3 };
   renderStrategyEditor();
   renderStratHistory();
 }
@@ -3519,49 +3800,96 @@ function renderStratHistory(){
 }
 
 async function saveStrategy(){
-  var msg = $('stratMsg'); msg.style.color = 'var(--danger)'; msg.textContent = '';
-  var syms = (strat.symbols||[]).filter(function(s){ return s.symbol; });
-  if (!syms.length){ msg.textContent = '대상 종목을 최소 1개 추가해주세요.'; return; }
-  if (!(strat.buy||[]).length){ msg.textContent = '매수 조건을 최소 1개 추가해주세요.'; return; }
-  var totalAlloc = syms.reduce(function(a,s){ return a + Number(s.alloc||0); }, 0);
-  if (totalAlloc > 100){ msg.textContent = '배분 합계가 100%를 넘습니다. (현재 '+totalAlloc+'%)'; return; }
-  if (totalAlloc === 0){ msg.textContent = '배분 비중을 입력해주세요.'; return; }
+  var cfg = collectStrategy();
+  if (!cfg){ warnStrat('전략을 먼저 불러와 주세요.'); return; }
 
-  strat.symbols = syms;
-  strat.buy_pct = Number($('stBuyPct').value);
-  strat.sell_pct = Number($('stSellPct').value);
-  strat.cooldown = Number($('stCooldown').value);
+  var syms = stratSymbols(cfg);
+  if (!syms.length){
+    warnStrat(cfg.mode === 'scan'
+      ? '허용 종목이 없습니다. 임원진이 팀 관리에서 종목을 등록해야 합니다.'
+      : '종목을 한 개 이상 넣어주세요.'); return;
+  }
+  if (!(cfg.buy||[]).length){ warnStrat('매수 조건을 한 개 이상 넣어주세요.'); return; }
+  if (!Number(cfg.sl_pct) && !Number(cfg.tp_pct) && !(cfg.sell||[]).length){
+    warnStrat('매도 기준이 하나도 없습니다. 손절만이라도 켜주세요.'); return;
+  }
+  if (cfg.mode !== 'scan'){
+    cfg.symbols = syms;
+    var totalAlloc = syms.reduce(function(a,x){ return a + Number(x.alloc||0); }, 0);
+    if (totalAlloc > 100){ warnStrat('배분 합계가 100%를 넘습니다. (현재 '+totalAlloc+'%)'); return; }
+    if (totalAlloc === 0){ warnStrat('배분 비중을 입력해주세요.'); return; }
+  }
+
+  /* 저장 전에 반드시 한 번 돌려봅니다.
+     · 거래가 너무 적은 전략을 걸러내고
+     · 그때의 기대 성적을 함께 남겨 나중에 실제와 비교합니다 */
+  var need = Number(contest.min_auto_trades || 10);
+  if (!lastPreview){
+    warnStrat('설정이 바뀌었습니다. "미리 돌려보기"로 결과를 한 번 확인한 뒤 저장할 수 있습니다.');
+    return;
+  }
+  if (lastPreview.n < need){
+    warnStrat('매매가 ' + lastPreview.n + '회뿐이라 저장할 수 없습니다. 학회 기준은 '
+            + need + '회 이상입니다. 조건을 느슨하게 해보세요.');
+    return;
+  }
 
   $('stratSaveBtn').disabled = true;
-  $('stratSaveBtn').textContent = '계산 중…';
+  $('stratSaveBtn').textContent = '저장 중…';
   try {
     var u = (await sb.auth.getUser()).data.user;
     var ins = await sb.from('strategies').insert({
-      team_id: team, name: '전략', config: strat,
-      effective_from: today(), created_by: u ? u.id : null });
+      team_id: team, name: cfg.mode === 'scan' ? '스캔 전략' : '지정 종목 전략',
+      config: cfg, effective_from: today(), created_by: u ? u.id : null,
+      expect: { ret: lastPreview.ret, mdd: lastPreview.mdd,
+                win: lastPreview.win, n: lastPreview.n, as_of: today() } });
     if (ins.error) throw ins.error;
     await runStrategy();
-    msg.style.color = 'var(--ok)';
   } catch(e){
-    msg.textContent = errMsg(e);
+    warnStrat(errMsg(e));
   } finally {
     $('stratSaveBtn').disabled = false;
-    $('stratSaveBtn').textContent = '저장하고 다시 돌리기';
+    $('stratSaveBtn').textContent = '저장하고 실행';
   }
 }
 
-/* ── 전략 실행 (재생) ── */
-/* ── 미리 돌려보기 ──
+/* ══════════ 미리 돌려보기 ══════════
    DB 를 건드리지 않고 결과만 계산해서 보여줍니다.
    저장 전에 "이 조건이 말이 되나" 를 확인하는 용도입니다. */
-var prevChart = null;
+var prevChart = null, lastPreview = null;
 
 function collectStrategy(){
   if (!strat) return null;
   strat.buy_pct  = Number($('stBuyPct').value);
   strat.sell_pct = Number($('stSellPct').value);
   strat.cooldown = Number($('stCooldown').value);
+  syncStratNums();
+  if (strat.mode === 'scan') strat.symbols = [];
   return strat;
+}
+
+/* 전략이 검사할 종목 목록 — 스캔이면 유니버스 전체 */
+function stratSymbols(cfg){
+  if (cfg.mode === 'scan'){
+    return universe.map(function(u){ return { market:u.market, symbol:u.symbol, name:u.name }; });
+  }
+  return (cfg.symbols || []).filter(function(x){ return x.symbol; });
+}
+
+/* 시세를 한 번에 받아옵니다 (20종목씩 나눠서, 진행 상황 표시) */
+async function gatherPrices(syms, startDate, onProgress){
+  var priceMap = {};
+  for (var i = 0; i < syms.length; i += 20){
+    var chunk = syms.slice(i, i + 20);
+    if (onProgress) onProgress(Math.min(i + chunk.length, syms.length), syms.length);
+    var d = await edgeCall('market-data', {
+      source:'bulk',
+      codes: chunk.map(function(x){ return { market:x.market, symbol:x.symbol }; }),
+      start: backDate(startDate, 200) });
+    var got = d.series || {};
+    Object.keys(got).forEach(function(k){ priceMap[k] = got[k]; });
+  }
+  return priceMap;
 }
 
 function previewStats(trades, snaps, seed){
@@ -3588,20 +3916,31 @@ function previewStats(trades, snaps, seed){
   });
   var closed = win + lose;
   return { n:trades.length, last:last, ret:(last/seed-1)*100, mdd:mdd,
-           win: closed ? win/closed*100 : null, closed:closed };
+           win: closed ? win/closed*100 : null, closed:closed,
+           sl: trades.filter(function(t){ return t.reason === '손절'; }).length,
+           tp: trades.filter(function(t){ return t.reason === '익절'; }).length };
 }
 
 async function previewStrategy(){
   var btn = $('stratPrevBtn');
   var cfg = collectStrategy();
   if (!cfg){ warnStrat('전략을 먼저 불러와 주세요.'); return; }
-  var syms = (cfg.symbols||[]).filter(function(x){ return x.symbol; });
-  if (!syms.length){ warnStrat('종목을 한 개 이상 넣어주세요.'); return; }
+
+  var syms = stratSymbols(cfg);
+  if (!syms.length){
+    warnStrat(cfg.mode === 'scan'
+      ? '허용 종목이 없습니다. 임원진이 팀 관리에서 종목을 등록해야 합니다.'
+      : '종목을 한 개 이상 넣어주세요.');
+    return;
+  }
   if (!(cfg.buy||[]).length){ warnStrat('매수 조건을 한 개 이상 넣어주세요.'); return; }
+  if (!Number(cfg.sl_pct) && !Number(cfg.tp_pct) && !(cfg.sell||[]).length){
+    warnStrat('매도 기준이 하나도 없습니다. 손절만이라도 켜주세요.'); return;
+  }
 
   btn.disabled = true;
   var tinfo = teams.filter(function(t){ return t.id === team; })[0] || {};
-  var startDate = tinfo.started_on || today();
+  var startDate = contest.scan_start || tinfo.started_on || today();
   var seed = Number(tinfo.seed || 100000000);
 
   try {
@@ -3609,26 +3948,37 @@ async function previewStrategy(){
       btn.textContent = '환율 확인 중…';
       if (!await loadFxSeries(backDate(startDate, 400))){
         warnStrat('원/달러 환율을 받지 못했습니다. 경제지표 탭에서 "원/달러 환율"을 한 번 조회해주세요.');
-        btn.disabled = false; btn.textContent = '미리 돌려보기 (기록 안 남김)'; return;
+        btn.disabled = false; btn.textContent = '미리 돌려보기 — 기록에 남지 않습니다'; return;
       }
     }
-    var priceMap = {};
-    for (var i = 0; i < syms.length; i++){
-      btn.textContent = '종가 수집 ' + (i+1) + '/' + syms.length + '…';
-      var d = await edge({ source: syms[i].market==='KR' ? 'quote_kr' : 'quote_us',
-                           code: syms[i].symbol, start: backDate(startDate, 200) });
-      priceMap[syms[i].market+'|'+syms[i].symbol] = d.points || [];
-    }
+    var priceMap = await gatherPrices(syms, startDate, function(done, all){
+      btn.textContent = '시세 ' + done + '/' + all + '…';
+    });
     btn.textContent = '계산 중…';
-    var list  = [{ effective_from: startDate, config: cfg }];
-    var trades = replayStrategy(list, priceMap, seed, startDate);
-    var snaps  = rebuildSnapshots(trades, priceMap, seed, startDate);
-    renderPreview(previewStats(trades, snaps, seed), snaps, seed);
-    warnStrat('미리보기입니다 — 아직 저장되지 않았습니다. 마음에 들면 "저장하고 다시 돌리기"를 누르세요.', 'info');
+
+    var man = await sb.from('trades')
+      .select('market,symbol,side,qty,price,fx,traded_on')
+      .eq('team_id', team).eq('auto', false);
+    var manual = man.data || [];
+
+    var list   = [{ effective_from: startDate, config: cfg }];
+    var trades = replayStrategy(list, priceMap, seed, startDate, manual);
+    var snaps  = rebuildSnapshots(manual.concat(trades), priceMap, seed, startDate);
+    var st     = previewStats(trades, snaps, seed);
+    renderPreview(st, snaps, seed);
+    lastPreview = st;
+
+    var need = Number(contest.min_auto_trades || 10);
+    if (st.n < need){
+      warnStrat('매매가 ' + st.n + '회뿐입니다. 학회 기준은 ' + need + '회 이상이에요. '
+              + '조건을 느슨하게 하거나(예: RSI 30 → 40) 최대 보유 종목을 늘려보세요.');
+    } else {
+      warnStrat('미리보기입니다 — 아직 저장되지 않았습니다. 괜찮으면 "저장하고 실행"을 누르세요.', 'info');
+    }
   } catch(e){
     warnStrat(e.message);
   }
-  btn.disabled = false; btn.textContent = '미리 돌려보기 (기록 안 남김)';
+  btn.disabled = false; btn.textContent = '미리 돌려보기 — 기록에 남지 않습니다';
 }
 
 function renderPreview(st, snaps, seed){
@@ -3638,7 +3988,8 @@ function renderPreview(st, snaps, seed){
     + tile('최종 자산', num(st.last), '시드 ' + num(seed), cls)
     + tile('수익률', pct(st.ret), snaps.length + '일 기준', cls)
     + tile('최대 낙폭', st.mdd.toFixed(1) + '%', '고점 대비 최대 하락', 'neg')
-    + tile('매매 횟수', num(st.n) + '회', st.closed + '회 청산 완료')
+    + tile('매매 횟수', num(st.n) + '회',
+           (st.sl || st.tp) ? ('손절 ' + st.sl + ' · 익절 ' + st.tp) : (st.closed + '회 청산'))
     + tile('승률', st.win == null ? '—' : st.win.toFixed(0) + '%',
            st.closed ? '청산 ' + st.closed + '회 기준' : '아직 청산 없음')
     + '</div>';
@@ -3648,7 +3999,7 @@ function renderPreview(st, snaps, seed){
   if (!snaps.length){ prevChart.clear(); return; }
   prevChart.setOption({
     backgroundColor:'transparent', animation:false,
-    grid:{ left:70, right:20, top:18, bottom:34 },
+    grid:{ left:74, right:22, top:18, bottom:36 },
     tooltip:{ trigger:'axis',
       formatter:function(ps){
         return fmtDateKo(ps[0].value[0]) + '<br><b>' + num(ps[0].value[1]) + '원</b>'; } },
@@ -3656,8 +4007,7 @@ function renderPreview(st, snaps, seed){
       axisLabel:{ fontSize:10, color:'#5a6278', hideOverlap:true,
         formatter:{ year:'{yyyy}년', month:'{M}월', day:'{M}/{d}', none:'{yyyy}-{MM}-{dd}' } } },
     yAxis:{ type:'value', scale:true, splitLine:{ lineStyle:{ color:'#eef1f7' } },
-      axisLabel:{ fontSize:10, color:'#5a6278',
-        formatter: wonAxis } },
+      axisLabel:{ fontSize:10, color:'#5a6278', formatter: wonAxis } },
     series:[{ type:'line', showSymbol:false,
       lineStyle:{ color: st.ret >= 0 ? '#1f8a70' : '#c0392b', width:2 },
       areaStyle:{ color: st.ret >= 0 ? 'rgba(31,138,112,.10)' : 'rgba(192,57,43,.10)' },
@@ -3672,77 +4022,71 @@ function renderPreview(st, snaps, seed){
 async function runStrategy(){
   var msg = $('stratMsg');
   msg.style.color = 'var(--text-sub)';
-  msg.textContent = '과거 종가를 받아오는 중…';
+  msg.textContent = '전략을 다시 돌리는 중…';
 
   var r = await sb.rpc('team_strategies', { p_team_id: team });
   stratList = (r.data && !r.error) ? r.data : [];
-  if (!stratList.length){ msg.textContent = '저장된 전략이 없습니다.'; return; }
+  if (!stratList.length){ warnStrat('저장된 전략이 없습니다.'); return; }
   renderStratHistory();
 
   var tinfo = teams.filter(function(t){ return t.id === team; })[0] || {};
-  var startDate = tinfo.started_on || '2026-01-01';
+  var startDate = contest.scan_start || tinfo.started_on || '2026-01-01';
   var seed = Number(tinfo.seed || 100000000);
 
-  // 미국 종목이 있으면 환율이 먼저 있어야 합니다
-  var hasUS = stratList.some(function(st){
-    return (st.config.symbols||[]).some(function(sy){ return sy.market === 'US'; }); });
-  if (hasUS){
-    msg.textContent = '환율을 받아오는 중…';
-    if (!await loadFxSeries(backDate(startDate, 400))){
-      msg.style.color = 'var(--danger)';
-      msg.textContent = '원/달러 환율을 받지 못해 해외 종목을 계산할 수 없습니다. '
-                      + '경제지표 탭에서 "원/달러 환율"을 한 번 조회한 뒤 다시 시도해주세요.';
-      return;
-    }
-  }
-
-  // 필요한 종목의 과거 종가를 모읍니다
+  // 전략들이 쓰는 종목 전부 (스캔이면 유니버스)
   var need = {};
   stratList.forEach(function(st){
-    (st.config.symbols||[]).forEach(function(sy){
+    stratSymbols(st.config || {}).forEach(function(sy){
       need[sy.market+'|'+sy.symbol] = sy;
     });
   });
-  var priceMap = {};
-  var keys = Object.keys(need);
-  for (var i=0;i<keys.length;i++){
-    var sy = need[keys[i]];
-    msg.textContent = '종가 수집 중… (' + (i+1) + '/' + keys.length + ') ' + (sy.name || sy.symbol);
-    try {
-      var d = await edge({ source: sy.market==='KR' ? 'quote_kr' : 'quote_us',
-                           code: sy.symbol, start: backDate(startDate, 200) });
-      priceMap[keys[i]] = d.points || [];
-    } catch(e){
-      msg.style.color = 'var(--danger)';
-      msg.textContent = (sy.name||sy.symbol) + ' 시세를 받지 못했습니다: ' + e.message;
+  var syms = Object.keys(need).map(function(k){ return need[k]; });
+  if (!syms.length){ warnStrat('전략에 종목이 없습니다.'); return; }
+
+  if (syms.some(function(x){ return x.market === 'US'; })){
+    msg.textContent = '환율 확인 중…';
+    if (!await loadFxSeries(backDate(startDate, 400))){
+      warnStrat('원/달러 환율을 받지 못해 해외 종목을 계산할 수 없습니다.');
       return;
     }
   }
 
-  msg.textContent = '전략을 재생하는 중…';
-  var generated = replayStrategy(stratList, priceMap, seed, startDate);
+  var priceMap;
+  try {
+    priceMap = await gatherPrices(syms, startDate, function(done, all){
+      msg.textContent = '시세 수집 ' + done + '/' + all + '…';
+    });
+  } catch(e){ warnStrat(e.message); return; }
 
-  // 기존 자동 거래를 지우고 새로 씁니다 (손으로 넣은 거래는 그대로)
+  // 손매매는 그대로 두고, 자동 거래만 새로 씁니다
+  var man = await sb.from('trades')
+    .select('market,symbol,side,qty,price,fx,traded_on')
+    .eq('team_id', team).eq('auto', false);
+  var manual = man.data || [];
+
+  msg.textContent = '전략을 재생하는 중…';
+  var generated = replayStrategy(stratList, priceMap, seed, startDate, manual);
+
   var clr = await sb.rpc('clear_auto_trades', { p_team_id: team });
-  if (clr.error){ msg.style.color='var(--danger)'; msg.textContent = errMsg(clr.error); return; }
+  if (clr.error){ warnStrat(errMsg(clr.error)); return; }
 
   if (generated.length){
     var u = (await sb.auth.getUser()).data.user;
     var rows = generated.map(function(t){
       return { team_id: team, market:t.market, symbol:t.symbol, name:t.name,
                side:t.side, qty:t.qty, price:t.price, fx: t.fx || 1,
-               traded_on:t.traded_on, auto: true, created_by: u ? u.id : null };
+               traded_on:t.traded_on, note: t.reason || null,
+               auto: true, created_by: u ? u.id : null };
     });
-    for (var j=0;j<rows.length;j+=200){
+    for (var j = 0; j < rows.length; j += 200){
+      msg.textContent = '거래 기록 중… (' + Math.min(j+200, rows.length) + '/' + rows.length + ')';
       var ins = await sb.from('trades').insert(rows.slice(j, j+200));
-      if (ins.error){ msg.style.color='var(--danger)'; msg.textContent = errMsg(ins.error); return; }
+      if (ins.error){ warnStrat(errMsg(ins.error)); return; }
     }
   }
 
-  // 과거 스냅샷까지 전부 다시 계산
   msg.textContent = '일별 기록을 다시 계산하는 중…';
-  var man = await sb.from('trades').select('market,symbol,side,qty,price,fx,traded_on').eq('team_id', team);
-  var snaps = rebuildSnapshots(man.data || [], priceMap, seed, startDate);
+  var snaps = rebuildSnapshots(manual.concat(generated), priceMap, seed, startDate);
   if (snaps.length){
     var rs = await sb.rpc('replace_snapshots', { p_team_id: team, p_rows: snaps });
     if (rs.error) console.warn('스냅샷 저장 실패:', rs.error);
@@ -3752,8 +4096,11 @@ async function runStrategy(){
     team_id: team, last_date: today(), trades_made: generated.length,
     updated_at: new Date().toISOString() }, { onConflict:'team_id' });
 
-  msg.style.color = 'var(--ok)';
-  msg.textContent = '완료 — 매매 ' + generated.length + '건 기록, 일별 기록 ' + snaps.length + '일 계산.';
+  var sl = generated.filter(function(t){ return t.reason === '손절'; }).length;
+  var tp = generated.filter(function(t){ return t.reason === '익절'; }).length;
+  warnStrat('완료 — 자동매매 ' + generated.length + '건'
+          + (sl||tp ? ' (손절 ' + sl + ' · 익절 ' + tp + ')' : '')
+          + ', 일별 기록 ' + snaps.length + '일.', 'info');
   await loadTeam();
   loadLeaderboard();
 }
