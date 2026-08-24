@@ -1388,13 +1388,32 @@ async function initCompany(){
   if (coPriceChart) setTimeout(function(){ coPriceChart.resize(); }, 60);
 }
 
+function ymd(d){ return d.toISOString().slice(0,10).replace(/-/g,''); }
+
 async function syncCorps(){
   var b = $('coSyncBtn');
-  b.disabled = true; b.textContent = '받는 중…';
-  warn('coWarn', '기업 목록을 받아오는 중입니다. 1~2분 걸립니다.', 'info');
+  b.disabled = true;
   try {
-    var d = await edgeCo({ action: 'sync' });
-    warn('coWarn', '✅ 국내 ' + num(d.kr) + '개 · 미국 ' + num(d.us) + '개 기업을 등록했습니다.', 'info');
+    /* 최근 1년치 정기공시를 3개월씩 나눠 훑습니다.
+       한 번에 받으면 시간이 초과되기 때문입니다. */
+    var wins = [], base = new Date();
+    for (var i = 0; i < 4; i++){
+      var e = new Date(base); e.setMonth(e.getMonth() - i * 3);
+      var st = new Date(e);   st.setMonth(st.getMonth() - 3);
+      wins.push([ymd(st), ymd(e)]);
+    }
+    for (var k = 0; k < wins.length; k++){
+      b.textContent = '국내 ' + (k + 1) + '/4 …';
+      warn('coWarn', '국내 기업을 모으는 중입니다 (' + (k + 1) + '/4). 화면을 닫지 마세요.', 'info');
+      await edgeCo({ action:'sync_kr', bgn: wins[k][0], end: wins[k][1] });
+    }
+    b.textContent = '미국 …';
+    warn('coWarn', '미국 기업 목록을 받는 중입니다.', 'info');
+    await edgeCo({ action:'sync_us' });
+
+    var r = await sb.rpc('company_db_status');
+    var d = (r.data) || {};
+    warn('coWarn', '✅ 완료 — 국내 ' + num(d.kr) + '개 · 미국 ' + num(d.us) + '개 기업이 등록됐습니다.', 'info');
   } catch(e){
     warn('coWarn', esc(e.message));
   }
