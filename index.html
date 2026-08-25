@@ -174,6 +174,8 @@
     color:var(--primary);margin-bottom:9px}
   .q-title span{font-weight:400;color:var(--text-sub);font-size:11.5px}
   #distBox{width:100%;height:230px}
+  .auto-uni{background:var(--accent-soft);border:1px solid var(--border);
+            border-radius:10px;padding:12px 14px;margin-bottom:14px}
   .fs-row{cursor:pointer}
   .fs-row:hover{background:var(--accent-soft)}
   .fs-row td:first-child::after{content:' ＋';color:var(--accent);opacity:0;font-size:11px}
@@ -521,6 +523,15 @@
                 종목을 미리 고를 필요가 없고, 3개월 안에 신호가 안 나올 걱정도 훨씬 적습니다.
               </div>
               <div class="row">
+                <label>훑을 시장</label>
+                <select id="stMarkets" onchange="stratChanged()" style="width:180px">
+                  <option value="both">국내 + 미국 전부</option>
+                  <option value="KR">국내만 (코스피·코스닥)</option>
+                  <option value="US">미국만 (S&amp;P500)</option>
+                </select>
+                <span id="stMarketHint" class="st-hint"></span>
+              </div>
+              <div class="row">
                 <label>최대 보유</label>
                 <select id="stMaxPos" onchange="stratChanged()" style="width:110px">
                   <option value="3">3종목</option>
@@ -764,11 +775,37 @@
             허용 종목 (유니버스)
             <span id="uniStat" style="font-weight:400;color:var(--text-sub);font-size:11.5px"></span>
           </div>
+          <div class="auto-uni">
+            <div style="font-weight:700;font-size:.83rem;color:var(--primary);margin-bottom:6px">
+              거래대금 상위 100 자동 등록 <span style="font-weight:400;color:var(--text-sub);font-size:11px">— 권장</span>
+            </div>
+            <div class="st-hint" style="margin-bottom:9px">
+              국내는 <b>코스피 + 코스닥 전 종목</b> 중 그날 거래대금 상위 100개를,
+              미국은 <b>미국 증시 전 종목</b> 중 상위 100개를 자동으로 뽑아 등록합니다.
+              손으로 넣을 것이 없고, 누를 때마다 그날 기준으로 새로 갱신됩니다.<br>
+              명단에서 빠진 종목도 <b>팔 수는 있습니다</b> — 산 종목이 묶이는 일은 없습니다.
+            </div>
+            <div class="row">
+              <button class="btn-sm btn-solid" id="uniKrBtn" onclick="autoUniverse('KR')">국내 상위 100 등록</button>
+              <button class="btn-sm btn-solid" id="uniUsBtn" onclick="autoUniverse('US')">미국 상위 100 등록</button>
+              <button class="btn-sm" id="uniBackBtn" onclick="backfillUniverse()">과거 시세 채우기</button>
+            </div>
+            <div class="msg" id="autoUniMsg"></div>
+            <div class="st-hint" style="margin-top:6px">
+              <b>과거 시세 채우기</b>는 백테스트에 쓸 지난 종가를 하루씩 거슬러 올라가며 모읍니다.
+              처음 한 번은 여러 번 눌러 넉넉히 쌓아두세요.
+            </div>
+          </div>
+
+          <div style="font-size:.83rem;font-weight:700;color:var(--text-sub);margin:16px 0 6px">
+            직접 지정 (선택)
+          </div>
           <div class="st-hint" style="margin-bottom:9px">
+            자동 등록으로 충분하면 아래는 건드리지 않아도 됩니다.
             한 줄에 하나씩 <code>시장,종목코드,이름</code> 형식으로 넣으세요.
             예) <code>KR,005930,삼성전자</code> &nbsp; <code>US,NVDA,NVIDIA</code><br>
             등록하면 <b>그 안에서만</b> 매매와 전략이 가능합니다. 비워두면 제한이 없습니다.
-            전 종목 스캔 전략을 쓰려면 <b>40~80종목</b> 정도가 적당합니다.
+            여기서 넣은 종목은 자동 갱신에도 지워지지 않습니다.
           </div>
           <textarea id="uniText" rows="7" spellcheck="false"
             style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:9px;
@@ -874,6 +911,28 @@
         </div>
 
         <div id="coPane-fin">
+          <div class="card">
+            <h2>비교 대상 추가</h2>
+            <div class="row">
+              <select id="coFinMk" style="width:130px">
+                <option value="KR">국내 주가</option>
+                <option value="US">해외 주가</option>
+              </select>
+              <input type="text" id="coFinQ" class="grow" placeholder="회사명 · 종목코드 · 티커 (예: 삼성전자, 000660, NVDA)"
+                     onkeydown="if(event.key==='Enter'){event.preventDefault();addCoFinStock();}">
+              <button class="btn-sm btn-solid" onclick="addCoFinStock()">+ 주가 추가</button>
+            </div>
+            <div class="row">
+              <select id="coFinIndSel" class="grow"></select>
+              <button class="btn-sm" onclick="addCoFinInd()">+ 경제지표 추가</button>
+            </div>
+            <p style="font-size:11.5px;color:var(--text-sub);margin:2px 0 0">
+              아래 <b>재무제표</b>에서 계정을 클릭하면 이 차트에 함께 그려집니다.
+              주가 · 지표는 각 구간의 <b>기말 종가</b> 기준으로 맞춥니다.
+            </p>
+            <div id="coFinWarn"></div>
+            <div id="coFinSeriesList" style="margin-top:10px"></div>
+          </div>
           <div class="card">
             <h2>실적 추이 <span id="coFinUnit" style="font-size:12px;color:var(--text-sub);font-weight:400"></span>
               <span class="tools"><button class="btn-sm" onclick="coFinJpg()">JPG 저장</button></span>
@@ -1334,7 +1393,9 @@ function renderSeriesList(){
 
 /* 선 색 고르기 — 저장된 팔레트에서 선택 */
 var palPop = null;
-function seriesArr(which){ return which === 'co' ? coSeries : series; }
+function seriesArr(which){
+  return which === 'co' ? coSeries : (which === 'cofin' ? coFinSeries : series);
+}
 function openPalette(i, el, which){
   which = which || 'main';
   var arr = seriesArr(which);
@@ -1365,9 +1426,11 @@ function closePalette(){
 function pickColor(i, v, keepOpen, which){
   which = which || 'main';
   seriesArr(which)[i].color = v;
-  var btn = $((which === 'co' ? 'cosw' : 'sw') + i);
+  var btn = $((which === 'co' ? 'cosw' : (which === 'cofin' ? 'cfsw' : 'sw')) + i);
   if (btn) btn.style.background = v;
-  if (which === 'co') drawCoPrice(); else drawChart();
+  if (which === 'co') drawCoPrice();
+  else if (which === 'cofin') renderCoFinChart();
+  else drawChart();
   if (!keepOpen) closePalette();
 }
 
@@ -1684,6 +1747,14 @@ function setCoRange(v){
 async function setCoPeriod(v){
   coView.period = v;
   if (co) await loadCoFin();
+  refillCoFinSeries();
+}
+/* 표시 구간이 넓어져 앞부분 자료가 모자라면 다시 받아옵니다 */
+function refillCoFinSeries(){
+  var need = coFinFrom();
+  coFinSeries.forEach(function(x){
+    if (x.kind !== 'fin' && (!x.from || x.from > need)) loadCoFinX(x);
+  });
 }
 /* 화면에 그릴 구간만 잘라냅니다 */
 function coRows(){
@@ -1738,6 +1809,7 @@ async function initCompany(){
     warn('coWarn', '');
   }
   fillCoCmpSel();
+  fillCoFinIndSel();
   applyCoSize();
   if (coFinChart)   setTimeout(function(){ coFinChart.resize(); }, 60);
   if (coPriceChart) setTimeout(function(){ coPriceChart.resize(); }, 60);
@@ -1816,8 +1888,12 @@ async function pickCompany(i){
   $('coTiles').innerHTML = '<div class="empty">불러오는 중…</div>';
   $('coFinTable').innerHTML = ''; $('coDiscTable').innerHTML = '';
   $('coDivTable').innerHTML = ''; $('coMajorTable').innerHTML = ''; $('coElestTable').innerHTML = '';
-  coFin = null; coFull = null; coSeries = []; coPricePts = [];
-  renderCoSeriesList(); fillCoCmpSel(); applyCoSize();
+  coFin = null; coFull = null; coSeries = []; coFinSeries = []; coPricePts = [];
+  if (coFinChart) coFinChart.clear();
+  $('coFinMk').value = co.market;
+  renderCoSeriesList(); renderCoFinSeriesList();
+  fillCoCmpSel(); fillCoFinIndSel(); applyCoSize();
+  warn('coFinWarn','');
   coFsShow('summary');
   coShow('fin');
 
@@ -1866,7 +1942,7 @@ async function renderCoStatement(group){
       + years.map(function(y){ return '<th class="num">' + y + '</th>'; }).join('')
       + '</tr></thead><tbody>'
       + rows.map(function(r, i){
-          var on = coSeries.some(function(x){ return x.finKey === group + '|' + r.name; });
+          var on = coFinSeries.some(function(x){ return x.finKey === 'fin||' + group + '|' + r.name; });
           return '<tr class="fs-row' + (on ? ' on' : '') + '" '
             + 'onclick="toggleFinSeries(\'' + esc(group) + '\',' + i + ')">'
             + '<td><b>' + esc(r.name) + '</b></td>'
@@ -1888,34 +1964,27 @@ async function renderCoStatement(group){
   }
 }
 
-/* 재무 항목을 주가 차트에 얹기 */
+/* 재무 계정을 실적 추이 차트에 얹기 */
 function toggleFinSeries(group, idx){
   var rows = (coFull && coFull.statements && coFull.statements[group]) || [];
   var r = rows[idx]; if (!r) return;
-  var finKey = group + '|' + r.name;
+  var finKey = 'fin||' + group + '|' + r.name;
 
   var at = -1;
-  coSeries.forEach(function(x, i){ if (x.finKey === finKey) at = i; });
+  coFinSeries.forEach(function(x, i){ if (x.kind === 'fin' && x.finKey === finKey) at = i; });
   if (at >= 0){
-    coSeries.splice(at, 1);
-    renderCoSeriesList(); drawCoPrice(); renderCoStatement(group);
+    coFinSeries.splice(at, 1);
+    renderCoFinSeriesList(); renderCoFinChart(); renderCoStatement(group);
     return;
   }
-  if (coSeries.length >= 6){ warn('coFsWarn','비교 항목은 6개까지 넣을 수 있습니다.'); return; }
+  if (!Object.keys(r.values || {}).length){ warn('coFinWarn','그릴 값이 없습니다.'); return; }
 
-  var u = coUnit();
-  var pts = (coFull.years || []).map(function(y){
-    var v = r.values[y];
-    return v == null ? null : { d: y + '-12-31', v: r.per_share ? Number(v) : Number(v)/u.div };
-  }).filter(Boolean);
-  if (!pts.length){ warn('coFsWarn','그릴 값이 없습니다.'); return; }
-
-  coSeries.push({ kind:'fin', finKey:finKey, source:'재무', code:r.name,
-                  label: r.name + (r.per_share ? '' : ' (' + u.label + ')'),
-                  color: theme.palette[(coSeries.length + 1) % theme.palette.length],
-                  width: 2, axis: 1, tf: 'raw', points: pts });
-  renderCoSeriesList(); drawCoPrice(); renderCoStatement(group);
-  warn('coFsWarn', '"' + esc(r.name) + '" 을(를) 주가 차트에 올렸습니다. <b>주가 탭</b>에서 확인하세요.', 'info');
+  var ok = addCoFinX({ kind:'fin', finKey:finKey, group:group, code:r.name,
+                       label: r.name, values: r.values, per_share: !!r.per_share,
+                       axis: r.per_share ? 2 : 0, type:'line' });
+  if (!ok) return;
+  renderCoFinChart(); renderCoStatement(group);
+  warn('coFinWarn', '"' + esc(r.name) + '" 을(를) 위 <b>실적 추이</b> 차트에 올렸습니다.', 'info');
 }
 
 async function loadCoFin(){
@@ -1965,15 +2034,188 @@ function renderCoTiles(){
 function coLabel(r){
   return r.q ? (String(r.year).slice(2) + "'" + ' ' + r.q + 'Q') : (r.year + '년');
 }
+
+/* ══════════ 실적 추이 차트에 얹는 비교 계열 ══════════
+   재무 계정(연도별 값) · 다른 회사 주가 · 경제지표를 모두 여기에 담습니다.
+   주가·지표는 일별이므로 각 구간의 '기말' 값으로 맞춰서 그립니다.       */
+var coFinSeries = [];
+
+/* 구간의 마지막 날 — 이 날짜의 마지막 종가를 그 구간 값으로 씁니다 */
+function coPeriodEnd(r){
+  if (!r.q) return r.year + '-12-31';
+  return r.year + '-' + ['03-31','06-30','09-30','12-31'][Number(r.q) - 1];
+}
+/* 화면에 있는 가장 이른 구간보다 1년 앞부터 받아옵니다 (YoY 여유) */
+function coFinFrom(){
+  var rs = coFin || [];
+  if (!rs.length){ var d = new Date(); d.setFullYear(d.getFullYear() - 9); return d.toISOString().slice(0,10); }
+  return (Number(rs[0].year) - 1) + '-01-01';
+}
+function coFinKey(x){
+  return x.kind + '|' + (x.source||'') + '|' + (x.code||'') + '|' + (x.item_code||'');
+}
+function coFinColor(){
+  var pal = theme.palette || ['#2c3e6b'];
+  return pal[(coFinSeries.length + 4) % pal.length];
+}
+
+function addCoFinX(x){
+  if (coFinSeries.length >= 6){ warn('coFinWarn','비교 대상은 6개까지 넣을 수 있습니다.'); return false; }
+  if (coFinSeries.some(function(y){ return coFinKey(y) === coFinKey(x); })){
+    warn('coFinWarn','이미 추가된 항목입니다.'); return false;
+  }
+  warn('coFinWarn','');
+  x.color = x.color || coFinColor();
+  if (x.width == null) x.width = 2;
+  if (x.axis  == null) x.axis  = 2;
+  if (!x.type) x.type = 'line';
+  coFinSeries.push(x);
+  renderCoFinSeriesList();
+  return true;
+}
+async function loadCoFinX(x){
+  x.from = coFinFrom();
+  try {
+    var d = await edge({ source:x.source, code:x.code, item_code:x.item_code||'',
+                         cycle:x.cycle||'D', start: x.from });
+    x.points = d.points || [];
+    x.dates  = x.points.map(function(p){ return p.d; });
+    if (!x.points.length) warn('coFinWarn','"'+esc(x.label)+'" 자료를 찾지 못했습니다.');
+  } catch(e){
+    x.points = []; x.dates = [];
+    warn('coFinWarn', esc(e.message));
+  }
+  renderCoFinSeriesList(); renderCoFinChart();
+}
+
+function addCoFinStock(){
+  if (!co){ warn('coFinWarn','먼저 기업을 선택해주세요.'); return; }
+  var q = $('coFinQ').value.trim();
+  if (!q){ warn('coFinWarn','회사명 · 종목코드 · 티커를 입력해주세요.'); return; }
+  var mk = $('coFinMk').value;
+  $('coFinQ').value = '';
+  resolveSym(mk, q, function(code, name){
+    var x = { kind:'price', source: mk === 'KR' ? 'quote_kr' : 'quote_us',
+              code: code, item_code:'', cycle:'D',
+              label: name || code, axis:2, type:'line' };
+    if (addCoFinX(x)) loadCoFinX(x);
+  });
+}
+/* 회사명으로 넣어도 되도록 — 못 찾으면 입력값을 그대로 코드로 씁니다 */
+async function resolveSym(mk, q, cb){
+  if (/^[0-9]{6}$/.test(q) || (mk === 'US' && /^[A-Za-z.\-]{1,6}$/.test(q))){
+    cb(mk === 'US' ? q.toUpperCase() : q, q.toUpperCase()); return;
+  }
+  try {
+    var r = await sb.rpc('company_search', { p_q: q });
+    var hit = (r.data || []).filter(function(h){ return h.market === mk; })[0];
+    if (hit) return cb(hit.code, hit.name + ' (' + hit.code + ')');
+  } catch(e){ /* 검색이 안 되면 입력값 그대로 */ }
+  cb(mk === 'US' ? q.toUpperCase() : q, q.toUpperCase());
+}
+async function addCoFinInd(){
+  var id = $('coFinIndSel').value; if (!id) return;
+  var c = (catalog || []).filter(function(x){ return String(x.id) === String(id); })[0];
+  if (!c) return;
+  var x = { kind:'ind', source:c.source, code:c.code, item_code:c.item_code||'',
+            cycle:c.cycle||'M', label:c.label, unit:c.unit||'', axis:2, type:'line' };
+  if (addCoFinX(x)) loadCoFinX(x);
+}
+function fillCoFinIndSel(){
+  var sel = $('coFinIndSel'); if (!sel) return;
+  if (!catalog || !catalog.length){
+    sel.innerHTML = '<option value="">지표 목록을 불러오지 못했습니다</option>'; return;
+  }
+  var cats = {};
+  catalog.forEach(function(c){ (cats[c.category] = cats[c.category] || []).push(c); });
+  var html = '<option value="">경제지표 선택…</option>';
+  Object.keys(cats).forEach(function(k){
+    html += '<optgroup label="'+esc(k)+'">';
+    cats[k].forEach(function(c){ html += '<option value="'+c.id+'">'+esc(c.label)+'</option>'; });
+    html += '</optgroup>';
+  });
+  sel.innerHTML = html;
+}
+
+function removeCoFinSeries(i){
+  var g = coFinSeries[i] && coFinSeries[i].group;
+  coFinSeries.splice(i,1);
+  renderCoFinSeriesList(); renderCoFinChart();
+  if (g && coFsTab === g) renderCoStatement(g);
+}
+function setCoFinAxis(i,v){  coFinSeries[i].axis  = Number(v); renderCoFinChart(); }
+function setCoFinWidth(i,v){ coFinSeries[i].width = Number(v); renderCoFinChart(); }
+function setCoFinType(i,v){  coFinSeries[i].type  = v;         renderCoFinChart(); }
+
+function renderCoFinSeriesList(){
+  var box = $('coFinSeriesList'); if (!box) return;
+  closePalette();
+  if (!coFinSeries.length){
+    box.innerHTML = '<div class="empty" style="padding:12px">'
+      + '재무제표에서 계정을 클릭하거나, 위에서 주가 · 지표를 추가해 보세요.</div>';
+    return;
+  }
+  box.innerHTML = coFinSeries.map(function(s,i){
+    var sub = s.kind === 'fin' ? ('재무 · ' + s.group)
+            : (String(s.source||'').toUpperCase() + ' · ' + s.code);
+    var loading = (s.kind !== 'fin' && !s.points) ? ' <span class="spin"></span>' : '';
+    return '<div class="series-item">'
+      + '<div class="series-top">'
+      +   '<button id="cfsw'+i+'" class="sw-btn" style="background:'+esc(s.color)+'" '
+      +     'title="색 고르기" onclick="openPalette('+i+',this,\'cofin\')"></button>'
+      +   '<div class="nm">'+esc(s.label)+'<div class="code">'+esc(sub)+loading+'</div></div>'
+      +   '<button class="xbtn" onclick="removeCoFinSeries('+i+')" title="삭제">&times;</button>'
+      + '</div>'
+      + '<div class="series-ctl">'
+      +   '<select onchange="setCoFinAxis('+i+',this.value)">'
+      +     '<option value="0"'+(s.axis===0?' selected':'')+'>금액 축</option>'
+      +     '<option value="1"'+(s.axis===1?' selected':'')+'>% 축</option>'
+      +     '<option value="2"'+(s.axis===2?' selected':'')+'>주가 · 지표 축</option></select>'
+      +   '<select onchange="setCoFinType('+i+',this.value)">'
+      +     '<option value="line"'+(s.type==='line'?' selected':'')+'>선</option>'
+      +     '<option value="bar"' +(s.type==='bar' ?' selected':'')+'>막대</option></select>'
+      +   '<select onchange="setCoFinWidth('+i+',this.value)">'
+      +     '<option value="1"'+(s.width==1?' selected':'')+'>얇게</option>'
+      +     '<option value="2"'+(s.width==2?' selected':'')+'>보통</option>'
+      +     '<option value="3"'+(s.width==3?' selected':'')+'>굵게</option></select>'
+      + '</div></div>';
+  }).join('');
+}
+
+/* 구간별 값으로 환산 — 재무는 연도 매칭, 주가·지표는 기말값 */
+function coFinValues(s, rows, u){
+  if (s.kind === 'fin'){
+    return rows.map(function(r){
+      if (r.q && Number(r.q) !== 4) return null;      // 연간 자료는 4Q 자리에만
+      var v = s.values[r.year];
+      if (v == null) return null;
+      return s.per_share ? Number(v) : Number(v) / u.div;
+    });
+  }
+  if (!s.points || !s.points.length) return rows.map(function(){ return null; });
+  return rows.map(function(r){
+    var j = idxAtOrBefore(s.dates, coPeriodEnd(r));
+    return j < 0 ? null : Number(s.points[j].v);
+  });
+}
+/* 실적 요약이 없어도 전체 재무제표 연도만 있으면 축을 세웁니다 */
+function coChartRows(){
+  var rs = coRows();
+  if (rs.length) return rs;
+  var ys = (coFull && coFull.years) || [];
+  return ys.map(function(y){ return { year: Number(y), q: null }; });
+}
 function renderCoFinChart(){
   if (typeof echarts === 'undefined') return;
-  if (!coFin || !coFin.length) return;
+  var rows = coChartRows();
+  if (!rows.length) return;
+  var hasSummary = !!(coFin && coFin.length);
+  if (!hasSummary && !coFinSeries.length) return;
   if (!coFinChart) coFinChart = echarts.init($('coFinBox'));
   var u = coUnit();
-  var rows = coRows();
   var yrs = rows.map(coLabel);
   var pal = theme.palette;
-  var series = [
+  var series = !hasSummary ? [] : [
     { name:'매출액',     type:'bar',  data: rows.map(function(r){ return r.revenue == null ? null : r.revenue/u.div; }),
       itemStyle:{ color: pal[0] }, barMaxWidth: 34 },
     { name:'영업이익',   type:'bar',  data: rows.map(function(r){ return r.op == null ? null : r.op/u.div; }),
@@ -1984,11 +2226,36 @@ function renderCoFinChart(){
       data: rows.map(function(r){ var v = coRatio(r.op, r.revenue); return v == null ? null : Number(v.toFixed(2)); }),
       lineStyle:{ color: pal[3], width:3 }, itemStyle:{ color: pal[3] }, symbolSize:7 }
   ];
+
+  /* 사용자가 얹은 재무 계정 · 주가 · 경제지표 */
+  var useThird = false;
+  coFinSeries.forEach(function(x){
+    var data = coFinValues(x, rows, u);
+    if (!data.some(function(v){ return v != null; })) return;
+    if (x.axis === 2) useThird = true;
+    if (x.type === 'bar'){
+      series.push({ name:x.label, type:'bar', yAxisIndex:x.axis,
+        data:data, itemStyle:{ color:x.color }, barMaxWidth:34 });
+    } else {
+      series.push({ name:x.label, type:'line', yAxisIndex:x.axis, smooth:false,
+        data:data, connectNulls:true,
+        lineStyle:{ color:x.color, width:Number(x.width)||2 },
+        itemStyle:{ color:x.color }, symbolSize:7 });
+    }
+  });
+
+  var thirdName = (function(){
+    var p = coFinSeries.filter(function(x){ return x.axis === 2 && x.kind === 'price'; })[0];
+    if (p) return /quote_kr/.test(p.source) ? '원' : '$';
+    var i = coFinSeries.filter(function(x){ return x.axis === 2; })[0];
+    return (i && i.unit) || '';
+  })();
+
   coFinChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:70, right:62, top:52, bottom:40 },
-    legend:{ top:8, textStyle:{ color: theme.text_color, fontSize:12 } },
+    grid:{ left:70, right: useThird ? 128 : 62, top:52, bottom:40 },
+    legend:{ top:8, type:'scroll', textStyle:{ color: theme.text_color, fontSize:12 } },
     tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' },
       valueFormatter:function(v){ return v == null ? '-' : num(v, 1); } },
     xAxis:{ type:'category', data: yrs, axisLine:{ lineStyle:{ color: theme.grid } },
@@ -2001,6 +2268,13 @@ function renderCoFinChart(){
       { type:'value', name:'%', nameTextStyle:{ color: theme.axis_right, fontSize:11 },
         position:'right', axisLine:{ show:true, lineStyle:{ color: theme.axis_right } },
         axisLabel:{ color: theme.axis_right, fontSize:11, formatter:'{value}%' },
+        splitLine:{ show:false } },
+      { type:'value', name: thirdName, show: useThird, scale:true,
+        nameTextStyle:{ color: theme.text_sub || '#5a6278', fontSize:11 },
+        position:'right', offset:64,
+        axisLine:{ show:true, lineStyle:{ color:'#8b93a7' } },
+        axisLabel:{ color:'#5a6278', fontSize:11,
+          formatter:function(v){ return num(v, Math.abs(v) < 100 ? 1 : 0); } },
         splitLine:{ show:false } }
     ],
     series: series
@@ -3132,6 +3406,44 @@ async function showUniverse(){
     ? '· ' + universe.length + '개 등록됨' : '· 미등록 (제한 없음)';
 }
 
+/* 거래대금 상위 종목 자동 등록 */
+async function autoUniverse(mk){
+  var id = mk === 'KR' ? 'uniKrBtn' : 'uniUsBtn';
+  var b = $(id), label = b.textContent;
+  b.disabled = true; b.textContent = '불러오는 중…';
+  warn('autoUniMsg','');
+  try {
+    var d = await edge({ source: mk === 'KR' ? 'universe_kr' : 'universe_us', top: 100 });
+    warn('autoUniMsg',
+      (mk === 'KR' ? '국내' : '미국') + ' ' + d.picked + '개 종목을 등록했습니다. '
+      + '(' + esc(d.as_of) + ' 기준, 전 종목 ' + num(d.scanned, 0) + '개 중)<br>'
+      + '상위: ' + esc((d.top || []).join(', ')), 'info');
+    await showUniverse();
+  } catch(e){
+    warn('autoUniMsg', esc(e.message));
+  }
+  b.disabled = false; b.textContent = label;
+}
+
+async function backfillUniverse(){
+  var b = $('uniBackBtn');
+  b.disabled = true; b.textContent = '채우는 중…';
+  warn('autoUniMsg','');
+  var msg = [];
+  for (var i = 0; i < 2; i++){
+    var mk = i === 0 ? 'KR' : 'US';
+    try {
+      var d = await edge({ source: mk === 'KR' ? 'backfill_kr' : 'backfill_us', days: 10 });
+      msg.push((mk === 'KR' ? '국내' : '미국') + ' ' + d.days_fetched + '일 · '
+               + num(d.rows_saved, 0) + '건');
+    } catch(e){
+      msg.push((mk === 'KR' ? '국내' : '미국') + ' 실패 (' + esc(e.message) + ')');
+    }
+  }
+  warn('autoUniMsg', '과거 시세: ' + msg.join(' / '), 'info');
+  b.disabled = false; b.textContent = '과거 시세 채우기';
+}
+
 async function saveUniverse(){
   var m = $('uniMsg'); m.style.color = 'var(--danger)';
   var txt = $('uniText').value;
@@ -4115,6 +4427,7 @@ function stratChanged(){ lastPreview = null; syncStratNums(); }
 
 function syncStratNums(){
   if (!strat) return;
+  strat.markets          = $('stMarkets') ? $('stMarkets').value : 'both';
   strat.max_positions    = Number($('stMaxPos').value);
   strat.per_position_pct = Number($('stPerPct').value);
   strat.auto_budget_pct  = Number($('stAutoPct').value);
@@ -4138,6 +4451,17 @@ function syncStratNums(){
       + (tot > 100 ? ' · ⚠️ 최대 보유 × 배정 = ' + tot + '% 로 100%를 넘어 뒤쪽 종목은 못 삽니다'
                    : ' · 최대 ' + tot + '% 사용');
   }
+  if ($('stMarketHint')){
+    var mk  = $('stMarkets') ? $('stMarkets').value : 'both';
+    var all = scanUniverse || universe || [];
+    var n   = all.filter(function(u){ return mk === 'both' || u.market === mk; }).length;
+    var kr  = all.filter(function(u){ return u.market === 'KR'; }).length;
+    var us  = all.filter(function(u){ return u.market === 'US'; }).length;
+    $('stMarketHint').innerHTML = '<b>' + n + '종목</b>을 훑습니다'
+      + (mk === 'both' && us > kr * 2
+          ? ' · ⚠️ 미국이 ' + us + '개로 국내 ' + kr + '개보다 훨씬 많아 미국 쪽에 쏠릴 수 있습니다'
+          : '');
+  }
 }
 
 function renderStrategyEditor(){
@@ -4150,6 +4474,7 @@ function renderStrategyEditor(){
   $('stScanBox').classList.toggle('hidden', !scan);
   $('stFixedBox').classList.toggle('hidden', scan);
 
+  if ($('stMarkets')) $('stMarkets').value = strat.markets || 'both';
   $('stMaxPos').value = String(strat.max_positions || 5);
   $('stPerPct').value = String(strat.per_position_pct || 20);
   $('stAutoPct').value = String(strat.auto_budget_pct != null ? strat.auto_budget_pct : 100);
@@ -4214,14 +4539,27 @@ async function loadContest(){
 
   var u = await sb.from('universe').select('market,symbol,name').order('market').order('symbol');
   universe = (u.data && !u.error) ? u.data : [];
+  await loadScanUniverse();
 
-  var n = universe.length;
+  var n = (scanUniverse || universe).length;
+  var kr = (scanUniverse || []).filter(function(x){ return x.market === 'KR'; }).length;
+  var us = (scanUniverse || []).filter(function(x){ return x.market === 'US'; }).length;
   if ($('uniCount')) $('uniCount').textContent = n ? (n + '개') : '전';
   if ($('uniNote')){
-    $('uniNote').innerHTML = n
-      ? ''
-      : '<div class="note warn" style="margin-bottom:14px">아직 <b>허용 종목이 등록되지 않았습니다.</b> '
-        + '전 종목 스캔을 쓰려면 임원진이 아래 <b>팀 관리</b>에서 종목을 먼저 넣어야 합니다.</div>';
+    if (n){
+      $('uniNote').innerHTML = (kr || us)
+        ? '<div class="note info" style="margin-bottom:14px">오늘 스캔 대상은 '
+          + '<b>국내 ' + kr + '종목</b> · <b>미국 ' + us + '종목</b> 입니다. 매일 자동으로 갱신됩니다. '
+          + '명단에서 빠진 종목도 <b>팔 수는 있습니다</b>.</div>'
+        : '';
+    } else {
+      $('uniNote').innerHTML =
+        '<div class="note warn" style="margin-bottom:14px">아직 <b>스캔할 종목이 없습니다.</b> '
+        + (isOfficer()
+            ? '아래 <b>팀 관리</b>에서 <b>국내 상위 100 등록</b>을 한 번 눌러주세요. 바로 채워집니다.'
+            : '임원진이 종목을 등록하면 바로 쓸 수 있습니다.')
+        + '</div>';
+    }
   }
   return contest;
 }
@@ -4232,7 +4570,7 @@ async function loadStrategy(){
   stratList = r.data || [];
   strat = stratList.length
     ? JSON.parse(JSON.stringify(stratList[stratList.length-1].config))
-    : { mode:'scan', symbols:[], max_positions:5, per_position_pct:20, auto_budget_pct:100,
+    : { mode:'scan', symbols:[], markets:'both', max_positions:5, per_position_pct:20, auto_budget_pct:100,
         sl_pct:7, tp_pct:15,
         buy:[{ind:'RSI',period:14,op:'<',value:40}],
         sell:[], buy_pct:50, sell_pct:100, cooldown:3 };
@@ -4319,26 +4657,73 @@ function collectStrategy(){
   return strat;
 }
 
-/* 전략이 검사할 종목 목록 — 스캔이면 유니버스 전체 */
+/* 전략이 검사할 종목 목록 — 스캔이면 오늘 명단 전체 */
+var scanUniverse = null;
+async function loadScanUniverse(){
+  try {
+    var r = await sb.rpc('universe_scan');
+    if (!r.error && Array.isArray(r.data) && r.data.length){ scanUniverse = r.data; return scanUniverse; }
+  } catch(e){ /* 아래 예전 방식으로 */ }
+  scanUniverse = universe.map(function(u){
+    return { market:u.market, symbol:u.symbol, name:u.name };
+  });
+  return scanUniverse;
+}
 function stratSymbols(cfg){
   if (cfg.mode === 'scan'){
-    return universe.map(function(u){ return { market:u.market, symbol:u.symbol, name:u.name }; });
+    var mk = cfg.markets || 'both';
+    return (scanUniverse || universe)
+      .filter(function(u){ return mk === 'both' || u.market === mk; })
+      .map(function(u){ return { market:u.market, symbol:u.symbol, name:u.name }; });
   }
   return (cfg.symbols || []).filter(function(x){ return x.symbol; });
 }
 
-/* 시세를 한 번에 받아옵니다 (20종목씩 나눠서, 진행 상황 표시) */
+/* 공용 보관함에 쌓아둔 시세를 한 번에 읽습니다.
+   [["2026-01-02", 71200], ...] 형태로 와서 {d,v} 로 펴줍니다. */
+async function cachedPrices(since){
+  var out = {};
+  try {
+    var r = await sb.rpc('price_bulk', { p_since: since });
+    if (r.error || !r.data) return out;
+    Object.keys(r.data).forEach(function(k){
+      var arr = r.data[k] || [];
+      out[k] = arr.map(function(p){ return { d: p[0], v: Number(p[1]) }; })
+                  .filter(function(p){ return isFinite(p.v) && p.v > 0; });
+    });
+  } catch(e){ /* 보관함이 아직 없으면 빈 채로 */ }
+  return out;
+}
+
+/* 시세 모으기 —
+     1) 공용 보관함에서 한 번에 읽고
+     2) 거기 없는 종목만 엣지 함수로 20개씩 채웁니다.
+   임원진이 "과거 시세 채우기"를 돌려뒀다면 대부분 1)에서 끝납니다. */
 async function gatherPrices(syms, startDate, onProgress){
-  var priceMap = {};
-  for (var i = 0; i < syms.length; i += 20){
-    var chunk = syms.slice(i, i + 20);
-    if (onProgress) onProgress(Math.min(i + chunk.length, syms.length), syms.length);
-    var d = await edgeCall('market-data', {
-      source:'bulk',
-      codes: chunk.map(function(x){ return { market:x.market, symbol:x.symbol }; }),
-      start: backDate(startDate, 200) });
-    var got = d.series || {};
-    Object.keys(got).forEach(function(k){ priceMap[k] = got[k]; });
+  var from = backDate(startDate, 200);
+  var priceMap = await cachedPrices(from);
+
+  var missing = syms.filter(function(x){
+    var got = priceMap[x.market + '|' + x.symbol];
+    return !got || got.length < 30;
+  });
+  if (onProgress) onProgress(syms.length - missing.length, syms.length);
+  if (!missing.length) return priceMap;
+
+  for (var i = 0; i < missing.length; i += 20){
+    var chunk = missing.slice(i, i + 20);
+    if (onProgress) onProgress(syms.length - missing.length + Math.min(i + chunk.length, missing.length),
+                               syms.length);
+    try {
+      var d = await edgeCall('market-data', {
+        source:'bulk',
+        codes: chunk.map(function(x){ return { market:x.market, symbol:x.symbol }; }),
+        start: from });
+      var got = d.series || {};
+      Object.keys(got).forEach(function(k){ priceMap[k] = got[k]; });
+    } catch(e){
+      // 한 묶음이 실패해도 나머지는 계속 받습니다
+    }
   }
   return priceMap;
 }
