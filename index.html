@@ -726,7 +726,8 @@
             <div class="row">
               <label>종목</label>
               <input type="text" id="tSymbol" class="grow" placeholder="005930">
-              <button class="btn-sm" onclick="fetchPrice()">종가 조회</button>
+              <button class="btn-sm btn-solid" onclick="fetchPrice(true)">현재가</button>
+              <button class="btn-sm" onclick="fetchPrice(false)">종가</button>
             </div>
             <div class="row">
               <label>이름</label>
@@ -750,7 +751,9 @@
           <div class="trade-foot">
             <button class="btn-sm btn-solid" id="tradeBtn" onclick="submitTrade()">기록하기</button>
             <div class="hint" style="font-size:11px;color:var(--text-sub);line-height:1.6">
-              <b>종가 조회</b>를 누르면 가장 최근 종가가 자동으로 채워집니다.
+              <b>현재가</b>는 미국 주식 15~20분 지연, 코인 약 1분 지연 시세입니다.
+              국내 주식은 현재가를 주는 무료 창구가 없어 마지막 종가가 들어갑니다.
+              <b>종가</b>는 항상 전 거래일 종가입니다.
               분할매수는 여러 번 나눠 기록하면 평단가가 자동 계산됩니다.
             </div>
           </div>
@@ -3661,19 +3664,43 @@ async function getFx(d){
   return (v > 0) ? v : null;
 }
 
-async function fetchPrice(){
+/* 현재가 조회 — 지연 시세를 그대로 단가에 넣습니다.
+   국내 주식은 현재가를 주는 무료 창구가 없어 마지막 종가로 떨어집니다. */
+async function fetchPrice(live){
   var sym = $('tSymbol').value.trim();
   if (!sym){ $('tradeMsg').textContent = '종목 코드를 입력해주세요.'; return; }
+  var mk = $('tMarket').value;
+  $('tradeMsg').style.color = 'var(--text-sub)';
   $('tradeMsg').textContent = '조회 중…';
   try {
-    var mk = $('tMarket').value;
-    var d = await edge({ source: mk==='KR' ? 'quote_kr':'quote_us', code: sym, start: startOfYear() });
+    if (live){
+      var q = await edge({ source:'quote_live', market: mk, code: sym });
+      $('tPrice').value = q.price;
+      $('tDate').value = today();
+      var when = q.kind === 'live'
+        ? (q.age_min != null && q.age_min >= 0
+            ? q.age_min + '분 전 시세' : '지연 시세')
+        : q.as_of + ' 종가';
+      if (isUsd(mk)){
+        var fx1 = await getFx(today());
+        $('tradeMsg').innerHTML = when + ' $' + num(q.price, 4)
+          + (fx1 ? ' · ' + num(q.price*fx1) + '원'
+                 : ' · ⚠️ 환율을 불러오지 못했습니다')
+          + (q.change_pct ? ' · ' + (q.change_pct>0?'+':'') + num(q.change_pct,2) + '%' : '')
+          + '<br><span style="color:var(--text-sub)">' + esc(q.note || '') + '</span>';
+      } else {
+        $('tradeMsg').innerHTML = when + ' ' + num(q.price, 2) + '원'
+          + '<br><span style="color:var(--text-sub)">' + esc(q.note || '') + '</span>';
+      }
+      return;
+    }
+
+    var d = await edge({ source: quoteSource(mk), code: sym, start: startOfYear() });
     var pts = d.points || [];
     if (!pts.length) throw new Error('해당 종목의 시세를 찾지 못했습니다.');
     var last = pts[pts.length-1];
     $('tPrice').value = last.v;
     if (last.n && !$('tName').value) $('tName').value = last.n;
-    $('tradeMsg').style.color = 'var(--text-sub)';
 
     if (isUsd(mk)){
       var fx = await getFx($('tDate').value || today());
