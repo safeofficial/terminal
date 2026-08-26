@@ -176,6 +176,30 @@
   #distBox{width:100%;height:230px}
   .auto-uni{background:var(--accent-soft);border:1px solid var(--border);
             border-radius:10px;padding:12px 14px;margin-bottom:14px}
+  .f13-quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .f13-quick button{padding:5px 11px;border:1px solid var(--border);background:var(--white);
+                    border-radius:20px;font-size:11.5px;color:var(--text);cursor:pointer;
+                    font-family:inherit}
+  .f13-quick button:hover{border-color:var(--accent);color:var(--primary);background:var(--accent-soft)}
+  .f13-quick button .who{color:var(--text-sub);font-size:10.5px;margin-left:4px}
+  .kind-tag{font-size:10px;padding:1px 5px;border-radius:4px;margin-left:5px;
+            background:var(--accent-soft);color:var(--primary)}
+  .kind-tag.put{background:#fdecea;color:#c0392b}
+  .kind-tag.call{background:#e7f4e9;color:#1e7d33}
+  .drill-head{display:flex;align-items:center;gap:8px;margin:12px 0 8px;
+              font-size:.85rem;color:var(--primary)}
+  .drill-head span{font-weight:400;color:var(--text-sub);font-size:11.5px}
+  .drill-list{max-height:340px;overflow:auto;border:1px solid var(--border);border-radius:9px}
+  .drill-row{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;
+             border-bottom:1px solid var(--border);font-size:12.5px}
+  .drill-row:last-child{border-bottom:none}
+  .drill-row:hover{background:var(--accent-soft)}
+  .drill-row.head{cursor:default;color:var(--text-sub);font-weight:600;background:var(--bg)}
+  .drill-row.head:hover{background:var(--bg)}
+  .drill-row .nm{flex:1;min-width:0}
+  .drill-row .sid{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;
+                  color:var(--text-sub);flex-shrink:0}
+  .drill-row .tag{font-size:10.5px;color:var(--text-sub);flex-shrink:0}
   .fs-row{cursor:pointer}
   .fs-row:hover{background:var(--accent-soft)}
   .fs-row td:first-child::after{content:' ＋';color:var(--accent);opacity:0;font-size:11px}
@@ -363,7 +387,22 @@
             </div>
             <div class="row">
               <button class="btn-sm btn-solid grow" onclick="addFromCatalog()">+ 차트에 추가</button>
+              <button class="btn-sm" onclick="drillOpen()">안을 들여다보기</button>
               <button class="btn-sm" onclick="toggleManual()">직접 입력</button>
+            </div>
+            <div class="row" style="margin-top:2px">
+              <input type="text" id="drillQ" class="grow" placeholder="지표 이름으로 찾기 (예: shelter, unemployment, 실업률)"
+                     onkeydown="if(event.key==='Enter'){event.preventDefault();drillSearch();}">
+              <button class="btn-sm" onclick="drillSearch()">검색</button>
+            </div>
+            <div id="drillWarn"></div>
+            <div id="drillBox" class="hidden">
+              <div class="drill-head">
+                <b id="drillTitle">세부 항목</b>
+                <span id="drillSub"></span>
+                <button class="btn-sm" onclick="drillClose()" style="margin-left:auto">닫기</button>
+              </div>
+              <div id="drillList" class="drill-list"></div>
             </div>
 
             <div id="manualBox" class="hidden" style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
@@ -524,10 +563,12 @@
               </div>
               <div class="row">
                 <label>훑을 시장</label>
-                <select id="stMarkets" onchange="stratChanged()" style="width:180px">
-                  <option value="both">국내 + 미국 전부</option>
+                <select id="stMarkets" onchange="stratChanged()" style="width:200px">
+                  <option value="both">전부 (국내 + 미국 + 코인)</option>
                   <option value="KR">국내만 (코스피·코스닥)</option>
                   <option value="US">미국만 (S&amp;P500)</option>
+                  <option value="CRYPTO">코인만</option>
+                  <option value="stock">주식만 (국내 + 미국)</option>
                 </select>
                 <span id="stMarketHint" class="st-hint"></span>
               </div>
@@ -679,6 +720,7 @@
               <select id="tMarket" class="grow" onchange="onMarketChange()">
                 <option value="KR">국내 (KOSPI·KOSDAQ)</option>
                 <option value="US">해외 (미국)</option>
+                <option value="CRYPTO">코인 (BTC-USD 형식)</option>
               </select>
             </div>
             <div class="row">
@@ -787,7 +829,8 @@
             </div>
             <div class="row">
               <button class="btn-sm btn-solid" id="uniKrBtn" onclick="autoUniverse('KR')">국내 상위 100 등록</button>
-              <button class="btn-sm btn-solid" id="uniUsBtn" onclick="autoUniverse('US')">미국 상위 100 등록</button>
+              <button class="btn-sm btn-solid" id="uniUsBtn" onclick="autoUniverse('US')">미국 S&amp;P500 등록</button>
+              <button class="btn-sm btn-solid" id="uniCcBtn" onclick="autoUniverse('CRYPTO')">코인 상위 50 등록</button>
               <button class="btn-sm" id="uniBackBtn" onclick="backfillUniverse()">과거 시세 채우기</button>
             </div>
             <div class="msg" id="autoUniMsg"></div>
@@ -989,6 +1032,44 @@
           <div class="card"><h2>배당</h2><div class="scroll"><table id="coDivTable"></table></div></div>
           <div class="card"><h2>대량보유 상황보고 (5% 룰)</h2><div class="scroll"><table id="coMajorTable"></table></div></div>
           <div class="card"><h2>임원 · 주요주주 소유보고</h2><div class="scroll"><table id="coElestTable"></table></div></div>
+        </div>
+      </div>
+
+      <!-- ════ 13F ════ -->
+      <div class="card" style="margin-top:20px">
+        <h2>기관 보유 내역 (13F)
+          <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+            미국 기관투자자가 분기마다 SEC 에 내는 주식 보유 보고서</span>
+        </h2>
+        <div class="row">
+          <input type="text" id="f13Q" class="grow"
+                 placeholder="운용사 이름 (예: Berkshire Hathaway, ARK Investment, Bridgewater)"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();f13Search();}">
+          <button class="btn-sm btn-solid" onclick="f13Search()">기관 찾기</button>
+        </div>
+        <div class="f13-quick" id="f13Quick"></div>
+        <div id="f13Warn"></div>
+        <div id="f13Hits"></div>
+
+        <div id="f13Body" class="hidden">
+          <div class="row" style="margin-top:12px">
+            <label>분기</label>
+            <select id="f13Period" class="grow" onchange="f13Load()"></select>
+            <label style="min-width:auto">
+              <input type="checkbox" id="f13Diff" checked onchange="f13Load()"
+                     style="width:auto;vertical-align:-2px">
+              직전 분기와 비교
+            </label>
+          </div>
+          <div class="mode-seg" id="f13Seg" style="margin:10px 0 0">
+            <button id="f13K-stock" class="on" onclick="f13Kind('stock')">주식</button>
+            <button id="f13K-option" onclick="f13Kind('option')">옵션</button>
+            <button id="f13K-bond" onclick="f13Kind('bond')">채권 · 기타</button>
+            <button id="f13K-all" onclick="f13Kind('all')">전부</button>
+          </div>
+          <div id="f13Note" class="st-hint" style="margin:8px 0"></div>
+          <div id="f13Tiles"></div>
+          <div class="scroll" style="margin-top:10px"><table id="f13Table"></table></div>
         </div>
       </div>
     </div>
@@ -1332,6 +1413,344 @@ function addFromCatalog(){
   addSeries({ source:c.source, code:c.code, item_code:c.item_code||'', cycle:c.cycle||'M',
               label:c.label, unit:c.unit||'' });
 }
+/* ══════════ 13F — 기관 보유 내역 ══════════
+   숫자보다 먼저 알아야 할 것: 45일 늦게 나오고, 롱만 나오고,
+   공매도·현금·채권·해외주식은 안 나옵니다. 화면에도 적어둡니다. */
+var f13 = null, f13List = [], f13Data = null, f13View = 'stock';
+
+/*  잘 알려진 기관들 — CIK 는 SEC 전문검색으로 하나하나 확인했습니다.
+    이름이 비슷한 다른 법인이 많아서(예: 아이칸은 ICAHN CAPITAL LP 가 아니라
+    ICAHN CARL C) 이름으로 다시 찾지 않고 확인된 번호를 바로 씁니다.        */
+var F13_FAMOUS = [
+  { n:'버크셔 해서웨이',  w:'버핏',        cik:'0001067983', name:'BERKSHIRE HATHAWAY INC' },
+  { n:'ARK 인베스트',    w:'캐시 우드',    cik:'0001697748', name:'ARK Investment Management LLC' },
+  { n:'브리지워터',      w:'레이 달리오',  cik:'0001350694', name:'Bridgewater Associates, LP' },
+  { n:'르네상스',        w:'퀀트',        cik:'0001037389', name:'RENAISSANCE TECHNOLOGIES LLC' },
+  { n:'시타델',          w:'켄 그리핀',    cik:'0001423053', name:'CITADEL ADVISORS LLC' },
+  { n:'투 시그마',       w:'퀀트',        cik:'0001179392', name:'TWO SIGMA INVESTMENTS, LP' },
+  { n:'바우포스트',      w:'세스 클라만',  cik:'0001061768', name:'BAUPOST GROUP LLC/MA' },
+  { n:'퍼싱 스퀘어',     w:'빌 애크먼',    cik:'0001336528', name:'Pershing Square Capital Management, L.P.' },
+  { n:'타이거 글로벌',   w:'',            cik:'0001167483', name:'TIGER GLOBAL MANAGEMENT LLC' },
+  { n:'아팔루사',        w:'데이비드 테퍼', cik:'0001656456', name:'Appaloosa LP' },
+  { n:'사이언',          w:'마이클 버리',  cik:'0001649339', name:'Scion Asset Management, LLC', stale:true },
+  { n:'듀케인',          w:'드러켄밀러',   cik:'0001536411', name:'Duquesne Family Office LLC' },
+  { n:'서드 포인트',     w:'댄 로브',      cik:'0001040273', name:'Third Point LLC' },
+  { n:'그린라이트',      w:'데이비드 아인혼', cik:'0001489933', name:'DME Capital Management, LP' },
+  { n:'론 파인',         w:'',            cik:'0001061165', name:'LONE PINE CAPITAL LLC' },
+  { n:'바이킹 글로벌',   w:'',            cik:'0001103804', name:'VIKING GLOBAL INVESTORS LP' },
+  { n:'코튜',            w:'',            cik:'0001135730', name:'COATUE MANAGEMENT LLC' },
+  { n:'밀레니엄',        w:'',            cik:'0001273087', name:'MILLENNIUM MANAGEMENT LLC' },
+  { n:'포인트72',        w:'스티브 코헨',  cik:'0001603466', name:'Point72 Asset Management, L.P.' },
+  { n:'아이칸',          w:'칼 아이칸',    cik:'0000921669', name:'ICAHN CARL C' }
+];
+
+function f13Quick(){
+  var box = $('f13Quick'); if (!box) return;
+  box.innerHTML = F13_FAMOUS.map(function(x, i){
+    return '<button onclick="f13Famous(' + i + ')" title="' + esc(x.name) + '">'
+         + esc(x.n) + (x.w ? '<span class="who">' + esc(x.w) + '</span>' : '') + '</button>';
+  }).join('');
+}
+async function f13Famous(i){
+  var x = F13_FAMOUS[i]; if (!x) return;
+  $('f13Q').value = x.n;
+  $('f13Hits').innerHTML = '';
+  warn('f13Warn', x.stale
+    ? '⚠️ 이 운용사는 최근 13F 제출이 끊겨 있습니다. 오래된 분기만 보일 수 있습니다.' : '');
+  await f13Open(x.cik, x.name);
+}
+function f13Kind(k){
+  f13View = k;
+  ['stock','option','bond','all'].forEach(function(v){
+    var b = $('f13K-' + v); if (b) b.classList.toggle('on', v === k);
+  });
+  if (f13Data) f13Render(f13Data.d, f13Data.cur, f13Data.prev);
+}
+
+async function f13Search(){
+  var q = $('f13Q').value.trim();
+  if (!q){ warn('f13Warn','운용사 이름을 입력해주세요. (영문)'); return; }
+  warn('f13Warn','');
+  $('f13Hits').innerHTML = '<div class="empty" style="padding:14px">찾는 중…</div>';
+  try {
+    var d = await edgeCo({ action:'f13_search', code:q });
+    var hits = d.hits || [];
+    if (!hits.length){
+      $('f13Hits').innerHTML = '';
+      warn('f13Warn','찾지 못했습니다. 영문 정식 명칭으로 넣어보세요. (예: Berkshire Hathaway)');
+      return;
+    }
+    $('f13Hits').innerHTML = '<div class="drill-list" style="margin-top:10px">'
+      + hits.map(function(h,i){
+          return '<div class="drill-row" onclick="f13Pick(' + i + ')">'
+               + '<span class="nm">' + esc(h.name) + '</span>'
+               + '<span class="tag">13F ' + h.filings + '건</span>'
+               + '<span class="sid">CIK ' + esc(h.cik) + '</span></div>';
+        }).join('') + '</div>';
+    f13List = hits;
+  } catch(e){
+    $('f13Hits').innerHTML = '';
+    warn('f13Warn', esc(e.message));
+  }
+}
+
+async function f13Pick(i){
+  var h = f13List[i]; if (!h) return;
+  $('f13Hits').innerHTML = '';
+  $('f13Q').value = h.name;
+  warn('f13Warn','');
+  await f13Open(h.cik, h.name);
+}
+
+async function f13Open(cik, label){
+  try {
+    var d = await edgeCo({ action:'f13_filings', code:cik });
+    var fl = d.filings || [];
+    if (!fl.length){ warn('f13Warn','13F 보고서를 찾지 못했습니다.'); return; }
+    f13 = { cik: cik, name: d.name || label, filings: fl };
+    $('f13Period').innerHTML = fl.map(function(f,k){
+      return '<option value="' + k + '">' + esc(f.period) + ' 기준'
+           + (f.form.indexOf('/A') > 0 ? ' (정정)' : '')
+           + ' · ' + esc(f.filed) + ' 제출</option>';
+    }).join('');
+    show('f13Body');
+    await f13Load();
+  } catch(e){ warn('f13Warn', esc(e.message)); }
+}
+
+async function f13Load(){
+  if (!f13) return;
+  var k = Number($('f13Period').value || 0);
+  var cur = f13.filings[k]; if (!cur) return;
+  var prev = $('f13Diff').checked ? f13.filings[k+1] : null;
+
+  $('f13Table').innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  $('f13Tiles').innerHTML = '';
+  warn('f13Warn','');
+  try {
+    var d = await edgeCo({ action:'f13_holdings', code:f13.cik,
+                           accession:cur.accession, filed:cur.filed,
+                           prev_accession: prev ? prev.accession : '',
+                           prev_filed: prev ? prev.filed : '' });
+    f13Data = { d:d, cur:cur, prev:prev };
+    f13Render(d, cur, prev);
+  } catch(e){
+    $('f13Table').innerHTML = '';
+    warn('f13Warn', esc(e.message));
+  }
+}
+
+/* $57,000.0M 보다 $57.0B 가 읽기 쉽습니다 */
+function usdShort(v){
+  if (!v) return '—';
+  if (v >= 1e9) return '$' + num(v/1e9, v/1e9 < 10 ? 2 : 1) + 'B';
+  if (v >= 1e6) return '$' + num(v/1e6, 1) + 'M';
+  return '$' + num(v, 0);
+}
+
+function f13Render(d, cur, prev){
+  var all = d.rows || [];
+  var rows = (f13View === 'all') ? all
+           : all.filter(function(x){ return (x.kind || 'stock') === f13View; });
+  var t = d.totals || {};
+  var lag = Math.round((Date.parse(cur.filed) - Date.parse(cur.period)) / 864e5);
+
+  var cnt = { stock:0, option:0, bond:0 };
+  all.forEach(function(x){ cnt[x.kind || 'stock'] = (cnt[x.kind || 'stock'] || 0) + 1; });
+  ['stock','option','bond'].forEach(function(k){
+    var b = $('f13K-' + k); if (!b) return;
+    var label = { stock:'주식', option:'옵션', bond:'채권 · 기타' }[k];
+    b.textContent = label + (cnt[k] ? ' ' + cnt[k] : '');
+    b.disabled = !cnt[k];
+    b.style.opacity = cnt[k] ? '' : '.45';
+  });
+
+  $('f13Note').innerHTML =
+    '<b>' + esc(d.manager || f13.name) + '</b> · ' + esc(cur.period) + ' 기준 · '
+    + esc(cur.filed) + ' 제출 (' + lag + '일 뒤)'
+    + (prev ? ' · ' + esc(prev.period) + ' 대비' : '')
+    + '<br>주식 ' + (cnt.stock || 0) + '종목 ' + usdShort(t.stock)
+    + (cnt.option ? ' · 옵션 ' + cnt.option + '건 ' + usdShort(t.option) : '')
+    + (cnt.bond ? ' · 채권 ' + cnt.bond + '건 ' + usdShort(t.bond) : '')
+    + '<br><span style="color:var(--text-sub)">13F 는 <b>미국 상장주식 매수분만</b> 담깁니다. '
+    + '공매도 · 현금 · 해외주식은 안 나오고, 분기 종료 후 최대 45일 지나서 공개되므로 '
+    + '지금 보유 중이라는 뜻이 아닙니다.'
+    + (f13View === 'option'
+        ? ' <b>옵션은 평가액이 옵션 자체의 값이고 수량은 기초자산 주식 수</b>라, 주식 비중과 같은 자로 재면 안 됩니다.'
+        : '')
+    + '</span>';
+
+  if (d.checks && (!d.checks.sum_matches_cover || !d.checks.price_sane)){
+    warn('f13Warn','⚠️ 합계 검산이 맞지 않습니다. 숫자를 그대로 믿지 마세요. '
+       + '(중앙값 단가 $' + num(d.checks.median_price, 2) + ')');
+  }
+
+  var top = rows.filter(function(x){ return x.value > 0; }).slice(0, 5);
+  $('f13Tiles').innerHTML = top.length
+    ? '<div class="tiles">' + top.map(function(x){
+        return tile(x.name.length > 16 ? x.name.slice(0,16) + '…' : x.name,
+                    num(x.weight, 1) + '%', usdShort(x.value), '');
+      }).join('') + '</div>'
+    : '';
+
+  var hasDiff = rows.some(function(x){ return x.state; });
+  if (!rows.length){
+    $('f13Table').innerHTML = '<tr><td class="empty">이 구분에 해당하는 보유분이 없습니다.</td></tr>';
+    return;
+  }
+  $('f13Table').innerHTML =
+    '<thead><tr><th>종목</th><th class="num">평가액</th><th class="num">비중</th>'
+    + '<th class="num">수량</th>'
+    + (hasDiff ? '<th class="num">전분기 대비</th><th>구분</th>' : '')
+    + '</tr></thead><tbody>'
+    + rows.slice(0, 200).map(function(x){
+        var cls = x.state === '신규' ? 'pos' : (x.state === '청산' ? 'neg'
+                : (x.d_shares > 0 ? 'pos' : (x.d_shares < 0 ? 'neg' : '')));
+        var kind = x.kind || 'stock';
+        var tag = kind === 'option'
+              ? '<span class="kind-tag ' + (/put/i.test(x.put_call||'') ? 'put' : 'call') + '">'
+                + esc(x.put_call || '옵션') + '</span>'
+              : (kind === 'bond' ? '<span class="kind-tag">채권</span>' : '');
+        return '<tr>'
+          + '<td><b>' + esc(x.name) + '</b>' + tag
+          + '<div style="font-size:11px;color:var(--text-sub)">' + esc(x.cusip)
+          + (x.cls ? ' · ' + esc(x.cls) : '') + '</div></td>'
+          + '<td class="num">' + usdShort(x.value) + '</td>'
+          + '<td class="num">' + num(x.weight, 2) + '%</td>'
+          + '<td class="num">' + num(x.shares, 0) + '</td>'
+          + (hasDiff
+              ? '<td class="num ' + cls + '">'
+                + (x.d_pct == null ? '신규'
+                   : (x.d_pct > 0 ? '+' : '') + num(x.d_pct, 1) + '%') + '</td>'
+                + '<td class="' + cls + '">' + esc(x.state || '') + '</td>'
+              : '')
+          + '</tr>';
+      }).join('')
+    + '</tbody>';
+}
+
+/* ══════════ 지표 안 들여다보기 ══════════
+   FRED 는 그 지표가 실린 통계표의 계층을 그대로 가져옵니다.
+   ECOS 는 통계표 안의 항목 목록을 부모-자식으로 엮어서 보여줍니다. */
+function drillClose(){ $('drillBox').classList.add('hidden'); warn('drillWarn',''); }
+
+async function drillOpen(){
+  var id = $('catalogSel').value;
+  var c = catalog.filter(function(x){ return String(x.id) === String(id); })[0];
+  if (!c){ warn('drillWarn','먼저 위에서 지표를 하나 골라주세요.'); return; }
+  show('drillBox');
+  $('drillTitle').textContent = c.label;
+  $('drillSub').textContent = '불러오는 중…';
+  $('drillList').innerHTML = '';
+  warn('drillWarn','');
+  try {
+    if (c.source === 'fred'){
+      var d = await edge({ source:'fred_tree', code:c.code });
+      $('drillSub').textContent = d.release ? d.release.name : '';
+      drillRenderFred(d.items || []);
+    } else if (c.source === 'ecos'){
+      var e = await edge({ source:'ecos_items', code:c.code });
+      $('drillSub').textContent = '통계표 ' + esc(c.code);
+      drillRenderEcos(e.groups || [], c);
+    } else {
+      $('drillSub').textContent = '';
+      $('drillList').innerHTML = '<div class="empty" style="padding:18px">'
+        + '이 자료원은 세부 항목을 제공하지 않습니다.</div>';
+    }
+  } catch(err){
+    $('drillSub').textContent = '';
+    warn('drillWarn', esc(err.message));
+    $('drillList').innerHTML = '';
+  }
+}
+
+function drillRenderFred(items){
+  if (!items.length){
+    $('drillList').innerHTML = '<div class="empty" style="padding:18px">세부 항목이 없습니다.</div>';
+    return;
+  }
+  $('drillList').innerHTML = items.map(function(x, i){
+    var pad = 10 + Math.max(0, (Number(x.level) || 1) - 1) * 14;
+    if (!x.series_id){
+      return '<div class="drill-row head" style="padding-left:' + pad + 'px">'
+           + '<span class="nm">' + esc(x.name) + '</span></div>';
+    }
+    return '<div class="drill-row" style="padding-left:' + pad + 'px" '
+         + 'onclick="drillAdd(' + i + ')">'
+         + '<span class="nm">' + esc(x.name) + '</span>'
+         + '<span class="sid">' + esc(x.series_id) + '</span></div>';
+  }).join('');
+  drillItems = items;
+}
+function drillAdd(i){
+  var x = drillItems[i]; if (!x || !x.series_id) return;
+  addSeries({ source:'fred', code:x.series_id, item_code:'', cycle:'M',
+              label:x.name, unit:'' });
+}
+
+function drillRenderEcos(groups, cat){
+  if (!groups.length){
+    $('drillList').innerHTML = '<div class="empty" style="padding:18px">세부 항목이 없습니다.</div>';
+    return;
+  }
+  drillItems = [];
+  var html = '';
+  groups.forEach(function(g){
+    if (groups.length > 1)
+      html += '<div class="drill-row head"><span class="nm">' + esc(g.name || g.group) + '</span></div>';
+    (g.items || []).forEach(function(x){
+      var i = drillItems.length;
+      drillItems.push({ ecos:true, code:x.code, name:x.name, cycle:x.cycle, unit:x.unit, cat:cat });
+      var pad = 10 + Math.max(0, (Number(x.level) || 1) - 1) * 14;
+      html += '<div class="drill-row" style="padding-left:' + pad + 'px" onclick="drillAddEcos(' + i + ')">'
+            + '<span class="nm">' + esc(x.name) + '</span>'
+            + (x.unit ? '<span class="tag">' + esc(x.unit) + '</span>' : '')
+            + '<span class="sid">' + esc(x.code) + '</span></div>';
+    });
+  });
+  $('drillList').innerHTML = html;
+}
+function drillAddEcos(i){
+  var x = drillItems[i]; if (!x) return;
+  addSeries({ source:'ecos', code:x.cat.code, item_code:x.code,
+              cycle:(x.cycle || x.cat.cycle || 'M'),
+              label:x.cat.label + ' · ' + x.name, unit:x.unit || '' });
+}
+
+var drillItems = [];
+
+/* 카탈로그에 없는 지표도 이름으로 찾아 씁니다 */
+async function drillSearch(){
+  var q = $('drillQ').value.trim();
+  if (!q){ warn('drillWarn','찾을 이름을 입력해주세요.'); return; }
+  show('drillBox');
+  $('drillTitle').textContent = '"' + q + '" 검색 결과';
+  $('drillSub').textContent = '찾는 중…';
+  $('drillList').innerHTML = '';
+  warn('drillWarn','');
+  try {
+    var d = await edge({ source:'fred_search', q: q });
+    var items = d.items || [];
+    $('drillSub').textContent = items.length + '개 (FRED)';
+    if (!items.length){
+      $('drillList').innerHTML = '<div class="empty" style="padding:18px">결과가 없습니다. 영어로 찾아보세요.</div>';
+      return;
+    }
+    drillItems = items.map(function(x){
+      return { series_id:x.series_id, name:x.name, level:1 };
+    });
+    $('drillList').innerHTML = items.map(function(x, i){
+      return '<div class="drill-row" onclick="drillAdd(' + i + ')">'
+           + '<span class="nm">' + esc(x.name) + '</span>'
+           + '<span class="tag">' + esc([x.freq, x.sa, x.unit].filter(Boolean).join(' · ')) + '</span>'
+           + '<span class="sid">' + esc(x.series_id) + '</span></div>';
+    }).join('');
+  } catch(err){
+    $('drillSub').textContent = '';
+    warn('drillWarn', esc(err.message));
+  }
+}
+
 function addManual(){
   var src = $('mSource').value, code = $('mCode').value.trim();
   if (!code) { warn('researchWarn','코드를 입력해주세요.'); return; }
@@ -1748,6 +2167,18 @@ async function setCoPeriod(v){
   coView.period = v;
   if (co) await loadCoFin();
   refillCoFinSeries();
+  //  얹어둔 재무 계정도 새 기간 자료로 바꿔 답니다
+  if (co && coFinSeries.some(function(x){ return x.kind === 'fin'; })){
+    var d = await loadCoFull();
+    coFinSeries.forEach(function(x){
+      if (x.kind !== 'fin') return;
+      var list = ((d.statements || {})[x.group] || []);
+      var hit = list.filter(function(r){ return r.name === x.code; })[0];
+      x.values = hit ? hit.values : {};
+    });
+  }
+  if (coFsTab && coFsTab !== 'summary') renderCoStatement(coFsTab);
+  renderCoFinChart();
 }
 /* 표시 구간이 넓어져 앞부분 자료가 모자라면 다시 받아옵니다 */
 function refillCoFinSeries(){
@@ -1790,6 +2221,7 @@ function coRatio(a, b){
 }
 
 async function initCompany(){
+  f13Quick();
   if (isOfficer()){
     document.querySelectorAll('#pane-company .admin-only')
       .forEach(function(e){ e.classList.remove('hidden'); });
@@ -1888,7 +2320,7 @@ async function pickCompany(i){
   $('coTiles').innerHTML = '<div class="empty">불러오는 중…</div>';
   $('coFinTable').innerHTML = ''; $('coDiscTable').innerHTML = '';
   $('coDivTable').innerHTML = ''; $('coMajorTable').innerHTML = ''; $('coElestTable').innerHTML = '';
-  coFin = null; coFull = null; coSeries = []; coFinSeries = []; coPricePts = [];
+  coFin = null; coFull = null; coFullCache = {}; coSeries = []; coFinSeries = []; coPricePts = [];
   if (coFinChart) coFinChart.clear();
   $('coFinMk').value = co.market;
   renderCoSeriesList(); renderCoFinSeriesList();
@@ -1915,12 +2347,26 @@ function coFsShow(which){
   else renderCoStatement(which);
 }
 
-/* 전체 재무제표는 필요할 때 한 번만 받아옵니다 */
+/* 전체 재무제표 — 연간·분기를 따로 보관해서 한 번씩만 받아옵니다 */
+var coFullCache = {};
 async function loadCoFull(){
-  if (coFull || !co) return coFull;
+  if (!co) return null;
+  var per = coView.period === 'quarter' ? 'quarter' : 'annual';
+  if (coFullCache[per]){ coFull = coFullCache[per]; return coFull; }
   var key = (co.market === 'KR') ? co.corp_code : co.cik;
-  coFull = await edgeCo({ action: co.market === 'KR' ? 'kr_fin_full' : 'us_fin_full', code: key });
+  var d = await edgeCo({ action: co.market === 'KR' ? 'kr_fin_full' : 'us_fin_full',
+                         code: key, period: per });
+  coFullCache[per] = d; coFull = d;
   return coFull;
+}
+/* 기간 구분 열쇠 — 실적 추이 행과 재무제표 열을 같은 이름으로 맞춥니다 */
+function periodKey(r){ return r.q ? (r.year + 'Q' + r.q) : String(r.year); }
+/* 서버가 준 기간 목록. 예전 형식(years)도 받아줍니다. */
+function coFullPeriods(d){
+  if (d && Array.isArray(d.periods)) return d.periods;
+  return ((d && d.years) || []).map(function(y){
+    return { key:String(y), label:y + '년', end:y + '-12-31' };
+  });
 }
 
 async function renderCoStatement(group){
@@ -1930,7 +2376,7 @@ async function renderCoStatement(group){
   try {
     var d = await loadCoFull();
     var rows = (d.statements || {})[group] || [];
-    var years = d.years || [];
+    var years = coFullPeriods(d);
     if (!rows.length){
       tb.innerHTML = '';
       warn('coFsWarn', esc(d.note || (group + ' 자료를 찾지 못했습니다.')));
@@ -1939,7 +2385,7 @@ async function renderCoStatement(group){
     var u = coUnit();
     tb.innerHTML =
       '<thead><tr><th>계정 <span style="font-weight:400;color:var(--text-sub);font-size:11px">(클릭 → 차트)</span></th>'
-      + years.map(function(y){ return '<th class="num">' + y + '</th>'; }).join('')
+      + years.map(function(y){ return '<th class="num">' + esc(y.label) + '</th>'; }).join('')
       + '</tr></thead><tbody>'
       + rows.map(function(r, i){
           var on = coFinSeries.some(function(x){ return x.finKey === 'fin||' + group + '|' + r.name; });
@@ -1947,8 +2393,8 @@ async function renderCoStatement(group){
             + 'onclick="toggleFinSeries(\'' + esc(group) + '\',' + i + ')">'
             + '<td><b>' + esc(r.name) + '</b></td>'
             + years.map(function(y, k){
-                var v = r.values[y];
-                var prev = k > 0 ? r.values[years[k-1]] : null;
+                var v = r.values[y.key];
+                var prev = k > 0 ? r.values[years[k-1].key] : null;
                 var txt = v == null ? '—' : (r.per_share ? num(v, 2) : num(v / u.div, u.dp));
                 var dd = (v != null && prev != null && !r.per_share)
                   ? dlt(Number(v), Number(prev), 'pct') : '';
@@ -2186,8 +2632,10 @@ function renderCoFinSeriesList(){
 function coFinValues(s, rows, u){
   if (s.kind === 'fin'){
     return rows.map(function(r){
-      if (r.q && Number(r.q) !== 4) return null;      // 연간 자료는 4Q 자리에만
-      var v = s.values[r.year];
+      var pk = periodKey(r);
+      var v = s.values[pk];
+      //  분기 화면인데 연간 자료만 있으면 4분기 자리에 얹습니다
+      if (v == null && r.q && Number(r.q) === 4) v = s.values[String(r.year)];
       if (v == null) return null;
       return s.per_share ? Number(v) : Number(v) / u.div;
     });
@@ -2202,8 +2650,11 @@ function coFinValues(s, rows, u){
 function coChartRows(){
   var rs = coRows();
   if (rs.length) return rs;
-  var ys = (coFull && coFull.years) || [];
-  return ys.map(function(y){ return { year: Number(y), q: null }; });
+  return coFullPeriods(coFull).map(function(p){
+    var m = String(p.key).match(/^(\d{4})Q(\d)$/);
+    return m ? { year: Number(m[1]), q: Number(m[2]) }
+             : { year: Number(p.key), q: null };
+  });
 }
 function renderCoFinChart(){
   if (typeof echarts === 'undefined') return;
@@ -2557,7 +3008,7 @@ async function loadCoPrice(){
   coPricePts = [];
   coPriceChart.clear();
   try {
-    var d = await edge({ source: co.market === 'KR' ? 'quote_kr' : 'quote_us',
+    var d = await edge({ source: quoteSource(co.market),
                          code: co.code, start: coFrom() });
     coPricePts = d.points || [];
     if (!coPricePts.length){
@@ -2695,7 +3146,7 @@ async function loadTeam(){
   var pos = (st.data && st.data.positions) || [];
   for (var i=0;i<pos.length;i++){
     try {
-      await edge({ source: pos[i].market === 'KR' ? 'quote_kr' : 'quote_us',
+      await edge({ source: quoteSource(pos[i].market),
                    code: pos[i].symbol, start: startOfYear() });
     } catch(e){ /* 가격 갱신 실패는 무시하고 마지막 값을 씁니다 */ }
   }
@@ -2732,7 +3183,7 @@ function renderSummary(){
     + '</div>';
 
   // 미국 주식이 있는데 환율이 없으면 평가액이 틀립니다 — 눈에 띄게 알립니다
-  var hasUS = (tstate.positions||[]).some(function(x){ return x.market === 'US'; });
+  var hasUS = (tstate.positions||[]).some(function(x){ return isUsd(x.market); });
   var fx = Number(tstate.fx || 0);
   if (hasUS && !(fx > 0)){
     warn('tradingWarn', '⚠️ 원/달러 환율을 아직 불러오지 못해 미국 주식 평가액이 정확하지 않습니다. '
@@ -3188,9 +3639,15 @@ function maxDrawdown(v){ var peak=v[0], mdd=0;
 
 /* ── 매매 ── */
 function onMarketChange(){
-  var kr = $('tMarket').value === 'KR';
-  $('tSymbol').placeholder = kr ? '005930' : 'AAPL';
-  $('tName').placeholder = kr ? '삼성전자' : 'Apple';
+  var mk = $('tMarket').value;
+  var kr = mk === 'KR', cc = mk === 'CRYPTO';
+  $('tSymbol').placeholder = kr ? '005930' : (cc ? 'BTC-USD' : 'AAPL');
+  $('tName').placeholder   = kr ? '삼성전자' : (cc ? '비트코인' : 'Apple');
+  //  코인은 0.05 BTC 처럼 쪼개서 삽니다 — 한 개 단위로 묶으면 살 수가 없습니다
+  var q = $('tQty');
+  q.step        = cc ? 'any' : '1';
+  q.min         = cc ? '0'   : '1';
+  q.placeholder = cc ? '수량 (0.05 처럼 소수점 가능)' : '수량';
 }
 
 /* 해당 날짜의 원/달러 환율. 보관함이 비어 있으면 한 번 받아옵니다. */
@@ -3218,7 +3675,7 @@ async function fetchPrice(){
     if (last.n && !$('tName').value) $('tName').value = last.n;
     $('tradeMsg').style.color = 'var(--text-sub)';
 
-    if (mk === 'US'){
+    if (isUsd(mk)){
       var fx = await getFx($('tDate').value || today());
       $('tradeMsg').textContent = last.d + ' 종가 $' + num(last.v,2)
         + (fx ? '  ·  환율 ' + num(fx,2) + '원 적용 → ' + num(last.v*fx) + '원'
@@ -3243,9 +3700,9 @@ async function submitTrade(){
   var side = $('tSide').value;
   var mk   = $('tMarket').value;
 
-  // 미국 주식은 그날 환율로 원화 환산해서 기록합니다
+  // 미국 주식과 코인은 그날 환율로 원화 환산해서 기록합니다
   var fx = 1;
-  if (mk === 'US'){
+  if (isUsd(mk)){
     msg.style.color = 'var(--text-sub)';
     msg.textContent = '환율 확인 중…';
     fx = await getFx($('tDate').value || today());
@@ -3282,7 +3739,7 @@ async function submitTrade(){
   if (r.error){ msg.textContent = errMsg(r.error); return; }
   msg.style.color = 'var(--ok)';
   msg.textContent = '기록했습니다.'
-    + (mk === 'US' ? '  ($' + num(price,2) + ' × ' + num(fx,2) + '원 = ' + num(krw) + '원)' : '');
+    + (isUsd(mk) ? '  ($' + num(price,2) + ' × ' + num(fx,2) + '원 = ' + num(krw) + '원)' : '');
   $('tQty').value = ''; $('tPrice').value = '';
   await loadTeam();
   loadLeaderboard();
@@ -3408,14 +3865,15 @@ async function showUniverse(){
 
 /* 거래대금 상위 종목 자동 등록 */
 async function autoUniverse(mk){
-  var id = mk === 'KR' ? 'uniKrBtn' : 'uniUsBtn';
+  var id = mk === 'KR' ? 'uniKrBtn' : (mk === 'CRYPTO' ? 'uniCcBtn' : 'uniUsBtn');
   var b = $(id), label = b.textContent;
   b.disabled = true; b.textContent = '불러오는 중…';
   warn('autoUniMsg','');
   try {
-    var d = await edge({ source: mk === 'KR' ? 'universe_kr' : 'universe_us', top: 100 });
+    var src = mk === 'KR' ? 'universe_kr' : (mk === 'CRYPTO' ? 'universe_crypto' : 'universe_us');
+    var d = await edge({ source: src, top: mk === 'CRYPTO' ? 50 : 100 });
     warn('autoUniMsg',
-      (mk === 'KR' ? '국내' : '미국') + ' ' + d.picked + '개 종목을 등록했습니다. '
+      marketLabel(mk) + ' ' + d.picked + '개 종목을 등록했습니다. '
       + '(' + esc(d.as_of) + ' 기준, 전 종목 ' + num(d.scanned, 0) + '개 중)<br>'
       + '상위: ' + esc((d.top || []).join(', ')), 'info');
     await showUniverse();
@@ -4052,8 +4510,25 @@ async function loadFxSeries(start){
   return fxPts.length;
 }
 
+/* 달러로 매겨지는 시장 — 미국 주식과 코인 */
+function isUsd(market){ return market === 'US' || market === 'CRYPTO'; }
+
+/* 코인은 0.001 BTC 처럼 쪼개서 삽니다.
+   주식은 한 주 단위라 내림, 코인은 소수점 8자리까지 허용합니다. */
+function isFractional(market){ return market === 'CRYPTO'; }
+function roundQty(q, market){
+  if (!isFractional(market)) return Math.floor(q);
+  return Math.floor(q * 1e8) / 1e8;
+}
+function quoteSource(market){
+  return market === 'KR' ? 'quote_kr' : (market === 'CRYPTO' ? 'quote_crypto' : 'quote_us');
+}
+function marketLabel(market){
+  return market === 'KR' ? '국내' : (market === 'CRYPTO' ? '코인' : '미국');
+}
+
 function fxAt(day, market){
-  if (market !== 'US') return 1;
+  if (!isUsd(market)) return 1;
   if (fxFixed) return fxFixed;
   if (!fxPts.length) return null;
   var j = idxAtOrBefore(fxDates, day);
@@ -4152,7 +4627,7 @@ function replayStrategy(strategies, priceMap, seed, startDate, manualTrades){
       if (!hitSl && !hitTp && !hitRule) return;
 
       // 손절·익절은 전량, 지표 조건은 설정 비율
-      var sq = (hitSl || hitTp) ? b.qty : Math.floor(b.qty * sellPct);
+      var sq = (hitSl || hitTp) ? b.qty : roundQty(b.qty * sellPct, b.market);
       if (sq <= 0) return;
 
       trades.push({ market:b.market, symbol:b.symbol, name:b.name,
@@ -4208,7 +4683,7 @@ function replayStrategy(strategies, priceMap, seed, startDate, manualTrades){
       var rate = fxAt(day, b.market); if (rate == null) return;
       var price = b.pts[i].v, unit = price * rate;
       var tranche = Math.min(budget * buyPct, budget - b.spent, autoCap - autoSpent, cash);
-      var bq = Math.floor(tranche / unit);
+      var bq = roundQty(tranche / unit, b.market);
       if (bq <= 0) return;
 
       trades.push({ market:b.market, symbol:b.symbol, name:b.name,
@@ -4454,13 +4929,16 @@ function syncStratNums(){
   if ($('stMarketHint')){
     var mk  = $('stMarkets') ? $('stMarkets').value : 'both';
     var all = scanUniverse || universe || [];
-    var n   = all.filter(function(u){ return mk === 'both' || u.market === mk; }).length;
+    var n   = stratSymbols({ mode:'scan', markets: mk }).length;
     var kr  = all.filter(function(u){ return u.market === 'KR'; }).length;
     var us  = all.filter(function(u){ return u.market === 'US'; }).length;
-    $('stMarketHint').innerHTML = '<b>' + n + '종목</b>을 훑습니다'
-      + (mk === 'both' && us > kr * 2
-          ? ' · ⚠️ 미국이 ' + us + '개로 국내 ' + kr + '개보다 훨씬 많아 미국 쪽에 쏠릴 수 있습니다'
-          : '');
+    var cc  = all.filter(function(u){ return u.market === 'CRYPTO'; }).length;
+    var tip = '';
+    if ((mk === 'both' || mk === 'stock') && us > kr * 2)
+      tip = ' · ⚠️ 미국이 ' + us + '개로 국내 ' + kr + '개보다 많아 미국 쪽에 쏠릴 수 있습니다';
+    if (mk === 'CRYPTO' || (mk === 'both' && cc))
+      tip += ' · 코인은 주말·야간에도 움직이고 변동성이 큽니다 — 손절 폭을 따로 잡으세요';
+    $('stMarketHint').innerHTML = '<b>' + n + '종목</b>을 훑습니다' + tip;
   }
 }
 
@@ -4544,12 +5022,14 @@ async function loadContest(){
   var n = (scanUniverse || universe).length;
   var kr = (scanUniverse || []).filter(function(x){ return x.market === 'KR'; }).length;
   var us = (scanUniverse || []).filter(function(x){ return x.market === 'US'; }).length;
+  var cc = (scanUniverse || []).filter(function(x){ return x.market === 'CRYPTO'; }).length;
   if ($('uniCount')) $('uniCount').textContent = n ? (n + '개') : '전';
   if ($('uniNote')){
     if (n){
-      $('uniNote').innerHTML = (kr || us)
+      $('uniNote').innerHTML = (kr || us || cc)
         ? '<div class="note info" style="margin-bottom:14px">오늘 스캔 대상은 '
-          + '<b>국내 ' + kr + '종목</b> · <b>미국 ' + us + '종목</b> 입니다. 매일 자동으로 갱신됩니다. '
+          + '<b>국내 ' + kr + '</b> · <b>미국 ' + us + '</b>'
+          + (cc ? ' · <b>코인 ' + cc + '</b>' : '') + ' 종목입니다. 매일 자동으로 갱신됩니다. '
           + '명단에서 빠진 종목도 <b>팔 수는 있습니다</b>.</div>'
         : '';
     } else {
@@ -4673,7 +5153,11 @@ function stratSymbols(cfg){
   if (cfg.mode === 'scan'){
     var mk = cfg.markets || 'both';
     return (scanUniverse || universe)
-      .filter(function(u){ return mk === 'both' || u.market === mk; })
+      .filter(function(u){
+        if (mk === 'both')  return true;
+        if (mk === 'stock') return u.market !== 'CRYPTO';
+        return u.market === mk;
+      })
       .map(function(u){ return { market:u.market, symbol:u.symbol, name:u.name }; });
   }
   return (cfg.symbols || []).filter(function(x){ return x.symbol; });
@@ -4781,7 +5265,7 @@ async function previewStrategy(){
   var seed = Number(tinfo.seed || 100000000);
 
   try {
-    if (syms.some(function(x){ return x.market === 'US'; })){
+    if (syms.some(function(x){ return isUsd(x.market); })){
       btn.textContent = '환율 확인 중…';
       if (!await loadFxSeries(backDate(startDate, 400))){
         warnStrat('원/달러 환율을 받지 못했습니다. 경제지표 탭에서 "원/달러 환율"을 한 번 조회해주세요.');
@@ -4901,7 +5385,7 @@ async function runStrategy(){
   var syms = Object.keys(need).map(function(k){ return need[k]; });
   if (!syms.length){ warnStrat('전략에 종목이 없습니다.'); return; }
 
-  if (syms.some(function(x){ return x.market === 'US'; })){
+  if (syms.some(function(x){ return isUsd(x.market); })){
     msg.textContent = '환율 확인 중…';
     if (!await loadFxSeries(backDate(startDate, 400))){
       warnStrat('원/달러 환율을 받지 못해 해외 종목을 계산할 수 없습니다.');
