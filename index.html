@@ -2372,33 +2372,56 @@ function coFullPeriods(d){
   });
 }
 
+/*  값이 드문 계정은 접어둡니다.
+    "매각예정분류" 처럼 그 해에 거래가 없으면 회사가 아예 적지 않는 계정이 있어서,
+    다 펼치면 표 중간이 —— 로 가득 찹니다. 지우지는 않고 접기만 합니다. */
+var coFsAll = false;
+function coFsToggleAll(){ coFsAll = !coFsAll; renderCoStatement(coFsTab); }
+
 async function renderCoStatement(group){
   var tb = $('coFinTable');
   tb.innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
   warn('coFsWarn','');
   try {
     var d = await loadCoFull();
-    var rows = (d.statements || {})[group] || [];
+    var all = (d.statements || {})[group] || [];
     var years = coFullPeriods(d);
-    if (!rows.length){
+    if (!all.length){
       tb.innerHTML = '';
       warn('coFsWarn', esc(d.note || (group + ' 자료를 찾지 못했습니다.')));
       return;
     }
+
+    //  각 계정이 몇 구간이나 채워져 있는지
+    function filled(r){
+      var n = 0;
+      years.forEach(function(y){ if (r.values[y.key] != null) n++; });
+      return n;
+    }
+    var need = Math.max(2, Math.ceil(years.length * 0.6));
+    var rows = [], hidden = 0;
+    all.forEach(function(r, i){
+      r.__i = i;                                   // 원래 순번을 기억합니다
+      var on = coFinSeries.some(function(x){ return x.finKey === 'fin||' + group + '|' + r.name; });
+      if (coFsAll || on || filled(r) >= need) rows.push(r);
+      else hidden++;
+    });
+
     var u = coUnit();
     tb.innerHTML =
       '<thead><tr><th>계정 <span style="font-weight:400;color:var(--text-sub);font-size:11px">(클릭 → 차트)</span></th>'
       + years.map(function(y){ return '<th class="num">' + esc(y.label) + '</th>'; }).join('')
       + '</tr></thead><tbody>'
-      + rows.map(function(r, i){
+      + rows.map(function(r){
           var on = coFinSeries.some(function(x){ return x.finKey === 'fin||' + group + '|' + r.name; });
           return '<tr class="fs-row' + (on ? ' on' : '') + '" '
-            + 'onclick="toggleFinSeries(\'' + esc(group) + '\',' + i + ')">'
+            + 'onclick="toggleFinSeries(\'' + esc(group) + '\',' + r.__i + ')">'
             + '<td><b>' + esc(r.name) + '</b></td>'
             + years.map(function(y, k){
                 var v = r.values[y.key];
                 var prev = k > 0 ? r.values[years[k-1].key] : null;
-                var txt = v == null ? '—' : (r.per_share ? num(v, 2) : num(v / u.div, u.dp));
+                var txt = v == null ? '<span style="color:var(--border)">—</span>'
+                                    : (r.per_share ? num(v, 2) : num(v / u.div, u.dp));
                 var dd = (v != null && prev != null && !r.per_share)
                   ? dlt(Number(v), Number(prev), 'pct') : '';
                 return '<td class="num"><span class="co-num">' + txt + dd + '</span></td>';
@@ -2406,7 +2429,18 @@ async function renderCoStatement(group){
             + '</tr>';
         }).join('')
       + '</tbody>';
-    $('coFinUnit').textContent = '단위: ' + u.label;
+
+    $('coFinUnit').textContent = '단위: ' + u.label
+      + (d.basis ? ' · ' + d.basis : '');
+
+    if (hidden || coFsAll){
+      warn('coFsWarn', coFsAll
+        ? '값이 드문 계정까지 모두 펼쳤습니다. '
+          + '<a href="#" onclick="coFsToggleAll();return false;"><b>다시 접기</b></a>'
+        : '해에 따라 값이 없는 계정 <b>' + hidden + '개</b>를 접어뒀습니다. '
+          + '(그 해에 해당 거래가 없으면 회사가 아예 적지 않습니다) '
+          + '<a href="#" onclick="coFsToggleAll();return false;"><b>모두 보기</b></a>', 'info');
+    }
   } catch(e){
     tb.innerHTML = '';
     warn('coFsWarn', esc(e.message));
