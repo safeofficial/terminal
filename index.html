@@ -95,8 +95,11 @@
     display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .card h2 .tools{display:flex;gap:7px;flex-wrap:wrap}
 
+  /* 그리드 칸의 기본 min-width 는 auto 라, 안에 든 차트 캔버스 폭만큼
+     칸이 버텨서 화면을 좁히면 가로 스크롤이 생깁니다. 0 으로 풀어줍니다. */
   .grid2{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
   .grid-half{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+  .grid2>*,.grid-half>*{min-width:0}
   @media(max-width:940px){.grid2,.grid-half{grid-template-columns:1fr}}
   @media(max-width:760px){#pieBox{height:420px} .trade-foot button{flex:1 1 100%}}
 
@@ -200,6 +203,20 @@
   .drill-row .sid{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;
                   color:var(--text-sub);flex-shrink:0}
   .drill-row .tag{font-size:10.5px;color:var(--text-sub);flex-shrink:0}
+  /* 재무제표 — 소계는 굵게 + 왼쪽 색 띠, 하위 항목은 들여쓰기 */
+  #coFinTable{border-collapse:separate;border-spacing:0}
+  #coFinTable thead th{position:sticky;top:0;background:var(--bg);z-index:2}
+  #coFinTable tbody tr:nth-child(even){background:rgba(0,0,0,.015)}
+  .fs-row.lvl1 td:first-child{padding-left:26px}
+  .fs-row.lvl2 td:first-child{padding-left:42px}
+  .fs-row.sub td:first-child{font-weight:700}
+  .fs-row.sub td{background:var(--accent-soft)}
+  .fs-row.sub td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
+  .fs-row.sub.neg td:first-child{box-shadow:inset 3px 0 0 var(--up)}
+  .fs-num{display:block;line-height:1.25}
+  .fs-dlt{display:block;font-size:10.5px;line-height:1.2}
+  .fs-dlt.up{color:var(--ok)} .fs-dlt.dn{color:var(--danger)}
+  .fs-dlt.flat{color:var(--text-sub)}
   .fs-row{cursor:pointer}
   .fs-row:hover{background:var(--accent-soft)}
   .fs-row td:first-child::after{content:' ＋';color:var(--accent);opacity:0;font-size:11px}
@@ -250,6 +267,45 @@
   .tile .v{font-size:1.35rem;font-weight:700;color:var(--primary);line-height:1.15;font-variant-numeric:tabular-nums}
   .tile .d{font-size:11px;color:var(--text-sub);margin-top:2px}
   .tile .v.pos{color:var(--up)} .tile .v.neg{color:var(--down)}
+  .guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+  .guide-item{text-align:left;padding:12px 14px;border:1px solid var(--border);border-radius:10px;
+    background:var(--white);cursor:pointer;font-family:inherit;color:var(--text);line-height:1.7}
+  .guide-item:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .guide-item b{display:block;font-size:13px;margin-bottom:3px;color:var(--primary)}
+  .guide-item span{display:block;font-size:11.5px;color:var(--text-sub)}
+  .guide-item em{font-style:normal;color:var(--text);font-weight:600}
+  .dv-hits{display:flex;flex-wrap:wrap;gap:6px}
+  .dv-hits button{padding:5px 11px;border:1px solid var(--border);background:var(--white);
+    border-radius:14px;font-size:12px;cursor:pointer;color:var(--text)}
+  .dv-hits button:hover{border-color:var(--primary);color:var(--primary)}
+  .dv-step{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px;
+    line-height:1.75;align-items:flex-start}
+  .dv-step:last-child{border-bottom:0}
+  .dv-step .n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);
+    color:var(--primary);font-size:11.5px;font-weight:700;display:flex;align-items:center;
+    justify-content:center;margin-top:2px}
+  .dv-step .tx{flex:1;min-width:0}
+  .dv-step b{color:var(--text)}
+  .dv-lv{display:inline-block;padding:1px 7px;border-radius:4px;font-weight:600;
+    font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
+  .dv-lv.up{background:rgba(192,57,43,.10);color:var(--up)}
+  .dv-lv.dn{background:rgba(27,95,168,.10);color:var(--down)}
+  .dv-lv.now{background:var(--accent-soft);color:var(--primary)}
+  .dt-picker{max-height:230px;overflow:auto;border:1px solid var(--border);border-radius:8px;
+    margin-top:8px;background:var(--white)}
+  .dt-row{display:flex;align-items:center;gap:8px;padding:5px 10px;font-size:12.5px;cursor:pointer;
+    border-bottom:1px solid var(--border)}
+  .dt-row:last-child{border-bottom:0}
+  .dt-row:hover{background:var(--accent-soft)}
+  .dt-row.head{background:var(--bg);font-weight:600;color:var(--text-sub);cursor:default;font-size:11.5px}
+  .dt-row input{width:auto;margin:0;flex:none}
+  .dt-row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dt-row .sid{font-size:10.5px;color:var(--text-sub);font-family:ui-monospace,Menlo,monospace;flex:none}
+  .dt-row.on{background:rgba(44,62,107,.07)}
+  .dt-read{margin-top:12px;padding:13px 15px;border-radius:8px;background:var(--bg);
+    border:1px solid var(--border);
+    font-size:12.5px;line-height:1.8}
+  .dt-read b{color:var(--text)}
 
   .scroll{overflow-x:auto;border:1px solid var(--border);border-radius:11px;background:var(--white)}
   table{width:100%;border-collapse:collapse;font-size:.85rem;min-width:520px}
@@ -361,9 +417,11 @@
 
   <nav class="tabs">
     <div class="tabs-in">
-      <button class="tab on" data-tab="research" onclick="showTab('research')">경제지표 · 주식 분석</button>
+      <button class="tab on" data-tab="home" onclick="showTab('home')">홈</button>
+      <button class="tab" data-tab="research" onclick="showTab('research')">경제지표 · 주식 분석</button>
       <button class="tab" data-tab="trading" onclick="showTab('trading')">모의투자</button>
       <button class="tab" data-tab="company" onclick="showTab('company')">기업 분석</button>
+      <button class="tab" data-tab="deriv" onclick="showTab('deriv')">파생상품</button>
       <button class="tab" data-tab="links" onclick="showTab('links')">자료실</button>
       <button class="tab hidden" id="tabAccess" data-tab="access" onclick="showTab('access')">접속 기록</button>
       <button class="tab hidden" id="tabAdmin" data-tab="admin" onclick="showTab('admin')">설정</button>
@@ -371,8 +429,124 @@
   </nav>
 
   <main>
+    <!-- ════ 홈 ════ -->
+    <div id="pane-home">
+      <div class="page-head">
+        <h1>SAFE Terminal</h1>
+        <p>오늘 시장에서 무엇이 나오는지 — 환율, 각국 지표 발표, 실적 발표를 한 화면에.</p>
+      </div>
+      <div id="homeWarn"></div>
+
+      <!-- 처음 온 학회원용 안내 -->
+      <div class="card" id="homeGuide">
+        <h2>어디에 무엇이 있나
+          <span class="tools"><button class="btn-sm" onclick="hideGuide()">다음부터 안 보기</button></span>
+        </h2>
+        <div class="guide-grid">
+          <button class="guide-item" onclick="showTab('research')">
+            <b>경제지표 · 주식 분석</b>
+            <span>여러 지표를 한 차트에 겹쳐 보고 JPG·CSV 로 내보냅니다.
+              차트 아래 <em>상세 항목 분석</em>에서 지표 안을 쪼개 볼 수 있습니다.</span>
+          </button>
+          <button class="guide-item" onclick="showTab('trading')">
+            <b>모의투자</b>
+            <span>팀별 1억 시드. 직접 사고팔거나, 조건을 정해 자동매매에 맡깁니다.</span>
+          </button>
+          <button class="guide-item" onclick="showTab('company')">
+            <b>기업 분석</b>
+            <span>재무제표 · 공시 · 지분, 그리고 개요 · 컨센서스.
+              재무 계정을 클릭하면 <em>실적 추이</em> 차트에 쌓입니다.</span>
+          </button>
+          <button class="guide-item" onclick="showTab('deriv')">
+            <b>파생상품</b>
+            <span>옵션으로 시장이 보는 가격대를 읽습니다. 코인 옵션은 공짜입니다.</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 환율 -->
+      <div class="card">
+        <h2>통화 · 환율
+          <span class="tools">
+            <span id="homeFxAsOf" style="font-size:11.5px;color:var(--text-sub);font-weight:400"></span>
+            <button class="btn-sm" onclick="chartJpg(homeFxChart, '환율')">JPG</button>
+            <button class="btn-sm" onclick="loadHomeFx(true)">새로 받기</button>
+          </span>
+        </h2>
+        <div id="homeFxTiles"><div class="empty" style="padding:22px">불러오는 중…</div></div>
+        <div class="row" style="margin-top:12px">
+          <label>차트</label>
+          <select id="homeFxSel" onchange="drawHomeFx()" style="width:170px"></select>
+          <label style="min-width:auto">기간</label>
+          <select id="homeFxRange" onchange="drawHomeFx()" style="width:120px">
+            <option value="60">3개월</option>
+            <option value="130">6개월</option>
+            <option value="260" selected>1년</option>
+            <option value="0">전체</option>
+          </select>
+        </div>
+        <div id="homeFxBox" style="height:280px"></div>
+      </div>
+
+      <!-- 거시경제 캘린더 -->
+      <div class="card">
+        <h2>거시경제 지표 캘린더
+          <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+            각국이 언제 무엇을 발표하는지 · 예상치와 실제치</span>
+        </h2>
+        <div class="row">
+          <label>국가</label>
+          <select id="ecSel" style="width:130px"></select>
+          <label style="min-width:auto">기간</label>
+          <select id="ecRange" style="width:150px">
+            <option value="0">이번 주</option>
+            <option value="1" selected>앞으로 2주</option>
+            <option value="2">앞으로 한 달</option>
+            <option value="3">지난 2주</option>
+          </select>
+          <label style="min-width:auto">
+            <input type="checkbox" id="ecOnlyBig" onchange="renderEcon()" style="width:auto;vertical-align:-2px">
+            굵직한 지표만
+          </label>
+          <button class="btn-sm btn-solid" onclick="loadEcon()">불러오기</button>
+        </div>
+        <div id="ecWarn"></div>
+        <div id="ecBody"><div class="empty" style="padding:22px">국가와 기간을 고르고 불러오기를 누르세요.</div></div>
+      </div>
+
+      <!-- 실적 발표 일정 -->
+      <div class="card">
+        <h2>실적 발표 일정
+          <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+            며칠 안에 실적을 내놓는 회사들</span>
+        </h2>
+        <div class="row">
+          <label>기간</label>
+          <select id="erRange" style="width:150px">
+            <option value="7" selected>앞으로 1주</option>
+            <option value="14">앞으로 2주</option>
+            <option value="30">앞으로 한 달</option>
+            <option value="-7">지난 1주 (실제치)</option>
+          </select>
+          <input type="text" id="erSym" class="grow"
+                 placeholder="티커로 좁히기 — 쉼표로 여러 개 (예: AAPL.US, MSFT.US, 005930.KO)"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();loadEarn();}">
+          <button class="btn-sm btn-solid" onclick="loadEarn()">불러오기</button>
+        </div>
+        <div class="row">
+          <label style="min-width:auto">
+            <input type="checkbox" id="erMine" onchange="renderEarn()" style="width:auto;vertical-align:-2px">
+            우리 종목만 (허용 종목 명단)
+          </label>
+          <span class="st-hint" id="erCount"></span>
+        </div>
+        <div id="erWarn"></div>
+        <div id="erBody"><div class="empty" style="padding:22px">기간을 고르고 불러오기를 누르세요.</div></div>
+      </div>
+    </div>
+
     <!-- ════ 리서치 ════ -->
-    <div id="pane-research">
+    <div id="pane-research" class="hidden">
       <div class="page-head">
         <h1>경제지표 · 주식 분석</h1>
         <p>여러 지표를 한 차트에 겹쳐 보고, 학회 표준 색으로 그린 뒤 JPG와 CSV로 내보냅니다.</p>
@@ -501,6 +675,62 @@
             </h2>
             <div id="chartBox"></div>
             <div id="chartMsg" style="font-size:12px;color:var(--text-sub);margin-top:10px"></div>
+          </div>
+
+          <!-- ── 상세 항목 분석 ── -->
+          <div class="card">
+            <h2>상세 항목 분석
+              <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+                지표 안을 쪼개서, 어느 항목이 얼마나 움직였는지</span>
+              <span class="tools">
+                <button class="btn-sm" onclick="dtToMain()">고른 항목을 위 차트에</button>
+                <button class="btn-sm" onclick="dtJpg('chart')">JPG</button>
+                <button class="btn-sm" onclick="dtCsv()">CSV</button>
+                <button class="btn-sm" onclick="dtClearAll()">비우기</button>
+              </span>
+            </h2>
+            <div class="row">
+              <select id="dtParent" class="grow" onchange="dtLoadItems()"></select>
+              <button class="btn-sm btn-solid" onclick="dtLoadItems()">항목 불러오기</button>
+            </div>
+            <div class="row">
+              <input type="text" id="dtFilter" class="grow" placeholder="항목 이름으로 좁히기"
+                     oninput="dtRenderPicker()">
+              <button class="btn-sm" onclick="dtPickTop()">눈에 띄는 것 자동 선택</button>
+            </div>
+            <div id="dtWarn"></div>
+            <div id="dtPicker" class="dt-picker">
+              <div class="empty" style="padding:18px">
+                위에서 지표를 고르고 <b>항목 불러오기</b>를 누르세요.
+              </div>
+            </div>
+
+            <div id="dtResult" class="hidden">
+              <div class="row" style="margin-top:12px">
+                <label>보기</label>
+                <select id="dtMode" onchange="dtDraw()" style="width:170px">
+                  <option value="yoy" selected>전년 대비 (%)</option>
+                  <option value="mom">직전 대비 (%)</option>
+                  <option value="idx">지수화 (시작=100)</option>
+                  <option value="raw">원래 값</option>
+                </select>
+                <label style="min-width:auto">기간</label>
+                <select id="dtRange" onchange="dtDraw()" style="width:130px">
+                  <option value="1">최근 1년</option>
+                  <option value="3" selected>최근 3년</option>
+                  <option value="5">최근 5년</option>
+                  <option value="10">최근 10년</option>
+                </select>
+                <span class="st-hint" id="dtStatus"></span>
+              </div>
+              <div id="dtChartBox" style="height:340px"></div>
+              <div id="dtBarBox" style="height:0"></div>
+              <div id="dtBarTools" class="hidden" style="text-align:right;margin-top:-6px">
+                <button class="btn-sm" onclick="dtJpg('bar')">막대 JPG</button>
+              </div>
+              <div id="dtTable"></div>
+              <div id="dtRead" class="dt-read"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -908,13 +1138,14 @@
         </div>
 
         <div class="mode-seg" id="coSeg">
+          <button id="coTab-prof"  onclick="coShow('prof')">개요 · 컨센서스</button>
           <button id="coTab-fin"   onclick="coShow('fin')">재무제표</button>
           <button id="coTab-price" onclick="coShow('price')">주가</button>
           <button id="coTab-disc"  onclick="coShow('disc')">공시</button>
           <button id="coTab-own"   onclick="coShow('own')">지분 · 배당</button>
         </div>
 
-        <div class="card">
+        <div class="card" id="coViewCard">
           <h2>표시 설정</h2>
           <div class="row">
             <label>기간</label>
@@ -956,6 +1187,18 @@
           </div>
         </div>
 
+        <div id="coPane-prof" class="hidden">
+          <div id="profWarn"></div>
+          <div id="profBody">
+            <div class="empty" style="padding:26px">
+              <b>개요 · 컨센서스</b>를 보려면 EODHD 자료를 불러옵니다.
+              <div style="margin-top:10px">
+                <button class="btn-sm btn-solid" onclick="loadProfile()">불러오기</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div id="coPane-fin">
           <div class="card">
             <h2>비교 대상 추가</h2>
@@ -976,6 +1219,13 @@
               아래 <b>재무제표</b>에서 계정을 클릭하면 이 차트에 함께 그려집니다.
               주가 · 지표는 각 구간의 <b>기말 종가</b> 기준으로 맞춥니다.
             </p>
+            <div class="row" style="margin-top:2px">
+              <span class="st-hint" style="flex:1">
+                차트는 <b>비어 있는 상태로 시작</b>합니다. 아래 재무제표에서 원하는 계정만 골라 담으세요.
+              </span>
+              <button class="btn-sm" onclick="coFinPreset()">매출·영업이익·순이익 한 번에</button>
+              <button class="btn-sm" onclick="coFinClear()">전부 비우기</button>
+            </div>
             <div id="coFinWarn"></div>
             <div id="coFinSeriesList" style="margin-top:10px"></div>
           </div>
@@ -1073,6 +1323,179 @@
           <div id="f13Note" class="st-hint" style="margin:8px 0"></div>
           <div id="f13Tiles"></div>
           <div class="scroll" style="margin-top:10px"><table id="f13Table"></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ 파생상품 ════ -->
+    <div id="pane-deriv" class="hidden">
+      <div class="page-head">
+        <h1>파생상품 분석</h1>
+        <p>시장이 앞으로 얼마나 움직일 거라고 보는지 — 예상 가격대, 변동성 곡선, 그릭스,
+          미결제약정으로 읽습니다. 맨 아래 <b>쉽게 읽기</b>에 뜻을 풀어 적어둡니다.</p>
+      </div>
+      <div id="dvWarn"></div>
+
+      <div class="card">
+        <h2>종목 · 만기</h2>
+        <div class="mode-seg" id="dvSeg" style="margin-bottom:12px">
+          <button id="dvM-crypto" class="on" onclick="dvMarket('crypto')">코인 옵션 · 무료</button>
+          <button id="dvM-stock" onclick="dvMarket('stock')">미국 주식 옵션 · 유료</button>
+        </div>
+        <div class="row" id="dvCryptoRow">
+          <label>기초자산</label>
+          <select id="dvCur" class="grow" onchange="dvLoadCrypto()">
+            <option value="BTC">비트코인 (BTC)</option>
+            <option value="ETH">이더리움 (ETH)</option>
+          </select>
+          <button class="btn-sm btn-solid" onclick="dvLoadCrypto()">불러오기</button>
+        </div>
+        <div class="row hidden" id="dvStockRow">
+          <input type="text" id="dvSym" class="grow" placeholder="회사 이름이나 티커 (예: 애플, Apple, AAPL, NVDA, SPY)"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();dvFind();}">
+          <button class="btn-sm btn-solid" onclick="dvFind()">찾기</button>
+        </div>
+        <div class="row hidden" id="dvHitsRow"><div id="dvHits" class="dv-hits"></div></div>
+        <div class="row hidden" id="dvQuickRow">
+          <div id="dvQuick" class="f13-quick"></div>
+        </div>
+        <div class="row">
+          <label>만기</label>
+          <select id="dvExp" class="grow" onchange="dvOnExp()">
+            <option value="">먼저 위에서 불러오기를 누르세요</option>
+          </select>
+          <span id="dvStrikeWrap" style="display:flex;gap:8px;align-items:center">
+            <label style="min-width:auto">행사가</label>
+            <select id="dvStrikes" style="width:130px" onchange="dvLoadChain()">
+              <option value="10">등가격 ±10</option>
+              <option value="20" selected>등가격 ±20</option>
+              <option value="30">등가격 ±30</option>
+            </select>
+          </span>
+        </div>
+        <p class="st-hint" id="dvCost" style="margin:2px 0 0"></p>
+      </div>
+
+      <div class="card" id="dvIntro">
+        <h2>무엇을 볼 수 있나</h2>
+        <div class="tiles">
+          <div class="tile"><div class="k">가격대 지도</div>
+            <div class="v" style="font-size:15px">만기일 예상 범위</div>
+            <div class="d">68% · 95% 구간과 지지·저항 자리를 한눈에</div></div>
+          <div class="tile"><div class="k">손익 그림</div>
+            <div class="v" style="font-size:15px">사면 어디서 남나</div>
+            <div class="d">콜·풋·커버드콜·스트래들의 만기 손익과 본전 가격</div></div>
+          <div class="tile"><div class="k">변동성</div>
+            <div class="v" style="font-size:15px">비싼가 싼가</div>
+            <div class="d">스마일 곡선 · 만기별 기간구조 · 실제 움직임과 비교</div></div>
+          <div class="tile"><div class="k">쉽게 읽기</div>
+            <div class="v" style="font-size:15px">가격으로 풀어서</div>
+            <div class="d">숫자가 무슨 뜻인지 맨 아래에 문장으로</div></div>
+        </div>
+        <p class="st-hint" style="margin-top:12px">
+          처음이라면 <b>코인 옵션</b>으로 시작하세요 — 공짜이고 전체 체인이 한 번에 옵니다.
+          미국 주식 옵션은 계약 수만큼 크레딧이 나갑니다.</p>
+      </div>
+
+      <div id="dvBody" class="hidden">
+        <div class="card">
+          <h2>요약 <span id="dvAsOf" style="font-size:12px;color:var(--text-sub);font-weight:400"></span></h2>
+          <div id="dvTiles"></div>
+          <div id="dvRead" class="st-hint" style="margin-top:10px"></div>
+        </div>
+
+        <!-- 가격대 지도 -->
+        <div class="card">
+          <h2>가격대 지도
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+              옵션 시장이 보는 만기일 가격 범위와, 사람들이 몰려 있는 자리</span>
+            <span class="tools"><button class="btn-sm" onclick="dvJpg(dvMapChart,'가격대')">JPG</button></span>
+          </h2>
+          <div id="dvMapBox" style="width:100%;height:230px"></div>
+          <div id="dvMapLegend" class="st-hint" style="margin-top:4px"></div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <h2>만기별 변동성 (기간 구조)
+              <span class="tools">
+                <button class="btn-sm" id="dvTermBtn" onclick="dvLoadTerm()">만기별 IV 받기</button>
+                <button class="btn-sm" onclick="dvJpg(dvTermChart,'기간구조')">JPG</button>
+              </span>
+            </h2>
+            <div id="dvTermBox" style="width:100%;height:300px"></div>
+            <p class="st-hint" id="dvTermHint">만기가 멀수록 변동성이 높은 것이 보통입니다.
+              가까운 만기가 더 높으면(<b>역전</b>) 코앞에 무슨 일을 앞두고 있다는 뜻입니다.</p>
+          </div>
+          <div class="card">
+            <h2>손익 그림
+              <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">만기일 기준</span>
+              <span class="tools"><button class="btn-sm" onclick="dvJpg(dvPayChart,'손익')">JPG</button></span>
+            </h2>
+            <div class="row">
+              <select id="dvStrat" onchange="dvDrawPayoff()" style="width:160px">
+                <option value="call">콜 매수</option>
+                <option value="put">풋 매수</option>
+                <option value="covered">커버드 콜</option>
+                <option value="csp">현금담보 풋 매도</option>
+                <option value="straddle">스트래들 매수</option>
+              </select>
+              <label style="min-width:auto">행사가</label>
+              <select id="dvPayK" onchange="dvDrawPayoff()" class="grow"></select>
+            </div>
+            <div id="dvPayBox" style="width:100%;height:250px"></div>
+            <p class="st-hint" id="dvPayHint"></p>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <h2>변동성 곡선 (스마일)
+              <span class="tools"><button class="btn-sm" onclick="dvJpg(dvIvChart,'IV')">JPG</button></span>
+            </h2>
+            <div id="dvIvBox" style="width:100%;height:320px"></div>
+            <p class="st-hint">행사가별 내재변동성. 아래로 처진 U자면 시장이 <b>양쪽 꼬리</b>를,
+              왼쪽만 높으면 <b>하락</b>을 더 걱정한다는 뜻입니다.</p>
+          </div>
+          <div class="card">
+            <h2>미결제약정 분포
+              <span class="tools"><button class="btn-sm" onclick="dvJpg(dvOiChart,'OI')">JPG</button></span>
+            </h2>
+            <div id="dvOiBox" style="width:100%;height:320px"></div>
+            <p class="st-hint">행사가별로 살아 있는 계약 수. 많이 몰린 행사가는
+              만기 무렵 <b>가격을 끌어당기는 자리</b>로 자주 언급됩니다.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>그릭스 <span style="font-size:12px;color:var(--text-sub);font-weight:400">행사가별</span>
+            <span class="tools"><button class="btn-sm" onclick="dvJpg(dvGkChart,'그릭스')">JPG</button></span>
+          </h2>
+          <div class="row">
+            <label>보기</label>
+            <select id="dvGreek" onchange="dvDrawGreeks()" style="width:150px">
+              <option value="delta">델타 (방향 민감도)</option>
+              <option value="gamma">감마 (델타의 변화)</option>
+              <option value="theta">세타 (시간 소멸)</option>
+              <option value="vega">베가 (변동성 민감도)</option>
+            </select>
+            <span id="dvGreekHint" class="st-hint"></span>
+          </div>
+          <div id="dvGkBox" style="width:100%;height:320px"></div>
+        </div>
+
+        <div class="card">
+          <h2>옵션 체인</h2>
+          <div class="scroll"><table id="dvTable"></table></div>
+        </div>
+
+        <!-- 쉽게 읽기 -->
+        <div class="card">
+          <h2>쉽게 읽기
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+              위 숫자들이 무슨 뜻인지, 가격대로 풀어서</span>
+          </h2>
+          <div id="dvPlain"></div>
         </div>
       </div>
     </div>
@@ -1288,20 +1711,28 @@ async function enterApp(){
   $('tDate').value = today();
   await loadTheme();
   await loadCatalog();
-  showTab('research');
+  showTab('home');
 }
 
 function showTab(name){
-  ['research','trading','company','links','access','admin'].forEach(function(t){
+  ['home','research','trading','company','deriv','links','access','admin'].forEach(function(t){
     var p = $('pane-'+t); if (p) p.classList.toggle('hidden', t !== name);
   });
   document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('on', b.dataset.tab === name); });
+  setTimeout(resizeAllCharts, 80);
+  if (name==='home')    initHome();
   if (name==='trading') initTrading();
   if (name==='company') initCompany();
+  if (name==='deriv')   initDeriv();
   if (name==='links')   loadLinks();
   if (name==='access')  loadAccess();
   if (name==='admin')   loadAdmin();
-  if (name==='research' && chart) setTimeout(function(){ chart.resize(); }, 60);
+  //  차트를 한 번도 안 그린 상태면 빈 흰 상자만 보입니다 — 안내 문구라도 띄웁니다.
+  if (name==='research') setTimeout(function(){
+    if (chart) chart.resize(); else if (typeof echarts !== 'undefined') drawChart(); }, 60);
+  if (name==='research') setTimeout(function(){
+    if (dtChart) dtChart.resize(); if (dtBar) dtBar.resize(); }, 70);
+  if (name==='home' && homeFxChart) setTimeout(function(){ homeFxChart.resize(); }, 60);
 }
 
 /* ══════════ 데이터 호출 ══════════ */
@@ -1401,6 +1832,7 @@ async function loadCatalog(){
     html += '</optgroup>';
   });
   $('catalogSel').innerHTML = html;
+  dtFillParents();
 }
 
 function toggleManual(){ $('manualBox').classList.toggle('hidden'); }
@@ -1416,6 +1848,1777 @@ function addFromCatalog(){
   addSeries({ source:c.source, code:c.code, item_code:c.item_code||'', cycle:c.cycle||'M',
               label:c.label, unit:c.unit||'' });
 }
+
+
+/* ══════════ 상세 항목 분석 ══════════
+   지표 하나를 골라 그 안의 항목들을 꺼내고, 어느 항목이 얼마나
+   움직였는지 표·차트·문장으로 보여줍니다.
+   메인 차트는 건드리지 않습니다 (발표용 그림을 지키기 위해서). */
+var dtItems = [], dtPick = {}, dtSeries = {}, dtChart = null, dtBar = null, dtParentCat = null;
+var ECOS_AXIS_HINT = '이 통계표는 <b>항목 축이 여러 개</b>입니다 (예: 품목 × 지역). '
+  + '한 축에서만 고르면 나머지 축의 조합 중 자료가 가장 많은 하나를 그립니다. '
+  + '정확히 지정하려면 <b>직접 입력</b>에서 항목코드를 "A/B" 처럼 빗금으로 이어 붙이세요.';
+var DT_MAX = 10;
+
+function dtFillParents(){
+  var sel = $('dtParent'); if (!sel) return;
+  var keep = sel.value;
+  var opts = catalog.filter(function(c){ return c.source === 'fred' || c.source === 'ecos'; })
+    .map(function(c){
+      return '<option value="' + esc(String(c.id)) + '">'
+           + esc(c.label) + ' (' + esc(c.source.toUpperCase()) + ')</option>';
+    }).join('');
+  sel.innerHTML = opts || '<option value="">등록된 지표가 없습니다</option>';
+  if (keep) sel.value = keep;
+}
+
+function dtCat(){
+  var id = $('dtParent').value;
+  return catalog.filter(function(x){ return String(x.id) === String(id); })[0] || null;
+}
+
+async function dtLoadItems(){
+  var c = dtCat();
+  if (!c){ warn('dtWarn','지표를 하나 골라주세요.'); return; }
+  dtParentCat = c; dtItems = []; dtPick = {}; dtSeries = {};
+  $('dtResult').classList.add('hidden');
+  $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">불러오는 중…</div>';
+  warn('dtWarn','');
+  try {
+    var srvNote = '';
+    if (c.source === 'fred'){
+      var d = await edge({ source:'fred_tree', code:c.code });
+      dtItems = (d.items || []).map(function(x){
+        return { kind:'fred', code:x.series_id, name:x.name, level:Number(x.level) || 1,
+                 head: !x.series_id };
+      });
+      if (d.note) srvNote = d.note;
+    } else {
+      var e = await edge({ source:'ecos_items', code:c.code });
+      var gn = (e.groups || []).length;
+      (e.groups || []).forEach(function(g){
+        if (gn > 1)
+          dtItems.push({ kind:'head', name:'축: ' + (g.name || g.group), level:1, head:true });
+        (g.items || []).forEach(function(x){
+          dtItems.push({ kind:'ecos', code:c.code, item:x.code, name:x.name,
+                         cycle:x.cycle || c.cycle || 'M', unit:x.unit || '',
+                         level:Number(x.level) || 1, head:false });
+        });
+      });
+      if (gn > 1) srvNote = ECOS_AXIS_HINT;
+    }
+    if (srvNote) warn('dtWarn', srvNote, 'info');
+    if (!dtItems.length){
+      $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">'
+        + '이 지표는 세부 항목을 제공하지 않습니다. 다른 지표를 골라보세요.</div>';
+      return;
+    }
+    dtRenderPicker();
+  } catch(err){
+    $('dtPicker').innerHTML = '';
+    warn('dtWarn', esc(err.message));
+  }
+}
+
+function dtKey(x){ return x.kind === 'ecos' ? ('ecos|' + x.code + '|' + x.item) : ('fred|' + x.code); }
+
+function dtRenderPicker(){
+  var f = ($('dtFilter').value || '').trim().toLowerCase();
+  var rows = dtItems.map(function(x, i){ return { x:x, i:i }; });
+  if (f) rows = rows.filter(function(r){
+    return !r.x.head && String(r.x.name).toLowerCase().indexOf(f) >= 0; });
+  if (!rows.length){
+    $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">해당하는 항목이 없습니다.</div>';
+    return;
+  }
+  var n = Object.keys(dtPick).length;
+  $('dtPicker').innerHTML = rows.map(function(r){
+    var x = r.x;
+    var pad = 10 + Math.max(0, x.level - 1) * 14;
+    if (x.head)
+      return '<div class="dt-row head" style="padding-left:' + pad + 'px">'
+           + '<span class="nm">' + esc(x.name) + '</span></div>';
+    var k = dtKey(x), on = !!dtPick[k];
+    return '<div class="dt-row' + (on ? ' on' : '') + '" style="padding-left:' + pad + 'px" '
+         + 'onclick="dtToggle(' + r.i + ')">'
+         + '<input type="checkbox"' + (on ? ' checked' : '') + ' onclick="event.stopPropagation();dtToggle(' + r.i + ')">'
+         + '<span class="nm">' + esc(x.name) + '</span>'
+         + (x.unit ? '<span class="sid">' + esc(x.unit) + '</span>' : '')
+         + '<span class="sid">' + esc(x.item || x.code) + '</span></div>';
+  }).join('');
+  $('dtStatus').textContent = n ? (n + '개 선택') : '';
+}
+
+function dtToggle(i){
+  var x = dtItems[i]; if (!x || x.head) return;
+  var k = dtKey(x);
+  if (dtPick[k]) delete dtPick[k];
+  else {
+    if (Object.keys(dtPick).length >= DT_MAX){
+      warn('dtWarn', '한 번에 ' + DT_MAX + '개까지 볼 수 있습니다. 하나를 빼고 다시 골라주세요.');
+      return;
+    }
+    dtPick[k] = x;
+  }
+  warn('dtWarn','');
+  dtRenderPicker();
+  dtRun();
+}
+
+function dtClearAll(){
+  dtPick = {}; dtSeries = {};
+  $('dtResult').classList.add('hidden');
+  warn('dtWarn','');
+  dtRenderPicker();
+}
+
+//  깊이가 얕은(=큰 묶음) 항목부터 몇 개 자동으로 골라줍니다.
+function dtPickTop(){
+  if (!dtItems.length){ warn('dtWarn','먼저 항목을 불러와 주세요.'); return; }
+  dtPick = {};
+  var pool = dtItems.filter(function(x){ return !x.head; });
+  var minLv = Math.min.apply(null, pool.map(function(x){ return x.level; }));
+  var lv2 = pool.filter(function(x){ return x.level === minLv + 1; });
+  var use = (lv2.length >= 3 ? lv2 : pool).slice(0, 8);
+  use.forEach(function(x){ dtPick[dtKey(x)] = x; });
+  warn('dtWarn','');
+  dtRenderPicker();
+  dtRun();
+}
+
+async function dtRun(){
+  var keys = Object.keys(dtPick);
+  if (!keys.length){ $('dtResult').classList.add('hidden'); return; }
+  $('dtResult').classList.remove('hidden');
+  var yrs = Number($('dtRange').value) || 3;
+  //  표에 3년 변화 열이 있으므로 최소 4.5년치는 받아둡니다.
+  var back = Math.max(yrs + 1.2, 4.5);
+  var start = new Date(Date.now() - back * 365 * 864e5).toISOString().slice(0, 10);
+
+  var need = keys.filter(function(k){
+    return !dtSeries[k] || dtSeries[k].start !== start; });
+  if (need.length){
+    $('dtStatus').textContent = '불러오는 중… (0/' + need.length + ')';
+    var done = 0;
+    await Promise.all(need.map(async function(k){
+      var x = dtPick[k];
+      try {
+        var d = await edge({ source: x.kind === 'ecos' ? 'ecos' : 'fred',
+                             code: x.code, item_code: x.item || '',
+                             cycle: x.cycle || 'M', start: start });
+        dtSeries[k] = { start:start, points:(d.points || []), name:x.name,
+                        unit:x.unit || (d.unit || ''), note:d.note || null };
+      } catch(e){
+        dtSeries[k] = { start:start, points:[], name:x.name, err:e.message };
+      }
+      done++;
+      $('dtStatus').textContent = '불러오는 중… (' + done + '/' + need.length + ')';
+    }));
+  }
+  $('dtStatus').textContent = keys.length + '개 선택';
+
+  //  서버가 알려준 주의사항이 있으면 한 번만 모아서 보여줍니다
+  var notes = {};
+  keys.forEach(function(k){ if (dtSeries[k] && dtSeries[k].note) notes[dtSeries[k].note] = 1; });
+  var nk = Object.keys(notes);
+  if (nk.length) warn('dtWarn', nk.map(esc).join('<br>'), 'info');
+
+  var bad = keys.filter(function(k){ return !dtSeries[k] || !dtSeries[k].points.length; });
+  if (bad.length && !nk.length)
+    warn('dtWarn', '값을 받지 못한 항목이 ' + bad.length + '개 있습니다 — '
+       + esc(bad.map(function(k){ return dtPick[k].name; }).slice(0, 3).join(', '))
+       + (bad.length > 3 ? ' 등' : '') + '. 그 항목은 해당 기간 자료가 없을 수 있습니다.', 'info');
+
+  dtDraw();
+}
+
+//  값 변환 — 전년 대비 / 직전 대비 / 지수화 / 원래 값
+function dtTransform(pts, mode){
+  if (!pts.length) return [];
+  if (mode === 'raw') return pts.map(function(p){ return { d:p.d, v:p.v }; });
+  if (mode === 'idx'){
+    var b = pts[0].v;
+    if (!b) return [];
+    return pts.map(function(p){ return { d:p.d, v: p.v / b * 100 }; });
+  }
+  //  월 자료면 12개월 전, 분기면 4분기 전을 자동으로 잡습니다.
+  var lag = 1;
+  if (mode === 'yoy'){
+    var gap = pts.length > 1
+      ? (new Date(pts[1].d) - new Date(pts[0].d)) / 864e5 : 30;
+    lag = gap > 200 ? 1 : (gap > 60 ? 4 : (gap > 20 ? 12 : 252));
+  }
+  var out = [];
+  for (var i = lag; i < pts.length; i++){
+    var b0 = pts[i - lag].v;
+    if (!b0) continue;
+    out.push({ d: pts[i].d, v: (pts[i].v - b0) / Math.abs(b0) * 100 });
+  }
+  return out;
+}
+
+function dtCut(pts, yrs){
+  var lim = new Date(Date.now() - yrs * 365 * 864e5).toISOString().slice(0, 10);
+  return pts.filter(function(p){ return p.d >= lim; });
+}
+
+function dtDraw(){
+  var keys = Object.keys(dtPick);
+  if (!keys.length) return;
+  var mode = $('dtMode').value, yrs = Number($('dtRange').value) || 3;
+  var pal = (theme && theme.palette) || DEFAULT_THEME.palette;
+
+  var rows = keys.map(function(k, i){
+    var s = dtSeries[k] || { points:[] };
+    var full = dtTransform(s.points, mode);
+    var cut = dtCut(full, yrs);
+    //  변화율은 화면에 보이는 구간이 아니라 받아온 전체에서 셉니다.
+    //  (3년 변화를 보려면 3년 전 값이 필요한데, 화면이 3년이면 딱 잘려버립니다)
+    var raw = s.points || [];
+    var last = cut.length ? cut[cut.length - 1] : null;
+    function chgOver(days){
+      if (raw.length < 2) return null;
+      var t = new Date(new Date(raw[raw.length-1].d).getTime() - days*864e5).toISOString().slice(0,10);
+      if (raw[0].d > t) return null;          // 그만큼 옛날 자료가 없습니다
+      var b = null;
+      for (var j = raw.length - 1; j >= 0; j--){ if (raw[j].d <= t){ b = raw[j]; break; } }
+      if (!b || !b.v) return null;
+      return (raw[raw.length-1].v - b.v) / Math.abs(b.v) * 100;
+    }
+    return { key:k, name:(dtPick[k] && dtPick[k].name) || s.name, unit:s.unit,
+             err:s.err, color: pal[i % pal.length], pts:cut,
+             lastRaw: raw.length ? raw[raw.length-1] : null,
+             last: last ? last.v : null,
+             m3: chgOver(92), y1: chgOver(365), y3: chgOver(365*3) };
+  });
+
+  //  ── 선 차트 ──
+  if (!dtChart) dtChart = echarts.init($('dtChartBox'));
+  var days = {};
+  rows.forEach(function(r){ r.pts.forEach(function(p){ days[p.d] = 1; }); });
+  var axis = Object.keys(days).sort();
+  var unitTxt = mode === 'raw' ? (rows[0] && rows[0].unit ? rows[0].unit : '')
+              : (mode === 'idx' ? '시작=100' : '%');
+  dtChart.setOption({
+    backgroundColor: theme ? theme.bg : '#fff', animation:false,
+    grid:{ left:66, right:24, top:38, bottom:56 },
+    legend:{ top:4, type:'scroll', textStyle:{ fontSize:11 },
+      data: rows.map(function(r){ return r.name; }) },
+    tooltip:{ trigger:'axis', order:'valueDesc',
+      textStyle:{ fontSize:11.5 },
+      valueFormatter:function(v){ return v == null ? '—' : Number(v).toFixed(2); } },
+    xAxis:{ type:'category', data:axis,
+      axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
+      axisLabel:{ color:'#77809a', fontSize:11 } },
+    yAxis:{ type:'value', scale:true, name:unitTxt, nameTextStyle:{ fontSize:11, color:'#77809a' },
+      splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
+      axisLabel:{ color:'#77809a', fontSize:11 } },
+    series: rows.map(function(r){
+      var m = {}; r.pts.forEach(function(p){ m[p.d] = p.v; });
+      return { name:r.name, type:'line', showSymbol:false, smooth:false, connectNulls:true,
+               lineStyle:{ width:2, color:r.color }, itemStyle:{ color:r.color },
+               data: axis.map(function(d){ return m[d] == null ? null : m[d]; }) };
+    }).concat(mode === 'yoy' || mode === 'mom'
+      ? [{ name:'0', type:'line', data:axis.map(function(){ return 0; }),
+           showSymbol:false, silent:true, lineStyle:{ width:1, type:'dashed', color:'#aab' },
+           tooltip:{ show:false }, legendHoverLink:false }]
+      : [])
+  }, true);
+
+  //  ── 최근 1년 변화 막대 ──
+  var bars = rows.filter(function(r){ return r.y1 != null; })
+                 .sort(function(a, b){ return a.y1 - b.y1; });
+  var bb = $('dtBarBox');
+  if (bars.length >= 2){
+    bb.style.height = Math.max(150, 34 + bars.length * 26) + 'px';
+    if (!dtBar) dtBar = echarts.init(bb);
+    dtBar.resize();
+    dtBar.setOption({
+      backgroundColor: theme ? theme.bg : '#fff', animation:false,
+      grid:{ left:8, right:70, top:30, bottom:16, containLabel:true },
+      title:{ text:'최근 1년 변화율 (%)', left:0, top:2,
+              textStyle:{ fontSize:12, color:'#5a6278', fontWeight:600 } },
+      xAxis:{ type:'value', axisLabel:{ color:'#77809a', fontSize:11 },
+        splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } } },
+      yAxis:{ type:'category', data: bars.map(function(r){ return r.name; }),
+        axisLabel:{ color:'#5a6278', fontSize:11, width:180, overflow:'truncate' },
+        axisLine:{ show:false }, axisTick:{ show:false } },
+      series:[{ type:'bar', barMaxWidth:16,
+        data: bars.map(function(r){
+          return { value:r.y1, itemStyle:{ color: r.y1 >= 0 ? '#c0392b' : '#1b5fa8' } }; }),
+        label:{ show:true, position:'right', fontSize:11,
+          formatter:function(a){ return (a.value >= 0 ? '+' : '') + Number(a.value).toFixed(1) + '%'; } } }]
+    }, true);
+    $('dtBarTools').classList.remove('hidden');
+  } else {
+    bb.style.height = '0'; if (dtBar){ dtBar.dispose(); dtBar = null; }
+    $('dtBarTools').classList.add('hidden');
+  }
+
+  //  ── 표 ──
+  function cell(v){
+    if (v == null) return '<td class="num">—</td>';
+    return '<td class="num ' + (v > 0 ? 'pos' : (v < 0 ? 'neg' : '')) + '">'
+         + (v > 0 ? '+' : '') + num(v, 1) + '%</td>';
+  }
+  $('dtTable').innerHTML = '<div class="scroll" style="margin-top:12px"><table><thead><tr>'
+    + '<th>항목</th><th class="num">최근 값</th><th>기준</th>'
+    + '<th class="num">3개월</th><th class="num">1년</th><th class="num">3년</th>'
+    + '</tr></thead><tbody>'
+    + rows.map(function(r){
+        return '<tr><td><span style="display:inline-block;width:9px;height:9px;border-radius:2px;'
+          + 'background:' + esc(r.color) + ';margin-right:7px;vertical-align:0"></span>'
+          + esc(r.name) + (r.err ? ' <span class="st-hint">받지 못함</span>' : '') + '</td>'
+          + '<td class="num">' + (r.lastRaw ? num(r.lastRaw.v, 2) : '—') + '</td>'
+          + '<td class="st-hint">' + esc(r.lastRaw ? r.lastRaw.d : '—') + '</td>'
+          + cell(r.m3) + cell(r.y1) + cell(r.y3) + '</tr>';
+      }).join('')
+    + '</tbody></table></div>';
+
+  dtReadout(rows, mode);
+}
+
+//  ── 쉬운 해설 ──
+function dtReadout(rows, mode){
+  var ok = rows.filter(function(r){ return r.y1 != null; });
+  if (ok.length < 1){ $('dtRead').innerHTML = ''; return; }
+  var sorted = ok.slice().sort(function(a, b){ return b.y1 - a.y1; });
+  var top = sorted[0], bot = sorted[sorted.length - 1];
+  var upN = ok.filter(function(r){ return r.y1 > 0; }).length;
+  var parent = dtParentCat ? dtParentCat.label : '이 지표';
+
+  var H = '<b>' + esc(parent) + ' 안을 쪼개서 보면</b><br>';
+  H += '· 최근 1년 사이 가장 많이 오른 항목은 <b>' + esc(top.name) + '</b>('
+     + (top.y1 > 0 ? '+' : '') + num(top.y1, 1) + '%)이고, '
+     + '가장 적게 오르거나 내린 항목은 <b>' + esc(bot.name) + '</b>('
+     + (bot.y1 > 0 ? '+' : '') + num(bot.y1, 1) + '%)입니다.<br>';
+  if (ok.length > 1){
+    var spread = top.y1 - bot.y1;
+    H += '· 둘 사이 격차가 <b>' + num(spread, 1) + '%p</b>입니다. '
+       + (spread > 10
+          ? '항목마다 사정이 크게 다르다는 뜻이라, 지표 하나만 보면 놓치는 게 생깁니다.'
+          : '항목들이 대체로 같은 방향으로 움직이고 있습니다.') + '<br>';
+    H += '· 고른 ' + ok.length + '개 중 <b>' + upN + '개</b>가 1년 전보다 높습니다.'
+       + (upN === ok.length ? ' 전 항목이 상승입니다.' :
+          (upN === 0 ? ' 전 항목이 하락입니다.' : '')) + '<br>';
+  }
+  //  최근 3개월이 1년 흐름과 다르면 짚어줍니다 (방향 전환 신호)
+  var flip = ok.filter(function(r){
+    return r.m3 != null && ((r.y1 > 0 && r.m3 < 0) || (r.y1 < 0 && r.m3 > 0)); });
+  if (flip.length)
+    H += '· <b>' + esc(flip.map(function(r){ return r.name; }).slice(0, 3).join(', '))
+       + '</b>' + (flip.length > 3 ? ' 등' : '') + '은 1년 흐름과 최근 3개월 방향이 <b>반대</b>입니다. '
+       + '흐름이 꺾이는 중일 수 있습니다.<br>';
+
+  H += '<span class="st-hint">'
+     + (mode === 'yoy' ? '지금 차트는 1년 전 같은 시점 대비 변화율입니다. 0선 위면 오른 것입니다.'
+      : mode === 'mom' ? '지금 차트는 바로 앞 시점 대비 변화율이라 등락이 심하게 보입니다. 추세는 전년 대비로 보세요.'
+      : mode === 'idx' ? '지금 차트는 시작점을 100으로 맞춘 그림이라, 단위가 달라도 함께 볼 수 있습니다.'
+      : '지금 차트는 원래 단위 그대로라, 단위가 다른 항목끼리는 비교가 어렵습니다.')
+     + '</span>';
+  $('dtRead').innerHTML = H;
+}
+
+function dtJpg(which){
+  var c = which === 'bar' ? dtBar : dtChart;
+  if (!c){ warn('dtWarn','먼저 항목을 골라 그림을 그려주세요.'); return; }
+  chartJpg(c, (dtParentCat ? dtParentCat.label : '상세항목'));
+}
+
+function dtCsv(){
+  var keys = Object.keys(dtPick);
+  if (!keys.length){ warn('dtWarn','내보낼 항목이 없습니다.'); return; }
+  var mode = $('dtMode').value, yrs = Number($('dtRange').value) || 3;
+  var cols = keys.map(function(k){
+    return { name:(dtPick[k] && dtPick[k].name) || k,
+             m: (function(){
+               var m = {};
+               dtCut(dtTransform((dtSeries[k] || {}).points || [], mode), yrs)
+                 .forEach(function(p){ m[p.d] = p.v; });
+               return m;
+             })() };
+  });
+  var days = {};
+  cols.forEach(function(c){ Object.keys(c.m).forEach(function(d){ days[d] = 1; }); });
+  var axis = Object.keys(days).sort();
+  if (!axis.length){ warn('dtWarn','내보낼 값이 없습니다.'); return; }
+  var MODE = { yoy:'전년대비%', mom:'직전대비%', idx:'지수화', raw:'원래값' };
+  var rows = [['날짜'].concat(cols.map(function(c){ return c.name + ' (' + MODE[mode] + ')'; }))];
+  axis.forEach(function(d){
+    rows.push([d].concat(cols.map(function(c){ return c.m[d] == null ? '' : c.m[d]; })));
+  });
+  saveCsv(rows, (dtParentCat ? dtParentCat.label : '상세항목'));
+}
+
+//  선택한 항목을 메인 차트로 올리기
+function dtToMain(){
+  Object.keys(dtPick).forEach(function(k){
+    var x = dtPick[k];
+    if (x.kind === 'ecos')
+      addSeries({ source:'ecos', code:x.code, item_code:x.item, cycle:x.cycle || 'M',
+                  label:(dtParentCat ? dtParentCat.label + ' · ' : '') + x.name, unit:x.unit || '' });
+    else
+      addSeries({ source:'fred', code:x.code, item_code:'', cycle:'M', label:x.name, unit:'' });
+  });
+}
+
+/* ══════════ 홈 — 환율 · 거시 캘린더 · 실적 일정 ══════════ */
+var homeReady = false, homeFx = null, homeFxChart = null;
+var econData = null, earnData = null;
+
+//  '굵직한 지표' — 시장이 실제로 반응하는 것들만 골라냅니다.
+var ECON_BIG = /(Interest Rate|Inflation Rate|CPI|Core Inflation|GDP|Unemployment Rate|Non ?Farm|Payroll|PMI|Retail Sales|Industrial Production|Trade Balance|PPI|Consumer Confidence|Balance of Trade|Employment Change|Jobless Claims)/i;
+
+//  한 번 닫으면 그 컴퓨터에서는 다시 안 띄웁니다.
+//  저장이 막힌 브라우저도 있어서 실패해도 그냥 넘어갑니다.
+function hideGuide(){
+  var g = $('homeGuide'); if (g) g.classList.add('hidden');
+  try { localStorage.setItem('safe_guide_off', '1'); } catch(e){}
+}
+function applyGuidePref(){
+  var off = false;
+  try { off = localStorage.getItem('safe_guide_off') === '1'; } catch(e){}
+  var g = $('homeGuide'); if (g) g.classList.toggle('hidden', off);
+}
+
+function initHome(){
+  if (homeReady) return;
+  homeReady = true;
+  applyGuidePref();
+  var sel = $('ecSel');
+  var CO = [['US','미국'],['KR','한국'],['JP','일본'],['CN','중국'],['EU','유로존'],
+            ['DE','독일'],['GB','영국'],['FR','프랑스'],['IN','인도'],['CA','캐나다']];
+  sel.innerHTML = CO.map(function(c){ return '<option value="'+c[0]+'">'+esc(c[1])+'</option>'; }).join('');
+  loadHomeFx();
+  loadEcon();
+  loadEarn();
+}
+
+/* 모의투자는 서버에 쌓인 원/달러 표를 씁니다. 비어 있으면 미국 주식 평가액이
+   틀리는데, 정작 그걸 채우는 건 FRED 조회 한 번입니다. 학회원 전부가 홈탭을
+   먼저 보게 되니 여기서 조용히 채워둡니다. 실패해도 화면에 티내지 않습니다. */
+var fxSeeded = false;
+async function seedFxTable(){
+  if (fxSeeded) return;
+  fxSeeded = true;
+  try {
+    await loadFxFixed();
+    if (fxFixed || (fxPts && fxPts.length)) return;
+    await loadFxSeries(new Date(Date.now() - 400*864e5).toISOString().slice(0, 10));
+  } catch(e){ /* 조용히 넘어갑니다 */ }
+}
+
+/* ── 통화 · 환율 ── */
+async function loadHomeFx(force){
+  if (homeFx && !force){ renderHomeFx(); return; }
+  $('homeFxTiles').innerHTML = '<div class="empty" style="padding:22px">불러오는 중…</div>';
+  try {
+    homeFx = await edge({ source:'home_fx', days:400 });
+    renderHomeFx();
+    seedFxTable();               // 모의투자에서 쓸 환율 보관함도 같이 채워둡니다
+  } catch(e){
+    $('homeFxTiles').innerHTML = '';
+    warn('homeWarn', '환율을 받지 못했습니다 — ' + esc(e.message));
+  }
+}
+
+function fxDp(sym, v){
+  if (sym === 'USDJPY' || sym === 'DXY') return 2;
+  if (/KRW$/.test(sym)) return v != null && v < 100 ? 2 : 1;
+  return 4;
+}
+
+function renderHomeFx(){
+  var d = homeFx; if (!d) return;
+  var live = d.pairs.filter(function(p){ return p.last != null; });
+  $('homeFxAsOf').textContent = live.length
+    ? (live[0].on + ' 기준 · ' + d.source) : '';
+
+  if (!live.length){
+    $('homeFxTiles').innerHTML = '<div class="empty" style="padding:22px">'
+      + '환율 자료를 받지 못했습니다.</div>';
+  } else {
+    $('homeFxTiles').innerHTML = '<div class="tiles">' + live.map(function(p){
+      var dp = fxDp(p.symbol, p.last);
+      var c = p.d_day;
+      var arrow = c == null ? '' : (c > 0 ? '▲ ' : (c < 0 ? '▼ ' : '· '));
+      var sub = (c == null ? p.hint
+                : arrow + Math.abs(c*100).toFixed(2) + '% · 전일');
+      return tile(p.label, num(p.last, dp), sub,
+                  c > 0 ? 'pos' : (c < 0 ? 'neg' : ''));
+    }).join('') + '</div>'
+    + '<p class="st-hint" style="margin-top:8px">한국식 표기입니다 — <b>오르면 빨강, 내리면 파랑</b>. '
+    + '달러/원이 오르면 원화가 약해졌다는 뜻입니다. '
+    + '주 · 월 · 1년 변화는 아래 차트에서 기간을 바꿔 보세요.</p>';
+  }
+
+  if (d.note) warn('homeWarn', esc(d.note), 'info'); else warn('homeWarn','');
+
+  var sel = $('homeFxSel'), keep = sel.value;
+  sel.innerHTML = live.map(function(p){
+    return '<option value="'+esc(p.symbol)+'">'+esc(p.label)+'</option>'; }).join('');
+  if (keep && live.some(function(p){ return p.symbol === keep; })) sel.value = keep;
+  drawHomeFx();
+}
+
+function drawHomeFx(){
+  if (!homeFx) return;
+  var box = $('homeFxBox'); if (!box) return;
+  var sym = $('homeFxSel').value;
+  var p = homeFx.pairs.filter(function(x){ return x.symbol === sym; })[0];
+  if (!homeFxChart) homeFxChart = echarts.init(box);
+  if (!p || !p.points.length){ homeFxChart.clear(); return; }
+
+  var n = Number($('homeFxRange').value) || 0;
+  var pts = n > 0 ? p.points.slice(-n) : p.points;
+  var vals = pts.map(function(x){ return x.v; });
+  var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+  var pad = (hi - lo) * 0.12 || (hi * 0.01);
+  //  축 끝이 1,367.1 처럼 어중간하면 읽기 나쁩니다 — 보기 좋은 단위로 맞춥니다.
+  var step = Math.pow(10, Math.floor(Math.log(pad) / Math.LN10));
+  if (step > 0){
+    lo = Math.floor((lo - pad) / step) * step;
+    hi = Math.ceil((hi + pad) / step) * step;
+    pad = 0;
+  }
+  var up = vals[vals.length-1] >= vals[0];
+  var col = up ? '#c0392b' : '#1b5fa8';
+  var dp = fxDp(sym, p.last);
+
+  homeFxChart.setOption({
+    backgroundColor: theme ? theme.bg : '#fff',
+    animation:false,
+    grid:{ left:64, right:20, top:24, bottom:34 },
+    tooltip:{ trigger:'axis',
+      formatter:function(a){ return a[0].axisValue + '<br/><b>' + num(a[0].data, dp) + '</b>'; } },
+    xAxis:{ type:'category', data: pts.map(function(x){ return x.d; }),
+      axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
+      axisLabel:{ color:'#77809a', fontSize:11 } },
+    yAxis:{ type:'value', scale:true, min: lo - pad, max: hi + pad,
+      splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
+      axisLabel:{ color:'#77809a', fontSize:11,
+        formatter:function(v){ return num(v, dp); } } },
+    series:[{ type:'line', data: vals, showSymbol:false, smooth:false,
+      lineStyle:{ width:2, color: col },
+      areaStyle:{ color:{ type:'linear', x:0,y:0,x2:0,y2:1, colorStops:[
+        { offset:0, color: col + '33' }, { offset:1, color: col + '00' } ] } } }]
+  }, true);
+}
+
+/* ── 거시경제 지표 캘린더 ── */
+function ecRangeDates(){
+  var t = new Date(), v = $('ecRange').value;
+  function iso(dd){ return new Date(t.getTime() + dd*864e5).toISOString().slice(0,10); }
+  if (v === '0'){ var wd = (t.getDay()+6)%7; return [iso(-wd), iso(6-wd)]; }
+  if (v === '2') return [iso(0),  iso(30)];
+  if (v === '3') return [iso(-14), iso(0)];
+  return [iso(-1), iso(14)];
+}
+
+async function loadEcon(){
+  var r = ecRangeDates();
+  $('ecBody').innerHTML = '<div class="empty" style="padding:22px">불러오는 중…</div>';
+  warn('ecWarn','');
+  try {
+    econData = await edge({ source:'econ_cal', country:$('ecSel').value,
+                            from:r[0], to:r[1], limit:400 });
+    renderEcon();
+  } catch(e){
+    $('ecBody').innerHTML = '';
+    warn('ecWarn', esc(e.message));
+  }
+}
+
+//  값의 크기에 맞춰 소수점을 정합니다.
+//  고용자 수(165,000)에 소수점 두 자리를 붙이면 읽기만 어려워집니다.
+function ecoNum(v){
+  if (v == null) return '—';
+  var a = Math.abs(v);
+  return num(v, a >= 1000 ? 0 : (a >= 10 ? 1 : 2));
+}
+
+function renderEcon(){
+  var d = econData; if (!d) return;
+  if (d.blocked){
+    var H = '<div class="note info" style="margin-bottom:12px">' + esc(d.note) + '</div>';
+    if (d.fallback && d.fallback.rows && d.fallback.rows.length){
+      H += '<p class="st-hint" style="margin-bottom:8px">대신 <b>' + esc(d.fallback.source)
+         + '</b>으로 미국 지표가 <b>언제</b> 나오는지만 보여드립니다. '
+         + '(예상치·실제치는 위 애드온이 있어야 나옵니다)</p>'
+         + '<div class="scroll"><table><thead><tr><th style="width:120px">발표일</th>'
+         + '<th>발표 자료</th></tr></thead><tbody>'
+         + d.fallback.rows.slice(0, 120).map(function(x){
+             return '<tr><td>' + esc(x.date) + '</td><td>' + esc(x.name) + '</td></tr>';
+           }).join('') + '</tbody></table></div>';
+    }
+    $('ecBody').innerHTML = H;
+    return;
+  }
+
+  var evs = d.events || [];
+  if ($('ecOnlyBig').checked) evs = evs.filter(function(e){ return ECON_BIG.test(e.type || ''); });
+  if (!evs.length){
+    $('ecBody').innerHTML = '<div class="empty" style="padding:22px">'
+      + '이 기간에 해당하는 발표가 없습니다.</div>';
+    return;
+  }
+
+  //  날짜별로 묶어서 보여줍니다
+  var by = {}, order = [];
+  evs.forEach(function(e){
+    if (!by[e.date]){ by[e.date] = []; order.push(e.date); }
+    by[e.date].push(e);
+  });
+  var todayS = today();
+  var H = '';
+  order.forEach(function(day){
+    var isToday = day === todayS;
+    H += '<div style="margin-top:14px"><div style="font-weight:600;font-size:12.5px;'
+       + 'color:' + (isToday ? 'var(--primary)' : 'var(--text-sub)') + ';margin-bottom:6px">'
+       + esc(day) + ' (' + ['일','월','화','수','목','금','토'][new Date(day+'T00:00:00').getDay()] + ')'
+       + (isToday ? ' · 오늘' : '') + '</div>'
+       + '<div class="scroll"><table><thead><tr>'
+       + '<th style="width:60px">시각</th><th>지표</th><th style="width:70px">기준</th>'
+       + '<th class="num" style="width:90px">실제</th><th class="num" style="width:90px">예상</th>'
+       + '<th class="num" style="width:90px">직전</th><th class="num" style="width:120px">평가</th>'
+       + '</tr></thead><tbody>';
+    by[day].forEach(function(e){
+      var beat = (e.actual != null && e.estimate != null) ? e.actual - e.estimate : null;
+      var cls = beat == null ? '' : (beat > 0 ? 'pos' : (beat < 0 ? 'neg' : ''));
+      var verdict = beat == null
+        ? (e.actual == null ? '<span class="st-hint">발표 전</span>' : '—')
+        : (beat > 0 ? '예상 상회' : (beat < 0 ? '예상 하회' : '예상 부합'));
+      var big = ECON_BIG.test(e.type || '');
+      H += '<tr><td>' + esc(e.time || '—') + '</td>'
+         + '<td>' + (big ? '<b>' : '') + esc(e.type || '—') + (big ? '</b>' : '')
+         + (e.comparison ? ' <span class="st-hint">' + esc(String(e.comparison).toUpperCase()) + '</span>' : '')
+         + '</td><td class="st-hint">' + esc(e.period || '—') + '</td>'
+         + '<td class="num"><b>' + ecoNum(e.actual) + '</b></td>'
+         + '<td class="num">' + ecoNum(e.estimate) + '</td>'
+         + '<td class="num">' + ecoNum(e.previous) + '</td>'
+         + '<td class="num ' + cls + '">' + verdict + '</td></tr>';
+    });
+    H += '</tbody></table></div></div>';
+  });
+  H += '<p class="st-hint" style="margin-top:12px">'
+     + '<b>예상 상회</b>가 늘 좋은 소식은 아닙니다. 물가(CPI·PPI)가 예상보다 높으면 금리 부담이 커지고, '
+     + '고용·성장(GDP·PMI)이 예상보다 높으면 경기가 좋다는 뜻입니다. 지표마다 방향이 다릅니다.</p>';
+  $('ecBody').innerHTML = H;
+}
+
+/* ── 실적 발표 일정 ── */
+async function loadEarn(){
+  var v = Number($('erRange').value) || 7;
+  var t = new Date();
+  function iso(dd){ return new Date(t.getTime() + dd*864e5).toISOString().slice(0,10); }
+  var from = v < 0 ? iso(v) : iso(0), to = v < 0 ? iso(0) : iso(v);
+  $('erBody').innerHTML = '<div class="empty" style="padding:22px">불러오는 중…</div>';
+  warn('erWarn','');
+  try {
+    earnData = await edge({ source:'earn_cal', from:from, to:to,
+                            symbols: $('erSym').value.replace(/\s+/g,'') });
+    renderEarn();
+  } catch(e){
+    $('erBody').innerHTML = '';
+    warn('erWarn', esc(e.message));
+  }
+}
+
+function earnUniverseSet(){
+  var set = {};
+  var list = scanUniverse || universe || [];
+  list.forEach(function(u){
+    if (u.market === 'US') set[String(u.symbol).toUpperCase()] = 1;
+    else if (u.market === 'KR') set[String(u.symbol)] = 1;
+  });
+  return set;
+}
+
+function renderEarn(){
+  var d = earnData; if (!d) return;
+  if (d.blocked){
+    $('erBody').innerHTML = '<div class="note info">' + esc(d.note) + '</div>'
+      + '<p class="st-hint" style="margin-top:8px">개별 기업의 다음 실적 발표일은 '
+      + '<b>기업 분석 → 개요 · 컨센서스</b>에서도 볼 수 있습니다.</p>';
+    $('erCount').textContent = '';
+    return;
+  }
+  var rows = d.rows || [];
+  if ($('erMine') && $('erMine').checked){
+    var set = earnUniverseSet();
+    rows = rows.filter(function(x){ return set[String(x.symbol).toUpperCase()] || set[String(x.symbol)]; });
+  }
+  $('erCount').textContent = rows.length ? (rows.length + '건') : '';
+  if (!rows.length){
+    $('erBody').innerHTML = '<div class="empty" style="padding:22px">'
+      + '이 기간에 해당하는 실적 발표가 없습니다.</div>';
+    return;
+  }
+
+  var by = {}, order = [];
+  rows.slice(0, 600).forEach(function(x){
+    if (!by[x.date]){ by[x.date] = []; order.push(x.date); }
+    by[x.date].push(x);
+  });
+  var WHEN = { BeforeMarket:'장 전', AfterMarket:'장 마감 후', DuringMarket:'장중' };
+  var H = '';
+  order.forEach(function(day){
+    H += '<div style="margin-top:14px"><div style="font-weight:600;font-size:12.5px;'
+       + 'color:' + (day === today() ? 'var(--primary)' : 'var(--text-sub)') + ';margin-bottom:6px">'
+       + esc(day) + ' · ' + by[day].length + '곳</div>'
+       + '<div class="scroll"><table><thead><tr>'
+       + '<th style="width:110px">티커</th><th style="width:100px">시장</th>'
+       + '<th style="width:100px">시점</th><th style="width:90px">대상 분기</th>'
+       + '<th class="num" style="width:90px">추정 EPS</th>'
+       + '<th class="num" style="width:90px">실제 EPS</th>'
+       + '<th class="num" style="width:100px">서프라이즈</th></tr></thead><tbody>';
+    by[day].forEach(function(x){
+      var sp = x.surprise_pct;
+      H += '<tr><td><b>' + esc(x.symbol) + '</b></td>'
+         + '<td class="st-hint">' + esc(x.exchange || '—') + '</td>'
+         + '<td>' + esc(WHEN[x.when] || x.when || '—') + '</td>'
+         + '<td class="st-hint">' + esc(x.period || '—') + '</td>'
+         + '<td class="num">' + (x.estimate == null ? '—' : num(x.estimate, 2)) + '</td>'
+         + '<td class="num"><b>' + (x.actual == null ? '—' : num(x.actual, 2)) + '</b></td>'
+         + '<td class="num ' + (sp > 0 ? 'pos' : (sp < 0 ? 'neg' : '')) + '">'
+         + (sp == null ? '—' : (sp > 0 ? '+' : '') + num(sp, 1) + '%') + '</td></tr>';
+    });
+    H += '</tbody></table></div></div>';
+  });
+  $('erBody').innerHTML = H;
+}
+
+/* ══════════ 개요 · 컨센서스 (EODHD) ══════════ */
+var coProf = null;
+
+async function loadProfile(){
+  if (!co){ warn('profWarn','먼저 기업을 선택해주세요.'); return; }
+  $('profBody').innerHTML = '<div class="empty" style="padding:26px">불러오는 중…</div>';
+  warn('profWarn','');
+  try {
+    var d = await edgeCo({ action:'eod_full', code: co.code, market: co.market });
+    if (!d.found){
+      $('profBody').innerHTML = '';
+      warn('profWarn', esc(d.note || '자료를 찾지 못했습니다.'));
+      return;
+    }
+    coProf = d;
+    renderProfile(d);
+  } catch(e){
+    $('profBody').innerHTML = '';
+    warn('profWarn', esc(e.message));
+  }
+}
+
+function pnum(v, dp){ return v == null ? '—' : num(v, dp == null ? 2 : dp); }
+function ppct(v, dp){ return v == null ? '—' : num(v * 100, dp == null ? 1 : dp) + '%'; }
+function pbig(v){
+  if (v == null) return '—';
+  var a = Math.abs(v);
+  if (a >= 1e12) return num(v/1e12, 2) + 'T';
+  if (a >= 1e9)  return num(v/1e9, 2) + 'B';
+  if (a >= 1e6)  return num(v/1e6, 1) + 'M';
+  return num(v, 0);
+}
+var RATING_LABEL = ['', '강한 매도', '매도', '중립', '매수', '강한 매수'];
+
+function renderProfile(d){
+  var g = d.general, h = d.highlights, v = d.valuation, sh = d.shares,
+      t = d.technicals, r = d.ratings, dv = d.dividends, cov = d.coverage;
+  var cur = g.currency || '';
+  var H = '';
+
+  //  ── 사업 개요 ──
+  H += '<div class="card"><h2>' + esc(g.name || co.name)
+     + ' <span style="font-size:12px;color:var(--text-sub);font-weight:400">'
+     + esc([g.exchange, g.country, cur].filter(Boolean).join(' · ')) + '</span></h2>';
+  H += '<div class="tiles">'
+     + tile('섹터', esc(g.sector || '—'), esc(g.industry || ''), '')
+     + tile('시가총액', pbig(h.market_cap), cur, '')
+     + tile('임직원', g.employees == null ? '—' : num(g.employees, 0) + '명',
+            g.ipo ? '상장 ' + esc(g.ipo) : '', '')
+     + tile('베타', pnum(t.beta), '시장 대비 민감도', '')
+     + '</div>';
+  if (g.description)
+    H += '<p style="margin-top:12px;font-size:13px;line-height:1.75;color:var(--text)">'
+       + esc(g.description) + '</p>';
+  if (g.web)
+    H += '<p class="st-hint" style="margin-top:8px">' + esc(g.web) + '</p>';
+  H += '</div>';
+
+  //  ── 밸류에이션 ──
+  H += '<div class="card"><h2>밸류에이션 · 수익성</h2><div class="tiles">'
+     + tile('PER', pnum(h.pe), '주가 ÷ 주당순이익', '')
+     + tile('선행 PER', pnum(v.forward_pe), '추정 이익 기준', '')
+     + tile('PBR', pnum(v.pb), '주가 ÷ 주당순자산', '')
+     + tile('PSR', pnum(v.ps), '주가 ÷ 주당매출', '')
+     + tile('EV/EBITDA', pnum(v.ev_ebitda), '기업가치 배수', '')
+     + tile('ROE', ppct(h.roe), '자기자본이익률', h.roe > 0 ? 'pos' : '')
+     + tile('영업이익률', ppct(h.op_margin), 'TTM', '')
+     + tile('순이익률', ppct(h.profit_margin), 'TTM', '')
+     + '</div>';
+  H += '<div class="tiles" style="margin-top:10px">'
+     + tile('매출 (TTM)', pbig(h.revenue_ttm), cur, '')
+     + tile('EBITDA', pbig(h.ebitda), cur, '')
+     + tile('매출 성장', ppct(h.rev_growth_yoy), '전년 동기비',
+            h.rev_growth_yoy > 0 ? 'pos' : (h.rev_growth_yoy < 0 ? 'neg' : ''))
+     + tile('이익 성장', ppct(h.eps_growth_yoy), '전년 동기비',
+            h.eps_growth_yoy > 0 ? 'pos' : (h.eps_growth_yoy < 0 ? 'neg' : ''))
+     + '</div></div>';
+
+  //  ── 컨센서스 ──
+  H += '<div class="card"><h2>애널리스트 컨센서스</h2>';
+  if (!cov.has_ratings){
+    H += '<div class="empty" style="padding:18px">이 종목은 컨센서스 자료가 없습니다. '
+       + '(애널리스트 커버리지가 없는 중소형주이거나, 국내 종목일 수 있습니다)</div>';
+  } else {
+    var tot = (r.strong_buy||0)+(r.buy||0)+(r.hold||0)+(r.sell||0)+(r.strong_sell||0);
+    var lab = RATING_LABEL[Math.round(r.score || 0)] || '—';
+    H += '<div class="tiles">'
+       + tile('종합 의견', lab, r.score == null ? '' : num(r.score, 2) + ' / 5',
+              r.score >= 3.5 ? 'pos' : (r.score <= 2.5 ? 'neg' : ''))
+       + tile('목표주가', r.target == null ? '—' : num(r.target, 2),
+              cur + (h.wall_street_target ? '' : ''), '')
+       + tile('애널리스트', tot ? tot + '명' : '—', '의견 낸 수', '')
+       + tile('올해 EPS 추정', pnum(h.eps_est_cy), '내년 ' + pnum(h.eps_est_ny), '')
+       + '</div>';
+    if (tot){
+      var bar = [['강한 매수', r.strong_buy, 'var(--ok)'], ['매수', r.buy, '#5aa469'],
+                 ['중립', r.hold, '#9aa2b4'], ['매도', r.sell, '#d98b7a'],
+                 ['강한 매도', r.strong_sell, 'var(--danger)']];
+      H += '<div style="display:flex;height:26px;border-radius:6px;overflow:hidden;margin-top:12px">'
+         + bar.map(function(x){
+             var w = (x[1]||0)/tot*100;
+             return w <= 0 ? '' : '<div title="' + x[0] + ' ' + x[1] + '명" style="width:' + w
+                  + '%;background:' + x[2] + '"></div>';
+           }).join('') + '</div>'
+         + '<div class="st-hint" style="margin-top:6px">'
+         + bar.filter(function(x){ return x[1]; })
+              .map(function(x){ return esc(x[0]) + ' ' + x[1]; }).join(' · ') + '</div>';
+    }
+  }
+  H += '</div>';
+
+  //  ── 지분 구조 ──
+  H += '<div class="card"><h2>지분 구조</h2><div class="tiles">'
+     + tile('기관 보유', sh.pct_institutions == null ? '—' : num(sh.pct_institutions*100, 1) + '%', '', '')
+     + tile('내부자 보유', sh.pct_insiders == null ? '—' : num(sh.pct_insiders*100, 1) + '%', '', '')
+     + tile('상장주식수', pbig(sh.outstanding), '유통 ' + pbig(sh.float), '')
+     + tile('공매도 비중', sh.short_pct == null ? '—' : num(sh.short_pct*100, 2) + '%',
+            sh.short_ratio == null ? '' : '소진일수 ' + num(sh.short_ratio, 1), '')
+     + '</div></div>';
+
+  function holderTable(title, list, hint){
+    if (!list || !list.length) return '';
+    return '<div class="card"><h2>' + title
+      + ' <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">' + hint + '</span></h2>'
+      + '<div class="scroll"><table><thead><tr><th>이름</th><th class="num">지분율</th>'
+      + '<th class="num">주식 수</th><th class="num">전분기 대비</th><th>기준일</th></tr></thead><tbody>'
+      + list.slice(0, 25).map(function(x){
+          var cls = x.change > 0 ? 'pos' : (x.change < 0 ? 'neg' : '');
+          return '<tr><td>' + esc(x.name || '—') + '</td>'
+            + '<td class="num">' + (x.pct_of_company == null ? '—' : num(x.pct_of_company, 2) + '%') + '</td>'
+            + '<td class="num">' + (x.shares == null ? '—' : num(x.shares, 0)) + '</td>'
+            + '<td class="num ' + cls + '">'
+            + (x.change_pct == null ? '—' : (x.change_pct > 0 ? '+' : '') + num(x.change_pct, 1) + '%') + '</td>'
+            + '<td>' + esc(x.date || '—') + '</td></tr>';
+        }).join('') + '</tbody></table></div></div>';
+  }
+  H += holderTable('기관 보유', d.holders.institutions, '13F 를 내는 기관들');
+  H += holderTable('펀드 · ETF 보유', d.holders.funds, '이 종목을 담고 있는 ETF·뮤추얼펀드');
+
+  //  ── 내부자 거래 ──
+  if (d.insiders && d.insiders.length){
+    H += '<div class="card"><h2>내부자 거래 '
+       + '<span style="font-size:11.5px;color:var(--text-sub);font-weight:400">임원·주요주주의 매매</span></h2>'
+       + '<div class="scroll"><table><thead><tr><th>일자</th><th>이름</th><th>구분</th>'
+       + '<th class="num">수량</th><th class="num">단가</th><th class="num">거래 후 보유</th>'
+       + '</tr></thead><tbody>'
+       + d.insiders.slice(0, 30).map(function(x){
+           var buy = x.acq_disp === 'A' || x.code === 'P';
+           return '<tr><td>' + esc(x.date || '—') + '</td><td>' + esc(x.name || '—') + '</td>'
+             + '<td class="' + (buy ? 'pos' : 'neg') + '">' + (buy ? '취득' : '처분') + '</td>'
+             + '<td class="num">' + (x.qty == null ? '—' : num(x.qty, 0)) + '</td>'
+             + '<td class="num">' + (x.price == null ? '—' : num(x.price, 2)) + '</td>'
+             + '<td class="num">' + (x.after == null ? '—' : num(x.after, 0)) + '</td></tr>';
+         }).join('') + '</tbody></table></div></div>';
+  }
+
+  //  ── 실적 추정 흐름 ──
+  var tr = (d.earnings && d.earnings.trend) || [];
+  if (tr.length){
+    H += '<div class="card"><h2>실적 추정 흐름 '
+       + '<span style="font-size:11.5px;color:var(--text-sub);font-weight:400">'
+       + '애널리스트 EPS 추정치가 최근 어떻게 바뀌었나</span></h2>'
+       + '<div class="scroll"><table><thead><tr><th>기간</th><th class="num">EPS 추정</th>'
+       + '<th class="num">범위</th><th class="num">애널리스트</th>'
+       + '<th class="num">30일 전</th><th class="num">90일 전</th><th class="num">상향/하향</th>'
+       + '</tr></thead><tbody>'
+       + tr.slice(-8).map(function(x){
+           var up = (x.eps_now != null && x.eps_90d != null) ? x.eps_now - x.eps_90d : null;
+           return '<tr><td>' + esc(x.date || '—') + (x.period ? ' <span class="st-hint">' + esc(x.period) + '</span>' : '') + '</td>'
+             + '<td class="num"><b>' + pnum(x.eps_avg) + '</b></td>'
+             + '<td class="num">' + pnum(x.eps_low) + ' ~ ' + pnum(x.eps_high) + '</td>'
+             + '<td class="num">' + (x.analysts == null ? '—' : x.analysts) + '</td>'
+             + '<td class="num ' + (up > 0 ? 'pos' : (up < 0 ? 'neg' : '')) + '">' + pnum(x.eps_30d) + '</td>'
+             + '<td class="num">' + pnum(x.eps_90d) + '</td>'
+             + '<td class="num">' + (x.up7 || 0) + ' / ' + (x.down7 || 0) + '</td></tr>';
+         }).join('') + '</tbody></table></div>'
+       + '<p class="st-hint" style="margin-top:8px">30일·90일 전 추정치보다 지금이 높으면 '
+       + '<b>애널리스트들이 눈높이를 올리고 있다</b>는 뜻입니다. 반대면 낮추는 중입니다.</p></div>';
+  }
+
+  //  ── 어닝 서프라이즈 ──
+  var hs = (d.earnings && d.earnings.history) || [];
+  if (hs.length){
+    H += '<div class="card"><h2>어닝 서프라이즈 '
+       + '<span style="font-size:11.5px;color:var(--text-sub);font-weight:400">추정 대비 실제</span></h2>'
+       + '<div class="scroll"><table><thead><tr><th>발표일</th><th class="num">실제 EPS</th>'
+       + '<th class="num">추정 EPS</th><th class="num">서프라이즈</th></tr></thead><tbody>'
+       + hs.slice(-10).reverse().map(function(x){
+           var sp = x.surprise_pct;
+           return '<tr><td>' + esc(x.date || '—') + '</td>'
+             + '<td class="num"><b>' + pnum(x.eps_actual) + '</b></td>'
+             + '<td class="num">' + pnum(x.eps_est) + '</td>'
+             + '<td class="num ' + (sp > 0 ? 'pos' : (sp < 0 ? 'neg' : '')) + '">'
+             + (sp == null ? '—' : (sp > 0 ? '+' : '') + num(sp, 1) + '%') + '</td></tr>';
+         }).join('') + '</tbody></table></div></div>';
+  }
+
+  //  ── 배당 ──
+  if (dv.rate || dv.yield){
+    H += '<div class="card"><h2>배당</h2><div class="tiles">'
+       + tile('배당수익률', ppct(dv.yield, 2), '연 기준', '')
+       + tile('주당 배당', pnum(dv.rate), cur, '')
+       + tile('배당성향', ppct(dv.payout, 1), '순이익 중 배당 비중', '')
+       + tile('배당락일', esc(dv.ex_date || '—'), '', '')
+       + '</div></div>';
+  }
+
+  if (d.note) H += '<div class="note info">' + esc(d.note) + '</div>';
+  $('profBody').innerHTML = H;
+}
+
+/* ══════════ 파생상품 (옵션) ══════════ */
+var dv = null, dvMkt = 'crypto', dvIvChart = null, dvOiChart = null, dvGkChart = null;
+var dvMapChart = null, dvTermChart = null, dvPayChart = null;
+var dvHist = null, dvTerm = null, dvLevels = null;
+
+//  옵션이 활발한 미국 종목들 — 학회원이 티커를 몰라도 바로 눌러볼 수 있게
+var DV_QUICK = [
+  ['SPY','S&P500 ETF'], ['QQQ','나스닥100 ETF'], ['NVDA','엔비디아'],
+  ['AAPL','애플'], ['TSLA','테슬라'], ['MSFT','마이크로소프트'],
+  ['AMZN','아마존'], ['META','메타'], ['GOOGL','알파벳'],
+  ['AMD','AMD'], ['NFLX','넷플릭스'], ['COIN','코인베이스'],
+  ['PLTR','팔란티어'], ['AVGO','브로드컴'], ['IWM','러셀2000 ETF']
+];
+
+function initDeriv(){
+  dvMarket(dvMkt);
+  [dvIvChart, dvOiChart, dvGkChart, dvMapChart, dvTermChart, dvPayChart]
+    .forEach(function(c){ if (c) setTimeout(function(){ c.resize(); }, 60); });
+}
+
+function dvMarket(k){
+  dvMkt = k;
+  $('dvM-crypto').classList.toggle('on', k === 'crypto');
+  $('dvM-stock').classList.toggle('on', k === 'stock');
+  var isCrypto = (k === 'crypto');
+  $('dvCryptoRow').classList.toggle('hidden', !isCrypto);
+  $('dvStockRow').classList.toggle('hidden', isCrypto);
+  $('dvQuickRow').classList.toggle('hidden', isCrypto);
+  $('dvHitsRow').classList.add('hidden');
+  if (!isCrypto && !$('dvQuick').innerHTML){
+    $('dvQuick').innerHTML = DV_QUICK.map(function(x){
+      return '<button onclick="dvPick(\'' + x[0] + '\')">' + esc(x[0])
+           + '<span class="who">' + esc(x[1]) + '</span></button>'; }).join('');
+  }
+  //  코인은 한 번에 전체 체인이 오므로 행사가 범위를 고를 이유가 없습니다
+  $('dvStrikeWrap').style.display = isCrypto ? 'none' : 'flex';
+  $('dvCost').innerHTML = (k === 'crypto')
+    ? 'Deribit 공개 자료라 <b>돈도 키도 들지 않습니다.</b> 한 번에 전체 체인이 오고, '
+      + '그릭스는 내재변동성으로 <b>블랙-숄즈에서 직접 계산</b>합니다.'
+    : '옵션은 <b>계약 하나당 1크레딧</b>이 나갑니다 (하루 10,000). 넓게 받을수록 빨리 닳으니 '
+      + '필요한 만기 하나만 보세요. 얼마나 썼는지는 아래에 표시됩니다. '
+      + '<b>MARKETDATA_API_KEY</b> 가 있어야 동작합니다.';
+  $('dvBody').classList.add('hidden');
+  if ($('dvIntro')) $('dvIntro').classList.remove('hidden');
+  warn('dvWarn','');
+}
+
+async function dvLoadCrypto(){
+  warn('dvWarn','코인 옵션을 불러오는 중…','info');
+  try {
+    var d = await edge({ source:'opt_crypto', code: $('dvCur').value,
+                         expiration: (dv && dv.symbol === $('dvCur').value) ? $('dvExp').value : '' });
+    if (!d.rows || !d.rows.length){ warn('dvWarn', esc(d.note || '자료가 없습니다.')); return; }
+    dv = d;
+    $('dvExp').innerHTML = (d.expirations || []).map(function(x){
+      return '<option value="' + esc(x.date) + '">' + esc(x.date) + ' · ' + x.dte + '일 남음</option>';
+    }).join('');
+    $('dvExp').value = d.expiration;
+    warn('dvWarn','');
+    show('dvBody');
+    if ($('dvIntro')) $('dvIntro').classList.add('hidden');
+    await dvRender();
+  } catch(e){ warn('dvWarn', esc(e.message)); }
+}
+
+async function dvLoadExp(){
+  var sym = $('dvSym').value.trim();
+  if (!sym){ warn('dvWarn','티커를 입력해주세요.'); return; }
+  warn('dvWarn','만기를 불러오는 중…','info');
+  try {
+    var d = await edge({ source:'opt_expirations', code: sym });
+    var ex = d.expirations || [];
+    if (!ex.length){ warn('dvWarn','이 종목은 옵션이 없거나 만기를 찾지 못했습니다.'); return; }
+    $('dvExp').innerHTML = ex.map(function(x){
+      return '<option value="' + esc(x.date) + '">' + esc(x.date) + ' · ' + x.dte + '일 남음</option>';
+    }).join('');
+    //  너무 가까운 만기는 자료가 얇아서, 20~45일 사이를 기본으로 고릅니다
+    var pick = ex.filter(function(x){ return x.dte >= 20 && x.dte <= 45; })[0] || ex[0];
+    $('dvExp').value = pick.date;
+    warn('dvWarn','');
+    await dvLoadChain();
+  } catch(e){ warn('dvWarn', esc(e.message)); }
+}
+
+function dvOnExp(){ return dvMkt === 'crypto' ? dvLoadCrypto() : dvLoadChain(); }
+
+async function dvLoadChain(){
+  var sym = $('dvSym').value.trim();
+  var exp = $('dvExp').value;
+  if (!sym || !exp) return;
+  warn('dvWarn','옵션을 불러오는 중…','info');
+  try {
+    var d = await edge({ source:'opt_chain', code: sym, expiration: exp,
+                         strikes: Number($('dvStrikes').value) });
+    if (!d.rows || !d.rows.length){
+      warn('dvWarn', esc(d.note || '자료가 없습니다.')); return;
+    }
+    dv = d;
+    warn('dvWarn','');
+    show('dvBody');
+    if ($('dvIntro')) $('dvIntro').classList.add('hidden');
+    await dvRender();
+  } catch(e){ warn('dvWarn', esc(e.message)); }
+}
+
+/* 행사가별로 콜·풋을 짝지어 놓습니다 */
+function dvByStrike(){
+  var m = {};
+  (dv.rows || []).forEach(function(r){
+    var k = r.strike;
+    m[k] = m[k] || { strike: k, call: null, put: null };
+    m[k][r.side === 'put' ? 'put' : 'call'] = r;
+  });
+  return Object.keys(m).map(function(k){ return m[k]; })
+          .sort(function(a,b){ return a.strike - b.strike; });
+}
+
+/* 최대 고통 — 만기에 옵션 보유자 전체 가치가 가장 작아지는 행사가.
+   시장이 그쪽으로 끌린다는 속설이 있어 참고 지표로 씁니다. */
+function dvMaxPain(list){
+  var best = null, bestVal = Infinity;
+  list.forEach(function(x){
+    var s = x.strike, total = 0;
+    list.forEach(function(y){
+      if (y.call && y.call.oi) total += Math.max(0, s - y.strike) * y.call.oi;
+      if (y.put  && y.put.oi)  total += Math.max(0, y.strike - s) * y.put.oi;
+    });
+    if (total < bestVal){ bestVal = total; best = s; }
+  });
+  return best;
+}
+
+async function dvRender(){
+  var list = dvByStrike();
+  var spot = Number(dv.spot) || 0;
+  await dvLoadHist();                     // 52주 고저 · 실현변동성용
+
+  var callOi = 0, putOi = 0, callVol = 0, putVol = 0;
+  var atm = null, atmGap = Infinity;
+  list.forEach(function(x){
+    if (x.call){ callOi += x.call.oi || 0; callVol += x.call.volume || 0; }
+    if (x.put) { putOi  += x.put.oi  || 0; putVol  += x.put.volume  || 0; }
+    var gap = Math.abs(x.strike - spot);
+    if (gap < atmGap){ atmGap = gap; atm = x; }
+  });
+  var pcOi  = callOi  > 0 ? putOi / callOi   : null;
+  var pcVol = callVol > 0 ? putVol / callVol : null;
+  var atmIv = atm ? (atm.call && isFinite(atm.call.iv) ? atm.call.iv
+                    : (atm.put && isFinite(atm.put.iv) ? atm.put.iv : null)) : null;
+  var pain = dvMaxPain(list);
+
+  //  만기까지 남은 기간을 반영한 1표준편차 예상 범위
+  var dte = Number(dv.dte) || 0;
+  var move = (atmIv != null && spot > 0 && dte > 0)
+    ? spot * atmIv * Math.sqrt(dte / 365) : null;
+
+  $('dvAsOf').textContent = dv.symbol + ' · ' + dv.expiration + ' 만기 · ' + dte + '일 남음 · '
+    + (dv.greeks_computed ? '계약 ' + dv.rows.length + '개 · 그릭스 직접 계산'
+                          : '계약 ' + (dv.credits || 0) + '개 조회');
+
+  var L = dvComputeLevels(list, spot);
+  dvLevels = L;
+  var ivHv = (L.atmIv != null && L.hv20) ? L.atmIv / L.hv20 : null;
+
+  $('dvTiles').innerHTML = '<div class="tiles">'
+    + tile('현재가', spot ? '$' + num(spot, 2) : '—', dv.symbol, '')
+    + tile('등가격 IV', atmIv != null ? num(atmIv * 100, 1) + '%' : '—', '연율 기준', '')
+    + tile('실현 변동성', L.hv20 != null ? num(L.hv20 * 100, 1) + '%' : '—', '최근 20일 실제', '')
+    + tile('IV ÷ 실현', ivHv != null ? num(ivHv, 2) : '—',
+           ivHv == null ? '' : (ivHv > 1.25 ? '옵션이 비싼 편' : (ivHv < 0.85 ? '싼 편' : '보통')),
+           ivHv == null ? '' : (ivHv > 1.25 ? 'neg' : (ivHv < 0.85 ? 'pos' : '')))
+    + tile('풋/콜 (미결제)', pcOi != null ? num(pcOi, 2) : '—',
+           pcOi != null ? (pcOi > 1 ? '풋이 더 많음' : '콜이 더 많음') : '',
+           pcOi != null ? (pcOi > 1 ? 'neg' : 'pos') : '')
+    + tile('풋/콜 (거래량)', pcVol != null ? num(pcVol, 2) : '—', '오늘 거래', '')
+    + '</div><div class="tiles" style="margin-top:10px">'
+    + tile('예상 변동폭', move != null ? '±$' + num(move, 2) : '—',
+           move != null && spot ? '±' + num(move / spot * 100, 1) + '%' : '', '')
+    + tile('콜벽 (저항)', L.callWall != null ? '$' + num(L.callWall, 0) : '—',
+           L.callWall != null ? num(L.callWallOi, 0) + '계약' : '', '')
+    + tile('풋벽 (지지)', L.putWall != null ? '$' + num(L.putWall, 0) : '—',
+           L.putWall != null ? num(L.putWallOi, 0) + '계약' : '', '')
+    + tile('최대 고통', pain != null ? '$' + num(pain, 0) : '—', '미결제 기준', '')
+    + tile('52주 범위', L.hi52 != null ? '$' + num(L.lo52, 0) + ' ~ ' + num(L.hi52, 0) : '—',
+           '기초자산', '')
+    + tile('총 미결제', num(callOi + putOi, 0), '콜 ' + num(callOi, 0) + ' · 풋 ' + num(putOi, 0), '')
+    + '</div>';
+
+  var reads = [];
+  if (pcOi != null)
+    reads.push(pcOi > 1.2 ? '풋이 콜보다 많이 쌓여 있습니다 — 하락 대비가 우세하거나 헤지 수요가 많습니다.'
+             : (pcOi < 0.7 ? '콜이 더 많이 쌓여 있습니다 — 상승 기대가 우세합니다.'
+                           : '풋과 콜이 비슷하게 쌓여 있습니다.'));
+  if (move != null && spot)
+    reads.push('시장은 만기까지 <b>±' + num(move / spot * 100, 1) + '%</b> 정도의 움직임을 값으로 매기고 있습니다. '
+             + '(등가격 IV × √(잔존일/365), 약 68% 구간)');
+  if (pain != null && spot)
+    reads.push('최대 고통 행사가는 <b>$' + num(pain, 0) + '</b>로 현재가보다 '
+             + (pain > spot ? num((pain / spot - 1) * 100, 1) + '% 위' : num((1 - pain / spot) * 100, 1) + '% 아래')
+             + '입니다. 통계적 근거가 확실한 지표는 아니니 참고만 하세요.');
+  if (dv.note) reads.push('<span style="color:var(--text-sub)">' + esc(dv.note) + '</span>');
+  $('dvRead').innerHTML = reads.map(function(x){ return '· ' + x; }).join('<br>');
+
+  dvDrawMap(L);
+  dvDrawIv(list, spot);
+  dvDrawOi(list, spot);
+  dvDrawGreeks();
+  dvFillStrikes(list, spot);
+  dvDrawPayoff();
+  dvTable(list, spot);
+  dvPlain(L, list);
+
+  //  코인은 전 체인이 한 번에 오므로 기간 구조도 공짜입니다 — 바로 그립니다.
+  if (dvMkt === 'crypto' && dv.term && dv.term.length){
+    dvTerm = { symbol: dv.symbol, term: dv.term };
+    dvDrawTerm();
+    $('dvTermBtn').classList.add('hidden');
+  } else {
+    $('dvTermBtn').classList.remove('hidden');
+    dvTerm = null;
+    if (dvTermChart) dvTermChart.clear();
+  }
+}
+
+
+/* ── 회사 이름으로 찾기 ─────────────────────── */
+async function dvFind(){
+  var q = $('dvSym').value.trim();
+  if (!q){ warn('dvWarn','회사 이름이나 티커를 넣어주세요.'); return; }
+  //  대문자로만 짧게 쓴 것은 티커로 봅니다 (AAPL, SPY, BRK.B).
+  //  'NVIDIA' 처럼 회사 이름을 쓴 경우까지 티커로 오해하지 않도록,
+  //  대소문자가 섞였거나 한글이면 이름 검색을 먼저 돌립니다.
+  if (/^[A-Z][A-Z.]{0,4}$/.test(q)){ return dvPick(q); }
+  warn('dvWarn','회사를 찾는 중…','info');
+  try {
+    var r = await sb.rpc('company_search', { q: q });
+    if (r.error) throw new Error(r.error.message);
+    var hits = (r.data || []).filter(function(x){ return x.market === 'US'; }).slice(0, 20);
+    if (!hits.length){
+      //  못 찾았는데 영문 짧은 낱말이면 티커로 한 번 더 시도합니다 (nvda → NVDA)
+      if (/^[A-Za-z.]{1,6}$/.test(q)) return dvPick(q.toUpperCase());
+      warn('dvWarn','미국 상장사 중에 찾지 못했습니다. 옵션은 미국 종목만 있습니다 — 티커를 직접 넣어보세요.');
+      $('dvHitsRow').classList.add('hidden');
+      return;
+    }
+    if (hits.length === 1) return dvPick(hits[0].code);
+    warn('dvWarn','');
+    $('dvHits').innerHTML = hits.slice(0, 12).map(function(x){
+      return '<button onclick="dvPick(\'' + esc(x.code) + '\')"><b>' + esc(x.code) + '</b> '
+           + esc(x.name) + '</button>'; }).join('');
+    $('dvHitsRow').classList.remove('hidden');
+  } catch(e){ warn('dvWarn', esc(e.message)); }
+}
+function dvPick(sym){
+  $('dvSym').value = sym;
+  $('dvHitsRow').classList.add('hidden');
+  return dvLoadExp();
+}
+
+/* ── 기초자산 시세 (실현변동성 · 52주 고저) ──── */
+async function dvLoadHist(){
+  var key = dvMkt + '|' + (dv ? dv.symbol : '');
+  if (dvHist && dvHist.key === key) return dvHist;
+  var start = new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 10);
+  try {
+    var d = await edge(dvMkt === 'crypto'
+      ? { source:'quote_crypto', code: dv.symbol + '-USD', start: start }
+      : { source:'quote_us',     code: dv.symbol,          start: start });
+    var pts = (d.points || []).filter(function(p){ return p.v > 0; });
+    dvHist = { key: key, points: pts };
+  } catch(e){ dvHist = { key: key, points: [] }; }
+  return dvHist;
+}
+
+//  실현변동성 — 로그수익률의 표준편차를 연율로 환산합니다
+function dvRealizedVol(pts, n){
+  if (!pts || pts.length < n + 2) return null;
+  var use = pts.slice(-(n + 1)), r = [];
+  for (var i = 1; i < use.length; i++){
+    if (use[i-1].v > 0 && use[i].v > 0) r.push(Math.log(use[i].v / use[i-1].v));
+  }
+  if (r.length < 5) return null;
+  var m = r.reduce(function(a,b){ return a+b; }, 0) / r.length;
+  var v = r.reduce(function(a,b){ return a + (b-m)*(b-m); }, 0) / (r.length - 1);
+  //  코인은 주말에도 거래되므로 365일, 주식은 거래일 252일 기준
+  return Math.sqrt(v) * Math.sqrt(dvMkt === 'crypto' ? 365 : 252);
+}
+
+/* ── 가격대 계산 ─────────────────────────────── */
+function dvComputeLevels(list, spot){
+  var dte = Number(dv.dte) || 0;
+  var atm = null, gap = Infinity;
+  list.forEach(function(x){
+    var g = Math.abs(x.strike - spot);
+    if (g < gap){ gap = g; atm = x; }
+  });
+  var atmIv = atm ? (isFinite(atm.call && atm.call.iv) ? atm.call.iv
+                    : (isFinite(atm.put && atm.put.iv) ? atm.put.iv : null)) : null;
+  var sd = (atmIv != null && spot > 0 && dte > 0) ? spot * atmIv * Math.sqrt(dte/365) : null;
+
+  //  콜벽 · 풋벽 — 미결제가 가장 두꺼운 행사가
+  var cw = null, pw = null, cwOi = 0, pwOi = 0;
+  list.forEach(function(x){
+    if (x.call && (x.call.oi||0) > cwOi && x.strike >= spot){ cwOi = x.call.oi; cw = x.strike; }
+    if (x.put  && (x.put.oi ||0) > pwOi && x.strike <= spot){ pwOi = x.put.oi;  pw = x.strike; }
+  });
+  //  현재가 위/아래에 하나도 없으면 전체에서 다시 찾습니다
+  if (cw == null) list.forEach(function(x){ if (x.call && (x.call.oi||0) > cwOi){ cwOi = x.call.oi; cw = x.strike; } });
+  if (pw == null) list.forEach(function(x){ if (x.put  && (x.put.oi ||0) > pwOi){ pwOi = x.put.oi;  pw = x.strike; } });
+
+  //  등가격 콜·풋을 샀을 때 본전이 되는 가격
+  var beUp = (atm && atm.call && isFinite(atm.call.mid)) ? atm.strike + atm.call.mid : null;
+  var beDn = (atm && atm.put  && isFinite(atm.put.mid))  ? atm.strike - atm.put.mid  : null;
+
+  var hist = (dvHist && dvHist.points) || [];
+  var yr = hist.slice(-(dvMkt === 'crypto' ? 365 : 252));
+  var hi52 = yr.length ? Math.max.apply(null, yr.map(function(p){ return p.v; })) : null;
+  var lo52 = yr.length ? Math.min.apply(null, yr.map(function(p){ return p.v; })) : null;
+
+  return {
+    spot: spot, dte: dte, atm: atm, atmIv: atmIv, sd: sd,
+    lo1: sd != null ? spot - sd : null, hi1: sd != null ? spot + sd : null,
+    lo2: sd != null ? spot - 2*sd : null, hi2: sd != null ? spot + 2*sd : null,
+    callWall: cw, callWallOi: cwOi, putWall: pw, putWallOi: pwOi,
+    pain: dvMaxPain(list),
+    beUp: beUp, beDn: beDn,
+    hv20: dvRealizedVol(hist, 20), hv60: dvRealizedVol(hist, 60),
+    hi52: hi52, lo52: lo52
+  };
+}
+
+/* ── 가격대 지도 ─────────────────────────────── */
+function dvDrawMap(L){
+  if (typeof echarts === 'undefined') return;
+  if (!dvMapChart) dvMapChart = echarts.init($('dvMapBox'));
+  if (!L || L.sd == null){
+    dvMapChart.clear();
+    dvMapChart.setOption({ backgroundColor: theme.bg,
+      title:{ left:'center', top:'44%', text:'등가격 변동성을 구하지 못해 범위를 그릴 수 없습니다',
+        textStyle:{ fontSize:13, color:'#8b93a7', fontWeight:400 } } }, true);
+    $('dvMapLegend').innerHTML = '';
+    return;
+  }
+
+  var dp = L.spot < 20 ? 2 : (L.spot < 1000 ? 1 : 0);
+  function f(v){ return v == null ? '—' : '$' + num(v, dp); }
+
+  //  구간을 가로 막대로 겹쳐 그립니다 (보이지 않는 받침 + 실제 폭)
+  var ROWS = [];
+  if (L.lo52 != null) ROWS.push(['최근 1년 실제', L.lo52, L.hi52, 'rgba(138,147,167,.22)']);
+  ROWS.push(['95% 예상', L.lo2, L.hi2, 'rgba(107,140,218,.20)']);
+  ROWS.push(['68% 예상', L.lo1, L.hi1, 'rgba(44,62,107,.34)']);
+  ROWS.push(['주요 자리', null, null, null]);
+
+  var cats = ROWS.map(function(r){ return r[0]; });
+  var base = ROWS.map(function(r){ return r[1] == null ? '-' : r[1]; });
+  var span = ROWS.map(function(r){ return r[1] == null ? '-' : (r[2] - r[1]); });
+  var colr = ROWS.map(function(r){ return r[3]; });
+
+  var lo = Math.min.apply(null, ROWS.filter(function(r){ return r[1] != null; })
+                                    .map(function(r){ return r[1]; })
+             .concat([L.putWall, L.pain, L.spot].filter(function(v){ return v != null; })));
+  var hi = Math.max.apply(null, ROWS.filter(function(r){ return r[2] != null; })
+                                    .map(function(r){ return r[2]; })
+             .concat([L.callWall, L.pain, L.spot].filter(function(v){ return v != null; })));
+  var pad = (hi - lo) * 0.07 || 1;
+
+  //  주요 가격 자리.
+  //  최대 고통이 콜벽과 같은 행사가에 오는 일이 흔해서, 가까운 값끼리는
+  //  한 점으로 묶어 이름표를 합칩니다 (안 그러면 글자가 겹쳐 못 읽습니다).
+  var pick = [];
+  function mk(v, label, color){
+    if (v == null || !isFinite(v)) return;
+    pick.push({ v: v, label: label, color: color });
+  }
+  mk(L.spot, '현재가', '#2c3e6b');
+  mk(L.callWall, '콜벽 (저항)', '#c0392b');
+  mk(L.putWall, '풋벽 (지지)', '#1b5fa8');
+  mk(L.pain, '최대 고통', '#b26a00');
+
+  //  묶는 기준은 전체 축이 아니라 '68% 예상 구간' 폭입니다.
+  //  52주 막대 때문에 축이 넓어져도 자리들이 통째로 뭉치지 않게 하려는 것입니다.
+  var tol = Math.max(1e-9, Math.abs(L.hi1 - L.lo1) * 0.10);
+  pick.sort(function(a2, b2){ return a2.v - b2.v; });
+  var groups = [];
+  pick.forEach(function(x){
+    var g = groups[groups.length - 1];
+    if (g && Math.abs(x.v - g.v) <= tol){ g.labels.push(x.label); }
+    else groups.push({ v: x.v, color: x.color, labels: [x.label] });
+  });
+  var marks = groups.map(function(g, i){
+    return { value: [g.v, '주요 자리'], name: g.labels.join(' · '),
+      itemStyle:{ color: g.color },
+      label:{ show:true, formatter: g.labels.join(' · ') + '\n' + f(g.v),
+              fontSize:10.5, color: g.color, fontWeight:600,
+              position: i % 2 ? 'bottom' : 'top' } };
+  });
+
+  dvMapChart.setOption({
+    backgroundColor: theme.bg, animation:false,
+    textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+    grid:{ left:14, right:26, top:16, bottom:34, containLabel:true },
+    tooltip:{ trigger:'item',
+      formatter:function(a){
+        if (a.seriesName === '주요 자리') return a.data.name + ' ' + f(a.value[0]);
+        var r = ROWS[a.dataIndex];
+        return r[0] + '<br/>' + f(r[1]) + ' ~ ' + f(r[2]); } },
+    xAxis:{ type:'value', min: lo - pad, max: hi + pad,
+      axisLine:{ lineStyle:{ color: theme.grid } },
+      axisLabel:{ color: theme.text_color, fontSize:11,
+        formatter:function(v){ return num(Number(v), dp); } },
+      splitLine:{ lineStyle:{ color: theme.grid, type:'dashed' } } },
+    yAxis:{ type:'category', data: cats, inverse:true,
+      axisLine:{ show:false }, axisTick:{ show:false },
+      axisLabel:{ color:'#5a6278', fontSize:11.5 } },
+    series:[
+      { name:'받침', type:'bar', stack:'r', barMaxWidth:18, data: base,
+        itemStyle:{ color:'transparent' }, silent:true, tooltip:{ show:false } },
+      { name:'구간', type:'bar', stack:'r', barMaxWidth:18,
+        data: span.map(function(v, i){
+          return v === '-' ? '-' : { value:v, itemStyle:{ color: colr[i], borderRadius:3 } }; }) },
+      { name:'주요 자리', type:'scatter', symbolSize:11, data: marks,
+        markLine:{ symbol:'none', silent:true, animation:false,
+          lineStyle:{ color:'#2c3e6b', width:1.5, type:'solid' },
+          label:{ show:false }, data:[{ xAxis: L.spot }] } }
+    ]
+  }, true);
+
+  $('dvMapLegend').innerHTML =
+      '만기(<b>' + L.dte + '일 뒤</b>)까지 시장이 값으로 매긴 범위 — '
+    + '<b>68%</b> ' + f(L.lo1) + ' ~ ' + f(L.hi1) + ' · '
+    + '<b>95%</b> ' + f(L.lo2) + ' ~ ' + f(L.hi2)
+    + (L.hi52 != null ? '<br>회색 막대는 <b>지난 1년 실제 범위</b>(' + f(L.lo52) + ' ~ ' + f(L.hi52)
+        + ')라, 시장이 보는 폭이 실제보다 넓은지 좁은지 눈으로 견줄 수 있습니다.' : '');
+}
+
+/* ── 만기별 변동성 ───────────────────────────── */
+async function dvLoadTerm(){
+  if (!dv){ warn('dvWarn','먼저 옵션을 불러와주세요.'); return; }
+  if (dvMkt === 'crypto'){
+    dvTerm = { symbol: dv.symbol, term: dv.term || [] };
+    dvDrawTerm(); return;
+  }
+  var dates = (Array.prototype.slice.call($('dvExp').options) || [])
+                .map(function(o){ return o.value; }).slice(0, 8);
+  if (!dates.length){ warn('dvWarn','만기 목록이 없습니다.'); return; }
+  $('dvTermBtn').textContent = '받는 중…';
+  try {
+    dvTerm = await edge({ source:'opt_term', code: dv.symbol, dates: dates });
+    dvDrawTerm();
+    if (dvTerm && dvTerm.credits)
+      $('dvCost').innerHTML = '만기별 IV 로 <b>' + num(dvTerm.credits, 0) + '크레딧</b>을 썼습니다. '
+        + '(만기마다 행사가 1개씩만 받아서 체인 한 번보다 훨씬 적습니다)';
+  } catch(e){ warn('dvWarn', esc(e.message)); }
+  $('dvTermBtn').textContent = '다시 받기';
+}
+
+function dvDrawTerm(){
+  if (typeof echarts === 'undefined') return;
+  if (!dvTermChart) dvTermChart = echarts.init($('dvTermBox'));
+  var t = (dvTerm && dvTerm.term) || [];
+  if (!t.length){
+    dvTermChart.clear();
+    dvTermChart.setOption({ backgroundColor: theme.bg,
+      title:{ left:'center', top:'44%', text:'만기별 변동성을 받지 못했습니다',
+        textStyle:{ fontSize:13, color:'#8b93a7', fontWeight:400 } } }, true);
+    return;
+  }
+  var pal = theme.palette;
+  dvTermChart.setOption({
+    backgroundColor: theme.bg, animation:false,
+    textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+    grid:{ left:58, right:24, top:30, bottom:44 },
+    tooltip:{ trigger:'axis', valueFormatter:function(v){ return v == null ? '-' : v + '%'; } },
+    xAxis:{ type:'category', data: t.map(function(x){ return x.date; }),
+      axisLine:{ lineStyle:{ color: theme.grid } },
+      axisLabel:{ color: theme.text_color, fontSize:10, rotate: t.length > 6 ? 30 : 0 } },
+    yAxis: Object.assign(dvAxis('등가격 IV %'),
+      { axisLabel:{ color: theme.text_color, fontSize:11, formatter:'{value}%' } }),
+    series:[{ name:'등가격 IV', type:'line', smooth:true, symbolSize:7,
+      data: t.map(function(x){ return +(x.iv * 100).toFixed(2); }),
+      lineStyle:{ color: pal[0], width:2 }, itemStyle:{ color: pal[0] },
+      areaStyle:{ color:'rgba(44,62,107,.08)' } }]
+  }, true);
+
+  //  역전 여부를 문장으로
+  var first = t[0], last = t[t.length - 1];
+  var inv = t.length > 1 && first.iv > last.iv * 1.03;
+  $('dvTermHint').innerHTML = t.length < 2
+    ? '만기가 하나라 기울기를 볼 수 없습니다.'
+    : (inv
+      ? '가까운 만기(' + esc(first.date) + ' ' + num(first.iv*100,1) + '%)가 '
+        + '먼 만기(' + esc(last.date) + ' ' + num(last.iv*100,1) + '%)보다 <b>높습니다 — 역전</b>. '
+        + '실적 발표처럼 <b>코앞에 걸린 사건</b>을 시장이 값으로 매기고 있을 때 이렇게 됩니다.'
+      : '가까운 만기 ' + num(first.iv*100,1) + '% → 먼 만기 ' + num(last.iv*100,1) + '% 로 '
+        + '<b>정상적인 우상향</b>입니다. 특별히 임박한 사건은 없다고 보는 상태입니다.');
+}
+
+/* ── 손익 그림 ───────────────────────────────── */
+var DV_STRAT = {
+  call:     { n:'콜 매수',            d:'오르면 벌고, 안 오르면 낸 돈만 잃습니다.' },
+  put:      { n:'풋 매수',            d:'내리면 벌고, 안 내리면 낸 돈만 잃습니다.' },
+  covered:  { n:'커버드 콜',          d:'주식을 들고 콜을 팝니다. 위쪽 이익을 포기하는 대신 프리미엄을 받습니다.' },
+  csp:      { n:'현금담보 풋 매도',   d:'안 내리면 프리미엄이 수익, 내리면 그 가격에 주식을 떠안습니다.' },
+  straddle: { n:'스트래들 매수',      d:'방향과 무관하게 크게 움직이면 법니다. 조용하면 양쪽 다 잃습니다.' }
+};
+
+function dvFillStrikes(list, spot){
+  var sel = $('dvPayK'); if (!sel) return;
+  var keep = Number(sel.value);
+  var use = list.filter(function(x){ return x.call || x.put; });
+  //  '등가격' 은 비율이 아니라 현재가에 가장 가까운 행사가로 정합니다.
+  //  (코인처럼 행사가 간격이 넓으면 비율 기준으로는 하나도 안 걸립니다)
+  var atmK = null, gap = Infinity;
+  use.forEach(function(x){ var g = Math.abs(x.strike - spot); if (g < gap){ gap = g; atmK = x.strike; } });
+  sel.innerHTML = use.map(function(x){
+    var tag = x.strike === atmK ? ' · 등가격'
+            : ' · ' + (x.strike > spot ? '+' : '') + num((x.strike/spot-1)*100, 1) + '%';
+    return '<option value="' + x.strike + '">' + num(x.strike, x.strike < 20 ? 2 : 0) + tag + '</option>';
+  }).join('');
+  if (use.some(function(x){ return x.strike === keep; })) sel.value = String(keep);
+  else if (atmK != null) sel.value = String(atmK);
+}
+
+function dvDrawPayoff(){
+  if (!dv || typeof echarts === 'undefined') return;
+  if (!dvPayChart) dvPayChart = echarts.init($('dvPayBox'));
+  var list = dvByStrike(), spot = Number(dv.spot) || 0;
+  var K = Number($('dvPayK').value);
+  var row = list.filter(function(x){ return x.strike === K; })[0];
+  if (!row || !spot){ dvPayChart.clear(); $('dvPayHint').textContent = ''; return; }
+
+  var kind = $('dvStrat').value;
+  var cp = (row.call && isFinite(row.call.mid)) ? row.call.mid : null;
+  var pp = (row.put  && isFinite(row.put.mid))  ? row.put.mid  : null;
+
+  var need = { call:[cp], put:[pp], covered:[cp], csp:[pp], straddle:[cp, pp] }[kind] || [];
+  if (need.some(function(v){ return v == null; })){
+    dvPayChart.clear();
+    $('dvPayHint').innerHTML = '이 행사가에는 필요한 가격이 없습니다. 다른 행사가를 골라보세요.';
+    return;
+  }
+
+  var lo = spot * 0.75, hi = spot * 1.25, N = 121;
+  var xs = [], ys = [];
+  for (var i = 0; i < N; i++){
+    var S = lo + (hi - lo) * i / (N - 1);
+    var y;
+    if (kind === 'call')          y = Math.max(0, S - K) - cp;
+    else if (kind === 'put')      y = Math.max(0, K - S) - pp;
+    else if (kind === 'covered')  y = (S - spot) + cp - Math.max(0, S - K);
+    else if (kind === 'csp')      y = pp - Math.max(0, K - S);
+    else                          y = Math.max(0, S - K) + Math.max(0, K - S) - (cp + pp);
+    xs.push(+S.toFixed(4)); ys.push(+y.toFixed(4));
+  }
+
+  //  본전 지점 — 부호가 바뀌는 곳을 찾아 선형보간
+  var be = [];
+  for (var j = 1; j < ys.length; j++){
+    if ((ys[j-1] < 0 && ys[j] >= 0) || (ys[j-1] > 0 && ys[j] <= 0)){
+      var t = Math.abs(ys[j-1]) / (Math.abs(ys[j-1]) + Math.abs(ys[j]));
+      be.push(xs[j-1] + (xs[j] - xs[j-1]) * t);
+    }
+  }
+
+  dvPayChart.setOption({
+    backgroundColor: theme.bg, animation:false,
+    textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+    grid:{ left:64, right:24, top:26, bottom:40 },
+    tooltip:{ trigger:'axis',
+      formatter:function(a){
+        return '주가 $' + num(Number(a[0].axisValue), 2) + '<br/>계약당 손익 <b>'
+             + (a[0].data >= 0 ? '+' : '') + num(a[0].data, 2) + '</b>'; } },
+    xAxis:{ type:'category', data: xs, name:'만기일 주가',
+      nameTextStyle:{ color: theme.text_color, fontSize:11 },
+      axisLine:{ lineStyle:{ color: theme.grid } },
+      axisLabel:{ color: theme.text_color, fontSize:10,
+        formatter:function(v){ return num(Number(v), 0); } } },
+    yAxis: dvAxis('손익 ($/주)'),
+    series:[{
+      name:'손익', type:'line', data: ys, showSymbol:false, smooth:false,
+      lineStyle:{ width:2, color:'#2c3e6b' },
+      areaStyle:{ origin:'start', color:'rgba(44,62,107,.10)' },
+      markLine:{ symbol:'none', silent:true, data:
+        [{ yAxis:0, lineStyle:{ color:'#8b93a7', type:'dashed' }, label:{ show:false } }]
+        .concat(be.map(function(v){
+          return { xAxis: String(xs.reduce(function(a,b){
+                     return Math.abs(b - v) < Math.abs(a - v) ? b : a; })),
+                   lineStyle:{ color:'#b26a00', type:'dashed' },
+                   label:{ formatter:'본전 ' + num(v, 2), fontSize:10, color:'#b26a00' } };
+        })) }
+    }]
+  }, true);
+
+  var st = DV_STRAT[kind];
+  var maxLoss = { call:cp, put:pp, straddle:(cp+pp), csp:(K - pp), covered:(spot - cp) }[kind];
+  $('dvPayHint').innerHTML = '<b>' + esc(st.n) + '</b> — ' + esc(st.d)
+    + '<br>행사가 <b>$' + num(K, K < 20 ? 2 : 0) + '</b>, 계약 가격 '
+    + (kind === 'straddle' ? '콜 $' + num(cp, 2) + ' + 풋 $' + num(pp, 2) + ' = $' + num(cp+pp, 2)
+       : '$' + num(kind === 'put' || kind === 'csp' ? pp : cp, 2))
+    + ' · 미국 옵션 1계약 = 100주라 실제로는 <b>×100</b> 입니다.'
+    + (be.length ? '<br>본전이 되는 주가: <b>' + be.map(function(v){ return '$' + num(v, 2); }).join(' · ') + '</b>' : '')
+    + (maxLoss != null ? '<br>최대 손실(계약당): <b>$' + num(maxLoss, 2) + '</b>'
+        + (kind === 'call' || kind === 'put' || kind === 'straddle' ? ' — 낸 돈이 전부입니다.' : '') : '');
+}
+
+/* ── 쉽게 읽기 ───────────────────────────────── */
+function dvPlain(L, list){
+  var S = L.spot;
+  function money(v){ return v == null || !isFinite(v) ? '—'
+    : '$' + num(v, v < 20 ? 2 : (v < 1000 ? 1 : 0)); }
+  function lv(v, cls){ return '<span class="dv-lv ' + cls + '">' + money(v) + '</span>'; }
+  function away(v){
+    if (v == null || !S) return '';
+    var d = (v / S - 1) * 100;
+    return ' (' + (d >= 0 ? '+' : '') + num(d, 1) + '%)';
+  }
+  var st = [];
+
+  st.push(['지금 어디에 서 있나',
+    '현재가는 ' + lv(S, 'now') + ' 입니다.'
+    + (L.hi52 != null
+       ? ' 지난 1년 동안 ' + money(L.lo52) + ' ~ ' + money(L.hi52) + ' 사이에서 움직였고, '
+         + '지금은 그 범위의 <b>' + num((S - L.lo52) / Math.max(1e-9, L.hi52 - L.lo52) * 100, 0)
+         + '% 지점</b>에 있습니다.'
+       : '')]);
+
+  if (L.sd != null){
+    st.push(['시장이 보는 만기일 가격',
+      '만기까지 <b>' + L.dte + '일</b> 남았습니다. 옵션 가격을 거꾸로 풀면, 시장은 그때 주가가 '
+      + lv(L.lo1, 'dn') + ' ~ ' + lv(L.hi1, 'up') + ' 사이일 확률을 <b>약 3분의 2</b>로 보고 있습니다. '
+      + '조금 더 넓게 잡으면 ' + money(L.lo2) + ' ~ ' + money(L.hi2) + ' (약 95%)입니다.'
+      + '<br><span class="st-hint">등가격 내재변동성 ' + num(L.atmIv * 100, 1)
+      + '% 를 남은 기간에 맞춰 줄인 값입니다. 예언이 아니라 <b>지금 값이 매겨진 폭</b>입니다.</span>']);
+  }
+
+  if (L.callWall != null || L.putWall != null){
+    st.push(['사람들이 몰려 있는 자리',
+      (L.putWall != null ? '아래쪽으로는 ' + lv(L.putWall, 'dn') + away(L.putWall)
+        + ' 에 풋이 가장 두껍게 쌓여 있습니다 (' + num(L.putWallOi, 0) + '계약). ' : '')
+      + (L.callWall != null ? '위쪽으로는 ' + lv(L.callWall, 'up') + away(L.callWall)
+        + ' 에 콜이 가장 많습니다 (' + num(L.callWallOi, 0) + '계약). ' : '')
+      + '<br><span class="st-hint">두꺼운 자리는 <b>지지·저항처럼 자주 언급</b>되지만, '
+      + '반드시 멈추는 선은 아닙니다. 참고 자료로만 쓰세요.</span>']);
+  }
+
+  if (L.pain != null){
+    st.push(['최대 고통',
+      lv(L.pain, 'now') + away(L.pain) + ' — 만기에 이 가격이면 옵션을 산 사람들 전체 가치가 가장 작아집니다. '
+      + '통계적으로 검증된 지표는 아니고, <b>미결제가 어디에 쏠려 있는지를 한 숫자로 줄인 것</b> 정도로 보세요.']);
+  }
+
+  if (L.atmIv != null && L.hv20 != null){
+    var ratio = L.atmIv / L.hv20;
+    st.push(['옵션값이 비싼 편인가',
+      '지금 등가격 변동성은 <b>' + num(L.atmIv * 100, 1) + '%</b>인데, '
+      + '이 종목이 최근 한 달 동안 <b>실제로</b> 움직인 폭은 <b>' + num(L.hv20 * 100, 1) + '%</b>였습니다.'
+      + '<br>' + (ratio > 1.25
+        ? '시장이 앞으로를 실제보다 <b>' + num((ratio - 1) * 100, 0) + '% 더 출렁일 것</b>으로 보고 있습니다 — '
+          + '옵션을 <b>사는 쪽이 불리</b>하기 쉬운 자리입니다.'
+        : (ratio < 0.85
+          ? '시장이 앞으로를 최근 실제 움직임보다 <b>얌전할 것</b>으로 보고 있습니다 — '
+            + '옵션이 상대적으로 <b>싼 편</b>입니다.'
+          : '앞으로 볼 변동성과 최근 실제 움직임이 <b>비슷한 수준</b>입니다. 특별히 비싸지도 싸지도 않습니다.'))
+      + (L.hv60 != null ? '<br><span class="st-hint">3개월 기준 실제 변동성은 '
+          + num(L.hv60 * 100, 1) + '% 입니다.</span>' : '')]);
+  }
+
+  if (L.beUp != null || L.beDn != null){
+    st.push(['지금 사면 어디부터 남나',
+      (L.beUp != null ? '등가격 <b>콜</b>을 사면 만기에 ' + lv(L.beUp, 'up') + away(L.beUp)
+        + ' 를 넘어야 본전입니다. ' : '')
+      + (L.beDn != null ? '등가격 <b>풋</b>은 ' + lv(L.beDn, 'dn') + away(L.beDn)
+        + ' 아래로 내려가야 본전입니다.' : '')
+      + '<br><span class="st-hint">방향을 맞혀도 이만큼 못 움직이면 손해입니다. '
+      + '옵션이 어려운 이유가 여기 있습니다.</span>']);
+  }
+
+  st.push(['주의',
+    '여기 숫자는 <b>지금 이 순간 시장 가격에서 계산한 것</b>이라 시시각각 바뀝니다. '
+    + (dvMkt === 'crypto'
+       ? 'Deribit 공개 자료이고 그릭스는 블랙-숄즈로 직접 계산했습니다.'
+       : '시세는 15분가량 지연됩니다.')
+    + ' 학회 활동·발표 자료용이며 <b>투자 권유가 아닙니다.</b>']);
+
+  $('dvPlain').innerHTML = st.map(function(x, i){
+    return '<div class="dv-step"><div class="n">' + (i + 1) + '</div><div class="tx">'
+         + '<b>' + esc(x[0]) + '</b><br>' + x[1] + '</div></div>';
+  }).join('');
+}
+
+function dvAxis(name){
+  return { type:'value', name:name, scale:true,
+           nameTextStyle:{ color: theme.text_color, fontSize:11 },
+           axisLine:{ show:true, lineStyle:{ color: theme.grid } },
+           axisLabel:{ color: theme.text_color, fontSize:11 },
+           splitLine: coSplit() };
+}
+function dvMark(spot){
+  return { symbol:'none', label:{ formatter:'현재가', fontSize:10, color: theme.text_color },
+           lineStyle:{ color:'#8b93a7', type:'dashed' },
+           data:[{ xAxis: spot }] };
+}
+
+function dvDrawIv(list, spot){
+  if (typeof echarts === 'undefined') return;
+  if (!dvIvChart) dvIvChart = echarts.init($('dvIvBox'));
+  var pal = theme.palette;
+  var c = list.filter(function(x){ return x.call && isFinite(x.call.iv); })
+              .map(function(x){ return [x.strike, +(x.call.iv * 100).toFixed(2)]; });
+  var p = list.filter(function(x){ return x.put && isFinite(x.put.iv); })
+              .map(function(x){ return [x.strike, +(x.put.iv * 100).toFixed(2)]; });
+  dvIvChart.setOption({
+    backgroundColor: theme.bg, animation:false,
+    textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+    grid:{ left:58, right:22, top:44, bottom:44 },
+    legend:{ top:8, textStyle:{ color: theme.text_color, fontSize:12 } },
+    tooltip:{ trigger:'axis', valueFormatter:function(v){ return v == null ? '-' : v + '%'; } },
+    xAxis: dvAxis('행사가'),
+    yAxis: Object.assign(dvAxis('IV %'), { axisLabel:{ color: theme.text_color, fontSize:11, formatter:'{value}%' } }),
+    series: [
+      { name:'콜', type:'line', data:c, smooth:true, symbolSize:6,
+        lineStyle:{ color: pal[0], width:2 }, itemStyle:{ color: pal[0] },
+        markLine: dvMark(spot) },
+      { name:'풋', type:'line', data:p, smooth:true, symbolSize:6,
+        lineStyle:{ color: pal[1], width:2 }, itemStyle:{ color: pal[1] } }
+    ]
+  }, true);
+}
+
+function dvDrawOi(list, spot){
+  if (typeof echarts === 'undefined') return;
+  if (!dvOiChart) dvOiChart = echarts.init($('dvOiBox'));
+  var pal = theme.palette;
+  dvOiChart.setOption({
+    backgroundColor: theme.bg, animation:false,
+    textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+    grid:{ left:64, right:22, top:44, bottom:44 },
+    legend:{ top:8, textStyle:{ color: theme.text_color, fontSize:12 } },
+    tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' } },
+    xAxis:{ type:'category', data: list.map(function(x){ return x.strike; }),
+            axisLine:{ lineStyle:{ color: theme.grid } },
+            axisLabel:{ color: theme.text_color, fontSize:10 }, name:'행사가' },
+    yAxis: dvAxis('미결제약정'),
+    series: [
+      { name:'콜', type:'bar', stack:'oi', barMaxWidth:26,
+        data: list.map(function(x){ return x.call ? x.call.oi : 0; }), itemStyle:{ color: pal[0] } },
+      { name:'풋', type:'bar', stack:'oi', barMaxWidth:26,
+        data: list.map(function(x){ return x.put ? -(x.put.oi || 0) : 0; }), itemStyle:{ color: pal[1] } }
+    ]
+  }, true);
+}
+
+var GREEK_HINT = {
+  delta:'<b>델타</b> — 기초자산이 1달러 오를 때 옵션값이 얼마나 변하는지. 콜은 0~1, 풋은 -1~0.',
+  gamma:'<b>감마</b> — 델타 자체가 얼마나 빨리 변하는지. 등가격 · 만기 임박에서 가장 큽니다.',
+  theta:'<b>세타</b> — 하루 지날 때마다 잃는 값. 옵션 매수자에게는 항상 마이너스입니다.',
+  vega:'<b>베가</b> — 내재변동성이 1%p 오를 때 옵션값 변화. 만기가 멀수록 큽니다.'
+};
+function dvDrawGreeks(){
+  if (!dv || typeof echarts === 'undefined') return;
+  if (!dvGkChart) dvGkChart = echarts.init($('dvGkBox'));
+  var g = $('dvGreek').value;
+  $('dvGreekHint').innerHTML = GREEK_HINT[g] || '';
+  var list = dvByStrike(), pal = theme.palette, spot = Number(dv.spot) || 0;
+  var c = list.filter(function(x){ return x.call && isFinite(x.call[g]); })
+              .map(function(x){ return [x.strike, +x.call[g].toFixed(4)]; });
+  var p = list.filter(function(x){ return x.put && isFinite(x.put[g]); })
+              .map(function(x){ return [x.strike, +x.put[g].toFixed(4)]; });
+  dvGkChart.setOption({
+    backgroundColor: theme.bg, animation:false,
+    textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+    grid:{ left:64, right:22, top:44, bottom:44 },
+    legend:{ top:8, textStyle:{ color: theme.text_color, fontSize:12 } },
+    tooltip:{ trigger:'axis' },
+    xAxis: dvAxis('행사가'),
+    yAxis: dvAxis(g),
+    series: [
+      { name:'콜', type:'line', data:c, smooth:true, symbolSize:6,
+        lineStyle:{ color: pal[0], width:2 }, itemStyle:{ color: pal[0] }, markLine: dvMark(spot) },
+      { name:'풋', type:'line', data:p, smooth:true, symbolSize:6,
+        lineStyle:{ color: pal[1], width:2 }, itemStyle:{ color: pal[1] } }
+    ]
+  }, true);
+}
+
+function dvTable(list, spot){
+  function cell(r){
+    if (!r) return '<td class="num">—</td><td class="num">—</td><td class="num">—</td>';
+    return '<td class="num">' + (isFinite(r.mid) ? num(r.mid, 2) : '—') + '</td>'
+         + '<td class="num">' + (isFinite(r.iv) ? num(r.iv * 100, 1) + '%' : '—') + '</td>'
+         + '<td class="num">' + num(r.oi, 0) + '</td>';
+  }
+  $('dvTable').innerHTML =
+    '<thead><tr><th colspan="3" style="text-align:center">콜</th>'
+    + '<th class="num">행사가</th>'
+    + '<th colspan="3" style="text-align:center">풋</th></tr>'
+    + '<tr><th class="num">중간값</th><th class="num">IV</th><th class="num">미결제</th>'
+    + '<th></th>'
+    + '<th class="num">중간값</th><th class="num">IV</th><th class="num">미결제</th></tr></thead><tbody>'
+    + list.map(function(x){
+        var near = Math.abs(x.strike - spot) < spot * 0.01;
+        return '<tr' + (near ? ' style="background:var(--accent-soft)"' : '') + '>'
+          + cell(x.call)
+          + '<td class="num"><b>' + num(x.strike, 0) + '</b></td>'
+          + cell(x.put) + '</tr>';
+      }).join('')
+    + '</tbody>';
+}
+
+function dvJpg(chart, name){
+  if (!chart){ warn('dvWarn','먼저 옵션을 불러와주세요.'); return; }
+  var url = chart.getDataURL({ type:'jpeg', pixelRatio:2, backgroundColor: theme.bg });
+  var bin = atob(url.split(',')[1]);
+  var buf = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+  saveBlob(new Blob([buf], { type:'image/jpeg' }),
+           'SAFE_' + ((dv && dv.symbol) || 'option') + '_' + name + '_' + today() + '.jpg');
+}
+
 /* ══════════ 13F — 기관 보유 내역 ══════════
    숫자보다 먼저 알아야 할 것: 45일 늦게 나오고, 롱만 나오고,
    공매도·현금·채권·해외주식은 안 나옵니다. 화면에도 적어둡니다. */
@@ -1651,10 +3854,13 @@ async function drillOpen(){
       var d = await edge({ source:'fred_tree', code:c.code });
       $('drillSub').textContent = d.release ? d.release.name : '';
       drillRenderFred(d.items || []);
+      if (d.note) warn('drillWarn', esc(d.note), 'info');
     } else if (c.source === 'ecos'){
       var e = await edge({ source:'ecos_items', code:c.code });
-      $('drillSub').textContent = '통계표 ' + esc(c.code);
+      var gn = (e.groups || []).length;
+      $('drillSub').textContent = '통계표 ' + esc(c.code) + (gn > 1 ? ' · 항목 축 ' + gn + '개' : '');
       drillRenderEcos(e.groups || [], c);
+      if (gn > 1) warn('drillWarn', ECOS_AXIS_HINT, 'info');
     } else {
       $('drillSub').textContent = '';
       $('drillList').innerHTML = '<div class="empty" style="padding:18px">'
@@ -1969,6 +4175,7 @@ async function loadSeries(s){
                          cycle:s.cycle, start:fetchStart() });
     s.points = d.points || [];
     if (!s.points.length) warn('researchWarn','"'+esc(s.label)+'" 에 해당 기간 데이터가 없습니다.');
+    else if (d.note) warn('researchWarn', '<b>' + esc(s.label) + '</b> — ' + esc(d.note), 'info');
     renderSeriesList(); drawChart();
   } catch(e){
     warn('researchWarn', esc(e.message));
@@ -2091,6 +4298,31 @@ function downloadJPG(){
   }, 90);
 }
 
+/* 발표 자료를 만드는 게 학회 활동의 절반입니다.
+   차트가 있는 곳이면 어디서나 같은 방식으로 그림을 뽑을 수 있게 해둡니다. */
+function chartJpg(chart, name){
+  if (!chart){ alert('먼저 차트를 그려주세요.'); return; }
+  var url = chart.getDataURL({ type:'jpeg', pixelRatio:2,
+                               backgroundColor:(theme && theme.bg) || '#fff' });
+  var bin = atob(url.split(',')[1]);
+  var buf = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+  saveBlob(new Blob([buf], { type:'image/jpeg' }),
+           'SAFE_' + (name || 'chart') + '_' + today() + '.jpg');
+}
+
+function saveCsv(rows, name){
+  var body = rows.map(function(r){
+    return r.map(function(c){
+      var v = c == null ? '' : String(c);
+      return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }).join(',');
+  }).join('\n');
+  //  엑셀이 한글을 깨뜨리지 않도록 BOM 을 붙입니다
+  saveBlob(new Blob(['\ufeff' + body], { type:'text/csv;charset=utf-8' }),
+           'SAFE_' + (name || 'data') + '_' + today() + '.csv');
+}
+
 function saveBlob(blob, filename){
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
@@ -2119,10 +4351,28 @@ function downloadCSV(){
   saveBlob(new Blob(['﻿' + csv], { type:'text/csv;charset=utf-8;' }), 'SAFE_data_' + today() + '.csv');
 }
 
+/*  차트를 새로 만들 때마다 이 목록에 손으로 더하는 걸 잊기 쉬워서,
+    화면에 있는 차트 상자를 훑어 전부 다시 맞춥니다. */
+var CHART_BOXES = ['chartBox','dtChartBox','dtBarBox','homeFxBox',
+  'pieBox','pnlBox','benchBox','stratPrevBox',
+  'coFinBox','coPriceBox',
+  'dvMapBox','dvTermBox','dvPayBox','dvIvBox','dvOiBox','dvGkBox'];
+
+function resizeAllCharts(){
+  if (typeof echarts === 'undefined') return;
+  CHART_BOXES.forEach(function(id){
+    var el = $(id); if (!el) return;
+    var c = echarts.getInstanceByDom(el); if (c) c.resize();
+  });
+  if (typeof distCharts === 'object' && distCharts)
+    Object.keys(distCharts).forEach(function(k){
+      if (distCharts[k]) distCharts[k].resize(); });
+}
+
+var resizeTimer = null;
 window.addEventListener('resize', function(){
-  [chart,pieChart,pnlChart,benchChart,coFinChart,coPriceChart,prevChart]
-    .concat(Object.keys(distCharts).map(function(k){ return distCharts[k]; }))
-    .forEach(function(c){ if (c) c.resize(); });
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(resizeAllCharts, 120);
 });
 
 /* ══════════ 기업 분석 (DART · SEC) ══════════ */
@@ -2302,13 +4552,16 @@ async function searchCompany(){
 }
 
 function coShow(which){
-  ['fin','price','disc','own'].forEach(function(k){
+  ['prof','fin','price','disc','own'].forEach(function(k){
     var p = $('coPane-' + k); if (p) p.classList.toggle('hidden', k !== which);
     var b = $('coTab-' + k);  if (b) b.classList.toggle('on', k === which);
   });
+  var vc = $('coViewCard');
+  if (vc) vc.classList.toggle('hidden', which !== 'fin' && which !== 'price');
   if (which === 'fin'   && coFinChart)   setTimeout(function(){ coFinChart.resize(); }, 60);
   if (which === 'price' && coPriceChart) setTimeout(function(){ coPriceChart.resize(); }, 60);
   if (which === 'price') fillCoCmpSel();
+  if (which === 'prof'  && !coProf) loadProfile();
 }
 
 async function pickCompany(i){
@@ -2323,7 +4576,8 @@ async function pickCompany(i){
   $('coTiles').innerHTML = '<div class="empty">불러오는 중…</div>';
   $('coFinTable').innerHTML = ''; $('coDiscTable').innerHTML = '';
   $('coDivTable').innerHTML = ''; $('coMajorTable').innerHTML = ''; $('coElestTable').innerHTML = '';
-  coFin = null; coFull = null; coFullCache = {}; coSeries = []; coFinSeries = []; coPricePts = [];
+  coFin = null; coFull = null; coFullCache = {}; coProf = null;
+  coSeries = []; coFinSeries = []; coPricePts = [];
   if (coFinChart) coFinChart.clear();
   $('coFinMk').value = co.market;
   renderCoSeriesList(); renderCoFinSeriesList();
@@ -2392,7 +4646,6 @@ async function renderCoStatement(group){
       return;
     }
 
-    //  각 계정이 몇 구간이나 채워져 있는지
     function filled(r){
       var n = 0;
       years.forEach(function(y){ if (r.values[y.key] != null) n++; });
@@ -2401,7 +4654,7 @@ async function renderCoStatement(group){
     var need = Math.max(2, Math.ceil(years.length * 0.6));
     var rows = [], hidden = 0;
     all.forEach(function(r, i){
-      r.__i = i;                                   // 원래 순번을 기억합니다
+      r.__i = i;
       var on = coFinSeries.some(function(x){ return x.finKey === 'fin||' + group + '|' + r.name; });
       if (coFsAll || on || filled(r) >= need) rows.push(r);
       else hidden++;
@@ -2413,25 +4666,42 @@ async function renderCoStatement(group){
       + years.map(function(y){ return '<th class="num">' + esc(y.label) + '</th>'; }).join('')
       + '</tr></thead><tbody>'
       + rows.map(function(r){
-          var on = coFinSeries.some(function(x){ return x.finKey === 'fin||' + group + '|' + r.name; });
-          return '<tr class="fs-row' + (on ? ' on' : '') + '" '
+          var on  = coFinSeries.some(function(x){ return x.finKey === 'fin||' + group + '|' + r.name; });
+          var lvl = Math.max(0, Math.min(2, Number(r.depth) || 0));
+          //  마지막 값이 음수인 소계는 띠 색을 바꿔 한눈에 구분되게 합니다
+          var lastV = null;
+          for (var k = years.length - 1; k >= 0; k--){
+            if (r.values[years[k].key] != null){ lastV = Number(r.values[years[k].key]); break; }
+          }
+          var cls = 'fs-row lvl' + lvl
+                  + (r.emphasis ? ' sub' : '')
+                  + (r.emphasis && lastV != null && lastV < 0 ? ' neg' : '')
+                  + (on ? ' on' : '');
+          return '<tr class="' + cls + '" '
             + 'onclick="toggleFinSeries(\'' + esc(group) + '\',' + r.__i + ')">'
-            + '<td><b>' + esc(r.name) + '</b></td>'
+            + '<td>' + esc(r.name) + '</td>'
             + years.map(function(y, k){
                 var v = r.values[y.key];
                 var prev = k > 0 ? r.values[years[k-1].key] : null;
-                var txt = v == null ? '<span style="color:var(--border)">—</span>'
-                                    : (r.per_share ? num(v, 2) : num(v / u.div, u.dp));
-                var dd = (v != null && prev != null && !r.per_share)
-                  ? dlt(Number(v), Number(prev), 'pct') : '';
-                return '<td class="num"><span class="co-num">' + txt + dd + '</span></td>';
+                if (v == null)
+                  return '<td class="num"><span class="fs-num" style="color:var(--border)">—</span></td>';
+                var txt = r.per_share ? num(v, 2) : num(v / u.div, u.dp);
+                var dd = '';
+                if (prev != null && !r.per_share && Number(prev) !== 0){
+                  var g = (Number(v) / Math.abs(Number(prev)) - 1) * 100;
+                  if (isFinite(g)){
+                    var gc = Math.abs(g) < 0.05 ? 'flat' : (g > 0 ? 'up' : 'dn');
+                    dd = '<span class="fs-dlt ' + gc + '">'
+                       + (Math.abs(g) < 0.05 ? '–' : (g > 0 ? '+' : '') + num(g, 1) + '%') + '</span>';
+                  }
+                }
+                return '<td class="num"><span class="fs-num">' + txt + '</span>' + dd + '</td>';
               }).join('')
             + '</tr>';
         }).join('')
       + '</tbody>';
 
-    $('coFinUnit').textContent = '단위: ' + u.label
-      + (d.basis ? ' · ' + d.basis : '');
+    $('coFinUnit').textContent = '단위: ' + u.label + (d.basis ? ' · ' + d.basis : '');
 
     if (hidden || coFsAll){
       warn('coFsWarn', coFsAll
@@ -2590,7 +4860,7 @@ async function resolveSym(mk, q, cb){
     cb(mk === 'US' ? q.toUpperCase() : q, q.toUpperCase()); return;
   }
   try {
-    var r = await sb.rpc('company_search', { p_q: q });
+    var r = await sb.rpc('company_search', { q: q });
     var hit = (r.data || []).filter(function(h){ return h.market === mk; })[0];
     if (hit) return cb(hit.code, hit.name + ' (' + hit.code + ')');
   } catch(e){ /* 검색이 안 되면 입력값 그대로 */ }
@@ -2618,6 +4888,34 @@ function fillCoFinIndSel(){
     html += '</optgroup>';
   });
   sel.innerHTML = html;
+}
+
+/* 자주 쓰는 세 계정을 한 번에 담습니다 */
+async function coFinPreset(){
+  if (!co){ warn('coFinWarn','먼저 기업을 선택해주세요.'); return; }
+  var want = ['매출액', '영업이익', '당기순이익'];
+  try {
+    var d = await loadCoFull();
+    var list = (d.statements || {})['손익계산서'] || [];
+    var added = 0;
+    want.forEach(function(nm){
+      var i = -1;
+      list.forEach(function(r, k){
+        if (i < 0 && String(r.name).replace(/\s+/g,'').indexOf(nm) === 0) i = k;
+      });
+      if (i < 0) return;
+      var key = 'fin||손익계산서|' + list[i].name;
+      if (coFinSeries.some(function(x){ return x.finKey === key; })) return;
+      toggleFinSeries('손익계산서', i); added++;
+    });
+    warn('coFinWarn', added ? '' : '손익계산서에서 해당 계정을 찾지 못했습니다.');
+  } catch(e){ warn('coFinWarn', esc(e.message)); }
+}
+function coFinClear(){
+  coFinSeries = [];
+  renderCoFinSeriesList(); renderCoFinChart();
+  if (coFsTab && coFsTab !== 'summary') renderCoStatement(coFsTab);
+  warn('coFinWarn','');
 }
 
 function removeCoFinSeries(i){
@@ -2696,24 +4994,26 @@ function coChartRows(){
 function renderCoFinChart(){
   if (typeof echarts === 'undefined') return;
   var rows = coChartRows();
-  if (!rows.length) return;
-  var hasSummary = !!(coFin && coFin.length);
-  if (!hasSummary && !coFinSeries.length) return;
   if (!coFinChart) coFinChart = echarts.init($('coFinBox'));
+
+  //  아무것도 안 얹었으면 빈 차트에 안내만 띄웁니다
+  if (!rows.length || !coFinSeries.length){
+    coFinChart.clear();
+    coFinChart.setOption({ backgroundColor: theme.bg,
+      title:{ left:'center', top:'44%',
+        text:'아래 재무제표에서 계정을 클릭하면 여기에 그려집니다',
+        subtext:'주가 · 경제지표도 위에서 더할 수 있습니다',
+        textStyle:{ fontSize:13.5, fontWeight:'normal', color: theme.text_color },
+        subtextStyle:{ fontSize:12, color:'#8b93a7' } } }, true);
+    $('coFinUnit').textContent = '';
+    return;
+  }
   var u = coUnit();
   var yrs = rows.map(coLabel);
   var pal = theme.palette;
-  var series = !hasSummary ? [] : [
-    { name:'매출액',     type:'bar',  data: rows.map(function(r){ return r.revenue == null ? null : r.revenue/u.div; }),
-      itemStyle:{ color: pal[0] }, barMaxWidth: 34 },
-    { name:'영업이익',   type:'bar',  data: rows.map(function(r){ return r.op == null ? null : r.op/u.div; }),
-      itemStyle:{ color: pal[1] }, barMaxWidth: 34 },
-    { name:'당기순이익', type:'bar',  data: rows.map(function(r){ return r.net == null ? null : r.net/u.div; }),
-      itemStyle:{ color: pal[2] }, barMaxWidth: 34 },
-    { name:'영업이익률', type:'line', yAxisIndex:1, smooth:false,
-      data: rows.map(function(r){ var v = coRatio(r.op, r.revenue); return v == null ? null : Number(v.toFixed(2)); }),
-      lineStyle:{ color: pal[3], width:3 }, itemStyle:{ color: pal[3] }, symbolSize:7 }
-  ];
+  //  기본으로 얹는 계열은 없습니다 — 아래 재무제표에서 원하는 계정만 골라 담습니다.
+  //  그래야 화면을 그대로 캡처해서 리포트에 쓸 수 있습니다.
+  var series = [];
 
   /* 사용자가 얹은 재무 계정 · 주가 · 경제지표 */
   var useThird = false;
@@ -2732,6 +5032,7 @@ function renderCoFinChart(){
     }
   });
 
+  var usePct = coFinSeries.some(function(x){ return x.axis === 1; });
   var thirdName = (function(){
     var p = coFinSeries.filter(function(x){ return x.axis === 2 && x.kind === 'price'; })[0];
     if (p) return /quote_kr/.test(p.source) ? '원' : '$';
@@ -2742,7 +5043,7 @@ function renderCoFinChart(){
   coFinChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:70, right: useThird ? 128 : 62, top:52, bottom:40 },
+    grid:{ left:70, right: (useThird ? 128 : (usePct ? 62 : 26)), top:52, bottom:40 },
     legend:{ top:8, type:'scroll', textStyle:{ color: theme.text_color, fontSize:12 } },
     tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' },
       valueFormatter:function(v){ return v == null ? '-' : num(v, 1); } },
@@ -2753,7 +5054,8 @@ function renderCoFinChart(){
         axisLine:{ show:true, lineStyle:{ color: theme.axis_left } },
         axisLabel:{ color: theme.axis_left, fontSize:11 },
         splitLine: coSplit() },
-      { type:'value', name:'%', nameTextStyle:{ color: theme.axis_right, fontSize:11 },
+      { type:'value', name:'%', show: usePct, scale:true,
+        nameTextStyle:{ color: theme.axis_right, fontSize:11 },
         position:'right', axisLine:{ show:true, lineStyle:{ color: theme.axis_right } },
         axisLabel:{ color: theme.axis_right, fontSize:11, formatter:'{value}%' },
         splitLine:{ show:false } },
@@ -3224,7 +5526,8 @@ function renderSummary(){
   var fx = Number(tstate.fx || 0);
   if (hasUS && !(fx > 0)){
     warn('tradingWarn', '⚠️ 원/달러 환율을 아직 불러오지 못해 미국 주식 평가액이 정확하지 않습니다. '
-       + '경제지표 탭에서 "원/달러 환율"을 한 번 조회하면 자동으로 반영됩니다.');
+       + '<b>홈</b> 탭을 한 번 열면 자동으로 채워집니다. '
+       + '(그래도 안 되면 임원진이 설정 탭에서 고정 환율을 넣어주세요)');
   } else if (hasUS){
     warn('tradingWarn', '미국 주식은 ' + num(fx,0) + '원/달러 기준으로 환산했습니다.'
        + (fxFixed ? ' (학회 고정 환율)' : ''), 'info');
@@ -4162,7 +6465,9 @@ function errMsg(error){
   if (/row-level security|permission denied|violates row/i.test(m)) return '권한이 없습니다. 임원진에게 문의하거나 다시 로그인해주세요.';
   if (/JWT|expired/i.test(m)) return '로그인이 만료되었습니다. 다시 로그인해주세요.';
   if (/Failed to fetch|NetworkError/i.test(m)) return '서버에 연결할 수 없습니다. Supabase 프로젝트가 일시정지되었는지 확인해주세요.';
-  if (/does not exist|relation|function/i.test(m)) return '필요한 SQL 파일을 아직 실행하지 않았습니다. (phase0 → phase2 → phase3 순서)';
+  if (/does not exist|relation|function/i.test(m))
+    return '필요한 SQL 을 아직 실행하지 않았습니다. Supabase SQL 편집기에서 '
+         + 'terminal-점검.sql 을 돌리면 무엇이 빠졌는지 알려줍니다.';
   if (/duplicate/i.test(m)) return '이미 등록된 항목입니다.';
   return m;
 }
