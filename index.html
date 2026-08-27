@@ -1391,7 +1391,16 @@
         <h2>종목 · 만기</h2>
         <div class="mode-seg" id="dvSeg" style="margin-bottom:12px">
           <button id="dvM-crypto" class="on" onclick="dvMarket('crypto')">코인 옵션 · 무료</button>
-          <button id="dvM-stock" onclick="dvMarket('stock')">미국 주식 옵션 · 유료</button>
+          <button id="dvM-stock" onclick="dvMarket('stock')">미국 주식 옵션</button>
+        </div>
+        <div class="row hidden" id="dvProvRow">
+          <label>자료 창구</label>
+          <select id="dvProv" onchange="dvSetProv()" style="width:250px">
+            <option value="">자동 (쓸 수 있는 쪽)</option>
+            <option value="alpaca">Alpaca — 무료</option>
+            <option value="md">MarketData.app</option>
+          </select>
+          <span class="st-hint" id="dvProvHint"></span>
         </div>
         <div class="row" id="dvCryptoRow">
           <label>기초자산</label>
@@ -2958,6 +2967,8 @@ function renderProfile(d){
 var dv = null, dvMkt = 'crypto', dvIvChart = null, dvOiChart = null, dvGkChart = null;
 var dvMapChart = null, dvTermChart = null, dvPayChart = null;
 var dvHist = null, dvTerm = null, dvLevels = null;
+var dvStatus = null;                 // 어떤 옵션 창구를 쓸 수 있나
+var dvProvSel = '';                  // 학회원이 고른 창구
 
 //  옵션이 활발한 미국 종목들 — 학회원이 티커를 몰라도 바로 눌러볼 수 있게
 var DV_QUICK = [
@@ -2982,6 +2993,8 @@ function dvMarket(k){
   $('dvCryptoRow').classList.toggle('hidden', !isCrypto);
   $('dvStockRow').classList.toggle('hidden', isCrypto);
   $('dvQuickRow').classList.toggle('hidden', isCrypto);
+  $('dvProvRow').classList.toggle('hidden', isCrypto);
+  if (!isCrypto) dvLoadStatus();
   $('dvHitsRow').classList.add('hidden');
   if (!isCrypto && !$('dvQuick').innerHTML){
     $('dvQuick').innerHTML = DV_QUICK.map(function(x){
@@ -2990,12 +3003,12 @@ function dvMarket(k){
   }
   //  코인은 한 번에 전체 체인이 오므로 행사가 범위를 고를 이유가 없습니다
   $('dvStrikeWrap').style.display = isCrypto ? 'none' : 'flex';
-  $('dvCost').innerHTML = (k === 'crypto')
-    ? 'Deribit 공개 자료라 <b>돈도 키도 들지 않습니다.</b> 한 번에 전체 체인이 오고, '
-      + '그릭스는 내재변동성으로 <b>블랙-숄즈에서 직접 계산</b>합니다.'
-    : '옵션은 <b>계약 하나당 1크레딧</b>이 나갑니다 (하루 10,000). 넓게 받을수록 빨리 닳으니 '
-      + '필요한 만기 하나만 보세요. 얼마나 썼는지는 아래에 표시됩니다. '
-      + '<b>MARKETDATA_API_KEY</b> 가 있어야 동작합니다.';
+  if (k === 'crypto'){
+    $('dvCost').innerHTML = 'Deribit 공개 자료라 <b>돈도 키도 들지 않습니다.</b> '
+      + '한 번에 전체 체인이 오고, 그릭스는 내재변동성으로 <b>블랙-숄즈에서 직접 계산</b>합니다.';
+  } else {
+    dvProvHint();
+  }
   $('dvBody').classList.add('hidden');
   if ($('dvIntro')) $('dvIntro').classList.remove('hidden');
   warn('dvWarn','');
@@ -3024,7 +3037,7 @@ async function dvLoadExp(){
   if (!sym){ warn('dvWarn','티커를 입력해주세요.'); return; }
   warn('dvWarn','만기를 불러오는 중…','info');
   try {
-    var d = await edge({ source:'opt_expirations', code: sym });
+    var d = await edge({ source:'opt_expirations', code: sym, provider: dvProvSel });
     var ex = d.expirations || [];
     if (!ex.length){ warn('dvWarn','이 종목은 옵션이 없거나 만기를 찾지 못했습니다.'); return; }
     $('dvExp').innerHTML = ex.map(function(x){
@@ -3047,7 +3060,7 @@ async function dvLoadChain(){
   warn('dvWarn','옵션을 불러오는 중…','info');
   try {
     var d = await edge({ source:'opt_chain', code: sym, expiration: exp,
-                         strikes: Number($('dvStrikes').value) });
+                         strikes: Number($('dvStrikes').value), provider: dvProvSel });
     if (!d.rows || !d.rows.length){
       warn('dvWarn', esc(d.note || '자료가 없습니다.')); return;
     }
@@ -3178,6 +3191,68 @@ async function dvRender(){
   }
 }
 
+
+
+/* ── 옵션 자료 창구 ────────────────────────────
+     무료 · 유료 창구가 섞여 있어서, 지금 무엇을 쓸 수 있는지
+     화면에 그대로 적어둡니다. 키가 없으면 어디서 받는지까지. */
+var DV_PROV = {
+  alpaca: { n:'Alpaca', free:true,
+    d:'가입만 하면 <b>무료</b>입니다. 분당 200회까지 되고 내재변동성·그릭스를 함께 줍니다. '
+      + '대신 호가가 지연·보정된 값이고, <b>미결제약정은 하루 늦게</b> 반영되며 거래량은 없습니다.' },
+  md: { n:'MarketData.app', free:false,
+    d:'계약 하나당 1크레딧이 나갑니다. <b>무료 등급은 하루 100계약 · 24시간 지연</b>이라 '
+      + '체인 한 번이면 거의 다 씁니다. 유료(연 결제 월 $12)면 하루 10,000계약 · 15분 지연입니다.' }
+};
+
+async function dvLoadStatus(){
+  if (dvStatus){ dvProvHint(); return; }
+  try { dvStatus = await edge({ source:'opt_status' }); }
+  catch(e){ dvStatus = { marketdata:false, alpaca:false }; }
+  //  쓸 수 있는 것만 고를 수 있게 합니다
+  var sel = $('dvProv');
+  Array.prototype.forEach.call(sel.options, function(o){
+    if (o.value === 'alpaca') o.disabled = !dvStatus.alpaca;
+    if (o.value === 'md')     o.disabled = !dvStatus.marketdata;
+  });
+  if (!dvProvSel){
+    if (dvStatus.alpaca) sel.value = 'alpaca';
+    else if (dvStatus.marketdata) sel.value = 'md';
+    else sel.value = '';
+    dvProvSel = sel.value;
+  }
+  dvProvHint();
+}
+
+function dvSetProv(){
+  dvProvSel = $('dvProv').value;
+  dv = null; dvTerm = null; dvHist = null;
+  $('dvBody').classList.add('hidden');
+  if ($('dvIntro')) $('dvIntro').classList.remove('hidden');
+  dvProvHint();
+}
+
+function dvProvHint(){
+  var st = dvStatus || {};
+  var use = dvProvSel || (st.alpaca ? 'alpaca' : (st.marketdata ? 'md' : ''));
+  var box = $('dvCost');
+  if (!use){
+    $('dvProvHint').textContent = '';
+    box.innerHTML = '<b>아직 창구가 없습니다.</b> 무료로 쓰려면 '
+      + '<b>alpaca.markets</b> 에 가입해 키를 받아 Secrets 에 '
+      + '<b>ALPACA_KEY_ID</b> · <b>ALPACA_SECRET_KEY</b> 로 넣어주세요. '
+      + 'marketdata.app 무료 키(<b>MARKETDATA_API_KEY</b>)도 됩니다 — 하루 100계약 · 24시간 지연. '
+      + '<br>그 전에도 <b>코인 옵션</b>은 키 없이 바로 볼 수 있습니다.';
+    return;
+  }
+  var p = DV_PROV[use];
+  $('dvProvHint').innerHTML = p.free ? '무료' : '';
+  var others = [];
+  if (use !== 'alpaca' && !st.alpaca) others.push('Alpaca 키를 넣으면 무료로 넉넉히 쓸 수 있습니다');
+  if (use !== 'md' && !st.marketdata) others.push('MarketData.app 무료 키도 넣어둘 수 있습니다');
+  box.innerHTML = '<b>' + esc(p.n) + '</b> — ' + p.d
+    + (others.length ? '<br><span style="color:var(--text-sub)">' + esc(others.join(' · ')) + '</span>' : '');
+}
 
 /* ── 회사 이름으로 찾기 ─────────────────────── */
 async function dvFind(){
@@ -3402,11 +3477,14 @@ async function dvLoadTerm(){
   if (!dates.length){ warn('dvWarn','만기 목록이 없습니다.'); return; }
   $('dvTermBtn').textContent = '받는 중…';
   try {
-    dvTerm = await edge({ source:'opt_term', code: dv.symbol, dates: dates });
+    dvTerm = await edge({ source:'opt_term', code: dv.symbol, dates: dates,
+                          provider: dvProvSel });
     dvDrawTerm();
     if (dvTerm && dvTerm.credits)
       $('dvCost').innerHTML = '만기별 IV 로 <b>' + num(dvTerm.credits, 0) + '크레딧</b>을 썼습니다. '
         + '(만기마다 행사가 1개씩만 받아서 체인 한 번보다 훨씬 적습니다)';
+    else if (dvTerm && dvTerm.provider === 'alpaca')
+      $('dvCost').innerHTML = '만기별 IV 를 받았습니다. <b>Alpaca 는 크레딧이 들지 않습니다.</b>';
   } catch(e){ warn('dvWarn', esc(e.message)); }
   $('dvTermBtn').textContent = '다시 받기';
 }
