@@ -289,6 +289,14 @@
   .cal-ev.up{background:rgba(192,57,43,.10);color:var(--up);font-weight:600;border-color:transparent}
   .cal-ev.dn{background:rgba(27,95,168,.10);color:var(--down);font-weight:600;border-color:transparent}
   .cal-more{font-size:10px;color:var(--text-sub)}
+  .fs-caret{width:16px;height:16px;line-height:1;padding:0;margin-right:5px;border:0;
+    background:transparent;color:var(--text-sub);cursor:pointer;font-size:11px;
+    transform:rotate(0deg);transition:transform .12s;display:inline-block;vertical-align:1px}
+  .fs-caret.open{transform:rotate(90deg);color:var(--primary)}
+  .fs-caret:hover{color:var(--primary)}
+  .fs-kids{font-size:10px;color:var(--text-sub);margin-right:5px}
+  .fs-nm{vertical-align:middle}
+  .fs-num.calc{border-bottom:1px dotted var(--text-sub);cursor:help}
   .cal-key{display:inline-block;font-size:10.5px;padding:1px 6px;border-radius:3px;
     margin-right:4px;background:var(--bg);color:var(--text-sub);border:1px solid var(--border)}
   .cal-key.up{background:rgba(192,57,43,.10);color:var(--up);border-color:transparent}
@@ -343,7 +351,10 @@
   .dt-nm{max-width:340px;overflow:hidden;text-overflow:ellipsis}
   .dt-nm.lv0{font-weight:600}
   td.pos{color:var(--up);font-weight:600} td.neg{color:var(--down);font-weight:600}
-  .dt-read{margin-top:12px;padding:13px 15px;border-radius:8px;background:var(--bg);
+  .dt-sub{display:flex;align-items:center;gap:10px;margin:18px 0 2px;
+    padding-top:14px;border-top:1px solid var(--border)}
+  .dt-sub b{font-size:12.5px;color:var(--text-sub);flex:1}
+  .dt-read{margin-top:18px;padding:13px 15px;border-radius:8px;background:var(--bg);
     border:1px solid var(--border);
     font-size:12.5px;line-height:1.8}
   .dt-read b{color:var(--text)}
@@ -766,6 +777,11 @@
                   <option value="idx">지수화 (시작=100)</option>
                   <option value="raw">원래 값</option>
                 </select>
+                <label style="min-width:auto">모양</label>
+                <select id="dtShape" onchange="dtDraw()" style="width:96px">
+                  <option value="bar" selected>막대</option>
+                  <option value="line">선</option>
+                </select>
                 <label style="min-width:auto">기간</label>
                 <select id="dtRange" onchange="dtDraw()" style="width:130px">
                   <option value="1">최근 1년</option>
@@ -775,10 +791,13 @@
                 </select>
                 <span class="st-hint" id="dtStatus"></span>
               </div>
-              <div id="dtChartBox" style="height:340px"></div>
-              <div id="dtBarBox" style="height:0"></div>
-              <div id="dtBarTools" class="hidden" style="text-align:right;margin-top:-6px">
-                <button class="btn-sm" onclick="dtJpg('bar')">막대 JPG</button>
+              <div id="dtChartBox" style="height:360px;margin-top:6px"></div>
+              <div id="dtBarWrap" class="hidden">
+                <div class="dt-sub">
+                  <b>전년 대비 변화율</b>
+                  <button class="btn-sm" onclick="dtJpg('bar')">JPG</button>
+                </div>
+                <div id="dtBarBox" style="height:0"></div>
               </div>
               <div id="dtRead" class="dt-read"></div>
             </div>
@@ -1390,14 +1409,14 @@
       <div class="card">
         <h2>종목 · 만기</h2>
         <div class="mode-seg" id="dvSeg" style="margin-bottom:12px">
-          <button id="dvM-crypto" class="on" onclick="dvMarket('crypto')">코인 옵션 · 무료</button>
-          <button id="dvM-stock" onclick="dvMarket('stock')">미국 주식 옵션</button>
+          <button id="dvM-stock" class="on" onclick="dvMarket('stock')">미국 주식 옵션</button>
+          <button id="dvM-crypto" onclick="dvMarket('crypto')">코인 옵션</button>
         </div>
         <div class="row hidden" id="dvProvRow">
           <label>자료 창구</label>
           <select id="dvProv" onchange="dvSetProv()" style="width:250px">
             <option value="">자동 (쓸 수 있는 쪽)</option>
-            <option value="alpaca">Alpaca — 무료</option>
+            <option value="alpaca">Alpaca</option>
             <option value="md">MarketData.app</option>
           </select>
           <span class="st-hint" id="dvProvHint"></span>
@@ -1408,6 +1427,7 @@
             <option value="BTC">비트코인 (BTC)</option>
             <option value="ETH">이더리움 (ETH)</option>
           </select>
+          <span class="st-hint" id="dvCurNote"></span>
           <button class="btn-sm btn-solid" onclick="dvLoadCrypto()">불러오기</button>
         </div>
         <div class="row hidden" id="dvStockRow">
@@ -1453,8 +1473,8 @@
             <div class="d">숫자가 무슨 뜻인지 맨 아래에 문장으로</div></div>
         </div>
         <p class="st-hint" style="margin-top:12px">
-          처음이라면 <b>코인 옵션</b>으로 시작하세요 — 공짜이고 전체 체인이 한 번에 옵니다.
-          미국 주식 옵션은 계약 수만큼 크레딧이 나갑니다.</p>
+          <b>코인 옵션</b>은 키 없이 바로 되고 전체 체인이 한 번에 옵니다 —
+          처음 배울 때 연습하기 좋습니다.</p>
       </div>
 
       <div id="dvBody" class="hidden">
@@ -2102,33 +2122,44 @@ async function dtRun(){
   if (need.length){
     $('dtStatus').textContent = '불러오는 중… (0/' + need.length + ')';
     var done = 0;
-    await Promise.all(need.map(async function(k){
-      var x = dtPick[k];
-      try {
-        var d = await edge({ source: x.kind === 'ecos' ? 'ecos' : 'fred',
-                             code: x.code, item_code: x.item || '',
-                             cycle: x.cycle || 'M', start: start });
-        dtSeries[k] = { start:start, points:(d.points || []), name:x.name,
-                        unit:x.unit || (d.unit || ''), note:d.note || null };
-      } catch(e){
-        dtSeries[k] = { start:start, points:[], name:x.name, err:e.message };
-      }
-      done++;
-      $('dtStatus').textContent = '불러오는 중… (' + done + '/' + need.length + ')';
-    }));
+    //  FRED 는 분당 횟수 제한이 있어서, 한꺼번에 다 부르면 뒤쪽이 거절당합니다.
+    //  거절당하면 그 항목은 선이 아예 안 그려집니다 — 두 개씩 나눠 부릅니다.
+    for (var ci = 0; ci < need.length; ci += 2){
+      await Promise.all(need.slice(ci, ci + 2).map(async function(k){
+        var x = dtPick[k];
+        try {
+          var d = await edge({ source: x.kind === 'ecos' ? 'ecos' : 'fred',
+                               code: x.code, item_code: x.item || '',
+                               cycle: x.cycle || 'M', start: start });
+          dtSeries[k] = { start:start, points:(d.points || []), name:x.name,
+                          unit:x.unit || (d.unit || ''), note:d.note || null };
+        } catch(e){
+          dtSeries[k] = { start:start, points:[], name:x.name, err:e.message };
+        }
+        done++;
+        $('dtStatus').textContent = '불러오는 중… (' + done + '/' + need.length + ')';
+      }));
+    }
   }
   $('dtStatus').textContent = '';
 
   var notes = {};
   keys.forEach(function(k){ if (dtSeries[k] && dtSeries[k].note) notes[dtSeries[k].note] = 1; });
-  var nk = Object.keys(notes);
-  if (nk.length) warn('dtWarn', nk.map(esc).join('<br>'), 'info');
+  var nk = Object.keys(notes).map(esc);
 
   var bad = keys.filter(function(k){ return !dtSeries[k] || !dtSeries[k].points.length; });
-  if (bad.length && !nk.length)
-    warn('dtWarn', '값을 받지 못한 항목이 ' + bad.length + '개 있습니다 — '
-       + esc(bad.map(function(k){ return dtPick[k].name; }).slice(0, 3).join(', '))
-       + (bad.length > 3 ? ' 등' : '') + '. 그 항목은 해당 기간 자료가 없을 수 있습니다.', 'info');
+  if (bad.length){
+    var why = (dtSeries[bad[0]] && dtSeries[bad[0]].err) || '';
+    var line = '<b>' + bad.length + '개 항목의 선을 그리지 못했습니다</b> — '
+      + esc(bad.map(function(k){ return dtPick[k].name; }).slice(0, 3).join(', '))
+      + (bad.length > 3 ? ' 등' : '') + '. '
+      + (/너무 많이|429/.test(why)
+         ? 'FRED 가 잠시 요청을 막았습니다. <b>몇 초 뒤 다시 눌러주세요.</b>'
+         : '해당 기간에 자료가 없거나 발표가 끊긴 항목일 수 있습니다.')
+      + (why ? ' <span class="st-hint">(' + esc(why) + ')</span>' : '');
+    nk.push(line);
+  }
+  if (nk.length) warn('dtWarn', nk.join('<br>'), 'info'); else warn('dtWarn','');
 
   dtDraw();
 }
@@ -2166,6 +2197,7 @@ function dtDraw(){
   var keys = Object.keys(dtPick);
   if (!keys.length) return;
   var mode = $('dtMode').value, yrs = Number($('dtRange').value) || 3;
+  var shape = ($('dtShape') && $('dtShape').value) || 'bar';
   var pal = (theme && theme.palette) || DEFAULT_THEME.palette;
 
   var rows = keys.map(function(k, i){
@@ -2190,6 +2222,7 @@ function dtDraw(){
     legend:{ top:4, type:'scroll', textStyle:{ fontSize:11 },
       data: rows.map(function(r){ return r.name; }) },
     tooltip:{ trigger:'axis', order:'valueDesc', textStyle:{ fontSize:11.5 },
+      axisPointer:{ type: shape === 'bar' ? 'shadow' : 'line' },
       valueFormatter:function(v){ return v == null ? '—' : Number(v).toFixed(2); } },
     xAxis:{ type:'category', data:axis,
       axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
@@ -2200,10 +2233,13 @@ function dtDraw(){
       axisLabel:{ color:'#77809a', fontSize:11 } },
     series: rows.map(function(r){
       var m = {}; r.pts.forEach(function(p){ m[p.d] = p.v; });
+      var data = axis.map(function(d){ return m[d] == null ? null : m[d]; });
+      if (shape === 'bar')
+        return { name:r.name, type:'bar', barMaxWidth:14, barGap:'10%',
+                 itemStyle:{ color:r.color }, data:data };
       return { name:r.name, type:'line', showSymbol:false, smooth:false, connectNulls:true,
-               lineStyle:{ width:2, color:r.color }, itemStyle:{ color:r.color },
-               data: axis.map(function(d){ return m[d] == null ? null : m[d]; }) };
-    }).concat(mode === 'yoy' || mode === 'mom'
+               lineStyle:{ width:2, color:r.color }, itemStyle:{ color:r.color }, data:data };
+    }).concat((mode === 'yoy' || mode === 'mom') && shape !== 'bar'
       ? [{ name:'0', type:'line', data:axis.map(function(){ return 0; }),
            showSymbol:false, silent:true, lineStyle:{ width:1, type:'dashed', color:'#aab' },
            tooltip:{ show:false }, legendHoverLink:false }]
@@ -2215,14 +2251,13 @@ function dtDraw(){
                  .sort(function(a, b){ return a.yoy - b.yoy; });
   var bb = $('dtBarBox');
   if (bars.length >= 2){
-    bb.style.height = Math.max(150, 34 + bars.length * 26) + 'px';
+    $('dtBarWrap').classList.remove('hidden');
+    bb.style.height = Math.max(120, 24 + bars.length * 28) + 'px';
     if (!dtBar) dtBar = echarts.init(bb);
     dtBar.resize();
     dtBar.setOption({
       backgroundColor: theme ? theme.bg : '#fff', animation:false,
-      grid:{ left:8, right:70, top:30, bottom:16, containLabel:true },
-      title:{ text:'전년 대비 변화율 (%)', left:0, top:2,
-              textStyle:{ fontSize:12, color:'#5a6278', fontWeight:600 } },
+      grid:{ left:8, right:78, top:12, bottom:12, containLabel:true },
       xAxis:{ type:'value', axisLabel:{ color:'#77809a', fontSize:11 },
         splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } } },
       yAxis:{ type:'category', data: bars.map(function(r){ return r.name; }),
@@ -2234,10 +2269,9 @@ function dtDraw(){
         label:{ show:true, position:'right', fontSize:11,
           formatter:function(a){ return (a.value >= 0 ? '+' : '') + Number(a.value).toFixed(1) + '%'; } } }]
     }, true);
-    $('dtBarTools').classList.remove('hidden');
   } else {
     bb.style.height = '0'; if (dtBar){ dtBar.dispose(); dtBar = null; }
-    $('dtBarTools').classList.add('hidden');
+    $('dtBarWrap').classList.add('hidden');
   }
 
   dtReadout(rows, mode);
@@ -2964,7 +2998,7 @@ function renderProfile(d){
 }
 
 /* ══════════ 파생상품 (옵션) ══════════ */
-var dv = null, dvMkt = 'crypto', dvIvChart = null, dvOiChart = null, dvGkChart = null;
+var dv = null, dvMkt = 'stock', dvIvChart = null, dvOiChart = null, dvGkChart = null;
 var dvMapChart = null, dvTermChart = null, dvPayChart = null;
 var dvHist = null, dvTerm = null, dvLevels = null;
 var dvStatus = null;                 // 어떤 옵션 창구를 쓸 수 있나
@@ -2994,7 +3028,7 @@ function dvMarket(k){
   $('dvStockRow').classList.toggle('hidden', isCrypto);
   $('dvQuickRow').classList.toggle('hidden', isCrypto);
   $('dvProvRow').classList.toggle('hidden', isCrypto);
-  if (!isCrypto) dvLoadStatus();
+  if (!isCrypto) dvLoadStatus(); else dvLoadCoins();
   $('dvHitsRow').classList.add('hidden');
   if (!isCrypto && !$('dvQuick').innerHTML){
     $('dvQuick').innerHTML = DV_QUICK.map(function(x){
@@ -3004,7 +3038,7 @@ function dvMarket(k){
   //  코인은 한 번에 전체 체인이 오므로 행사가 범위를 고를 이유가 없습니다
   $('dvStrikeWrap').style.display = isCrypto ? 'none' : 'flex';
   if (k === 'crypto'){
-    $('dvCost').innerHTML = 'Deribit 공개 자료라 <b>돈도 키도 들지 않습니다.</b> '
+    $('dvCost').innerHTML = 'Deribit 공개 자료라 <b>키가 필요 없습니다.</b> '
       + '한 번에 전체 체인이 오고, 그릭스는 내재변동성으로 <b>블랙-숄즈에서 직접 계산</b>합니다.';
   } else {
     dvProvHint();
@@ -3012,6 +3046,26 @@ function dvMarket(k){
   $('dvBody').classList.add('hidden');
   if ($('dvIntro')) $('dvIntro').classList.remove('hidden');
   warn('dvWarn','');
+}
+
+/*  옵션이 열려 있는 코인 목록을 Deribit 에 물어봅니다.
+    붙박이로 BTC·ETH 만 적어두면, 그 뒤에 생긴 코인을 영영 못 씁니다.   */
+var dvCoins = null;
+async function dvLoadCoins(){
+  if (dvCoins) return dvCoins;
+  try {
+    var d = await edge({ source:'crypto_currencies' });
+    dvCoins = (d.currencies || []).filter(function(c){ return c.code; });
+  } catch(e){ dvCoins = null; }
+  if (!dvCoins || !dvCoins.length) return null;
+
+  var keep = $('dvCur').value;
+  $('dvCur').innerHTML = dvCoins.map(function(c){
+    return '<option value="' + esc(c.code) + '">' + esc(c.name)
+         + ' (' + esc(c.code) + ')</option>'; }).join('');
+  if (keep && dvCoins.some(function(c){ return c.code === keep; })) $('dvCur').value = keep;
+  $('dvCurNote').textContent = dvCoins.length + '개 코인';
+  return dvCoins;
 }
 
 async function dvLoadCrypto(){
@@ -3124,6 +3178,7 @@ async function dvRender(){
     ? spot * atmIv * Math.sqrt(dte / 365) : null;
 
   $('dvAsOf').textContent = dv.symbol + ' · ' + dv.expiration + ' 만기 · ' + dte + '일 남음 · '
+    + (dv.settle ? dv.settle + ' · ' : '')
     + (dv.greeks_computed ? '계약 ' + dv.rows.length + '개 · 그릭스 직접 계산'
                           : '계약 ' + (dv.credits || 0) + '개 조회');
 
@@ -3197,12 +3252,13 @@ async function dvRender(){
      무료 · 유료 창구가 섞여 있어서, 지금 무엇을 쓸 수 있는지
      화면에 그대로 적어둡니다. 키가 없으면 어디서 받는지까지. */
 var DV_PROV = {
-  alpaca: { n:'Alpaca', free:true,
-    d:'가입만 하면 <b>무료</b>입니다. 분당 200회까지 되고 내재변동성·그릭스를 함께 줍니다. '
-      + '대신 호가가 지연·보정된 값이고, <b>미결제약정은 하루 늦게</b> 반영되며 거래량은 없습니다.' },
-  md: { n:'MarketData.app', free:false,
-    d:'계약 하나당 1크레딧이 나갑니다. <b>무료 등급은 하루 100계약 · 24시간 지연</b>이라 '
-      + '체인 한 번이면 거의 다 씁니다. 유료(연 결제 월 $12)면 하루 10,000계약 · 15분 지연입니다.' }
+  alpaca: { n:'Alpaca',
+    d:'분당 200회까지 부를 수 있고 내재변동성·그릭스를 함께 줍니다. '
+      + '호가는 지연·보정된 값이고, <b>미결제약정은 하루 늦게</b> 반영되며 거래량은 없습니다. '
+      + '학회원 여럿이 동시에 봐도 넉넉합니다.' },
+  md: { n:'MarketData.app',
+    d:'계약 하나당 1크레딧이 나갑니다. 기본 등급은 하루 100계약 · 24시간 지연이라 '
+      + '체인 한 번이면 거의 다 씁니다. 상위 등급이면 하루 10,000계약 · 15분 지연입니다.' }
 };
 
 async function dvLoadStatus(){
@@ -3238,18 +3294,18 @@ function dvProvHint(){
   var box = $('dvCost');
   if (!use){
     $('dvProvHint').textContent = '';
-    box.innerHTML = '<b>아직 창구가 없습니다.</b> 무료로 쓰려면 '
+    box.innerHTML = '<b>아직 창구가 없습니다.</b> '
       + '<b>alpaca.markets</b> 에 가입해 키를 받아 Secrets 에 '
       + '<b>ALPACA_KEY_ID</b> · <b>ALPACA_SECRET_KEY</b> 로 넣어주세요. '
-      + 'marketdata.app 무료 키(<b>MARKETDATA_API_KEY</b>)도 됩니다 — 하루 100계약 · 24시간 지연. '
+      + 'marketdata.app 키(<b>MARKETDATA_API_KEY</b>)도 됩니다 — 하루 100계약 · 24시간 지연. '
       + '<br>그 전에도 <b>코인 옵션</b>은 키 없이 바로 볼 수 있습니다.';
     return;
   }
   var p = DV_PROV[use];
-  $('dvProvHint').innerHTML = p.free ? '무료' : '';
+  $('dvProvHint').innerHTML = '';
   var others = [];
-  if (use !== 'alpaca' && !st.alpaca) others.push('Alpaca 키를 넣으면 무료로 넉넉히 쓸 수 있습니다');
-  if (use !== 'md' && !st.marketdata) others.push('MarketData.app 무료 키도 넣어둘 수 있습니다');
+  if (use !== 'alpaca' && !st.alpaca) others.push('Alpaca 키를 넣으면 훨씬 넉넉하게 쓸 수 있습니다');
+  if (use !== 'md' && !st.marketdata) others.push('MarketData.app 키도 넣어둘 수 있습니다');
   box.innerHTML = '<b>' + esc(p.n) + '</b> — ' + p.d
     + (others.length ? '<br><span style="color:var(--text-sub)">' + esc(others.join(' · ')) + '</span>' : '');
 }
@@ -4785,6 +4841,44 @@ function coFullPeriods(d){
 var coFsAll = false;
 function coFsToggleAll(){ coFsAll = !coFsAll; renderCoStatement(coFsTab); }
 
+/*  재무제표 표 — 세 장(손익·재무상태·현금흐름) 모두 같은 규칙으로 그립니다.
+
+      · 총계·소계는 0단, 그 아래 항목은 1·2단으로 들여씁니다.
+      · 0단 줄 앞의 ▸ 를 누르면 그 아래 항목이 접혔다 펴집니다.
+      · 계정 이름을 누르면 위 실적 추이 차트에 올라갑니다.
+      · 회사가 직접 내지 않아 계산으로 채운 값은 점선 밑줄로 표시합니다.     */
+var coFsOpen = {};          //  펼쳐둔 묶음  { '손익계산서|매출총이익': true }
+
+function coFsGroupKey(group, name){ return group + '|' + name; }
+
+/*  들여쓰기 깊이로 나무를 만듭니다.
+    자산총계(0) ▸ 유동자산(1) ▸ 현금성자산(2) … 처럼 몇 단이든 접힙니다.  */
+function coFsTree(rows){
+  var root = [], stack = [];
+  rows.forEach(function(r){
+    var lvl = Math.max(0, Math.min(3, Number(r.depth) || 0));
+    var node = { row:r, lvl:lvl, kids:[] };
+    while (stack.length && stack[stack.length-1].lvl >= lvl) stack.pop();
+    if (stack.length) stack[stack.length-1].kids.push(node);
+    else root.push(node);
+    stack.push(node);
+  });
+  return root;
+}
+
+//  접혀 있어도 '몇 줄이 숨어 있는지' 는 알려줍니다
+function coFsCount(node){
+  var n = node.kids.length;
+  node.kids.forEach(function(k){ n += coFsCount(k); });
+  return n;
+}
+
+function coFsToggleGroup(group, name){
+  var k = coFsGroupKey(group, name);
+  coFsOpen[k] = !coFsOpen[k];
+  renderCoStatement(group);
+}
+
 async function renderCoStatement(group){
   var tb = $('coFinTable');
   tb.innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
@@ -4804,66 +4898,102 @@ async function renderCoStatement(group){
       years.forEach(function(y){ if (r.values[y.key] != null) n++; });
       return n;
     }
+    function isOn(r){
+      return coFinSeries.some(function(x){ return x.finKey === 'fin||' + group + '|' + r.name; });
+    }
     var need = Math.max(2, Math.ceil(years.length * 0.6));
-    var rows = [], hidden = 0;
+
+    //  값이 거의 없는 줄은 접어둡니다 (차트에 올려둔 줄은 그대로)
+    var keep = [], hidden = 0;
     all.forEach(function(r, i){
       r.__i = i;
-      var on = coFinSeries.some(function(x){ return x.finKey === 'fin||' + group + '|' + r.name; });
-      if (coFsAll || on || filled(r) >= need) rows.push(r);
+      if (coFsAll || isOn(r) || filled(r) >= need) keep.push(r);
       else hidden++;
     });
 
+    var tree = coFsTree(keep);
     var u = coUnit();
-    tb.innerHTML =
-      '<thead><tr><th>계정 <span style="font-weight:400;color:var(--text-sub);font-size:11px">(클릭 → 차트)</span></th>'
-      + years.map(function(y){ return '<th class="num">' + esc(y.label) + '</th>'; }).join('')
-      + '</tr></thead><tbody>'
-      + rows.map(function(r){
-          var on  = coFinSeries.some(function(x){ return x.finKey === 'fin||' + group + '|' + r.name; });
-          var lvl = Math.max(0, Math.min(2, Number(r.depth) || 0));
-          //  마지막 값이 음수인 소계는 띠 색을 바꿔 한눈에 구분되게 합니다
-          var lastV = null;
-          for (var k = years.length - 1; k >= 0; k--){
-            if (r.values[years[k].key] != null){ lastV = Number(r.values[years[k].key]); break; }
+
+    function cells(r){
+      return years.map(function(y, k){
+        var v = r.values[y.key];
+        var prev = k > 0 ? r.values[years[k-1].key] : null;
+        if (v == null)
+          return '<td class="num"><span class="fs-num" style="color:var(--border)">—</span></td>';
+        var txt = r.per_share ? num(v, 2) : num(v / u.div, u.dp);
+        var made = r.derived && r.derived[y.key];
+        var dd = '';
+        if (prev != null && !r.per_share && Number(prev) !== 0){
+          var g = (Number(v) / Math.abs(Number(prev)) - 1) * 100;
+          if (isFinite(g)){
+            var gc = Math.abs(g) < 0.05 ? 'flat' : (g > 0 ? 'up' : 'dn');
+            dd = '<span class="fs-dlt ' + gc + '">'
+               + (Math.abs(g) < 0.05 ? '–' : (g > 0 ? '+' : '') + num(g, 1) + '%') + '</span>';
           }
-          var cls = 'fs-row lvl' + lvl
-                  + (r.emphasis ? ' sub' : '')
-                  + (r.emphasis && lastV != null && lastV < 0 ? ' neg' : '')
-                  + (on ? ' on' : '');
-          return '<tr class="' + cls + '" '
-            + 'onclick="toggleFinSeries(\'' + esc(group) + '\',' + r.__i + ')">'
-            + '<td>' + esc(r.name) + '</td>'
-            + years.map(function(y, k){
-                var v = r.values[y.key];
-                var prev = k > 0 ? r.values[years[k-1].key] : null;
-                if (v == null)
-                  return '<td class="num"><span class="fs-num" style="color:var(--border)">—</span></td>';
-                var txt = r.per_share ? num(v, 2) : num(v / u.div, u.dp);
-                var dd = '';
-                if (prev != null && !r.per_share && Number(prev) !== 0){
-                  var g = (Number(v) / Math.abs(Number(prev)) - 1) * 100;
-                  if (isFinite(g)){
-                    var gc = Math.abs(g) < 0.05 ? 'flat' : (g > 0 ? 'up' : 'dn');
-                    dd = '<span class="fs-dlt ' + gc + '">'
-                       + (Math.abs(g) < 0.05 ? '–' : (g > 0 ? '+' : '') + num(g, 1) + '%') + '</span>';
-                  }
-                }
-                return '<td class="num"><span class="fs-num">' + txt + '</span>' + dd + '</td>';
-              }).join('')
-            + '</tr>';
-        }).join('')
-      + '</tbody>';
+        }
+        return '<td class="num"><span class="fs-num' + (made ? ' calc' : '') + '"'
+             + (made ? ' title="회사가 직접 내지 않아 다른 계정에서 계산한 값입니다"' : '')
+             + '>' + txt + '</span>' + dd + '</td>';
+      }).join('');
+    }
+
+    function rowHtml(r, lvl, opts){
+      var on = isOn(r);
+      var lastV = null;
+      for (var k = years.length - 1; k >= 0; k--){
+        if (r.values[years[k].key] != null){ lastV = Number(r.values[years[k].key]); break; }
+      }
+      var cls = 'fs-row lvl' + lvl
+              + (r.emphasis ? ' sub' : '')
+              + (r.emphasis && lastV != null && lastV < 0 ? ' neg' : '')
+              + (on ? ' on' : '');
+      var caret = '';
+      if (opts && opts.kids > 0){
+        caret = '<button class="fs-caret' + (opts.open ? ' open' : '') + '" title="하위 항목 '
+              + (opts.open ? '접기' : '펴기') + '" '
+              + 'onclick="event.stopPropagation();coFsToggleGroup(\'' + esc(group) + '\',\''
+              + esc(String(r.name).replace(/'/g, "\\'")) + '\')">▸</button>'
+              + '<span class="fs-kids">' + opts.kids + '</span>';
+      }
+      return '<tr class="' + cls + '" onclick="toggleFinSeries(\'' + esc(group) + '\',' + r.__i + ')">'
+        + '<td>' + caret + '<span class="fs-nm">' + esc(r.name) + '</span></td>'
+        + cells(r) + '</tr>';
+    }
+
+    var body = '';
+    function walk(nodes){
+      nodes.forEach(function(node){
+        var kids = coFsCount(node);
+        var k = coFsGroupKey(group, node.row.name);
+        //  처음 열 때는 펼쳐 둡니다 — 접혀만 있으면 뭐가 있는지 모릅니다
+        if (kids && coFsOpen[k] === undefined) coFsOpen[k] = true;
+        var open = !!coFsOpen[k];
+        body += rowHtml(node.row, node.lvl, { kids: kids, open: open });
+        if (kids && open) walk(node.kids);
+      });
+    }
+    walk(tree);
+
+    tb.innerHTML =
+      '<thead><tr><th>계정 <span style="font-weight:400;color:var(--text-sub);font-size:11px">'
+      + '(클릭 → 차트 · ▸ 하위 항목)</span></th>'
+      + years.map(function(y){ return '<th class="num">' + esc(y.label) + '</th>'; }).join('')
+      + '</tr></thead><tbody>' + body + '</tbody>';
 
     $('coFinUnit').textContent = '단위: ' + u.label + (d.basis ? ' · ' + d.basis : '');
 
-    if (hidden || coFsAll){
-      warn('coFsWarn', coFsAll
-        ? '값이 드문 계정까지 모두 펼쳤습니다. '
-          + '<a href="#" onclick="coFsToggleAll();return false;"><b>다시 접기</b></a>'
-        : '해에 따라 값이 없는 계정 <b>' + hidden + '개</b>를 접어뒀습니다. '
-          + '(그 해에 해당 거래가 없으면 회사가 아예 적지 않습니다) '
-          + '<a href="#" onclick="coFsToggleAll();return false;"><b>모두 보기</b></a>', 'info');
-    }
+    var msg = [];
+    if (hidden && !coFsAll)
+      msg.push('해에 따라 값이 없는 계정 <b>' + hidden + '개</b>를 접어뒀습니다. '
+        + '(그 해에 해당 거래가 없으면 회사가 아예 적지 않습니다) '
+        + '<a href="#" onclick="coFsToggleAll();return false;"><b>모두 보기</b></a>');
+    if (coFsAll)
+      msg.push('값이 드문 계정까지 모두 펼쳤습니다. '
+        + '<a href="#" onclick="coFsToggleAll();return false;"><b>다시 접기</b></a>');
+    if (d.derived && d.derived.length)
+      msg.push('<span class="fs-num calc">점선</span> 이 그어진 값은 회사가 직접 내지 않아 '
+        + '다른 계정에서 계산한 것입니다 — ' + esc(d.derived.join(', ')) + '.');
+    warn('coFsWarn', msg.join('<br>'), 'info');
   } catch(e){
     tb.innerHTML = '';
     warn('coFsWarn', esc(e.message));
@@ -4885,9 +5015,11 @@ function toggleFinSeries(group, idx){
   }
   if (!Object.keys(r.values || {}).length){ warn('coFinWarn','그릴 값이 없습니다.'); return; }
 
+  //  재무 계정은 막대가 기본입니다 — 해마다 얼마였는지 크기를 견주는 그림이라
+  //  선보다 막대가 맞습니다. 주가·지표는 그대로 선으로 겹칩니다.
   var ok = addCoFinX({ kind:'fin', finKey:finKey, group:group, code:r.name,
                        label: r.name, values: r.values, per_share: !!r.per_share,
-                       axis: r.per_share ? 2 : 0, type:'line' });
+                       axis: r.per_share ? 2 : 0, type:'bar' });
   if (!ok) return;
   renderCoFinChart(); renderCoStatement(group);
   warn('coFinWarn', '"' + esc(r.name) + '" 을(를) 위 <b>실적 추이</b> 차트에 올렸습니다.', 'info');
