@@ -267,6 +267,39 @@
   .tile .v{font-size:1.35rem;font-weight:700;color:var(--primary);line-height:1.15;font-variant-numeric:tabular-nums}
   .tile .d{font-size:11px;color:var(--text-sub);margin-top:2px}
   .tile .v.pos{color:var(--up)} .tile .v.neg{color:var(--down)}
+  /* ── 달력 ── */
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
+  .cal .dow{text-align:center;font-size:11px;font-weight:600;color:var(--text-sub);padding:2px 0}
+  .cal .dow.sun{color:var(--up)} .cal .dow.sat{color:var(--down)}
+  .cal-day{min-height:86px;border:1px solid var(--border);border-radius:8px;padding:5px 6px;
+    background:var(--white);cursor:pointer;text-align:left;font-family:inherit;overflow:hidden;
+    display:flex;flex-direction:column;gap:3px}
+  .cal-day:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .cal-day.off{background:var(--bg);opacity:.5;cursor:default}
+  .cal-day.today{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
+  .cal-day.on{background:var(--accent-soft);border-color:var(--primary)}
+  .cal-day .dnum{font-size:11.5px;font-weight:700;color:var(--text-sub)}
+  .cal-day.today .dnum{color:var(--primary)}
+  /* 색은 '결과' 를 뜻합니다 — 빨강은 예상 상회, 파랑은 예상 하회.
+     ★ 는 시장이 크게 반응하는 지표라는 표시입니다. */
+  .cal-ev{font-size:10.5px;line-height:1.35;padding:1px 4px;border-radius:3px;
+    background:var(--bg);color:var(--text-sub);border:1px solid var(--border);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cal-ev.soon{background:var(--accent-soft);color:var(--primary);border-color:transparent}
+  .cal-ev.up{background:rgba(192,57,43,.10);color:var(--up);font-weight:600;border-color:transparent}
+  .cal-ev.dn{background:rgba(27,95,168,.10);color:var(--down);font-weight:600;border-color:transparent}
+  .cal-more{font-size:10px;color:var(--text-sub)}
+  .cal-key{display:inline-block;font-size:10.5px;padding:1px 6px;border-radius:3px;
+    margin-right:4px;background:var(--bg);color:var(--text-sub);border:1px solid var(--border)}
+  .cal-key.up{background:rgba(192,57,43,.10);color:var(--up);border-color:transparent}
+  .cal-key.dn{background:rgba(27,95,168,.10);color:var(--down);border-color:transparent}
+  .cal-key.soon{background:var(--accent-soft);color:var(--primary);border-color:transparent}
+  /* ── 발표 목록 ── */
+  .ev-head{display:flex;align-items:baseline;gap:8px;margin:16px 0 6px}
+  .ev-head b{font-size:13px}
+  .ev-tag{font-size:10.5px;padding:1px 7px;border-radius:10px;background:var(--accent-soft);
+    color:var(--primary);font-weight:600}
+  .ev-tag.live{background:rgba(192,57,43,.10);color:var(--up)}
   .guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
   .guide-item{text-align:left;padding:12px 14px;border:1px solid var(--border);border-radius:10px;
     background:var(--white);cursor:pointer;font-family:inherit;color:var(--text);line-height:1.7}
@@ -291,17 +324,25 @@
   .dv-lv.up{background:rgba(192,57,43,.10);color:var(--up)}
   .dv-lv.dn{background:rgba(27,95,168,.10);color:var(--down)}
   .dv-lv.now{background:var(--accent-soft);color:var(--primary)}
-  .dt-picker{max-height:230px;overflow:auto;border:1px solid var(--border);border-radius:8px;
-    margin-top:8px;background:var(--white)}
-  .dt-row{display:flex;align-items:center;gap:8px;padding:5px 10px;font-size:12.5px;cursor:pointer;
-    border-bottom:1px solid var(--border)}
-  .dt-row:last-child{border-bottom:0}
-  .dt-row:hover{background:var(--accent-soft)}
-  .dt-row.head{background:var(--bg);font-weight:600;color:var(--text-sub);cursor:default;font-size:11.5px}
-  .dt-row input{width:auto;margin:0;flex:none}
-  .dt-row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .dt-row .sid{font-size:10.5px;color:var(--text-sub);font-family:ui-monospace,Menlo,monospace;flex:none}
-  .dt-row.on{background:rgba(44,62,107,.07)}
+  .dt-picker{max-height:440px;overflow:auto;border:1px solid var(--border);border-radius:8px;
+    margin-top:4px;background:var(--white)}
+  table.dt-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.dt-table thead th{position:sticky;top:0;z-index:2;background:var(--bg);
+    padding:7px 9px;font-size:11px;font-weight:600;color:var(--text-sub);
+    text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+  table.dt-table th.num,table.dt-table td.num{text-align:right}
+  table.dt-table td{padding:5px 9px;border-bottom:1px solid var(--border);
+    vertical-align:middle;white-space:nowrap}
+  table.dt-table tbody tr:last-child td{border-bottom:0}
+  .dt-r{cursor:pointer}
+  .dt-r:hover td{background:var(--accent-soft)}
+  .dt-r.on td{background:rgba(44,62,107,.07)}
+  .dt-r.head td{background:var(--bg);font-weight:700;color:var(--primary);font-size:11.5px;
+    cursor:default}
+  .dt-r input{width:auto;margin:0}
+  .dt-nm{max-width:340px;overflow:hidden;text-overflow:ellipsis}
+  .dt-nm.lv0{font-weight:600}
+  td.pos{color:var(--up);font-weight:600} td.neg{color:var(--down);font-weight:600}
   .dt-read{margin-top:12px;padding:13px 15px;border-radius:8px;background:var(--bg);
     border:1px solid var(--border);
     font-size:12.5px;line-height:1.8}
@@ -493,25 +534,30 @@
         <h2>거시경제 지표 캘린더
           <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
             각국이 언제 무엇을 발표하는지 · 예상치와 실제치</span>
+          <span class="tools">
+            <button class="btn-sm" onclick="ecMonth(-1)">‹ 지난달</button>
+            <button class="btn-sm" onclick="ecMonth(0)">이번 달</button>
+            <button class="btn-sm" onclick="ecMonth(1)">다음달 ›</button>
+          </span>
         </h2>
         <div class="row">
           <label>국가</label>
-          <select id="ecSel" style="width:130px"></select>
-          <label style="min-width:auto">기간</label>
-          <select id="ecRange" style="width:150px">
-            <option value="0">이번 주</option>
-            <option value="1" selected>앞으로 2주</option>
-            <option value="2">앞으로 한 달</option>
-            <option value="3">지난 2주</option>
-          </select>
+          <select id="ecSel" onchange="loadEcon()" style="width:130px"></select>
           <label style="min-width:auto">
             <input type="checkbox" id="ecOnlyBig" onchange="renderEcon()" style="width:auto;vertical-align:-2px">
-            굵직한 지표만
+            주요 지표만
           </label>
-          <button class="btn-sm btn-solid" onclick="loadEcon()">불러오기</button>
+          <span class="st-hint" id="ecTitle" style="margin-left:6px"></span>
         </div>
         <div id="ecWarn"></div>
-        <div id="ecBody"><div class="empty" style="padding:22px">국가와 기간을 고르고 불러오기를 누르세요.</div></div>
+        <div id="ecCal"></div>
+        <p class="st-hint" style="margin-top:8px">
+          <span class="cal-key up">예상 상회</span>
+          <span class="cal-key dn">예상 하회</span>
+          <span class="cal-key soon">발표 전</span>
+          <span style="margin-left:8px">★ 는 시장이 크게 반응하는 지표입니다. 날짜를 누르면 그날 발표만 봅니다.</span>
+        </p>
+        <div id="ecBody"></div>
       </div>
 
       <!-- 실적 발표 일정 -->
@@ -561,7 +607,6 @@
             </div>
             <div class="row">
               <button class="btn-sm btn-solid grow" onclick="addFromCatalog()">+ 차트에 추가</button>
-              <button class="btn-sm" onclick="drillOpen()">안을 들여다보기</button>
               <button class="btn-sm" onclick="toggleManual()">직접 입력</button>
             </div>
             <div class="row" style="margin-top:2px">
@@ -572,12 +617,16 @@
             <div id="drillWarn"></div>
             <div id="drillBox" class="hidden">
               <div class="drill-head">
-                <b id="drillTitle">세부 항목</b>
+                <b id="drillTitle">검색 결과</b>
                 <span id="drillSub"></span>
                 <button class="btn-sm" onclick="drillClose()" style="margin-left:auto">닫기</button>
               </div>
               <div id="drillList" class="drill-list"></div>
             </div>
+            <p style="font-size:11px;color:var(--text-sub);margin:8px 0 0;line-height:1.6">
+              지표 <b>안의 세부 항목</b>은 오른쪽 <b>상세 항목 분석</b>에서 봅니다 —
+              전월 대비 · 전년 대비까지 한 표로 나옵니다.
+            </p>
 
             <div id="manualBox" class="hidden" style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
               <div class="row">
@@ -685,23 +734,26 @@
               <span class="tools">
                 <button class="btn-sm" onclick="dtToMain()">고른 항목을 위 차트에</button>
                 <button class="btn-sm" onclick="dtJpg('chart')">JPG</button>
-                <button class="btn-sm" onclick="dtCsv()">CSV</button>
+                <button class="btn-sm" onclick="dtCsv()">보고서 CSV</button>
                 <button class="btn-sm" onclick="dtClearAll()">비우기</button>
               </span>
             </h2>
             <div class="row">
               <select id="dtParent" class="grow" onchange="dtLoadItems()"></select>
-              <button class="btn-sm btn-solid" onclick="dtLoadItems()">항목 불러오기</button>
+              <button class="btn-sm btn-solid" onclick="dtLoadItems()">보고서 불러오기</button>
             </div>
             <div class="row">
-              <input type="text" id="dtFilter" class="grow" placeholder="항목 이름으로 좁히기"
+              <input type="text" id="dtFilter" class="grow" placeholder="항목 이름으로 좁히기 (예: shelter, 식료품)"
                      oninput="dtRenderPicker()">
-              <button class="btn-sm" onclick="dtPickTop()">눈에 띄는 것 자동 선택</button>
+              <button class="btn-sm" onclick="dtPickTop()">많이 변한 항목 자동 선택</button>
             </div>
             <div id="dtWarn"></div>
+            <div class="st-hint" id="dtCount" style="margin:2px 0 6px"></div>
             <div id="dtPicker" class="dt-picker">
               <div class="empty" style="padding:18px">
-                위에서 지표를 고르고 <b>항목 불러오기</b>를 누르세요.
+                위에서 지표를 고르고 <b>보고서 불러오기</b>를 누르세요.<br>
+                <span class="st-hint">발표 자료(CPI 보고서 등)의 항목이 계층 그대로 펼쳐지고,
+                  항목마다 전월 대비 · 전년 대비가 함께 나옵니다.</span>
               </div>
             </div>
 
@@ -728,7 +780,6 @@
               <div id="dtBarTools" class="hidden" style="text-align:right;margin-top:-6px">
                 <button class="btn-sm" onclick="dtJpg('bar')">막대 JPG</button>
               </div>
-              <div id="dtTable"></div>
               <div id="dtRead" class="dt-read"></div>
             </div>
           </div>
@@ -1851,13 +1902,13 @@ function addFromCatalog(){
 
 
 /* ══════════ 상세 항목 분석 ══════════
-   지표 하나를 골라 그 안의 항목들을 꺼내고, 어느 항목이 얼마나
-   움직였는지 표·차트·문장으로 보여줍니다.
-   메인 차트는 건드리지 않습니다 (발표용 그림을 지키기 위해서). */
-var dtItems = [], dtPick = {}, dtSeries = {}, dtChart = null, dtBar = null, dtParentCat = null;
+   지표 하나를 고르면 그 발표 자료(CPI 보고서 같은)의 항목을
+   계층 그대로 펼치고, 항목마다 전월 대비 · 전년 대비를 함께 보여줍니다.
+   체크한 항목만 아래 차트에 그립니다. 메인 차트는 건드리지 않습니다. */
+var dtItems = [], dtPick = {}, dtSeries = {}, dtChart = null, dtBar = null;
+var dtParentCat = null, dtMeta = null;
 var ECOS_AXIS_HINT = '이 통계표는 <b>항목 축이 여러 개</b>입니다 (예: 품목 × 지역). '
-  + '한 축에서만 고르면 나머지 축의 조합 중 자료가 가장 많은 하나를 그립니다. '
-  + '정확히 지정하려면 <b>직접 입력</b>에서 항목코드를 "A/B" 처럼 빗금으로 이어 붙이세요.';
+  + '항목 이름에 축이 " · " 로 이어져 나옵니다.';
 var DT_MAX = 10;
 
 function dtFillParents(){
@@ -1877,37 +1928,42 @@ function dtCat(){
   return catalog.filter(function(x){ return String(x.id) === String(id); })[0] || null;
 }
 
+function dtKey(x){
+  return x.kind === 'ecos' ? ('ecos|' + x.code + '|' + x.item) : ('fred|' + x.code);
+}
+
 async function dtLoadItems(){
   var c = dtCat();
   if (!c){ warn('dtWarn','지표를 하나 골라주세요.'); return; }
-  dtParentCat = c; dtItems = []; dtPick = {}; dtSeries = {};
+  dtParentCat = c; dtItems = []; dtPick = {}; dtSeries = {}; dtMeta = null;
   $('dtResult').classList.add('hidden');
-  $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">불러오는 중…</div>';
+  $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">'
+    + '보고서를 펼치는 중… (항목이 많으면 20초쯤 걸립니다)</div>';
+  $('dtStatus').textContent = '';
   warn('dtWarn','');
   try {
-    var srvNote = '';
+    var d;
     if (c.source === 'fred'){
-      var d = await edge({ source:'fred_tree', code:c.code });
+      d = await edge({ source:'fred_report', code:c.code, max:60 });
       dtItems = (d.items || []).map(function(x){
-        return { kind:'fred', code:x.series_id, name:x.name, level:Number(x.level) || 1,
-                 head: !x.series_id };
+        return { kind:'fred', code:x.series_id, name:x.name,
+                 level:Number(x.level) || 1, head: !x.series_id,
+                 value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3, unit:'' };
       });
-      if (d.note) srvNote = d.note;
     } else {
-      var e = await edge({ source:'ecos_items', code:c.code });
-      var gn = (e.groups || []).length;
-      (e.groups || []).forEach(function(g){
-        if (gn > 1)
-          dtItems.push({ kind:'head', name:'축: ' + (g.name || g.group), level:1, head:true });
-        (g.items || []).forEach(function(x){
-          dtItems.push({ kind:'ecos', code:c.code, item:x.code, name:x.name,
-                         cycle:x.cycle || c.cycle || 'M', unit:x.unit || '',
-                         level:Number(x.level) || 1, head:false });
-        });
+      d = await edge({ source:'ecos_report', code:c.code, cycle:(c.cycle || 'M') });
+      dtItems = (d.items || []).map(function(x){
+        return { kind:'ecos', code:c.code, item:x.item, name:x.name,
+                 cycle:(c.cycle || 'M'), unit:x.unit || '',
+                 level:Number(x.level) || 1, head:false,
+                 value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3 };
       });
-      if (gn > 1) srvNote = ECOS_AXIS_HINT;
+      if (dtItems.some(function(x){ return String(x.name).indexOf(' · ') >= 0; }))
+        warn('dtWarn', ECOS_AXIS_HINT, 'info');
     }
-    if (srvNote) warn('dtWarn', srvNote, 'info');
+    dtMeta = d;
+    if (d.note) warn('dtWarn', esc(d.note), 'info');
+
     if (!dtItems.length){
       $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">'
         + '이 지표는 세부 항목을 제공하지 않습니다. 다른 지표를 골라보세요.</div>';
@@ -1920,7 +1976,12 @@ async function dtLoadItems(){
   }
 }
 
-function dtKey(x){ return x.kind === 'ecos' ? ('ecos|' + x.code + '|' + x.item) : ('fred|' + x.code); }
+//  변화율 칸 — 오르면 빨강, 내리면 파랑 (한국식)
+function dtPctCell(v){
+  if (v == null) return '<td class="num st-hint">—</td>';
+  return '<td class="num ' + (v > 0 ? 'pos' : (v < 0 ? 'neg' : '')) + '">'
+       + (v > 0 ? '+' : '') + num(v, 1) + '%</td>';
+}
 
 function dtRenderPicker(){
   var f = ($('dtFilter').value || '').trim().toLowerCase();
@@ -1931,22 +1992,48 @@ function dtRenderPicker(){
     $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">해당하는 항목이 없습니다.</div>';
     return;
   }
-  var n = Object.keys(dtPick).length;
-  $('dtPicker').innerHTML = rows.map(function(r){
+
+  var withVal = dtItems.filter(function(x){ return x.value != null; });
+  var asOf = withVal.length ? withVal[withVal.length - 1].on : null;
+  var unit = (dtItems.filter(function(x){ return x.unit; })[0] || {}).unit || '';
+
+  var H = '<table class="dt-table"><thead><tr>'
+    + '<th style="width:26px"></th><th>항목' + (unit ? ' <span class="st-hint">' + esc(unit) + '</span>' : '') + '</th>'
+    + '<th class="num" style="width:96px">최근 값</th>'
+    + '<th class="num" style="width:82px">전월 대비</th>'
+    + '<th class="num" style="width:82px">전년 대비</th>'
+    + '<th class="num" style="width:78px">3개월</th>'
+    + '<th style="width:86px">기준</th></tr></thead><tbody>';
+
+  rows.forEach(function(r){
     var x = r.x;
-    var pad = 10 + Math.max(0, x.level - 1) * 14;
-    if (x.head)
-      return '<div class="dt-row head" style="padding-left:' + pad + 'px">'
-           + '<span class="nm">' + esc(x.name) + '</span></div>';
+    var pad = 8 + Math.max(0, x.level - 1) * 15;
+    if (x.head || x.value == null && x.code == null){
+      H += '<tr class="dt-r head"><td></td><td colspan="6" style="padding-left:' + pad + 'px">'
+         + esc(x.name) + '</td></tr>';
+      return;
+    }
     var k = dtKey(x), on = !!dtPick[k];
-    return '<div class="dt-row' + (on ? ' on' : '') + '" style="padding-left:' + pad + 'px" '
-         + 'onclick="dtToggle(' + r.i + ')">'
-         + '<input type="checkbox"' + (on ? ' checked' : '') + ' onclick="event.stopPropagation();dtToggle(' + r.i + ')">'
-         + '<span class="nm">' + esc(x.name) + '</span>'
-         + (x.unit ? '<span class="sid">' + esc(x.unit) + '</span>' : '')
-         + '<span class="sid">' + esc(x.item || x.code) + '</span></div>';
-  }).join('');
-  $('dtStatus').textContent = n ? (n + '개 선택') : '';
+    H += '<tr class="dt-r' + (on ? ' on' : '') + '" onclick="dtToggle(' + r.i + ')">'
+       + '<td><input type="checkbox"' + (on ? ' checked' : '')
+       + ' onclick="event.stopPropagation();dtToggle(' + r.i + ')"></td>'
+       + '<td style="padding-left:' + pad + 'px" class="dt-nm'
+       + (x.level <= 1 ? ' lv0' : '') + '">' + esc(x.name) + '</td>'
+       + '<td class="num">' + (x.value == null ? '<span class="st-hint">—</span>'
+                                               : '<b>' + num(x.value, 2) + '</b>') + '</td>'
+       + dtPctCell(x.mom) + dtPctCell(x.yoy) + dtPctCell(x.q3)
+       + '<td class="st-hint">' + esc(x.on || '—') + '</td></tr>';
+  });
+  H += '</tbody></table>';
+  $('dtPicker').innerHTML = H;
+
+  var n = Object.keys(dtPick).length;
+  var cnt = dtItems.filter(function(x){ return !x.head && x.code != null; }).length;
+  $('dtCount').innerHTML = cnt + '개 항목'
+    + (asOf ? ' · <b>' + esc(asOf) + '</b> 기준' : '')
+    + (dtMeta && dtMeta.total_series > (dtMeta.counted || 0)
+       ? ' · 값은 상위 ' + dtMeta.counted + '개만 계산했습니다' : '')
+    + (n ? ' · <b>' + n + '개 선택</b>' : '');
 }
 
 function dtToggle(i){
@@ -1955,7 +2042,8 @@ function dtToggle(i){
   if (dtPick[k]) delete dtPick[k];
   else {
     if (Object.keys(dtPick).length >= DT_MAX){
-      warn('dtWarn', '한 번에 ' + DT_MAX + '개까지 볼 수 있습니다. 하나를 빼고 다시 골라주세요.');
+      warn('dtWarn', '차트에는 한 번에 ' + DT_MAX + '개까지 그릴 수 있습니다. '
+         + '(표는 전부 그대로 보입니다)');
       return;
     }
     dtPick[k] = x;
@@ -1972,15 +2060,21 @@ function dtClearAll(){
   dtRenderPicker();
 }
 
-//  깊이가 얕은(=큰 묶음) 항목부터 몇 개 자동으로 골라줍니다.
+//  전년 대비 변화가 큰 항목부터 몇 개 골라줍니다 — 보고서에서 눈에 띄는 것들
 function dtPickTop(){
-  if (!dtItems.length){ warn('dtWarn','먼저 항목을 불러와 주세요.'); return; }
+  if (!dtItems.length){ warn('dtWarn','먼저 보고서를 불러와 주세요.'); return; }
   dtPick = {};
-  var pool = dtItems.filter(function(x){ return !x.head; });
-  var minLv = Math.min.apply(null, pool.map(function(x){ return x.level; }));
-  var lv2 = pool.filter(function(x){ return x.level === minLv + 1; });
-  var use = (lv2.length >= 3 ? lv2 : pool).slice(0, 8);
-  use.forEach(function(x){ dtPick[dtKey(x)] = x; });
+  var pool = dtItems.filter(function(x){ return !x.head && x.code != null; });
+  var withY = pool.filter(function(x){ return x.yoy != null; });
+  if (withY.length >= 3){
+    withY.sort(function(a, b){ return Math.abs(b.yoy) - Math.abs(a.yoy); });
+    withY.slice(0, 6).forEach(function(x){ dtPick[dtKey(x)] = x; });
+  } else {
+    var minLv = Math.min.apply(null, pool.map(function(x){ return x.level; }));
+    var lv2 = pool.filter(function(x){ return x.level === minLv + 1; });
+    (lv2.length >= 3 ? lv2 : pool).slice(0, 6)
+      .forEach(function(x){ dtPick[dtKey(x)] = x; });
+  }
   warn('dtWarn','');
   dtRenderPicker();
   dtRun();
@@ -1991,7 +2085,6 @@ async function dtRun(){
   if (!keys.length){ $('dtResult').classList.add('hidden'); return; }
   $('dtResult').classList.remove('hidden');
   var yrs = Number($('dtRange').value) || 3;
-  //  표에 3년 변화 열이 있으므로 최소 4.5년치는 받아둡니다.
   var back = Math.max(yrs + 1.2, 4.5);
   var start = new Date(Date.now() - back * 365 * 864e5).toISOString().slice(0, 10);
 
@@ -2015,9 +2108,8 @@ async function dtRun(){
       $('dtStatus').textContent = '불러오는 중… (' + done + '/' + need.length + ')';
     }));
   }
-  $('dtStatus').textContent = keys.length + '개 선택';
+  $('dtStatus').textContent = '';
 
-  //  서버가 알려준 주의사항이 있으면 한 번만 모아서 보여줍니다
   var notes = {};
   keys.forEach(function(k){ if (dtSeries[k] && dtSeries[k].note) notes[dtSeries[k].note] = 1; });
   var nk = Object.keys(notes);
@@ -2032,7 +2124,7 @@ async function dtRun(){
   dtDraw();
 }
 
-//  값 변환 — 전년 대비 / 직전 대비 / 지수화 / 원래 값
+//  값 변환 — 전년 대비 / 전월 대비 / 지수화 / 원래 값
 function dtTransform(pts, mode){
   if (!pts.length) return [];
   if (mode === 'raw') return pts.map(function(p){ return { d:p.d, v:p.v }; });
@@ -2041,7 +2133,6 @@ function dtTransform(pts, mode){
     if (!b) return [];
     return pts.map(function(p){ return { d:p.d, v: p.v / b * 100 }; });
   }
-  //  월 자료면 12개월 전, 분기면 4분기 전을 자동으로 잡습니다.
   var lag = 1;
   if (mode === 'yoy'){
     var gap = pts.length > 1
@@ -2070,26 +2161,11 @@ function dtDraw(){
 
   var rows = keys.map(function(k, i){
     var s = dtSeries[k] || { points:[] };
-    var full = dtTransform(s.points, mode);
-    var cut = dtCut(full, yrs);
-    //  변화율은 화면에 보이는 구간이 아니라 받아온 전체에서 셉니다.
-    //  (3년 변화를 보려면 3년 전 값이 필요한데, 화면이 3년이면 딱 잘려버립니다)
-    var raw = s.points || [];
-    var last = cut.length ? cut[cut.length - 1] : null;
-    function chgOver(days){
-      if (raw.length < 2) return null;
-      var t = new Date(new Date(raw[raw.length-1].d).getTime() - days*864e5).toISOString().slice(0,10);
-      if (raw[0].d > t) return null;          // 그만큼 옛날 자료가 없습니다
-      var b = null;
-      for (var j = raw.length - 1; j >= 0; j--){ if (raw[j].d <= t){ b = raw[j]; break; } }
-      if (!b || !b.v) return null;
-      return (raw[raw.length-1].v - b.v) / Math.abs(b.v) * 100;
-    }
-    return { key:k, name:(dtPick[k] && dtPick[k].name) || s.name, unit:s.unit,
-             err:s.err, color: pal[i % pal.length], pts:cut,
-             lastRaw: raw.length ? raw[raw.length-1] : null,
-             last: last ? last.v : null,
-             m3: chgOver(92), y1: chgOver(365), y3: chgOver(365*3) };
+    var cut = dtCut(dtTransform(s.points, mode), yrs);
+    var x = dtPick[k];
+    return { key:k, name:x.name, unit:s.unit, err:s.err,
+             color: pal[i % pal.length], pts:cut,
+             value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3 };
   });
 
   //  ── 선 차트 ──
@@ -2104,13 +2180,13 @@ function dtDraw(){
     grid:{ left:66, right:24, top:38, bottom:56 },
     legend:{ top:4, type:'scroll', textStyle:{ fontSize:11 },
       data: rows.map(function(r){ return r.name; }) },
-    tooltip:{ trigger:'axis', order:'valueDesc',
-      textStyle:{ fontSize:11.5 },
+    tooltip:{ trigger:'axis', order:'valueDesc', textStyle:{ fontSize:11.5 },
       valueFormatter:function(v){ return v == null ? '—' : Number(v).toFixed(2); } },
     xAxis:{ type:'category', data:axis,
       axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
       axisLabel:{ color:'#77809a', fontSize:11 } },
-    yAxis:{ type:'value', scale:true, name:unitTxt, nameTextStyle:{ fontSize:11, color:'#77809a' },
+    yAxis:{ type:'value', scale:true, name:unitTxt,
+      nameTextStyle:{ fontSize:11, color:'#77809a' },
       splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
       axisLabel:{ color:'#77809a', fontSize:11 } },
     series: rows.map(function(r){
@@ -2125,9 +2201,9 @@ function dtDraw(){
       : [])
   }, true);
 
-  //  ── 최근 1년 변화 막대 ──
-  var bars = rows.filter(function(r){ return r.y1 != null; })
-                 .sort(function(a, b){ return a.y1 - b.y1; });
+  //  ── 전년 대비 막대 (보고서에서 바로 가져옵니다) ──
+  var bars = rows.filter(function(r){ return r.yoy != null; })
+                 .sort(function(a, b){ return a.yoy - b.yoy; });
   var bb = $('dtBarBox');
   if (bars.length >= 2){
     bb.style.height = Math.max(150, 34 + bars.length * 26) + 'px';
@@ -2136,7 +2212,7 @@ function dtDraw(){
     dtBar.setOption({
       backgroundColor: theme ? theme.bg : '#fff', animation:false,
       grid:{ left:8, right:70, top:30, bottom:16, containLabel:true },
-      title:{ text:'최근 1년 변화율 (%)', left:0, top:2,
+      title:{ text:'전년 대비 변화율 (%)', left:0, top:2,
               textStyle:{ fontSize:12, color:'#5a6278', fontWeight:600 } },
       xAxis:{ type:'value', axisLabel:{ color:'#77809a', fontSize:11 },
         splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } } },
@@ -2145,7 +2221,7 @@ function dtDraw(){
         axisLine:{ show:false }, axisTick:{ show:false } },
       series:[{ type:'bar', barMaxWidth:16,
         data: bars.map(function(r){
-          return { value:r.y1, itemStyle:{ color: r.y1 >= 0 ? '#c0392b' : '#1b5fa8' } }; }),
+          return { value:r.yoy, itemStyle:{ color: r.yoy >= 0 ? '#c0392b' : '#1b5fa8' } }; }),
         label:{ show:true, position:'right', fontSize:11,
           formatter:function(a){ return (a.value >= 0 ? '+' : '') + Number(a.value).toFixed(1) + '%'; } } }]
     }, true);
@@ -2155,45 +2231,25 @@ function dtDraw(){
     $('dtBarTools').classList.add('hidden');
   }
 
-  //  ── 표 ──
-  function cell(v){
-    if (v == null) return '<td class="num">—</td>';
-    return '<td class="num ' + (v > 0 ? 'pos' : (v < 0 ? 'neg' : '')) + '">'
-         + (v > 0 ? '+' : '') + num(v, 1) + '%</td>';
-  }
-  $('dtTable').innerHTML = '<div class="scroll" style="margin-top:12px"><table><thead><tr>'
-    + '<th>항목</th><th class="num">최근 값</th><th>기준</th>'
-    + '<th class="num">3개월</th><th class="num">1년</th><th class="num">3년</th>'
-    + '</tr></thead><tbody>'
-    + rows.map(function(r){
-        return '<tr><td><span style="display:inline-block;width:9px;height:9px;border-radius:2px;'
-          + 'background:' + esc(r.color) + ';margin-right:7px;vertical-align:0"></span>'
-          + esc(r.name) + (r.err ? ' <span class="st-hint">받지 못함</span>' : '') + '</td>'
-          + '<td class="num">' + (r.lastRaw ? num(r.lastRaw.v, 2) : '—') + '</td>'
-          + '<td class="st-hint">' + esc(r.lastRaw ? r.lastRaw.d : '—') + '</td>'
-          + cell(r.m3) + cell(r.y1) + cell(r.y3) + '</tr>';
-      }).join('')
-    + '</tbody></table></div>';
-
   dtReadout(rows, mode);
 }
 
 //  ── 쉬운 해설 ──
 function dtReadout(rows, mode){
-  var ok = rows.filter(function(r){ return r.y1 != null; });
-  if (ok.length < 1){ $('dtRead').innerHTML = ''; return; }
-  var sorted = ok.slice().sort(function(a, b){ return b.y1 - a.y1; });
+  var ok = rows.filter(function(r){ return r.yoy != null; });
+  if (!ok.length){ $('dtRead').innerHTML = ''; return; }
+  var sorted = ok.slice().sort(function(a, b){ return b.yoy - a.yoy; });
   var top = sorted[0], bot = sorted[sorted.length - 1];
-  var upN = ok.filter(function(r){ return r.y1 > 0; }).length;
+  var upN = ok.filter(function(r){ return r.yoy > 0; }).length;
   var parent = dtParentCat ? dtParentCat.label : '이 지표';
 
   var H = '<b>' + esc(parent) + ' 안을 쪼개서 보면</b><br>';
-  H += '· 최근 1년 사이 가장 많이 오른 항목은 <b>' + esc(top.name) + '</b>('
-     + (top.y1 > 0 ? '+' : '') + num(top.y1, 1) + '%)이고, '
-     + '가장 적게 오르거나 내린 항목은 <b>' + esc(bot.name) + '</b>('
-     + (bot.y1 > 0 ? '+' : '') + num(bot.y1, 1) + '%)입니다.<br>';
+  H += '· 1년 전과 견주면 <b>' + esc(top.name) + '</b>('
+     + (top.yoy > 0 ? '+' : '') + num(top.yoy, 1) + '%)가 가장 많이 올랐고, '
+     + '<b>' + esc(bot.name) + '</b>('
+     + (bot.yoy > 0 ? '+' : '') + num(bot.yoy, 1) + '%)가 가장 덜 올랐습니다.<br>';
   if (ok.length > 1){
-    var spread = top.y1 - bot.y1;
+    var spread = top.yoy - bot.yoy;
     H += '· 둘 사이 격차가 <b>' + num(spread, 1) + '%p</b>입니다. '
        + (spread > 10
           ? '항목마다 사정이 크게 다르다는 뜻이라, 지표 하나만 보면 놓치는 게 생깁니다.'
@@ -2202,12 +2258,12 @@ function dtReadout(rows, mode){
        + (upN === ok.length ? ' 전 항목이 상승입니다.' :
           (upN === 0 ? ' 전 항목이 하락입니다.' : '')) + '<br>';
   }
-  //  최근 3개월이 1년 흐름과 다르면 짚어줍니다 (방향 전환 신호)
+  //  이번 달 흐름이 1년 흐름과 다르면 짚어줍니다
   var flip = ok.filter(function(r){
-    return r.m3 != null && ((r.y1 > 0 && r.m3 < 0) || (r.y1 < 0 && r.m3 > 0)); });
+    return r.mom != null && ((r.yoy > 0 && r.mom < 0) || (r.yoy < 0 && r.mom > 0)); });
   if (flip.length)
     H += '· <b>' + esc(flip.map(function(r){ return r.name; }).slice(0, 3).join(', '))
-       + '</b>' + (flip.length > 3 ? ' 등' : '') + '은 1년 흐름과 최근 3개월 방향이 <b>반대</b>입니다. '
+       + '</b>' + (flip.length > 3 ? ' 등' : '') + '은 <b>이번 달 방향이 1년 흐름과 반대</b>입니다. '
        + '흐름이 꺾이는 중일 수 있습니다.<br>';
 
   H += '<span class="st-hint">'
@@ -2225,29 +2281,20 @@ function dtJpg(which){
   chartJpg(c, (dtParentCat ? dtParentCat.label : '상세항목'));
 }
 
+//  보고서 표를 그대로 내려받습니다 — 발표 자료에 붙이기 좋게
 function dtCsv(){
-  var keys = Object.keys(dtPick);
-  if (!keys.length){ warn('dtWarn','내보낼 항목이 없습니다.'); return; }
-  var mode = $('dtMode').value, yrs = Number($('dtRange').value) || 3;
-  var cols = keys.map(function(k){
-    return { name:(dtPick[k] && dtPick[k].name) || k,
-             m: (function(){
-               var m = {};
-               dtCut(dtTransform((dtSeries[k] || {}).points || [], mode), yrs)
-                 .forEach(function(p){ m[p.d] = p.v; });
-               return m;
-             })() };
+  if (!dtItems.length){ warn('dtWarn','먼저 보고서를 불러와 주세요.'); return; }
+  var rows = [['항목', '깊이', '최근 값', '전월 대비(%)', '전년 대비(%)', '3개월(%)', '기준일']];
+  dtItems.forEach(function(x){
+    if (x.head) { rows.push([x.name, x.level, '', '', '', '', '']); return; }
+    rows.push([x.name, x.level,
+      x.value == null ? '' : x.value,
+      x.mom == null ? '' : Number(x.mom.toFixed(2)),
+      x.yoy == null ? '' : Number(x.yoy.toFixed(2)),
+      x.q3 == null ? '' : Number(x.q3.toFixed(2)),
+      x.on || '']);
   });
-  var days = {};
-  cols.forEach(function(c){ Object.keys(c.m).forEach(function(d){ days[d] = 1; }); });
-  var axis = Object.keys(days).sort();
-  if (!axis.length){ warn('dtWarn','내보낼 값이 없습니다.'); return; }
-  var MODE = { yoy:'전년대비%', mom:'직전대비%', idx:'지수화', raw:'원래값' };
-  var rows = [['날짜'].concat(cols.map(function(c){ return c.name + ' (' + MODE[mode] + ')'; }))];
-  axis.forEach(function(d){
-    rows.push([d].concat(cols.map(function(c){ return c.m[d] == null ? '' : c.m[d]; })));
-  });
-  saveCsv(rows, (dtParentCat ? dtParentCat.label : '상세항목'));
+  saveCsv(rows, (dtParentCat ? dtParentCat.label : '상세항목') + '_보고서');
 }
 
 //  선택한 항목을 메인 차트로 올리기
@@ -2405,26 +2452,42 @@ function drawHomeFx(){
   }, true);
 }
 
-/* ── 거시경제 지표 캘린더 ── */
-function ecRangeDates(){
-  var t = new Date(), v = $('ecRange').value;
-  function iso(dd){ return new Date(t.getTime() + dd*864e5).toISOString().slice(0,10); }
-  if (v === '0'){ var wd = (t.getDay()+6)%7; return [iso(-wd), iso(6-wd)]; }
-  if (v === '2') return [iso(0),  iso(30)];
-  if (v === '3') return [iso(-14), iso(0)];
-  return [iso(-1), iso(14)];
+/* ── 거시경제 지표 캘린더 ──────────────────────
+   달력으로 한 달을 통째로 보여주고, 날짜를 누르면 그날 발표를
+   실제 · 예상 · 직전 세 값으로 아래에 펼칩니다.               */
+var ecCursor = null;      // 보고 있는 달의 1일
+var ecDay = null;         // 눌러둔 날짜
+
+function ecFirstOfMonth(d){
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+function ecIso(d){
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0')
+       + '-' + String(d.getDate()).padStart(2,'0');
+}
+function ecMonth(step){
+  var base = ecCursor || ecFirstOfMonth(new Date());
+  ecCursor = step === 0 ? ecFirstOfMonth(new Date())
+                        : new Date(base.getFullYear(), base.getMonth() + step, 1);
+  ecDay = null;
+  loadEcon();
 }
 
 async function loadEcon(){
-  var r = ecRangeDates();
-  $('ecBody').innerHTML = '<div class="empty" style="padding:22px">불러오는 중…</div>';
+  if (!ecCursor) ecCursor = ecFirstOfMonth(new Date());
+  var from = ecIso(ecCursor);
+  var last = new Date(ecCursor.getFullYear(), ecCursor.getMonth() + 1, 0);
+  var to = ecIso(last);
+  $('ecTitle').textContent = ecCursor.getFullYear() + '년 ' + (ecCursor.getMonth()+1) + '월';
+  $('ecCal').innerHTML = '<div class="empty" style="padding:22px">불러오는 중…</div>';
+  $('ecBody').innerHTML = '';
   warn('ecWarn','');
   try {
     econData = await edge({ source:'econ_cal', country:$('ecSel').value,
-                            from:r[0], to:r[1], limit:400 });
+                            from:from, to:to, limit:1000 });
     renderEcon();
   } catch(e){
-    $('ecBody').innerHTML = '';
+    $('ecCal').innerHTML = '';
     warn('ecWarn', esc(e.message));
   }
 }
@@ -2434,7 +2497,16 @@ async function loadEcon(){
 function ecoNum(v){
   if (v == null) return '—';
   var a = Math.abs(v);
+  if (a >= 1e6) return num(v/1e6, 2) + 'M';
+  if (a >= 1e4) return num(v/1e3, 1) + 'K';
   return num(v, a >= 1000 ? 0 : (a >= 10 ? 1 : 2));
+}
+
+function ecEvents(){
+  var evs = (econData && econData.events) || [];
+  if ($('ecOnlyBig') && $('ecOnlyBig').checked)
+    evs = evs.filter(function(e){ return ECON_BIG.test(e.type || ''); });
+  return evs;
 }
 
 function renderEcon(){
@@ -2451,58 +2523,141 @@ function renderEcon(){
              return '<tr><td>' + esc(x.date) + '</td><td>' + esc(x.name) + '</td></tr>';
            }).join('') + '</tbody></table></div>';
     }
-    $('ecBody').innerHTML = H;
+    $('ecCal').innerHTML = H;
+    $('ecBody').innerHTML = '';
     return;
   }
 
-  var evs = d.events || [];
-  if ($('ecOnlyBig').checked) evs = evs.filter(function(e){ return ECON_BIG.test(e.type || ''); });
-  if (!evs.length){
-    $('ecBody').innerHTML = '<div class="empty" style="padding:22px">'
-      + '이 기간에 해당하는 발표가 없습니다.</div>';
-    return;
-  }
+  var evs = ecEvents();
+  var by = {};
+  evs.forEach(function(e){ (by[e.date] = by[e.date] || []).push(e); });
 
-  //  날짜별로 묶어서 보여줍니다
-  var by = {}, order = [];
-  evs.forEach(function(e){
-    if (!by[e.date]){ by[e.date] = []; order.push(e.date); }
-    by[e.date].push(e);
-  });
+  //  ── 달력 ──
+  var first = ecCursor, y = first.getFullYear(), m = first.getMonth();
+  var lead = first.getDay();                        // 1일이 무슨 요일인지
+  var days = new Date(y, m + 1, 0).getDate();
+  var todayS = today();
+  var DOW = ['일','월','화','수','목','금','토'];
+
+  var H = '<div class="cal">'
+    + DOW.map(function(w, i){
+        return '<div class="dow' + (i === 0 ? ' sun' : (i === 6 ? ' sat' : '')) + '">'
+             + w + '</div>'; }).join('');
+  for (var i = 0; i < lead; i++) H += '<div class="cal-day off"></div>';
+  for (var dnum = 1; dnum <= days; dnum++){
+    var iso = y + '-' + String(m+1).padStart(2,'0') + '-' + String(dnum).padStart(2,'0');
+    var list = by[iso] || [];
+    var big = list.filter(function(e){ return ECON_BIG.test(e.type || ''); });
+    var show = (big.length ? big : list).slice(0, 3);
+    H += '<button class="cal-day' + (iso === todayS ? ' today' : '')
+       + (iso === ecDay ? ' on' : '') + '" onclick="ecPick(\'' + iso + '\')">'
+       + '<span class="dnum">' + dnum + (iso === todayS ? ' · 오늘' : '') + '</span>'
+       + show.map(function(e){
+           var beat = (e.actual != null && e.estimate != null) ? e.actual - e.estimate : null;
+           var cls = beat == null ? (e.actual == null ? ' soon' : '')
+                                  : (beat > 0 ? ' up' : (beat < 0 ? ' dn' : ''));
+           var big = ECON_BIG.test(e.type || '');
+           return '<span class="cal-ev' + cls + '" title="'
+                + esc((e.time ? e.time + '  ' : '') + (e.type || '')
+                      + (beat == null ? '' : (beat > 0 ? '  · 예상 상회' : '  · 예상 하회'))) + '">'
+                + (big ? '★ ' : '') + esc(e.type || '') + '</span>';
+         }).join('')
+       + (list.length > show.length
+          ? '<span class="cal-more">+' + (list.length - show.length) + '건</span>' : '')
+       + '</button>';
+  }
+  var tail = (7 - ((lead + days) % 7)) % 7;
+  for (var t = 0; t < tail; t++) H += '<div class="cal-day off"></div>';
+  H += '</div>';
+  $('ecCal').innerHTML = H;
+
+  renderEconList(by);
+}
+
+function ecPick(iso){
+  ecDay = (ecDay === iso) ? null : iso;
+  renderEcon();
+  var el = $('ecBody'); if (el) el.scrollIntoView({ block:'nearest', behavior:'smooth' });
+}
+
+//  발표 하나를 한 줄로 — 실제 · 예상 · 직전
+function ecRow(e, withDate){
+  var beat = (e.actual != null && e.estimate != null) ? e.actual - e.estimate : null;
+  var cls = beat == null ? '' : (beat > 0 ? 'pos' : (beat < 0 ? 'neg' : ''));
+  var verdict = beat == null
+    ? (e.actual == null ? '<span class="st-hint">발표 전</span>' : '—')
+    : (beat > 0 ? '예상 상회' : (beat < 0 ? '예상 하회' : '예상 부합'));
+  var big = ECON_BIG.test(e.type || '');
+  return '<tr>'
+    + (withDate ? '<td class="st-hint">' + esc(e.date) + '</td>' : '')
+    + '<td>' + esc(e.time || '—') + '</td>'
+    + '<td>' + (big ? '★ <b>' : '') + esc(e.type || '—') + (big ? '</b>' : '')
+    + (e.comparison ? ' <span class="st-hint">' + esc(String(e.comparison).toUpperCase()) + '</span>' : '')
+    + (e.period ? ' <span class="st-hint">' + esc(e.period) + '</span>' : '')
+    + '</td>'
+    + '<td class="num"><b>' + ecoNum(e.actual) + '</b></td>'
+    + '<td class="num">' + ecoNum(e.estimate) + '</td>'
+    + '<td class="num st-hint">' + ecoNum(e.previous) + '</td>'
+    + '<td class="num ' + cls + '">' + verdict + '</td></tr>';
+}
+
+function ecTable(list, withDate){
+  return '<div class="scroll"><table><thead><tr>'
+    + (withDate ? '<th style="width:92px">날짜</th>' : '')
+    + '<th style="width:58px">시각</th><th>지표</th>'
+    + '<th class="num" style="width:88px">실제</th>'
+    + '<th class="num" style="width:88px">예상</th>'
+    + '<th class="num" style="width:88px">직전</th>'
+    + '<th class="num" style="width:96px">평가</th></tr></thead><tbody>'
+    + list.map(function(e){ return ecRow(e, withDate); }).join('')
+    + '</tbody></table></div>';
+}
+
+function renderEconList(by){
+  var evs = ecEvents();
   var todayS = today();
   var H = '';
-  order.forEach(function(day){
-    var isToday = day === todayS;
-    H += '<div style="margin-top:14px"><div style="font-weight:600;font-size:12.5px;'
-       + 'color:' + (isToday ? 'var(--primary)' : 'var(--text-sub)') + ';margin-bottom:6px">'
-       + esc(day) + ' (' + ['일','월','화','수','목','금','토'][new Date(day+'T00:00:00').getDay()] + ')'
-       + (isToday ? ' · 오늘' : '') + '</div>'
-       + '<div class="scroll"><table><thead><tr>'
-       + '<th style="width:60px">시각</th><th>지표</th><th style="width:70px">기준</th>'
-       + '<th class="num" style="width:90px">실제</th><th class="num" style="width:90px">예상</th>'
-       + '<th class="num" style="width:90px">직전</th><th class="num" style="width:120px">평가</th>'
-       + '</tr></thead><tbody>';
-    by[day].forEach(function(e){
-      var beat = (e.actual != null && e.estimate != null) ? e.actual - e.estimate : null;
-      var cls = beat == null ? '' : (beat > 0 ? 'pos' : (beat < 0 ? 'neg' : ''));
-      var verdict = beat == null
-        ? (e.actual == null ? '<span class="st-hint">발표 전</span>' : '—')
-        : (beat > 0 ? '예상 상회' : (beat < 0 ? '예상 하회' : '예상 부합'));
-      var big = ECON_BIG.test(e.type || '');
-      H += '<tr><td>' + esc(e.time || '—') + '</td>'
-         + '<td>' + (big ? '<b>' : '') + esc(e.type || '—') + (big ? '</b>' : '')
-         + (e.comparison ? ' <span class="st-hint">' + esc(String(e.comparison).toUpperCase()) + '</span>' : '')
-         + '</td><td class="st-hint">' + esc(e.period || '—') + '</td>'
-         + '<td class="num"><b>' + ecoNum(e.actual) + '</b></td>'
-         + '<td class="num">' + ecoNum(e.estimate) + '</td>'
-         + '<td class="num">' + ecoNum(e.previous) + '</td>'
-         + '<td class="num ' + cls + '">' + verdict + '</td></tr>';
-    });
-    H += '</tbody></table></div></div>';
-  });
+
+  if (ecDay){
+    var list = by[ecDay] || [];
+    H += '<div class="ev-head"><b>' + esc(ecDay) + ' 발표</b>'
+       + '<span class="ev-tag">' + list.length + '건</span>'
+       + '<span class="st-hint" style="margin-left:auto">'
+       + '<button class="btn-sm" onclick="ecPick(\'' + ecDay + '\')">전체 보기로</button></span></div>';
+    H += list.length ? ecTable(list, false)
+       : '<div class="empty" style="padding:18px">이 날은 발표가 없습니다.</div>';
+  } else {
+    //  오늘 (또는 이번 달을 보고 있지 않으면 그 달 첫 발표일)
+    var todays = evs.filter(function(e){ return e.date === todayS; });
+    if (todays.length){
+      var bigT = todays.filter(function(e){ return ECON_BIG.test(e.type || ''); });
+      H += '<div class="ev-head"><b>오늘 나오는 지표</b>'
+         + '<span class="ev-tag live">' + todays.length + '건</span>'
+         + (bigT.length ? '<span class="st-hint">주요 ' + bigT.length + '건</span>' : '')
+         + '</div>' + ecTable(todays, false);
+    }
+    //  앞으로 나올 것
+    var up = evs.filter(function(e){ return e.date > todayS; }).slice(0, 15);
+    if (up.length){
+      H += '<div class="ev-head"><b>다가오는 발표</b>'
+         + '<span class="ev-tag">' + up.length + '건</span></div>' + ecTable(up, true);
+    }
+    //  이미 나온 것 (최근 순)
+    var done = evs.filter(function(e){ return e.date < todayS && e.actual != null; })
+                  .slice(-8).reverse();
+    if (done.length){
+      H += '<div class="ev-head"><b>최근 나온 결과</b>'
+         + '<span class="ev-tag">' + done.length + '건</span></div>' + ecTable(done, true);
+    }
+    if (!todays.length && !up.length && !done.length)
+      H += '<div class="empty" style="padding:22px">이 달에 해당하는 발표가 없습니다.</div>';
+  }
+
   H += '<p class="st-hint" style="margin-top:12px">'
-     + '<b>예상 상회</b>가 늘 좋은 소식은 아닙니다. 물가(CPI·PPI)가 예상보다 높으면 금리 부담이 커지고, '
-     + '고용·성장(GDP·PMI)이 예상보다 높으면 경기가 좋다는 뜻입니다. 지표마다 방향이 다릅니다.</p>';
+     + '<b>실제</b>가 <b>예상</b>보다 높다고 늘 좋은 소식은 아닙니다. '
+     + '물가(CPI·PPI)가 예상보다 높으면 금리 부담이 커지고, '
+     + '고용·성장(GDP·PMI)이 예상보다 높으면 경기가 좋다는 뜻입니다. 지표마다 방향이 다릅니다. '
+     + '★ 는 시장이 특히 크게 반응하는 지표입니다.</p>';
   $('ecBody').innerHTML = H;
 }
 
@@ -3840,90 +3995,10 @@ function f13Render(d, cur, prev){
    ECOS 는 통계표 안의 항목 목록을 부모-자식으로 엮어서 보여줍니다. */
 function drillClose(){ $('drillBox').classList.add('hidden'); warn('drillWarn',''); }
 
-async function drillOpen(){
-  var id = $('catalogSel').value;
-  var c = catalog.filter(function(x){ return String(x.id) === String(id); })[0];
-  if (!c){ warn('drillWarn','먼저 위에서 지표를 하나 골라주세요.'); return; }
-  show('drillBox');
-  $('drillTitle').textContent = c.label;
-  $('drillSub').textContent = '불러오는 중…';
-  $('drillList').innerHTML = '';
-  warn('drillWarn','');
-  try {
-    if (c.source === 'fred'){
-      var d = await edge({ source:'fred_tree', code:c.code });
-      $('drillSub').textContent = d.release ? d.release.name : '';
-      drillRenderFred(d.items || []);
-      if (d.note) warn('drillWarn', esc(d.note), 'info');
-    } else if (c.source === 'ecos'){
-      var e = await edge({ source:'ecos_items', code:c.code });
-      var gn = (e.groups || []).length;
-      $('drillSub').textContent = '통계표 ' + esc(c.code) + (gn > 1 ? ' · 항목 축 ' + gn + '개' : '');
-      drillRenderEcos(e.groups || [], c);
-      if (gn > 1) warn('drillWarn', ECOS_AXIS_HINT, 'info');
-    } else {
-      $('drillSub').textContent = '';
-      $('drillList').innerHTML = '<div class="empty" style="padding:18px">'
-        + '이 자료원은 세부 항목을 제공하지 않습니다.</div>';
-    }
-  } catch(err){
-    $('drillSub').textContent = '';
-    warn('drillWarn', esc(err.message));
-    $('drillList').innerHTML = '';
-  }
-}
-
-function drillRenderFred(items){
-  if (!items.length){
-    $('drillList').innerHTML = '<div class="empty" style="padding:18px">세부 항목이 없습니다.</div>';
-    return;
-  }
-  $('drillList').innerHTML = items.map(function(x, i){
-    var pad = 10 + Math.max(0, (Number(x.level) || 1) - 1) * 14;
-    if (!x.series_id){
-      return '<div class="drill-row head" style="padding-left:' + pad + 'px">'
-           + '<span class="nm">' + esc(x.name) + '</span></div>';
-    }
-    return '<div class="drill-row" style="padding-left:' + pad + 'px" '
-         + 'onclick="drillAdd(' + i + ')">'
-         + '<span class="nm">' + esc(x.name) + '</span>'
-         + '<span class="sid">' + esc(x.series_id) + '</span></div>';
-  }).join('');
-  drillItems = items;
-}
 function drillAdd(i){
   var x = drillItems[i]; if (!x || !x.series_id) return;
   addSeries({ source:'fred', code:x.series_id, item_code:'', cycle:'M',
               label:x.name, unit:'' });
-}
-
-function drillRenderEcos(groups, cat){
-  if (!groups.length){
-    $('drillList').innerHTML = '<div class="empty" style="padding:18px">세부 항목이 없습니다.</div>';
-    return;
-  }
-  drillItems = [];
-  var html = '';
-  groups.forEach(function(g){
-    if (groups.length > 1)
-      html += '<div class="drill-row head"><span class="nm">' + esc(g.name || g.group) + '</span></div>';
-    (g.items || []).forEach(function(x){
-      var i = drillItems.length;
-      drillItems.push({ ecos:true, code:x.code, name:x.name, cycle:x.cycle, unit:x.unit, cat:cat });
-      var pad = 10 + Math.max(0, (Number(x.level) || 1) - 1) * 14;
-      html += '<div class="drill-row" style="padding-left:' + pad + 'px" onclick="drillAddEcos(' + i + ')">'
-            + '<span class="nm">' + esc(x.name) + '</span>'
-            + (x.unit ? '<span class="tag">' + esc(x.unit) + '</span>' : '')
-            + '<span class="sid">' + esc(x.code) + '</span></div>';
-    });
-  });
-  $('drillList').innerHTML = html;
-}
-function drillAddEcos(i){
-  var x = drillItems[i]; if (!x) return;
-  addSeries({ source:'ecos', code:x.cat.code, item_code:x.code,
-              cycle:(x.cycle || x.cat.cycle || 'M'),
-              label:x.cat.label + ' · ' + x.name, unit:x.unit || '' });
 }
 
 var drillItems = [];
