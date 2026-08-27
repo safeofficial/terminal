@@ -2377,6 +2377,10 @@ function dtRenderPicker(){
        ? ' · 값 <b>' + dtMeta.counted + '</b>/' + dtMeta.total_series + '개'
          + ' <a href="#" onclick="dtLoadItems();return false;">이어받기</a>'
        : (dtMeta && dtMeta.total_series ? ' · 값 전부 받음' : ''))
+    /*  캐시가 언제까지 유효한지 밝혀둡니다. '다음 발표까지 그대로' 라는 걸
+        알면 왜 숫자가 안 바뀌는지 궁금해하지 않아도 됩니다.              */
+    + (dtMeta && dtMeta.valid_until
+       ? ' · 다음 발표(<b>' + esc(dtMeta.valid_until) + '</b>)까지 이 값이 유지됩니다' : '')
     + (n ? ' · <b>' + n + '개 선택</b>' : '');
 }
 
