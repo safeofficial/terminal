@@ -270,26 +270,6 @@
   .tile .d{font-size:11px;color:var(--text-sub);margin-top:2px}
   .tile .v.pos{color:var(--up)} .tile .v.neg{color:var(--down)}
   /* ── 달력 ── */
-  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
-  .cal .dow{text-align:center;font-size:11px;font-weight:600;color:var(--text-sub);padding:2px 0}
-  .cal .dow.sun{color:var(--up)} .cal .dow.sat{color:var(--down)}
-  .cal-day{min-height:86px;border:1px solid var(--border);border-radius:8px;padding:5px 6px;
-    background:var(--white);cursor:pointer;text-align:left;font-family:inherit;overflow:hidden;
-    display:flex;flex-direction:column;gap:3px}
-  .cal-day:hover{border-color:var(--accent);background:var(--accent-soft)}
-  .cal-day.off{background:var(--bg);opacity:.5;cursor:default}
-  .cal-day.today{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
-  .cal-day.on{background:var(--accent-soft);border-color:var(--primary)}
-  .cal-day .dnum{font-size:11.5px;font-weight:700;color:var(--text-sub)}
-  .cal-day.today .dnum{color:var(--primary)}
-  /* 색은 '결과' 를 뜻합니다 — 빨강은 예상 상회, 파랑은 예상 하회.
-     ★ 는 시장이 크게 반응하는 지표라는 표시입니다. */
-  .cal-ev{font-size:10.5px;line-height:1.35;padding:1px 4px;border-radius:3px;
-    background:var(--bg);color:var(--text-sub);border:1px solid var(--border);
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .cal-ev.soon{background:var(--accent-soft);color:var(--primary);border-color:transparent}
-  .cal-ev.up{background:rgba(192,57,43,.10);color:var(--up);font-weight:600;border-color:transparent}
-  .cal-ev.dn{background:rgba(27,95,168,.10);color:var(--down);font-weight:600;border-color:transparent}
   .cal-more{font-size:10px;color:var(--text-sub)}
   .v-num{font-size:12px;font-weight:600;color:var(--primary);min-width:52px;text-align:right}
   .val-step{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);
@@ -306,6 +286,74 @@
   .vgrid th{background:var(--bg);color:var(--text-sub);font-size:11px;font-weight:600}
   .vgrid td.up{background:rgba(192,57,43,.10);color:var(--up);font-weight:600}
   .vgrid td.dn{background:rgba(27,95,168,.10);color:var(--down)}
+  /* 실시간 피드 */
+  .nf-chips{display:flex;gap:5px;flex-wrap:wrap}
+  .nf-chip{font-size:11.5px;padding:3px 10px;border-radius:12px;cursor:pointer;
+    border:1px solid var(--border);background:var(--card);color:var(--text-sub)}
+  .nf-chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
+  .nf-list{max-height:420px;overflow-y:auto;border-top:1px solid var(--border)}
+  .nf-row{display:grid;grid-template-columns:56px 84px 62px 1fr;gap:9px;align-items:baseline;
+    padding:8px 4px;border-bottom:1px solid var(--border);font-size:12.5px}
+  .nf-row:hover{background:var(--bg)}
+  .nf-row .t{color:var(--text-sub);font-size:11px;white-space:nowrap}
+  .nf-row .src{font-size:10.5px;color:var(--text-sub);overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .nf-tag{font-size:10.5px;padding:1px 7px;border-radius:9px;text-align:center;
+    background:var(--bg);color:var(--text-sub);white-space:nowrap}
+  .nf-tag.정책{background:rgba(44,62,107,.12);color:var(--primary)}
+  .nf-tag.매크로{background:rgba(31,138,112,.14);color:#1f8a70}
+  .nf-tag.원자재{background:rgba(178,106,0,.14);color:#b26a00}
+  .nf-tag.크립토{background:rgba(120,80,190,.14);color:#7850be}
+  .nf-tag.실적{background:rgba(192,57,43,.10);color:var(--up)}
+  .nf-tag.공시{background:rgba(27,95,168,.12);color:var(--down)}
+  .nf-row a{color:var(--text);text-decoration:none}
+  .nf-row a:hover{text-decoration:underline;color:var(--primary)}
+  .nf-row.hot .ttl:before{content:'★ ';color:var(--up)}
+  .nf-row.hot a{font-weight:600}
+
+  /* 증시캘린더 — 왼쪽 미니 달력, 오른쪽 일정 목록 */
+  .cal-wrap{display:grid;grid-template-columns:250px 1fr;gap:22px}
+  @media(max-width:900px){ .cal-wrap{grid-template-columns:1fr} }
+  .cal-side{min-width:0}
+  .cal-main{min-width:0}
+  .cal-mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .cal-mhead b{font-size:15px}
+  .cal-nav{background:none;border:1px solid var(--border);border-radius:6px;
+    width:24px;height:24px;cursor:pointer;color:var(--text-sub);font-size:13px;line-height:1}
+  .cal-nav:hover{background:var(--bg)}
+  .cal{display:grid;grid-template-columns:repeat(6,1fr);gap:2px}
+  .cal .dow{text-align:center;font-size:11px;color:var(--text-sub);padding:4px 0}
+  .cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;font-size:12.5px;border-radius:7px;cursor:pointer;
+    color:var(--text);position:relative;border:1px solid transparent}
+  .cal-day:hover{background:var(--bg)}
+  .cal-day.off{color:var(--border);cursor:default}
+  .cal-day.off:hover{background:none}
+  .cal-day.today{font-weight:700;color:var(--primary)}
+  .cal-day.sel{background:var(--accent-soft);border-color:var(--primary);font-weight:600}
+  .cal-day .dot{width:4px;height:4px;border-radius:50%;background:var(--primary);
+    position:absolute;bottom:5px}
+  .cal-day .dot.big{background:var(--up)}
+  .cal-brief{margin-top:14px;padding:12px;background:var(--accent-soft);
+    border-radius:10px;font-size:12px;line-height:1.7}
+  .cal-filters{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  .cal-filters .mode-seg{margin:0}
+  .cal-wk{font-size:12.5px;font-weight:700;color:var(--text-sub);
+    padding:14px 0 6px;border-bottom:1px solid var(--border)}
+  .cal-row{display:grid;grid-template-columns:74px 1fr 92px 78px 78px;gap:8px;
+    align-items:center;padding:9px 4px;border-bottom:1px solid var(--border);font-size:12.5px}
+  .cal-row.head{font-size:11px;color:var(--text-sub);font-weight:600;padding:7px 4px}
+  .cal-row .dt{color:var(--text-sub)}
+  .cal-row .dt.first{color:var(--primary);font-weight:600}
+  .cal-row .nm{display:flex;align-items:center;gap:6px;min-width:0}
+  .cal-row .nm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cal-row .num{text-align:right;font-variant-numeric:tabular-nums}
+  .cal-row .soon{color:var(--text-sub);grid-column:3 / -1;text-align:right}
+  .cal-row.on{background:var(--accent-soft);border-radius:8px}
+  .cal-key{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;margin-right:5px}
+  .cal-key.up{background:rgba(192,57,43,.12);color:var(--up)}
+  .cal-key.dn{background:rgba(27,95,168,.12);color:var(--down)}
+  .cal-key.soon{background:var(--bg);color:var(--text-sub)}
   .fs-caret{width:16px;height:16px;line-height:1;padding:0;margin-right:5px;border:0;
     background:transparent;color:var(--text-sub);cursor:pointer;font-size:11px;
     transform:rotate(0deg);transition:transform .12s;display:inline-block;vertical-align:1px}
@@ -506,6 +554,31 @@
       </div>
       <div id="homeWarn"></div>
 
+      <!-- 실시간 피드 -->
+      <div class="card">
+        <h2>실시간 피드
+          <span style="font-size:11.5px;color:var(--text-sub);font-weight:400" id="nfAge"></span>
+          <span class="tools">
+            <label style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+              <input type="checkbox" id="nfAuto" checked onchange="nfTick()"
+                     style="width:auto;vertical-align:-2px"> 자동 갱신
+            </label>
+            <button class="btn-sm" onclick="nfLoad(true)">지금 새로고침</button>
+          </span>
+        </h2>
+        <div class="cal-filters" style="margin-bottom:10px">
+          <div class="mode-seg" id="nfKind">
+            <button class="on" onclick="nfSet('kind','news')">뉴스</button>
+            <button onclick="nfSet('kind','filings')">미국 공시</button>
+            <button onclick="nfSet('kind','dart')">국내 공시</button>
+          </div>
+          <div class="nf-chips" id="nfTags"></div>
+        </div>
+        <div id="nfWarn"></div>
+        <div id="nfList" class="nf-list"></div>
+        <p class="st-hint" style="margin-top:8px" id="nfNote"></p>
+      </div>
+
       <!-- 처음 온 학회원용 안내 -->
       <div class="card" id="homeGuide">
         <h2>어디에 무엇이 있나
@@ -557,35 +630,56 @@
         <div id="homeFxBox" style="height:280px"></div>
       </div>
 
-      <!-- 거시경제 캘린더 -->
-      <div class="card">
-        <h2>거시경제 지표 캘린더
-          <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
-            각국이 언제 무엇을 발표하는지 · 예상치와 실제치</span>
-          <span class="tools">
-            <button class="btn-sm" onclick="ecMonth(-1)">‹ 지난달</button>
-            <button class="btn-sm" onclick="ecMonth(0)">이번 달</button>
-            <button class="btn-sm" onclick="ecMonth(1)">다음달 ›</button>
-          </span>
-        </h2>
-        <div class="row">
-          <label>국가</label>
-          <select id="ecSel" onchange="loadEcon()" style="width:130px"></select>
-          <label style="min-width:auto">
-            <input type="checkbox" id="ecOnlyBig" onchange="renderEcon()" style="width:auto;vertical-align:-2px">
-            주요 지표만
-          </label>
-          <span class="st-hint" id="ecTitle" style="margin-left:6px"></span>
+      <!-- 증시캘린더 -->
+      <div class="card cal-card">
+        <div class="cal-wrap">
+          <aside class="cal-side">
+            <div class="cal-mhead">
+              <b id="ecTitle">—</b>
+              <span>
+                <button class="cal-nav" onclick="ecMonth(-1)" title="지난달">‹</button>
+                <button class="cal-nav" onclick="ecMonth(1)" title="다음달">›</button>
+              </span>
+            </div>
+            <div id="ecCal"></div>
+            <div class="cal-brief" id="ecBrief"></div>
+          </aside>
+
+          <div class="cal-main">
+            <h2 style="margin-bottom:10px">증시캘린더
+              <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+                발표시각은 한국시간입니다</span>
+              <span class="tools">
+                <button class="btn-sm" onclick="ecMonth(0)">오늘로</button>
+              </span>
+            </h2>
+            <div class="cal-filters">
+              <div class="mode-seg" id="ecKind">
+                <button class="on" onclick="ecSet('kind','all')">전체</button>
+                <button onclick="ecSet('kind','macro')">경제지표</button>
+                <button onclick="ecSet('kind','earn')">실적</button>
+              </div>
+              <div class="mode-seg" id="ecScope">
+                <button class="on" onclick="ecSet('scope','all')">전체</button>
+                <button onclick="ecSet('scope','KR')">국내</button>
+                <button onclick="ecSet('scope','US')">해외</button>
+              </div>
+              <div class="mode-seg" id="ecView" style="margin-left:auto">
+                <button class="on" onclick="ecSet('view','week')">주별</button>
+                <button onclick="ecSet('view','month')">월별</button>
+              </div>
+            </div>
+            <div id="ecWarn"></div>
+            <div id="ecBody"></div>
+            <p class="st-hint" style="margin-top:10px">
+              <span class="cal-key up">예상 상회</span>
+              <span class="cal-key dn">예상 하회</span>
+              <span class="cal-key soon">발표 전</span>
+              <span style="margin-left:8px">★ 는 시장이 크게 반응하는 지표입니다.
+              예측치는 시장 컨센서스가 아니라 <b>연준 나우캐스트</b>입니다.</span>
+            </p>
+          </div>
         </div>
-        <div id="ecWarn"></div>
-        <div id="ecCal"></div>
-        <p class="st-hint" style="margin-top:8px">
-          <span class="cal-key up">예상 상회</span>
-          <span class="cal-key dn">예상 하회</span>
-          <span class="cal-key soon">발표 전</span>
-          <span style="margin-left:8px">★ 는 시장이 크게 반응하는 지표입니다. 날짜를 누르면 그날 발표만 봅니다.</span>
-        </p>
-        <div id="ecBody"></div>
       </div>
 
       <!-- 실적 발표 일정 -->
@@ -779,6 +873,13 @@
             <div class="row">
               <input type="text" id="dtFilter" class="grow" placeholder="항목 이름으로 좁히기 (예: shelter, 식료품)"
                      oninput="dtRenderPicker()">
+              <select id="dtTopBy" style="width:130px" onchange="dtTopByChange()">
+                <option value="mom">전월 대비</option>
+                <option value="q3">3개월 전 대비</option>
+                <option value="m6">6개월 전 대비</option>
+                <option value="m9">9개월 전 대비</option>
+                <option value="yoy" selected>전년 대비</option>
+              </select>
               <button class="btn-sm" onclick="dtPickTop()">많이 변한 항목 자동 선택</button>
             </div>
             <div id="dtWarn"></div>
@@ -817,7 +918,7 @@
               <div id="dtChartBox" style="height:360px;margin-top:6px"></div>
               <div id="dtBarWrap" class="hidden">
                 <div class="dt-sub">
-                  <b>전년 대비 변화율</b>
+                  <b id="dtBarTitle">전년 대비 변화율</b>
                   <button class="btn-sm" onclick="dtJpg('bar')">JPG</button>
                 </div>
                 <div id="dtBarBox" style="height:0"></div>
@@ -1342,14 +1443,34 @@
                 <div class="row">
                   <label>목표 EV/EBITDA</label>
                   <input type="number" id="vEv" step="0.5" oninput="valDraw()" style="width:90px">
+                  <label style="min-width:auto">목표 EV/매출</label>
+                  <input type="number" id="vEvRev" step="0.1" oninput="valDraw()" style="width:90px">
+                </div>
+                <div class="row">
                   <button class="btn-sm" onclick="valReset()">회사 자기 값으로</button>
-                  <button class="btn-sm" onclick="valConsensus()">컨센서스로 채우기</button>
+                  <button class="btn-sm" onclick="valWaccApply()">WACC 다시 계산</button>
                 </div>
                 <p class="st-hint" style="margin:4px 0 0">
                   목표 배수를 비우면 <b>이 회사의 최근 평균</b>을 씁니다.
                   동종업계 배수를 넣으면 상대가치가 됩니다.</p>
               </div>
             </div>
+          </div>
+
+          <div class="card">
+            <h2>지금 몇 배에 거래되나
+              <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+                주가 · 주식수 · 재무제표로 직접 계산했습니다</span>
+            </h2>
+            <div id="valMult"></div>
+          </div>
+
+          <div class="card">
+            <h2>할인율은 어디서 나왔나 (WACC)
+              <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+                구성요소를 쌓아 올린 값입니다</span>
+            </h2>
+            <div id="valWaccBox"></div>
           </div>
 
           <div class="card">
@@ -2091,24 +2212,63 @@ function dtKey(x){
     받고 나머지 개수를 알려주면, 여기서 0 이 될 때까지 이어서 부릅니다.
     받아둔 값은 서버 캐시에 쌓이므로 왕복할수록 채워집니다.              */
 var dtStop = false;
+
+/*  값이 채워지는 동안 화면을 비워두지 않습니다.
+
+    FRED 는 분당 120번이 한계라, 항목이 300개인 발표는 아무리 잘 짜도
+    몇 분이 걸립니다. 그동안 빈 상자를 보여주면 '로딩이 안 된다' 로 보입니다.
+    그래서 ① 목록을 먼저 받아 표를 그리고 ② 값은 뒤에서 채워 넣습니다.
+    사용자는 첫 화면부터 항목을 고를 수 있습니다.                        */
+function dtFillFrom(d){
+  var by = {};
+  (d.items || []).forEach(function(x){ if (x.series_id) by[x.series_id] = x; });
+  dtItems.forEach(function(it){
+    var hit = by[it.code];
+    if (!hit) return;
+    it.value = hit.value; it.on = hit.on;
+    it.mom = hit.mom; it.yoy = hit.yoy; it.q3 = hit.q3;
+    it.m6 = hit.m6; it.m9 = hit.m9;
+  });
+  dtMeta = d;
+}
+
+function dtProgress(d){
+  var got = Number(d.counted) || 0, tot = Number(d.total_series) || 0;
+  var el = $('dtStatus'); if (!el) return;
+  el.innerHTML = (Number(d.remaining) > 0)
+    ? '값을 받는 중 <b>' + got + ' / ' + tot + '</b> · FRED 는 분당 120번까지만 '
+      + '받아줘서 나눠 받습니다 '
+      + '<button class="btn-sm" onclick="dtStop=true">여기까지만</button>'
+    : '';
+}
+
 async function dtFredAll(code){
   dtStop = false;
-  var d = await edge({ source:'fred_report', code:code });
-  var rounds = 0;
-  while (!dtStop && Number(d.remaining) > 0 && rounds < 10){
-    var before = Number(d.counted) || 0;
-    $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">'
-      + '항목 값을 받는 중… <b>' + before + ' / ' + (d.total_series || '?') + '</b>'
-      + '<div style="margin-top:8px"><button class="btn-sm" onclick="dtStop=true">여기까지만</button></div>'
-      + '</div>';
-    var next = await edge({ source:'fred_report', code:code });
-    rounds++;
-    //  한 바퀴 돌아도 하나도 안 늘면 더 해봐야 소용없습니다
-    if ((Number(next.counted) || 0) <= before){ d = next; break; }
-    d = next;
-  }
+  //  ① 목록 먼저 — 이것만 오면 표를 그릴 수 있습니다
+  var d = await edge({ source:'fred_items', code:code });
   return d;
 }
+
+//  ② 값 채우기 — 표를 띄워둔 채로 뒤에서 계속 돕니다
+async function dtFredValues(code){
+  var rounds = 0, d = null;
+  while (!dtStop && rounds < 12){
+    var before = d ? (Number(d.counted) || 0) : -1;
+    var next;
+    try { next = await edge({ source:'fred_report', code:code }); }
+    catch(e){ warn('dtWarn', esc(e.message)); break; }
+    if (dtParentCat !== null && dtCat() && dtCat().code !== code) return;  // 다른 지표로 옮겨갔으면 멈춤
+    d = next;
+    dtFillFrom(d); dtRenderPicker(); dtProgress(d);
+    rounds++;
+    if (!(Number(d.remaining) > 0)) break;
+    if ((Number(d.counted) || 0) <= before) break;   // 더 안 늘면 그만
+  }
+  if (d && Number(d.remaining) > 0 && !dtStop)
+    warn('dtWarn', '값 ' + d.counted + '/' + d.total_series + '개까지 받았습니다. '
+       + '<a href="#" onclick="dtMore();return false;"><b>더 받기</b></a>', 'info');
+}
+function dtMore(){ var c = dtCat(); if (c) dtFredValues(c.code); }
 
 async function dtLoadItems(){
   var c = dtCat();
@@ -2116,7 +2276,7 @@ async function dtLoadItems(){
   dtParentCat = c; dtItems = []; dtPick = {}; dtSeries = {}; dtMeta = null;
   $('dtResult').classList.add('hidden');
   $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">'
-    + '보고서를 펼치는 중… (항목이 많으면 20초쯤 걸립니다)</div>';
+    + '보고서 항목을 펼치는 중…</div>';
   $('dtStatus').textContent = '';
   warn('dtWarn','');
   try {
@@ -2126,7 +2286,8 @@ async function dtLoadItems(){
       dtItems = (d.items || []).map(function(x){
         return { kind:'fred', code:x.series_id, name:x.name,
                  level:Number(x.level) || 1, head: !x.series_id,
-                 value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3, unit:'' };
+                 value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3,
+                 m6:x.m6, m9:x.m9, unit:'' };
       });
     } else {
       d = await edge({ source:'ecos_report', code:c.code, cycle:(c.cycle || 'M') });
@@ -2134,7 +2295,8 @@ async function dtLoadItems(){
         return { kind:'ecos', code:c.code, item:x.item, name:x.name,
                  cycle:(c.cycle || 'M'), unit:x.unit || '',
                  level:Number(x.level) || 1, head:false,
-                 value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3 };
+                 value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3,
+             m6:x.m6, m9:x.m9 };
       });
       if (dtItems.some(function(x){ return String(x.name).indexOf(' · ') >= 0; }))
         warn('dtWarn', ECOS_AXIS_HINT, 'info');
@@ -2148,6 +2310,8 @@ async function dtLoadItems(){
       return;
     }
     dtRenderPicker();
+    //  표는 이미 떴습니다. 값은 뒤에서 채웁니다 — 기다리지 않습니다.
+    if (c.source === 'fred' && d.items_only){ dtProgress(d); dtFredValues(c.code); }
   } catch(err){
     $('dtPicker').innerHTML = '';
     warn('dtWarn', esc(err.message));
@@ -2228,7 +2392,6 @@ function dtToggle(i){
     }
     dtPick[k] = x;
   }
-  warn('dtWarn','');
   dtRenderPicker();
   dtRun();
 }
@@ -2241,14 +2404,35 @@ function dtClearAll(){
 }
 
 //  전년 대비 변화가 큰 항목부터 몇 개 골라줍니다 — 보고서에서 눈에 띄는 것들
+/*  '많이 변한 항목' 을 어느 구간으로 잴지.
+    예전에는 전년 대비 하나뿐이라, 최근 몇 달에 크게 튄 항목을 못 잡았습니다.
+    (에너지처럼 3개월 만에 뒤집히는 항목이 그렇습니다)                    */
+var DT_TOPBY = { mom:'전월 대비', q3:'3개월 전 대비', m6:'6개월 전 대비',
+                 m9:'9개월 전 대비', yoy:'전년 대비' };
+function dtTopKey(){
+  var e = $('dtTopBy');
+  return (e && DT_TOPBY[e.value]) ? e.value : 'yoy';
+}
+function dtTopLabel(){ return DT_TOPBY[dtTopKey()]; }
+function dtTopByChange(){
+  //  이미 고른 항목이 있으면 바 차트·해설만 새 기준으로 다시 그립니다
+  if (Object.keys(dtPick).length) dtDraw();
+}
+
 function dtPickTop(){
   if (!dtItems.length){ warn('dtWarn','먼저 보고서를 불러와 주세요.'); return; }
   dtPick = {};
+  var k = dtTopKey();
   var pool = dtItems.filter(function(x){ return !x.head && x.code != null; });
-  var withY = pool.filter(function(x){ return x.yoy != null; });
+  var withY = pool.filter(function(x){ return x[k] != null; });
   if (withY.length >= 3){
-    withY.sort(function(a, b){ return Math.abs(b.yoy) - Math.abs(a.yoy); });
+    withY.sort(function(a, b){ return Math.abs(b[k]) - Math.abs(a[k]); });
     withY.slice(0, 6).forEach(function(x){ dtPick[dtKey(x)] = x; });
+  } else if (pool.some(function(x){ return x[k] != null; })){
+    warn('dtWarn', esc(dtTopLabel()) + ' 값이 있는 항목이 3개가 안 됩니다. '
+       + '다른 기준으로 골라보세요.', 'info');
+    pool.filter(function(x){ return x[k] != null; })
+        .forEach(function(x){ dtPick[dtKey(x)] = x; });
   } else {
     var minLv = Math.min.apply(null, pool.map(function(x){ return x.level; }));
     var lv2 = pool.filter(function(x){ return x.level === minLv + 1; });
@@ -2357,7 +2541,8 @@ function dtDraw(){
     var x = dtPick[k];
     return { key:k, name:x.name, unit:s.unit, err:s.err,
              color: pal[i % pal.length], pts:cut,
-             value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3 };
+             value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3,
+             m6:x.m6, m9:x.m9 };
   });
 
   //  ── 선 차트 ──
@@ -2405,12 +2590,15 @@ function dtDraw(){
       : [])
   }, true);
 
-  //  ── 전년 대비 막대 (보고서에서 바로 가져옵니다) ──
-  var bars = rows.filter(function(r){ return r.yoy != null; })
-                 .sort(function(a, b){ return a.yoy - b.yoy; });
+  //  ── 고른 기준으로 견준 막대 (보고서에서 바로 가져옵니다) ──
+  var tk = dtTopKey();
+  rows.forEach(function(r){ r.cmp = (r[tk] != null) ? r[tk] : null; });
+  var bars = rows.filter(function(r){ return r.cmp != null; })
+                 .sort(function(a, b){ return a.cmp - b.cmp; });
   var bb = $('dtBarBox');
   if (bars.length >= 2){
     $('dtBarWrap').classList.remove('hidden');
+    if ($('dtBarTitle')) $('dtBarTitle').textContent = dtTopLabel() + ' 변화율';
     bb.style.height = Math.max(120, 24 + bars.length * 28) + 'px';
     if (!dtBar) dtBar = echarts.init(bb);
     dtBar.resize();
@@ -2424,7 +2612,7 @@ function dtDraw(){
         axisLine:{ show:false }, axisTick:{ show:false } },
       series:[{ type:'bar', barMaxWidth:16,
         data: bars.map(function(r){
-          return { value:r.yoy, itemStyle:{ color: r.yoy >= 0 ? '#c0392b' : '#1b5fa8' } }; }),
+          return { value:r.cmp, itemStyle:{ color: r.cmp >= 0 ? '#c0392b' : '#1b5fa8' } }; }),
         label:{ show:true, position:'right', fontSize:11,
           formatter:function(a){ return (a.value >= 0 ? '+' : '') + Number(a.value).toFixed(1) + '%'; } } }]
     }, true);
@@ -2438,35 +2626,39 @@ function dtDraw(){
 
 //  ── 쉬운 해설 ──
 function dtReadout(rows, mode){
-  var ok = rows.filter(function(r){ return r.yoy != null; });
+  //  '몇 개월 전과 견줄까' 는 위에서 고른 기준을 그대로 씁니다
+  var ok = rows.filter(function(r){ return r.cmp != null; });
   if (!ok.length){ $('dtRead').innerHTML = ''; return; }
-  var sorted = ok.slice().sort(function(a, b){ return b.yoy - a.yoy; });
+  var lab = dtTopLabel();
+  var sorted = ok.slice().sort(function(a, b){ return b.cmp - a.cmp; });
   var top = sorted[0], bot = sorted[sorted.length - 1];
-  var upN = ok.filter(function(r){ return r.yoy > 0; }).length;
+  var upN = ok.filter(function(r){ return r.cmp > 0; }).length;
   var parent = dtParentCat ? dtParentCat.label : '이 지표';
 
   var H = '<b>' + esc(parent) + ' 안을 쪼개서 보면</b><br>';
-  H += '· 1년 전과 견주면 <b>' + esc(top.name) + '</b>('
-     + (top.yoy > 0 ? '+' : '') + num(top.yoy, 1) + '%)가 가장 많이 올랐고, '
+  H += '· ' + esc(lab) + '로 견주면 <b>' + esc(top.name) + '</b>('
+     + (top.cmp > 0 ? '+' : '') + num(top.cmp, 1) + '%)가 가장 많이 올랐고, '
      + '<b>' + esc(bot.name) + '</b>('
-     + (bot.yoy > 0 ? '+' : '') + num(bot.yoy, 1) + '%)가 가장 덜 올랐습니다.<br>';
+     + (bot.cmp > 0 ? '+' : '') + num(bot.cmp, 1) + '%)가 가장 덜 올랐습니다.<br>';
   if (ok.length > 1){
-    var spread = top.yoy - bot.yoy;
+    var spread = top.cmp - bot.cmp;
     H += '· 둘 사이 격차가 <b>' + num(spread, 1) + '%p</b>입니다. '
        + (spread > 10
           ? '항목마다 사정이 크게 다르다는 뜻이라, 지표 하나만 보면 놓치는 게 생깁니다.'
           : '항목들이 대체로 같은 방향으로 움직이고 있습니다.') + '<br>';
-    H += '· 고른 ' + ok.length + '개 중 <b>' + upN + '개</b>가 1년 전보다 높습니다.'
+    H += '· 고른 ' + ok.length + '개 중 <b>' + upN + '개</b>가 ' + esc(lab) + ' 높습니다.'
        + (upN === ok.length ? ' 전 항목이 상승입니다.' :
           (upN === 0 ? ' 전 항목이 하락입니다.' : '')) + '<br>';
   }
-  //  이번 달 흐름이 1년 흐름과 다르면 짚어줍니다
-  var flip = ok.filter(function(r){
-    return r.mom != null && ((r.yoy > 0 && r.mom < 0) || (r.yoy < 0 && r.mom > 0)); });
-  if (flip.length)
-    H += '· <b>' + esc(flip.map(function(r){ return r.name; }).slice(0, 3).join(', '))
-       + '</b>' + (flip.length > 3 ? ' 등' : '') + '은 <b>이번 달 방향이 1년 흐름과 반대</b>입니다. '
-       + '흐름이 꺾이는 중일 수 있습니다.<br>';
+  //  최근 흐름이 고른 구간의 흐름과 다르면 짚어줍니다
+  if (dtTopKey() !== 'mom'){
+    var flip = ok.filter(function(r){
+      return r.mom != null && ((r.cmp > 0 && r.mom < 0) || (r.cmp < 0 && r.mom > 0)); });
+    if (flip.length)
+      H += '· <b>' + esc(flip.map(function(r){ return r.name; }).slice(0, 3).join(', '))
+         + '</b>' + (flip.length > 3 ? ' 등' : '') + '은 <b>가장 최근 한 달 방향이 '
+         + esc(lab) + ' 흐름과 반대</b>입니다. 흐름이 꺾이는 중일 수 있습니다.<br>';
+  }
 
   H += '<span class="st-hint">'
      + (mode === 'yoy' ? '지금 차트는 1년 전 같은 시점 대비 변화율입니다. 0선 위면 오른 것입니다.'
@@ -2516,7 +2708,6 @@ var homeReady = false, homeFx = null, homeFxChart = null;
 var econData = null, earnData = null;
 
 //  '굵직한 지표' — 시장이 실제로 반응하는 것들만 골라냅니다.
-var ECON_BIG = /(Interest Rate|Inflation Rate|CPI|Core Inflation|GDP|Unemployment Rate|Non ?Farm|Payroll|PMI|Retail Sales|Industrial Production|Trade Balance|PPI|Consumer Confidence|Balance of Trade|Employment Change|Jobless Claims)/i;
 
 //  한 번 닫으면 그 컴퓨터에서는 다시 안 띄웁니다.
 //  저장이 막힌 브라우저도 있어서 실패해도 그냥 넘어갑니다.
@@ -2534,10 +2725,7 @@ function initHome(){
   if (homeReady) return;
   homeReady = true;
   applyGuidePref();
-  var sel = $('ecSel');
-  var CO = [['US','미국'],['KR','한국'],['JP','일본'],['CN','중국'],['EU','유로존'],
-            ['DE','독일'],['GB','영국'],['FR','프랑스'],['IN','인도'],['CA','캐나다']];
-  sel.innerHTML = CO.map(function(c){ return '<option value="'+c[0]+'">'+esc(c[1])+'</option>'; }).join('');
+  nfLoad(); nfTick();
   loadHomeFx();
   loadEcon();
   loadEarn();
@@ -2654,15 +2842,143 @@ function drawHomeFx(){
   }, true);
 }
 
-/* ── 거시경제 지표 캘린더 ──────────────────────
-   달력으로 한 달을 통째로 보여주고, 날짜를 누르면 그날 발표를
-   실제 · 예상 · 직전 세 값으로 아래에 펼칩니다.               */
+/* ── 실시간 피드 ────────────────────────────────────────
+
+   매체가 신디케이션용으로 내놓는 RSS 와 정부 공시를 모읍니다.
+   브라우저에서 바로 부르면 CORS 에 막혀서 서버가 대신 받아옵니다.
+
+   분류는 제목의 단어를 보고 붙입니다 — 순수 키워드 매칭입니다.
+   AI 도 아니고 매체가 준 태그도 아닙니다. 훑어보며 색으로 가르는
+   용도이고, 이 분류를 근거로 뭘 판단하면 안 됩니다.
+   화면에도 그렇게 적어둡니다.                                        */
+var nfData = { news:null, filings:null, dart:null };
+var nfKind = 'news', nfTag = '전체', nfTimer = null, nfBusy = false;
+var NF_TAGS = ['전체','정책','매크로','원자재','크립토','실적','M&A','기업'];
+
+function nfSet(k, v){
+  if (k === 'kind'){
+    nfKind = v;
+    var box = $('nfKind');
+    if (box) [].forEach.call(box.children, function(b){
+      b.classList.toggle('on', b.textContent.trim() ===
+        ({ news:'뉴스', filings:'미국 공시', dart:'국내 공시' })[v]);
+    });
+    nfTag = '전체';
+  } else nfTag = v;
+  if (!nfData[nfKind]) nfLoad(); else nfRender();
+}
+
+//  '3분 전' 처럼 — 시각보다 '얼마나 지났나' 가 읽기 편합니다
+function nfAgo(iso){
+  if (!iso) return '';
+  var s = (Date.now() - Date.parse(iso)) / 1000;
+  if (!isFinite(s)) return '';
+  if (s < 60) return '방금';
+  if (s < 3600) return Math.floor(s / 60) + '분 전';
+  if (s < 86400) return Math.floor(s / 3600) + '시간 전';
+  var d = Math.floor(s / 86400);
+  return d < 8 ? d + '일 전' : String(iso).slice(5, 10);
+}
+
+async function nfLoad(force){
+  if (nfBusy) return;
+  nfBusy = true;
+  var kind = nfKind;
+  if (!nfData[kind]) $('nfList').innerHTML =
+    '<div class="empty" style="padding:22px">불러오는 중…</div>';
+  try {
+    var d;
+    if (kind === 'dart') d = await edgeCo({ action:'dart_recent', limit:60 });
+    else d = await edge({ source:'news_feed', kind: kind });
+    nfData[kind] = d;
+    warn('nfWarn','');
+    if (d.failed && d.failed.length)
+      warn('nfWarn', '받지 못한 곳: ' + esc(d.failed.join(', ')), 'info');
+  } catch(e){
+    warn('nfWarn', esc(e.message));
+  }
+  nfBusy = false;
+  if (kind === nfKind) nfRender();
+}
+
+function nfRender(){
+  var d = nfData[nfKind];
+  if (!d){ $('nfList').innerHTML = ''; return; }
+  var items = (d.items || []);
+
+  //  뉴스에만 분류 칩을 답니다 (공시는 종류가 곧 분류입니다)
+  var chips = $('nfTags');
+  if (nfKind === 'news'){
+    var have = {};
+    items.forEach(function(x){ have[x.tag] = (have[x.tag] || 0) + 1; });
+    chips.innerHTML = NF_TAGS.filter(function(t){ return t === '전체' || have[t]; })
+      .map(function(t){
+        return '<span class="nf-chip' + (t === nfTag ? ' on' : '') + '" '
+             + 'onclick="nfSet(\'tag\',\'' + t + '\')">' + esc(t)
+             + (t === '전체' ? '' : ' ' + have[t]) + '</span>'; }).join('');
+  } else chips.innerHTML = '';
+
+  var list = (nfKind === 'news' && nfTag !== '전체')
+    ? items.filter(function(x){ return x.tag === nfTag; }) : items;
+
+  if (!list.length){
+    $('nfList').innerHTML = '<div class="empty" style="padding:22px">받은 소식이 없습니다.</div>';
+  } else {
+    $('nfList').innerHTML = list.slice(0, 80).map(function(x){
+      var link = x.link
+        ? '<a href="' + esc(x.link) + '" target="_blank" rel="noopener noreferrer">'
+          + esc(x.title) + '</a>'
+        : esc(x.title);
+      return '<div class="nf-row' + (x.hot ? ' hot' : '') + '">'
+           + '<span class="t">' + esc(nfAgo(x.at)) + '</span>'
+           + '<span class="src">' + esc(x.source || '') + '</span>'
+           + '<span class="nf-tag ' + esc(x.tag || '') + '">' + esc(x.tag || '') + '</span>'
+           + '<span class="ttl">' + link + '</span></div>';
+    }).join('');
+  }
+
+  $('nfAge').textContent = d.at ? '· ' + nfAgo(d.at) + ' 기준' : '';
+
+  /*  분류가 어떻게 붙는지 밝혀둡니다.
+      "제목 단어로 갈랐다" 를 알고 보는 것과 모르고 보는 것은 다릅니다.  */
+  $('nfNote').innerHTML = nfKind === 'news'
+    ? '분류는 <b>제목의 단어</b>를 보고 붙입니다 — 순수 키워드 매칭이라 오탐이 납니다. '
+    + '"Fed\'s rate decision lifts oil" 은 <b>정책</b>이 먼저 걸려 원자재로 안 갑니다. '
+    + '<b>기업</b>은 기업 뉴스라기보다 <b>분류에 실패한 것</b>에 가깝습니다. '
+    + '훑어보며 가르는 용도이지, 이걸 근거로 판단하면 안 됩니다. '
+    + '제목을 누르면 매체 원문으로 갑니다.'
+    : (nfKind === 'dart'
+        ? 'DART 전자공시에 방금 접수된 순서입니다. ★ 는 증자·자기주식·합병처럼 '
+        + '주가에 바로 영향을 주는 공시입니다.'
+        : 'SEC EDGAR 에 방금 접수된 순서입니다. ★ 는 8-K(수시공시) · SC 13D(5% 지분) 처럼 '
+        + '눈여겨볼 서류입니다. 기사보다 먼저 나옵니다.');
+}
+
+/*  자동 갱신 — 홈 탭을 보고 있을 때만 돕니다.
+    다른 탭에 있거나 창을 내려놨으면 부르지 않습니다. 서버 캐시가 3분이라
+    그보다 자주 불러도 의미가 없어서 60초로 둡니다.                     */
+function nfTick(){
+  if (nfTimer) clearInterval(nfTimer);
+  nfTimer = setInterval(function(){
+    var on = $('nfAuto') && $('nfAuto').checked;
+    var home = $('pane-home') && !$('pane-home').classList.contains('hidden');
+    if (on && home && !document.hidden) nfLoad();
+    else if (nfData[nfKind]) nfRender();      //  '몇 분 전' 만 갱신
+  }, 60000);
+}
+
+/* ── 증시캘린더 ─────────────────────────────────────────
+
+   왼쪽은 달을 고르는 미니 달력, 오른쪽은 주 단위로 묶은 일정 목록입니다.
+
+   자료는 FRED 발표 일정에 우리 매핑 표를 씌워 만듭니다 — 유료 캘린더가
+   없어도 '언제·무엇이·몇 시에(한국시간)·발표치·이전치' 가 채워집니다.
+   예측치만은 시장 컨센서스가 아니라 연준 나우캐스트라, 화면에 그렇게 적습니다. */
 var ecCursor = null;      // 보고 있는 달의 1일
 var ecDay = null;         // 눌러둔 날짜
+var ecView = { kind:'all', scope:'all', view:'week' };
 
-function ecFirstOfMonth(d){
-  return new Date(d.getFullYear(), d.getMonth(), 1);
-}
+function ecFirstOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
 function ecIso(d){
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0')
        + '-' + String(d.getDate()).padStart(2,'0');
@@ -2671,22 +2987,31 @@ function ecMonth(step){
   var base = ecCursor || ecFirstOfMonth(new Date());
   ecCursor = step === 0 ? ecFirstOfMonth(new Date())
                         : new Date(base.getFullYear(), base.getMonth() + step, 1);
-  ecDay = null;
+  ecDay = step === 0 ? today() : null;
   loadEcon();
+}
+function ecSet(k, v){
+  ecView[k] = v;
+  var box = $(k === 'kind' ? 'ecKind' : (k === 'scope' ? 'ecScope' : 'ecView'));
+  if (box) [].forEach.call(box.children, function(b){
+    b.classList.toggle('on', b.textContent.trim() === ({
+      all:'전체', macro:'경제지표', earn:'실적', KR:'국내', US:'해외',
+      week:'주별', month:'월별' })[v]);
+  });
+  renderEcon();
 }
 
 async function loadEcon(){
   if (!ecCursor) ecCursor = ecFirstOfMonth(new Date());
-  var from = ecIso(ecCursor);
-  var last = new Date(ecCursor.getFullYear(), ecCursor.getMonth() + 1, 0);
-  var to = ecIso(last);
+  //  주별 화면에서도 앞뒤 주가 걸치므로 달 앞뒤로 조금 넉넉히 받습니다
+  var from = ecIso(new Date(ecCursor.getFullYear(), ecCursor.getMonth(), -6));
+  var last = new Date(ecCursor.getFullYear(), ecCursor.getMonth() + 1, 7);
   $('ecTitle').textContent = ecCursor.getFullYear() + '년 ' + (ecCursor.getMonth()+1) + '월';
-  $('ecCal').innerHTML = '<div class="empty" style="padding:22px">불러오는 중…</div>';
+  $('ecCal').innerHTML = '<div class="empty" style="padding:18px">불러오는 중…</div>';
   $('ecBody').innerHTML = '';
   warn('ecWarn','');
   try {
-    econData = await edge({ source:'econ_cal', country:$('ecSel').value,
-                            from:from, to:to, limit:1000 });
+    econData = await edge({ source:'macro_calendar', from:from, to:ecIso(last) });
     renderEcon();
   } catch(e){
     $('ecCal').innerHTML = '';
@@ -2706,164 +3031,157 @@ function ecoNum(v){
 
 function ecEvents(){
   var evs = (econData && econData.events) || [];
-  if ($('ecOnlyBig') && $('ecOnlyBig').checked)
-    evs = evs.filter(function(e){ return ECON_BIG.test(e.type || ''); });
+  if (ecView.kind === 'earn') evs = [];                 //  실적은 아래 카드에서 봅니다
+  if (ecView.scope !== 'all')
+    evs = evs.filter(function(e){ return (e.country || 'US') === ecView.scope; });
   return evs;
+}
+
+//  '2026-08-27' → '8월 4주차'
+//  (그 달의 며칠인지로만 셉니다 — 1~7일이 1주차. 증권 캘린더가 쓰는 방식입니다)
+function ecWeekLabel(iso){
+  var d = new Date(iso + 'T00:00:00');
+  return (d.getMonth() + 1) + '월 ' + Math.ceil(d.getDate() / 7) + '주차';
+}
+function ecDow(iso){
+  return ['일','월','화','수','목','금','토'][new Date(iso + 'T00:00:00').getDay()];
+}
+//  '21:30' → '오후 9시 30분'
+function ecKoTime(t){
+  if (!t) return '';
+  var h = Number(t.slice(0,2)), m = Number(t.slice(3,5));
+  var ap = h < 12 ? '오전' : '오후';
+  var h12 = h % 12; if (h12 === 0) h12 = 12;
+  return ap + ' ' + h12 + '시' + (m ? ' ' + m + '분' : '');
 }
 
 function renderEcon(){
   var d = econData; if (!d) return;
-  if (d.blocked){
-    var H = '<div class="note info" style="margin-bottom:12px">' + esc(d.note) + '</div>';
-    if (d.fallback && d.fallback.rows && d.fallback.rows.length){
-      H += '<p class="st-hint" style="margin-bottom:8px">대신 <b>' + esc(d.fallback.source)
-         + '</b>으로 미국 지표가 <b>언제</b> 나오는지만 보여드립니다. '
-         + '(예상치·실제치는 위 애드온이 있어야 나옵니다)</p>'
-         + '<div class="scroll"><table><thead><tr><th style="width:120px">발표일</th>'
-         + '<th>발표 자료</th></tr></thead><tbody>'
-         + d.fallback.rows.slice(0, 120).map(function(x){
-             return '<tr><td>' + esc(x.date) + '</td><td>' + esc(x.name) + '</td></tr>';
-           }).join('') + '</tbody></table></div>';
-    }
-    $('ecCal').innerHTML = H;
-    $('ecBody').innerHTML = '';
-    return;
-  }
-
   var evs = ecEvents();
-  var by = {};
-  evs.forEach(function(e){ (by[e.date] = by[e.date] || []).push(e); });
+  ecCalendar(evs);
+  ecList(evs);
+  ecBrief(evs);
+}
 
-  //  ── 달력 ──
-  var first = ecCursor, y = first.getFullYear(), m = first.getMonth();
-  var lead = first.getDay();                        // 1일이 무슨 요일인지
+//  ── 왼쪽 미니 달력 ──
+function ecCalendar(evs){
+  /*  일요일은 뺍니다 — 장이 안 열리고 미국 지표 발표도 없습니다.
+      월~토 여섯 칸이라 한 눈에 '이번 주 무슨 요일' 이 잡힙니다.        */
+  var y = ecCursor.getFullYear(), m = ecCursor.getMonth();
+  var first = new Date(y, m, 1);
+  var lead = (first.getDay() + 6) % 7;          //  월요일을 0 으로
   var days = new Date(y, m + 1, 0).getDate();
-  var todayS = today();
-  var DOW = ['일','월','화','수','목','금','토'];
-
+  var byDay = {};
+  evs.forEach(function(e){
+    var k = e.kst_date;
+    if (!byDay[k]) byDay[k] = { n:0, big:false };
+    byDay[k].n++;
+    if (e.importance >= 3) byDay[k].big = true;
+  });
+  var t = today();
   var H = '<div class="cal">'
-    + DOW.map(function(w, i){
-        return '<div class="dow' + (i === 0 ? ' sun' : (i === 6 ? ' sat' : '')) + '">'
-             + w + '</div>'; }).join('');
-  for (var i = 0; i < lead; i++) H += '<div class="cal-day off"></div>';
-  for (var dnum = 1; dnum <= days; dnum++){
-    var iso = y + '-' + String(m+1).padStart(2,'0') + '-' + String(dnum).padStart(2,'0');
-    var list = by[iso] || [];
-    var big = list.filter(function(e){ return ECON_BIG.test(e.type || ''); });
-    var show = (big.length ? big : list).slice(0, 3);
-    H += '<button class="cal-day' + (iso === todayS ? ' today' : '')
-       + (iso === ecDay ? ' on' : '') + '" onclick="ecPick(\'' + iso + '\')">'
-       + '<span class="dnum">' + dnum + (iso === todayS ? ' · 오늘' : '') + '</span>'
-       + show.map(function(e){
-           var beat = (e.actual != null && e.estimate != null) ? e.actual - e.estimate : null;
-           var cls = beat == null ? (e.actual == null ? ' soon' : '')
-                                  : (beat > 0 ? ' up' : (beat < 0 ? ' dn' : ''));
-           var big = ECON_BIG.test(e.type || '');
-           return '<span class="cal-ev' + cls + '" title="'
-                + esc((e.time ? e.time + '  ' : '') + (e.type || '')
-                      + (beat == null ? '' : (beat > 0 ? '  · 예상 상회' : '  · 예상 하회'))) + '">'
-                + (big ? '★ ' : '') + esc(e.type || '') + '</span>';
-         }).join('')
-       + (list.length > show.length
-          ? '<span class="cal-more">+' + (list.length - show.length) + '건</span>' : '')
-       + '</button>';
+        + ['월','화','수','목','금','토']
+            .map(function(x){ return '<div class="dow">' + x + '</div>'; }).join('');
+  var col = 0;
+  function cell(html){ H += html; col = (col + 1) % 6; }
+  for (var i = 0; i < lead; i++) cell('<div class="cal-day off"></div>');
+  for (var dd = 1; dd <= days; dd++){
+    var dt = new Date(y, m, dd);
+    if (dt.getDay() === 0) continue;            //  일요일은 건너뜁니다
+    var iso = ecIso(dt);
+    var hit = byDay[iso];
+    cell('<div class="cal-day' + (iso === t ? ' today' : '')
+       + (iso === ecDay ? ' sel' : '') + '" onclick="ecPick(\'' + iso + '\')">'
+       + dd + (hit ? '<i class="dot' + (hit.big ? ' big' : '') + '"></i>' : '') + '</div>');
   }
-  var tail = (7 - ((lead + days) % 7)) % 7;
-  for (var t = 0; t < tail; t++) H += '<div class="cal-day off"></div>';
-  H += '</div>';
-  $('ecCal').innerHTML = H;
-
-  renderEconList(by);
+  while (col !== 0) cell('<div class="cal-day off"></div>');
+  $('ecCal').innerHTML = H + '</div>';
 }
 
 function ecPick(iso){
   ecDay = (ecDay === iso) ? null : iso;
   renderEcon();
-  var el = $('ecBody'); if (el) el.scrollIntoView({ block:'nearest', behavior:'smooth' });
 }
 
-//  발표 하나를 한 줄로 — 실제 · 예상 · 직전
-function ecRow(e, withDate){
-  var beat = (e.actual != null && e.estimate != null) ? e.actual - e.estimate : null;
-  var cls = beat == null ? '' : (beat > 0 ? 'pos' : (beat < 0 ? 'neg' : ''));
-  var verdict = beat == null
-    ? (e.actual == null ? '<span class="st-hint">발표 전</span>' : '—')
-    : (beat > 0 ? '예상 상회' : (beat < 0 ? '예상 하회' : '예상 부합'));
-  var big = ECON_BIG.test(e.type || '');
-  return '<tr>'
-    + (withDate ? '<td class="st-hint">' + esc(e.date) + '</td>' : '')
-    + '<td>' + esc(e.time || '—') + '</td>'
-    + '<td>' + (big ? '★ <b>' : '') + esc(e.type || '—') + (big ? '</b>' : '')
-    + (e.comparison ? ' <span class="st-hint">' + esc(String(e.comparison).toUpperCase()) + '</span>' : '')
-    + (e.period ? ' <span class="st-hint">' + esc(e.period) + '</span>' : '')
-    + '</td>'
-    + '<td class="num"><b>' + ecoNum(e.actual) + '</b></td>'
-    + '<td class="num">' + ecoNum(e.estimate) + '</td>'
-    + '<td class="num st-hint">' + ecoNum(e.previous) + '</td>'
-    + '<td class="num ' + cls + '">' + verdict + '</td></tr>';
-}
-
-function ecTable(list, withDate){
-  return '<div class="scroll"><table><thead><tr>'
-    + (withDate ? '<th style="width:92px">날짜</th>' : '')
-    + '<th style="width:58px">시각</th><th>지표</th>'
-    + '<th class="num" style="width:88px">실제</th>'
-    + '<th class="num" style="width:88px">예상</th>'
-    + '<th class="num" style="width:88px">직전</th>'
-    + '<th class="num" style="width:96px">평가</th></tr></thead><tbody>'
-    + list.map(function(e){ return ecRow(e, withDate); }).join('')
-    + '</tbody></table></div>';
-}
-
-function renderEconList(by){
-  var evs = ecEvents();
-  var todayS = today();
-  var H = '';
-
-  if (ecDay){
-    var list = by[ecDay] || [];
-    H += '<div class="ev-head"><b>' + esc(ecDay) + ' 발표</b>'
-       + '<span class="ev-tag">' + list.length + '건</span>'
-       + '<span class="st-hint" style="margin-left:auto">'
-       + '<button class="btn-sm" onclick="ecPick(\'' + ecDay + '\')">전체 보기로</button></span></div>';
-    H += list.length ? ecTable(list, false)
-       : '<div class="empty" style="padding:18px">이 날은 발표가 없습니다.</div>';
+//  ── 오른쪽 목록 ──
+function ecList(evs){
+  var t = today();
+  var lo, hi;
+  if (ecView.view === 'week'){
+    //  고른 날(없으면 오늘)이 든 주 ± 1주
+    var base = ecDay || t;
+    var b = new Date(base + 'T00:00:00');
+    var sun = new Date(b.getFullYear(), b.getMonth(), b.getDate() - b.getDay());
+    lo = ecIso(sun);
+    hi = ecIso(new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 13));
   } else {
-    //  오늘 (또는 이번 달을 보고 있지 않으면 그 달 첫 발표일)
-    var todays = evs.filter(function(e){ return e.date === todayS; });
-    if (todays.length){
-      var bigT = todays.filter(function(e){ return ECON_BIG.test(e.type || ''); });
-      H += '<div class="ev-head"><b>오늘 나오는 지표</b>'
-         + '<span class="ev-tag live">' + todays.length + '건</span>'
-         + (bigT.length ? '<span class="st-hint">주요 ' + bigT.length + '건</span>' : '')
-         + '</div>' + ecTable(todays, false);
-    }
-    //  앞으로 나올 것
-    var up = evs.filter(function(e){ return e.date > todayS; }).slice(0, 15);
-    if (up.length){
-      H += '<div class="ev-head"><b>다가오는 발표</b>'
-         + '<span class="ev-tag">' + up.length + '건</span></div>' + ecTable(up, true);
-    }
-    //  이미 나온 것 (최근 순)
-    var done = evs.filter(function(e){ return e.date < todayS && e.actual != null; })
-                  .slice(-8).reverse();
-    if (done.length){
-      H += '<div class="ev-head"><b>최근 나온 결과</b>'
-         + '<span class="ev-tag">' + done.length + '건</span></div>' + ecTable(done, true);
-    }
-    if (!todays.length && !up.length && !done.length)
-      H += '<div class="empty" style="padding:22px">이 달에 해당하는 발표가 없습니다.</div>';
+    lo = ecIso(ecCursor);
+    hi = ecIso(new Date(ecCursor.getFullYear(), ecCursor.getMonth() + 1, 0));
+  }
+  var list = evs.filter(function(e){ return e.kst_date >= lo && e.kst_date <= hi; });
+  if (ecDay) list = list.filter(function(e){ return e.kst_date === ecDay; });
+
+  if (!list.length){
+    $('ecBody').innerHTML = '<div class="empty" style="padding:26px">'
+      + (ecDay ? esc(ecDay) + ' 에는 예정된 발표가 없습니다. '
+                 + '<a href="#" onclick="ecPick(\'' + ecDay + '\');return false;">전체 보기로</a>'
+               : '이 기간에 예정된 발표가 없습니다.') + '</div>';
+    return;
   }
 
-  H += '<p class="st-hint" style="margin-top:12px">'
-     + '<b>실제</b>가 <b>예상</b>보다 높다고 늘 좋은 소식은 아닙니다. '
-     + '물가(CPI·PPI)가 예상보다 높으면 금리 부담이 커지고, '
-     + '고용·성장(GDP·PMI)이 예상보다 높으면 경기가 좋다는 뜻입니다. 지표마다 방향이 다릅니다. '
-     + '★ 는 시장이 특히 크게 반응하는 지표입니다.</p>';
+  var H = '', wk = '', lastDate = '';
+  list.forEach(function(e){
+    var w = ecWeekLabel(e.kst_date);
+    if (w !== wk){
+      wk = w;
+      H += '<div class="cal-wk">' + esc(w) + '</div>'
+         + '<div class="cal-row head"><div>날짜</div><div>일정</div>'
+         + '<div class="num">발표</div><div class="num">예측</div><div class="num">이전</div></div>';
+      lastDate = '';
+    }
+    var showDate = e.kst_date !== lastDate;
+    lastDate = e.kst_date;
+    var dnum = Number(e.kst_date.slice(8, 10));
+
+    var cls = '';
+    if (e.actual == null) cls = 'soon';
+    else if (e.forecast != null) cls = e.actual >= e.forecast ? 'up' : 'dn';
+    else if (e.previous != null) cls = e.actual >= e.previous ? 'up' : 'dn';
+
+    H += '<div class="cal-row' + (e.kst_date === t ? ' on' : '') + '">'
+       + '<div class="dt' + (showDate ? ' first' : '') + '">'
+       + (showDate ? dnum + '일 (' + ecDow(e.kst_date) + ')' : '') + '</div>'
+       + '<div class="nm">' + (e.importance >= 3 ? '★ ' : '')
+       + '<span title="' + esc(e.name_en || '') + '">' + esc(e.name) + '</span></div>';
+    if (e.actual == null){
+      H += '<div class="soon">' + esc(ecKoTime(e.kst_time)) + ' 발표 예정</div>';
+    } else {
+      H += '<div class="num ' + cls + '">' + ecoNum(e.actual) + '</div>'
+         + '<div class="num">' + (e.forecast == null ? '—' : ecoNum(e.forecast)) + '</div>'
+         + '<div class="num">' + ecoNum(e.previous) + '</div>';
+    }
+    H += '</div>';
+  });
   $('ecBody').innerHTML = H;
 }
 
-/* ── 실적 발표 일정 ── */
+//  ── 왼쪽 아래 요약 ──
+function ecBrief(evs){
+  var t = today();
+  var soon = evs.filter(function(e){ return e.kst_date >= t; })
+                .sort(function(a,b){ return a.kst_date.localeCompare(b.kst_date); });
+  var big = soon.filter(function(e){ return e.importance >= 3; }).slice(0, 3);
+  var box = $('ecBrief'); if (!box) return;
+  if (!soon.length){ box.innerHTML = '<b>다가오는 발표가 없습니다.</b>'; return; }
+  box.innerHTML = '<b>다가오는 주요 발표</b><br>'
+    + (big.length
+        ? big.map(function(e){
+            return '· ' + esc(e.name) + ' — ' + Number(e.kst_date.slice(5,7)) + '/'
+                 + Number(e.kst_date.slice(8,10)) + ' ' + esc(ecKoTime(e.kst_time)); }).join('<br>')
+        : '· 큰 지표는 당분간 없습니다.')
+    + '<div class="st-hint" style="margin-top:6px">모든 시각은 한국시간입니다.</div>';
+}
+
 async function loadEarn(){
   var v = Number($('erRange').value) || 7;
   var t = new Date();
@@ -2997,6 +3315,8 @@ function valPull(d){
   var cfo = series(row('현금흐름표', ['영업활동 현금흐름', '영업활동현금흐름']));
   var cpx = series(row('현금흐름표', ['설비투자 (CAPEX)', '유형자산 취득']));
   var dbt = series(row('재무상태표', ['장기차입금']));
+  //  WACC 의 타인자본비용을 내려면 이자비용이 필요합니다
+  var itr = series(row('손익계산서', ['이자비용', '금융비용']));
 
   //  매출 성장률 — 있는 값들로만 연평균을 냅니다
   var rs = rev.filter(function(x){ return x != null && x > 0; });
@@ -3015,14 +3335,53 @@ function valPull(d){
               : (ms[ms.length/2 - 1] + ms[ms.length/2]) / 2)
             : ((lrev && lop != null) ? lop / lrev * 100 : null);
 
+  var eps = series(row('손익계산서', ['EPS (희석)', 'EPS', '주당순이익']));
+  var ends = (d.periods || []).map(function(p){ return p.end; });
+
   return {
-    periods: per, unit: d.unit || '',
+    periods: per, ends: ends,
+    epsSeries: eps, netSeries: net, eqSeries: eq, revSeries2: rev,
+    opSeries: op, depSeries: dep, debtSeries: dbt, cashSeries: cash,
+    unit: d.unit || '',
     rev: lrev, op: lop, net: last(net), eq: last(eq),
     assets: last(ast), liab: last(lia), cash: mag(last(cash)),
     dep: mag(last(dep)), cfo: last(cfo), capex: mag(last(cpx)), debt: mag(last(dbt)),
+    interest: mag(last(itr)),
     cagr: cagr, margin: margin, marginLast: (lrev && lop != null) ? lop / lrev * 100 : null,
     revSeries: rev,
   };
+}
+
+var valRf = null;   //  무위험수익률 (%) — FRED 10년물
+
+/*  무위험수익률과 베타를 받아옵니다.
+    둘 다 공짜 재료입니다 — 국채금리는 FRED, 베타는 주가끼리 회귀.      */
+async function valMarketInputs(){
+  //  ① 무위험수익률 — 미국은 10년물, 국내는 국고채 10년
+  if (valRf == null){
+    try {
+      var r = await edge({ source:'fred', code:'DGS10',
+                           start: shiftIso(today(), 0, -3) });
+      var pts = (r.points || []).filter(function(p){ return p.v != null; });
+      var v = pts.length ? Number(pts[pts.length-1].v) : null;
+      //  국채금리가 128% 로 올 리는 없습니다. 상식 밖이면 안 씁니다 —
+      //  이상한 Rf 하나가 WACC 를 통째로 망가뜨립니다.
+      if (v != null && v > 0.1 && v < 20) valRf = v;
+    } catch(e){ /* 못 받으면 슬라이더 값으로 갑니다 */ }
+  }
+  //  ② 베타 — 종목 수익률 vs 지수 수익률
+  valBeta = null;
+  try {
+    var idx = co.market === 'KR' ? { source:'quote_kr', code:'069500' }
+                                 : { source:'quote_us', code:'SPY' };
+    var from = shiftIso(today(), -2, 0);
+    var ix = await edge({ source: idx.source, code: idx.code, start: from });
+    var stock = (coPricePts && coPricePts.length >= 60)
+      ? coPricePts
+      : ((await edge({ source: quoteSource(co.market), code: co.code,
+                       start: from })).points || []);
+    valBeta = calcBeta(stock, ix.points || []);
+  } catch(e){ /* 지수를 못 받으면 베타 없이 갑니다 */ }
 }
 
 async function valLoad(force){
@@ -3044,18 +3403,30 @@ async function valLoad(force){
       valBusy = false; return;
     }
 
-    //  주가와 주식 수 — 없으면 배수 계산은 건너뜁니다
-    var px = null, shares = null, target = null;
+    /*  주식 수 — 이제 재무제표 응답에 같이 실려 옵니다.
+        미국은 SEC 공시 표지(dei), 국내는 DART '주식의 총수 현황' 에서
+        받습니다. 둘 다 회사가 직접 적어낸 값이고 공짜입니다.
+        예전에는 EODHD 에서만 받아서, 구독이 없으면 밸류에이션 탭 전체가
+        멈췄습니다.                                                       */
+    var px = null, shares = null, target = null, sharesNote = '';
+    if (d.shares && Number(d.shares.value) > 0){
+      shares = Number(d.shares.value);
+      sharesNote = d.shares.basis || '';
+    }
+    //  주가는 '주가' 탭이 받아둔 종가를 씁니다
+    if (coPricePts && coPricePts.length) px = coPricePts[coPricePts.length-1].v;
+
+    //  개요 탭을 열어뒀으면 모자란 것만 채웁니다 (없어도 됩니다)
     try {
       if (coProf && coProf.found){
-        px = coProf.highlights.market_cap && coProf.shares.outstanding
-           ? coProf.highlights.market_cap / coProf.shares.outstanding : null;
-        shares = coProf.shares.outstanding;
+        if (!shares && coProf.shares.outstanding){
+          shares = coProf.shares.outstanding; sharesNote = '발행주식수';
+        }
+        if (!px && coProf.highlights.market_cap && shares)
+          px = coProf.highlights.market_cap / shares;
         target = coProf.ratings && coProf.ratings.target;
       }
-    } catch(e){ /* 개요 탭을 아직 안 열었으면 없습니다 */ }
-    if (!shares && coPricePts && coPricePts.length){ /* 주가만 있는 경우 */ }
-    if (!px && coPricePts && coPricePts.length) px = coPricePts[coPricePts.length-1].v;
+    } catch(e){ /* 개요 탭이 없어도 그냥 갑니다 */ }
 
     /*  단위 점검.
         재무제표는 원인데 주가는 달러이면 (또는 그 반대이면) 계산은 조용히
@@ -3070,10 +3441,18 @@ async function valLoad(force){
            + '어긋났을 때 나오는 모습입니다. <b>개요 · 컨센서스</b> 탭을 다시 불러와 주세요.';
 
     valData = { code: co.code, f: f, px: px, shares: shares, target: target,
+                sharesNote: sharesNote, sharesAsOf: (d.shares && d.shares.as_of) || '',
                 note: note, cur: co.market === 'KR' ? '원' : '$' };
     //  화면 슬라이더를 이 회사 실제 값으로 맞춰줍니다
     valReset(true);
     valDraw();
+    //  시장 재료(국채금리·베타)는 뒤에서 받아 WACC 를 채웁니다 — 기다리지 않습니다
+    valMarketInputs().then(function(){
+      var w = valWacc();
+      if (w.wacc != null && w.wacc > 3 && w.wacc < 25)
+        $('vWacc').value = (Math.round(w.wacc * 2) / 2).toFixed(1);
+      valDraw();
+    });
   } catch(e){
     $('valTiles').innerHTML = '';
     warn('valWarn', esc(e.message));
@@ -3143,15 +3522,127 @@ function valConsensus(){
        + '. 이제 <b>내 가정</b>과 <b>시장 가정</b>의 차이가 값 차이로 보입니다.', 'info');
 }
 
-//  회사의 실제 배수 (목표 배수를 안 넣었을 때 씁니다)
-function valOwnMultiples(){
-  var v = {}, p = coProf;
-  if (p && p.found){
-    v.per = p.highlights.pe;
-    v.pbr = p.valuation.pb;
-    v.ev  = p.valuation.ev_ebitda;
+/*  ── 이 회사가 지금 몇 배에 거래되는가 ──
+
+    예전에는 EODHD 가 준 PER·PBR·EV/EBITDA 를 그대로 썼습니다. 그런데
+    그 PER 이 최근 4분기 기준인지 직전 회계연도 기준인지 우리가 알 수 없어서,
+    화면에 '무슨 기준인지' 를 적을 수가 없었습니다.
+
+    이제 직접 계산합니다. 재료는 주가·주식수·재무제표뿐이고 전부 공짜입니다.
+    무엇보다 어느 기간 숫자를 썼는지 우리가 압니다 — 발표 자료에는 그게
+    있어야 합니다.                                                        */
+function valMultiples(){
+  var out = {};
+  if (!valData) return out;
+  var f = valData.f, px = valData.px, sh = valData.shares;
+  if (!(px > 0) || !(sh > 0)) return out;
+
+  var mcap = px * sh;
+  var debt = f.debt || 0, cash = f.cash || 0;
+  var netDebt = debt - cash;
+  var ev = mcap + netDebt;
+  var ebitda = (f.op != null ? f.op : 0) + (f.dep || 0);
+  var fcf = (f.cfo != null && f.capex != null) ? f.cfo - Math.abs(f.capex) : null;
+
+  function ratio(a, b){ return (a != null && b != null && b > 0) ? a / b : null; }
+
+  out.mcap = mcap;
+  out.ev = ev;
+  out.netDebt = netDebt;
+  out.ebitda = ebitda > 0 ? ebitda : null;
+  out.fcf = fcf;
+
+  out.per   = ratio(mcap, f.net);          //  주가수익비율
+  out.pbr   = ratio(mcap, f.eq);           //  주가순자산비율
+  out.psr   = ratio(mcap, f.rev);          //  주가매출비율
+  out.evEbitda = ratio(ev, out.ebitda);
+  out.evEbit   = ratio(ev, f.op);
+  out.evRev    = ratio(ev, f.rev);
+  out.evFcf    = (fcf != null && fcf > 0) ? ev / fcf : null;
+
+  //  PEG — 성장 대비 얼마나 비싼가. 성장률은 최근 매출 CAGR 을 씁니다.
+  out.peg = (out.per != null && f.cagr != null && f.cagr > 0)
+          ? out.per / f.cagr : null;
+
+  /*  ROIC = 세후영업이익 ÷ 투하자본.
+      투하자본은 '자기자본 + 순차입금' 으로 봅니다 — 사업에 실제로
+      묶여 있는 돈입니다. WACC 와 견주면 가치를 만드는지 태우는지 보입니다. */
+  var tax = valNum('vTax') / 100;
+  var ic = (f.eq || 0) + netDebt;
+  out.roic = (f.op != null && ic > 0) ? (f.op * (1 - tax)) / ic * 100 : null;
+  out.icBase = ic;
+
+  return out;
+}
+
+/*  ── 자기 배수로 자기를 평가하면 항상 현재가가 나옵니다 ──
+
+    PER 기준 적정주가 = 순이익 × PER ÷ 주식수 인데, 그 PER 을
+    (주가 × 주식수 ÷ 순이익) 로 계산해서 넣으면 식이 통째로 약분돼
+    답이 언제나 '지금 주가' 입니다. 아무것도 알려주지 않습니다.
+
+    그래서 기본값을 <b>과거 평균 배수</b>로 씁니다. 애널리스트가 실제로 하는
+    방식입니다 — "지금 68배인데 5년 평균은 45배다, 비싸다".
+    과거 각 결산 시점의 주가와 그때 실적으로 배수를 내고 평균합니다.      */
+function valHistMultiples(){
+  var out = { per:null, pbr:null, ev:null, evRev:null, n:0, from:'', to:'' };
+  if (!valData) return out;
+  var f = valData.f, sh = valData.shares;
+  var pts = coPricePts || [];
+  if (!pts.length || !f.ends || !f.ends.length) return out;
+
+  var dates = pts.map(function(p){ return p.d; });
+  var pers = [], pbrs = [], evs = [], evrs = [];
+  var first = '', last = '';
+
+  for (var i = 0; i < f.ends.length; i++){
+    var end = f.ends[i];
+    if (!end) continue;
+    var j = idxAtOrBefore(dates, end);
+    if (j < 0) continue;                       //  그 시점 주가가 없으면 건너뜁니다
+    var px = Number(pts[j].v);
+    if (!(px > 0)) continue;
+    if (!first) first = end;
+    last = end;
+
+    var eps = f.epsSeries ? f.epsSeries[i] : null;
+    if (eps != null && eps > 0) pers.push(px / eps);
+
+    if (sh > 0){
+      var mcap = px * sh;
+      var eq = f.eqSeries ? f.eqSeries[i] : null;
+      if (eq != null && eq > 0) pbrs.push(mcap / eq);
+
+      var dbt = f.debtSeries ? (f.debtSeries[i] || 0) : 0;
+      var csh = f.cashSeries ? (f.cashSeries[i] || 0) : 0;
+      var ev = mcap + Math.abs(dbt) - Math.abs(csh);
+      var op = f.opSeries ? f.opSeries[i] : null;
+      var dep = f.depSeries ? (f.depSeries[i] || 0) : 0;
+      var ebitda = (op != null) ? op + Math.abs(dep) : null;
+      if (ebitda != null && ebitda > 0 && ev > 0) evs.push(ev / ebitda);
+      var rv = f.revSeries2 ? f.revSeries2[i] : null;
+      if (rv != null && rv > 0 && ev > 0) evrs.push(ev / rv);
+    }
   }
-  return v;
+  function med(a){
+    if (!a.length) return null;
+    var b = a.slice().sort(function(x,y){ return x - y; });
+    return b.length % 2 ? b[(b.length-1)/2] : (b[b.length/2-1] + b[b.length/2]) / 2;
+  }
+  out.per = med(pers); out.pbr = med(pbrs); out.ev = med(evs); out.evRev = med(evrs);
+  out.n = Math.max(pers.length, pbrs.length, evs.length);
+  out.from = first.slice(0, 4); out.to = last.slice(0, 4);
+  return out;
+}
+
+/*  목표 배수를 안 넣었을 때 쓰는 기본값 = 과거 평균.
+    과거 자료가 모자라면 현재 배수로 물러섭니다 (그때는 결과가 현재가와
+    같아지는데, 그건 '비교할 과거가 없다' 는 뜻이라 화면에 그렇게 적습니다). */
+function valOwnMultiples(){
+  var h = valHistMultiples(), m = valMultiples();
+  return { per: h.per || m.per, pbr: h.pbr || m.pbr,
+           ev: h.ev || m.evEbitda, evRev: h.evRev || m.evRev,
+           evEbit: m.evEbit, hist: h };
 }
 
 function valDraw(){
@@ -3190,11 +3681,31 @@ function valDraw(){
     return [VAL_NAME[k], money(out[k]), upside(out[k]), cls(out[k])];
   }
   var tiles = [['현재가', money(px), '지금 시장 가격', '']]
-    .concat(VAL_KEYS.map(cell));
+    .concat(VAL_KEYS.filter(function(k){ return k !== 'cons'; }).map(cell));
+
+  /*  역산 DCF 는 '주가' 가 아니라 '성장률' 이 답이라 타일 모양이 다릅니다.
+      지금 주가가 맞으려면 매출이 몇 %씩 자라야 하는지를 보여줍니다.      */
+  var im = out.imply;
+  if (im){
+    var gTxt = (im.edge === 'high') ? '연 100% 이상'
+             : (im.edge === 'low') ? '성장 없어도 비쌈'
+             : '연 ' + num(im.g, 1) + '%';
+    var sub = (im.edge === 'low')
+      ? '매출이 안 늘어도 지금 주가보다 쌉니다'
+      : (im.edge === 'high')
+        ? '이 가정으로는 지금 주가를 설명 못 합니다'
+        : (f.cagr != null
+            ? '최근 실적은 연 ' + num(f.cagr, 1) + '%'
+            : '시장이 깔고 있는 가정');
+    var cls2 = (im.edge || f.cagr == null) ? ''
+             : (im.g > f.cagr * 1.2 ? 'neg' : (im.g < f.cagr * 0.8 ? 'pos' : ''));
+    tiles.push(['역산 DCF · 함의 성장률', gTxt, sub, cls2]);
+  }
   if (valData.target) tiles.push(['애널리스트 목표', money(valData.target),
     upside(valData.target), cls(valData.target)]);
-  var vals = VAL_KEYS.map(function(k){ return out[k]; }).filter(function(x){
-    return x != null && isFinite(x) && x > 0; });
+  var vals = VAL_KEYS.filter(function(k){ return k !== 'cons'; })
+    .map(function(k){ return out[k]; })
+    .filter(function(x){ return x != null && isFinite(x) && x > 0; });
   var mid = null;
   if (vals.length){
     var srt = vals.slice().sort(function(a,b){ return a-b; });
@@ -3219,6 +3730,8 @@ function valDraw(){
   }
   warn('valWarn', msg, valData.note ? 'err' : '');
 
+  valMultBox();
+  valWaccBox();
   valDrawChart(out, px, mid);
   valGrid();
   valSteps(out);
@@ -3235,7 +3748,10 @@ function valCompute(){
   var tax = valNum('vTax') / 100, N = Number($('vYears').value) || 5;
   var own = valOwnMultiples();
 
-  var res = { dcf:null, per:null, pbr:null, ev:null, fcf:[], pv:[], tv:null, ev_total:null };
+  var res = { dcf:null, per:null, pbr:null, ev:null, evrev:null, cons:null,
+              imply:null, fcf:[], pv:[], tv:null, ev_total:null };
+
+  res.imply = valImplied(f, mg, w, tg, tax, N, shares);
 
   // ── ① DCF ──
   if (f.rev && w > tg){
@@ -3279,17 +3795,26 @@ function valCompute(){
     var eq2 = ev - ((f.debt || 0) - (f.cash || 0));
     if (eq2 > 0) res.ev = eq2 / shares;
   }
-  // ── ⑤ 컨센서스 기준 (내년 추정 EPS × 목표 배수) ──
-  //     앞의 넷은 '지나간 실적' 이 재료입니다. 이것 하나는 '앞으로의 실적' 이 재료라
-  //     성장주에서 특히 다른 답을 냅니다.
-  var c = valCons();
-  var fwdEps = (c.epsNy != null) ? c.epsNy : c.epsCy;
-  var fwdMul = Number($('vPer').value) || c.fwdPe || own.per;
-  if (fwdEps > 0 && fwdMul > 0) res.cons = fwdEps * fwdMul;
-  else res.cons = null;
+  // ── ⑤ EV/매출 기준 ──
+  //     적자 회사나 이익이 널뛰는 회사는 PER 이 안 먹습니다. 매출은 남아 있어서
+  //     성장주·초기기업 밸류에이션에서 이 배수를 씁니다.
+  var evr = Number($('vEvRev').value) || own.evRev;
+  if (evr > 0 && f.rev && shares && shares > 0){
+    var ev3 = f.rev * evr;
+    var eq3 = ev3 - ((f.debt || 0) - (f.cash || 0));
+    if (eq3 > 0) res.evrev = eq3 / shares;
+  }
 
-  res.used = { per: per, pbr: pbr, ev: evm, ebitda: ebitda, N: N,
-               fwdEps: fwdEps, fwdMul: fwdMul };
+  /*  ── ⑥ 역산 DCF ──
+      앞의 다섯은 "얼마가 적정한가" 를 묻습니다. 이것 하나는 거꾸로 묻습니다:
+      "지금 주가가 맞으려면 매출이 몇 %씩 자라야 하는가?"
+
+      애널리스트 추정치가 필요 없습니다. 주가와 재무제표만 있으면 됩니다.
+      그리고 "시장은 연 23% 성장을 가정하고 있다 — 그게 말이 되나?" 가
+      "애널리스트는 $248 본대" 보다 훨씬 나은 질문입니다.                 */
+  res.cons = null;   //  타일에는 '함의 성장률' 을 따로 씁니다
+
+  res.used = { per: per, pbr: pbr, ev: evm, evRev: evr, ebitda: ebitda, N: N };
 
   /*  ── 마지막 관문: 말이 되는 값인가 ──
       단위가 어긋나면 '적정주가 $773,551' 같은 숫자가 아무 경고 없이 나옵니다.
@@ -3307,14 +3832,124 @@ function valCompute(){
 }
 
 var VAL_NAME = { dcf:'DCF', per:'PER 기준', pbr:'PBR 기준', ev:'EV/EBITDA 기준',
-                 cons:'컨센서스 기준' };
-var VAL_KEYS = ['dcf','per','pbr','ev','cons'];
+                 evrev:'EV/매출 기준', cons:'역산 DCF' };
+var VAL_KEYS = ['dcf','per','pbr','ev','evrev','cons'];
+
+/*  ── WACC 를 가정이 아니라 계산으로 ──
+
+    예전에는 사용자가 슬라이더로 9% 를 넣었습니다. 그 9% 가 어디서 왔는지
+    아무도 설명할 수 없었습니다. 발표 자리에서 제일 먼저 들어오는 질문이
+    "할인율 왜 9%예요?" 인데 말이죠.
+
+    이제 구성요소에서 쌓아 올립니다. 재료는 전부 공짜입니다 —
+    무위험수익률은 FRED 국채금리, 베타는 주가로 직접 회귀, 나머지는 재무제표.
+    슬라이더는 그대로 두되 계산값을 기본으로 채웁니다.                     */
+var WACC_ERP = 5.5;          //  시장위험프리미엄 (미국 장기 평균값 근처)
+var valBeta = null;          //  { beta, n, from }
+
+//  종목 수익률을 지수 수익률에 회귀해서 베타를 냅니다
+function calcBeta(stock, index){
+  if (!stock || !index) return null;
+  var byD = {};
+  index.forEach(function(p){ byD[p.d] = p.v; });
+  var xs = [], ys = [], prevS = null, prevI = null;
+  stock.forEach(function(p){
+    var iv = byD[p.d];
+    if (iv == null){ return; }
+    if (prevS != null && prevI != null && prevS > 0 && prevI > 0){
+      xs.push(iv / prevI - 1);
+      ys.push(p.v / prevS - 1);
+    }
+    prevS = p.v; prevI = iv;
+  });
+  if (xs.length < 30) return null;
+  var mx = 0, my = 0;
+  for (var i = 0; i < xs.length; i++){ mx += xs[i]; my += ys[i]; }
+  mx /= xs.length; my /= ys.length;
+  var cov = 0, varx = 0;
+  for (var j = 0; j < xs.length; j++){
+    cov += (xs[j] - mx) * (ys[j] - my);
+    varx += (xs[j] - mx) * (xs[j] - mx);
+  }
+  if (!(varx > 0)) return null;
+  return { beta: cov / varx, n: xs.length };
+}
+
+//  WACC 구성요소를 모읍니다. 못 구한 값은 null 로 두고 화면에 그렇게 적습니다.
+function valWacc(){
+  var f = valData ? valData.f : null;
+  var m = valMultiples();
+  var rf = (valRf != null) ? valRf : null;                   //  무위험수익률 (%)
+  var beta = valBeta ? valBeta.beta : null;
+  var tax = valNum('vTax') / 100;
+
+  var ke = (rf != null && beta != null) ? rf + beta * WACC_ERP : null;
+  //  타인자본비용 = 이자비용 ÷ 총차입금
+  var kd = (f && f.interest != null && f.debt > 0)
+         ? f.interest / f.debt * 100 : null;
+  //  이상한 값이면 국채금리에 신용스프레드를 얹어 대신합니다
+  if (kd != null && (kd < 0.3 || kd > 25)) kd = (rf != null) ? rf + 1.5 : null;
+  if (kd == null && rf != null) kd = rf + 1.5;
+
+  var E = m.mcap || null;
+  var D = (f && f.debt) ? f.debt : 0;
+  //  구성요소가 상식 밖이면 WACC 를 내지 않습니다 (틀린 값보다 없는 게 낫습니다)
+  if (ke != null && (ke < 1 || ke > 40)) ke = null;
+  if (kd != null && (kd < 0 || kd > 30)) kd = null;
+  var wacc = null;
+  if (ke != null && E != null && E > 0){
+    var tot = E + D;
+    wacc = (E / tot) * ke + (D / tot) * (kd != null ? kd : 0) * (1 - tax);
+  }
+  if (wacc != null && (wacc < 2 || wacc > 30)) wacc = null;
+  return { rf: rf, beta: beta, erp: WACC_ERP, ke: ke, kd: kd,
+           E: E, D: D, tax: tax * 100, wacc: wacc,
+           betaN: valBeta ? valBeta.n : null };
+}
+
+/*  현재 주가를 정당화하는 매출 성장률을 이분법으로 찾습니다.
+    DCF 를 성장률만 바꿔가며 반복해서 풀고, 주가와 만나는 지점을 잡습니다. */
+function valDcfAt(f, g, mg, w, tg, tax, N, shares){
+  if (!f.rev || !(w > tg) || !(shares > 0)) return null;
+  var rev = f.rev, dep = f.dep || 0, capex = Math.abs(f.capex || 0);
+  var depR = Math.min(0.40, Math.max(0, f.rev ? dep / f.rev : 0));
+  var cpxR = Math.min(0.50, Math.max(0, f.rev ? capex / f.rev : 0));
+  var pv = 0, fcf = 0;
+  for (var i = 1; i <= N; i++){
+    rev = rev * (1 + g);
+    fcf = rev * mg * (1 - tax) + rev * depR - rev * cpxR;
+    pv += fcf / Math.pow(1 + w, i);
+  }
+  var tv = fcf * (1 + tg) / (w - tg);
+  var evTot = pv + tv / Math.pow(1 + w, N);
+  var eq = evTot - ((f.debt || 0) - (f.cash || 0));
+  return eq > 0 ? eq / shares : null;
+}
+
+function valImplied(f, mg, w, tg, tax, N, shares){
+  var px = valData ? valData.px : null;
+  if (!px || !(px > 0) || !(shares > 0) || !f.rev) return null;
+  var lo = -0.30, hi = 1.00;
+  var vLo = valDcfAt(f, lo, mg, w, tg, tax, N, shares);
+  var vHi = valDcfAt(f, hi, mg, w, tg, tax, N, shares);
+  if (vLo == null || vHi == null) return null;
+  if (vLo > px) return { g: lo * 100, edge: 'low' };    //  가장 낮게 잡아도 주가보다 비쌈
+  if (vHi < px) return { g: hi * 100, edge: 'high' };   //  100% 성장해도 주가에 못 미침
+  for (var i = 0; i < 60; i++){
+    var mid = (lo + hi) / 2;
+    var v = valDcfAt(f, mid, mg, w, tg, tax, N, shares);
+    if (v == null) return null;
+    if (v < px) lo = mid; else hi = mid;
+  }
+  return { g: (lo + hi) / 2 * 100, edge: null };
+}
 
 function valDrawChart(out, px, mid){
   if (typeof echarts === 'undefined') return;
   if (!valChart) valChart = echarts.init($('valBox'));
-  var names = VAL_KEYS.map(function(k){ return VAL_NAME[k]; });
-  var vals  = VAL_KEYS.map(function(k){ return out[k]; });
+  var ks = VAL_KEYS.filter(function(k){ return k !== 'cons'; });
+  var names = ks.map(function(k){ return VAL_NAME[k]; });
+  var vals  = ks.map(function(k){ return out[k]; });
   if (valData.target != null){ names.push('애널리스트 목표'); vals.push(valData.target); }
   var data = vals.map(function(v){
     if (v == null || !isFinite(v)) return null;
@@ -3345,6 +3980,110 @@ function valDrawChart(out, px, mid){
 }
 
 //  할인율 × 영구성장률 표 — 가정이 흔들리면 값이 얼마나 흔들리는지
+//  배수 표 — IB · PE 에서 실제로 쓰는 세트
+function valMultBox(){
+  var m = valMultiples(), cur = valData.cur;
+  var box = $('valMult'); if (!box) return;
+  if (!m.mcap){
+    box.innerHTML = '<div class="empty" style="padding:16px">'
+      + '주가나 주식 수가 없어 배수를 낼 수 없습니다.</div>';
+    return;
+  }
+  function big(v){ return v == null ? '—'
+    : (cur === '원' ? num(v/1e8, 0) + '억' : '$' + num(v/1e6, 0) + 'M'); }
+  function x(v, dp){ return v == null || !isFinite(v) || v <= 0 ? '—' : num(v, dp == null ? 1 : dp) + '배'; }
+
+  var h = valHistMultiples();
+  //  지금 배수가 과거 평균보다 몇 % 높은가 — 이게 '비싼가' 에 대한 답입니다
+  function gap(now, past){
+    if (now == null || past == null || !(past > 0)) return '';
+    var d = (now / past - 1) * 100;
+    return '<span class="' + (d > 0 ? 'neg' : 'pos') + '">'
+         + (d > 0 ? '+' : '') + num(d, 0) + '%</span>';
+  }
+  var rows = [
+    ['시가총액', big(m.mcap), '', '주가 × 주식수'],
+    ['기업가치 (EV)', big(m.ev), '', '시가총액 + 순차입금'],
+    ['순차입금', big(m.netDebt), '', '차입금 − 현금'],
+    ['PER', x(m.per), x(h.per) + ' ' + gap(m.per, h.per), '시가총액 ÷ 당기순이익'],
+    ['PBR', x(m.pbr, 2), x(h.pbr, 2) + ' ' + gap(m.pbr, h.pbr), '시가총액 ÷ 자본총계'],
+    ['PSR', x(m.psr, 2), '', '시가총액 ÷ 매출액'],
+    ['EV/EBITDA', x(m.evEbitda), x(h.ev) + ' ' + gap(m.evEbitda, h.ev),
+      '자본구조와 무관해 회사 간 비교에 씁니다'],
+    ['EV/EBIT', x(m.evEbit), '', '감가상각까지 반영한 영업이익 기준'],
+    ['EV/매출', x(m.evRev, 2), x(h.evRev, 2) + ' ' + gap(m.evRev, h.evRev),
+      '적자 회사도 잴 수 있습니다'],
+    ['EV/FCF', x(m.evFcf), '', '실제로 남는 현금 기준'],
+    ['PEG', x(m.peg, 2), '', 'PER ÷ 매출성장률 — 성장 대비 비싼가'],
+    ['ROIC', m.roic == null ? '—' : num(m.roic, 1) + '%', '',
+      '세후영업이익 ÷ (자기자본 + 순차입금)'],
+  ];
+  var w = valWacc();
+  var verdict = '';
+  if (m.roic != null && w.wacc != null){
+    verdict = m.roic > w.wacc
+      ? '<b>ROIC ' + num(m.roic,1) + '% > WACC ' + num(w.wacc,1) + '%</b> — 자본비용보다 높게 벌고 있습니다. 가치를 만드는 중입니다.'
+      : '<b>ROIC ' + num(m.roic,1) + '% < WACC ' + num(w.wacc,1) + '%</b> — 조달비용만큼도 못 벌고 있습니다. 성장할수록 가치가 깎입니다.';
+  }
+  box.innerHTML = '<div class="scroll"><table><thead><tr><th>지표</th>'
+    + '<th class="num">지금</th><th class="num">과거 평균'
+    + (h.n ? ' <span style="font-weight:400">(' + esc(h.from) + '~' + esc(h.to) + ')</span>' : '')
+    + '</th><th>계산</th></tr></thead><tbody>'
+    + rows.map(function(r){
+        return '<tr><td><b>' + esc(r[0]) + '</b></td><td class="num">' + esc(r[1])
+             + '</td><td class="num">' + (r[2] || '<span class="st-hint">—</span>')
+             + '</td><td class="st-hint">' + esc(r[3]) + '</td></tr>'; }).join('')
+    + '</tbody></table></div>'
+    + (verdict ? '<p class="st-hint" style="margin-top:10px">· ' + verdict + '</p>' : '')
+    + (h.n
+        ? '<p class="st-hint" style="margin-top:6px">· <b>과거 평균</b>은 각 결산 시점의 주가와 그때 실적으로 낸 배수의 중앙값입니다 ('
+          + h.n + '개 기간). 목표 배수를 비워두면 <b>이 값</b>으로 적정주가를 냅니다 — '
+          + '지금 배수를 그대로 쓰면 답이 항상 현재가가 되어 아무 의미가 없습니다.</p>'
+        : '<p class="st-hint" style="margin-top:6px">· 과거 주가가 모자라 평균 배수를 못 냈습니다. '
+          + '지금 배수를 쓰므로 배수 기준 적정주가는 현재가와 같게 나옵니다 — 비교할 과거가 없다는 뜻입니다.</p>')
+    + '<p class="st-hint" style="margin-top:6px">기준: '
+    + esc((valData.f.periods || []).slice(-1)[0] || '최근') + ' 재무제표 · 주식수 '
+    + esc(valData.sharesNote || '—')
+    + (valData.sharesAsOf ? ' (' + esc(valData.sharesAsOf) + ')' : '') + '</p>';
+}
+
+//  WACC 를 어떻게 쌓았는지 보여줍니다
+function valWaccBox(){
+  var w = valWacc(), box = $('valWaccBox'); if (!box) return;
+  function pc(v, dp){ return v == null ? '—' : num(v, dp == null ? 2 : dp) + '%'; }
+  var rows = [
+    ['무위험수익률 (Rf)', pc(w.rf), '미국 국채 10년물 · FRED'],
+    ['베타 (β)', w.beta == null ? '—' : num(w.beta, 2),
+      w.betaN ? '최근 ' + w.betaN + '일 수익률을 지수에 회귀' : '지수 자료를 못 받았습니다'],
+    ['시장위험프리미엄 (ERP)', pc(w.erp, 1), '가정값'],
+    ['자기자본비용 (Ke)', pc(w.ke), 'Rf + β × ERP'],
+    ['타인자본비용 (Kd)', pc(w.kd), '이자비용 ÷ 총차입금'],
+    ['법인세율', pc(w.tax, 0), '위 슬라이더 값'],
+    ['자본구조', (w.E ? 'E ' + num(w.E / (w.E + w.D) * 100, 0) + '% / D '
+       + num(w.D / (w.E + w.D) * 100, 0) + '%' : '—'), '시가총액 대 차입금'],
+    ['<b>WACC</b>', '<b>' + pc(w.wacc) + '</b>', 'E/(D+E)×Ke + D/(D+E)×Kd×(1−t)'],
+  ];
+  box.innerHTML = '<div class="scroll"><table><thead><tr><th>구성요소</th>'
+    + '<th class="num">값</th><th>출처 · 계산</th></tr></thead><tbody>'
+    + rows.map(function(r){
+        return '<tr><td>' + r[0] + '</td><td class="num">' + r[1]
+             + '</td><td class="st-hint">' + esc(r[2]) + '</td></tr>'; }).join('')
+    + '</tbody></table></div>'
+    + '<p class="st-hint" style="margin-top:8px">'
+    + (w.wacc == null
+        ? '구성요소가 모자라 계산하지 못했습니다. 위 슬라이더 값을 그대로 씁니다.'
+        : '계산값 <b>' + pc(w.wacc) + '</b> 을 슬라이더 기본값으로 넣었습니다. '
+          + '가정을 바꿔보고 싶으면 슬라이더를 움직이세요.')
+    + ' 발표에서 "할인율 왜 그 값이냐"는 질문이 제일 먼저 들어옵니다 — 이 표가 답입니다.</p>';
+}
+
+function valWaccApply(){
+  var w = valWacc();
+  if (w.wacc == null){ warn('valWarn','WACC 구성요소가 모자랍니다.'); return; }
+  $('vWacc').value = (Math.round(w.wacc * 2) / 2).toFixed(1);
+  valDraw();
+}
+
 function valGrid(){
   if (!valData || !valData.shares){ $('valGrid').innerHTML =
     '<div class="empty" style="padding:16px">주식 수가 있어야 그릴 수 있습니다.</div>'; return; }
@@ -3399,13 +4138,27 @@ function valSteps(out){
     'EBITDA <code>' + m(u.ebitda) + '</code> (영업이익 + 감가상각) × 배수 <b>'
     + (u.ev > 0 ? num(u.ev, 1) + '배' : '—') + '</b> 로 기업가치를 구하고, '
     + '거기서 <b>순차입금</b>(차입금 − 현금)을 빼면 주주 몫입니다.']);
-  st.push(['컨센서스 기준',
-    '애널리스트가 보는 <b>내년 EPS</b> <code>'
-    + (u.fwdEps == null ? '—' : num(u.fwdEps, 2)) + '</code> × 배수 <b>'
-    + (u.fwdMul > 0 ? num(u.fwdMul, 1) : '—') + '</b>.'
-    + '<br>앞의 넷은 <b>지나간 실적</b>이 재료지만 이것만 <b>앞으로의 실적</b>이 재료입니다. '
-    + '성장주는 이 값이 다른 넷보다 크게 나오는 것이 정상입니다 — '
-    + '<b>개요 · 컨센서스</b> 탭의 추정 흐름을 같이 보세요.']);
+  st.push(['EV/매출 기준',
+    '매출 <code>' + m(f.rev) + '</code> × 배수 <b>'
+    + (u.evRev > 0 ? num(u.evRev, 2) + '배' : '—') + '</b> 로 기업가치를 구하고 '
+    + '순차입금을 뺍니다.<br>이익이 적자거나 널뛰는 회사는 PER 이 안 먹습니다. '
+    + '매출은 남아 있어서 성장주 · 초기기업에 이 배수를 씁니다.']);
+  var im2 = out.imply;
+  st.push(['역산 DCF',
+    '앞의 것들은 "얼마가 맞나" 를 묻습니다. 이건 거꾸로 묻습니다 — '
+    + '<b>지금 주가가 맞으려면 매출이 몇 %씩 자라야 하는가.</b>'
+    + '<br>같은 DCF 를 성장률만 바꿔가며 반복해 풀어서, 계산값이 현재 주가와 '
+    + '만나는 지점을 찾습니다. 답은 <b>'
+    + (im2 == null ? '—' : (im2.edge === 'high' ? '연 100% 이상'
+        : im2.edge === 'low' ? '성장이 없어도 지금 주가보다 비쌈'
+        : '연 ' + num(im2.g, 1) + '%')) + '</b> 입니다.'
+    + (im2 && !im2.edge && f.cagr != null
+        ? '<br>최근 실적은 연 <b>' + num(f.cagr, 1) + '%</b> 였습니다. '
+          + (im2.g > f.cagr
+              ? '시장은 <b>지금보다 빠른 성장</b>을 깔고 있습니다 — 그게 가능한 이유를 찾는 것이 분석입니다.'
+              : '시장은 <b>지금보다 느린 성장</b>을 깔고 있습니다.')
+        : '')
+    + '<br><span class="st-hint">애널리스트 추정치가 필요 없습니다. 주가와 재무제표만 씁니다.</span>']);
   $('valSteps').innerHTML = st.map(function(x, i){
     return '<div class="val-step"><div class="n">' + (i+1) + '</div><div class="tx"><b>'
          + esc(x[0]) + '</b><br>' + x[1] + '</div></div>';
@@ -3416,7 +4169,8 @@ function valRead(out, px, mid){
   var cur = valData.cur;
   function money(v){ return v == null || !isFinite(v) ? '—'
     : (cur === '원' ? num(v, 0) + '원' : '$' + num(v, 2)); }
-  var vals = VAL_KEYS.map(function(k){ return out[k]; })
+  var vals = VAL_KEYS.filter(function(k){ return k !== 'cons'; })
+    .map(function(k){ return out[k]; })
     .filter(function(x){ return x != null && isFinite(x) && x > 0; });
   if (!vals.length || !px){
     $('valRead').innerHTML = '<div class="empty" style="padding:16px">'
@@ -3459,7 +4213,20 @@ function valCsv(){
   rows.push(['PER 기준', out.per == null ? '' : out.per]);
   rows.push(['PBR 기준', out.pbr == null ? '' : out.pbr]);
   rows.push(['EV/EBITDA 기준', out.ev == null ? '' : out.ev]);
-  rows.push(['컨센서스 기준', out.cons == null ? '' : out.cons]);
+  rows.push(['EV/매출 기준', out.evrev == null ? '' : out.evrev]);
+  rows.push(['역산 DCF 함의 성장률(%)', out.imply == null ? '' : out.imply.g]);
+  var mm = valMultiples(), ww = valWacc();
+  rows.push([]);
+  rows.push(['현재 배수', '']);
+  [['시가총액',mm.mcap],['EV',mm.ev],['순차입금',mm.netDebt],['PER',mm.per],
+   ['PBR',mm.pbr],['PSR',mm.psr],['EV/EBITDA',mm.evEbitda],['EV/EBIT',mm.evEbit],
+   ['EV/매출',mm.evRev],['EV/FCF',mm.evFcf],['PEG',mm.peg],['ROIC(%)',mm.roic]]
+    .forEach(function(r){ rows.push([r[0], r[1] == null ? '' : r[1]]); });
+  rows.push([]);
+  rows.push(['WACC 구성', '']);
+  [['무위험수익률(%)',ww.rf],['베타',ww.beta],['ERP(%)',ww.erp],
+   ['자기자본비용(%)',ww.ke],['타인자본비용(%)',ww.kd],['WACC(%)',ww.wacc]]
+    .forEach(function(r){ rows.push([r[0], r[1] == null ? '' : r[1]]); });
   rows.push(['애널리스트 목표', valData.target == null ? '' : valData.target]);
   rows.push([]);
   rows.push(['가정', '']);
