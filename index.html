@@ -217,6 +217,8 @@
   .fs-dlt{display:block;font-size:10.5px;line-height:1.2}
   .fs-dlt.up{color:var(--ok)} .fs-dlt.dn{color:var(--danger)}
   .fs-dlt.flat{color:var(--text-sub)}
+  /* 보고서에 없어서 0 으로 채운 칸 — 회사가 적어낸 0 과 구분되게 흐리게 */
+  .fs-num.zero{color:var(--text-sub);opacity:.45}
   .fs-row{cursor:pointer}
   .fs-row:hover{background:var(--accent-soft)}
   .fs-row td:first-child::after{content:' ＋';color:var(--accent);opacity:0;font-size:11px}
@@ -485,7 +487,7 @@
   <nav class="tabs">
     <div class="tabs-in">
       <button class="tab on" data-tab="home" onclick="showTab('home')">홈</button>
-      <button class="tab" data-tab="research" onclick="showTab('research')">경제지표 · 주식 분석</button>
+      <button class="tab" data-tab="research" onclick="showTab('research')">매크로 경제</button>
       <button class="tab" data-tab="trading" onclick="showTab('trading')">모의투자</button>
       <button class="tab" data-tab="company" onclick="showTab('company')">기업 분석</button>
       <button class="tab" data-tab="deriv" onclick="showTab('deriv')">파생상품</button>
@@ -511,7 +513,7 @@
         </h2>
         <div class="guide-grid">
           <button class="guide-item" onclick="showTab('research')">
-            <b>경제지표 · 주식 분석</b>
+            <b>매크로 경제</b>
             <span>여러 지표를 한 차트에 겹쳐 보고 JPG·CSV 로 내보냅니다.
               차트 아래 <em>상세 항목 분석</em>에서 지표 안을 쪼개 볼 수 있습니다.</span>
           </button>
@@ -620,7 +622,7 @@
     <!-- ════ 리서치 ════ -->
     <div id="pane-research" class="hidden">
       <div class="page-head">
-        <h1>경제지표 · 주식 분석</h1>
+        <h1>매크로 경제</h1>
         <p>여러 지표를 한 차트에 겹쳐 보고, 학회 표준 색으로 그린 뒤 JPG와 CSV로 내보냅니다.</p>
       </div>
       <div id="researchWarn"></div>
@@ -692,6 +694,12 @@
               <label style="min-width:auto">
                 <input type="checkbox" id="normSel" onchange="drawChart()" style="width:auto;vertical-align:-2px">
                 지수화 (시작=100)
+              </label>
+            </div>
+            <div class="row">
+              <label style="min-width:auto">
+                <input type="checkbox" id="recSel" onchange="toggleRecession()" style="width:auto;vertical-align:-2px">
+                경기침체 음영 <span style="font-size:11px;color:var(--text-sub)">(FRED 방식)</span>
               </label>
             </div>
             <div class="row">
@@ -1421,10 +1429,10 @@
           <div class="card">
             <h2>재무제표</h2>
             <div class="mode-seg" id="coFsSeg" style="margin-bottom:12px">
-              <button id="coFs-summary" class="on" onclick="coFsShow('summary')">요약 · 비율</button>
-              <button id="coFs-손익계산서" onclick="coFsShow('손익계산서')">손익계산서</button>
+              <button id="coFs-손익계산서" class="on" onclick="coFsShow('손익계산서')">손익계산서</button>
               <button id="coFs-재무상태표" onclick="coFsShow('재무상태표')">재무상태표</button>
               <button id="coFs-현금흐름표" onclick="coFsShow('현금흐름표')">현금흐름표</button>
+              <button id="coFs-summary" onclick="coFsShow('summary')">요약 · 비율</button>
             </div>
             <div id="coFsWarn"></div>
             <div class="scroll"><table id="coFinTable"></table></div>
@@ -2076,6 +2084,32 @@ function dtKey(x){
   return x.kind === 'ecos' ? ('ecos|' + x.code + '|' + x.item) : ('fred|' + x.code);
 }
 
+/*  ── 보고서를 끝까지 받아옵니다 ──
+
+    FRED 는 1분에 120번까지만 받아줍니다. 항목이 300개인 발표를 한 번에
+    부르면 뒤쪽이 통째로 빕니다. 그래서 서버가 한 번에 받을 수 있는 만큼만
+    받고 나머지 개수를 알려주면, 여기서 0 이 될 때까지 이어서 부릅니다.
+    받아둔 값은 서버 캐시에 쌓이므로 왕복할수록 채워집니다.              */
+var dtStop = false;
+async function dtFredAll(code){
+  dtStop = false;
+  var d = await edge({ source:'fred_report', code:code });
+  var rounds = 0;
+  while (!dtStop && Number(d.remaining) > 0 && rounds < 10){
+    var before = Number(d.counted) || 0;
+    $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">'
+      + '항목 값을 받는 중… <b>' + before + ' / ' + (d.total_series || '?') + '</b>'
+      + '<div style="margin-top:8px"><button class="btn-sm" onclick="dtStop=true">여기까지만</button></div>'
+      + '</div>';
+    var next = await edge({ source:'fred_report', code:code });
+    rounds++;
+    //  한 바퀴 돌아도 하나도 안 늘면 더 해봐야 소용없습니다
+    if ((Number(next.counted) || 0) <= before){ d = next; break; }
+    d = next;
+  }
+  return d;
+}
+
 async function dtLoadItems(){
   var c = dtCat();
   if (!c){ warn('dtWarn','지표를 하나 골라주세요.'); return; }
@@ -2088,7 +2122,7 @@ async function dtLoadItems(){
   try {
     var d;
     if (c.source === 'fred'){
-      d = await edge({ source:'fred_report', code:c.code, max:60 });
+      d = await dtFredAll(c.code);
       dtItems = (d.items || []).map(function(x){
         return { kind:'fred', code:x.series_id, name:x.name,
                  level:Number(x.level) || 1, head: !x.series_id,
@@ -2176,7 +2210,9 @@ function dtRenderPicker(){
   $('dtCount').innerHTML = cnt + '개 항목'
     + (asOf ? ' · <b>' + esc(asOf) + '</b> 기준' : '')
     + (dtMeta && dtMeta.total_series > (dtMeta.counted || 0)
-       ? ' · 값은 상위 ' + dtMeta.counted + '개만 계산했습니다' : '')
+       ? ' · 값 <b>' + dtMeta.counted + '</b>/' + dtMeta.total_series + '개'
+         + ' <a href="#" onclick="dtLoadItems();return false;">이어받기</a>'
+       : (dtMeta && dtMeta.total_series ? ' · 값 전부 받음' : ''))
     + (n ? ' · <b>' + n + '개 선택</b>' : '');
 }
 
@@ -2331,21 +2367,29 @@ function dtDraw(){
   var axis = Object.keys(days).sort();
   var unitTxt = mode === 'raw' ? (rows[0] && rows[0].unit ? rows[0].unit : '')
               : (mode === 'idx' ? '시작=100' : '%');
+  /*  범례가 두 줄로 접히면 그 아래 '%' 축 이름이 가려집니다.
+      항목이 몇 개든 글자끼리 겹치지 않게, 범례 줄 수를 재서
+      위 여백과 차트 키를 같이 늘립니다.                                */
+  var dtNames = rows.map(function(r){ return r.name; });
+  var dtRows = legendRows(dtNames, boxWidth('dtChartBox') - 20, 11, 14);
+  var dtTop = 8 + dtRows * 18 + 22;
+  $('dtChartBox').style.height = (300 + dtRows * 20) + 'px';
+  dtChart.resize();
   dtChart.setOption({
     backgroundColor: theme ? theme.bg : '#fff', animation:false,
-    grid:{ left:66, right:24, top:38, bottom:56 },
-    legend:{ top:4, type:'scroll', textStyle:{ fontSize:11 },
-      data: rows.map(function(r){ return r.name; }) },
+    grid:{ left:66, right:24, top: dtTop, bottom:56 },
+    legend:{ top:6, type:'plain', textStyle:{ fontSize:11 }, itemWidth:14, itemHeight:3,
+      itemGap:14, data: dtNames },
     tooltip:{ trigger:'axis', order:'valueDesc', textStyle:{ fontSize:11.5 },
       axisPointer:{ type: shape === 'bar' ? 'shadow' : 'line' },
       valueFormatter:function(v){ return v == null ? '—' : Number(v).toFixed(2); } },
     xAxis:{ type:'category', data:axis,
       axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
-      axisLabel:{ color:'#77809a', fontSize:11 } },
-    yAxis:{ type:'value', scale:true, name:unitTxt,
+      axisLabel:{ color:'#77809a', fontSize:11, hideOverlap:true } },
+    yAxis:{ type:'value', scale:true, name:unitTxt, nameGap:12,
       nameTextStyle:{ fontSize:11, color:'#77809a' },
       splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
-      axisLabel:{ color:'#77809a', fontSize:11 } },
+      axisLabel:{ color:'#77809a', fontSize:11, hideOverlap:true } },
     series: rows.map(function(r){
       var m = {}; r.pts.forEach(function(p){ m[p.d] = p.v; });
       var data = axis.map(function(d){ return m[d] == null ? null : m[d]; });
@@ -4898,7 +4942,10 @@ function addSeries(s){
   warn('researchWarn','');
   s.key = key;
   s.color = theme.palette[series.length % theme.palette.length];
+  //  단위가 같은 지표끼리 축을 나눠 씁니다 — 그래야 하나가 평평해지지 않습니다.
+  //  단위는 자료를 받아봐야 알 수 있어서, 일단 넣고 loadSeries 에서 다시 고릅니다.
   s.axis = series.length === 0 ? 0 : 1;
+  s.autoAxis = true;
   s.width = 3;
   s.type = 'line';
   s.tf = 'raw';
@@ -4932,8 +4979,14 @@ function renderSeriesList(){
       +     '<option value="line"'+(s.type!=='bar'?' selected':'')+'>선</option>'
       +     '<option value="bar"' +(s.type==='bar'?' selected':'')+'>막대</option></select>'
       +   '<select onchange="setAxis('+i+',this.value)">'
-      +     '<option value="0"'+(s.axis===0?' selected':'')+'>왼쪽 축</option>'
-      +     '<option value="1"'+(s.axis===1?' selected':'')+'>오른쪽 축</option></select>'
+      +     (function(){
+              var n = Math.max(axisCount(series), (Number(s.axis)||0) + 1), o = '';
+              for (var j = 0; j < n; j++)
+                o += '<option value="'+j+'"'+(Number(s.axis)===j?' selected':'')+'>'
+                   + axisName(j) + '</option>';
+              return o + '<option value="new">+ 축 새로 만들기</option>';
+            })()
+      +   '</select>'
       +   '<select onchange="setWidth('+i+',this.value)">'
       +     '<option value="1"'+(s.width==1?' selected':'')+'>얇게</option>'
       +     '<option value="2"'+(s.width==2?' selected':'')+'>보통</option>'
@@ -4985,8 +5038,139 @@ function pickColor(i, v, keepOpen, which){
   if (!keepOpen) closePalette();
 }
 
+/*  ── 글자가 서로 겹치지 않게 자리를 재는 도우미들 ──
+
+    범례가 두 줄로 접히면 그 아래 축 이름('%')이 가려집니다. 실제로
+    항목을 여섯 개 넣었더니 '%' 가 범례 뒤로 숨었습니다. 그래서 글자 폭을
+    직접 재서 범례가 몇 줄인지 계산하고, 그만큼 차트 위쪽을 비웁니다.     */
+function textPx(t, fs){
+  var w = 0, str = String(t == null ? '' : t);
+  for (var i = 0; i < str.length; i++){
+    var c = str.charCodeAt(i);
+    //  한글·한자는 폭이 글자크기와 거의 같고, 알파벳은 그 절반쯤입니다
+    w += (c > 0x1100) ? fs : fs * 0.58;
+  }
+  return w;
+}
+function legendRows(names, boxW, fs, itemW){
+  fs = fs || 11; itemW = itemW || 18;
+  var pad = itemW + 5 + 20;                 // 아이콘 + 아이콘여백 + 항목 사이
+  var used = 0, rows = 1;
+  (names || []).forEach(function(n){
+    var w = pad + textPx(n, fs);
+    if (used > 0 && used + w > boxW){ rows++; used = w; } else used += w;
+  });
+  return Math.max(1, Math.min(rows, 8));
+}
+function boxWidth(id){
+  var e = $(id);
+  return (e && e.clientWidth) ? e.clientWidth : 640;
+}
+
+/*  ── 축을 몇 개든 쓸 수 있게 ──
+
+    축이 좌우 두 개뿐이면 단위가 다른 지표를 셋 이상 넣는 순간
+    하나가 바닥에 붙어 평평해 보입니다. 세 번째부터는 바깥쪽으로
+    번갈아 붙여 나갑니다.                                              */
+/*  ── 경기침체 구간 ──
+
+    FRED 의 USREC 계열은 침체면 1, 아니면 0 인 깃발입니다. 이걸 선이나
+    막대로 그리면 아무것도 읽히지 않습니다. FRED 화면처럼 그 기간을
+    통째로 회색 띠로 칠해야 '이 지표가 침체 때 어땠나' 가 보입니다.       */
+var REC_CODES = /^(USREC|USRECD|USRECM|USRECP|JHDUSRGDPBR|KORRECD|KORRECM)/i;
+function isRecSeries(s){
+  if (!s) return false;
+  var c = String(s.code || '').toUpperCase();
+  if (REC_CODES.test(c)) return true;
+  return /경기침체|recession/i.test(String(s.label || ''));
+}
+//  0 이 아닌 구간을 [시작, 끝] 묶음으로 만듭니다
+function recBands(pts){
+  var out = [], from = null, prev = null;
+  (pts || []).forEach(function(p){
+    var on = Number(p.v) > 0;
+    if (on && from == null) from = p.d;
+    if (!on && from != null){ out.push([from, prev || p.d]); from = null; }
+    prev = p.d;
+  });
+  if (from != null && prev != null) out.push([from, prev]);
+  return out;
+}
+function recMarkArea(bands){
+  return {
+    silent: true, itemStyle:{ color:'rgba(120,132,158,.16)' },
+    label:{ show:false },
+    emphasis:{ disabled:true },
+    data: bands.map(function(b){ return [{ xAxis:b[0] }, { xAxis:b[1] }]; })
+  };
+}
+
+var AXIS_STEP = 58;
+function axisSlot(j){
+  if (j <= 0) return { position:'left',  offset:0 };
+  if (j === 1) return { position:'right', offset:0 };
+  var k = j - 2;
+  return (k % 2 === 0)
+    ? { position:'right', offset: AXIS_STEP * (Math.floor(k / 2) + 1) }
+    : { position:'left',  offset: AXIS_STEP * (Math.floor(k / 2) + 1) };
+}
+function axisName(j){ return j === 0 ? '왼쪽 축' : (j === 1 ? '오른쪽 축' : ('축 ' + (j + 1))); }
+function axisCount(arr){
+  var mx = 1;
+  (arr || []).forEach(function(x){ if (Number(x.axis) > mx) mx = Number(x.axis); });
+  return mx + 1;
+}
+//  같은 단위끼리는 같은 축을 쓰고, 처음 보는 단위면 비어 있는 축을 씁니다
+function pickAxisFor(arr, s, maxAxes){
+  var u = unitOf(s);
+  var same = (arr || []).filter(function(x){ return x !== s && unitOf(x) === u; })[0];
+  if (same) return Number(same.axis) || 0;
+  var used = {};
+  (arr || []).forEach(function(x){ if (x !== s) used[Number(x.axis) || 0] = 1; });
+  var cap = (maxAxes || 4) - 1, j = 0;
+  while (used[j] && j < cap) j++;
+  return j;
+}
+//  차트 좌우에 축이 삐져나갈 만큼 여백을 둡니다 (숫자가 잘리지 않게)
+function axisPad(total){
+  var L = 0, R = 0;
+  for (var j = 0; j < total; j++){
+    var sl = axisSlot(j);
+    if (sl.position === 'left')  L = Math.max(L, sl.offset);
+    else                          R = Math.max(R, sl.offset);
+  }
+  return { left: 58 + L, right: (total > 1 ? 62 : 26) + R };
+}
+
+/*  체크 한 번으로 미국 경기침체 구간을 깔아줍니다.
+    NBER 침체 판정을 FRED 가 USREC 로 내보내는데, 이걸 지표처럼 넣으면
+    0/1 선이 되어 쓸모가 없습니다. 넣되 '띠' 로만 씁니다.                */
+async function toggleRecession(){
+  var on = $('recSel') && $('recSel').checked;
+  var at = -1;
+  series.forEach(function(x, i){ if (isRecSeries(x)) at = i; });
+  if (!on){
+    if (at >= 0){ series.splice(at, 1); renderSeriesList(); drawChart(); }
+    return;
+  }
+  if (at >= 0){ drawChart(); return; }
+  var s = { source:'fred', code:'USREC', label:'경기침체 (NBER)',
+            color:'#8a93a8', type:'line', width:1, axis:0, tf:'raw' };
+  series.push(s);
+  renderSeriesList();
+  try { await loadSeries(s); } catch(e){ warn('researchWarn', esc(e.message)); }
+  renderSeriesList(); drawChart();
+}
+
 function setColor(i,v){ series[i].color = v; drawChart(); }
-function setAxis(i,v){ series[i].axis = Number(v); drawChart(); }
+function setAxis(i,v){
+  if (v === 'new'){
+    var used = {}; series.forEach(function(x){ used[Number(x.axis) || 0] = 1; });
+    var j = 0; while (used[j]) j++;
+    series[i].axis = j;
+  } else series[i].axis = Number(v);
+  drawChart();
+}
 function setWidth(i,v){ series[i].width = Number(v); drawChart(); }
 function setType(i,v){ series[i].type = v; drawChart(); }
 function setTf(i,v){ series[i].tf = v; drawChart(); }
@@ -5097,6 +5281,14 @@ async function loadSeries(s){
     var d = await edge({ source:s.source, code:s.code, item_code:s.item_code,
                          cycle:s.cycle, start:fetchStart() });
     s.points = d.points || [];
+    if (d.unit && !s.unit) s.unit = d.unit;
+    /*  단위를 알고 나서 축을 고릅니다.
+        같은 단위면 같은 축, 처음 보는 단위면 축을 새로 냅니다 —
+        축이 둘뿐이라 세 번째 지표가 바닥에 눌려 평평해 보이던 문제입니다. */
+    if (s.autoAxis && !isRecSeries(s)){
+      s.axis = pickAxisFor(series.filter(function(x){ return x.points && x.points.length; }), s, 4);
+      s.autoAxis = false;
+    }
     if (!s.points.length) warn('researchWarn','"'+esc(s.label)+'" 에 해당 기간 데이터가 없습니다.');
     else if (d.note) warn('researchWarn', '<b>' + esc(s.label) + '</b> — ' + esc(d.note), 'info');
     renderSeriesList(); drawChart();
@@ -5140,16 +5332,37 @@ function drawChart(){
     return;
   }
 
-  var usedRight = loaded.some(function(x){ return x.s.axis === 1; });
-  var axisName = ['',''];
-  loaded.forEach(function(x){ if (!axisName[x.s.axis]) axisName[x.s.axis] = unitOf(x.s); });
+  /*  ── 경기침체 음영 ──
+      USREC 같은 침체 지표는 0/1 값이라 선으로 그리면 아무 의미가 없습니다.
+      FRED 처럼 그 구간을 통째로 회색 띠로 칠합니다.                     */
+  var recs = loaded.filter(function(x){ return isRecSeries(x.s); });
+  var norms = loaded.filter(function(x){ return !isRecSeries(x.s); });
+  var bands = [];
+  recs.forEach(function(x){ bands = bands.concat(recBands(x.pts)); });
+  if (!norms.length) norms = loaded, bands = [];   // 침체만 넣었으면 그냥 그립니다
+
+  var nAxis = Math.max(2, axisCount(norms.map(function(x){ return x.s; })));
+  var axLabel = [];
+  norms.forEach(function(x){
+    var j = Number(x.s.axis) || 0;
+    if (!axLabel[j]) axLabel[j] = unitOf(x.s);
+  });
+  var usedRight = norms.some(function(x){ return Number(x.s.axis) === 1; });
+  var pad = axisPad(norm ? 1 : nAxis);
+
+  //  범례가 몇 줄인지 재서 그만큼 위를 비웁니다 (축 이름이 가려지지 않게)
+  var lgNames = norms.map(function(x){ return x.s.label + tfSuffix(x.s); });
+  var lgRows = legendRows(lgNames, boxWidth('chartBox') - 24, 12);
+  var topPad = 10 + lgRows * 20 + 20;          // 범례 + 축 이름 자리
 
   var opt = {
     backgroundColor: theme.bg,
     animation:false,
     textStyle:{ color:theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:58, right: usedRight?62:26, top:52, bottom:64 },
-    legend:{ top:8, textStyle:{ color:theme.text_color, fontSize:12 }, itemWidth:18, itemHeight:3 },
+    grid:{ left: norm ? 58 : pad.left, right: norm ? 26 : pad.right,
+           top: topPad, bottom:64 },
+    legend:{ top:8, textStyle:{ color:theme.text_color, fontSize:12 },
+      itemWidth:18, itemHeight:3, data: lgNames },
     tooltip:{ trigger:'axis',
       axisPointer:{ type:'line', label:{ formatter:function(p){ return fmtDateKo(p.value); } } },
       formatter:function(ps){
@@ -5169,40 +5382,55 @@ function drawChart(){
                     hour:'{HH}:{mm}', minute:'{HH}:{mm}', second:'{HH}:{mm}:{ss}',
                     millisecond:'{HH}:{mm}:{ss}', none:'{yyyy}-{MM}-{dd}' } },
       splitLine:{ show:false } },
-    yAxis:[
-      { type:'value', scale:true, name:norm?'지수':axisName[0], nameTextStyle:{ color:theme.axis_left, fontSize:11 },
+    yAxis: (function(){
+      if (norm) return [{ type:'value', scale:true, name:'지수',
+        nameTextStyle:{ color:theme.axis_left, fontSize:11 }, nameGap:12,
         position:'left', axisLine:{ show:true, lineStyle:{ color:theme.axis_left } },
         axisLabel:{ color:theme.axis_left, fontSize:11 },
-        splitLine:{ lineStyle:{ color:theme.grid } } },
-      { type:'value', scale:true, name:norm?'':axisName[1], nameTextStyle:{ color:theme.axis_right, fontSize:11 },
-        position:'right', axisLine:{ show:usedRight, lineStyle:{ color:theme.axis_right } },
-        axisLabel:{ show:usedRight, color:theme.axis_right, fontSize:11 },
-        splitLine:{ show:false } }
-    ],
+        splitLine:{ lineStyle:{ color:theme.grid } } }];
+      var out = [];
+      for (var j = 0; j < nAxis; j++){
+        var sl = axisSlot(j);
+        var on = norms.some(function(x){ return (Number(x.s.axis) || 0) === j; });
+        var col = (j === 0) ? theme.axis_left : theme.axis_right;
+        out.push({ type:'value', scale:true, name: axLabel[j] || '',
+          nameTextStyle:{ color: col, fontSize:11 }, nameGap:12,
+          position: sl.position, offset: sl.offset,
+          axisLine:{ show: on, lineStyle:{ color: col } },
+          axisLabel:{ show: on, color: col, fontSize:11, hideOverlap:true },
+          splitLine: j === 0 ? { lineStyle:{ color:theme.grid } } : { show:false } });
+      }
+      return out;
+    })(),
     dataZoom:[{ type:'inside' }, { type:'slider', show:true, height:18, bottom:16,
       borderColor:theme.grid, fillerColor:'rgba(107,140,218,.15)',
       handleStyle:{ color:theme.axis_left }, textStyle:{ color:theme.text_color, fontSize:10 } }],
-    series: loaded.map(function(x){
+    series: norms.map(function(x, i){
       var s = x.s, pts = x.pts;
       var base = norm ? pts[0].v : 1;
       var isBar = s.type === 'bar';
-      return {
+      var o = {
         name: s.label + tfSuffix(s),
         type: isBar ? 'bar' : 'line',
-        yAxisIndex: norm ? 0 : s.axis,
+        yAxisIndex: norm ? 0 : (Number(s.axis) || 0),
         showSymbol:false,
         barMaxWidth: 18,
         lineStyle:{ color:s.color, width:s.width },
         itemStyle:{ color:s.color },
         data: pts.map(function(p){ return [p.d, norm ? (base ? p.v/base*100 : 0) : p.v]; })
       };
+      //  침체 띠는 맨 앞 계열에 한 번만 붙입니다 (계열마다 붙이면 겹쳐서 진해집니다)
+      if (i === 0 && bands.length) o.markArea = recMarkArea(bands);
+      return o;
     })
   };
   chart.setOption(opt, true);
 
   var anyTf = series.some(function(s){ return (s.tf||'raw') !== 'raw'; });
-  $('chartMsg').textContent = loaded.length + '개 지표 · ' + $('rangeSel').selectedOptions[0].text
-    + (norm ? ' · 지수화' : (usedRight ? ' · 좌우 축 분리' : ''))
+  $('chartMsg').textContent = norms.length + '개 지표 · ' + $('rangeSel').selectedOptions[0].text
+    + (norm ? ' · 지수화' : (nAxis > 2 ? ' · 축 ' + nAxis + '개'
+                            : (usedRight ? ' · 좌우 축 분리' : '')))
+    + (bands.length ? ' · 침체 ' + bands.length + '구간 음영' : '')
     + (anyTf ? ' · 변환 적용' : '');
 }
 
@@ -5507,7 +5735,7 @@ async function pickCompany(i){
   renderCoSeriesList(); renderCoFinSeriesList();
   fillCoCmpSel(); fillCoFinIndSel(); applyCoSize();
   warn('coFinWarn','');
-  coFsShow('summary');
+  coFsShow('손익계산서');
   coShow('fin');
 
   await loadCoFin();
@@ -5517,11 +5745,12 @@ async function pickCompany(i){
 }
 
 /* ── 재무제표 ── */
-var coFull = null, coFsTab = 'summary';
+//  기업을 열면 손익계산서부터 보여줍니다 (재무제표를 읽는 순서대로)
+var coFull = null, coFsTab = '손익계산서';
 
 function coFsShow(which){
   coFsTab = which;
-  ['summary','손익계산서','재무상태표','현금흐름표'].forEach(function(k){
+  ['손익계산서','재무상태표','현금흐름표','summary'].forEach(function(k){
     var b = $('coFs-' + k); if (b) b.classList.toggle('on', k === which);
   });
   if (which === 'summary'){ warn('coFsWarn',''); if (coFin) renderCoFinTable(); }
@@ -5553,8 +5782,9 @@ function coFullPeriods(d){
 /*  값이 드문 계정은 접어둡니다.
     "매각예정분류" 처럼 그 해에 거래가 없으면 회사가 아예 적지 않는 계정이 있어서,
     다 펼치면 표 중간이 —— 로 가득 찹니다. 지우지는 않고 접기만 합니다. */
-var coFsAll = false;
-function coFsToggleAll(){ coFsAll = !coFsAll; renderCoStatement(coFsTab); }
+/*  '값 드문 계정 접기' 는 없앴습니다 — 이제 항상 전부 보여줍니다.
+    옛 화면이 캐시에 남아 이 함수를 부를 수 있어 자리만 남겨둡니다.  */
+function coFsToggleAll(){ renderCoStatement(coFsTab); }
 
 /*  재무제표 표 — 세 장(손익·재무상태·현금흐름) 모두 같은 규칙으로 그립니다.
 
@@ -5608,33 +5838,26 @@ async function renderCoStatement(group){
       return;
     }
 
-    function filled(r){
-      var n = 0;
-      years.forEach(function(y){ if (r.values[y.key] != null) n++; });
-      return n;
-    }
     function isOn(r){
       return coFinSeries.some(function(x){ return x.finKey === 'fin||' + group + '|' + r.name; });
     }
-    var need = Math.max(2, Math.ceil(years.length * 0.6));
 
-    //  값이 거의 없는 줄은 접어둡니다 (차트에 올려둔 줄은 그대로)
-    var keep = [], hidden = 0;
-    all.forEach(function(r, i){
-      r.__i = i;
-      if (coFsAll || isOn(r) || filled(r) >= need) keep.push(r);
-      else hidden++;
-    });
-
-    var tree = coFsTree(keep);
+    /*  줄은 하나도 빼지 않습니다.
+        예전에는 값이 드문 계정을 접어두고 '몇 개를 접어뒀습니다' 라고
+        물어봤는데, 회사가 낸 재무제표에 있는 줄이면 그냥 보여주는 게 맞습니다.
+        그 해에 거래가 없어서 안 적은 것이면 값은 0 입니다.                */
+    all.forEach(function(r, i){ r.__i = i; });
+    var tree = coFsTree(all);
     var u = coUnit();
 
     function cells(r){
       return years.map(function(y, k){
-        var v = r.values[y.key];
-        var prev = k > 0 ? r.values[years[k-1].key] : null;
-        if (v == null)
-          return '<td class="num"><span class="fs-num" style="color:var(--border)">—</span></td>';
+        //  값이 없으면 0 입니다 (그 해에 그 거래가 없었다는 뜻).
+        //  숫자는 흐리게 두어 '회사가 적어낸 0' 과 구분됩니다.
+        var raw = r.values[y.key];
+        var v = raw == null ? 0 : raw;
+        var prevRaw = k > 0 ? r.values[years[k-1].key] : null;
+        var prev = (k > 0) ? (prevRaw == null ? 0 : prevRaw) : null;
         var txt = r.per_share ? num(v, 2) : num(v / u.div, u.dp);
         var made = r.derived && r.derived[y.key];
         var dd = '';
@@ -5652,8 +5875,10 @@ async function renderCoStatement(group){
                + (Math.abs(g) < 0.05 ? '–' : (g > 0 ? '+' : '') + num(g, 1) + '%') + '</span>';
           }
         }
-        return '<td class="num"><span class="fs-num' + (made ? ' calc' : '') + '"'
-             + (made ? ' title="회사가 직접 내지 않아 다른 계정에서 계산한 값입니다"' : '')
+        return '<td class="num"><span class="fs-num' + (made ? ' calc' : '')
+             + (raw == null ? ' zero' : '') + '"'
+             + (made ? ' title="회사가 직접 내지 않아 다른 계정에서 계산한 값입니다"'
+                     : (raw == null ? ' title="이 기간 보고서에 이 계정이 없습니다 (거래 없음 = 0)"' : ''))
              + '>' + txt + '</span>' + dd + '</td>';
       }).join('');
     }
@@ -5704,13 +5929,6 @@ async function renderCoStatement(group){
     $('coFinUnit').textContent = '단위: ' + u.label + (d.basis ? ' · ' + d.basis : '');
 
     var msg = [];
-    if (hidden && !coFsAll)
-      msg.push('해에 따라 값이 없는 계정 <b>' + hidden + '개</b>를 접어뒀습니다. '
-        + '(그 해에 해당 거래가 없으면 회사가 아예 적지 않습니다) '
-        + '<a href="#" onclick="coFsToggleAll();return false;"><b>모두 보기</b></a>');
-    if (coFsAll)
-      msg.push('값이 드문 계정까지 모두 펼쳤습니다. '
-        + '<a href="#" onclick="coFsToggleAll();return false;"><b>다시 접기</b></a>');
     if (d.derived && d.derived.length)
       msg.push('<span class="fs-num calc">점선</span> 이 그어진 값은 회사가 직접 내지 않아 '
         + '다른 계정에서 계산한 것입니다 — ' + esc(d.derived.join(', ')) + '.');
@@ -5975,8 +6193,10 @@ function coFinValues(s, rows, u){
     return rows.map(function(r){
       var pk = periodKey(r);
       var v = s.values[pk];
-      //  분기 화면인데 연간 자료만 있으면 4분기 자리에 얹습니다
-      if (v == null && r.q && Number(r.q) === 4) v = s.values[String(r.year)];
+      /*  예전에는 분기 칸이 비면 '연간 값' 을 4분기 자리에 얹었습니다.
+          그래서 삼성전자 25년 4분기 막대가 93.8조가 아니라 330조(1년치)로
+          솟아 있었습니다. 1년치를 한 분기인 척 그리는 것은 틀린 그림이라
+          그냥 비워둡니다 — 없는 값은 없는 대로 보이는 편이 낫습니다.      */
       if (v == null) return null;
       return s.per_share ? Number(v) : Number(v) / u.div;
     });
@@ -5988,14 +6208,28 @@ function coFinValues(s, rows, u){
   });
 }
 /* 실적 요약이 없어도 전체 재무제표 연도만 있으면 축을 세웁니다 */
-function coChartRows(){
-  var rs = coRows();
-  if (rs.length) return rs;
+function coFullRows(){
   return coFullPeriods(coFull).map(function(p){
     var m = String(p.key).match(/^(\d{4})Q(\d)$/);
     return m ? { year: Number(m[1]), q: Number(m[2]) }
              : { year: Number(p.key), q: null };
   });
+}
+/*  가로축을 어디서 가져올지.
+
+    재무제표 계정을 얹었으면 '재무제표가 가진 기간' 을 축으로 씁니다.
+    예전에는 축은 실적요약(3년치)에서, 값은 재무제표(6분기)에서 가져와
+    24년 칸은 있는데 막대가 없는 화면이 나왔습니다 — 축과 값이 서로
+    다른 곳에서 온 탓입니다.                                            */
+function coChartRows(){
+  var hasFin = coFinSeries.some(function(x){ return x.kind === 'fin'; });
+  if (hasFin){
+    var fr = coFullRows();
+    if (fr.length) return fr;
+  }
+  var rs = coRows();
+  if (rs.length) return rs;
+  return coFullRows();
 }
 function renderCoFinChart(){
   if (typeof echarts === 'undefined') return;
