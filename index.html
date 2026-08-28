@@ -483,6 +483,32 @@
   .pill.alumni{background:var(--bg);color:var(--text-sub)}
   .pill.KR{background:#fdecea;color:var(--up)} .pill.US{background:#e8f0fe;color:var(--down)}
 
+  /*  '산 방법' 딱지 — 직접 매매는 차분하게, 자동매매는 눈에 띄게.
+      현황에서 자동매매가 뭘 사놨는지 훑어보는 게 목적입니다.        */
+  .by-tag{display:inline-block;padding:2px 7px;border-radius:6px;font-size:11px;
+          font-weight:700;letter-spacing:-.2px;white-space:nowrap;margin-right:4px}
+  .by-tag.manual{background:#eef1f6;color:#5a6278}
+  .by-tag.auto{background:#e6f0ff;color:#2456c9}
+
+  /*  자동매매 상태 띠 — '켜뒀는데 진짜 도는 건가' 를 없애려는 칸입니다.  */
+  .auto-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;
+            border:1px solid var(--border);border-radius:12px;padding:13px 16px;
+            background:var(--white);margin-bottom:14px}
+  .auto-bar .ab-state{display:flex;align-items:center;gap:8px;font-weight:800;font-size:.95rem}
+  .auto-bar .ab-dot{width:9px;height:9px;border-radius:50%;background:#c3cad8;flex:none}
+  .auto-bar.on  .ab-dot{background:var(--ok);animation:abPulse 1.6s ease-out infinite}
+  .auto-bar.on  .ab-state{color:var(--ok)}
+  .auto-bar.off .ab-state{color:var(--text-sub)}
+  @keyframes abPulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.55)}
+                     70%{box-shadow:0 0 0 7px rgba(22,163,74,0)}
+                     100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+  .auto-bar .ab-i{display:flex;flex-direction:column;gap:2px;min-width:96px}
+  .auto-bar .ab-k{font-size:11px;color:var(--text-sub);font-weight:600}
+  .auto-bar .ab-v{font-size:.92rem;font-weight:700;color:var(--text);
+                  font-variant-numeric:tabular-nums}
+  .auto-bar .ab-sp{margin-left:auto}
+  @media (prefers-reduced-motion:reduce){ .auto-bar.on .ab-dot{animation:none} }
+
   .note{background:var(--warn-soft);border:1px solid #f0d68a;border-radius:11px;padding:13px 16px;
     font-size:.86rem;color:#8a5a00;line-height:1.65;margin-bottom:16px}
   .note.info{background:var(--accent-soft);border-color:#c9d5ee;color:var(--primary)}
@@ -620,6 +646,17 @@
           </select>
         </div>
         <div id="homeFxBox" style="height:280px"></div>
+      </div>
+
+      <!-- 팀 성적표 — 모의투자 탭에서 여기로 옮겨왔습니다 -->
+      <div class="card" id="homeBoardCard">
+        <h2>팀 성적표
+          <span style="font-size:11.5px;font-weight:400;color:var(--text-sub)">— 항목을 눌러 정렬</span>
+          <span class="tools"><button class="btn-sm" onclick="showTab('trading')">모의투자 열기</button></span>
+        </h2>
+        <div class="scroll"><table id="lbTable">
+          <tr><td class="empty">불러오는 중…</td></tr>
+        </table></div>
       </div>
 
       <!-- 증시캘린더 -->
@@ -1040,50 +1077,10 @@
 
         <!-- ══ 자동매매 ══ -->
         <div id="mtPane-auto" class="hidden">
-        <div class="card">
-          <h2>자동매매 설정
-            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
-              1억 중 얼마까지, 얼마마다 훑을지</span>
-          </h2>
-          <div class="row">
-            <label>켜기</label>
-            <label style="min-width:auto">
-              <input type="checkbox" id="mtAutoOn" onchange="mtAutoSave()"
-                     style="width:auto;vertical-align:-2px"> 자동매매 사용
-            </label>
-            <label style="min-width:auto">훑는 간격</label>
-            <select id="mtAutoIv" onchange="mtAutoSave()" style="width:130px">
-              <option value="5m">5분</option>
-              <option value="15m">15분</option>
-              <option value="30m">30분</option>
-              <option value="2h">2시간</option>
-              <option value="4h">4시간</option>
-              <option value="1d" selected>일봉 (하루 한 번)</option>
-              <option value="1w">주봉 (주 한 번)</option>
-            </select>
-          </div>
-          <div class="row">
-            <label>배정 금액</label>
-            <input type="number" id="mtAutoBudget" class="grow" step="100000" min="0"
-                   placeholder="예: 30000000" onchange="mtAutoSave()">
-            <span class="st-hint" id="mtAutoRoom"></span>
-          </div>
-          <div class="st-hint" style="margin-top:6px">
-            자동매매가 실제로 쓸 수 있는 돈은 <b>남은 현금과 배정 금액 중 작은 쪽</b>입니다.
-            직접 매매로 더 사면 자동매매 여력이 줄고, 팔면 늘어납니다.
-            한도를 걸어두는 이유는 규칙 하나 잘못 짜서 하룻밤에 전액이 들어가는 걸 막기 위해서입니다.
-            <br><b>국내 주식은 자동매매에서 빠집니다</b> — 실시간 시세를 받을 무료 창구가 없어
-            조건을 실시간으로 맞춰볼 수가 없습니다.
-          </div>
-          <div id="mtAutoMsg" class="msg"></div>
-        </div>
 
-        <div class="card">
-          <h2>자동매매가 한 일
-            <span class="tools"><button class="btn-sm admin-only hidden" onclick="mtScanNow()">지금 한 번 돌리기</button></span>
-          </h2>
-          <div class="scroll" style="max-height:280px"><table id="mtRunTable"></table></div>
-        </div>
+        <!--  '저장은 했는데 진짜 돌고 있나?' 를 없애려고 맨 위에 둡니다.
+              다음 실행까지 남은 시간이 1초씩 줄어드는 게 살아있다는 표시입니다.  -->
+        <div class="auto-bar off" id="mtAutoBar"></div>
 
         <!-- ── 전략 ── -->
         <div id="strategyCard" class="card hidden">
@@ -1097,9 +1094,50 @@
 
           <div id="uniNote"></div>
 
-          <!-- ① 무엇을 살까 -->
+          <!--  ① 얼마로 굴릴까
+                예전에는 이 세 칸(켜기·간격·배정 금액)이 위쪽 별도 카드에 있고,
+                그 사이에 실행 기록표가 끼어 있어서, 금액을 정하고 → 기록표를
+                지나 → 전략을 짜고 → 맨 아래 저장을 누르는 모양이었습니다.
+                한 가지 일인데 화면이 세 번 끊겼습니다. 한 카드로 합쳤습니다.  -->
           <div class="st-sec">
-            <div class="st-h"><span class="st-n">1</span>무엇을 살까</div>
+            <div class="st-h"><span class="st-n">1</span>얼마로 굴릴까
+              <span class="st-sub">— 여기까지만 자동매매가 씁니다</span></div>
+            <div class="row">
+              <label style="min-width:auto">
+                <input type="checkbox" id="mtAutoOn" onchange="mtAutoSave()"
+                       style="width:auto;vertical-align:-2px"> <b>자동매매 사용</b>
+              </label>
+              <label style="min-width:auto">훑는 간격</label>
+              <select id="mtAutoIv" onchange="mtAutoSave()" style="width:150px">
+                <option value="5m">5분마다</option>
+                <option value="15m">15분마다</option>
+                <option value="30m">30분마다</option>
+                <option value="2h">2시간마다</option>
+                <option value="4h">4시간마다</option>
+                <option value="1d" selected>하루 한 번</option>
+                <option value="1w">일주일 한 번</option>
+              </select>
+            </div>
+            <div class="row">
+              <label>배정 금액</label>
+              <input type="number" id="mtAutoBudget" class="grow" step="1000000" min="0"
+                     placeholder="예: 30000000" onchange="mtAutoSave()">
+              <button class="btn-sm" onclick="mtAutoBudgetAll()">남은 현금 전부</button>
+            </div>
+            <div class="st-hint" id="mtAutoRoom" style="margin-top:6px"></div>
+            <div class="st-hint" style="margin-top:6px">
+              실제로 쓸 수 있는 돈은 <b>남은 현금과 배정 금액 중 작은 쪽</b>입니다.
+              직접 매매로 더 사면 자동매매 여력이 줄고, 팔면 늘어납니다.
+              한도를 걸어두는 이유는 규칙 하나 잘못 짜서 하룻밤에 전액이 들어가는 걸 막기 위해서입니다.
+              <br><b>국내 주식은 자동매매에서 빠집니다</b> — 실시간 시세를 받을 무료 창구가 없어
+              조건을 실시간으로 맞춰볼 수가 없습니다.
+            </div>
+            <div id="mtAutoMsg" class="msg"></div>
+          </div>
+
+          <!-- ② 무엇을 살까 -->
+          <div class="st-sec">
+            <div class="st-h"><span class="st-n">2</span>무엇을 살까</div>
             <div class="mode-seg" id="stModeSeg" style="margin-bottom:12px">
               <button id="stMode-scan"  onclick="setStMode('scan')">전 종목 스캔</button>
               <button id="stMode-fixed" onclick="setStMode('fixed')">종목 직접 지정</button>
@@ -1147,18 +1185,12 @@
             </div>
           </div>
 
-          <!-- ② 얼마나 굴릴까 -->
-          <div class="st-sec">
-            <div class="st-h"><span class="st-n">2</span>자동매매에 얼마를 맡길까</div>
-            <div class="row">
-              <input type="range" id="stAutoPct" min="0" max="100" step="5" value="100"
-                     oninput="stratChanged()" style="flex:1;min-width:180px">
-              <span id="stAutoV" class="st-big">100%</span>
-            </div>
-            <div class="st-hint" id="stAutoHint"></div>
-          </div>
+          <!--  예전에 여기 '자동매매에 얼마를 맡길까' 슬라이더가 또 있었습니다.
+                바로 위 카드의 '배정 금액' 과 같은 이야기를 두 번 묻는 것이라,
+                둘이 어긋나면 어느 쪽이 진짜인지 알 길이 없었습니다. 지웠습니다.
+                금액은 배정 금액 하나로만 정하고, 전략은 그 값을 받아 씁니다.  -->
 
-          <!-- ③ 언제 살까 -->
+          <!-- ② 언제 살까 -->
           <div class="st-sec">
             <div class="st-h"><span class="st-n">3</span>언제 살까 <span class="st-sub">— 조건을 모두 만족할 때</span></div>
             <div class="presets" id="stratPresets"></div>
@@ -1182,7 +1214,7 @@
             </div>
           </div>
 
-          <!-- ④ 언제 팔까 -->
+          <!-- ③ 언제 팔까 -->
           <div class="st-sec">
             <div class="st-h"><span class="st-n">4</span>언제 팔까 <span class="st-sub">— 하나라도 걸리면 매도</span></div>
 
@@ -1259,6 +1291,13 @@
             </div>
             <div id="stratHist" class="strat-hist"></div>
           </div>
+        </div>
+
+        <div class="card">
+          <h2>자동매매가 한 일
+            <span class="tools"><button class="btn-sm admin-only hidden" onclick="mtScanNow()">지금 한 번 돌리기</button></span>
+          </h2>
+          <div class="scroll" style="max-height:280px"><table id="mtRunTable"></table></div>
         </div>
 
         </div><!-- /mtPane-auto -->
@@ -1372,83 +1411,11 @@
         </div><!-- /mtPane-log -->
       </div>
 
-      <div class="card">
-        <h2>팀 성적표 <span style="font-size:11.5px;font-weight:400;color:var(--text-sub)">— 항목을 눌러 정렬</span></h2>
-        <div class="scroll"><table id="lbTable"></table></div>
-      </div>
+      <!--  팀 성적표는 홈 탭으로 옮겼습니다. 순위는 매매하다 말고 보는 게
+            아니라 들어오자마자 보는 것이라서요.  -->
 
-      <div class="card admin-only hidden">
-        <h2>팀 관리 (임원진)</h2>
-        <div class="row">
-          <input type="text" id="newTeamName" class="grow" placeholder="새 팀 이름 (예: 1팀 알파)">
-          <button class="btn-sm btn-solid" onclick="createTeam()">팀 만들기</button>
-        </div>
-        <div class="row" style="margin-top:12px">
-          <select id="assignTeam" style="min-width:150px"></select>
-          <input type="text" id="assignSids" class="grow" placeholder="학번 쉼표로 구분 (20241234, 20245678)">
-          <button class="btn-sm" onclick="assignMembers()">팀원 배정</button>
-        </div>
-        <div class="msg" id="teamAdminMsg"></div>
-
-        <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
-          <div style="font-size:.88rem;font-weight:700;color:var(--primary);margin-bottom:8px">
-            허용 종목 (유니버스)
-            <span id="uniStat" style="font-weight:400;color:var(--text-sub);font-size:11.5px"></span>
-          </div>
-          <div class="auto-uni">
-            <div style="font-weight:700;font-size:.83rem;color:var(--primary);margin-bottom:6px">
-              거래대금 상위 100 자동 등록 <span style="font-weight:400;color:var(--text-sub);font-size:11px">— 권장</span>
-            </div>
-            <div class="st-hint" style="margin-bottom:9px">
-              국내는 <b>코스피 + 코스닥 전 종목</b> 중 그날 거래대금 상위 100개를,
-              미국은 <b>미국 증시 전 종목</b> 중 상위 100개를 자동으로 뽑아 등록합니다.
-              손으로 넣을 것이 없고, 누를 때마다 그날 기준으로 새로 갱신됩니다.<br>
-              명단에서 빠진 종목도 <b>팔 수는 있습니다</b> — 산 종목이 묶이는 일은 없습니다.
-            </div>
-            <div class="row">
-              <button class="btn-sm btn-solid" id="uniKrBtn" onclick="autoUniverse('KR')">국내 상위 100 등록</button>
-              <button class="btn-sm btn-solid" id="uniUsBtn" onclick="autoUniverse('US')">미국 S&amp;P500 등록</button>
-              <button class="btn-sm btn-solid" id="uniCcBtn" onclick="autoUniverse('CRYPTO')">코인 상위 50 등록</button>
-              <button class="btn-sm" id="uniBackBtn" onclick="backfillUniverse()">과거 시세 채우기</button>
-            </div>
-            <div class="msg" id="autoUniMsg"></div>
-            <div class="st-hint" style="margin-top:6px">
-              <b>과거 시세 채우기</b>는 백테스트에 쓸 지난 종가를 하루씩 거슬러 올라가며 모읍니다.
-              처음 한 번은 여러 번 눌러 넉넉히 쌓아두세요.
-            </div>
-          </div>
-
-          <div style="font-size:.83rem;font-weight:700;color:var(--text-sub);margin:16px 0 6px">
-            직접 지정 (선택)
-          </div>
-          <div class="st-hint" style="margin-bottom:9px">
-            자동 등록으로 충분하면 아래는 건드리지 않아도 됩니다.
-            한 줄에 하나씩 <code>시장,종목코드,이름</code> 형식으로 넣으세요.
-            예) <code>KR,005930,삼성전자</code> &nbsp; <code>US,NVDA,NVIDIA</code><br>
-            등록하면 <b>그 안에서만</b> 매매와 전략이 가능합니다. 비워두면 제한이 없습니다.
-            여기서 넣은 종목은 자동 갱신에도 지워지지 않습니다.
-          </div>
-          <textarea id="uniText" rows="7" spellcheck="false"
-            style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:9px;
-                   font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;line-height:1.7;
-                   background:var(--white);color:var(--text);resize:vertical"
-            placeholder="KR,005930,삼성전자&#10;KR,000660,SK하이닉스&#10;US,NVDA,NVIDIA"></textarea>
-          <div class="row" style="margin-top:9px">
-            <label style="min-width:auto">
-              <input type="checkbox" id="uniReplace" checked style="width:auto;vertical-align:-2px">
-              기존 목록을 지우고 새로 등록
-            </label>
-            <button class="btn-sm btn-solid" onclick="saveUniverse()">종목 등록</button>
-            <button class="btn-sm" onclick="showUniverse()">현재 목록 보기</button>
-            <button class="btn-sm" id="uniWarmBtn" onclick="warmUniverse()">시세 미리 받기</button>
-          </div>
-          <div class="msg" id="uniMsg"></div>
-          <div class="st-hint" style="margin-top:6px">
-            <b>시세 미리 받기</b>는 유니버스 전 종목의 종가를 공용 보관함에 채웁니다.
-            한 번 받아두면 <b>모든 팀이 같이 쓰기 때문에</b> 전략 실행이 훨씬 빨라집니다. 하루 한 번이면 충분합니다.
-          </div>
-        </div>
-      </div>
+      <!--  팀 관리(임원진)는 설정 탭으로 옮겼습니다. 학기 초에 한 번 하는 일이라
+            매매 화면 아래에 늘 펼쳐져 있을 이유가 없습니다.  -->
     </div>
 
     <!-- ════ 자료실 ════ -->
@@ -2145,7 +2112,86 @@
     <div id="pane-admin" class="hidden">
       <div class="page-head">
         <h1>설정</h1>
-        <p>활동 기수와 지표 목록을 관리합니다.</p>
+        <p>팀 · 학회원 · 활동 기수 · 지표 목록을 관리합니다.</p>
+      </div>
+      <div class="card admin-only hidden">
+        <h2>팀 관리 (임원진)</h2>
+        <div class="row">
+          <input type="text" id="newTeamName" class="grow" placeholder="새 팀 이름 (예: 1팀 알파)">
+          <button class="btn-sm btn-solid" onclick="createTeam()">팀 만들기</button>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <select id="assignTeam" style="min-width:150px"></select>
+          <input type="text" id="assignSids" class="grow" placeholder="학번 쉼표로 구분 (20241234, 20245678)">
+          <button class="btn-sm" onclick="assignMembers()">팀원 배정</button>
+        </div>
+        <div class="msg" id="teamAdminMsg"></div>
+
+        <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
+          <div style="font-size:.88rem;font-weight:700;color:var(--primary);margin-bottom:8px">
+            허용 종목 (유니버스)
+            <span id="uniStat" style="font-weight:400;color:var(--text-sub);font-size:11.5px"></span>
+          </div>
+          <div class="auto-uni">
+            <div style="font-weight:700;font-size:.83rem;color:var(--primary);margin-bottom:6px">
+              거래대금 상위 100 자동 등록
+              <span style="font-weight:400;color:var(--ok);font-size:11px">— 매주 일요일 아침에 저절로 갱신됩니다</span>
+            </div>
+            <div class="note info" style="margin-bottom:9px">
+              <b>평소에는 아무것도 안 눌러도 됩니다.</b>
+              <code>terminal-자동운영.sql</code> 을 한 번 실행해 두면 서버가
+              <b>매주 일요일 오전 8시</b>에 세 시장의 명단을 알아서 새로 짭니다.
+              아래 버튼은 <b>지금 당장</b> 갱신하고 싶을 때만 쓰세요.
+            </div>
+            <div class="st-hint" style="margin-bottom:9px">
+              국내는 <b>코스피 + 코스닥 전 종목</b> 중 그날 거래대금 상위 100개를,
+              미국은 <b>미국 증시 전 종목</b> 중 상위 100개를 뽑습니다.
+              명단에서 빠진 종목도 <b>팔 수는 있습니다</b> — 산 종목이 묶이는 일은 없습니다.
+              손으로 넣은 종목은 자동 갱신에도 지워지지 않습니다.
+            </div>
+            <div class="row">
+              <button class="btn-sm btn-solid" id="uniKrBtn" onclick="autoUniverse('KR')">국내 상위 100 등록</button>
+              <button class="btn-sm btn-solid" id="uniUsBtn" onclick="autoUniverse('US')">미국 S&amp;P500 등록</button>
+              <button class="btn-sm btn-solid" id="uniCcBtn" onclick="autoUniverse('CRYPTO')">코인 상위 50 등록</button>
+              <button class="btn-sm" id="uniBackBtn" onclick="backfillUniverse()">과거 시세 채우기</button>
+            </div>
+            <div class="msg" id="autoUniMsg"></div>
+            <div class="st-hint" style="margin-top:6px">
+              <b>과거 시세 채우기</b>는 백테스트에 쓸 지난 종가를 하루씩 거슬러 올라가며 모읍니다.
+              처음 한 번은 여러 번 눌러 넉넉히 쌓아두세요.
+            </div>
+          </div>
+
+          <div style="font-size:.83rem;font-weight:700;color:var(--text-sub);margin:16px 0 6px">
+            직접 지정 (선택)
+          </div>
+          <div class="st-hint" style="margin-bottom:9px">
+            자동 등록으로 충분하면 아래는 건드리지 않아도 됩니다.
+            한 줄에 하나씩 <code>시장,종목코드,이름</code> 형식으로 넣으세요.
+            예) <code>KR,005930,삼성전자</code> &nbsp; <code>US,NVDA,NVIDIA</code><br>
+            등록하면 <b>그 안에서만</b> 매매와 전략이 가능합니다. 비워두면 제한이 없습니다.
+            여기서 넣은 종목은 자동 갱신에도 지워지지 않습니다.
+          </div>
+          <textarea id="uniText" rows="7" spellcheck="false"
+            style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:9px;
+                   font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;line-height:1.7;
+                   background:var(--white);color:var(--text);resize:vertical"
+            placeholder="KR,005930,삼성전자&#10;KR,000660,SK하이닉스&#10;US,NVDA,NVIDIA"></textarea>
+          <div class="row" style="margin-top:9px">
+            <label style="min-width:auto">
+              <input type="checkbox" id="uniReplace" checked style="width:auto;vertical-align:-2px">
+              기존 목록을 지우고 새로 등록
+            </label>
+            <button class="btn-sm btn-solid" onclick="saveUniverse()">종목 등록</button>
+            <button class="btn-sm" onclick="showUniverse()">현재 목록 보기</button>
+            <button class="btn-sm" id="uniWarmBtn" onclick="warmUniverse()">시세 미리 받기</button>
+          </div>
+          <div class="msg" id="uniMsg"></div>
+          <div class="st-hint" style="margin-top:6px">
+            <b>시세 미리 받기</b>는 유니버스 전 종목의 종가를 공용 보관함에 채웁니다.
+            한 번 받아두면 <b>모든 팀이 같이 쓰기 때문에</b> 전략 실행이 훨씬 빨라집니다. 하루 한 번이면 충분합니다.
+          </div>
+        </div>
       </div>
       <div class="card">
         <h2>현재 활동 기수</h2>
@@ -3109,6 +3155,10 @@ function initHome(){
   nfLoad(); nfTick();
   loadHomeFx();
   loadEcon();
+  /*  팀 성적표를 모의투자 탭에서 홈으로 옮겼습니다. 예전에는 모의투자에
+      들어가야 순위가 채워졌기 때문에, 홈에서는 제목만 있고 표가 비어
+      있었습니다. 홈에 있는 이상 홈이 직접 불러와야 합니다.            */
+  loadLeaderboard();
 }
 
 /* 모의투자는 서버에 쌓인 원/달러 표를 씁니다. 비어 있으면 미국 주식 평가액이
@@ -7694,6 +7744,9 @@ function tradeTab(k){
     var p = $('mtPane-' + x); if (p) p.classList.toggle('hidden', x !== k);
     var b = $('tSeg-' + x);   if (b) b.classList.toggle('on', x === k);
   });
+  //  안 보이는 화면에서 1초 타이머가 계속 도는 건 낭비입니다.
+  if (k === 'auto') mtRenderAutoBar();
+  else if (mtBarTimer){ clearInterval(mtBarTimer); mtBarTimer = null; }
   if (k === 'auto'){
     var sc = $('strategyCard'); if (sc) sc.classList.remove('hidden');
     if (typeof tradeTabAuto === 'function') tradeTabAuto();
@@ -7717,6 +7770,9 @@ async function mtLoadAccount(){
   }
   mtRenderPositions();
   mtRenderSummary();
+  //  원형 차트는 mtAcc 를 보고 그립니다. 계좌를 새로 받았으니 같이 다시 그립니다.
+  try { renderPie(); } catch(e){}
+  mtRenderAutoBar();
 }
 
 function mtRenderSummary(){
@@ -7742,26 +7798,45 @@ function mtRenderPositions(){
   }
   var fx = (mtAcc && mtAcc.fx) || 1400;
   $('mtPosAsOf').textContent = '환율 ' + num(fx, 0) + '원 고정 · 방금 기준';
+  var fxr = fx;
   t.innerHTML =
-    '<thead><tr><th>종목</th><th>시장</th><th class="num">수량</th><th class="num">평단가</th>'
+    '<thead><tr><th>종목</th><th>산 방법</th><th>시장</th><th class="num">수량</th><th class="num">평단가</th>'
   + '<th class="num">현재가</th><th class="num">평가금액</th>'
   + '<th class="num">손익금액</th><th class="num">수익률</th></tr></thead><tbody>'
   + pos.map(function(p){
       var dp = p.market === 'KR' ? 0 : 2;
       var up = (p.pnl || 0) >= 0;
+      var rate = p.market === 'KR' ? 1 : fxr;
+      /*  손익도 원으로 보여줍니다. 바로 왼쪽 칸이 '평가금액 …원' 인데
+          여기만 달러면 두 숫자를 머리로 환산해가며 읽어야 합니다.
+          원래 통화 금액은 아래에 작게 같이 답니다.                     */
+      var pnlKrw = p.pnl == null ? null : p.pnl * rate;
       return '<tr><td><b>' + esc(p.name || p.symbol) + '</b>'
            + '<div class="st-hint">' + esc(p.symbol) + '</div></td>'
+           + '<td>' + mtByBadge(p) + '</td>'
            + '<td>' + esc(p.market) + '</td>'
            + '<td class="num">' + num(p.qty, p.market === 'CRYPTO' ? 4 : 0) + '</td>'
            + '<td class="num">' + mtCur(p.avg, p.market, dp) + '</td>'
            + '<td class="num">' + mtCur(p.last, p.market, dp) + '</td>'
            + '<td class="num">' + (p.value_krw == null ? '—' : mtMoney(p.value_krw) + '원') + '</td>'
            + '<td class="num ' + (up ? 'up' : 'dn') + '">'
-           + (p.pnl == null ? '—' : (up ? '+' : '') + mtCur(p.pnl, p.market, dp)) + '</td>'
+           + (pnlKrw == null ? '—' : (up ? '+' : '') + mtMoney(pnlKrw) + '원'
+              + (p.market === 'KR' ? '' : '<div class="st-hint">' + (up ? '+' : '')
+                 + mtCur(p.pnl, p.market, dp) + '</div>')) + '</td>'
            + '<td class="num ' + (up ? 'up' : 'dn') + '">'
            + (p.pnl_pct == null ? '—' : (up ? '+' : '') + num(p.pnl_pct, 2) + '%') + '</td></tr>';
     }).join('')
   + '</tbody>';
+}
+
+/*  '산 방법' 딱지. 한 종목을 직접도 사고 자동도 샀으면 둘 다 보여주고
+    수량까지 적어줍니다 — 자동매매가 뭘 건드렸는지 한눈에 보이라고.  */
+function mtByBadge(p){
+  var d = p.market === 'CRYPTO' ? 4 : 0;
+  if (p.by === 'auto')   return '<span class="by-tag auto">자동</span>';
+  if (p.by === 'both')   return '<span class="by-tag manual">직접 ' + num(p.q_manual, d) + '</span>'
+                              + '<span class="by-tag auto">자동 ' + num(p.q_auto, d) + '</span>';
+  return '<span class="by-tag manual">직접</span>';
 }
 
 /* ── 종목 찾기 (이름으로도, 코드로도) ────────── */
@@ -7917,15 +7992,28 @@ async function submitTrade(){
 async function mtLoadAuto(){
   if (!team) return;
   var row = mtBoard.filter(function(t){ return Number(t.team_id) === Number(team); })[0];
-  try {
-    var r = await sb.from('teams').select('auto_on, auto_budget, auto_interval, auto_last_at')
-                    .eq('id', team).maybeSingle();
-    if (r.data){
-      $('mtAutoOn').checked = !!r.data.auto_on;
-      $('mtAutoBudget').value = Number(r.data.auto_budget) || '';
-      $('mtAutoIv').value = r.data.auto_interval || '1d';
-    }
-  } catch(e){ /* 표가 아직 없으면 넘어갑니다 */ }
+
+  /*  ⚠️ 칸 값은 mt_account 가 준 것을 씁니다.
+
+      예전에는 여기서 teams 표를 따로 읽었습니다. 그러면 위쪽 상태 띠는
+      서버 계산을 보고 "15분마다 돌고 있습니다" 라고 하는데 바로 아래 칸은
+      "일봉 · 꺼짐" 으로 보이는 일이 생깁니다. 원형 차트가 달러를 원으로
+      안 바꿨던 것과 같은 종류의 사고입니다 — 한 화면에 출처가 둘이면
+      언젠가 어긋납니다. 읽는 곳을 하나로 묶었습니다.                    */
+  var a = (mtAcc && mtAcc.auto) || null;
+  if (!a){
+    try {
+      var r = await sb.from('teams').select('auto_on, auto_budget, auto_interval, auto_last_at')
+                      .eq('id', team).maybeSingle();
+      if (r.data) a = { on: !!r.data.auto_on, budget: Number(r.data.auto_budget) || 0,
+                        interval: r.data.auto_interval || '1d' };
+    } catch(e){ /* 표가 아직 없으면 넘어갑니다 */ }
+  }
+  if (a){
+    $('mtAutoOn').checked = !!a.on;
+    $('mtAutoBudget').value = Number(a.budget) || '';
+    $('mtAutoIv').value = a.interval || '1d';
+  }
   mtAutoRoom();
   try {
     var rr = await sb.from('auto_runs').select('*').eq('team_id', team)
@@ -7944,14 +8032,127 @@ async function mtLoadAuto(){
         + '</tbody>'
       : '<tr><td class="empty">아직 자동매매가 돈 적이 없습니다.</td></tr>';
   } catch(e){ /* 표가 없으면 비워둡니다 */ }
+  mtRenderAutoBar();
+  //  배정 금액 칸이 방금 채워졌으니 '종목당 약 …원' 도 다시 계산합니다.
+  //  (이걸 빼먹으면 금액이 들어 있는데도 '종목당 약 0원' 으로 보입니다)
+  try { if (strat) syncStratNums(); } catch(e){}
+}
+
+/*  상태 띠를 잠깐 반짝여서 "방금 이게 바뀌었다" 를 알려줍니다.  */
+function mtFlashAutoBar(){
+  var el = $('mtAutoBar'); if (!el) return;
+  mtRenderAutoBar();
+  el.animate
+    ? el.animate([{ boxShadow:'0 0 0 0 rgba(36,86,201,.45)' },
+                  { boxShadow:'0 0 0 10px rgba(36,86,201,0)' }],
+                 { duration: 900, iterations: 2 })
+    : null;
+  try { el.scrollIntoView({ behavior:'smooth', block:'nearest' }); } catch(e){}
+}
+
+/*  배정 금액(원) → 시드 대비 % .  전략 계산이 % 로 되어 있어서 바꿔줍니다.
+    배정 금액을 안 정했으면 시드 전부를 쓸 수 있다고 봅니다.            */
+function mtAutoPctFromBudget(){
+  var tinfo = teams.filter(function(t){ return t.id === team; })[0] || {};
+  var seed  = Number(tinfo.seed || 100000000);
+  var b = Number(($('mtAutoBudget') || {}).value) || 0;
+  if (!(seed > 0) || b <= 0) return 0;   // 0원 배정 = 자동매매가 쓸 돈이 없음
+  return Math.max(0, Math.min(100, Math.round(b / seed * 100)));
+}
+
+/*  자동매매가 실제로 굴릴 수 있는 돈(원). 배정 금액과 남은 현금 중 작은 쪽.  */
+function mtAutoCapWon(){
+  var b = Number(($('mtAutoBudget') || {}).value) || 0;
+  var cash = mtAcc ? Number(mtAcc.cash) : null;
+  if (cash == null) return b;
+  return Math.max(0, Math.min(cash, b));
+}
+
+/*  '남은 현금 전부' — 배정 금액을 비워두면 자동매매가 한 푼도 못 씁니다.
+    그 상태를 눈치채기 어려워서, 한 번에 채우는 버튼을 뒀습니다.        */
+function mtAutoBudgetAll(){
+  if (!mtAcc) return;
+  $('mtAutoBudget').value = Math.max(0, Math.floor(Number(mtAcc.cash) || 0));
+  mtAutoSave();
+}
+
+/*  ── 자동매매 상태 띠 ─────────────────────────────────
+    "저장하고 실행" 을 누르고 나면 화면이 조용해서, 정말 도는 건지
+    알 수가 없었습니다. 남은 시간이 1초씩 줄어드는 걸 보여주는 게
+    "살아 있다" 를 말하는 가장 솔직한 방법입니다.                    */
+var mtBarTimer = null;
+function mtRenderAutoBar(){
+  var el = $('mtAutoBar'); if (!el) return;
+  var a = mtAcc && mtAcc.auto;
+  if (!a){ el.className = 'auto-bar off'; el.innerHTML =
+    '<div class="ab-state"><span class="ab-dot"></span>불러오는 중…</div>'; return; }
+
+  var ivName = { '5m':'5분', '15m':'15분', '30m':'30분', '2h':'2시간',
+                 '4h':'4시간', '1d':'하루', '1w':'일주일' }[a.interval] || a.interval;
+  el.className = 'auto-bar ' + (a.on ? 'on' : 'off');
+
+  if (!a.on){
+    el.innerHTML = '<div class="ab-state"><span class="ab-dot"></span>꺼져 있음</div>'
+      + '<div class="ab-i"><span class="ab-k">켜는 법</span>'
+      + '<span class="ab-v" style="font-weight:600;font-size:.86rem;color:var(--text-sub)">'
+      + '아래 <b>자동매매 사용</b> 을 켜세요</span></div>';
+    return;
+  }
+
+  el.innerHTML =
+      '<div class="ab-state"><span class="ab-dot"></span>돌고 있습니다</div>'
+    + '<div class="ab-i"><span class="ab-k">훑는 간격</span><span class="ab-v">'
+    +   ivName + '마다</span></div>'
+    + '<div class="ab-i"><span class="ab-k">다음 실행까지</span>'
+    +   '<span class="ab-v" id="mtAutoEta">—</span></div>'
+    + '<div class="ab-i"><span class="ab-k">마지막 실행</span><span class="ab-v">'
+    +   (a.last_at ? mtAgo(a.last_at) : '아직 없음') + '</span></div>'
+    + '<div class="ab-i"><span class="ab-k">자동 체결</span><span class="ab-v">'
+    +   num(a.fills, 0) + '건</span></div>'
+    + '<div class="ab-i ab-sp"><span class="ab-k">쓸 수 있는 돈</span><span class="ab-v">'
+    +   mtMoney(a.room) + '원</span></div>';
+
+  mtAutoEtaTick();
+  if (mtBarTimer) clearInterval(mtBarTimer);
+  mtBarTimer = setInterval(mtAutoEtaTick, 1000);
+}
+
+function mtAutoEtaTick(){
+  var el = $('mtAutoEta');
+  var a = mtAcc && mtAcc.auto;
+  if (!el || !a){ if (mtBarTimer) { clearInterval(mtBarTimer); mtBarTimer = null; } return; }
+  if (!a.next_at){ el.textContent = '곧 (첫 실행 대기)'; return; }
+  var left = Math.round((Date.parse(a.next_at) - Date.now()) / 1000);
+  if (left <= 0){ el.textContent = '지금 도는 중…'; return; }
+  var h = Math.floor(left/3600), m = Math.floor(left%3600/60), sec = left%60;
+  el.textContent = h ? (h + '시간 ' + m + '분')
+                     : (m ? (m + '분 ' + String(sec).padStart(2,'0') + '초')
+                          : (sec + '초'));
+}
+
+function mtAgo(iso){
+  var s = Math.round((Date.now() - Date.parse(iso)) / 1000);
+  if (!isFinite(s)) return '—';
+  if (s < 60) return '방금';
+  if (s < 3600) return Math.floor(s/60) + '분 전';
+  if (s < 86400) return Math.floor(s/3600) + '시간 전';
+  return Math.floor(s/86400) + '일 전';
 }
 
 function mtAutoRoom(){
   var b = Number($('mtAutoBudget').value) || 0;
   var cash = mtAcc ? mtAcc.cash : null;
-  $('mtAutoRoom').innerHTML = cash == null ? ''
-    : '실제 쓸 수 있는 돈 <b>' + mtMoney(Math.max(0, Math.min(cash, b)))
-      + '원</b> <span class="st-hint">(남은 현금 ' + mtMoney(cash) + '원과 배정 금액 중 작은 쪽)</span>';
+  var el = $('mtAutoRoom'); if (!el) return;
+  if (cash == null){ el.innerHTML = ''; return; }
+  if (b <= 0){
+    el.innerHTML = '<span style="color:var(--danger);font-weight:700">'
+      + '배정 금액이 없어 자동매매가 아무것도 사지 못합니다.</span> '
+      + '얼마까지 맡길지 적어주세요 (남은 현금 ' + mtMoney(cash) + '원).';
+    return;
+  }
+  el.innerHTML = '실제 쓸 수 있는 돈 <b>' + mtMoney(Math.max(0, Math.min(cash, b)))
+    + '원</b> <span class="st-hint">(남은 현금 ' + mtMoney(cash)
+    + '원과 배정 금액 중 작은 쪽)</span>';
 }
 
 async function mtAutoSave(){
@@ -7961,8 +8162,14 @@ async function mtAutoSave(){
                  auto_on: $('mtAutoOn').checked,
                  auto_budget: Number($('mtAutoBudget').value) || 0,
                  auto_interval: $('mtAutoIv').value });
-    warn('mtAutoMsg','저장했습니다.', 'ok');
+    var ivN = $('mtAutoIv').options[$('mtAutoIv').selectedIndex].textContent;
+    warn('mtAutoMsg', $('mtAutoOn').checked
+      ? '저장했습니다 — 지금부터 <b>' + esc(ivN) + '마다</b> 훑습니다.'
+      : '저장했습니다 — 자동매매는 꺼져 있습니다.', 'ok');
     mtAutoRoom();
+    await mtLoadAccount();          // auto_last_at·다음 실행 시각을 다시 받아옵니다
+    mtFlashAutoBar();
+    syncStratNums();                // 배정 금액이 바뀌면 전략 쪽 계산도 같이
   } catch(e){ warn('mtAutoMsg', esc(e.message)); }
 }
 
@@ -9415,9 +9622,30 @@ function renderPositions(){
 function renderPie(){
   if (typeof echarts === 'undefined') return;
   if (!pieChart) pieChart = echarts.init($('pieBox'));
-  var pos = (tstate && tstate.positions) || [];
-  var data = pos.map(function(p){ return { name: p.name || p.symbol, value: Number(p.market_value) }; });
-  var cash = Number(tstate ? tstate.cash : 0);
+
+  /*  ⚠️ 여기는 반드시 mtAcc 를 봅니다.
+
+      예전에는 team_state() 가 준 market_value 를 그대로 썼는데, 그 값은
+      미국 종목이 <달러 그대로> 였습니다. 원화 현금과 나란히 더하니까
+      2,251만원짜리 애플이 1.6만원으로 잡혀서 비중이 0.02% 로 나왔습니다.
+      바로 위 '보유 종목' 표는 mtAcc.value_krw 를 쓰고 있어서 두 카드가
+      서로 다른 숫자를 보여주고 있었습니다.
+
+      숫자를 두 군데서 만들면 언젠가 또 어긋납니다. 그래서 계산은
+      서버(mt_account) 한 곳에서만 하고 화면은 받아쓰기만 합니다.     */
+  var data = [], cash = 0;
+  if (mtAcc){
+    (mtAcc.positions || []).forEach(function(p){
+      if (p.value_krw != null && p.value_krw > 0)
+        data.push({ name: p.name || p.symbol, value: Number(p.value_krw) });
+    });
+    cash = Number(mtAcc.cash || 0);
+  } else {
+    (( tstate && tstate.positions) || []).forEach(function(p){
+      data.push({ name: p.name || p.symbol, value: Number(p.market_value) });
+    });
+    cash = Number(tstate ? tstate.cash : 0);
+  }
   if (cash > 0) data.push({ name:'현금 (미투자)', value: cash, itemStyle:{ color:'#c3cad8' } });
   if (!data.length){ pieChart.clear(); return; }
   var total = data.reduce(function(a,x){ return a + x.value; }, 0);
@@ -11026,8 +11254,10 @@ function applyPreset(i){
 }
 function warnStrat(msg, kind){
   var m = $('stratMsg'); if (!m) return;
-  m.style.color = kind === 'info' ? 'var(--ok)' : 'var(--danger)';
-  m.textContent = msg;
+  m.style.color = (kind === 'info' || kind === 'ok') ? 'var(--ok)' : 'var(--danger)';
+  //  <b> 같은 강조를 쓰고 싶어서 innerHTML 입니다. 부르는 쪽에서 esc() 로
+  //  감싼 값만 넣습니다 (사용자가 친 글자는 그대로 들어가지 않습니다).
+  m.innerHTML = msg;
 }
 
 /* 배분 합계를 눈에 보이게 — 100%를 넘으면 현금이 모자랍니다 */
@@ -11062,26 +11292,25 @@ function syncStratNums(){
   strat.markets          = $('stMarkets') ? $('stMarkets').value : 'both';
   strat.max_positions    = Number($('stMaxPos').value);
   strat.per_position_pct = Number($('stPerPct').value);
-  strat.auto_budget_pct  = Number($('stAutoPct').value);
+  /*  자동매매 예산은 '자동매매 설정' 카드의 배정 금액 하나뿐입니다.
+      전략 쪽 계산(백테스트·종목당 금액)은 그 값을 % 로 바꿔서 씁니다.  */
+  strat.auto_budget_pct  = mtAutoPctFromBudget();
   strat.sl_pct = $('stSlOn').checked ? Number($('stSl').value) : 0;
   strat.tp_pct = $('stTpOn').checked ? Number($('stTp').value) : 0;
 
-  var tinfo = teams.filter(function(t){ return t.id === team; })[0] || {};
-  var seed  = Number(tinfo.seed || 100000000);
-  var cap   = seed * strat.auto_budget_pct/100;
-
-  $('stAutoV').textContent = strat.auto_budget_pct + '%';
-  $('stAutoHint').innerHTML = '시드 ' + num(seed) + '원 중 <b>' + num(cap)
-    + '원</b>까지 자동매매에 씁니다.'
-    + (strat.auto_budget_pct < 100
-        ? ' 나머지 ' + num(seed - cap) + '원은 직접 매매용으로 남습니다.' : '');
+  /*  종목당 금액은 배정 금액(원)에서 바로 뽑습니다.
+      시드 → % → 다시 원 으로 두 번 돌리면 반올림 때문에 화면 숫자와
+      실제 주문 금액이 조금씩 어긋납니다. 원으로 한 번에 계산합니다.  */
+  var cap = mtAutoCapWon();
 
   if (strat.mode === 'scan'){
-    var per = seed * strat.auto_budget_pct/100 * strat.per_position_pct/100;
+    var per = cap * strat.per_position_pct/100;
     var tot = strat.max_positions * strat.per_position_pct;
-    $('stScanHint').innerHTML = '종목당 약 <b>' + num(per) + '원</b>'
-      + (tot > 100 ? ' · ⚠️ 최대 보유 × 배정 = ' + tot + '% 로 100%를 넘어 뒤쪽 종목은 못 삽니다'
-                   : ' · 최대 ' + tot + '% 사용');
+    $('stScanHint').innerHTML = cap <= 0
+      ? '<span style="color:var(--danger)">위 ①에서 배정 금액을 정해야 살 수 있습니다.</span>'
+      : '종목당 약 <b>' + num(per) + '원</b>'
+        + (tot > 100 ? ' · ⚠️ 최대 보유 × 배정 = ' + tot + '% 로 100%를 넘어 뒤쪽 종목은 못 삽니다'
+                     : ' · 최대 ' + tot + '% 사용');
   }
   if ($('stMarketHint')){
     var mk  = $('stMarkets') ? $('stMarkets').value : 'both';
@@ -11112,7 +11341,6 @@ function renderStrategyEditor(){
   if ($('stMarkets')) $('stMarkets').value = strat.markets || 'both';
   $('stMaxPos').value = String(strat.max_positions || 5);
   $('stPerPct').value = String(strat.per_position_pct || 20);
-  $('stAutoPct').value = String(strat.auto_budget_pct != null ? strat.auto_budget_pct : 100);
   $('stSlOn').checked = Number(strat.sl_pct || 0) > 0;
   $('stTpOn').checked = Number(strat.tp_pct || 0) > 0;
   if (strat.sl_pct) $('stSl').value = strat.sl_pct;
@@ -11271,6 +11499,24 @@ async function saveStrategy(){
                 win: lastPreview.win, n: lastPreview.n, as_of: today() } });
     if (ins.error) throw ins.error;
     await runStrategy();
+
+    /*  버튼 이름이 '저장하고 실행' 인데 눌러도 화면이 조용했습니다.
+        저장했으면 실제로 켜주고, 켜졌다는 걸 위쪽 상태 띠에서 눈으로
+        보게 합니다. 몇 분마다 도는지·다음이 언제인지까지 말해줍니다.  */
+    try {
+      if (!$('mtAutoOn').checked){ $('mtAutoOn').checked = true; }
+      await edge({ source:'mt_auto_set', team_id: team,
+                   auto_on: true,
+                   auto_budget: Number($('mtAutoBudget').value) || 0,
+                   auto_interval: $('mtAutoIv').value });
+      await mtLoadAccount(); await mtLoadAuto();
+      mtFlashAutoBar();
+      var ivN = $('mtAutoIv').options[$('mtAutoIv').selectedIndex].textContent;
+      warnStrat('저장했습니다 — <b>지금부터 ' + esc(ivN)
+        + '마다</b> 이 전략으로 시장을 훑습니다. 맨 위 띠에서 다음 실행까지 남은 시간을 볼 수 있습니다.', 'ok');
+    } catch(e2){
+      warnStrat('전략은 저장됐지만 자동매매를 켜지 못했습니다: ' + esc(e2.message));
+    }
   } catch(e){
     warnStrat(errMsg(e));
   } finally {
