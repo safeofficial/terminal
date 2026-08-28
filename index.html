@@ -100,7 +100,12 @@
   .grid2{display:grid;grid-template-columns:minmax(320px,0.62fr) 1fr;gap:18px;align-items:start}
   .grid-half{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
   .grid2>*,.grid-half>*{min-width:0}
-  @media(max-width:940px){.grid2,.grid-half{grid-template-columns:1fr}}
+  .grid2.eq-h,.grid-half.eq-h{align-items:stretch}
+  .grid2.eq-h > .card,.grid-half.eq-h > .card{display:flex;flex-direction:column}
+  /*  남는 세로 자리를 차트가 먹습니다 (카드 키를 맞추려고)  */
+  .eq-h .grow-chart{flex:1 1 auto}
+  .grid-half.smile-oi{grid-template-columns:0.86fr 1.14fr}
+  @media(max-width:940px){.grid2,.grid-half,.grid-half.smile-oi{grid-template-columns:1fr}}
   @media(max-width:760px){#pieBox{height:420px} .trade-foot button{flex:1 1 100%}}
 
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
@@ -1766,7 +1771,10 @@
           <div id="dvMapLegend" class="st-hint" style="margin-top:8px"></div>
         </div>
 
-        <div class="grid2">
+        <!--  두 카드의 키를 맞춥니다. 예전에는 만기별 변동성 카드가 짧아서
+              아래가 허옇게 비었습니다. 카드를 세로로 늘리고 차트가 남는
+              자리를 먹게 하면, 안에 든 것이 달라도 키가 같아집니다.      -->
+        <div class="grid2 eq-h">
           <div class="card">
             <h2>만기별 변동성 (기간 구조)
               <span class="tools">
@@ -1774,7 +1782,7 @@
                 <button class="btn-sm" onclick="dvJpg(dvTermChart,'기간구조')">JPG</button>
               </span>
             </h2>
-            <div id="dvTermBox" style="width:100%;height:300px"></div>
+            <div id="dvTermBox" class="grow-chart" style="width:100%;min-height:300px"></div>
             <p class="st-hint" id="dvTermHint">만기가 멀수록 변동성이 높은 것이 보통입니다.
               가까운 만기가 더 높으면(<b>역전</b>) 코앞에 무슨 일을 앞두고 있다는 뜻입니다.</p>
           </div>
@@ -1794,14 +1802,14 @@
               <label style="min-width:auto">행사가</label>
               <select id="dvPayK" onchange="dvDrawPayoff()" class="grow"></select>
             </div>
-            <div id="dvPayBox" style="width:100%;height:250px"></div>
+            <div id="dvPayBox" class="grow-chart" style="width:100%;min-height:250px"></div>
             <p class="st-hint" id="dvPayHint"></p>
           </div>
         </div>
 
-        <!--  스마일과 미결제약정은 둘 다 행사가가 촘촘한 차트라
-              한쪽을 320px 에 가둬두면 글자가 뭉갭니다. 반반으로 나눕니다. -->
-        <div class="grid-half">
+        <!--  둘 다 행사가가 촘촘한 차트입니다. 미결제약정 쪽이 행사가마다
+              막대를 세우느라 자리를 더 먹어서 조금 더 넓게 줍니다.        -->
+        <div class="grid-half smile-oi">
           <div class="card">
             <h2>변동성 곡선 (스마일)
               <span class="tools"><button class="btn-sm" onclick="dvJpg(dvIvChart,'IV')">JPG</button></span>
@@ -5216,6 +5224,76 @@ function dvComputeLevels(list, spot){
 }
 
 /* ── 가격대 지도 ─────────────────────────────── */
+//  마지막으로 그린 자리들 — 창 크기가 바뀌면 이름표를 다시 세워야 합니다
+var dvMapLast = null;
+
+function dvMapPlaceChips(){
+  var box = $('dvMapChips');
+  if (!box) return;
+  if (!dvMapLast || !dvMapChart){ box.innerHTML = ''; box.style.height = '0'; return; }
+
+  var groups = dvMapLast.groups, f = dvMapLast.fmt;
+  box.style.position = 'relative';
+  box.innerHTML = groups.map(function(g, i){
+    var isSpot = g.labels.indexOf('현재가') >= 0;
+    return '<span class="dv-chip" data-i="' + i + '" style="position:absolute;top:6px;left:0;'
+         + 'display:inline-flex;align-items:center;gap:6px;'
+         + 'padding:5px 11px;border-radius:999px;border:1px solid var(--border);'
+         + 'background:var(--bg);white-space:nowrap;visibility:hidden">'
+         + '<span style="width:16px;height:0;border-top:2px '
+         + (isSpot ? 'solid' : 'dashed') + ' ' + g.color + ';flex:none"></span>'
+         + '<b style="color:' + g.color + ';font-size:11.5px">' + esc(g.labels.join(' · ')) + '</b>'
+         + '<span style="font-size:11.5px;font-variant-numeric:tabular-nums">' + f(g.v) + '</span>'
+         + '</span>';
+  }).join('');
+
+  var els = [].slice.call(box.querySelectorAll('.dv-chip'));
+  if (!els.length){ box.style.height = '0'; return; }
+
+  var W = box.clientWidth || 900;
+  //  점선이 그려진 픽셀 자리를 차트에서 그대로 받아옵니다
+  var items = els.map(function(el, i){
+    var px = null;
+    try { px = dvMapChart.convertToPixel({ xAxisIndex: 0 }, groups[i].v); } catch(e){ px = null; }
+    var w = el.offsetWidth;
+    return { el: el, w: w, want: (px == null ? W / 2 : px), x: 0 };
+  });
+  items.sort(function(a, b){ return a.want - b.want; });
+
+  /*  자리 잡기.
+
+      ① 왼쪽부터 차례로 놓되 앞엣것과 겹치면 밀어냅니다.
+      ② 밀어내기만 하면 무리 전체가 오른쪽으로 쏠립니다. 그래서 밀어낸
+         만큼을 다시 왼쪽으로 당겨, 무리의 가운데가 점선들의 가운데에
+         오게 맞춥니다. (자리가 모자라 겹칠 수밖에 없을 때, 한쪽만
+         멀어지는 것보다 양쪽이 조금씩 나눠 가지는 편이 읽기 낫습니다)
+      ③ 마지막으로 상자 밖으로 나간 것을 안으로 넣습니다.              */
+  var GAP = 8, cur = 0;
+  items.forEach(function(t){
+    t.x = Math.max(cur, t.want - t.w / 2);
+    cur = t.x + t.w + GAP;
+  });
+
+  var wantMid = 0, gotMid = 0;
+  items.forEach(function(t){ wantMid += t.want; gotMid += t.x + t.w / 2; });
+  var shift = (wantMid - gotMid) / items.length;
+  if (shift) items.forEach(function(t){ t.x += shift; });
+
+  var minX = Math.min.apply(null, items.map(function(t){ return t.x; }));
+  if (minX < 0) items.forEach(function(t){ t.x -= minX; });
+  var maxR = Math.max.apply(null, items.map(function(t){ return t.x + t.w; }));
+  if (maxR > W){
+    var back = maxR - W;
+    items.forEach(function(t){ t.x = Math.max(0, t.x - back); });
+  }
+  items.forEach(function(t){
+    t.el.style.left = Math.max(0, t.x) + 'px';
+    t.el.style.visibility = 'visible';
+  });
+  //  한 줄 높이만큼만 자리를 차지합니다
+  box.style.height = (items[0].el.offsetHeight + 12) + 'px';
+}
+
 function dvDrawMap(L){
   if (typeof echarts === 'undefined') return;
   if (!dvMapChart){ dvMapChart = echarts.init($('dvMapBox')); watchChartBoxes(); }
@@ -5225,6 +5303,7 @@ function dvDrawMap(L){
       title:{ left:'center', top:'44%', text:'등가격 변동성을 구하지 못해 범위를 그릴 수 없습니다',
         textStyle:{ fontSize:13, color:'#8b93a7', fontWeight:400 } } }, true);
     $('dvMapLegend').innerHTML = '';
+    dvMapLast = null;
     if ($('dvMapChips')) $('dvMapChips').innerHTML = '';
     return;
   }
@@ -5352,20 +5431,13 @@ function dvDrawMap(L){
     ]
   }, true);
 
-  /*  그림 아래 띠 — 세로 점선의 색과 하나씩 짝지어 읽습니다.  */
-  var chips = groups.map(function(g){
-    var isSpot = g.labels.indexOf('현재가') >= 0;
-    return '<span style="display:inline-flex;align-items:center;gap:6px;'
-         + 'padding:5px 11px;border-radius:999px;border:1px solid var(--border);'
-         + 'background:var(--bg);white-space:nowrap">'
-         + '<span style="width:16px;height:0;border-top:2px '
-         + (isSpot ? 'solid' : 'dashed') + ' ' + g.color + ';flex:none"></span>'
-         + '<b style="color:' + g.color + ';font-size:11.5px">' + esc(g.labels.join(' · ')) + '</b>'
-         + '<span style="font-size:11.5px;font-variant-numeric:tabular-nums">' + f(g.v) + '</span>'
-         + '</span>';
-  }).join('');
-  $('dvMapChips').innerHTML = chips
-    ? '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">' + chips + '</div>' : '';
+  /*  이름표를 제 점선 바로 아래에 세웁니다.
+
+      줄지어 늘어놓기만 하면 "어느 알약이 어느 선이지" 를 색으로만 찾아야
+      합니다. 점선의 x 자리를 그대로 받아서 그 아래에 붙이면 눈이 세로로
+      한 번만 내려오면 됩니다. 겹칠 때는 최소한만 밀어냅니다.            */
+  dvMapLast = { groups: groups, fmt: f };
+  dvMapPlaceChips();
 
   $('dvMapLegend').innerHTML =
       '만기(<b>' + L.dte + '일 뒤</b>)까지 시장이 값으로 매긴 범위 — '
@@ -5416,11 +5488,14 @@ function dvDrawTerm(){
   dvTermChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:58, right:24, top:30, bottom:44 },
+    grid:{ left:66, right:30, top:36, bottom:66 },
     tooltip:{ trigger:'axis', valueFormatter:function(v){ return v == null ? '-' : v + '%'; } },
     xAxis:{ type:'category', data: t.map(function(x){ return x.date; }),
+      name:'만기일', nameLocation:'middle', nameGap:34,
+      nameTextStyle:{ color: theme.text_color, fontSize:11 },
       axisLine:{ lineStyle:{ color: theme.grid } },
-      axisLabel:{ color: theme.text_color, fontSize:10, rotate: t.length > 6 ? 30 : 0 } },
+      axisLabel:{ color: theme.text_color, fontSize:10, hideOverlap:true,
+        rotate: t.length > 6 ? 30 : 0 } },
     yAxis: Object.assign(dvAxis('등가격 IV %'),
       { axisLabel:{ color: theme.text_color, fontSize:11, formatter:'{value}%' } }),
     series:[{ name:'등가격 IV', type:'line', smooth:true, symbolSize:7,
@@ -5512,15 +5587,16 @@ function dvDrawPayoff(){
   dvPayChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:64, right:24, top:26, bottom:40 },
+    grid:{ left:70, right:30, top:26, bottom:60 },
     tooltip:{ trigger:'axis',
       formatter:function(a){
         return '주가 $' + num(Number(a[0].axisValue), 2) + '<br/>계약당 손익 <b>'
              + (a[0].data >= 0 ? '+' : '') + num(a[0].data, 2) + '</b>'; } },
     xAxis:{ type:'category', data: xs, name:'만기일 주가',
+      nameLocation:'middle', nameGap:30,
       nameTextStyle:{ color: theme.text_color, fontSize:11 },
       axisLine:{ lineStyle:{ color: theme.grid } },
-      axisLabel:{ color: theme.text_color, fontSize:10,
+      axisLabel:{ color: theme.text_color, fontSize:10, hideOverlap:true,
         formatter:function(v){ return num(Number(v), 0); } } },
     yAxis: dvAxis('손익 ($/주)'),
     series:[{
@@ -5641,12 +5717,22 @@ function dvPlain(L, list){
   }).join('');
 }
 
-function dvAxis(name){
-  return { type:'value', name:name, scale:true,
+/*  축 이름.
+
+    ECharts 는 축 이름을 기본으로 축 '끝' 에 놓습니다. 가로축이면 오른쪽
+    맨 끝인데, 그 자리에 여백이 몇 픽셀 없으면 '행사가' 가 '행' 으로 잘려
+    나옵니다. 실제로 그렇게 나왔습니다.
+
+    가로축 이름은 가운데 아래로 내립니다 — 잘릴 자리가 아예 없어집니다.
+    세로축 이름은 위쪽 여백에 두는 게 읽기 좋아서 그대로 둡니다.        */
+function dvAxis(name, horiz){
+  var o = { type:'value', name:name, scale:true,
            nameTextStyle:{ color: theme.text_color, fontSize:11 },
            axisLine:{ show:true, lineStyle:{ color: theme.grid } },
            axisLabel:{ color: theme.text_color, fontSize:11 },
            splitLine: coSplit() };
+  if (horiz){ o.nameLocation = 'middle'; o.nameGap = 30; }
+  return o;
 }
 function dvMark(spot){
   return { symbol:'none', label:{ formatter:'현재가', fontSize:10, color: theme.text_color },
@@ -5665,10 +5751,10 @@ function dvDrawIv(list, spot){
   dvIvChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:58, right:22, top:44, bottom:44 },
+    grid:{ left:66, right:30, top:62, bottom:62 },
     legend:{ top:8, textStyle:{ color: theme.text_color, fontSize:12 } },
     tooltip:{ trigger:'axis', valueFormatter:function(v){ return v == null ? '-' : v + '%'; } },
-    xAxis: dvAxis('행사가'),
+    xAxis: dvAxis('행사가', true),
     yAxis: Object.assign(dvAxis('IV %'), { axisLabel:{ color: theme.text_color, fontSize:11, formatter:'{value}%' } }),
     series: [
       { name:'콜', type:'line', data:c, smooth:true, symbolSize:6,
@@ -5687,12 +5773,14 @@ function dvDrawOi(list, spot){
   dvOiChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:64, right:22, top:44, bottom:44 },
+    grid:{ left:72, right:26, top:56, bottom:64 },
     legend:{ top:8, textStyle:{ color: theme.text_color, fontSize:12 } },
     tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' } },
     xAxis:{ type:'category', data: list.map(function(x){ return x.strike; }),
             axisLine:{ lineStyle:{ color: theme.grid } },
-            axisLabel:{ color: theme.text_color, fontSize:10 }, name:'행사가' },
+            axisLabel:{ color: theme.text_color, fontSize:10, hideOverlap:true },
+            name:'행사가', nameLocation:'middle', nameGap:32,
+            nameTextStyle:{ color: theme.text_color, fontSize:11 } },
     yAxis: dvAxis('미결제약정'),
     series: [
       { name:'콜', type:'bar', stack:'oi', barMaxWidth:26,
@@ -5732,10 +5820,10 @@ function dvDrawGreeks(){
   dvGkChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:64, right:22, top:44, bottom:44 },
+    grid:{ left:72, right:30, top:56, bottom:64 },
     legend:{ top:8, textStyle:{ color: theme.text_color, fontSize:12 } },
     tooltip:{ trigger:'axis' },
-    xAxis: dvAxis('행사가'),
+    xAxis: dvAxis('행사가', true),
     yAxis: dvAxis(g),
     series: [
       { name:'콜', type:'line', data:c, smooth:true, symbolSize:6,
@@ -7391,6 +7479,8 @@ function resizeAllCharts(){
   if (typeof distCharts === 'object' && distCharts)
     Object.keys(distCharts).forEach(function(k){
       if (distCharts[k]) distCharts[k].resize(); });
+  //  가격대 지도 이름표는 점선 자리에 맞춰 세워둔 것이라 같이 다시 잡습니다
+  if (typeof dvMapPlaceChips === 'function') setTimeout(dvMapPlaceChips, 40);
 }
 
 /*  ── 차트가 찌그러져 나오는 문제 ──
