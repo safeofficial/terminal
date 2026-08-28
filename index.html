@@ -2314,6 +2314,29 @@ function addFromCatalog(){
   if (!c) return;
   addSeries({ source:c.source, code:c.code, item_code:c.item_code||'', cycle:c.cycle||'M',
               label:c.label, unit:c.unit||'' });
+  //  차트에 올린 지표를 아래 '상세 항목 분석' 에서도 바로 열어줍니다
+  dtFollow(c.id);
+}
+
+/*  ── 차트에 올린 지표를 상세 분석에도 맞춰줍니다 ──────────
+
+    CPI 를 차트에 올렸으면 그 아래 '상세 항목 분석' 도 CPI 를 보고 있는 게
+    자연스럽습니다. 예전에는 위에서 CPI 를 올려놓고 아래에서 다시 CPI 를
+    골라 '보고서 불러오기' 를 눌러야 했습니다.
+
+    여러 개를 연달아 올리면 마지막 것만 받습니다 — 하나 올릴 때마다
+    수백 개짜리 보고서를 받으러 가면 FRED 한도를 그냥 태웁니다.          */
+var dtFollowTimer = null;
+function dtFollow(catId){
+  var sel = $('dtParent'); if (!sel) return;
+  var has = [].some.call(sel.options, function(o){ return String(o.value) === String(catId); });
+  if (!has) return;
+  sel.value = String(catId);
+  if (dtFollowTimer) clearTimeout(dtFollowTimer);
+  dtFollowTimer = setTimeout(function(){
+    //  보고서를 이미 받는 중이면 건드리지 않습니다
+    if (typeof dtLoadItems === 'function') dtLoadItems(true);
+  }, 700);
 }
 
 
@@ -2413,9 +2436,20 @@ async function dtFredValues(code){
 }
 function dtMore(){ var c = dtCat(); if (c) dtFredValues(c.code); }
 
-async function dtLoadItems(){
+var dtBusy = false;
+
+/*  auto=true 는 '차트에 지표를 올려서 따라온' 경우입니다.
+
+    사람이 직접 '보고서 불러오기' 를 눌렀을 때는 이미 받는 중이더라도
+    새 요청이 이깁니다 — 버튼을 눌렀는데 아무 일도 안 일어나면
+    고장으로 보이니까요. 따라온 요청만 양보합니다.                      */
+async function dtLoadItems(auto){
   var c = dtCat();
   if (!c){ warn('dtWarn','지표를 하나 골라주세요.'); return; }
+  if (auto === true && dtBusy) return;
+  //  앞서 돌던 값 채우기 루프가 있으면 세웁니다 (엉뚱한 표에 값이 들어갑니다)
+  dtStop = true;
+  dtBusy = true;
   dtParentCat = c; dtItems = []; dtPick = {}; dtSeries = {}; dtMeta = null;
   $('dtResult').classList.add('hidden');
   $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">'
@@ -2430,7 +2464,7 @@ async function dtLoadItems(){
         return { kind:'fred', code:x.series_id, name:x.name,
                  level:Number(x.level) || 1, head: !x.series_id,
                  value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3,
-                 m6:x.m6, m9:x.m9, per:x.per, unit:'' };
+                 m6:x.m6, m9:x.m9, per:x.per, diff:!!x.diff, unit:'' };
       });
     } else {
       d = await edge({ source:'ecos_report', code:c.code, cycle:(c.cycle || 'M') });
@@ -2450,6 +2484,7 @@ async function dtLoadItems(){
     if (!dtItems.length){
       $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">'
         + '이 지표는 세부 항목을 제공하지 않습니다. 다른 지표를 골라보세요.</div>';
+      dtBusy = false;
       return;
     }
     dtRenderPicker();
@@ -2459,13 +2494,22 @@ async function dtLoadItems(){
     $('dtPicker').innerHTML = '';
     warn('dtWarn', esc(err.message));
   }
+  dtBusy = false;
 }
 
 //  변화율 칸 — 오르면 빨강, 내리면 파랑 (한국식)
-function dtPctCell(v){
+/*  변화를 어떻게 적을지.
+
+    대부분은 '몇 % 변했나' 가 맞습니다. 그런데 값 자체가 이미 변화율인
+    표(BEA 의 "Percent Change from Preceding Period …")나, 0 을 넘나드는
+    계열(금리차·순수출)은 비율을 낼 수가 없습니다. 0.30 → −0.10 을
+    "−133% 변했다" 고 적으면 아무 뜻도 없습니다. 그런 항목은 서버가
+    차이로 계산해 보내주고, 여기서는 <b>%p</b> 로 적습니다.              */
+function dtPctCell(v, isDiff){
   if (v == null) return '<td class="num st-hint">—</td>';
+  var dp = isDiff ? 2 : 1;
   return '<td class="num ' + (v > 0 ? 'pos' : (v < 0 ? 'neg' : '')) + '">'
-       + (v > 0 ? '+' : '') + num(v, 1) + '%</td>';
+       + (v > 0 ? '+' : '') + num(v, dp) + (isDiff ? '%p' : '%') + '</td>';
 }
 
 /*  주기가 월간인 계열만 남깁니다 (기본).
@@ -2533,7 +2577,7 @@ function dtRenderPicker(){
        + (x.level <= 1 ? ' lv0' : '') + '">' + esc(x.name) + '</td>'
        + '<td class="num">' + (x.value == null ? '<span class="st-hint">—</span>'
                                                : '<b>' + num(x.value, 2) + '</b>') + '</td>'
-       + dtPctCell(x.mom) + dtPctCell(x.yoy) + dtPctCell(x.q3)
+       + dtPctCell(x.mom, x.diff) + dtPctCell(x.yoy, x.diff) + dtPctCell(x.q3, x.diff)
        + '<td class="st-hint">' + esc(x.on || '—') + '</td></tr>';
   });
   H += '</tbody></table>';
@@ -2717,7 +2761,7 @@ function dtDraw(){
     return { key:k, name:x.name, unit:s.unit, err:s.err,
              color: pal[i % pal.length], pts:cut,
              value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3,
-             m6:x.m6, m9:x.m9 };
+             m6:x.m6, m9:x.m9, diff:!!x.diff };
   });
 
   //  ── 선 차트 ──
@@ -2773,7 +2817,10 @@ function dtDraw(){
   var bb = $('dtBarBox');
   if (bars.length >= 2){
     $('dtBarWrap').classList.remove('hidden');
-    if ($('dtBarTitle')) $('dtBarTitle').textContent = dtTopLabel() + ' 변화율';
+    //  고른 항목 중 하나라도 '차이' 로 재는 것이면 단위를 %p 로 적습니다
+    var barDiff = bars.some(function(r){ return r.diff; });
+    if ($('dtBarTitle')) $('dtBarTitle').textContent =
+      dtTopLabel() + (barDiff ? ' 차이 (%p)' : ' 변화율');
     bb.style.height = Math.max(120, 24 + bars.length * 28) + 'px';
     if (!dtBar) dtBar = echarts.init(bb);
     dtBar.resize();
@@ -2789,7 +2836,9 @@ function dtDraw(){
         data: bars.map(function(r){
           return { value:r.cmp, itemStyle:{ color: r.cmp >= 0 ? '#c0392b' : '#1b5fa8' } }; }),
         label:{ show:true, position:'right', fontSize:11,
-          formatter:function(a){ return (a.value >= 0 ? '+' : '') + Number(a.value).toFixed(1) + '%'; } } }]
+          formatter:function(a){
+            return (a.value >= 0 ? '+' : '') + Number(a.value).toFixed(barDiff ? 2 : 1)
+                 + (barDiff ? '%p' : '%'); } } }]
     }, true);
   } else {
     bb.style.height = '0'; if (dtBar){ dtBar.dispose(); dtBar = null; }
@@ -6649,8 +6698,13 @@ function drawChart(){
           nameTextStyle:{ color: col, fontSize:11 }, nameGap:12,
           position: sl.position, offset: sl.offset,
           axisLine:{ show: on, lineStyle:{ color: col } },
-          axisLabel:{ show: on, color: col, fontSize:11, hideOverlap:true,
-            formatter: axFmt(rg && rg.interval) },
+          //  눈금 간격을 우리가 정한 축에만 자릿수를 맞춰줍니다.
+          //  자동 축(지표가 하나뿐일 때)에 이걸 걸면 간격을 모르는 채로
+          //  정수 반올림이 되어 "0 0 0 0 1" 처럼 찍혔습니다.
+          axisLabel: rg
+            ? { show: on, color: col, fontSize:11, hideOverlap:true,
+                formatter: axFmt(rg.interval) }
+            : { show: on, color: col, fontSize:11, hideOverlap:true },
           splitLine: j === 0 ? { lineStyle:{ color:theme.grid } } : { show:false } };
         if (rg){ ax.scale = false; ax.min = rg.min; ax.max = rg.max; ax.interval = rg.interval; }
         out.push(ax);
