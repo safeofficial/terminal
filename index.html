@@ -882,11 +882,11 @@
                 <option value="all">주기 상관없이 전부</option>
               </select>
               <select id="dtTopBy" style="width:130px" onchange="dtTopByChange()">
-                <option value="mom">전월 대비</option>
+                <option value="mom" selected>전월 대비</option>
                 <option value="q3">3개월 전 대비</option>
                 <option value="m6">6개월 전 대비</option>
                 <option value="m9">9개월 전 대비</option>
-                <option value="yoy" selected>전년 대비</option>
+                <option value="yoy">전년 대비</option>
               </select>
               <button class="btn-sm" onclick="dtPickTop()">많이 변한 항목 자동 선택</button>
             </div>
@@ -904,8 +904,8 @@
               <div class="row" style="margin-top:12px">
                 <label>보기</label>
                 <select id="dtMode" onchange="dtDraw()" style="width:170px">
-                  <option value="yoy" selected>전년 대비 (%)</option>
-                  <option value="mom">직전 대비 (%)</option>
+                  <option value="mom" selected>직전 대비 (%)</option>
+                  <option value="yoy">전년 대비 (%)</option>
                   <option value="idx">지수화 (시작=100)</option>
                   <option value="raw">원래 값</option>
                 </select>
@@ -2585,7 +2585,7 @@ var DT_TOPBY = { mom:'전월 대비', q3:'3개월 전 대비', m6:'6개월 전 �
                  m9:'9개월 전 대비', yoy:'전년 대비' };
 function dtTopKey(){
   var e = $('dtTopBy');
-  return (e && DT_TOPBY[e.value]) ? e.value : 'yoy';
+  return (e && DT_TOPBY[e.value]) ? e.value : 'mom';
 }
 function dtTopLabel(){ return DT_TOPBY[dtTopKey()]; }
 function dtTopByChange(){
@@ -6014,6 +6014,9 @@ function addSeries(s){
   s.width = 3;
   s.type = 'line';
   s.tf = 'raw';
+  //  단위를 알아야 '전기비(%)' 가 말이 되는 지표인지 판단할 수 있습니다.
+  //  단위는 자료를 받아봐야 아니까 loadSeries 에서 다시 정합니다.
+  s.autoTf = true;
   s.points = null;
   series.push(s);
   renderSeriesList();
@@ -6354,6 +6357,7 @@ async function loadSeries(s){
       s.axis = pickAxisFor(series.filter(function(x){ return x.points && x.points.length; }), s, 4);
       s.autoAxis = false;
     }
+    if (s.autoTf && !isRecSeries(s)){ applyDefaultTf(s); s.autoTf = false; }
     if (!s.points.length) warn('researchWarn','"'+esc(s.label)+'" 에 해당 기간 데이터가 없습니다.');
     else if (d.note) warn('researchWarn', '<b>' + esc(s.label) + '</b> — ' + esc(d.note), 'info');
     renderSeriesList(); drawChart();
@@ -6363,6 +6367,66 @@ async function loadSeries(s){
     renderSeriesList(); drawChart();
   }
 }
+/*  ── 처음 그릴 때의 기본 보기 ──────────────────────────
+
+    지표를 올리면 대부분 보고 싶은 건 '얼마나 올랐나' 이지 지수 몇 점이
+    아닙니다. CPI 가 330.7 이라는 건 그 자체로 아무 말도 안 해줍니다.
+    그래서 <b>전기비(MoM %) · 막대</b>를 기본으로 둡니다.
+
+    다만 전부 그러면 안 됩니다. 국채금리(4.2%)나 실업률(4.1%) 처럼
+    이미 '%' 인 지표에 전기비 %를 씌우면 "금리가 지난달보다 2.4% 올랐다"
+    같은 말이 됩니다 — 퍼센트의 퍼센트라 읽는 사람이 0.1%p 오른 건지
+    2.4%p 오른 건지 알 수가 없습니다. 이런 지표는 원래 값 그대로,
+    선으로 두는 게 맞습니다.
+
+    그래서 단위를 보고 갈라줍니다. 어느 쪽이든 화면에서 바로 바꿀 수
+    있고, 한 번 바꾸면 다시 건드리지 않습니다.                          */
+function isRateUnit(u){
+  var t = String(u || '').toLowerCase();
+  if (!t) return false;
+  return /percent|퍼센트|%|rate|비율|ratio|per annum|연율/.test(t)
+      && !/percent change|변화율|증감률/.test(t);
+}
+function applyDefaultTf(s){
+  s.tf = 'raw'; s.type = 'line';
+  //  ① 카탈로그에 단위가 %·%p 로 적혀 있으면 그대로 둡니다
+  if (isRateUnit(s.unit)) return;
+
+  var vals = (s.points || []).map(function(p){ return p.v; })
+                             .filter(function(v){ return v != null && isFinite(v); });
+  if (!vals.length) return;
+
+  //  ② 음수를 오가면 전기비 %가 말이 안 됩니다 (부호가 뒤집히면 값이 튑니다)
+  if (vals.some(function(v){ return v <= 0; })) return;
+
+  /*  ③ 매일 나오는 지표(주가지수·환율)를 전기비 막대로 그리면 하루에
+      막대 하나씩 수천 개가 서서 숲이 됩니다. 월간 이상으로 나오는
+      지표에만 막대를 씌웁니다.                                        */
+  var pts2 = s.points || [];
+  if (pts2.length >= 3){
+    var gaps = [];
+    for (var i = 1; i < pts2.length; i++){
+      gaps.push((Date.parse(pts2[i].d) - Date.parse(pts2[i-1].d)) / 864e5);
+    }
+    gaps.sort(function(a, b){ return a - b; });
+    var midGap = gaps[Math.floor(gaps.length / 2)];
+    if (midGap < 25) return;                 //  일간·주간이면 원래 값 그대로
+  }
+
+  /*  ③ 단위가 안 적혀 온 경우 (검색·상세항목에서 올린 지표) 값의 크기로
+      가늠합니다. 금리·실업률·PMI 같은 것은 대체로 0~100 안에서 놉니다.
+      지수(CPI 330), 고용자수(15만), 주가지수(5000)는 그 밖입니다.
+
+      어림짐작이라 틀릴 수 있습니다. 다만 틀리는 방향이 '원래 값 그대로'
+      쪽이라 숫자가 왜곡되지는 않고, 화면에서 한 번에 바꿀 수 있습니다.   */
+  if (!s.unit){
+    var hi = Math.max.apply(null, vals), lo = Math.min.apply(null, vals);
+    if (hi <= 100 && lo < 25) return;
+  }
+
+  s.tf = 'mom'; s.type = 'bar';
+}
+
 async function reloadAll(){
   for (var i=0;i<series.length;i++){ series[i].points = null; }
   renderSeriesList();
