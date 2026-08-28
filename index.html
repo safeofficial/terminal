@@ -257,6 +257,9 @@
   .mode-seg button{flex:1;padding:9px;border:none;background:transparent;border-radius:7px;
     font-size:13px;font-weight:600;color:var(--text-sub);cursor:pointer;transition:all .15s}
   .mode-seg button.on{background:var(--white);color:var(--primary);box-shadow:0 1px 4px rgba(44,62,107,.14)}
+  /*  아직 기업을 안 고른 탭은 눌러도 볼 게 없으니 흐리게 둡니다  */
+  .mode-seg button:disabled{opacity:.38;cursor:not-allowed}
+  .mode-seg button:disabled:hover{background:transparent}
   .strat-hist{font-size:12px;color:var(--text-sub);line-height:1.7}
   .strat-hist b{color:var(--primary)}
   .badge-auto{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;
@@ -539,6 +542,7 @@
       <button class="tab" data-tab="trading" onclick="showTab('trading')">모의투자</button>
       <button class="tab" data-tab="company" onclick="showTab('company')">기업 분석</button>
       <button class="tab" data-tab="deriv" onclick="showTab('deriv')">파생상품</button>
+      <button class="tab" data-tab="flow" onclick="showTab('flow')">자금 흐름</button>
       <button class="tab" data-tab="links" onclick="showTab('links')">자료실</button>
       <button class="tab hidden" id="tabAccess" data-tab="access" onclick="showTab('access')">접속 기록</button>
       <button class="tab hidden" id="tabAdmin" data-tab="admin" onclick="showTab('admin')">설정</button>
@@ -1323,22 +1327,70 @@
         <div id="coResults"></div>
       </div>
 
-      <div id="coBody" class="hidden">
+      <!--  회사 이름·요약은 기업을 고른 뒤에 나옵니다.  -->
+      <div id="coHead" class="hidden">
         <div class="card">
           <h2><span id="coName">—</span>
             <span class="tools"><button class="btn-sm" onclick="coCsv()">재무 CSV</button></span>
           </h2>
           <div id="coTiles"></div>
         </div>
+      </div>
 
-        <div class="mode-seg" id="coSeg">
-          <button id="coTab-prof"  onclick="coShow('prof')">개요 · 컨센서스</button>
-          <button id="coTab-val"   onclick="coShow('val')">밸류에이션</button>
-          <button id="coTab-fin"   onclick="coShow('fin')">재무제표</button>
-          <button id="coTab-price" onclick="coShow('price')">주가</button>
-          <button id="coTab-disc"  onclick="coShow('disc')">공시</button>
-          <button id="coTab-own"   onclick="coShow('own')">지분 · 배당</button>
+      <!--  탭 줄과 13F 는 기업을 고르기 전에도 보입니다.
+            13F 는 '이 회사' 가 아니라 '기관' 을 찾는 화면이라, 버크셔 보유내역을
+            보려고 아무 회사나 먼저 검색해야 하는 건 말이 안 되니까요.          -->
+      <div class="mode-seg" id="coSeg">
+        <button id="coTab-prof"  onclick="coShow('prof')"  disabled>개요 · 컨센서스</button>
+        <button id="coTab-val"   onclick="coShow('val')"   disabled>밸류에이션</button>
+        <button id="coTab-fin"   onclick="coShow('fin')"   disabled>재무제표</button>
+        <button id="coTab-price" onclick="coShow('price')" disabled>주가</button>
+        <button id="coTab-disc"  onclick="coShow('disc')"  disabled>공시</button>
+        <button id="coTab-f13"   onclick="coShow('f13')">기관 보유 (13F)</button>
+        <button id="coTab-own"   onclick="coShow('own')"   disabled>지분 · 배당</button>
+      </div>
+
+      <div id="coPane-f13" class="hidden">
+      <div class="card">
+      <h2>기관 보유 내역 (13F)
+        <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+          미국 기관투자자가 분기마다 SEC 에 내는 주식 보유 보고서</span>
+      </h2>
+      <div class="row">
+        <input type="text" id="f13Q" class="grow"
+               placeholder="운용사 이름 (예: Berkshire Hathaway, ARK Investment, Bridgewater)"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();f13Search();}">
+        <button class="btn-sm btn-solid" onclick="f13Search()">기관 찾기</button>
+      </div>
+      <div class="f13-quick" id="f13Quick"></div>
+      <div id="f13Warn"></div>
+      <div id="f13Hits"></div>
+
+      <div id="f13Body" class="hidden">
+        <div class="row" style="margin-top:12px">
+          <label>분기</label>
+          <select id="f13Period" class="grow" onchange="f13Load()"></select>
+          <label style="min-width:auto">
+            <input type="checkbox" id="f13Diff" checked onchange="f13Load()"
+                   style="width:auto;vertical-align:-2px">
+            직전 분기와 비교
+          </label>
         </div>
+        <div class="mode-seg" id="f13Seg" style="margin:10px 0 0">
+          <button id="f13K-stock" class="on" onclick="f13Kind('stock')">주식</button>
+          <button id="f13K-option" onclick="f13Kind('option')">옵션</button>
+          <button id="f13K-bond" onclick="f13Kind('bond')">채권 · 기타</button>
+          <button id="f13K-all" onclick="f13Kind('all')">전부</button>
+        </div>
+        <div id="f13Note" class="st-hint" style="margin:8px 0"></div>
+        <div id="f13Tiles"></div>
+        <div class="scroll" style="margin-top:10px"><table id="f13Table"></table></div>
+      </div>
+      </div>
+      </div>
+
+
+      <div id="coBody" class="hidden">
 
         <div class="card" id="coViewCard">
           <h2>표시 설정</h2>
@@ -1551,9 +1603,14 @@
             <h2>재무제표</h2>
             <div class="mode-seg" id="coFsSeg" style="margin-bottom:12px">
               <button id="coFs-손익계산서" class="on" onclick="coFsShow('손익계산서')">손익계산서</button>
-              <button id="coFs-재무상태표" onclick="coFsShow('재무상태표')">재무상태표</button>
+              <button id="coFs-재무상태표" onclick="coFsShow('재무상태표')">대차대조표</button>
               <button id="coFs-현금흐름표" onclick="coFsShow('현금흐름표')">현금흐름표</button>
               <button id="coFs-summary" onclick="coFsShow('summary')">요약 · 비율</button>
+            </div>
+            <div id="coFsExpand" class="row" style="margin:-2px 0 8px">
+              <button class="btn-sm" onclick="coFsAll(true)">모두 펴기</button>
+              <button class="btn-sm" onclick="coFsAll(false)">모두 접기</button>
+              <span class="st-hint" style="margin-left:4px">▸ 를 눌러 항목별로 열고 닫을 수 있습니다</span>
             </div>
             <div id="coFsWarn"></div>
             <div class="scroll"><table id="coFinTable"></table></div>
@@ -1600,43 +1657,6 @@
         </div>
       </div>
 
-      <!-- ════ 13F ════ -->
-      <div class="card" style="margin-top:20px">
-        <h2>기관 보유 내역 (13F)
-          <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
-            미국 기관투자자가 분기마다 SEC 에 내는 주식 보유 보고서</span>
-        </h2>
-        <div class="row">
-          <input type="text" id="f13Q" class="grow"
-                 placeholder="운용사 이름 (예: Berkshire Hathaway, ARK Investment, Bridgewater)"
-                 onkeydown="if(event.key==='Enter'){event.preventDefault();f13Search();}">
-          <button class="btn-sm btn-solid" onclick="f13Search()">기관 찾기</button>
-        </div>
-        <div class="f13-quick" id="f13Quick"></div>
-        <div id="f13Warn"></div>
-        <div id="f13Hits"></div>
-
-        <div id="f13Body" class="hidden">
-          <div class="row" style="margin-top:12px">
-            <label>분기</label>
-            <select id="f13Period" class="grow" onchange="f13Load()"></select>
-            <label style="min-width:auto">
-              <input type="checkbox" id="f13Diff" checked onchange="f13Load()"
-                     style="width:auto;vertical-align:-2px">
-              직전 분기와 비교
-            </label>
-          </div>
-          <div class="mode-seg" id="f13Seg" style="margin:10px 0 0">
-            <button id="f13K-stock" class="on" onclick="f13Kind('stock')">주식</button>
-            <button id="f13K-option" onclick="f13Kind('option')">옵션</button>
-            <button id="f13K-bond" onclick="f13Kind('bond')">채권 · 기타</button>
-            <button id="f13K-all" onclick="f13Kind('all')">전부</button>
-          </div>
-          <div id="f13Note" class="st-hint" style="margin:8px 0"></div>
-          <div id="f13Tiles"></div>
-          <div class="scroll" style="margin-top:10px"><table id="f13Table"></table></div>
-        </div>
-      </div>
     </div>
 
     <!-- ════ 파생상품 ════ -->
@@ -1644,7 +1664,7 @@
       <div class="page-head">
         <h1>파생상품 분석</h1>
         <p>시장이 앞으로 얼마나 움직일 거라고 보는지 — 예상 가격대, 변동성 곡선, 그릭스,
-          미결제약정으로 읽습니다. 맨 아래 <b>쉽게 읽기</b>에 뜻을 풀어 적어둡니다.</p>
+          미결제약정으로 읽습니다. 체인 바로 위 <b>쉽게 읽기</b>에 뜻을 풀어 적어둡니다.</p>
       </div>
       <div id="dvWarn"></div>
 
@@ -1735,7 +1755,7 @@
               옵션 시장이 보는 만기일 가격 범위와, 사람들이 몰려 있는 자리</span>
             <span class="tools"><button class="btn-sm" onclick="dvJpg(dvMapChart,'가격대')">JPG</button></span>
           </h2>
-          <div id="dvMapBox" style="width:100%;height:230px"></div>
+          <div id="dvMapBox" style="width:100%;height:300px"></div>
           <div id="dvMapLegend" class="st-hint" style="margin-top:4px"></div>
         </div>
 
@@ -1808,18 +1828,129 @@
           <div id="dvGkBox" style="width:100%;height:320px"></div>
         </div>
 
-        <div class="card">
-          <h2>옵션 체인</h2>
-          <div class="scroll"><table id="dvTable"></table></div>
-        </div>
-
-        <!-- 쉽게 읽기 -->
+        <!-- 쉽게 읽기 — 체인이 길어서 위로 올려둡니다 -->
         <div class="card">
           <h2>쉽게 읽기
             <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
               위 숫자들이 무슨 뜻인지, 가격대로 풀어서</span>
           </h2>
           <div id="dvPlain"></div>
+        </div>
+
+        <div class="card">
+          <h2>옵션 체인</h2>
+          <div class="scroll"><table id="dvTable"></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ 자금 흐름 ════ -->
+    <div id="pane-flow" class="hidden">
+      <div class="page-head">
+        <h1>자금 흐름</h1>
+        <p>거래소 밖에서 오간 물량과, 미 의회가 신고한 주식 매매를 봅니다.
+           둘 다 관(官)이 직접 공표한 자료만 씁니다 — FINRA, 그리고 미 하원 사무처.</p>
+      </div>
+      <div id="flowWarn"></div>
+
+      <div class="mode-seg" id="flowSeg" style="max-width:420px">
+        <button id="flowTab-dark" class="on" onclick="flowShow('dark')">다크풀 (장외 거래)</button>
+        <button id="flowTab-cong" onclick="flowShow('cong')">미 의회 거래</button>
+      </div>
+
+      <!-- ── 다크풀 ── -->
+      <div id="flowPane-dark">
+        <div class="card">
+          <h2>종목별 장외 거래
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+              미국 주식만 · FINRA 가 주 단위로 공표합니다</span>
+          </h2>
+          <div class="row">
+            <input type="text" id="dkQ" class="grow" placeholder="티커 (예: AAPL, NVDA, TSLA)"
+                   onkeydown="if(event.key==='Enter'){event.preventDefault();dkLoad();}">
+            <label style="min-width:auto">기간</label>
+            <select id="dkWeeks" style="width:110px" onchange="dkLoad()">
+              <option value="13">13주</option>
+              <option value="26" selected>26주</option>
+              <option value="52">52주</option>
+            </select>
+            <button class="btn-sm btn-solid" onclick="dkLoad()">조회</button>
+          </div>
+          <div class="st-hint" style="margin-top:8px">
+            여기 숫자는 <b>체결 하나하나가 아니라 주 단위 합계</b>입니다. 그리고
+            <b>2~4주 늦게</b> 공표됩니다 — 어제 무슨 일이 있었는지는 이 자료로 알 수 없습니다.
+            대신 "이 종목 물량이 어느 다크풀로 흘렀나" 는 관이 직접 센 값이라 정확합니다.
+          </div>
+          <div id="dkBody" class="hidden">
+            <div id="dkTiles" style="margin-top:14px"></div>
+            <div class="row" style="margin-top:14px">
+              <h2 style="margin:0;flex:1">주별 추이</h2>
+              <span class="tools"><button class="btn-sm" onclick="chartJpg(dkChart,'다크풀')">JPG</button></span>
+            </div>
+            <div id="dkBox" style="width:100%;height:300px"></div>
+            <div class="st-hint" id="dkHint"></div>
+
+            <h2 style="margin-top:20px">어느 다크풀이 받았나</h2>
+            <div class="scroll"><table id="dkVenue"></table></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>최근 한 주, 장외 물량이 큰 종목
+            <span class="tools">
+              <select id="dkTier" style="width:210px" onchange="dkTop()">
+                <option value="T1">S&amp;P500 · 러셀1000 (Tier 1)</option>
+                <option value="T2">그 밖의 상장주 (Tier 2)</option>
+                <option value="OTCE">장외 주식 (OTC)</option>
+              </select>
+              <button class="btn-sm" onclick="dkTop()">새로 받기</button>
+            </span>
+          </h2>
+          <div class="scroll"><table id="dkTopTable">
+            <tr><td class="empty">불러오는 중…</td></tr></table></div>
+        </div>
+
+        <div class="card">
+          <h2>이 화면 읽는 법</h2>
+          <div id="dkPlain"></div>
+        </div>
+      </div>
+
+      <!-- ── 의회 거래 ── -->
+      <div id="flowPane-cong" class="hidden">
+        <div class="card">
+          <h2>미 하원 주식 거래 신고 (PTR)
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+              STOCK Act — 의원은 매매 후 45일 안에 신고해야 합니다</span>
+          </h2>
+          <div class="row">
+            <label>연도</label>
+            <select id="cgYear" style="width:110px" onchange="cgLoad()"></select>
+            <input type="text" id="cgQ" class="grow" placeholder="의원 이름으로 걸러내기 (예: Pelosi)"
+                   oninput="cgRender()">
+            <label style="min-width:auto">
+              <input type="checkbox" id="cgPtrOnly" checked onchange="cgRender()"
+                     style="width:auto;vertical-align:-2px"> 거래 신고만
+            </label>
+            <button class="btn-sm btn-solid" onclick="cgLoad()">불러오기</button>
+          </div>
+          <div id="cgNote" class="st-hint" style="margin-top:8px"></div>
+          <div id="cgTiles" style="margin-top:14px"></div>
+        </div>
+
+        <div class="card">
+          <h2>신고 목록
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+              한 줄을 누르면 원본을 읽어 매매 내역을 펼칩니다</span>
+          </h2>
+          <div class="scroll" style="max-height:560px">
+            <table id="cgTable"><tr><td class="empty">연도를 고르고 불러오기를 눌러주세요.</td></tr></table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>이 화면 읽는 법</h2>
+          <div id="cgPlain"></div>
         </div>
       </div>
     </div>
@@ -2039,15 +2170,18 @@ async function enterApp(){
 }
 
 function showTab(name){
-  ['home','research','trading','company','deriv','links','access','admin'].forEach(function(t){
+  ['home','research','trading','company','deriv','flow','links','access','admin'].forEach(function(t){
     var p = $('pane-'+t); if (p) p.classList.toggle('hidden', t !== name);
   });
   document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('on', b.dataset.tab === name); });
-  setTimeout(resizeAllCharts, 80);
+  //  숨김이 풀리고 실제 크기가 잡힌 뒤에 맞춥니다 (두 번 그려야 확실합니다)
+  requestAnimationFrame(function(){ requestAnimationFrame(resizeAllCharts); });
+  setTimeout(resizeAllCharts, 120);
   if (name==='home')    initHome();
   if (name==='trading') initTrading();
   if (name==='company') initCompany();
   if (name==='deriv')   initDeriv();
+  if (name==='flow')    initFlow();
   if (name==='links')   loadLinks();
   if (name==='access')  loadAccess();
   if (name==='admin')   loadAdmin();
@@ -4922,6 +5056,15 @@ function dvComputeLevels(list, spot){
   var yr = hist.slice(-(dvMkt === 'crypto' ? 365 : 252));
   var hi52 = yr.length ? Math.max.apply(null, yr.map(function(p){ return p.v; })) : null;
   var lo52 = yr.length ? Math.min.apply(null, yr.map(function(p){ return p.v; })) : null;
+  /*  값의 자릿수가 맞는지 확인합니다.
+
+      옵션 현물가와 가격 이력이 서로 다른 종목·다른 통화로 들어오면 (예: 현물은
+      $68,420 인데 이력은 $217 ~ $235) 52주 범위가 통째로 엉뚱해집니다. 그 상태로
+      두면 가격대 지도의 가로축이 0 근처까지 늘어나 그림이 못 쓰게 되고, 타일에도
+      틀린 52주 범위가 그대로 찍힙니다. 현재가가 52주 범위 근처에도 없으면 이력을
+      믿지 않고 버립니다 — 틀린 숫자를 보여주느니 안 보여주는 편이 낫습니다.       */
+  if (hi52 != null && okNum(spot) && spot > 0 &&
+      !(hi52 >= spot * 0.25 && lo52 <= spot * 4)){ hi52 = null; lo52 = null; }
 
   return {
     spot: spot, dte: dte, atm: atm, atmIv: atmIv, sd: sd,
@@ -4938,7 +5081,7 @@ function dvComputeLevels(list, spot){
 /* ── 가격대 지도 ─────────────────────────────── */
 function dvDrawMap(L){
   if (typeof echarts === 'undefined') return;
-  if (!dvMapChart) dvMapChart = echarts.init($('dvMapBox'));
+  if (!dvMapChart){ dvMapChart = echarts.init($('dvMapBox')); watchChartBoxes(); }
   if (!L || L.sd == null){
     dvMapChart.clear();
     dvMapChart.setOption({ backgroundColor: theme.bg,
@@ -4963,12 +5106,34 @@ function dvDrawMap(L){
   var span = ROWS.map(function(r){ return r[1] == null ? '-' : (r[2] - r[1]); });
   var colr = ROWS.map(function(r){ return r[3]; });
 
-  var lo = Math.min.apply(null, ROWS.filter(function(r){ return r[1] != null; })
-                                    .map(function(r){ return r[1]; })
-             .concat([L.putWall, L.pain, L.spot].filter(function(v){ return v != null; })));
-  var hi = Math.max.apply(null, ROWS.filter(function(r){ return r[2] != null; })
-                                    .map(function(r){ return r[2]; })
-             .concat([L.callWall, L.pain, L.spot].filter(function(v){ return v != null; })));
+  /*  축 범위.
+
+      예전에는 콜벽·풋벽·최대고통까지 전부 축에 넣었습니다. 그런데 아주 멀리
+      떨어진 행사가(예: 현물 6.8만인데 풋벽이 200)에 미결제가 조금이라도 쌓이면
+      축이 그쪽까지 늘어나면서, 정작 봐야 할 구간이 화면 오른쪽 끄트머리에
+      찌그러졌습니다.
+
+      그래서 축은 '뜻이 있는 구간' — 95% 예상 범위와 지난 1년 실제 범위, 그리고
+      현재가 — 로만 잡습니다. 벽·최대고통은 그 안에 들어올 때만 축에 반영하고,
+      벗어나면 점을 찍지 않고 아래 설명줄에 '범위 밖'이라고 적어둡니다.
+      (없는 것처럼 숨기면 안 되니까요.)                                    */
+  var coreLo = Math.min.apply(null, ROWS.filter(function(r){ return r[1] != null; })
+                                        .map(function(r){ return r[1]; }).concat([L.spot]));
+  var coreHi = Math.max.apply(null, ROWS.filter(function(r){ return r[2] != null; })
+                                        .map(function(r){ return r[2]; }).concat([L.spot]));
+  var coreW  = Math.max(1e-9, coreHi - coreLo);
+  var okLo = coreLo - coreW * 0.35, okHi = coreHi + coreW * 0.35;
+  function inView(v){ return okNum(v) && v >= okLo && v <= okHi; }
+
+  var lo = coreLo, hi = coreHi, outside = [];
+  [[L.putWall,'풋벽'], [L.callWall,'콜벽'], [L.pain,'최대 고통']].forEach(function(t){
+    if (!okNum(t[0])) return;
+    if (inView(t[0])){ lo = Math.min(lo, t[0]); hi = Math.max(hi, t[0]); }
+    else outside.push(t[1] + ' ' + f(t[0]));
+  });
+  //  가격은 0 밑으로 못 갑니다. 변동성이 크면 (현물 − 2σ) 가 음수로 나오는데,
+  //  그대로 두면 축 왼쪽에 마이너스 눈금이 찍혀 이상해 보입니다.
+  if (lo < 0) lo = 0;
   var pad = (hi - lo) * 0.07 || 1;
 
   //  주요 가격 자리.
@@ -4980,9 +5145,9 @@ function dvDrawMap(L){
     pick.push({ v: v, label: label, color: color });
   }
   mk(L.spot, '현재가', '#2c3e6b');
-  mk(L.callWall, '콜벽 (저항)', '#c0392b');
-  mk(L.putWall, '풋벽 (지지)', '#1b5fa8');
-  mk(L.pain, '최대 고통', '#b26a00');
+  if (inView(L.callWall)) mk(L.callWall, '콜벽 (저항)', '#c0392b');
+  if (inView(L.putWall))  mk(L.putWall,  '풋벽 (지지)', '#1b5fa8');
+  if (inView(L.pain))     mk(L.pain,     '최대 고통',   '#b26a00');
 
   //  묶는 기준은 전체 축이 아니라 '68% 예상 구간' 폭입니다.
   //  52주 막대 때문에 축이 넓어져도 자리들이 통째로 뭉치지 않게 하려는 것입니다.
@@ -4994,18 +5159,48 @@ function dvDrawMap(L){
     if (g && Math.abs(x.v - g.v) <= tol){ g.labels.push(x.label); }
     else groups.push({ v: x.v, color: x.color, labels: [x.label] });
   });
-  var marks = groups.map(function(g, i){
-    return { value: [g.v, '주요 자리'], name: g.labels.join(' · '),
+  /*  이름표가 서로 겹치지 않게 자리를 나눕니다.
+
+      예전에는 홀짝으로 위·아래를 번갈아 놨습니다. 그런데 자리가 셋 이상이면
+      '위·아래·위' 가 되어 첫째와 셋째가 가로로 가까울 때 그대로 포개졌습니다.
+      이제 앞의 이름표와 가로로 얼마나 떨어져 있는지를 보고, 가까우면 더
+      바깥쪽 칸으로 밀어냅니다.                                          */
+  var axisW = Math.max(1e-9, (hi + pad) - (lo - pad));
+  var slots = [];                      //  [{x, lane}]
+  var marks = groups.map(function(g){
+    //  이 이름표가 차지할 가로 폭 (글자 수로 어림잡습니다)
+    var txt = g.labels.join(' · ');
+    var wFrac = Math.max(txt.length, 8) * 7.2 / Math.max(320, $('dvMapBox').clientWidth || 900);
+    var x = (g.v - (lo - pad)) / axisW;
+
+    //  가로로 겹치는 이름표들 중 가장 낮은 빈 칸을 찾습니다
+    var lane = 0;
+    for (;;){
+      var busy = slots.some(function(sl){
+        return sl.lane === lane && Math.abs(sl.x - x) < (sl.w + wFrac) / 2; });
+      if (!busy) break;
+      lane++;
+      if (lane > 3) break;
+    }
+    slots.push({ x: x, w: wFrac, lane: lane });
+
+    //  0·2번 칸은 위, 1·3번 칸은 아래. 칸이 깊어질수록 더 멀리 띄웁니다.
+    var up = lane % 2 === 0;
+    var step = Math.floor(lane / 2);
+    return { value: [g.v, '주요 자리'], name: txt,
       itemStyle:{ color: g.color },
-      label:{ show:true, formatter: g.labels.join(' · ') + '\n' + f(g.v),
-              fontSize:10.5, color: g.color, fontWeight:600,
-              position: i % 2 ? 'bottom' : 'top' } };
+      label:{ show:true, formatter: txt + '\n' + f(g.v),
+              fontSize:10.5, color: g.color, fontWeight:600, lineHeight:13,
+              position: up ? 'top' : 'bottom',
+              distance: 8 + step * 26 } };
   });
 
   dvMapChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:14, right:26, top:16, bottom:34, containLabel:true },
+    /*  이름표가 위아래로 뻗으므로 그만큼 비워둡니다.
+        세로 칸을 좁게 잡으면 글자가 축 밖으로 잘려 나갑니다.            */
+    grid:{ left:92, right:34, top:44, bottom:56 },
     tooltip:{ trigger:'item',
       formatter:function(a){
         if (a.seriesName === '주요 자리') return a.data.name + ' ' + f(a.value[0]);
@@ -5018,7 +5213,8 @@ function dvDrawMap(L){
       splitLine:{ lineStyle:{ color: theme.grid, type:'dashed' } } },
     yAxis:{ type:'category', data: cats, inverse:true,
       axisLine:{ show:false }, axisTick:{ show:false },
-      axisLabel:{ color:'#5a6278', fontSize:11.5 } },
+      //  '최근 1년 실제' 같은 긴 이름이 잘리지 않게 폭을 정해줍니다
+      axisLabel:{ color:'#5a6278', fontSize:11.5, width:84, overflow:'break' } },
     series:[
       { name:'받침', type:'bar', stack:'r', barMaxWidth:18, data: base,
         itemStyle:{ color:'transparent' }, silent:true, tooltip:{ show:false } },
@@ -5028,7 +5224,11 @@ function dvDrawMap(L){
       { name:'주요 자리', type:'scatter', symbolSize:11, data: marks,
         markLine:{ symbol:'none', silent:true, animation:false,
           lineStyle:{ color:'#2c3e6b', width:1.5, type:'solid' },
-          label:{ show:false }, data:[{ xAxis: L.spot }] } }
+          //  세로선 이름표는 그리드 위쪽 여백에 둡니다 (점 이름표와 안 겹치게)
+          label:{ show:true, position:'start', formatter:'현재가 ' + f(L.spot),
+                  fontSize:10.5, color:'#2c3e6b', fontWeight:600,
+                  padding:[0,0,6,0] },
+          data:[{ xAxis: L.spot }] } }
     ]
   }, true);
 
@@ -5037,7 +5237,9 @@ function dvDrawMap(L){
     + '<b>68%</b> ' + f(L.lo1) + ' ~ ' + f(L.hi1) + ' · '
     + '<b>95%</b> ' + f(L.lo2) + ' ~ ' + f(L.hi2)
     + (L.hi52 != null ? '<br>회색 막대는 <b>지난 1년 실제 범위</b>(' + f(L.lo52) + ' ~ ' + f(L.hi52)
-        + ')라, 시장이 보는 폭이 실제보다 넓은지 좁은지 눈으로 견줄 수 있습니다.' : '');
+        + ')라, 시장이 보는 폭이 실제보다 넓은지 좁은지 눈으로 견줄 수 있습니다.' : '')
+    + (outside.length ? '<br><span style="color:#b26a00">' + outside.join(' · ')
+        + ' 은(는) 그림 범위 밖이라 점으로 찍지 않았습니다.</span>' : '');
 }
 
 /* ── 만기별 변동성 ───────────────────────────── */
@@ -5066,7 +5268,7 @@ async function dvLoadTerm(){
 
 function dvDrawTerm(){
   if (typeof echarts === 'undefined') return;
-  if (!dvTermChart) dvTermChart = echarts.init($('dvTermBox'));
+  if (!dvTermChart){ dvTermChart = echarts.init($('dvTermBox')); watchChartBoxes(); }
   var t = (dvTerm && dvTerm.term) || [];
   if (!t.length){
     dvTermChart.clear();
@@ -5133,7 +5335,7 @@ function dvFillStrikes(list, spot){
 
 function dvDrawPayoff(){
   if (!dv || typeof echarts === 'undefined') return;
-  if (!dvPayChart) dvPayChart = echarts.init($('dvPayBox'));
+  if (!dvPayChart){ dvPayChart = echarts.init($('dvPayBox')); watchChartBoxes(); }
   var list = dvByStrike(), spot = Number(dv.spot) || 0;
   var K = Number($('dvPayK').value);
   var row = list.filter(function(x){ return x.strike === K; })[0];
@@ -5230,8 +5432,14 @@ function dvPlain(L, list){
     '현재가는 ' + lv(S, 'now') + ' 입니다.'
     + (L.hi52 != null
        ? ' 지난 1년 동안 ' + money(L.lo52) + ' ~ ' + money(L.hi52) + ' 사이에서 움직였고, '
-         + '지금은 그 범위의 <b>' + num((S - L.lo52) / Math.max(1e-9, L.hi52 - L.lo52) * 100, 0)
-         + '% 지점</b>에 있습니다.'
+         /*  현물가는 옵션 시세에서, 1년 범위는 종가 이력에서 옵니다. 이력이 하루
+             늦거나 신고가·신저가를 막 갈아치우면 현재가가 범위 밖으로 나갈 수
+             있습니다. 그럴 때 '-244% 지점' 같은 문장이 나오지 않게, 범위를 벗어난
+             경우는 몇 % 인지 대신 '위/아래' 라고만 적습니다.                  */
+         + (S > L.hi52 ? '지금은 그 <b>1년 최고가보다 위</b>에 있습니다.'
+          : S < L.lo52 ? '지금은 그 <b>1년 최저가보다 아래</b>에 있습니다.'
+          : '지금은 그 범위의 <b>' + num((S - L.lo52) / Math.max(1e-9, L.hi52 - L.lo52) * 100, 0)
+            + '% 지점</b>에 있습니다.')
        : '')]);
 
   if (L.sd != null){
@@ -5313,7 +5521,7 @@ function dvMark(spot){
 
 function dvDrawIv(list, spot){
   if (typeof echarts === 'undefined') return;
-  if (!dvIvChart) dvIvChart = echarts.init($('dvIvBox'));
+  if (!dvIvChart){ dvIvChart = echarts.init($('dvIvBox')); watchChartBoxes(); }
   var pal = theme.palette;
   var c = list.filter(function(x){ return x.call && okNum(x.call.iv) && x.call.iv > 0; })
               .map(function(x){ return [x.strike, +(x.call.iv * 100).toFixed(2)]; });
@@ -5339,7 +5547,7 @@ function dvDrawIv(list, spot){
 
 function dvDrawOi(list, spot){
   if (typeof echarts === 'undefined') return;
-  if (!dvOiChart) dvOiChart = echarts.init($('dvOiBox'));
+  if (!dvOiChart){ dvOiChart = echarts.init($('dvOiBox')); watchChartBoxes(); }
   var pal = theme.palette;
   dvOiChart.setOption({
     backgroundColor: theme.bg, animation:false,
@@ -5368,7 +5576,7 @@ var GREEK_HINT = {
 };
 function dvDrawGreeks(){
   if (!dv || typeof echarts === 'undefined') return;
-  if (!dvGkChart) dvGkChart = echarts.init($('dvGkBox'));
+  if (!dvGkChart){ dvGkChart = echarts.init($('dvGkBox')); watchChartBoxes(); }
   var g = $('dvGreek').value;
   $('dvGreekHint').innerHTML = GREEK_HINT[g] || '';
   var list = dvByStrike(), pal = theme.palette, spot = Number(dv.spot) || 0;
@@ -6083,6 +6291,104 @@ function chartsReady(){
   return false;
 }
 
+/*  ── 좌우 축 눈금 맞추기 ──────────────────────────────────
+
+    지표 두 개를 좌·우 축에 나눠 그리면, 축마다 제 마음대로 범위를 잡습니다.
+    그러면 왼쪽 눈금선과 오른쪽 눈금 숫자가 어긋나서 가로줄이 오른쪽 축에서는
+    아무 값도 가리키지 않고, 무엇보다 0 이 서로 다른 높이에 놓입니다.
+    "실업률은 0 아래로 안 내려가는데 왜 저 선은 0 밑에 있지" 같은 착시가 여기서
+    나옵니다.
+
+    그래서 축을 직접 잡습니다. 눈금 칸 수(N)를 축끼리 똑같이 맞추고, 0 위·아래에
+    각각 몇 칸씩 둘지도 하나로 정합니다. 그러면 칸 수가 같으니 가로줄이 두 축에
+    모두 맞고, 0 아래 칸 수가 같으니 0 이 정확히 같은 높이에 옵니다.
+    (한 축만 쓰면 손대지 않고 ECharts 에 맡깁니다.)                        */
+function niceStep(x){
+  if (!(x > 0)) return 1;
+  var mag = Math.pow(10, Math.floor(Math.log(x) / Math.LN10));
+  var f = x / mag;
+  var steps = [1, 1.5, 2, 2.5, 3, 4, 5, 7.5, 10];
+  for (var i = 0; i < steps.length; i++) if (f <= steps[i] + 1e-9) return steps[i] * mag;
+  return 10 * mag;
+}
+//  눈금 간격에 맞춰 소수점 자리를 정합니다 (0.25 간격인데 정수로 찍으면
+//  '0 0 1 1 1' 처럼 같은 숫자가 반복돼 보입니다)
+function axFmt(step){
+  //  눈금 간격 자체를 딱 떨어지게 쓰는 데 필요한 만큼만 소수점을 씁니다.
+  //  간격 5 면 '125' 로, 간격 2.5 면 '12.5' 로 (5 인데 '125.0' 은 군더더기입니다).
+  var dp = 0;
+  if (step > 0){
+    for (var d = 0; d <= 6; d++){
+      var m = step * Math.pow(10, d);
+      if (Math.abs(m - Math.round(m)) < 1e-9){ dp = d; break; }
+      dp = d;
+    }
+  }
+  return function(v){ return num(Number(v), dp); };
+}
+function nextNice(step){
+  var mag = Math.pow(10, Math.floor(Math.log(step) / Math.LN10 + 1e-9));
+  var f = step / mag;
+  var steps = [1, 1.5, 2, 2.5, 3, 4, 5, 7.5, 10];
+  for (var i = 0; i < steps.length; i++) if (f < steps[i] - 1e-9) return steps[i] * mag;
+  return 10 * mag;
+}
+function alignAxes(ranges, N, needZero){
+  N = N || 5;
+  var live = ranges.filter(function(r){ return r && isFinite(r.min) && isFinite(r.max); });
+  if (live.length < 2) return null;
+
+  /*  0 을 꼭 넣어야 하는 경우 — 값이 0 을 넘나드는 지표가 있거나, 막대로 그린
+      계열이 있을 때입니다. 막대는 밑동이 0 이 아니면 길이가 거짓말을 합니다.
+      반대로 CPI 지수처럼 0 근처에 갈 일이 없는 수준값만 있으면 굳이 0 까지
+      끌어내리지 않습니다. 화면 아래 절반이 통째로 비면서 정작 봐야 할 움직임이
+      위쪽에 눌려 붙거든요.                                                  */
+  var anchor = !!needZero || live.some(function(r){ return r.min < 0 && r.max > 0; })
+                          || live.every(function(r){ return r.min >= 0 && r.min <= r.max * 0.35; });
+
+  if (anchor){
+    var anyNeg = live.some(function(r){ return r.min < 0; });
+    var anyPos = live.some(function(r){ return r.max > 0; });
+    var nNeg = 0;
+    if (anyNeg && anyPos){
+      var frac = 0;
+      live.forEach(function(r){
+        var span = Math.max(1e-12, r.max - Math.min(0, r.min));
+        if (r.min < 0) frac = Math.max(frac, -r.min / span);
+      });
+      nNeg = Math.min(N - 1, Math.max(1, Math.round(frac * N)));
+    } else if (anyNeg && !anyPos){ nNeg = N; }
+    var nPos = N - nNeg;
+    return ranges.map(function(r){
+      if (!r || !isFinite(r.min) || !isFinite(r.max)) return null;
+      var need = 0;
+      if (nPos > 0) need = Math.max(need, Math.max(0, r.max) / nPos);
+      if (nNeg > 0) need = Math.max(need, Math.max(0, -Math.min(0, r.min)) / nNeg);
+      if (!(need > 0)) need = Math.max(1e-9, Math.abs(r.max || 1) / N);
+      var st = niceStep(need);
+      return { min: -nNeg * st, max: nPos * st, interval: st, zero: nNeg > 0 };
+    });
+  }
+
+  //  0 을 안 쓰는 경우 — 칸 수만 N 으로 똑같이 맞춥니다. 칸 수가 같으면
+  //  가로 눈금선이 두 축 모두에서 정확히 눈금 숫자를 가리킵니다.
+  return ranges.map(function(r){
+    if (!r || !isFinite(r.min) || !isFinite(r.max)) return null;
+    var span = Math.max(1e-9, r.max - r.min);
+    var st = niceStep(span / N);
+    for (var g = 0; g < 40; g++){
+      if (Math.ceil(r.max / st - 1e-9) - Math.floor(r.min / st + 1e-9) <= N) break;
+      st = nextNice(st);
+    }
+    var lo = Math.floor(r.min / st + 1e-9) * st;
+    var used = Math.ceil(r.max / st - 1e-9) - Math.floor(r.min / st + 1e-9);
+    lo -= Math.floor(Math.max(0, N - used) / 2) * st;
+    //  원래 0 아래로 안 가는 값이면 축도 0 밑으로 내리지 않습니다
+    if (r.min >= 0 && lo < 0 && N * st >= r.max) lo = 0;
+    return { min: lo, max: lo + N * st, interval: st, zero: lo < 0 && lo + N * st > 0 };
+  });
+}
+
 function drawChart(){
   if (!chartsReady()) return;
   if (!chart) chart = echarts.init($('chartBox'), null, { renderer:'canvas' });
@@ -6120,6 +6426,30 @@ function drawChart(){
   });
   var usedRight = norms.some(function(x){ return Number(x.s.axis) === 1; });
   var pad = axisPad(norm ? 1 : nAxis);
+
+  //  축마다 값의 위아래 끝을 재둡니다 (지수화일 땐 축이 하나라 필요 없습니다)
+  var axRange = null;
+  if (!norm){
+    var raw = [];
+    norms.forEach(function(x){
+      var j = Number(x.s.axis) || 0;
+      var r = raw[j] || (raw[j] = { min: Infinity, max: -Infinity });
+      x.pts.forEach(function(p){
+        if (p.v == null || !isFinite(p.v)) return;
+        if (p.v < r.min) r.min = p.v;
+        if (p.v > r.max) r.max = p.v;
+      });
+    });
+    //  값이 한 점뿐이거나 전부 같으면 위아래로 조금 벌려줍니다
+    raw.forEach(function(r){
+      if (!r) return;
+      if (!isFinite(r.min) || !isFinite(r.max)){ r.min = NaN; r.max = NaN; return; }
+      if (r.max === r.min){ var e = Math.abs(r.max) * 0.05 || 1; r.min -= e; r.max += e; }
+    });
+    var anyBar = norms.some(function(x){ return x.s.type === 'bar'; });
+    axRange = alignAxes(raw, 5, anyBar);
+  }
+  var zeroLine = !!(axRange && axRange.some(function(r){ return r && r.zero; }));
 
   //  범례가 몇 줄인지 재서 그만큼 위를 비웁니다 (축 이름이 가려지지 않게)
   var lgNames = norms.map(function(x){ return x.s.label + tfSuffix(x.s); });
@@ -6164,12 +6494,16 @@ function drawChart(){
         var sl = axisSlot(j);
         var on = norms.some(function(x){ return (Number(x.s.axis) || 0) === j; });
         var col = (j === 0) ? theme.axis_left : theme.axis_right;
-        out.push({ type:'value', scale:true, name: axLabel[j] || '',
+        var rg = axRange && axRange[j];
+        var ax = { type:'value', scale:true, name: axLabel[j] || '',
           nameTextStyle:{ color: col, fontSize:11 }, nameGap:12,
           position: sl.position, offset: sl.offset,
           axisLine:{ show: on, lineStyle:{ color: col } },
-          axisLabel:{ show: on, color: col, fontSize:11, hideOverlap:true },
-          splitLine: j === 0 ? { lineStyle:{ color:theme.grid } } : { show:false } });
+          axisLabel:{ show: on, color: col, fontSize:11, hideOverlap:true,
+            formatter: axFmt(rg && rg.interval) },
+          splitLine: j === 0 ? { lineStyle:{ color:theme.grid } } : { show:false } };
+        if (rg){ ax.scale = false; ax.min = rg.min; ax.max = rg.max; ax.interval = rg.interval; }
+        out.push(ax);
       }
       return out;
     })(),
@@ -6192,6 +6526,17 @@ function drawChart(){
       };
       //  침체 띠는 맨 앞 계열에 한 번만 붙입니다 (계열마다 붙이면 겹쳐서 진해집니다)
       if (i === 0 && bands.length) o.markArea = recMarkArea(bands);
+      /*  기준선. 0 아래로 내려가는 지표가 있으면 0 에, 지수화 중이면 출발점 100 에
+          가는 선을 하나 긋습니다. "지금 플러스인지 마이너스인지" 를 눈금 숫자를
+          읽지 않고도 바로 알 수 있게 하려는 것입니다.                        */
+      if (i === 0 && (zeroLine || norm)){
+        o.markLine = { symbol:'none', silent:true, animation:false,
+          lineStyle:{ color: theme.text_color, width:1, opacity:.45, type:'solid' },
+          //  이름표는 왼쪽에 둡니다. 오른쪽 끝에 두면 오른쪽 축 눈금 숫자와 겹칩니다.
+          label:{ show:true, position:'insideStartTop', formatter: norm ? '100' : '0',
+                  fontSize:10, color: theme.text_color, opacity:.6 },
+          data:[{ yAxis: norm ? 100 : 0 }] };
+      }
       return o;
     })
   };
@@ -6200,9 +6545,465 @@ function drawChart(){
   var anyTf = series.some(function(s){ return (s.tf||'raw') !== 'raw'; });
   $('chartMsg').textContent = norms.length + '개 지표 · ' + $('rangeSel').selectedOptions[0].text
     + (norm ? ' · 지수화' : (nAxis > 2 ? ' · 축 ' + nAxis + '개'
-                            : (usedRight ? ' · 좌우 축 분리' : '')))
+                            : (usedRight ? ' · 좌우 축 분리 (눈금 맞춤)' : '')))
     + (bands.length ? ' · 침체 ' + bands.length + '구간 음영' : '')
     + (anyTf ? ' · 변환 적용' : '');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   자금 흐름 — 다크풀 (FINRA) · 미 의회 거래 (하원 사무처)
+
+   두 화면 다 '관이 직접 공표한 것만 쓴다' 는 원칙 위에 서 있습니다.
+   유료 서비스가 파는 실시간 다크풀 프린트나 의회거래 알림은 넣지
+   않았습니다 — 돈도 돈이지만, 남의 자료를 학회원 30명에게 다시
+   뿌리는 게 약관상 걸리기 때문입니다.
+   ══════════════════════════════════════════════════════════════ */
+var flowTab = 'dark', dkChart = null, dkData = null, cgRows = [], cgOpen = {};
+var flowInit = false;
+
+function initFlow(){
+  if (flowInit) return;
+  flowInit = true;
+  //  연도 칸을 올해부터 2014년까지 채웁니다 (하원 전자공시 시작 무렵)
+  var y = new Date().getFullYear(), sel = $('cgYear'), h = '';
+  for (var i = y; i >= 2014; i--) h += '<option value="' + i + '">' + i + '년</option>';
+  sel.innerHTML = h;
+  dkPlainText(); cgPlainText();
+  dkTop();
+}
+
+function flowShow(which){
+  flowTab = which;
+  ['dark','cong'].forEach(function(k){
+    var p = $('flowPane-' + k); if (p) p.classList.toggle('hidden', k !== which);
+    var b = $('flowTab-' + k); if (b) b.classList.toggle('on', k === which);
+  });
+  if (which === 'dark' && dkChart) setTimeout(function(){ dkChart.resize(); }, 60);
+  if (which === 'cong' && !cgRows.length) cgLoad();
+}
+
+/* ── 다크풀 ───────────────────────────────────── */
+async function dkLoad(){
+  var sym = $('dkQ').value.trim().toUpperCase();
+  if (!sym){ warn('flowWarn','티커를 입력해주세요. 미국 주식만 조회됩니다.'); return; }
+  warn('flowWarn','');
+  $('dkBody').classList.remove('hidden');
+  $('dkTiles').innerHTML = '<div class="empty">불러오는 중…</div>';
+  $('dkVenue').innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  try {
+    var d = await edge({ source:'darkpool', code:sym, weeks:Number($('dkWeeks').value) });
+    dkData = d;
+    if (!d.weeks || !d.weeks.length){
+      $('dkTiles').innerHTML = '<div class="empty">' + esc(d.note || '자료가 없습니다.') + '</div>';
+      $('dkVenue').innerHTML = ''; if (dkChart) dkChart.clear();
+      $('dkHint').textContent = '';
+      return;
+    }
+    dkTiles(d); dkDraw(d); dkVenues(d);
+  } catch(e){
+    $('dkTiles').innerHTML = '';
+    $('dkVenue').innerHTML = '';
+    warn('flowWarn', esc(e.message));
+  }
+}
+
+function dkTiles(d){
+  var w = d.weeks, last = w[w.length - 1];
+  //  최근 4주 평균과 견줘 이번 주가 튀는지 봅니다
+  var base = w.slice(-5, -1);
+  var avg = base.length ? base.reduce(function(s,x){ return s + x.ats; }, 0) / base.length : null;
+  var chg = (avg && avg > 0) ? (last.ats / avg - 1) * 100 : null;
+  var share = (last.otc && last.otc > 0) ? last.ats / last.otc * 100 : null;
+
+  $('dkTiles').innerHTML = '<div class="tiles">'
+    + tile('공표된 주', last.d, (d.lag || 2) + '주 지연 공표')
+    + tile('다크풀 거래량', num(last.ats / 1e6, 2) + 'M주',
+           chg == null ? '' : '최근 4주 평균 대비 ' + pct(chg),
+           chg == null ? '' : (chg >= 0 ? 'up' : 'dn'))
+    + tile('장외 전체 중 다크풀', share == null ? '—' : num(share, 1) + '%',
+           '나머지는 증권사 내부 체결 등')
+    + tile('체결 건수', num(last.trades, 0) + '건',
+           last.avg == null ? '' : '한 건 평균 ' + num(last.avg, 0) + '주')
+    + tile('다크풀 운영사', num((d.venues || []).length, 0) + '곳',
+           (d.venues && d.venues[0]) ? '1위 ' + d.venues[0].name : '')
+    + '</div>';
+}
+
+function dkDraw(d){
+  if (typeof echarts === 'undefined') return;
+  if (!dkChart){ dkChart = echarts.init($('dkBox')); watchChartBoxes(); }
+  var w = d.weeks;
+  var pctSeries = w.map(function(x){
+    return [x.d, (x.otc && x.otc > 0) ? x.ats / x.otc * 100 : null]; });
+  var hasPct = pctSeries.some(function(p){ return p[1] != null; });
+
+  dkChart.setOption({
+    backgroundColor: theme.bg, animation:false,
+    textStyle:{ color:theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+    grid:{ left:70, right: hasPct ? 60 : 26, top:40, bottom:40 },
+    legend:{ top:8, textStyle:{ color:theme.text_color, fontSize:12 } },
+    tooltip:{ trigger:'axis',
+      formatter:function(ps){
+        if (!ps || !ps.length) return '';
+        var h = '<div style="font-size:11px;opacity:.7;margin-bottom:4px">'
+              + fmtDateKo(ps[0].value[0]) + ' 주</div>';
+        return h + ps.map(function(p){
+          var v = p.value[1];
+          return p.marker + ' ' + p.seriesName + ' <b>'
+               + (v == null ? '-' : (p.seriesName.indexOf('비중') >= 0
+                   ? num(v,1) + '%' : num(v/1e6,2) + 'M주')) + '</b>';
+        }).join('<br>');
+      } },
+    xAxis:{ type:'time', axisLine:{ lineStyle:{ color:theme.grid } },
+      axisLabel:{ color:theme.text_color, fontSize:11, hideOverlap:true,
+        formatter:{ year:'{yyyy}년', month:'{M}월', day:'{M}/{d}' } },
+      splitLine:{ show:false } },
+    yAxis: hasPct ? [
+      { type:'value', name:'백만 주', nameTextStyle:{ color:theme.axis_left, fontSize:11 },
+        min:0, axisLabel:{ color:theme.axis_left, fontSize:11,
+          formatter:function(v){ return num(v/1e6, 1); } },
+        splitLine:{ lineStyle:{ color:theme.grid } } },
+      { type:'value', name:'%', nameTextStyle:{ color:theme.axis_right, fontSize:11 },
+        min:0, max:100, position:'right',
+        axisLabel:{ color:theme.axis_right, fontSize:11, formatter:'{value}%' },
+        splitLine:{ show:false } },
+    ] : [
+      { type:'value', name:'백만 주', nameTextStyle:{ color:theme.axis_left, fontSize:11 },
+        min:0, axisLabel:{ color:theme.axis_left, fontSize:11,
+          formatter:function(v){ return num(v/1e6, 1); } },
+        splitLine:{ lineStyle:{ color:theme.grid } } },
+    ],
+    series: [
+      { name:'다크풀 거래량', type:'bar', barMaxWidth:22,
+        itemStyle:{ color:theme.axis_left, borderRadius:[3,3,0,0] },
+        data: w.map(function(x){ return [x.d, x.ats]; }) },
+    ].concat(hasPct ? [
+      { name:'장외 중 비중', type:'line', yAxisIndex:1, showSymbol:false, smooth:false,
+        lineStyle:{ color:theme.axis_right, width:2 }, itemStyle:{ color:theme.axis_right },
+        data: pctSeries },
+    ] : []),
+  }, true);
+
+  $('dkHint').innerHTML =
+    '막대는 <b>다크풀(ATS)에서 체결된 주식 수</b>, 선은 <b>장외 거래 전체 중 다크풀이 차지한 비중</b>입니다. '
+  + '장외 거래에는 다크풀 말고 증권사가 자기 안에서 맞춰버린 물량도 들어갑니다. '
+  + '<br><span style="opacity:.75">출처: FINRA OTC (ATS · Non-ATS) Transparency · '
+  + (d.tier === 'T1' ? 'Tier 1 은 2주' : 'Tier 2 · OTC 는 4주') + ' 뒤 공표</span>';
+}
+
+function dkVenues(d){
+  var v = d.venues || [];
+  if (!v.length){ $('dkVenue').innerHTML = '<tr><td class="empty">운영사별 자료가 없습니다.</td></tr>'; return; }
+  var top = v.slice(0, 15);
+  $('dkVenue').innerHTML =
+    '<thead><tr><th>다크풀</th><th>MPID</th><th class="num">거래량 (주)</th>'
+  + '<th class="num">비중</th><th class="num">체결 건수</th><th class="num">건당 평균</th></tr></thead><tbody>'
+  + top.map(function(x){
+      var avg = x.trades > 0 ? x.shares / x.trades : null;
+      return '<tr><td>' + esc(x.name) + '</td><td><code>' + esc(x.mpid) + '</code></td>'
+           + '<td class="num">' + num(x.shares, 0) + '</td>'
+           + '<td class="num"><b>' + num(x.pct, 1) + '%</b></td>'
+           + '<td class="num">' + num(x.trades, 0) + '</td>'
+           + '<td class="num">' + (avg == null ? '—' : num(avg, 0)) + '</td></tr>';
+    }).join('')
+  + '</tbody>';
+}
+
+async function dkTop(){
+  var t = $('dkTopTable');
+  t.innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  try {
+    var d = await edge({ source:'darkpool_top', tier:$('dkTier').value, limit:60 });
+    if (!d.rows || !d.rows.length){
+      t.innerHTML = '<tr><td class="empty">아직 공표된 자료가 없습니다.</td></tr>'; return;
+    }
+    t.innerHTML =
+      '<thead><tr><th>#</th><th>티커</th><th>종목명</th><th class="num">다크풀 거래량 (주)</th>'
+    + '<th class="num">체결 건수</th><th class="num">건당 평균</th></tr></thead><tbody>'
+    + d.rows.map(function(x, i){
+        return '<tr style="cursor:pointer" onclick="dkPick(\'' + esc(x.symbol) + '\')">'
+             + '<td>' + (i + 1) + '</td><td><b>' + esc(x.symbol) + '</b></td>'
+             + '<td>' + esc(x.name || '') + '</td>'
+             + '<td class="num">' + num(x.shares, 0) + '</td>'
+             + '<td class="num">' + num(x.trades, 0) + '</td>'
+             + '<td class="num">' + (x.avg == null ? '—' : num(x.avg, 0)) + '</td></tr>';
+      }).join('')
+    + '</tbody>'
+    + '<tfoot><tr><td colspan="6" class="st-hint">' + esc(d.week) + ' 주 기준 · 출처 FINRA'
+    + ' — 한 줄을 누르면 위에서 자세히 봅니다.</td></tr></tfoot>';
+  } catch(e){
+    t.innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>';
+  }
+}
+
+function dkPick(sym){
+  $('dkQ').value = sym;
+  dkLoad();
+  $('dkQ').scrollIntoView({ block:'center', behavior:'smooth' });
+}
+
+function dkPlainText(){
+  $('dkPlain').innerHTML = [
+    ['다크풀이 뭔가',
+     '거래소(뉴욕증권거래소·나스닥) 밖에서 주식을 사고파는 곳입니다. 주문장이 공개되지 않아서 '
+   + '<b>다크</b> 라고 부릅니다. 큰 기관이 물량을 티 안 나게 처리하려고 씁니다 — '
+   + '거래소에 100만 주 매도를 걸면 값이 먼저 무너지니까요.'],
+    ['왜 늦게 나오나',
+     'FINRA 규정상 <b>Tier 1(S&amp;P500·러셀1000)은 2주, 나머지는 4주</b> 뒤에 공표됩니다. '
+   + '실시간으로 주면 기관의 미체결 물량이 노출되기 때문입니다. '
+   + '<b>그래서 이 화면은 매매 신호로 쓰는 자료가 아닙니다.</b> '
+   + '"이 종목은 원래 장외 비중이 높은 종목인가", "최근 몇 달 사이 구조가 바뀌었나" 를 보는 자료입니다.'],
+    ['건당 평균 주식 수를 같이 보세요',
+     '거래량만 크면 잔주문이 많이 쌓인 걸 수도 있습니다. <b>건당 평균이 같이 커졌다면</b> '
+   + '큰 손이 움직였을 가능성이 조금 더 높습니다. 다만 이것도 정황일 뿐, '
+   + '누가 샀는지 팔았는지는 이 자료에 <b>없습니다</b>.'],
+    ['흔한 오해',
+     '"다크풀 물량 = 세력 매집" 이라는 이야기가 많은데, 공표치에는 <b>매수·매도 구분이 없습니다</b>. '
+   + '한 건의 체결은 산 사람과 판 사람이 함께 있는 것이라, 방향을 읽는 건 원리상 불가능합니다. '
+   + '방향을 말해주는 유료 지표가 있다면 그건 <b>추정</b>이지 공표치가 아닙니다.'],
+  ].map(function(x, i){ return flowStep(i + 1, x[0], x[1]); }).join('');
+}
+
+/* ── 미 의회 거래 ─────────────────────────────── */
+async function cgLoad(){
+  var t = $('cgTable');
+  t.innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  $('cgNote').textContent = '';
+  cgOpen = {};
+  try {
+    var d = await edgeCo({ action:'congress_index', year:Number($('cgYear').value) });
+    cgRows = d.rows || [];
+    $('cgNote').innerHTML = cgRows.length
+      ? '<b>' + num(d.total, 0) + '건</b> 신고 (거래 신고 <b>' + num(d.ptr, 0) + '건</b>) · '
+        + '출처: 미 하원 사무처 재산공개 자료'
+      : esc(d.note || '자료가 없습니다.');
+    cgTiles();
+    cgRender();
+  } catch(e){
+    cgRows = [];
+    t.innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>';
+  }
+}
+
+function cgTiles(){
+  var ptr = cgRows.filter(function(x){ return x.kind === 'P'; });
+  //  같은 사람이 여러 번 낸 것을 세지 않으려고 이름으로 묶습니다
+  var byName = {};
+  ptr.forEach(function(x){ byName[x.name] = (byName[x.name] || 0) + 1; });
+  var names = Object.keys(byName).sort(function(a,b){ return byName[b] - byName[a]; });
+  var latest = ptr.length ? ptr[0].filed : '—';
+
+  $('cgTiles').innerHTML = '<div class="tiles">'
+    + tile('거래 신고', num(ptr.length, 0) + '건', '이 해에 접수된 PTR')
+    + tile('신고한 의원', num(names.length, 0) + '명', '')
+    + tile('가장 최근 신고', latest, ptr.length ? ptr[0].name : '')
+    + tile('가장 많이 신고한 의원', names[0] || '—',
+           names[0] ? num(byName[names[0]], 0) + '건' : '')
+    + '</div>';
+}
+
+function cgRender(){
+  var t = $('cgTable');
+  if (!cgRows.length){
+    t.innerHTML = '<tr><td class="empty">연도를 고르고 불러오기를 눌러주세요.</td></tr>'; return;
+  }
+  var q = $('cgQ').value.trim().toLowerCase();
+  var onlyP = $('cgPtrOnly').checked;
+  var rows = cgRows.filter(function(x){
+    if (onlyP && x.kind !== 'P') return false;
+    if (q && x.name.toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  if (!rows.length){
+    t.innerHTML = '<tr><td class="empty">조건에 맞는 신고가 없습니다.</td></tr>'; return;
+  }
+  var show = rows.slice(0, 400);
+  t.innerHTML =
+    '<thead><tr><th>신고일</th><th>의원</th><th>지역구</th><th>종류</th><th>원본</th></tr></thead><tbody>'
+  + show.map(function(x){
+      var open = cgOpen[x.doc_id];
+      return '<tr style="cursor:pointer" onclick="cgToggle(\'' + esc(x.doc_id) + '\',' + Number(x.year) + ')">'
+           + '<td>' + esc(x.filed || '—') + '</td>'
+           + '<td><b>' + esc(x.name) + '</b></td>'
+           + '<td>' + esc(x.state_dst || '') + '</td>'
+           + '<td>' + esc(x.kind_ko) + '</td>'
+           + '<td><a href="' + esc(x.pdf) + '" target="_blank" rel="noopener"'
+           + ' onclick="event.stopPropagation()">PDF</a></td></tr>'
+           + '<tr id="cgRow-' + esc(x.doc_id) + '" class="' + (open ? '' : 'hidden') + '">'
+           + '<td colspan="5" id="cgDet-' + esc(x.doc_id) + '"></td></tr>';
+    }).join('')
+  + '</tbody>'
+  + (rows.length > show.length
+      ? '<tfoot><tr><td colspan="5" class="st-hint">' + num(rows.length, 0)
+        + '건 중 400건만 보여줍니다. 이름으로 걸러보세요.</td></tr></tfoot>' : '');
+}
+
+/*  한 줄을 누르면 그 PDF 를 읽어 매매 내역을 펼칩니다.
+
+    PDF 를 서버에서 읽지 않고 화면에서 읽는 이유: 회원이 실제로 눌러본
+    건만 읽으면 되고, Edge Function 의 시간 제한에도 안 걸립니다.        */
+async function cgToggle(docId, year){
+  var row = $('cgRow-' + docId), det = $('cgDet-' + docId);
+  if (!row) return;
+  if (cgOpen[docId]){ cgOpen[docId] = false; row.classList.add('hidden'); return; }
+  cgOpen[docId] = true; row.classList.remove('hidden');
+  if (det.dataset.done === '1') return;
+  det.innerHTML = '<div class="empty">원본을 읽는 중…</div>';
+  try {
+    var lib = await pdfLib();
+    var d = await edgeCo({ action:'congress_ptr', year:year, doc_id:docId });
+    var bin = atob(d.b64), buf = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    var text = await pdfText(lib, buf);
+    var tx = cgParse(text);
+    det.innerHTML = tx.length ? cgTxTable(tx) :
+      '<div class="st-hint" style="padding:8px 2px">이 신고서에서는 매매 내역을 자동으로 못 읽었습니다. '
+    + '손으로 쓴 뒤 스캔한 서류이거나 서식이 다른 경우입니다 — 오른쪽 <b>PDF</b> 로 원본을 봐주세요.</div>';
+    det.dataset.done = '1';
+  } catch(e){
+    det.innerHTML = '<div class="st-hint" style="padding:8px 2px">'
+      + esc(e.message) + ' — 원본 PDF 는 오른쪽 링크로 볼 수 있습니다.</div>';
+  }
+}
+
+//  PDF.js 는 이 화면에서만 씁니다. 처음 눌렀을 때 한 번만 받아옵니다.
+var pdfLibP = null;
+function pdfLib(){
+  if (pdfLibP) return pdfLibP;
+  pdfLibP = new Promise(function(res, rej){
+    if (window.pdfjsLib) return res(window.pdfjsLib);
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = function(){
+      if (!window.pdfjsLib) return rej(new Error('PDF 도구를 불러오지 못했습니다.'));
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      res(window.pdfjsLib);
+    };
+    s.onerror = function(){ rej(new Error('PDF 도구를 불러오지 못했습니다. 학교 네트워크가 막고 있을 수 있습니다.')); };
+    document.head.appendChild(s);
+  });
+  return pdfLibP;
+}
+
+async function pdfText(lib, buf){
+  var doc = await lib.getDocument({ data: buf }).promise;
+  var out = [];
+  for (var p = 1; p <= doc.numPages; p++){
+    var pg = await doc.getPage(p);
+    var c = await pg.getTextContent();
+    //  같은 줄에 있는 글자끼리 묶습니다 (y 좌표가 비슷하면 한 줄)
+    var lines = {};
+    c.items.forEach(function(it){
+      var y = Math.round(it.transform[5]);
+      (lines[y] = lines[y] || []).push({ x: it.transform[4], s: it.str });
+    });
+    Object.keys(lines).sort(function(a,b){ return b - a; }).forEach(function(y){
+      out.push(lines[y].sort(function(a,b){ return a.x - b.x; })
+        .map(function(t){ return t.s; }).join(' ').replace(/\s+/g,' ').trim());
+    });
+  }
+  return out.filter(Boolean);
+}
+
+/*  하원 PTR 서식에서 거래 한 줄을 뽑아냅니다.
+
+    서식이 해마다 조금씩 다르고, 오래된 건 손글씨 스캔이라 글자가 아예
+    없습니다. 그래서 '못 읽으면 못 읽었다고 말하는' 쪽으로 만들었습니다.
+    억지로 맞춰 읽으면 틀린 종목·틀린 금액이 표에 박히는데, 그건
+    아무것도 안 보여주는 것보다 나쁩니다.                                */
+var CG_AMOUNT = /\$([\d,]+)\s*-\s*\$?([\d,]+)/;
+var CG_DATE   = /(\d{1,2})\/(\d{1,2})\/(\d{4})/g;
+
+function cgParse(lines){
+  var out = [];
+  for (var i = 0; i < lines.length; i++){
+    var L = lines[i];
+    //  거래 줄에는 금액 구간(예: $1,001 - $15,000)이 반드시 붙습니다
+    var am = L.match(CG_AMOUNT);
+    if (!am) continue;
+    //  매매 종류
+    var typ = /\b([SP])\s*(?:\(partial\))?\b/.exec(L);
+    var kind = /\bP\b/.test(L) ? '매수' : (/\bS\b/.test(L) ? '매도' : '');
+    if (/\bE\b/.test(L) && !kind) kind = '교환';
+
+    //  날짜 두 개 — 앞이 거래일, 뒤가 신고일인 경우가 많습니다
+    var ds = L.match(CG_DATE) || [];
+    //  종목명은 금액·날짜를 걷어낸 앞부분입니다
+    var name = L.split(am[0])[0]
+      .replace(CG_DATE, ' ')
+      .replace(/\s+[SPE]\s*$/,'')
+      .replace(/\s{2,}/g,' ').trim();
+    //  괄호 안 티커를 따로 뽑습니다 (예: "Apple Inc (AAPL)")
+    var tk = name.match(/\(([A-Z]{1,5})\)/);
+
+    if (!name || name.length < 3) continue;
+    out.push({
+      name: name,
+      ticker: tk ? tk[1] : '',
+      kind: kind,
+      date: ds[0] ? cgUsDate(ds[0]) : '',
+      filed: ds[1] ? cgUsDate(ds[1]) : '',
+      lo: Number(am[1].replace(/,/g,'')),
+      hi: Number(am[2].replace(/,/g,'')),
+    });
+  }
+  return out;
+}
+function cgUsDate(s){
+  var m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  return m ? (m[3] + '-' + ('0'+m[1]).slice(-2) + '-' + ('0'+m[2]).slice(-2)) : s;
+}
+
+function cgTxTable(tx){
+  return '<div style="padding:8px 2px">'
+    + '<table style="width:100%"><thead><tr><th>종목</th><th>티커</th><th>구분</th>'
+    + '<th>거래일</th><th class="num">신고 금액 구간</th><th class="num">신고까지</th></tr></thead><tbody>'
+    + tx.map(function(x){
+        //  거래일과 신고일 사이가 45일을 넘으면 STOCK Act 지연입니다
+        var lag = (x.date && x.filed)
+          ? Math.round((new Date(x.filed) - new Date(x.date)) / 864e5) : null;
+        return '<tr><td>' + esc(x.name) + '</td><td>' + esc(x.ticker) + '</td>'
+             + '<td class="' + (x.kind === '매수' ? 'up' : x.kind === '매도' ? 'dn' : '') + '">'
+             + esc(x.kind || '—') + '</td>'
+             + '<td>' + esc(x.date || '—') + '</td>'
+             + '<td class="num">$' + num(x.lo,0) + ' ~ $' + num(x.hi,0) + '</td>'
+             + '<td class="num">' + (lag == null ? '—'
+                 : (lag > 45 ? '<b class="dn">' + lag + '일</b>' : lag + '일')) + '</td></tr>';
+      }).join('')
+    + '</tbody></table>'
+    + '<div class="st-hint" style="margin-top:6px">금액은 <b>구간으로만</b> 신고합니다 — '
+    + '정확한 액수는 공개되지 않습니다. 45일이 넘은 건 STOCK Act 신고 기한을 넘긴 것입니다. '
+    + '자동으로 읽은 값이라 원본과 다를 수 있으니, 발표에 쓸 땐 PDF 를 꼭 확인하세요.</div></div>';
+}
+
+function cgPlainText(){
+  $('cgPlain').innerHTML = [
+    ['STOCK Act 가 뭔가',
+     '2012년에 만들어진 법입니다. 미 의원과 그 배우자·자녀는 1,000달러가 넘는 주식·채권 거래를 '
+   + '<b>45일 안에</b> 신고해야 합니다. 직무상 알게 된 정보로 돈을 버는 걸 막자는 취지입니다.'],
+    ['금액은 구간으로만 나옵니다',
+     '"$1,001 – $15,000" 처럼 <b>범위</b>로만 신고합니다. 그래서 정확한 매매 금액은 아무도 모릅니다. '
+   + '수익률을 계산한 기사나 서비스는 대부분 구간의 중간값을 쓴 <b>추정치</b>입니다.'],
+    ['신고까지 며칠 걸렸는지가 볼거리',
+     '거래일과 신고일 차이를 같이 보여줍니다. <b>45일이 넘으면 법정 기한을 넘긴 것</b>이고, '
+   + '실제로 넘기는 사례가 적지 않습니다. 벌금이 200달러라 억지력이 약하다는 지적이 많습니다.'],
+    ['하원만 있습니다',
+     '상원은 목록을 보기 전에 이용 제한 동의 화면을 거치게 되어 있어서, 프로그램이 그걸 대신 '
+   + '눌러 넘기지 않도록 뺐습니다. 상원 자료가 필요하면 '
+   + '<a href="https://efdsearch.senate.gov" target="_blank" rel="noopener">efdsearch.senate.gov</a> '
+   + '에서 직접 보셔야 합니다.'],
+    ['따라 사도 되나',
+     '신고가 최대 45일 늦고, 그 사이 값은 이미 움직입니다. 무엇보다 <b>왜</b> 샀는지가 안 나옵니다 — '
+   + '운용역이 알아서 굴리는 계좌인 경우도 많습니다. 매매 근거로 쓰기엔 약하고, '
+   + '"이 위원회 소속 의원들이 이 업종을 언제 사고팔았나" 같은 <b>리서치 소재</b>로 보는 게 맞습니다.'],
+  ].map(function(x, i){ return flowStep(i + 1, x[0], x[1]); }).join('');
+}
+
+//  '쉽게 읽기' 와 같은 모양을 씁니다 (파생상품 탭의 dv-step)
+function flowStep(n, title, body){
+  return '<div class="dv-step"><div class="n">' + n + '</div><div class="tx">'
+       + '<b>' + title + '</b><br>' + body + '</div></div>';
 }
 
 function downloadJPG(){
@@ -6278,10 +7079,12 @@ function downloadCSV(){
 var CHART_BOXES = ['chartBox','dtChartBox','dtBarBox','homeFxBox',
   'pieBox','pnlBox','benchBox','stratPrevBox',
   'coFinBox','coPriceBox',
-  'dvMapBox','dvTermBox','dvPayBox','dvIvBox','dvOiBox','dvGkBox'];
+  'dvMapBox','dvTermBox','dvPayBox','dvIvBox','dvOiBox','dvGkBox',
+  'dkBox'];
 
 function resizeAllCharts(){
   if (typeof echarts === 'undefined') return;
+  watchChartBoxes();
   CHART_BOXES.forEach(function(id){
     var el = $(id); if (!el) return;
     var c = echarts.getInstanceByDom(el); if (c) c.resize();
@@ -6289,6 +7092,38 @@ function resizeAllCharts(){
   if (typeof distCharts === 'object' && distCharts)
     Object.keys(distCharts).forEach(function(k){
       if (distCharts[k]) distCharts[k].resize(); });
+}
+
+/*  ── 차트가 찌그러져 나오는 문제 ──
+
+    ECharts 는 만들어지는 순간의 상자 크기를 기억합니다. 그런데 탭이 아직
+    hidden 이면 그 크기가 0 이라, 나중에 탭을 열어도 0 에 맞춰 그린 그림이
+    그대로 남습니다 — 파생상품 탭을 처음 열 때 눌린 것처럼 보이고,
+    브라우저를 줌하면(= resize 이벤트) 그제야 펴지던 것이 이것입니다.
+
+    setTimeout 으로 때려 맞추는 대신, 상자 크기를 지켜보다가 바뀌면
+    그때 다시 맞춥니다. 타이밍을 맞출 필요가 없어집니다.                */
+var chartRO = null;
+function watchChartBoxes(){
+  if (typeof ResizeObserver === 'undefined' || typeof echarts === 'undefined') return;
+  if (!chartRO){
+    chartRO = new ResizeObserver(function(entries){
+      entries.forEach(function(en){
+        var el = en.target;
+        if (!el.clientWidth || !el.clientHeight) return;   //  아직 숨어 있으면 나중에
+        var c = echarts.getInstanceByDom(el);
+        if (!c) return;
+        //  이미 맞는 크기면 건드리지 않습니다 (무한 되먹임 방지)
+        if (Math.abs(c.getWidth() - el.clientWidth) < 2
+         && Math.abs(c.getHeight() - el.clientHeight) < 2) return;
+        c.resize();
+      });
+    });
+  }
+  CHART_BOXES.forEach(function(id){
+    var el = $(id);
+    if (el && !el.__roOn){ el.__roOn = 1; chartRO.observe(el); }
+  });
 }
 
 var resizeTimer = null;
@@ -6397,6 +7232,8 @@ function coRatio(a, b){
 
 async function initCompany(){
   f13Quick();
+  //  기업을 고르기 전 기본 화면은 13F 입니다 (다른 탭은 볼 자료가 없습니다)
+  coShow('f13');
   if (isOfficer()){
     document.querySelectorAll('#pane-company .admin-only')
       .forEach(function(e){ e.classList.remove('hidden'); });
@@ -6474,9 +7311,12 @@ async function searchCompany(){
 }
 
 function coShow(which){
-  ['prof','val','fin','price','disc','own'].forEach(function(k){
+  //  기업을 아직 안 골랐으면 13F 말고는 보여줄 게 없습니다
+  if (which !== 'f13' && !co) which = 'f13';
+  ['prof','val','fin','price','disc','f13','own'].forEach(function(k){
     var p = $('coPane-' + k); if (p) p.classList.toggle('hidden', k !== which);
-    var b = $('coTab-' + k);  if (b) b.classList.toggle('on', k === which);
+    var b = $('coTab-' + k);  if (b){ b.classList.toggle('on', k === which);
+                                      if (k !== 'f13') b.disabled = !co; }
   });
   var vc = $('coViewCard');
   if (vc) vc.classList.toggle('hidden', which !== 'fin' && which !== 'price');
@@ -6492,7 +7332,7 @@ async function pickCompany(i){
   if (!co) return;
   $('coResults').innerHTML = '';
   $('coQ').value = co.name;
-  show('coBody');
+  show('coHead'); show('coBody');
   $('coName').innerHTML = esc(co.name)
     + ' <span style="font-size:12px;color:var(--text-sub);font-weight:400">'
     + esc(co.market) + ' · ' + esc(co.sub) + '</span>';
@@ -6524,6 +7364,8 @@ function coFsShow(which){
   ['손익계산서','재무상태표','현금흐름표','summary'].forEach(function(k){
     var b = $('coFs-' + k); if (b) b.classList.toggle('on', k === which);
   });
+  var ec = $('coFsExpand');
+  if (ec) ec.classList.toggle('hidden', which === 'summary');
   if (which === 'summary'){ warn('coFsWarn',''); if (coFin) renderCoFinTable(); }
   else renderCoStatement(which);
 }
@@ -6556,6 +7398,13 @@ function coFullPeriods(d){
 /*  '값 드문 계정 접기' 는 없앴습니다 — 이제 항상 전부 보여줍니다.
     옛 화면이 캐시에 남아 이 함수를 부를 수 있어 자리만 남겨둡니다.  */
 function coFsToggleAll(){ renderCoStatement(coFsTab); }
+
+//  트레이딩뷰처럼 한 번에 모두 펴고 접습니다
+function coFsAll(open){
+  var rows = (coFull && coFull.statements && coFull.statements[coFsTab]) || [];
+  rows.forEach(function(r){ coFsOpen[coFsGroupKey(coFsTab, r.name)] = !!open; });
+  renderCoStatement(coFsTab);
+}
 
 /*  재무제표 표 — 세 장(손익·재무상태·현금흐름) 모두 같은 규칙으로 그립니다.
 
@@ -7100,7 +7949,15 @@ function dlt(cur, prev, mode){
   return '<span class="dlt ' + (v > 0 ? 'up' : 'dn') + '">(' + txt + ')</span>';
 }
 
+/*  ⚠️ 요약표는 '요약 · 비율' 탭일 때만 그립니다.
+
+    이 함수는 재무제표 탭들과 같은 <table id="coFinTable"> 에 씁니다.
+    그런데 기업을 고르면 loadCoFin() 과 renderCoStatement() 가 동시에 돌고,
+    둘 다 이 표에 씁니다. loadCoFin 이 늦게 끝나면 손익계산서를 그려놓은
+    자리에 요약표를 덮어썼습니다 — 처음 열 때만 요약이 뜨고, 탭을 한 번
+    눌렀다 오면 멀쩡해지던 게 이것입니다.                                */
 function renderCoFinTable(){
+  if (coFsTab && coFsTab !== 'summary') return;
   var u = coUnit();
   var isUS = co.market === 'US';
   var rows = [
@@ -7918,7 +8775,10 @@ var distCharts = {};
 function drawDist(boxId, rets){
   if (typeof echarts === 'undefined' || !rets.length) return;
   var box = $(boxId); if (!box) return;
-  if (!distCharts[boxId]) distCharts[boxId] = echarts.init(box);
+  if (!distCharts[boxId]){
+    distCharts[boxId] = echarts.init(box);
+    if (chartRO && !box.__roOn){ box.__roOn = 1; chartRO.observe(box); }
+  }
   var distChart = distCharts[boxId];
   var pctv = rets.map(function(r){ return r*100; });
   var lo = Math.min.apply(null, pctv), hi = Math.max.apply(null, pctv);
