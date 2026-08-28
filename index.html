@@ -319,6 +319,41 @@
   .nf-row.hot .ttl:before{content:'★ ';color:var(--up)}
   .nf-row.hot a{font-weight:600}
 
+  /* ── 모의투자 ── */
+  .mt-clock{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
+  .mt-clock .u{background:var(--bg);border:1px solid var(--border);border-radius:10px;
+    padding:10px 16px;text-align:center;min-width:78px}
+  .mt-clock .u b{display:block;font-size:1.5rem;font-weight:700;color:var(--primary);
+    font-variant-numeric:tabular-nums;line-height:1.15}
+  .mt-clock .u span{font-size:11.5px;color:var(--text-sub)}
+  .mt-clock.over{color:var(--danger)}
+  .mt-teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+  .mt-team{background:var(--bg);border:1px solid var(--border);border-radius:12px;
+    padding:16px 18px;cursor:pointer;transition:border-color .15s,transform .1s;text-align:left;
+    display:flex;flex-direction:column;gap:6px;width:100%;font:inherit;color:inherit}
+  .mt-team:hover{border-color:var(--primary)}
+  .mt-team:active{transform:translateY(1px)}
+  .mt-team .rk{font-size:11.5px;color:var(--text-sub);font-weight:600}
+  .mt-team .nm{font-size:1.02rem;font-weight:700;color:var(--primary)}
+  .mt-team .pl{font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .mt-team .sub{font-size:11.5px;color:var(--text-sub)}
+  .mt-team.mine{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary) inset}
+  .mt-badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;
+    border-radius:999px;margin-left:8px;vertical-align:2px}
+  .mt-badge.edit{background:var(--accent-soft);color:var(--primary)}
+  .mt-badge.view{background:var(--bg);color:var(--text-sub);border:1px solid var(--border)}
+  .mt-ac{position:absolute;top:100%;left:0;right:0;z-index:30;background:var(--white);
+    border:1px solid var(--border);border-radius:10px;margin-top:4px;max-height:260px;
+    overflow-y:auto;box-shadow:0 8px 24px -12px rgba(26,32,48,.4)}
+  .mt-ac div{padding:9px 13px;cursor:pointer;font-size:13.5px;display:flex;gap:9px;align-items:baseline}
+  .mt-ac div:hover,.mt-ac div.on{background:var(--accent-soft)}
+  .mt-ac .c{font-family:ui-monospace,monospace;font-size:12px;color:var(--text-sub);flex:none}
+  .mt-ac .m{font-size:11px;color:var(--text-sub);margin-left:auto;flex:none}
+  .mt-picked{display:flex;align-items:center;gap:10px}
+  .mt-quote{background:var(--bg);border:1px solid var(--border);border-radius:10px;
+    padding:12px 15px;margin-top:10px;font-size:13.5px;line-height:1.75}
+  .mt-quote .px{font-size:1.2rem;font-weight:700;color:var(--primary);
+    font-variant-numeric:tabular-nums}
   /* 증시캘린더 — 왼쪽 미니 달력, 오른쪽 일정 목록 */
   .cal-wrap{display:grid;grid-template-columns:290px 1fr;gap:24px}
   @media(max-width:900px){ .cal-wrap{grid-template-columns:1fr} }
@@ -946,19 +981,46 @@
     <!-- ════ 모의투자 ════ -->
     <div id="pane-trading" class="hidden">
       <div class="page-head">
-        <h1>모의투자</h1>
-        <p>팀별 1억 시드. 체결은 그날 종가 기준입니다.</p>
+        <h1 id="mtTitle">모의투자</h1>
+        <p id="mtSub">팀별 1억. 미국·코인은 누를 때의 시세로, 국내는 그날 종가로 체결됩니다.</p>
       </div>
       <div id="tradingWarn"></div>
-      <div class="card">
+
+      <!-- ══ 리그 홈 ══ -->
+      <div id="mtLeague">
+        <div class="card">
+          <h2>남은 시간
+            <span class="tools">
+              <span id="mtEndsAt" class="st-hint"></span>
+              <button class="btn-sm admin-only hidden" onclick="mtEditEnd()">종료 시각 바꾸기</button>
+            </span>
+          </h2>
+          <div id="mtClock" class="mt-clock"><span class="empty">불러오는 중…</span></div>
+        </div>
+
+        <div class="card">
+          <h2>팀 순위
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">수익률 기준</span>
+            <span class="tools"><button class="btn-sm" onclick="mtLoadLeague()">새로고침</button></span>
+          </h2>
+          <div id="mtTeams"><div class="empty" style="padding:22px">불러오는 중…</div></div>
+        </div>
+      </div>
+
+      <!-- ══ 팀 방 머리말 ══ -->
+      <div id="mtRoomHead" class="card hidden">
         <h2>
-          <span>팀 선택</span>
+          <button class="btn-sm" onclick="mtLeave()">← 리그로</button>
+          <span id="mtRoomName" style="margin-left:8px">—</span>
+          <span id="mtRoomBadge"></span>
           <span class="tools">
-            <select id="teamSel" onchange="loadTeam()"></select>
-            <button class="btn-sm" onclick="loadTeam()">새로고침</button>
+            <span id="mtRoomClock" class="st-hint"></span>
+            <button class="btn-sm" onclick="mtRefresh()">새로고침</button>
           </span>
         </h2>
-        <div id="teamSummary"><div class="empty">팀을 선택해 주세요.</div></div>
+        <div id="teamSummary"></div>
+        <!--  기존 코드가 팀 번호를 여기서 읽습니다. 화면에는 안 보입니다.  -->
+        <select id="teamSel" class="hidden" onchange="loadTeam()"></select>
       </div>
 
       <div id="tradingBody" class="hidden">
@@ -969,8 +1031,58 @@
         </div>
 
         <div class="mode-seg" id="tradeSeg">
-          <button id="tSeg-manual" class="on" onclick="tradeTab('manual')">직접 매매</button>
-          <button id="tSeg-auto" onclick="tradeTab('auto')">자동매매</button>
+          <button id="tSeg-now"    class="on" onclick="tradeTab('now')">현황</button>
+          <button id="tSeg-manual" onclick="tradeTab('manual')">직접 매매</button>
+          <button id="tSeg-auto"   onclick="tradeTab('auto')">자동매매</button>
+          <button id="tSeg-quant"  onclick="tradeTab('quant')">퀀트 지표</button>
+          <button id="tSeg-log"    onclick="tradeTab('log')">기록</button>
+        </div>
+
+        <!-- ══ 자동매매 ══ -->
+        <div id="mtPane-auto" class="hidden">
+        <div class="card">
+          <h2>자동매매 설정
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+              1억 중 얼마까지, 얼마마다 훑을지</span>
+          </h2>
+          <div class="row">
+            <label>켜기</label>
+            <label style="min-width:auto">
+              <input type="checkbox" id="mtAutoOn" onchange="mtAutoSave()"
+                     style="width:auto;vertical-align:-2px"> 자동매매 사용
+            </label>
+            <label style="min-width:auto">훑는 간격</label>
+            <select id="mtAutoIv" onchange="mtAutoSave()" style="width:130px">
+              <option value="5m">5분</option>
+              <option value="15m">15분</option>
+              <option value="30m">30분</option>
+              <option value="2h">2시간</option>
+              <option value="4h">4시간</option>
+              <option value="1d" selected>일봉 (하루 한 번)</option>
+              <option value="1w">주봉 (주 한 번)</option>
+            </select>
+          </div>
+          <div class="row">
+            <label>배정 금액</label>
+            <input type="number" id="mtAutoBudget" class="grow" step="100000" min="0"
+                   placeholder="예: 30000000" onchange="mtAutoSave()">
+            <span class="st-hint" id="mtAutoRoom"></span>
+          </div>
+          <div class="st-hint" style="margin-top:6px">
+            자동매매가 실제로 쓸 수 있는 돈은 <b>남은 현금과 배정 금액 중 작은 쪽</b>입니다.
+            직접 매매로 더 사면 자동매매 여력이 줄고, 팔면 늘어납니다.
+            한도를 걸어두는 이유는 규칙 하나 잘못 짜서 하룻밤에 전액이 들어가는 걸 막기 위해서입니다.
+            <br><b>국내 주식은 자동매매에서 빠집니다</b> — 실시간 시세를 받을 무료 창구가 없어
+            조건을 실시간으로 맞춰볼 수가 없습니다.
+          </div>
+          <div id="mtAutoMsg" class="msg"></div>
+        </div>
+
+        <div class="card">
+          <h2>자동매매가 한 일
+            <span class="tools"><button class="btn-sm admin-only hidden" onclick="mtScanNow()">지금 한 번 돌리기</button></span>
+          </h2>
+          <div class="scroll" style="max-height:280px"><table id="mtRunTable"></table></div>
         </div>
 
         <!-- ── 전략 ── -->
@@ -1149,51 +1261,69 @@
           </div>
         </div>
 
+        </div><!-- /mtPane-auto -->
+
+        <!-- ══ 직접 매매 ══ -->
+        <div id="mtPane-manual" class="hidden">
         <div class="card" id="manualCard">
-          <h2>매매 입력</h2>
+          <h2>주문
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+              체결가는 서버가 정합니다 — 값을 손으로 넣지 않습니다</span>
+          </h2>
           <div class="trade-form">
             <div class="row">
-              <label>시장</label>
-              <select id="tMarket" class="grow" onchange="onMarketChange()">
-                <option value="KR">국내 (KOSPI·KOSDAQ)</option>
-                <option value="US">해외 (미국)</option>
-                <option value="CRYPTO">코인 (BTC-USD 형식)</option>
-              </select>
-            </div>
-            <div class="row">
               <label>종목</label>
-              <input type="text" id="tSymbol" class="grow" placeholder="005930">
-              <button class="btn-sm btn-solid" onclick="fetchPrice(true)">현재가</button>
-              <button class="btn-sm" onclick="fetchPrice(false)">종가</button>
+              <div class="grow" style="position:relative">
+                <input type="text" id="tSymbol" class="grow" autocomplete="off"
+                       placeholder="삼성전자 · 005930 · NVDA · BTC — 이름도 코드도 됩니다"
+                       oninput="mtFindSym()" onkeydown="mtSymKey(event)">
+                <div id="mtSymList" class="mt-ac hidden"></div>
+              </div>
             </div>
-            <div class="row">
-              <label>이름</label>
-              <input type="text" id="tName" class="grow" placeholder="삼성전자">
+            <div class="row" id="mtPicked" style="display:none">
+              <label>고른 종목</label>
+              <div class="grow mt-picked">
+                <b id="mtPickName">—</b>
+                <span id="mtPickCode" class="st-hint"></span>
+                <button class="btn-sm" onclick="mtClearPick()">바꾸기</button>
+              </div>
             </div>
             <div class="row">
               <label>구분</label>
-              <select id="tSide"><option value="buy">매수</option><option value="sell">매도</option></select>
-              <input type="number" id="tQty" class="grow" placeholder="수량" min="1" step="1">
-            </div>
-            <div class="row">
-              <label>단가</label>
-              <input type="number" id="tPrice" class="grow" placeholder="체결 단가" step="0.0001">
-            </div>
-            <div class="row">
-              <label>날짜</label>
-              <input type="date" id="tDate" class="grow">
+              <select id="tSide" onchange="mtQuoteRefresh()">
+                <option value="buy">매수</option><option value="sell">매도</option>
+              </select>
+              <input type="number" id="tQty" class="grow" placeholder="수량" min="1" step="1"
+                     oninput="mtCalc()">
+              <button class="btn-sm" onclick="mtAllIn()">가능한 최대</button>
             </div>
           </div>
+          <div id="mtQuoteBox" class="mt-quote hidden"></div>
+          <input type="hidden" id="tMarket" value="US">
+          <input type="hidden" id="tName">
+          <input type="hidden" id="tPrice">
+          <input type="hidden" id="tDate">
           <div class="msg" id="tradeMsg"></div>
           <div class="trade-foot">
-            <button class="btn-sm btn-solid" id="tradeBtn" onclick="submitTrade()">기록하기</button>
-            <div class="hint" style="font-size:11px;color:var(--text-sub);line-height:1.6">
-              <b>현재가</b>는 미국 주식 15~20분 지연, 코인 약 1분 지연 시세입니다.
-              국내 주식은 현재가를 주는 무료 창구가 없어 마지막 종가가 들어갑니다.
-              <b>종가</b>는 항상 전 거래일 종가입니다.
-              분할매수는 여러 번 나눠 기록하면 평단가가 자동 계산됩니다.
+            <button class="btn-sm btn-solid" id="tradeBtn" onclick="submitTrade()" disabled>주문</button>
+            <div class="hint" style="font-size:11.5px;color:var(--text-sub);line-height:1.7">
+              <b>미국·코인</b>은 누르는 순간의 시세로 체결됩니다.
+              <b>국내</b>는 그날 종가로 체결되고, 종가가 나오는 <b>오후 3시 30분 이후</b>에만 주문됩니다.
+              화면에 보인 값과 실제 체결가가 조금 다를 수 있습니다 — 실제 매매도 그렇습니다.
             </div>
           </div>
+        </div>
+
+        </div><!-- /mtPane-manual -->
+
+        <!-- ══ 현황 ══ -->
+        <div id="mtPane-now">
+        <div class="card">
+          <h2>보유 종목
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400"
+                  id="mtPosAsOf"></span>
+          </h2>
+          <div class="scroll"><table id="mtPosTable"></table></div>
         </div>
 
         <div class="card">
@@ -1204,10 +1334,7 @@
           </div>
         </div>
 
-        <div class="card">
-          <h2>보유 종목</h2>
-          <div class="scroll"><table id="posTable"></table></div>
-        </div>
+        <div class="scroll hidden"><table id="posTable"></table></div>
 
         <div class="grid-half">
           <div class="card">
@@ -1220,6 +1347,10 @@
           </div>
         </div>
 
+        </div><!-- /mtPane-now -->
+
+        <!-- ══ 퀀트 지표 ══ -->
+        <div id="mtPane-quant" class="hidden">
         <div class="card">
           <h2>
             <span>퀀트 지표</span>
@@ -1227,11 +1358,18 @@
           </h2>
           <div id="quantBody"><div class="empty">기록이 쌓이면 계산됩니다.</div></div>
         </div>
+        </div><!-- /mtPane-quant -->
 
+        <!-- ══ 기록 ══ -->
+        <div id="mtPane-log" class="hidden">
         <div class="card">
-          <h2>거래 내역</h2>
+          <h2>거래 내역
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+              직접 · 자동을 갈라서 봅니다</span>
+          </h2>
           <div class="scroll"><table id="tradeTable"></table></div>
         </div>
+        </div><!-- /mtPane-log -->
       </div>
 
       <div class="card">
@@ -7404,6 +7542,455 @@ function warmRender(d){
   + '</tbody>';
 }
 
+/* ══════════════════════════════════════════════════════════════
+   모의투자 — 리그 홈 → 팀 방
+
+   예전에는 기능이 한 탭에 평평하게 깔려 있어서 "지금 뭘 해야 하지" 가
+   안 보였습니다. 이제 세 걸음입니다.
+     ① 리그 홈  — 순위와 남은 시간, 아무 팀이나 들어가 볼 수 있습니다
+     ② 팀 방    — 내 팀이면 매매 버튼이 살아 있고, 남의 팀이면 보기만
+     ③ 할 일    — 현황 · 직접 매매 · 자동매매 · 퀀트 · 기록
+
+   ⚠️ 화면에서 버튼을 잠그는 것은 안내일 뿐입니다. 진짜 자물쇠는
+      데이터베이스 정책(trades 의 in_team)과 서버의 주문 검사입니다.
+   ══════════════════════════════════════════════════════════════ */
+var mtBoard = [], mtCt = null, mtMyTeam = null, mtCanTrade = false;
+var mtTimer = null, mtQuote = null, mtPick = null, mtAcc = null, mtSymHit = -1;
+
+function mtMoney(v, dp){ return num(Math.round(Number(v) || 0), dp || 0); }
+//  통화 기호 자리가 다릅니다 — 원화는 뒤, 달러는 앞
+function mtCur(v, market, dp){
+  if (v == null) return '—';
+  return market === 'KR' ? num(v, dp == null ? 0 : dp) + '원'
+                         : '$' + num(v, dp == null ? 2 : dp);
+}
+
+/* ── 리그 홈 ─────────────────────────────────── */
+async function mtLoadContest(){
+  try {
+    var r = await sb.rpc('contest_state');
+    if (!r.error && r.data && r.data.length){
+      mtCt = r.data[0];
+      mtMyTeam = mtCt.my_team ? Number(mtCt.my_team) : null;
+    }
+  } catch(e){ /* 없어도 화면은 돕니다 */ }
+  mtTick();
+  if (mtTimer) clearInterval(mtTimer);
+  mtTimer = setInterval(mtTick, 1000);
+}
+
+function mtTick(){
+  var box = $('mtClock'); if (!box) return;
+  if (!mtCt || !mtCt.ends_at){
+    box.innerHTML = '<span class="empty">terminal-모의투자2.sql 을 아직 실행하지 않았습니다.</span>';
+    return;
+  }
+  var ms = Date.parse(mtCt.ends_at) - Date.now();
+  var end = String(mtCt.ends_at).slice(0, 16).replace('T', ' ');
+  if ($('mtEndsAt')) $('mtEndsAt').textContent = end + ' 마감';
+  if (ms <= 0){
+    box.className = 'mt-clock over';
+    box.innerHTML = '<div class="u"><b>종료</b><span>대회가 끝났습니다</span></div>';
+    if ($('mtRoomClock')) $('mtRoomClock').textContent = '대회 종료';
+    return;
+  }
+  box.className = 'mt-clock';
+  var d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24,
+      m = Math.floor(ms / 6e4) % 60, sc = Math.floor(ms / 1000) % 60;
+  box.innerHTML =
+      '<div class="u"><b>' + d + '</b><span>일</span></div>'
+    + '<div class="u"><b>' + ('0'+h).slice(-2) + '</b><span>시간</span></div>'
+    + '<div class="u"><b>' + ('0'+m).slice(-2) + '</b><span>분</span></div>'
+    + '<div class="u"><b>' + ('0'+sc).slice(-2) + '</b><span>초</span></div>';
+  if ($('mtRoomClock'))
+    $('mtRoomClock').textContent = '종료까지 ' + d + '일 ' + h + '시간 ' + m + '분';
+}
+
+async function mtLoadLeague(){
+  var box = $('mtTeams'); if (!box) return;
+  try {
+    var r = await sb.rpc('league_board');
+    if (r.error) throw new Error(errMsg(r.error));
+    mtBoard = r.data || [];
+  } catch(e){
+    box.innerHTML = '<div class="empty" style="padding:22px">' + esc(e.message) + '</div>';
+    return;
+  }
+  if (!mtBoard.length){
+    box.innerHTML = '<div class="empty" style="padding:22px">아직 팀이 없습니다.'
+      + (isOfficer() ? ' 아래 <b>팀 관리</b>에서 만들어주세요.' : ' 임원진에게 문의해주세요.')
+      + '</div>';
+    return;
+  }
+  box.innerHTML = '<div class="mt-teams">' + mtBoard.map(function(t, i){
+    var mine = mtMyTeam && Number(t.team_id) === mtMyTeam;
+    var up = Number(t.pnl_pct) >= 0;
+    return '<button class="mt-team' + (mine ? ' mine' : '') + '"'
+      + ' onclick="mtEnter(' + Number(t.team_id) + ')">'
+      + '<span class="rk">' + (i + 1) + '위' + (mine ? ' · 내 팀' : '') + '</span>'
+      + '<span class="nm">' + esc(t.team_name) + '</span>'
+      + '<span class="pl ' + (up ? 'up' : 'dn') + '">'
+      + (up ? '+' : '') + num(t.pnl_pct, 2) + '%</span>'
+      + '<span class="sub">평가액 ' + mtMoney(t.total) + '원 · '
+      + (up ? '+' : '') + mtMoney(t.pnl) + '원</span>'
+      + '<span class="sub">팀원 ' + num(t.members, 0) + '명'
+      + (t.auto_on ? ' · 자동매매 켬' : '') + '</span>'
+      + '</button>';
+  }).join('') + '</div>';
+}
+
+/* ── 방 드나들기 ─────────────────────────────── */
+async function mtEnter(teamId){
+  var row = mtBoard.filter(function(t){ return Number(t.team_id) === Number(teamId); })[0];
+  mtCanTrade = isOfficer() || (mtMyTeam === Number(teamId));
+
+  $('mtLeague').classList.add('hidden');
+  $('mtRoomHead').classList.remove('hidden');
+  $('mtRoomName').textContent = row ? row.team_name : ('팀 ' + teamId);
+  $('mtRoomBadge').innerHTML = mtCanTrade
+    ? '<span class="mt-badge edit">매매 가능</span>'
+    : '<span class="mt-badge view">보기 전용</span>';
+  $('mtTitle').textContent = row ? row.team_name : '팀 방';
+  $('mtSub').textContent = mtCanTrade
+    ? '내 팀입니다. 사고팔 수 있습니다.'
+    : '다른 팀입니다. 성과와 전략은 볼 수 있지만 매매는 자기 팀에서만 됩니다.';
+
+  //  기존 코드가 팀 번호를 teamSel 에서 읽습니다
+  var sel = $('teamSel');
+  if (sel){
+    if (!sel.querySelector('option[value="' + teamId + '"]'))
+      sel.innerHTML += '<option value="' + teamId + '">' + esc(row ? row.team_name : teamId) + '</option>';
+    sel.value = String(teamId);
+  }
+  mtApplyLock();
+  await loadTeam();
+  await mtLoadAccount();
+  await mtLoadAuto();
+  tradeTab('now');
+}
+
+function mtLeave(){
+  $('mtLeague').classList.remove('hidden');
+  $('mtRoomHead').classList.add('hidden');
+  $('tradingBody').classList.add('hidden');
+  $('mtTitle').textContent = '모의투자';
+  $('mtSub').textContent = '팀별 1억. 미국·코인은 누를 때의 시세로, 국내는 그날 종가로 체결됩니다.';
+  mtLoadLeague();
+}
+
+//  보기 전용이면 손대는 것들을 전부 잠급니다
+function mtApplyLock(){
+  ['tSymbol','tQty','tSide','tradeBtn','mtAutoOn','mtAutoIv','mtAutoBudget']
+    .forEach(function(id){ var e = $(id); if (e) e.disabled = !mtCanTrade; });
+  var st = $('stratSaveBtn'); if (st) st.disabled = !mtCanTrade;
+  ['tSeg-manual','tSeg-auto'].forEach(function(id){
+    var b = $(id); if (b) b.title = mtCanTrade ? '' : '자기 팀에서만 매매할 수 있습니다';
+  });
+}
+
+function tradeTab(k){
+  tradeView = k;
+  ['now','manual','auto','quant','log'].forEach(function(x){
+    var p = $('mtPane-' + x); if (p) p.classList.toggle('hidden', x !== k);
+    var b = $('tSeg-' + x);   if (b) b.classList.toggle('on', x === k);
+  });
+  if (k === 'auto'){
+    var sc = $('strategyCard'); if (sc) sc.classList.remove('hidden');
+    if (typeof tradeTabAuto === 'function') tradeTabAuto();
+  }
+  requestAnimationFrame(function(){ requestAnimationFrame(resizeAllCharts); });
+  if (k === 'quant') loadQuant();
+}
+
+async function mtRefresh(){
+  await loadTeam(); await mtLoadAccount(); await mtLoadAuto();
+}
+
+/* ── 계좌 · 보유 종목 ────────────────────────── */
+async function mtLoadAccount(){
+  if (!team) return;
+  try {
+    mtAcc = await edge({ source:'mt_account', team_id: team });
+  } catch(e){
+    $('mtPosTable').innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>';
+    return;
+  }
+  mtRenderPositions();
+  mtRenderSummary();
+}
+
+function mtRenderSummary(){
+  if (!mtAcc) return;
+  var a = mtAcc, up = a.pnl >= 0;
+  $('teamSummary').innerHTML = '<div class="tiles">'
+    + tile('총 평가액', mtMoney(a.total) + '원', '현금 + 보유')
+    + tile('손익금액', (up ? '+' : '') + mtMoney(a.pnl) + '원',
+           (up ? '+' : '') + num(a.pnl_pct, 2) + '%', up ? 'up' : 'dn')
+    + tile('현금', mtMoney(a.cash) + '원', '자동매매도 여기서 씁니다')
+    + tile('보유 평가액', mtMoney(a.holdings) + '원', num((a.positions||[]).length,0) + '종목')
+    + tile('실현손익', mtMoney(a.realized) + '원', '판 것에서 확정된 손익')
+    + '</div>';
+}
+
+function mtRenderPositions(){
+  var t = $('mtPosTable'); if (!t) return;
+  var pos = (mtAcc && mtAcc.positions) || [];
+  if (!pos.length){
+    t.innerHTML = '<tr><td class="empty">아직 보유 종목이 없습니다.</td></tr>';
+    $('mtPosAsOf').textContent = '';
+    return;
+  }
+  var fx = (mtAcc && mtAcc.fx) || 1400;
+  $('mtPosAsOf').textContent = '환율 ' + num(fx, 0) + '원 고정 · 방금 기준';
+  t.innerHTML =
+    '<thead><tr><th>종목</th><th>시장</th><th class="num">수량</th><th class="num">평단가</th>'
+  + '<th class="num">현재가</th><th class="num">평가금액</th>'
+  + '<th class="num">손익금액</th><th class="num">수익률</th></tr></thead><tbody>'
+  + pos.map(function(p){
+      var dp = p.market === 'KR' ? 0 : 2;
+      var up = (p.pnl || 0) >= 0;
+      return '<tr><td><b>' + esc(p.name || p.symbol) + '</b>'
+           + '<div class="st-hint">' + esc(p.symbol) + '</div></td>'
+           + '<td>' + esc(p.market) + '</td>'
+           + '<td class="num">' + num(p.qty, p.market === 'CRYPTO' ? 4 : 0) + '</td>'
+           + '<td class="num">' + mtCur(p.avg, p.market, dp) + '</td>'
+           + '<td class="num">' + mtCur(p.last, p.market, dp) + '</td>'
+           + '<td class="num">' + (p.value_krw == null ? '—' : mtMoney(p.value_krw) + '원') + '</td>'
+           + '<td class="num ' + (up ? 'up' : 'dn') + '">'
+           + (p.pnl == null ? '—' : (up ? '+' : '') + mtCur(p.pnl, p.market, dp)) + '</td>'
+           + '<td class="num ' + (up ? 'up' : 'dn') + '">'
+           + (p.pnl_pct == null ? '—' : (up ? '+' : '') + num(p.pnl_pct, 2) + '%') + '</td></tr>';
+    }).join('')
+  + '</tbody>';
+}
+
+/* ── 종목 찾기 (이름으로도, 코드로도) ────────── */
+var mtSymT = null;
+function mtFindSym(){
+  if (mtSymT) clearTimeout(mtSymT);
+  mtSymT = setTimeout(mtFindSymGo, 180);
+}
+async function mtFindSymGo(){
+  var q = $('tSymbol').value.trim();
+  var box = $('mtSymList');
+  if (q.length < 1){ box.classList.add('hidden'); return; }
+  try {
+    var r = await sb.rpc('symbol_find', { q: q, lim: 12 });
+    if (r.error) throw new Error(errMsg(r.error));
+    var rows = r.data || [];
+    if (!rows.length){
+      box.innerHTML = '<div class="st-hint" style="padding:10px 13px">'
+        + '허용 종목 명단에 없습니다. 임원진이 등록한 종목만 살 수 있습니다.</div>';
+      box.classList.remove('hidden'); return;
+    }
+    mtSymHit = -1;
+    box.innerHTML = rows.map(function(x, i){
+      return '<div data-i="' + i + '" onclick="mtPickSym(' + i + ')">'
+           + '<span class="c">' + esc(x.symbol) + '</span>'
+           + '<span>' + esc(x.name || '') + '</span>'
+           + '<span class="m">' + esc(x.market) + '</span></div>';
+    }).join('');
+    box._rows = rows;
+    box.classList.remove('hidden');
+  } catch(e){
+    box.innerHTML = '<div class="st-hint" style="padding:10px 13px">' + esc(e.message) + '</div>';
+    box.classList.remove('hidden');
+  }
+}
+function mtSymKey(ev){
+  var box = $('mtSymList'); if (box.classList.contains('hidden')) return;
+  var n = (box._rows || []).length;
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp'){
+    ev.preventDefault();
+    mtSymHit = (mtSymHit + (ev.key === 'ArrowDown' ? 1 : -1) + n) % Math.max(1, n);
+    [].forEach.call(box.children, function(c, i){ c.classList.toggle('on', i === mtSymHit); });
+  } else if (ev.key === 'Enter'){
+    ev.preventDefault();
+    mtPickSym(mtSymHit >= 0 ? mtSymHit : 0);
+  } else if (ev.key === 'Escape'){ box.classList.add('hidden'); }
+}
+function mtPickSym(i){
+  var box = $('mtSymList'), x = (box._rows || [])[i];
+  if (!x) return;
+  mtPick = x;
+  box.classList.add('hidden');
+  $('tSymbol').value = '';
+  $('mtPicked').style.display = '';
+  $('mtPickName').textContent = x.name || x.symbol;
+  $('mtPickCode').textContent = x.symbol + ' · ' + x.market;
+  $('tMarket').value = x.market; $('tName').value = x.name || x.symbol;
+  mtQuoteRefresh();
+}
+function mtClearPick(){
+  mtPick = null; mtQuote = null;
+  $('mtPicked').style.display = 'none';
+  $('mtQuoteBox').classList.add('hidden');
+  $('tradeBtn').disabled = true;
+  $('tSymbol').focus();
+}
+
+/* ── 시세와 주문 ─────────────────────────────── */
+async function mtQuoteRefresh(){
+  if (!mtPick) return;
+  var box = $('mtQuoteBox');
+  box.classList.remove('hidden');
+  box.innerHTML = '<span class="st-hint">시세를 받는 중…</span>';
+  try {
+    mtQuote = await edge({ source:'mt_quote', market: mtPick.market, symbol: mtPick.symbol });
+  } catch(e){
+    mtQuote = null;
+    box.innerHTML = '<span class="dn">' + esc(e.message) + '</span>';
+    $('tradeBtn').disabled = true;
+    return;
+  }
+  mtCalc();
+}
+
+function mtCalc(){
+  var box = $('mtQuoteBox');
+  if (!mtQuote || !mtPick) return;
+  var dp = mtQuote.currency === 'KRW' ? 0 : 2;
+  var qty = Number($('tQty').value) || 0;
+  var side = $('tSide').value;
+  var fx = mtQuote.fx || 1400;
+  var rate = mtPick.market === 'KR' ? 1 : fx;
+  var gross = qty * mtQuote.price;
+  var blocked = mtQuote.window && mtQuote.window.ok === false;
+
+  var H = '<div><span class="px">' + mtCur(mtQuote.price, mtPick.market, dp) + '</span> '
+        + '<span class="st-hint">' + esc(mtQuote.basis) + '</span></div>';
+  if (qty > 0){
+    H += '<div>' + num(qty, 0) + '주 × ' + mtCur(mtQuote.price, mtPick.market, dp)
+       + ' = <b>' + mtMoney(gross * rate) + '원</b>'
+       + (mtPick.market !== 'KR' ? ' <span class="st-hint">(환율 ' + num(fx,0) + '원 고정)</span>' : '')
+       + '</div>';
+    if (mtAcc && side === 'buy')
+      H += '<div class="st-hint">주문 뒤 남는 현금 약 '
+         + mtMoney(mtAcc.cash - gross * rate) + '원</div>';
+  }
+  H += '<div class="st-hint">' + esc(mtQuote.note || '') + '</div>';
+  if (blocked) H += '<div class="dn" style="margin-top:6px">' + mtQuote.window.why + '</div>';
+  box.innerHTML = H;
+  $('tradeBtn').disabled = !mtCanTrade || !(qty > 0) || blocked;
+}
+
+function mtAllIn(){
+  if (!mtQuote || !mtPick || !mtAcc) return;
+  var rate = mtPick.market === 'KR' ? 1 : (mtQuote.fx || 1400);
+  if ($('tSide').value === 'sell'){
+    var held = (mtAcc.positions || []).filter(function(p){
+      return p.market === mtPick.market && p.symbol === mtPick.symbol; })[0];
+    $('tQty').value = held ? Math.floor(held.qty) : 0;
+  } else {
+    //  수수료만큼 여유를 둡니다
+    $('tQty').value = Math.floor(mtAcc.cash * 0.995 / (mtQuote.price * rate));
+  }
+  mtCalc();
+}
+
+async function submitTrade(){
+  if (!mtPick){ warn('tradeMsg','종목을 먼저 골라주세요.'); return; }
+  var qty = Number($('tQty').value) || 0;
+  if (!(qty > 0)){ warn('tradeMsg','수량을 넣어주세요.'); return; }
+  var btn = $('tradeBtn'); btn.disabled = true; btn.textContent = '주문 중…';
+  warn('tradeMsg','');
+  try {
+    var d = await edge({ source:'mt_order', team_id: team,
+                         market: mtPick.market, symbol: mtPick.symbol,
+                         name: mtPick.name, side: $('tSide').value, qty: qty });
+    var dp = d.currency === 'KRW' ? 0 : 2;
+    warn('tradeMsg',
+      '<b>' + esc(d.name) + '</b> ' + num(d.qty, 0) + '주를 '
+      + mtCur(d.price, d.market, dp) + ' 에 ' + (d.side === 'buy' ? '샀습니다' : '팔았습니다')
+      + ' <span class="st-hint">(' + esc(d.fill_basis) + ' · 수수료 '
+      + mtMoney(d.fee) + ')</span>', 'ok');
+    $('tQty').value = '';
+    await mtRefresh();
+  } catch(e){
+    warn('tradeMsg', esc(e.message));
+  }
+  btn.textContent = '주문';
+  mtCalc();
+}
+
+/* ── 자동매매 ────────────────────────────────── */
+async function mtLoadAuto(){
+  if (!team) return;
+  var row = mtBoard.filter(function(t){ return Number(t.team_id) === Number(team); })[0];
+  try {
+    var r = await sb.from('teams').select('auto_on, auto_budget, auto_interval, auto_last_at')
+                    .eq('id', team).maybeSingle();
+    if (r.data){
+      $('mtAutoOn').checked = !!r.data.auto_on;
+      $('mtAutoBudget').value = Number(r.data.auto_budget) || '';
+      $('mtAutoIv').value = r.data.auto_interval || '1d';
+    }
+  } catch(e){ /* 표가 아직 없으면 넘어갑니다 */ }
+  mtAutoRoom();
+  try {
+    var rr = await sb.from('auto_runs').select('*').eq('team_id', team)
+                     .order('ran_at', { ascending:false }).limit(30);
+    var rows = rr.data || [];
+    $('mtRunTable').innerHTML = rows.length
+      ? '<thead><tr><th>시각</th><th class="num">훑음</th><th class="num">조건 맞음</th>'
+        + '<th class="num">체결</th><th class="num">쓴 돈</th><th>메모</th></tr></thead><tbody>'
+        + rows.map(function(x){
+            return '<tr><td>' + String(x.ran_at).slice(0,16).replace('T',' ') + '</td>'
+                 + '<td class="num">' + num(x.scanned,0) + '</td>'
+                 + '<td class="num">' + num(x.matched,0) + '</td>'
+                 + '<td class="num">' + num(x.filled,0) + '</td>'
+                 + '<td class="num">' + mtMoney(x.spent) + '</td>'
+                 + '<td class="st-hint">' + esc(x.note || '') + '</td></tr>'; }).join('')
+        + '</tbody>'
+      : '<tr><td class="empty">아직 자동매매가 돈 적이 없습니다.</td></tr>';
+  } catch(e){ /* 표가 없으면 비워둡니다 */ }
+}
+
+function mtAutoRoom(){
+  var b = Number($('mtAutoBudget').value) || 0;
+  var cash = mtAcc ? mtAcc.cash : null;
+  $('mtAutoRoom').innerHTML = cash == null ? ''
+    : '실제 쓸 수 있는 돈 <b>' + mtMoney(Math.max(0, Math.min(cash, b)))
+      + '원</b> <span class="st-hint">(남은 현금 ' + mtMoney(cash) + '원과 배정 금액 중 작은 쪽)</span>';
+}
+
+async function mtAutoSave(){
+  if (!mtCanTrade){ warn('mtAutoMsg','자기 팀에서만 바꿀 수 있습니다.'); return; }
+  try {
+    await edge({ source:'mt_auto_set', team_id: team,
+                 auto_on: $('mtAutoOn').checked,
+                 auto_budget: Number($('mtAutoBudget').value) || 0,
+                 auto_interval: $('mtAutoIv').value });
+    warn('mtAutoMsg','저장했습니다.', 'ok');
+    mtAutoRoom();
+  } catch(e){ warn('mtAutoMsg', esc(e.message)); }
+}
+
+async function mtScanNow(){
+  warn('mtAutoMsg','스캔하는 중…', 'info');
+  try {
+    var d = await edge({ source:'mt_scan' });
+    warn('mtAutoMsg', '스캔 완료 — 팀 ' + num(d.ran || 0, 0) + '개 처리, 종목 '
+       + num(d.scanned || 0, 0) + '개 훑음.' + (d.note ? ' ' + esc(d.note) : ''), 'ok');
+    await mtLoadAuto(); await mtLoadAccount();
+  } catch(e){ warn('mtAutoMsg', esc(e.message)); }
+}
+
+async function mtEditEnd(){
+  var cur = mtCt && mtCt.ends_at ? String(mtCt.ends_at).slice(0,16) : '2026-12-02T15:30';
+  var v = prompt('대회 종료 시각 (예: 2026-12-02T15:30)', cur);
+  if (!v) return;
+  var t = Date.parse(v.length <= 16 ? v + ':00+09:00' : v);
+  if (!isFinite(t)){ warn('tradingWarn','시각 형식이 올바르지 않습니다.'); return; }
+  try {
+    var r = await sb.from('contest').update({ ends_at: new Date(t).toISOString() })
+                    .eq('gen', mtCt.gen);
+    if (r.error) throw new Error(errMsg(r.error));
+    await mtLoadContest();
+    warn('tradingWarn','종료 시각을 바꿨습니다.', 'ok');
+  } catch(e){ warn('tradingWarn', esc(e.message)); }
+}
+
 function downloadJPG(){
   if (!chart){ warn('researchWarn','먼저 지표를 추가해 차트를 그려주세요.'); return; }
   // 아래 타임라인 막대를 잠시 숨기고 차트·축만 저장합니다
@@ -8704,6 +9291,11 @@ async function loadCoOwn(){
 
 /* ══════════ 모의투자 ══════════ */
 async function initTrading(){
+  //  ① 대회 상태와 순위를 먼저 — 리그 홈이 첫 화면입니다
+  await mtLoadContest();
+  await mtLoadLeague();
+
+  //  ② 임원진 화면(팀 만들기·유니버스)이 쓰는 목록은 뒤에서 채웁니다
   if (teams.length) return;
   var r = await sb.rpc('my_teams');
   if (r.error) {
@@ -8713,32 +9305,16 @@ async function initTrading(){
   }
   teams = r.data || [];
   var sel = $('teamSel');
-  if (!teams.length){
-    sel.innerHTML = '<option value="">배정된 팀 없음</option>';
-    warn('tradingWarn', isOfficer()
-      ? '아직 팀이 없습니다. 아래 <b>팀 관리</b>에서 팀을 만들고 팀원을 배정하세요.'
-      : '아직 팀에 배정되지 않았습니다. 임원진에게 문의해주세요.', 'info');
-  } else {
-    warn('tradingWarn','');
-    sel.innerHTML = teams.map(function(t){
-      return '<option value="'+t.id+'">'+esc(t.name)+' ('+t.gen+'기)</option>';
-    }).join('');
-    var asg = $('assignTeam');
-    if (asg) asg.innerHTML = sel.innerHTML;
-    // 내가 속한 팀이 목록에 있으면 그 팀을 먼저 띄웁니다 (임원진은 전체 팀이 보이므로)
-    try {
-      var meU = (await sb.auth.getUser()).data.user;
-      if (meU){
-        var mine = await sb.from('team_members').select('team_id').eq('user_id', meU.id);
-        var myIds = (mine.data || []).map(function(x){ return Number(x.team_id); });
-        var hit = teams.filter(function(t){ return myIds.indexOf(Number(t.id)) >= 0; })[0];
-        if (hit) sel.value = String(hit.id);
-      }
-    } catch(e){ /* 실패하면 첫 팀 그대로 */ }
-    await loadTeam();
-  }
+  if (sel) sel.innerHTML = teams.map(function(t){
+    return '<option value="'+t.id+'">'+esc(t.name)+' ('+t.gen+'기)</option>';
+  }).join('');
+  var asg = $('assignTeam');
+  if (asg) asg.innerHTML = teams.map(function(t){
+    return '<option value="'+t.id+'">'+esc(t.name)+' ('+t.gen+'기)</option>';
+  }).join('');
   loadLeaderboard();
 }
+
 
 async function loadTeam(){
   var id = $('teamSel').value;
@@ -8789,16 +9365,18 @@ function renderSummary(){
     + tile('주식 평가액', num(tstate.holdings), (tstate.positions||[]).length + '개 종목')
     + '</div>';
 
-  // 미국 주식이 있는데 환율이 없으면 평가액이 틀립니다 — 눈에 띄게 알립니다
+  /*  환율은 이제 대회 설정의 고정값입니다 (기본 1,400원).
+
+      예전에는 그날 환율을 받아 쓰느라 "환율을 못 받았다" 경고를 띄웠는데,
+      지금은 받아올 것이 없습니다. 환율까지 겨루면 종목을 잘 골라서가
+      아니라 원/달러가 올라서 1등이 될 수 있어서 고정한 것입니다.        */
   var hasUS = (tstate.positions||[]).some(function(x){ return isUsd(x.market); });
-  var fx = Number(tstate.fx || 0);
-  if (hasUS && !(fx > 0)){
-    warn('tradingWarn', '⚠️ 원/달러 환율을 아직 불러오지 못해 미국 주식 평가액이 정확하지 않습니다. '
-       + '<b>홈</b> 탭을 한 번 열면 자동으로 채워집니다. '
-       + '(그래도 안 되면 임원진이 설정 탭에서 고정 환율을 넣어주세요)');
-  } else if (hasUS){
-    warn('tradingWarn', '미국 주식은 ' + num(fx,0) + '원/달러 기준으로 환산했습니다.'
-       + (fxFixed ? ' (학회 고정 환율)' : ''), 'info');
+  var fx = (mtAcc && mtAcc.fx) || (mtCt && mtCt.fx_fixed) || Number(tstate.fx || 0);
+  if (hasUS && fx > 0){
+    warn('tradingWarn', '미국·코인은 <b>' + num(fx,0) + '원/달러 고정</b>으로 환산합니다 — '
+       + '환율이 아니라 종목 고른 실력으로 순위가 갈리게 하려는 것입니다.', 'info');
+  } else {
+    warn('tradingWarn','');
   }
 }
 function tile(k,v,d,cls){
@@ -9324,61 +9902,12 @@ async function fetchPrice(live){
   }
 }
 
-async function submitTrade(){
-  var msg = $('tradeMsg'); msg.style.color = 'var(--danger)';
-  if (!team){ msg.textContent = '팀을 먼저 선택해주세요.'; return; }
-  var sym = $('tSymbol').value.trim(), qty = Number($('tQty').value), price = Number($('tPrice').value);
-  if (!sym){ msg.textContent = '종목 코드를 입력해주세요.'; return; }
-  if (!(qty > 0)){ msg.textContent = '수량을 입력해주세요.'; return; }
-  if (!(price > 0)){ msg.textContent = '단가를 입력해주세요. (종가 조회를 눌러보세요)'; return; }
+/*  옛 submitTrade 는 들어냈습니다.
 
-  var side = $('tSide').value;
-  var mk   = $('tMarket').value;
-
-  // 미국 주식과 코인은 그날 환율로 원화 환산해서 기록합니다
-  var fx = 1;
-  if (isUsd(mk)){
-    msg.style.color = 'var(--text-sub)';
-    msg.textContent = '환율 확인 중…';
-    fx = await getFx($('tDate').value || today());
-    msg.style.color = 'var(--danger)';
-    if (!fx){
-      msg.textContent = '환율을 불러오지 못했습니다. 경제지표 탭에서 "원/달러 환율"을 한 번 조회한 뒤 다시 시도해주세요.';
-      return;
-    }
-  }
-  var krw = qty * price * fx;
-
-  if (side === 'buy' && tstate && krw > Number(tstate.cash)){
-    msg.textContent = '현금이 부족합니다. 필요 ' + num(krw) + '원 / 남은 현금 ' + num(tstate.cash) + '원';
-    return;
-  }
-  if (side === 'sell'){
-    var held = ((tstate && tstate.positions) || []).filter(function(p){
-      return p.symbol === sym && p.market === mk; })[0];
-    if (!held || Number(held.qty) < qty){
-      msg.textContent = '보유 수량이 부족합니다.' + (held ? ' 보유: '+num(held.qty) : '');
-      return;
-    }
-  }
-
-  $('tradeBtn').disabled = true;
-  var u = (await sb.auth.getUser()).data.user;
-  var r = await sb.from('trades').insert({
-    team_id: team, market: mk, symbol: sym,
-    name: $('tName').value.trim() || sym, side: side, qty: qty, price: price, fx: fx,
-    traded_on: $('tDate').value || today(), created_by: u ? u.id : null
-  });
-  $('tradeBtn').disabled = false;
-
-  if (r.error){ msg.textContent = errMsg(r.error); return; }
-  msg.style.color = 'var(--ok)';
-  msg.textContent = '기록했습니다.'
-    + (isUsd(mk) ? '  ($' + num(price,2) + ' × ' + num(fx,2) + '원 = ' + num(krw) + '원)' : '');
-  $('tQty').value = ''; $('tPrice').value = '';
-  await loadTeam();
-  loadLeaderboard();
-}
+    화면에서 단가와 날짜를 받아 그대로 기록하던 방식이었습니다. 그건
+    대회에서 쓸 수 없습니다 — 개발자도구를 열 줄 아는 학회원이면 원하는
+    값에 체결할 수 있으니까요. 지금은 서버(mt_order)가 시세를 다시 받아
+    그 값으로 체결합니다. 화면은 종목·방향·수량만 보냅니다.        */
 
 async function loadTrades(){
   var r = await sb.from('trades').select('*').eq('team_id', team)
@@ -9754,19 +10283,10 @@ var strat = null, stratList = [], teamMode = 'manual';
 var tradeView = 'manual';
 
 /* 직접 매매 / 자동매매 탭 전환. 아래 포트폴리오·성과 카드는 둘 다에서 공통으로 보입니다. */
-function tradeTab(k){
-  tradeView = k;
-  var mb = $('tSeg-manual'), ab = $('tSeg-auto');
-  if (mb) mb.classList.toggle('on', k === 'manual');
-  if (ab) ab.classList.toggle('on', k === 'auto');
-  var mc = $('manualCard'), sc = $('strategyCard');
-  if (mc) mc.classList.toggle('hidden', k !== 'manual');
-  if (sc) sc.classList.toggle('hidden', k !== 'auto');
-  if (k === 'auto'){
-    if (!strat) loadStrategy();
-    if (typeof prevChart !== 'undefined' && prevChart)
-      setTimeout(function(){ try { prevChart.resize(); } catch(e){} }, 60);
-  }
+function tradeTabAuto(){
+  if (!strat) loadStrategy();
+  if (typeof prevChart !== 'undefined' && prevChart)
+    setTimeout(function(){ try { prevChart.resize(); } catch(e){} }, 60);
 }
 
 /* ── 지표 계산 ──
