@@ -495,6 +495,13 @@
   .sym-tag.etf{background:#eef1f6;color:#5a6278}
   .sym-tag.lev{background:#fdecea;color:#c0392b}
   .sym-tag.scan{background:#e6f0ff;color:#2456c9}
+
+  /*  현황이 살아 있다는 표시 — 30초마다 스스로 다시 받아옵니다.  */
+  .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;
+            background:var(--ok);margin-right:5px;vertical-align:1px;
+            animation:liveBlink 2s ease-in-out infinite}
+  @keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.25}}
+  @media (prefers-reduced-motion:reduce){ .live-dot{animation:none} }
   .by-tag.auto{background:#e6f0ff;color:#2456c9}
 
   /*  자동매매 상태 띠 — '켜뒀는데 진짜 도는 건가' 를 없애려는 칸입니다.  */
@@ -1367,12 +1374,22 @@
 
         <!-- ══ 현황 ══ -->
         <div id="mtPane-now">
+        <div class="note info hidden" id="mtLiveNote" style="margin-bottom:14px"></div>
         <div class="card">
           <h2>보유 종목
             <span style="font-size:11.5px;color:var(--text-sub);font-weight:400"
                   id="mtPosAsOf"></span>
           </h2>
           <div class="scroll"><table id="mtPosTable"></table></div>
+        </div>
+
+        <!--  사서 전부 판 종목. 체결된 종목이 화면에서 사라지면 안 됩니다.  -->
+        <div class="card hidden" id="mtClosedCard">
+          <h2>판 종목
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+              — 전부 팔아서 지금은 안 들고 있는 것들. 실현손익이 여기서 났습니다.</span>
+          </h2>
+          <div class="scroll"><table id="mtClosedTable"></table></div>
         </div>
 
         <div class="card">
@@ -7783,6 +7800,8 @@ function tradeTab(k){
   //  안 보이는 화면에서 1초 타이머가 계속 도는 건 낭비입니다.
   if (k === 'auto') mtRenderAutoBar();
   else if (mtBarTimer){ clearInterval(mtBarTimer); mtBarTimer = null; }
+  //  현황은 열어두면 스스로 갱신됩니다 (자동매매가 사고판 것이 여기 들어옵니다)
+  if (k === 'now') mtLiveStart(); else mtLiveStop();
   if (k === 'auto'){
     var sc = $('strategyCard'); if (sc) sc.classList.remove('hidden');
     if (typeof tradeTabAuto === 'function') tradeTabAuto();
@@ -7805,10 +7824,76 @@ async function mtLoadAccount(){
     return;
   }
   mtRenderPositions();
+  mtRenderClosed();
   mtRenderSummary();
   //  원형 차트는 mtAcc 를 보고 그립니다. 계좌를 새로 받았으니 같이 다시 그립니다.
   try { renderPie(); } catch(e){}
   mtRenderAutoBar();
+  mtNoteAutoFills();
+  mtLiveAt = Date.now();
+  mtStampAsOf();
+}
+
+/*  ── 현황 자동 갱신 ────────────────────────────────────────
+    자동매매가 사고판 것은 사람이 산 것과 같은 표(trades)에 들어가므로
+    보유 종목에 <데이터로는> 이미 반영돼 있습니다. 그런데 화면이 스스로
+    다시 받아오질 않아서, 새로고침을 눌러야만 보였습니다. 원래 부탁하신
+    "live positions 가 실시간으로 반영" 이 반만 되어 있던 셈입니다.
+
+    30초마다 다시 받아옵니다. 시세도 같이 움직이니 평가액도 따라 갱신됩니다.
+    화면을 안 보고 있을 때(다른 탭·창 최소화)는 멈춥니다 — 15명이 하루 종일
+    켜두면 헛되이 시세를 긁게 되니까요.                                    */
+var mtLiveTimer = null, mtLiveAt = 0, mtLiveFills = null, mtLiveBusy = false;
+var MT_LIVE_MS = 30000;
+
+function mtLiveStart(){
+  mtLiveStop();
+  mtLiveAt = Date.now();
+  mtLiveTimer = setInterval(mtLiveTick, 1000);
+}
+function mtLiveStop(){
+  if (mtLiveTimer){ clearInterval(mtLiveTimer); mtLiveTimer = null; }
+}
+async function mtLiveTick(){
+  //  '몇 초 전 기준' 을 매초 고쳐 씁니다 — 살아있다는 표시입니다
+  mtStampAsOf();
+  if (document.hidden || mtLiveBusy) return;
+  if (Date.now() - mtLiveAt < MT_LIVE_MS) return;
+  mtLiveBusy = true;
+  try { await mtLoadAccount(); mtLiveAt = Date.now(); }
+  catch(e){ /* 한 번 실패해도 다음 차례에 다시 받습니다 */ }
+  mtLiveBusy = false;
+}
+//  다른 탭 갔다 오면 곧바로 한 번 받아옵니다 (오래된 값을 안 보여주려고)
+document.addEventListener('visibilitychange', function(){
+  if (!document.hidden && mtLiveTimer){ mtLiveAt = 0; mtLiveTick(); }
+});
+
+function mtStampAsOf(){
+  var el = $('mtPosAsOf'); if (!el || !mtAcc) return;
+  var sec = Math.max(0, Math.round((Date.now() - mtLiveAt) / 1000));
+  el.innerHTML = '환율 ' + num((mtAcc.fx || 1400), 0) + '원 고정 · '
+    + '<span class="live-dot"></span>'
+    + (sec < 5 ? '방금 갱신' : sec + '초 전')
+    + ' <span class="st-hint">· 30초마다 저절로 갱신됩니다</span>';
+}
+
+/*  자동매매가 새로 체결했으면 알려줍니다. 가만히 있는데 보유 종목이
+    바뀌면 놀라니까, 무엇이 바뀐 건지 한 줄 띄웁니다.                  */
+function mtNoteAutoFills(){
+  if (!mtAcc || !mtAcc.auto) return;
+  var n = Number(mtAcc.auto.fills || 0);
+  if (mtLiveFills != null && n > mtLiveFills){
+    var box = $('mtLiveNote');
+    if (box){
+      box.innerHTML = '자동매매가 방금 <b>' + (n - mtLiveFills) + '건</b> 체결했습니다 — '
+                    + '아래 보유 종목에 반영됐습니다.';
+      box.classList.remove('hidden');
+      clearTimeout(box._t);
+      box._t = setTimeout(function(){ box.classList.add('hidden'); }, 12000);
+    }
+  }
+  mtLiveFills = n;
 }
 
 function mtRenderSummary(){
@@ -7833,7 +7918,7 @@ function mtRenderPositions(){
     return;
   }
   var fx = (mtAcc && mtAcc.fx) || 1400;
-  $('mtPosAsOf').textContent = '환율 ' + num(fx, 0) + '원 고정 · 방금 기준';
+  mtStampAsOf();
   var fxr = fx;
   t.innerHTML =
     '<thead><tr><th>종목</th><th>산 방법</th><th>시장</th><th class="num">수량</th><th class="num">평단가</th>'
@@ -7861,6 +7946,35 @@ function mtRenderPositions(){
                  + mtCur(p.pnl, p.market, dp) + '</div>')) + '</td>'
            + '<td class="num ' + (up ? 'up' : 'dn') + '">'
            + (p.pnl_pct == null ? '—' : (up ? '+' : '') + num(p.pnl_pct, 2) + '%') + '</td></tr>';
+    }).join('')
+  + '</tbody>';
+}
+
+/*  판 종목 — 지금은 안 들고 있지만 체결은 됐던 것들.
+    실현손익 타일의 숫자가 어느 종목에서 났는지 여기서 보입니다.      */
+function mtRenderClosed(){
+  var card = $('mtClosedCard'), t = $('mtClosedTable');
+  if (!card || !t) return;
+  var rows = (mtAcc && mtAcc.closed) || [];
+  if (!rows.length){ card.classList.add('hidden'); return; }
+  card.classList.remove('hidden');
+  t.innerHTML =
+    '<thead><tr><th>종목</th><th>산 방법</th><th>시장</th>'
+  + '<th class="num">산 수량</th><th class="num">실현손익</th></tr></thead><tbody>'
+  + rows.map(function(p){
+      var up = (p.realized_krw || 0) >= 0;
+      var d = p.market === 'CRYPTO' ? 4 : 0;
+      var qty = (p.bought_manual || 0) + (p.bought_auto || 0);
+      return '<tr><td><b>' + esc(p.name || p.symbol) + '</b>'
+           + '<div class="st-hint">' + esc(p.symbol) + '</div></td>'
+           + '<td>' + mtByBadge({ by: p.by, q_manual: p.bought_manual,
+                                  q_auto: p.bought_auto, market: p.market }) + '</td>'
+           + '<td>' + esc(p.market) + '</td>'
+           + '<td class="num">' + num(qty, d) + '</td>'
+           + '<td class="num ' + (up ? 'up' : 'dn') + '">'
+           + (up ? '+' : '') + mtMoney(p.realized_krw) + '원'
+           + (p.market === 'KR' ? '' : '<div class="st-hint">' + (up ? '+' : '')
+              + mtCur(p.realized, p.market, 2) + '</div>') + '</td></tr>';
     }).join('')
   + '</tbody>';
 }
