@@ -488,6 +488,13 @@
   .by-tag{display:inline-block;padding:2px 7px;border-radius:6px;font-size:11px;
           font-weight:700;letter-spacing:-.2px;white-space:nowrap;margin-right:4px}
   .by-tag.manual{background:#eef1f6;color:#5a6278}
+
+  /*  종목 검색 딱지 — 무엇인지 알려줄 뿐, 못 사게 막는 표시가 아닙니다.  */
+  .sym-tag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:5px;
+           font-size:10.5px;font-weight:700;vertical-align:1px}
+  .sym-tag.etf{background:#eef1f6;color:#5a6278}
+  .sym-tag.lev{background:#fdecea;color:#c0392b}
+  .sym-tag.scan{background:#e6f0ff;color:#2456c9}
   .by-tag.auto{background:#e6f0ff;color:#2456c9}
 
   /*  자동매매 상태 띠 — '켜뒀는데 진짜 도는 건가' 를 없애려는 칸입니다.  */
@@ -1065,6 +1072,9 @@
           <b>직접 매매와 자동매매를 함께 쓸 수 있습니다.</b>
           아래에서 직접 사고팔고, 남은 현금 중 정한 비중만큼을 자동매매에 맡기세요.
           자동매매를 다시 돌려도 <b>직접 넣은 거래는 지워지지 않습니다.</b>
+          <br><b>직접 매매는 개인이 살 수 있는 종목이면 다 됩니다</b> —
+          미국 전 종목·ETF(TQQQ 같은 레버리지 포함), 국내 코스피·코스닥 전 종목·ETF.
+          자동매매만 학회가 정한 명단 안에서 삽니다.
         </div>
 
         <div class="mode-seg" id="tradeSeg">
@@ -2127,9 +2137,35 @@
         </div>
         <div class="msg" id="teamAdminMsg"></div>
 
+        <!--  ── 살 수 있는 종목 명단 ──
+              universe(자동매매가 훑을 목록) 와 헷갈리지 않게 위에 따로 뒀습니다.  -->
         <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
           <div style="font-size:.88rem;font-weight:700;color:var(--primary);margin-bottom:8px">
-            허용 종목 (유니버스)
+            살 수 있는 종목 (전 종목)
+            <span id="trStat" style="font-weight:400;color:var(--text-sub);font-size:11.5px"></span>
+          </div>
+          <div class="note info" style="margin-bottom:10px">
+            <b>직접 매매는 개인이 살 수 있는 종목이면 다 됩니다.</b>
+            미국 상장 전 종목과 ETF(TQQQ·SOXL 같은 레버리지 포함), 국내 코스피·코스닥
+            전 종목과 ETF 입니다. 아래를 한 번 눌러 명단을 받아두면 검색에 다 나옵니다.
+            <br><b>자동매매</b>는 이것과 별개로 아래 <b>자동매매가 훑을 명단</b>
+            안에서만 삽니다 — 1만 종목을 5분마다 지표까지 계산하며 훑을 수는 없어서입니다.
+          </div>
+          <div class="row">
+            <button class="btn-sm btn-solid" id="trUsBtn" onclick="syncTradable('US')">미국 전 종목·ETF 받기</button>
+            <button class="btn-sm btn-solid" id="trKrBtn" onclick="syncTradable('KR')">국내 전 종목·ETF 받기</button>
+            <button class="btn-sm" id="trCcBtn" onclick="syncTradable('CRYPTO')">코인 명단 맞추기</button>
+          </div>
+          <div class="msg" id="trMsg"></div>
+          <div class="st-hint" style="margin-top:6px">
+            <code>terminal-자동운영.sql</code> 을 돌려두셨으면 <b>국내는 매일 저녁,
+            미국·코인은 매주 일요일</b>에 저절로 갱신됩니다. 위 버튼은 지금 당장 받고 싶을 때만 쓰세요.
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
+          <div style="font-size:.88rem;font-weight:700;color:var(--primary);margin-bottom:8px">
+            자동매매가 훑을 명단 (유니버스)
             <span id="uniStat" style="font-weight:400;color:var(--text-sub);font-size:11.5px"></span>
           </div>
           <div class="auto-uni">
@@ -7853,16 +7889,35 @@ async function mtFindSymGo(){
     var r = await sb.rpc('symbol_find', { q: q, lim: 12 });
     if (r.error) throw new Error(errMsg(r.error));
     var rows = r.data || [];
+    /*  전 종목 명단(tradable)을 아직 안 받았으면 비어 있습니다.
+        그때는 예전처럼 자동매매 명단에서라도 찾아줍니다 —
+        SQL 만 돌리고 명단을 안 받은 사이에 검색이 먹통이 되면 곤란합니다.  */
+    if (!rows.length){
+      try {
+        var r2 = await sb.rpc('symbol_find_uni', { q: q, lim: 12 });
+        if (!r2.error) rows = r2.data || [];
+      } catch(e2){ /* 예전 SQL 이면 이 함수가 없습니다 */ }
+    }
     if (!rows.length){
       box.innerHTML = '<div class="st-hint" style="padding:10px 13px">'
-        + '허용 종목 명단에 없습니다. 임원진이 등록한 종목만 살 수 있습니다.</div>';
+        + '<b>' + esc(q) + '</b> 로 찾은 종목이 없습니다. '
+        + '티커(AAPL·TQQQ)나 종목코드(005930), 회사명으로 찾아보세요.'
+        + '<br>상장 종목인데 안 나오면 임원진이 설정에서 '
+        + '<b>전 종목 명단 받기</b>를 한 번 눌러야 합니다.</div>';
       box.classList.remove('hidden'); return;
     }
     mtSymHit = -1;
     box.innerHTML = rows.map(function(x, i){
+      /*  딱지는 <설명> 일 뿐 제한이 아닙니다.
+          레버리지든 소형주든 직접 매매는 다 됩니다. '자동' 딱지가
+          붙은 것만 자동매매 전략에 쓸 수 있습니다.                 */
+      var tag = '';
+      if (x.leveraged)         tag += '<span class="sym-tag lev">레버리지</span>';
+      else if (x.kind === 'etf') tag += '<span class="sym-tag etf">ETF</span>';
+      if (x.scannable)         tag += '<span class="sym-tag scan">자동</span>';
       return '<div data-i="' + i + '" onclick="mtPickSym(' + i + ')">'
            + '<span class="c">' + esc(x.symbol) + '</span>'
-           + '<span>' + esc(x.name || '') + '</span>'
+           + '<span>' + esc(x.name || '') + tag + '</span>'
            + '<span class="m">' + esc(x.market) + '</span></div>';
     }).join('');
     box._rows = rows;
@@ -10256,6 +10311,47 @@ async function showUniverse(){
 }
 
 /* 거래대금 상위 종목 자동 등록 */
+/*  ── 살 수 있는 종목 명단 받기 ──────────────────────────────
+    미국은 Alpaca 가 상장 전 종목·ETF 를 통째로 줍니다 (약 1만).
+    국내는 공공데이터포털이 그날 상장 전 종목을 줍니다 (약 2,800).
+    둘 다 이미 열쇠를 갖고 있는 공식 창구입니다.                      */
+async function syncTradable(mk){
+  var id = mk === 'US' ? 'trUsBtn' : (mk === 'KR' ? 'trKrBtn' : 'trCcBtn');
+  var b = $(id), label = b.textContent;
+  b.disabled = true; b.textContent = '받는 중…';
+  warn('trMsg','');
+  try {
+    var src = mk === 'US' ? 'assets_us' : (mk === 'KR' ? 'assets_kr' : 'assets_crypto');
+    var d = await edge({ source: src });
+    var msg = marketLabel(mk) + ' <b>' + num(d.total, 0) + '종목</b>을 받았습니다.';
+    if (d.etf != null) msg += ' (ETF ' + num(d.etf,0) + ' · 레버리지 ' + num(d.leveraged||0,0) + ')';
+    if (d.priced)      msg += '<br>같은 날 종가 ' + num(d.priced,0) + '건도 함께 저장했습니다.';
+    if (d.sample && d.sample.length) msg += '<br>레버리지 예: ' + esc(d.sample.join(', '));
+    warn('trMsg', msg, 'info');
+    await loadTradableStat();
+  } catch(e){
+    warn('trMsg', esc(e.message));
+  }
+  b.disabled = false; b.textContent = label;
+}
+
+async function loadTradableStat(){
+  var el = $('trStat'); if (!el) return;
+  try {
+    var r = await sb.rpc('tradable_status');
+    if (r.error) throw new Error(errMsg(r.error));
+    var d = r.data || {};
+    var tot = Number(d.us||0) + Number(d.kr||0) + Number(d.crypto||0);
+    el.innerHTML = tot
+      ? '— 미국 ' + num(d.us,0) + ' · 국내 ' + num(d.kr,0) + ' · 코인 ' + num(d.crypto,0)
+        + ' (ETF ' + num(Number(d.us_etf||0)+Number(d.kr_etf||0), 0)
+        + ' · 레버리지 ' + num(d.us_lev,0) + ')'
+      : '— 아직 안 받았습니다';
+  } catch(e){
+    el.textContent = '— terminal-전종목.sql 을 아직 실행하지 않았습니다';
+  }
+}
+
 async function autoUniverse(mk){
   var id = mk === 'KR' ? 'uniKrBtn' : (mk === 'CRYPTO' ? 'uniCcBtn' : 'uniUsBtn');
   var b = $(id), label = b.textContent;
@@ -10443,6 +10539,7 @@ async function loadAccess(){
 
 /* ══════════ 설정 (임원진) ══════════ */
 async function loadAdmin(){
+  loadTradableStat();
   var s = await sb.from('app_settings').select('current_gen').eq('id',1).maybeSingle();
   if (s.data) $('curGen').value = s.data.current_gen;
   renderIndicatorTable();
