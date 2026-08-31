@@ -497,6 +497,17 @@
   .sym-tag.scan{background:#e6f0ff;color:#2456c9}
 
   /*  현황이 살아 있다는 표시 — 30초마다 스스로 다시 받아옵니다.  */
+  /*  보유 종목 줄 — 누르면 주가 차트가 열립니다.  */
+  .pos-row{cursor:pointer;transition:background .12s}
+  .pos-row:hover{background:var(--soft,#f4f7fc)}
+  .pos-row.on{background:#eef3fd}
+  .pos-row .lnk{border-bottom:1px dashed #b9c4d8}
+  /*  표 안에서 바로 파는 칸.  */
+  .sell-cell{display:flex;gap:5px;align-items:center;justify-content:flex-end}
+  .sell-cell .sell-q{width:74px;padding:5px 7px;border:1px solid var(--border);
+    border-radius:7px;font-size:12px;text-align:right;background:var(--white);color:var(--text)}
+  .sell-cell .btn-sm{padding:4px 8px;font-size:11.5px;white-space:nowrap}
+
   .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;
             background:var(--ok);margin-right:5px;vertical-align:1px;
             animation:liveBlink 2s ease-in-out infinite}
@@ -1125,7 +1136,7 @@
                        style="width:auto;vertical-align:-2px"> <b>자동매매 사용</b>
               </label>
               <label style="min-width:auto">훑는 간격</label>
-              <select id="mtAutoIv" onchange="mtAutoSave()" style="width:150px">
+              <select id="mtAutoIv" onchange="mtAutoSave()" style="width:132px">
                 <option value="5m">5분마다</option>
                 <option value="15m">15분마다</option>
                 <option value="30m">30분마다</option>
@@ -1134,6 +1145,23 @@
                 <option value="1d" selected>하루 한 번</option>
                 <option value="1w">일주일 한 번</option>
               </select>
+              <label style="min-width:auto">지표 기준 봉</label>
+              <select id="mtBarTf" onchange="mtAutoSave()" style="width:132px">
+                <option value="5m">5분봉</option>
+                <option value="15m">15분봉</option>
+                <option value="30m">30분봉</option>
+                <option value="1h">1시간봉</option>
+                <option value="4h">4시간봉</option>
+                <option value="1d" selected>일봉</option>
+                <option value="1w">주봉</option>
+              </select>
+            </div>
+            <div class="st-hint" style="margin-top:-4px">
+              <b>이 둘은 다른 이야기입니다.</b>
+              <b>훑는 간격</b>은 얼마나 자주 들여다볼지, <b>지표 기준 봉</b>은
+              20일 이동평균인지 20개 5분봉 이동평균인지를 정합니다.
+              <br>가장 흔한 방식은 <b>5분마다 훑되 일봉 기준</b>입니다 —
+              신호는 하루 단위로 보되, 조건이 맞으면 5분 안에 들어갑니다.
             </div>
             <div class="row">
               <label>배정 금액</label>
@@ -1332,7 +1360,8 @@
               <div class="grow" style="position:relative">
                 <input type="text" id="tSymbol" class="grow" autocomplete="off"
                        placeholder="삼성전자 · 005930 · NVDA · BTC — 이름도 코드도 됩니다"
-                       oninput="mtFindSym()" onkeydown="mtSymKey(event)">
+                       oninput="mtFindSym()" onkeydown="mtSymKey(event)"
+                       onfocus="mtSymFocus()">
                 <div id="mtSymList" class="mt-ac hidden"></div>
               </div>
             </div>
@@ -1346,7 +1375,7 @@
             </div>
             <div class="row">
               <label>구분</label>
-              <select id="tSide" onchange="mtQuoteRefresh()">
+              <select id="tSide" onchange="mtSideChanged()">
                 <option value="buy">매수</option><option value="sell">매도</option>
               </select>
               <input type="number" id="tQty" class="grow" placeholder="수량" min="1" step="1"
@@ -1370,6 +1399,11 @@
           </div>
         </div>
 
+        <!--  주문하면서 <지금 뭘 얼마나 들고 있는지> 를 같이 봐야 합니다.
+              비중을 모르고 사면 한 종목에 쏠리기 쉽습니다.
+              같은 표를 두 벌 만들지 않고, 화면을 옮길 때 자리만 바꿔 끼웁니다.  -->
+        <div id="mtManualHold"></div>
+
         </div><!-- /mtPane-manual -->
 
         <!-- ══ 현황 ══ -->
@@ -1383,13 +1417,20 @@
           <div class="scroll"><table id="mtPosTable"></table></div>
         </div>
 
-        <!--  사서 전부 판 종목. 체결된 종목이 화면에서 사라지면 안 됩니다.  -->
-        <div class="card hidden" id="mtClosedCard">
-          <h2>판 종목
-            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
-              — 전부 팔아서 지금은 안 들고 있는 것들. 실현손익이 여기서 났습니다.</span>
+        <!--  고른 종목의 주가 추이. 표에서 종목을 누르면 여기 펼쳐집니다.  -->
+        <div class="card hidden" id="mtChartCard">
+          <h2><span id="mtChartName">주가 추이</span>
+            <span class="tools">
+              <select id="mtChartRange" onchange="mtDrawSymChart()" style="width:110px">
+                <option value="60">3개월</option>
+                <option value="130" selected>6개월</option>
+                <option value="260">1년</option>
+              </select>
+              <button class="btn-sm" onclick="mtCloseSymChart()">닫기</button>
+            </span>
           </h2>
-          <div class="scroll"><table id="mtClosedTable"></table></div>
+          <div id="mtSymBox" style="height:320px"></div>
+          <div class="st-hint" id="mtChartNote" style="margin-top:6px"></div>
         </div>
 
         <div class="card">
@@ -1411,6 +1452,16 @@
             <h2>S&amp;P 500 대비</h2>
             <div id="benchBox"></div>
           </div>
+        </div>
+
+        <!--  판 종목은 맨 아래입니다. 많이 팔수록 길어지는 표라, 위에 두면
+              차트를 보려고 매번 그만큼 스크롤해야 합니다.  -->
+        <div class="card hidden" id="mtClosedCard">
+          <h2>판 종목
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+              — 전부 팔아서 지금은 안 들고 있는 것들. 실현손익이 여기서 났습니다.</span>
+          </h2>
+          <div class="scroll"><table id="mtClosedTable"></table></div>
         </div>
 
         </div><!-- /mtPane-now -->
@@ -7802,7 +7853,8 @@ function tradeTab(k){
   if (k === 'auto') mtRenderAutoBar();
   else if (mtBarTimer){ clearInterval(mtBarTimer); mtBarTimer = null; }
   //  현황은 열어두면 스스로 갱신됩니다 (자동매매가 사고판 것이 여기 들어옵니다)
-  if (k === 'now') mtLiveStart(); else mtLiveStop();
+  if (k === 'now' || k === 'manual') mtLiveStart(); else mtLiveStop();
+  mtMoveHoldings(k);
   if (k === 'auto'){
     var sc = $('strategyCard'); if (sc) sc.classList.remove('hidden');
     if (typeof tradeTabAuto === 'function') tradeTabAuto();
@@ -7921,10 +7973,12 @@ function mtRenderPositions(){
   var fx = (mtAcc && mtAcc.fx) || 1400;
   mtStampAsOf();
   var fxr = fx;
+  var total = Number((mtAcc && mtAcc.total) || 0);
   t.innerHTML =
     '<thead><tr><th>종목</th><th>산 방법</th><th>시장</th><th class="num">수량</th><th class="num">평단가</th>'
-  + '<th class="num">현재가</th><th class="num">평가금액</th>'
-  + '<th class="num">손익금액</th><th class="num">수익률</th></tr></thead><tbody>'
+  + '<th class="num">현재가</th><th class="num">평가금액</th><th class="num">비중</th>'
+  + '<th class="num">손익금액</th><th class="num">수익률</th>'
+  + (mtCanTrade ? '<th class="num">바로 팔기</th>' : '') + '</tr></thead><tbody>'
   + pos.map(function(p){
       var dp = p.market === 'KR' ? 0 : 2;
       var up = (p.pnl || 0) >= 0;
@@ -7933,22 +7987,189 @@ function mtRenderPositions(){
           여기만 달러면 두 숫자를 머리로 환산해가며 읽어야 합니다.
           원래 통화 금액은 아래에 작게 같이 답니다.                     */
       var pnlKrw = p.pnl == null ? null : p.pnl * rate;
-      return '<tr><td><b>' + esc(p.name || p.symbol) + '</b>'
+      var wt = (total > 0 && p.value_krw != null) ? (p.value_krw / total * 100) : null;
+      var d  = p.market === 'CRYPTO' ? 4 : 0;
+      var sym = esc(p.market) + '|' + esc(p.symbol);
+      /*  종목 이름을 누르면 아래에 주가 추이가 펼쳐집니다.
+          (팔기 칸은 눌러도 차트가 안 열리게 따로 막습니다)              */
+      return '<tr class="pos-row' + (mtSymPick === (p.market+'|'+p.symbol) ? ' on' : '')
+           + '" onclick="mtOpenSymChart(\'' + esc(p.market) + '\',\'' + esc(p.symbol) + '\')">'
+           + '<td><b class="lnk">' + esc(p.name || p.symbol) + '</b>'
            + '<div class="st-hint">' + esc(p.symbol) + '</div></td>'
            + '<td>' + mtByBadge(p) + '</td>'
            + '<td>' + esc(p.market) + '</td>'
-           + '<td class="num">' + num(p.qty, p.market === 'CRYPTO' ? 4 : 0) + '</td>'
+           + '<td class="num">' + num(p.qty, d) + '</td>'
            + '<td class="num">' + mtCur(p.avg, p.market, dp) + '</td>'
            + '<td class="num">' + mtCur(p.last, p.market, dp) + '</td>'
            + '<td class="num">' + (p.value_krw == null ? '—' : mtMoney(p.value_krw) + '원') + '</td>'
+           + '<td class="num">' + (wt == null ? '—' : num(wt, 1) + '%') + '</td>'
            + '<td class="num ' + (up ? 'up' : 'dn') + '">'
            + (pnlKrw == null ? '—' : (up ? '+' : '') + mtMoney(pnlKrw) + '원'
               + (p.market === 'KR' ? '' : '<div class="st-hint">' + (up ? '+' : '')
                  + mtCur(p.pnl, p.market, dp) + '</div>')) + '</td>'
            + '<td class="num ' + (up ? 'up' : 'dn') + '">'
-           + (p.pnl_pct == null ? '—' : (up ? '+' : '') + num(p.pnl_pct, 2) + '%') + '</td></tr>';
+           + (p.pnl_pct == null ? '—' : (up ? '+' : '') + num(p.pnl_pct, 2) + '%') + '</td>'
+           + (mtCanTrade
+              ? '<td class="num" onclick="event.stopPropagation()">'
+                + '<div class="sell-cell">'
+                + '<input type="number" class="sell-q" id="sq_' + esc(p.market) + '_' + esc(p.symbol)
+                +   '" min="0" step="' + (d ? '0.0001' : '1')
+                +   '" placeholder="' + num(p.qty, d) + '">'
+                + '<button class="btn-sm" onclick="mtQuickAll(\'' + esc(p.market) + '\',\''
+                +   esc(p.symbol) + '\',' + p.qty + ')">전량</button>'
+                + '<button class="btn-sm btn-solid" onclick="mtQuickSell(\'' + esc(p.market)
+                +   '\',\'' + esc(p.symbol) + '\',\'' + esc(p.name || p.symbol) + '\')">매도</button>'
+                + '</div></td>'
+              : '')
+           + '</tr>';
     }).join('')
   + '</tbody>';
+}
+
+/*  ── 보유 종목·포트폴리오를 주문 화면에도 ──────────────────
+    표를 두 벌 만들면 언젠가 한쪽만 고쳐서 어긋납니다. 카드 하나를
+    화면에 따라 자리만 옮겨 끼웁니다.                                  */
+function mtMoveHoldings(k){
+  var hold = $('mtPosTable'); if (!hold) return;
+  var holdCard = hold.closest('.card');
+  var pieCard  = $('pieBox') ? $('pieBox').closest('.card') : null;
+  var manual   = $('mtManualHold');
+  var now      = $('mtPane-now');
+  if (!holdCard || !manual || !now) return;
+
+  if (k === 'manual'){
+    manual.appendChild(holdCard);
+    if (pieCard) manual.appendChild(pieCard);
+  } else {
+    //  현황으로 돌아오면 원래 자리(맨 앞)로
+    var note = $('mtLiveNote');
+    if (note && note.nextSibling) now.insertBefore(holdCard, note.nextSibling);
+    else now.insertBefore(holdCard, now.firstChild);
+    var chart = $('mtChartCard');
+    if (pieCard && chart && chart.nextSibling) now.insertBefore(pieCard, chart.nextSibling);
+    else if (pieCard) now.insertBefore(pieCard, holdCard.nextSibling);
+  }
+  requestAnimationFrame(function(){ requestAnimationFrame(resizeAllCharts); });
+}
+
+/*  ── 고른 종목의 주가 추이 ─────────────────────────────────
+    보유 종목에서 종목을 누르면 바로 아래에 그 종목 차트가 펼쳐집니다.
+    평단가를 가로선으로 같이 그려서, 지금 가격이 산 값보다 위인지
+    아래인지 한눈에 보이게 합니다.                                    */
+var mtSymPick = null, mtSymChart = null, mtSymPts = null;
+
+async function mtOpenSymChart(mk, sym){
+  var key = mk + '|' + sym;
+  //  같은 종목을 다시 누르면 접습니다
+  if (mtSymPick === key){ mtCloseSymChart(); return; }
+  mtSymPick = key;
+  mtRenderPositions();                       // 고른 줄에 표시
+
+  var card = $('mtChartCard'); if (!card) return;
+  card.classList.remove('hidden');
+  var p = ((mtAcc && mtAcc.positions) || []).filter(function(x){
+    return x.market === mk && x.symbol === sym; })[0] || {};
+  $('mtChartName').textContent = (p.name || sym) + ' 주가 추이';
+  $('mtChartNote').textContent = '불러오는 중…';
+  mtSymPts = null;
+
+  try {
+    var d = await edge({ source: quoteSource(mk), code: sym, start: startOfYear() });
+    mtSymPts = (d && d.points) || [];
+    $('mtChartNote').innerHTML = mtSymPts.length
+      ? '점선은 평단가입니다. ' + marketLabel(mk) + ' · ' + esc(sym)
+      : '이 종목의 지난 시세를 받지 못했습니다.';
+    mtDrawSymChart();
+  } catch(e){
+    $('mtChartNote').textContent = '시세를 받지 못했습니다: ' + e.message;
+    if (mtSymChart) mtSymChart.clear();
+  }
+}
+
+function mtCloseSymChart(){
+  mtSymPick = null;
+  var c = $('mtChartCard'); if (c) c.classList.add('hidden');
+  mtRenderPositions();
+}
+
+function mtDrawSymChart(){
+  if (typeof echarts === 'undefined' || !mtSymPts) return;
+  var box = $('mtSymBox'); if (!box) return;
+  if (!mtSymChart) mtSymChart = echarts.init(box);
+  var n = Number($('mtChartRange').value) || 130;
+  var pts = mtSymPts.slice(-n);
+  if (!pts.length){ mtSymChart.clear(); return; }
+
+  var mk = (mtSymPick || '').split('|')[0];
+  var p = ((mtAcc && mtAcc.positions) || []).filter(function(x){
+    return x.market + '|' + x.symbol === mtSymPick; })[0] || {};
+  var avg = Number(p.avg) || 0;
+  var dp = mk === 'KR' ? 0 : 2;
+  var mark = mk === 'KR' ? '' : '$';
+
+  mtSymChart.setOption({
+    backgroundColor:'transparent',
+    grid:{ left:70, right:24, top:24, bottom:36 },
+    tooltip:{ trigger:'axis', borderWidth:0,
+      backgroundColor:'rgba(26,31,54,.92)', textStyle:{ color:'#fff', fontSize:12.5 },
+      formatter:function(a){
+        return a[0].axisValue + '<br/>' + mark + num(a[0].data, dp); } },
+    xAxis:{ type:'category', data: pts.map(function(x){ return x.d; }),
+      axisLabel:{ fontSize:11, color:'#5a6278' },
+      axisLine:{ lineStyle:{ color:'#e8ecf4' } } },
+    yAxis:{ type:'value', scale:true,
+      axisLabel:{ fontSize:11, color:'#5a6278',
+        formatter:function(v){ return mark + num(v, dp); } },
+      splitLine:{ lineStyle:{ color:'#eef1f7' } } },
+    series:[{
+      type:'line', smooth:true, showSymbol:false,
+      data: pts.map(function(x){ return Number(x.v); }),
+      lineStyle:{ width:2, color:'#2c3e6b' },
+      areaStyle:{ color:{ type:'linear', x:0, y:0, x2:0, y2:1, colorStops:[
+        { offset:0, color:'rgba(44,62,107,.16)' },
+        { offset:1, color:'rgba(44,62,107,0)' } ] } },
+      //  평단가 — 지금이 산 값보다 위인지 아래인지 바로 보이게
+      markLine: avg > 0 ? {
+        silent:true, symbol:'none',
+        lineStyle:{ type:'dashed', color:'#b26a00', width:1.5 },
+        label:{ formatter:'평단 ' + mark + num(avg, dp), fontSize:11,
+                color:'#b26a00', position:'insideEndTop' },
+        data:[{ yAxis: avg }] } : undefined,
+    }]
+  }, true);
+  mtSymChart.resize();
+}
+
+/*  ── 표에서 바로 팔기 ──────────────────────────────────────
+    예전에는 팔려면 직접매매로 가서 티커를 다시 치고 수량을 넣어야
+    했습니다. 들고 있는 걸 파는 데 종목을 다시 찾는 건 이상합니다.   */
+function mtQuickAll(mk, sym, qty){
+  var el = $('sq_' + mk + '_' + sym);
+  if (el) el.value = qty;
+}
+async function mtQuickSell(mk, sym, name){
+  var el = $('sq_' + mk + '_' + sym);
+  var q = Number(el && el.value);
+  if (!(q > 0)){ warn('mtLiveNoteMsg', ''); alert('팔 수량을 넣어주세요.'); return; }
+  if (!confirm(name + ' ' + num(q, mk === 'CRYPTO' ? 4 : 0) + '주를 팝니다. 진행할까요?')) return;
+  var btn = event && event.target; if (btn) btn.disabled = true;
+  try {
+    var d = await edge({ source:'mt_order', team_id: team, market: mk, symbol: sym,
+                         name: name, side:'sell', qty: q });
+    var box = $('mtLiveNote');
+    if (box){
+      box.innerHTML = '<b>' + esc(name) + ' ' + num(d.qty, mk==='CRYPTO'?4:0) + '주</b>를 '
+        + mtCur(d.price, mk, mk === 'KR' ? 0 : 2) + '에 팔았습니다. ('
+        + esc(d.fill_basis || '') + ')';
+      box.classList.remove('hidden');
+      clearTimeout(box._t);
+      box._t = setTimeout(function(){ box.classList.add('hidden'); }, 12000);
+    }
+    await mtLoadAccount();
+  } catch(e){
+    alert('팔지 못했습니다: ' + e.message);
+  }
+  if (btn) btn.disabled = false;
 }
 
 /*  판 종목 — 지금은 안 들고 있지만 체결은 됐던 것들.
@@ -7996,10 +8217,62 @@ function mtFindSym(){
   if (mtSymT) clearTimeout(mtSymT);
   mtSymT = setTimeout(mtFindSymGo, 180);
 }
+/*  매수 ↔ 매도를 바꾸면 종목 목록도 그에 맞게 바뀝니다.  */
+function mtSideChanged(){
+  var sell = $('tSide') && $('tSide').value === 'sell';
+  var el = $('tSymbol');
+  if (el) el.placeholder = sell
+    ? '팔 종목 — 칸을 누르면 보유 종목이 나옵니다'
+    : '삼성전자 · 005930 · NVDA · BTC — 이름도 코드도 됩니다';
+  if (sell && el && !el.value.trim()) mtHoldList();
+  else if (!sell) { var b = $('mtSymList'); if (b) b.classList.add('hidden'); }
+  mtQuoteRefresh();
+}
+
+/*  매도일 때 종목칸을 누르면 <지금 들고 있는 것> 부터 보여줍니다.
+    없는 종목은 팔 수가 없으니, 만 종목을 뒤지게 할 이유가 없습니다.  */
+function mtHoldList(){
+  var box = $('mtSymList'); if (!box) return;
+  var pos = (mtAcc && mtAcc.positions) || [];
+  if (!pos.length){
+    box.innerHTML = '<div class="st-hint" style="padding:10px 13px">'
+      + '지금 들고 있는 종목이 없습니다.</div>';
+    box.classList.remove('hidden'); return;
+  }
+  mtSymHit = -1;
+  var rows = pos.map(function(p){
+    return { market:p.market, symbol:p.symbol, name:p.name || p.symbol,
+             kind:'', leveraged:false, scannable:false, qty:p.qty };
+  });
+  box.innerHTML = '<div class="st-hint" style="padding:7px 13px 3px">지금 들고 있는 종목</div>'
+    + rows.map(function(x, i){
+        return '<div data-i="' + i + '" onclick="mtPickSym(' + i + ')">'
+             + '<span class="c">' + esc(x.symbol) + '</span>'
+             + '<span>' + esc(x.name)
+             + '<span class="sym-tag etf">' + num(x.qty, x.market === 'CRYPTO' ? 4 : 0)
+             + '주 보유</span></span>'
+             + '<span class="m">' + esc(x.market) + '</span></div>';
+      }).join('');
+  box._rows = rows;
+  box.classList.remove('hidden');
+}
+
+//  종목칸을 눌렀을 때 (비어 있고 매도면 보유 종목을 띄웁니다)
+function mtSymFocus(){
+  var v = $('tSymbol').value.trim();
+  if (v) return;
+  if ($('tSide') && $('tSide').value === 'sell') mtHoldList();
+}
+
 async function mtFindSymGo(){
   var q = $('tSymbol').value.trim();
   var box = $('mtSymList');
-  if (q.length < 1){ box.classList.add('hidden'); return; }
+  if (q.length < 1){
+    //  매도인데 칸을 비우면 보유 종목으로 되돌아갑니다
+    if ($('tSide') && $('tSide').value === 'sell') mtHoldList();
+    else box.classList.add('hidden');
+    return;
+  }
   try {
     var r = await sb.rpc('symbol_find', { q: q, lim: 12 });
     if (r.error) throw new Error(errMsg(r.error));
@@ -8183,6 +8456,7 @@ async function mtLoadAuto(){
     $('mtAutoOn').checked = !!a.on;
     $('mtAutoBudget').value = Number(a.budget) || '';
     $('mtAutoIv').value = a.interval || '1d';
+    if ($('mtBarTf')) $('mtBarTf').value = a.bar_tf || '1d';
   }
   mtAutoRoom();
   try {
@@ -8273,6 +8547,9 @@ function mtRenderAutoBar(){
       '<div class="ab-state"><span class="ab-dot"></span>돌고 있습니다</div>'
     + '<div class="ab-i"><span class="ab-k">훑는 간격</span><span class="ab-v">'
     +   ivName + '마다</span></div>'
+    + '<div class="ab-i"><span class="ab-k">지표 기준</span><span class="ab-v">'
+    +   ({ '5m':'5분봉','15m':'15분봉','30m':'30분봉','1h':'1시간봉',
+           '4h':'4시간봉','1d':'일봉','1w':'주봉' }[a.bar_tf] || '일봉') + '</span></div>'
     + '<div class="ab-i"><span class="ab-k">다음 실행까지</span>'
     +   '<span class="ab-v" id="mtAutoEta">—</span></div>'
     + '<div class="ab-i"><span class="ab-k">마지막 실행</span><span class="ab-v">'
@@ -8331,7 +8608,8 @@ async function mtAutoSave(){
     await edge({ source:'mt_auto_set', team_id: team,
                  auto_on: $('mtAutoOn').checked,
                  auto_budget: Number($('mtAutoBudget').value) || 0,
-                 auto_interval: $('mtAutoIv').value });
+                 auto_interval: $('mtAutoIv').value,
+                 bar_tf: $('mtBarTf') ? $('mtBarTf').value : '1d' });
     var ivN = $('mtAutoIv').options[$('mtAutoIv').selectedIndex].textContent;
     warn('mtAutoMsg', $('mtAutoOn').checked
       ? '저장했습니다 — 지금부터 <b>' + esc(ivN) + '마다</b> 훑습니다.'
@@ -10098,26 +10376,44 @@ function quantHTML(m, note){
 }
 
 /* 종목별 손익 기여도 — 실현 + 평가 */
+/*  종목별 기여도.
+
+    ⚠️ 예전에는 거래에 적힌 환율(t.fx)을 썼습니다. 그런데 새 주문 창구는
+       그 칸을 안 채워서 기본값 1 로 남고, 미국 종목이 <달러 그대로> 원화
+       현금과 섞였습니다. 실현손익에서 수수료도 빠뜨렸고요.
+
+       이제 다른 곳과 같은 규칙입니다 — 국내는 1, 미국·코인은 대회
+       고정환율. 수수료도 셉니다. 미실현손익은 서버가 원화로 환산해준
+       값(mtAcc)을 그대로 받아씁니다.                                  */
 function attribution(trades, positions){
   var acc = {};
+  var fxFix = (mtAcc && mtAcc.fx) || (mtCt && mtCt.fx_fixed) || 1400;
   trades.slice().sort(function(a,b){ return String(a.traded_on).localeCompare(String(b.traded_on)); })
   .forEach(function(t){
-    var k = t.market+'|'+t.symbol, f = Number(t.fx||1), q = Number(t.qty), pr = Number(t.price);
+    var k = t.market+'|'+t.symbol;
+    var f = t.market === 'KR' ? 1 : fxFix;
+    var q = Number(t.qty), pr = Number(t.price), fee = Number(t.fee||0);
     acc[k] = acc[k] || { market:t.market, symbol:t.symbol, name:t.name||t.symbol,
                          qty:0, cost:0, realized:0, trades:0 };
     var a = acc[k]; a.trades++;
-    if (t.side === 'buy'){ a.qty += q; a.cost += q*pr*f; }
+    if (t.side === 'buy'){ a.qty += q; a.cost += (q*pr + fee)*f; }
     else {
       var avgc = a.qty > 0 ? a.cost/a.qty : 0;
-      a.realized += q*(pr*f - avgc);
+      a.realized += q*(pr*f - avgc) - fee*f;
       var keep = Math.max(0, a.qty - q);
       a.cost = a.qty > 0 ? a.cost*(keep/a.qty) : 0;
       a.qty = keep;
     }
   });
+  /*  미실현손익은 서버가 이미 원화로 환산해 둔 것을 씁니다.
+      mtAcc.positions 의 pnl 은 원래 통화라 환산이 한 번 더 필요합니다.  */
   (positions||[]).forEach(function(p){
     var k = p.market+'|'+p.symbol;
-    if (acc[k]) acc[k].unreal = Number(p.pnl||0);
+    if (!acc[k]) return;
+    if (p.value_krw != null && p.pnl != null)
+      acc[k].unreal = Number(p.pnl) * (p.market === 'KR' ? 1 : fxFix);   // mtAcc 모양
+    else
+      acc[k].unreal = Number(p.pnl || 0);                                // team_state 모양(이미 원화)
   });
   return Object.keys(acc).map(function(k){
     var a = acc[k];
@@ -10191,10 +10487,12 @@ async function loadQuant(){
   var m = quantMetrics(hist, bench, rf, seed);
 
   var tr = await sb.from('trades')
-    .select('market,symbol,name,side,qty,price,fx,traded_on').eq('team_id', team);
+    .select('market,symbol,name,side,qty,price,fee,fx,traded_on').eq('team_id', team);
 
+  //  보유 종목은 서버가 환산해준 mtAcc 를 먼저 씁니다 (없으면 예전 값)
+  var qpos = (mtAcc && mtAcc.positions) || (tstate && tstate.positions) || [];
   box.innerHTML = quantHTML(m)
-    + attributionHTML(attribution(tr.data || [], (tstate && tstate.positions) || []))
+    + attributionHTML(attribution(tr.data || [], qpos))
     + '<div class="q-group" style="margin-bottom:0"><div class="q-title">일간 수익률 분포 '
     + '<span>가운데가 두툼하고 왼쪽 꼬리가 짧을수록 안정적입니다</span></div>'
     + '<div id="distBox"></div></div>';
@@ -10239,13 +10537,23 @@ function onMarketChange(){
 
 /* 해당 날짜의 원/달러 환율. 보관함이 비어 있으면 한 번 받아옵니다. */
 async function getFx(d){
-  var r = await sb.rpc('fx_rate', { p_date: d || null });
-  var v = (r.data == null) ? null : Number(r.data);
-  if (v > 0) return v;
-  try { await edge({ source:'fred', code:'DEXKOUS', cycle:'D', start:'2015-01-01' }); } catch(e){}
-  r = await sb.rpc('fx_rate', { p_date: d || null });
-  v = (r.data == null) ? null : Number(r.data);
-  return (v > 0) ? v : null;
+  /*  대회는 고정환율을 씁니다. 그게 있으면 그걸로 끝냅니다 —
+      날짜별 환율을 찾을 이유가 없습니다.                              */
+  var fixed = (mtCt && Number(mtCt.fx_fixed)) || (mtAcc && Number(mtAcc.fx)) || fxFixed;
+  if (fixed > 0) return Number(fixed);
+
+  /*  fx_rate 는 terminal-환율.sql 을 돌린 곳에만 있습니다. 없는 곳도
+      있어서, 없으면 조용히 넘어가고 마지막에 대회 기본값을 씁니다.    */
+  try {
+    var r = await sb.rpc('fx_rate', { p_date: d || null });
+    var v = (r && r.data != null) ? Number(r.data) : null;
+    if (v > 0) return v;
+    try { await edge({ source:'fred', code:'DEXKOUS', cycle:'D', start:'2015-01-01' }); } catch(e){}
+    r = await sb.rpc('fx_rate', { p_date: d || null });
+    v = (r && r.data != null) ? Number(r.data) : null;
+    if (v > 0) return v;
+  } catch(e){ /* 함수가 없는 곳 */ }
+  return 1400;                       // 대회 기본 고정환율
 }
 
 /* 현재가 조회 — 지연 시세를 그대로 단가에 넣습니다.
@@ -11734,7 +12042,8 @@ async function saveStrategy(){
       await edge({ source:'mt_auto_set', team_id: team,
                    auto_on: true,
                    auto_budget: Number($('mtAutoBudget').value) || 0,
-                   auto_interval: $('mtAutoIv').value });
+                   auto_interval: $('mtAutoIv').value,
+                   bar_tf: $('mtBarTf') ? $('mtBarTf').value : '1d' });
       await mtLoadAccount(); await mtLoadAuto();
       mtFlashAutoBar();
       var ivN = $('mtAutoIv').options[$('mtAutoIv').selectedIndex].textContent;
