@@ -1120,6 +1120,10 @@
             </span>
           </h2>
 
+          <!--  "저장은 했는데 지금 뭐가 돌고 있지?" 를 없애는 칸입니다.
+                전략을 바꾸는 날은 하루에도 몇 번씩 저장하게 되니까요.  -->
+          <div id="stratLive"></div>
+
           <div id="uniNote"></div>
 
           <!--  ① 얼마로 굴릴까
@@ -1461,9 +1465,9 @@
         <!--  판 종목은 맨 아래입니다. 많이 팔수록 길어지는 표라, 위에 두면
               차트를 보려고 매번 그만큼 스크롤해야 합니다.  -->
         <div class="card hidden" id="mtClosedCard">
-          <h2>판 종목
+          <h2>판 내역
             <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
-              — 전부 팔아서 지금은 안 들고 있는 것들. 실현손익이 여기서 났습니다.</span>
+              — 한 번이라도 판 종목. 반만 팔았어도 나옵니다.</span>
           </h2>
           <div class="scroll"><table id="mtClosedTable"></table></div>
         </div>
@@ -7799,9 +7803,50 @@ async function mtLoadLeague(){
 }
 
 /* ── 방 드나들기 ─────────────────────────────── */
+/*  ── 방을 옮길 때 화면을 비웁니다 ────────────────────────────
+    팀마다 다른 방입니다. 그런데 화면에 남는 것들 — 열어둔 주가 차트,
+    방금 체결됐다는 알림, 백테스트 결과 — 은 팀 번호를 안 물고 있어서
+    다른 팀 방으로 가도 그대로 남아 있었습니다.
+
+    채권팀에서 애플 차트를 열고 인플레이션팀으로 가면, 아무것도 안 들고
+    있는 팀 방에 애플 차트가 <채권팀 평단선까지 달고> 떠 있었습니다.
+    돈이 섞이는 건 아니지만 "팀마다 따로" 라는 말을 화면이 배신합니다.
+
+    특히 백테스트 결과(lastPreview)는 그냥 보기 흉한 정도가 아닙니다 —
+    저장은 "미리 돌려보기를 한 번 했어야" 열리는데, 그게 남아 있으면
+    A팀에서 돌려본 결과로 B팀 전략을 저장할 수 있게 됩니다.            */
+function mtResetRoomView(){
+  //  주가 차트
+  mtSymPick = null; mtSymPts = null; mtAvgShown = false;
+  var cc = $('mtChartCard'); if (cc) cc.classList.add('hidden');
+  if (mtSymChart){ try { mtSymChart.clear(); } catch(e){} }
+
+  //  "자동매매가 방금 N건 체결" 알림과 그 기준값
+  mtLiveFills = null;
+  var ln = $('mtLiveNote'); if (ln){ ln.classList.add('hidden'); clearTimeout(ln._t); }
+
+  //  판 내역 · 지금 도는 전략 — 새로 받아오기 전까지는 비워둡니다
+  var cl = $('mtClosedCard'); if (cl) cl.classList.add('hidden');
+  var sl = $('stratLive'); if (sl) sl.innerHTML = '';
+
+  //  백테스트 결과와 전략은 팀 것이라 반드시 비웁니다
+  lastPreview = null; strat = null; stratList = [];
+  var sm = $('stratMsg'); if (sm) sm.innerHTML = '';
+  var am = $('mtAutoMsg'); if (am) am.innerHTML = '';
+  var tm = $('tradeMsg'); if (tm) tm.innerHTML = '';
+
+  //  주문 칸에 남은 종목·수량도
+  ['tSymbol','tQty'].forEach(function(id){ var e = $(id); if (e) e.value = ''; });
+  var sb2 = $('mtSymList'); if (sb2) sb2.classList.add('hidden');
+  var qb = $('mtQuoteBox'); if (qb) qb.classList.add('hidden');
+  mtQuote = null; mtPick = null;
+  mtAcc = null;
+}
+
 async function mtEnter(teamId){
   var row = mtBoard.filter(function(t){ return Number(t.team_id) === Number(teamId); })[0];
   mtCanTrade = isOfficer() || (mtMyTeam === Number(teamId));
+  mtResetRoomView();
 
   $('mtLeague').classList.add('hidden');
   $('mtRoomHead').classList.remove('hidden');
@@ -7829,6 +7874,7 @@ async function mtEnter(teamId){
 }
 
 function mtLeave(){
+  mtResetRoomView();
   $('mtLeague').classList.remove('hidden');
   $('mtRoomHead').classList.add('hidden');
   $('tradingBody').classList.add('hidden');
@@ -8028,6 +8074,69 @@ function mtRenderPositions(){
            + '</tr>';
     }).join('')
   + '</tbody>';
+}
+
+/*  방금 바뀌었다는 걸 눈으로 보여줍니다.  */
+function mtFlashStratLive(){
+  var el = $('stratLive'); if (!el) return;
+  var box = el.firstElementChild; if (!box) return;
+  if (box.animate)
+    box.animate([{ boxShadow:'0 0 0 0 rgba(31,138,112,.5)' },
+                 { boxShadow:'0 0 0 12px rgba(31,138,112,0)' }],
+                { duration: 900, iterations: 2 });
+  try { el.scrollIntoView({ behavior:'smooth', block:'nearest' }); } catch(e){}
+}
+
+/*  ── 지금 도는 전략 ────────────────────────────────────────
+    저장한 전략 중 <가장 나중 것> 이 돕니다. 예전 것은 기록으로만
+    남고 매매에는 안 쓰입니다. 그 사실을 화면에 적어둡니다.          */
+function ruleWords(r){
+  var sp = (typeof IND_SPEC !== 'undefined' && IND_SPEC[r.ind]) || null;
+  var nm = sp ? sp.label : r.ind;
+  if (sp && sp.cmp === 'cross')
+    return nm + ' ' + (r.period || sp.d1) + '↔' + (r.period2 || sp.d2)
+         + (r.op === 'dead' ? ' 데드크로스' : ' 골든크로스');
+  return nm + (r.period ? '(' + r.period + ')' : '') + ' ' + (r.op || '') + ' ' + r.value;
+}
+
+function renderStratLive(){
+  var box = $('stratLive'); if (!box) return;
+  if (!stratList || !stratList.length){
+    box.innerHTML = '<div class="note" style="margin-bottom:14px">'
+      + '<b>아직 저장한 전략이 없습니다.</b> 아래에서 조건을 정하고 '
+      + '<b>미리 돌려보기</b> → <b>저장하고 실행</b> 을 누르면 그때부터 이 전략으로 돕니다.</div>';
+    return;
+  }
+  var cur = stratList[stratList.length - 1];
+  var c = cur.config || {};
+  var buys  = (c.buy  || []).map(ruleWords);
+  var sells = (c.sell || []).map(ruleWords);
+  var exit  = [];
+  if (Number(c.sl_pct)) exit.push('손절 ' + c.sl_pct + '%');
+  if (Number(c.tp_pct)) exit.push('익절 ' + c.tp_pct + '%');
+  exit = exit.concat(sells);
+
+  var when = String(cur.created_at || cur.effective_from || '').slice(0, 16).replace('T', ' ');
+  box.innerHTML =
+      '<div class="note info" style="margin-bottom:14px">'
+    + '<div style="font-weight:700;margin-bottom:5px">'
+    + '지금 도는 전략 — ' + esc(cur.name || '전략')
+    + ' <span style="font-weight:400;color:var(--text-sub);font-size:12px">'
+    + esc(when) + ' 저장</span></div>'
+    + '<div style="font-size:13px;line-height:1.8">'
+    + '<b>살 때</b> ' + (buys.length ? esc(buys.join(' + ')) + ' 를 <b>모두</b> 만족'
+                                     : '조건 없음')
+    + '<br><b>팔 때</b> ' + (exit.length ? esc(exit.join(' 또는 ')) : '조건 없음 — 안 팝니다')
+    + '<br><b>최대</b> ' + (c.max_positions || 5) + '종목 · 종목당 '
+    + (c.per_position_pct || 20) + '%'
+    + '</div>'
+    + (stratList.length > 1
+        ? '<div class="st-hint" style="margin-top:7px">'
+          + '지금까지 ' + stratList.length + '번 바꿨습니다. '
+          + '<b>가장 나중에 저장한 것만</b> 돌아가고, 예전 것은 기록으로만 남습니다. '
+          + '이미 사둔 종목은 전략을 바꿔도 그대로 있습니다.</div>'
+        : '')
+    + '</div>';
 }
 
 /*  ── 보유 종목·포트폴리오를 주문 화면에도 ──────────────────
@@ -8325,25 +8434,37 @@ function mtRenderClosed(){
   var rows = (mtAcc && mtAcc.closed) || [];
   if (!rows.length){ card.classList.add('hidden'); return; }
   card.classList.remove('hidden');
+  var tot = rows.reduce(function(a, x){ return a + Number(x.realized_krw || 0); }, 0);
+  var tup = tot >= 0;
   t.innerHTML =
     '<thead><tr><th>종목</th><th>산 방법</th><th>시장</th>'
-  + '<th class="num">산 수량</th><th class="num">실현손익</th></tr></thead><tbody>'
+  + '<th class="num">산 수량</th><th class="num">판 수량</th><th class="num">남은 수량</th>'
+  + '<th class="num">실현손익</th></tr></thead><tbody>'
   + rows.map(function(p){
       var up = (p.realized_krw || 0) >= 0;
       var d = p.market === 'CRYPTO' ? 4 : 0;
       var qty = (p.bought_manual || 0) + (p.bought_auto || 0);
+      var left = Number(p.qty_left || 0);
       return '<tr><td><b>' + esc(p.name || p.symbol) + '</b>'
            + '<div class="st-hint">' + esc(p.symbol) + '</div></td>'
            + '<td>' + mtByBadge({ by: p.by, q_manual: p.bought_manual,
                                   q_auto: p.bought_auto, market: p.market }) + '</td>'
            + '<td>' + esc(p.market) + '</td>'
            + '<td class="num">' + num(qty, d) + '</td>'
+           + '<td class="num">' + num(p.sold, d) + '</td>'
+           //  반만 판 종목은 아직 들고 있습니다 — 그 사실을 같이 보여줍니다
+           + '<td class="num">' + (left > 1e-9
+               ? num(left, d) + '<div class="st-hint">아직 보유</div>'
+               : '<span class="st-hint">없음</span>') + '</td>'
            + '<td class="num ' + (up ? 'up' : 'dn') + '">'
            + (up ? '+' : '') + mtMoney(p.realized_krw) + '원'
            + (p.market === 'KR' ? '' : '<div class="st-hint">' + (up ? '+' : '')
               + mtCur(p.realized, p.market, 2) + '</div>') + '</td></tr>';
     }).join('')
-  + '</tbody>';
+  + '</tbody><tfoot><tr>'
+  + '<td colspan="6" style="text-align:right;font-weight:700">실현손익 합계</td>'
+  + '<td class="num ' + (tup ? 'up' : 'dn') + '" style="font-weight:700">'
+  + (tup ? '+' : '') + mtMoney(tot) + '원</td></tr></tfoot>';
 }
 
 /*  '산 방법' 딱지. 한 종목을 직접도 사고 자동도 샀으면 둘 다 보여주고
@@ -10761,25 +10882,53 @@ async function fetchPrice(live){
     그 값으로 체결합니다. 화면은 종목·방향·수량만 보냅니다.        */
 
 async function loadTrades(){
-  var r = await sb.from('trades').select('*').eq('team_id', team)
-    .order('traded_on', { ascending:false }).order('id', { ascending:false }).limit(100);
   var t = $('tradeTable');
-  var rows = r.data || [];
+  /*  손익은 서버가 계산해 붙여줍니다. 매도 한 건의 손익을 알려면
+      그 시점의 평균단가가 필요하고, 그건 거래를 처음부터 훑어야
+      나옵니다 — 화면에서 다시 훑으면 서버와 어긋날 수 있습니다.     */
+  var rows = (mtAcc && mtAcc.trades) || [];
+  if (!rows.length){
+    var r = await sb.from('trades').select('*').eq('team_id', team)
+      .order('traded_on', { ascending:false }).order('id', { ascending:false }).limit(200);
+    rows = r.data || [];
+  }
   if (!rows.length){ t.innerHTML = '<tr><td class="empty">거래 내역이 없습니다.</td></tr>'; return; }
-  t.innerHTML = '<thead><tr><th>날짜</th><th>시장</th><th>종목</th><th>구분</th>'
-    + '<th class="num">수량</th><th class="num">단가</th><th class="num">금액</th><th></th></tr></thead><tbody>'
+
+  var fx = (mtAcc && mtAcc.fx) || 1400;
+  t.innerHTML = '<thead><tr><th>날짜</th><th>시장</th><th>종목</th><th>산 방법</th><th>구분</th>'
+    + '<th class="num">수량</th><th class="num">단가</th><th class="num">금액</th>'
+    + '<th class="num">손익</th><th></th></tr></thead><tbody>'
     + rows.map(function(x){
+        var isBuy = x.side === 'buy';
+        var mk = x.market, dp = mk === 'KR' ? 0 : 2;
+        var rate = mk === 'KR' ? 1 : fx;
+        var gross = Number(x.qty) * Number(x.price);
+        //  실현손익은 <판 것> 에만 있습니다. 산 것에는 아직 손익이 없습니다.
+        var g = (x.realized_krw != null) ? Number(x.realized_krw)
+              : (x.realized != null ? Number(x.realized) * rate : null);
+        var up = (g || 0) >= 0;
         return '<tr>'
           + '<td class="num">'+esc(x.traded_on)+'</td>'
-          + '<td><span class="pill '+esc(x.market)+'">'+esc(x.market)+'</span></td>'
-          + '<td>'+esc(x.name||x.symbol)+(x.auto?'<span class="badge-auto">자동</span>':'')+'</td>'
-          + '<td class="'+(x.side==='buy'?'pos':'neg')+'">'+(x.side==='buy'?'매수':'매도')+'</td>'
-          + '<td class="num">'+num(x.qty)+'</td>'
-          + '<td class="num">'+num(x.price,2)+'</td>'
-          + '<td class="num">'+num(x.qty*x.price)+'</td>'
-          + '<td class="num">'+(x.auto ? '' : '<button class="xbtn" onclick="delTrade('+x.id+')">&times;</button>')+'</td>'
+          + '<td><span class="pill '+esc(mk)+'">'+esc(mk)+'</span></td>'
+          + '<td>'+esc(x.name||x.symbol)+'</td>'
+          + '<td>'+(x.source === 'auto'
+                    ? '<span class="by-tag auto">자동</span>'
+                    : '<span class="by-tag manual">직접</span>')+'</td>'
+          + '<td class="'+(isBuy?'pos':'neg')+'">'+(isBuy?'매수':'매도')+'</td>'
+          + '<td class="num">'+num(x.qty, mk === 'CRYPTO' ? 4 : 0)+'</td>'
+          + '<td class="num">'+mtCur(x.price, mk, dp)+'</td>'
+          + '<td class="num">'+mtMoney(gross * rate)+'원</td>'
+          + '<td class="num '+(g == null ? '' : (up ? 'up' : 'dn'))+'">'
+          +   (g == null ? '<span class="st-hint">—</span>'
+                         : (up ? '+' : '') + mtMoney(g) + '원'
+                           + (mk === 'KR' ? '' : '<div class="st-hint">' + (up ? '+' : '')
+                              + mtCur(x.realized, mk, 2) + '</div>'))
+          + '</td>'
+          + '<td class="num">'+(x.source === 'auto' || !x.id ? ''
+              : '<button class="xbtn" onclick="delTrade('+x.id+')">&times;</button>')+'</td>'
           + '</tr>';
-      }).join('') + '</tbody>';
+      }).join('')
+    + '</tbody>';
 }
 
 async function delTrade(id){
@@ -12120,6 +12269,7 @@ async function loadStrategy(){
         sell:[], buy_pct:50, sell_pct:100, cooldown:3 };
   renderStrategyEditor();
   renderStratHistory();
+  renderStratLive();
 }
 
 function renderStratHistory(){
@@ -12191,9 +12341,18 @@ async function saveStrategy(){
                    bar_tf: $('mtBarTf') ? $('mtBarTf').value : '1d' });
       await mtLoadAccount(); await mtLoadAuto();
       mtFlashAutoBar();
+      //  저장 뒤에 목록을 다시 받아야 '지금 도는 전략' 이 새 것으로 바뀝니다
+      var had = (stratList || []).length;
+      await loadStrategy();
+      mtFlashStratLive();
       var ivN = $('mtAutoIv').options[$('mtAutoIv').selectedIndex].textContent;
-      warnStrat('저장했습니다 — <b>지금부터 ' + esc(ivN)
-        + '마다</b> 이 전략으로 시장을 훑습니다. 맨 위 띠에서 다음 실행까지 남은 시간을 볼 수 있습니다.', 'ok');
+      var tfN = $('mtBarTf') ? $('mtBarTf').options[$('mtBarTf').selectedIndex].textContent : '일봉';
+      warnStrat((had ? '<b>새 전략으로 바뀌었습니다.</b> 이제부터는 이 조건으로만 매매합니다 — '
+                     + '예전 전략은 기록으로만 남습니다. '
+                   : '저장했습니다. ')
+        + '<b>' + esc(ivN) + '</b> ' + esc(tfN) + ' 기준으로 시장을 훑습니다.'
+        + (had ? '<br>이미 사둔 종목은 그대로 있습니다 — 새 전략의 매도 조건에 걸리면 그때 팝니다.' : ''),
+        'ok');
     } catch(e2){
       warnStrat('전략은 저장됐지만 자동매매를 켜지 못했습니다: ' + esc(e2.message));
     }
