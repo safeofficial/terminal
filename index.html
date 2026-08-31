@@ -2171,7 +2171,8 @@
           <div class="row">
             <button class="btn-sm btn-solid" id="trUsBtn" onclick="syncTradable('US')">미국 전 종목·ETF 받기</button>
             <button class="btn-sm btn-solid" id="trKrBtn" onclick="syncTradable('KR')">국내 전 종목·ETF 받기</button>
-            <button class="btn-sm" id="trCcBtn" onclick="syncTradable('CRYPTO')">코인 명단 맞추기</button>
+            <button class="btn-sm" id="trCcBtn" onclick="syncTradable('CRYPTO')"
+                    title="학회가 정해둔 코인 후보 중 Alpaca 로 실제 주문이 되는 것만 검색에 올립니다">코인 명단 맞추기</button>
           </div>
           <div class="msg" id="trMsg"></div>
           <div class="st-hint" style="margin-top:6px">
@@ -10440,7 +10441,14 @@ async function syncTradable(mk){
     var msg = marketLabel(mk) + ' <b>' + num(d.total, 0) + '종목</b>을 받았습니다.';
     if (d.etf != null) msg += ' (ETF ' + num(d.etf,0) + ' · 레버리지 ' + num(d.leveraged||0,0) + ')';
     if (d.priced)      msg += '<br>같은 날 종가 ' + num(d.priced,0) + '건도 함께 저장했습니다.';
-    if (d.sample && d.sample.length) msg += '<br>레버리지 예: ' + esc(d.sample.join(', '));
+    if (d.note)        msg += '<br>' + esc(d.note);
+    //  이름까지 보여줘야 딱지가 맞는지 눈으로 판단할 수 있습니다
+    if (d.sample && d.sample.length)
+      msg += '<br><span class="st-hint">레버리지로 잡힌 것: '
+           + esc(d.sample.join(' · ')) + '</span>';
+    if (d.etf_sample && d.etf_sample.length)
+      msg += '<br><span class="st-hint">그냥 ETF 로 잡힌 것: '
+           + esc(d.etf_sample.join(' · ')) + '</span>';
     warn('trMsg', msg, 'info');
     await loadTradableStat();
   } catch(e){
@@ -10473,11 +10481,18 @@ async function autoUniverse(mk){
   warn('autoUniMsg','');
   try {
     var src = mk === 'KR' ? 'universe_kr' : (mk === 'CRYPTO' ? 'universe_crypto' : 'universe_us');
-    var d = await edge({ source: src, top: mk === 'CRYPTO' ? 50 : 100 });
+    /*  미국은 <S&P500 전 종목> 을 등록합니다 (top:0 = 자르지 않음).
+        버튼에 "S&P500" 이라고 써놓고 상위 100개만 넣고 있었습니다.
+        500종목이면 봉 조회가 5번, 시세가 3번이라 분당 200회 한도에 여유가 있습니다.  */
+    var top = mk === 'CRYPTO' ? 50 : (mk === 'US' ? 0 : 100);
+    var d = await edge({ source: src, top: top });
+    //  시세를 못 받으면 as_of 가 없습니다 — "( 기준," 처럼 빈칸이 보이지 않게 합니다
+    var asOf = d.as_of ? esc(d.as_of) + ' 기준, ' : '';
     warn('autoUniMsg',
-      marketLabel(mk) + ' ' + d.picked + '개 종목을 등록했습니다. '
-      + '(' + esc(d.as_of) + ' 기준, 전 종목 ' + num(d.scanned, 0) + '개 중)<br>'
-      + '상위: ' + esc((d.top || []).join(', ')), 'info');
+      marketLabel(mk) + ' <b>' + num(d.picked, 0) + '개</b> 종목을 등록했습니다. '
+      + '(' + asOf + '전 종목 ' + num(d.scanned, 0) + '개 중)<br>'
+      + '상위: ' + esc((d.top || []).join(', '))
+      + (d.note ? '<br><span class="st-hint">' + esc(d.note) + '</span>' : ''), 'info');
     await showUniverse();
   } catch(e){
     warn('autoUniMsg', esc(e.message));
