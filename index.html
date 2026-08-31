@@ -1421,6 +1421,10 @@
         <div class="card hidden" id="mtChartCard">
           <h2><span id="mtChartName">주가 추이</span>
             <span class="tools">
+              <span class="mode-seg" id="mtKindSeg" style="margin:0">
+                <button id="mtKind-candle" class="on" onclick="mtSetChartKind('candle')">봉</button>
+                <button id="mtKind-line" onclick="mtSetChartKind('line')">선</button>
+              </span>
               <select id="mtChartRange" onchange="mtDrawSymChart()" style="width:110px">
                 <option value="60">3개월</option>
                 <option value="130" selected>6개월</option>
@@ -1429,7 +1433,7 @@
               <button class="btn-sm" onclick="mtCloseSymChart()">닫기</button>
             </span>
           </h2>
-          <div id="mtSymBox" style="height:320px"></div>
+          <div id="mtSymBox" style="height:400px"></div>
           <div class="st-hint" id="mtChartNote" style="margin-top:6px"></div>
         </div>
 
@@ -8056,7 +8060,7 @@ function mtMoveHoldings(k){
     보유 종목에서 종목을 누르면 바로 아래에 그 종목 차트가 펼쳐집니다.
     평단가를 가로선으로 같이 그려서, 지금 가격이 산 값보다 위인지
     아래인지 한눈에 보이게 합니다.                                    */
-var mtSymPick = null, mtSymChart = null, mtSymPts = null;
+var mtSymPick = null, mtSymChart = null, mtSymPts = null, mtAvgShown = false;
 
 async function mtOpenSymChart(mk, sym){
   var key = mk + '|' + sym;
@@ -8076,10 +8080,14 @@ async function mtOpenSymChart(mk, sym){
   try {
     var d = await edge({ source: quoteSource(mk), code: sym, start: startOfYear() });
     mtSymPts = (d && d.points) || [];
-    $('mtChartNote').innerHTML = mtSymPts.length
-      ? '점선은 평단가입니다. ' + marketLabel(mk) + ' · ' + esc(sym)
-      : '이 종목의 지난 시세를 받지 못했습니다.';
     mtDrawSymChart();
+    //  차트를 그린 뒤에 적습니다 — 평단선이 실제로 그려졌는지 알아야 하니까요
+    $('mtChartNote').innerHTML = !mtSymPts.length
+      ? '이 종목의 지난 시세를 받지 못했습니다.'
+      : (mtAvgShown ? '초록 점선이 평단가입니다. ' : '')
+        + '<b>빨강</b>이 오른 날, <b>파랑</b>이 내린 날입니다 (한국식). '
+        + '끌어서 옮기고, 휠로 확대할 수 있습니다. · '
+        + marketLabel(mk) + ' · ' + esc(sym);
   } catch(e){
     $('mtChartNote').textContent = '시세를 받지 못했습니다: ' + e.message;
     if (mtSymChart) mtSymChart.clear();
@@ -8092,6 +8100,12 @@ function mtCloseSymChart(){
   mtRenderPositions();
 }
 
+/*  ── 봉 차트 ────────────────────────────────────────────────
+    · 색은 한국식입니다 — 오르면 빨강(#c0392b), 내리면 파랑(#1b5fa8).
+      터미널 다른 화면과 같은 값이고, 색맹 판별 검사도 통과한 짝입니다.
+    · 가격과 거래량은 <같은 축에 겹치지 않습니다>. 축 두 개를 한 그림에
+      포개면 눈금이 서로 거짓말을 합니다. 위아래로 나눠 그리고 x축만 같이 씁니다.
+    · 격자와 축은 흐리게, 봉이 주인공이 되게 둡니다.                    */
 function mtDrawSymChart(){
   if (typeof echarts === 'undefined' || !mtSymPts) return;
   var box = $('mtSymBox'); if (!box) return;
@@ -8106,38 +8120,169 @@ function mtDrawSymChart(){
   var avg = Number(p.avg) || 0;
   var dp = mk === 'KR' ? 0 : 2;
   var mark = mk === 'KR' ? '' : '$';
+  var UP = '#c0392b', DN = '#1b5fa8';
+  var candle = mtChartKind !== 'line';
+
+  var days = pts.map(function(x){ return x.d; });
+  //  ECharts 봉 차트 차례: [시가, 종가, 저가, 고가]
+  var ohlc = pts.map(function(x){
+    var c = Number(x.v);
+    var o = Number.isFinite(x.o) && x.o > 0 ? Number(x.o) : c;
+    var h = Number.isFinite(x.h) && x.h > 0 ? Number(x.h) : Math.max(o, c);
+    var l = Number.isFinite(x.l) && x.l > 0 ? Number(x.l) : Math.min(o, c);
+    return [o, c, l, h];
+  });
+  var vols = pts.map(function(x, i){
+    return { value: Number(x.q) || 0,
+             itemStyle:{ color: ohlc[i][1] >= ohlc[i][0]
+               ? 'rgba(192,57,43,.32)' : 'rgba(27,95,168,.32)' } };
+  });
+  var hasVol = vols.some(function(v){ return v.value > 0; });
+  var closes = pts.map(function(x){ return Number(x.v); });
+
+  //  이동평균 — 봉만 있으면 추세가 안 보입니다. 두 개면 충분합니다.
+  function ma(k){
+    return closes.map(function(_, i){
+      if (i < k - 1) return null;
+      var s = 0; for (var j = i - k + 1; j <= i; j++) s += closes[j];
+      return +(s / k).toFixed(4);
+    });
+  }
+
+  var priceH = hasVol ? 56 : 74;                    // 위 칸 높이(%)
+  var series = [];
+  if (candle){
+    series.push({
+      name:'봉', type:'candlestick', data: ohlc,
+      itemStyle:{ color: UP, color0: DN, borderColor: UP, borderColor0: DN, borderWidth: 1 },
+      //  겹치는 마크 사이에 바탕색 링 — 봉이 붙어도 서로 구분됩니다
+      emphasis:{ itemStyle:{ borderWidth: 2 } },
+    });
+  } else {
+    series.push({
+      name:'종가', type:'line', data: closes, smooth:true, showSymbol:false,
+      lineStyle:{ width:2, color:'#2c3e6b' },
+      areaStyle:{ color:{ type:'linear', x:0, y:0, x2:0, y2:1, colorStops:[
+        { offset:0, color:'rgba(44,62,107,.16)' }, { offset:1, color:'rgba(44,62,107,0)' } ] } },
+    });
+  }
+  if (pts.length >= 20){
+    series.push({ name:'5일선', type:'line', data: ma(5), smooth:true, showSymbol:false,
+                  lineStyle:{ width:1.5, color:'#b26a00' }, z:3 });
+    series.push({ name:'20일선', type:'line', data: ma(20), smooth:true, showSymbol:false,
+                  lineStyle:{ width:1.5, color:'#6b5ca5' }, z:3 });
+  }
+  /*  평단선 — 지금 값이 산 값보다 위인지 아래인지 한눈에.
+      다만 평단이 보이는 값 범위 밖이면 선이 안 보이는데 안내문만
+      "점선은 평단가입니다" 라고 남아 거짓말이 됩니다. 화면에 들어올
+      때만 그리고, 안내문도 그에 맞춥니다.                            */
+  var lo = Math.min.apply(null, ohlc.map(function(b){ return b[2]; }));
+  var hi = Math.max.apply(null, ohlc.map(function(b){ return b[3]; }));
+  var avgIn = avg > 0 && avg >= lo * 0.97 && avg <= hi * 1.03;
+  mtAvgShown = avgIn;
+  if (avgIn){
+    series[0].markLine = {
+      silent:true, symbol:'none', animation:false,
+      lineStyle:{ type:'dashed', color:'#1f8a70', width:1.5 },
+      label:{ formatter:'평단 ' + mark + num(avg, dp), fontSize:11,
+              color:'#1f8a70', position:'insideEndTop' },
+      data:[{ yAxis: avg }],
+    };
+  }
+  if (hasVol){
+    series.push({ name:'거래량', type:'bar', data: vols,
+                  xAxisIndex:1, yAxisIndex:1, barWidth:'62%' });
+  }
+
+  var grids = [{ left:70, right:22, top:16, height: priceH + '%' }];
+  var xAxes = [{ type:'category', data:days, boundaryGap:true,
+                 axisLine:{ lineStyle:{ color:'#e8ecf4' } },
+                 axisLabel:{ show: !hasVol, fontSize:11, color:'#5a6278' },
+                 axisTick:{ show:false },
+                 splitLine:{ show:false },
+                 axisPointer:{ label:{ show:true, backgroundColor:'#2c3e6b' } } }];
+  var yAxes = [{ type:'value', scale:true, position:'left',
+                 axisLabel:{ fontSize:11, color:'#5a6278',
+                   formatter:function(v){ return mark + num(v, dp); } },
+                 axisLine:{ show:false }, axisTick:{ show:false },
+                 splitLine:{ lineStyle:{ color:'#eef1f7' } } }];
+  if (hasVol){
+    grids.push({ left:70, right:22, top: (priceH + 13) + '%', height:'16%' });
+    xAxes.push({ type:'category', data:days, gridIndex:1, boundaryGap:true,
+                 axisLine:{ lineStyle:{ color:'#e8ecf4' } }, axisTick:{ show:false },
+                 axisLabel:{ fontSize:11, color:'#5a6278' }, splitLine:{ show:false } });
+    yAxes.push({ type:'value', gridIndex:1, splitNumber:2, scale:true,
+                 //  소수점을 버리면 2.4M 과 1.6M 이 둘 다 '2M' 이 됩니다
+                 axisLabel:{ fontSize:10, color:'#9aa3b5',
+                   formatter:function(v){ return v >= 1e6 ? (v/1e6).toFixed(1)+'M'
+                                        : v >= 1e3 ? (v/1e3).toFixed(0)+'K' : num(v,0); } },
+                 axisLine:{ show:false }, axisTick:{ show:false },
+                 splitLine:{ lineStyle:{ color:'#f3f5f9' } } });
+  }
 
   mtSymChart.setOption({
     backgroundColor:'transparent',
-    grid:{ left:70, right:24, top:24, bottom:36 },
-    tooltip:{ trigger:'axis', borderWidth:0,
-      backgroundColor:'rgba(26,31,54,.92)', textStyle:{ color:'#fff', fontSize:12.5 },
-      formatter:function(a){
-        return a[0].axisValue + '<br/>' + mark + num(a[0].data, dp); } },
-    xAxis:{ type:'category', data: pts.map(function(x){ return x.d; }),
-      axisLabel:{ fontSize:11, color:'#5a6278' },
-      axisLine:{ lineStyle:{ color:'#e8ecf4' } } },
-    yAxis:{ type:'value', scale:true,
-      axisLabel:{ fontSize:11, color:'#5a6278',
-        formatter:function(v){ return mark + num(v, dp); } },
-      splitLine:{ lineStyle:{ color:'#eef1f7' } } },
-    series:[{
-      type:'line', smooth:true, showSymbol:false,
-      data: pts.map(function(x){ return Number(x.v); }),
-      lineStyle:{ width:2, color:'#2c3e6b' },
-      areaStyle:{ color:{ type:'linear', x:0, y:0, x2:0, y2:1, colorStops:[
-        { offset:0, color:'rgba(44,62,107,.16)' },
-        { offset:1, color:'rgba(44,62,107,0)' } ] } },
-      //  평단가 — 지금이 산 값보다 위인지 아래인지 바로 보이게
-      markLine: avg > 0 ? {
-        silent:true, symbol:'none',
-        lineStyle:{ type:'dashed', color:'#b26a00', width:1.5 },
-        label:{ formatter:'평단 ' + mark + num(avg, dp), fontSize:11,
-                color:'#b26a00', position:'insideEndTop' },
-        data:[{ yAxis: avg }] } : undefined,
-    }]
+    animation:false,
+    grid: grids, xAxis: xAxes, yAxis: yAxes,
+    legend:{ show: pts.length >= 20, top:0, right:8, itemWidth:14, itemHeight:2,
+             itemGap:14, textStyle:{ fontSize:11.5, color:'#5a6278' },
+             data: pts.length >= 20 ? ['5일선','20일선'] : [] },
+    axisPointer:{ link:[{ xAxisIndex:'all' }], label:{ fontSize:11 } },
+    tooltip:{
+      trigger:'axis', borderWidth:0, confine:true,
+      axisPointer:{ type:'cross', crossStyle:{ color:'#a9b3c6' },
+                    lineStyle:{ color:'#a9b3c6', type:'dashed' } },
+      backgroundColor:'rgba(26,31,54,.94)', textStyle:{ color:'#fff', fontSize:12 },
+      formatter:function(ps){
+        if (!ps || !ps.length) return '';
+        var i = ps[0].dataIndex, b = ohlc[i];
+        var prev = i > 0 ? ohlc[i-1][1] : b[0];
+        var ch = prev > 0 ? (b[1]/prev - 1) * 100 : 0;
+        var col = ch >= 0 ? '#ff8a7a' : '#8ab6ee';
+        var row = function(k, v){
+          return '<div style="display:flex;gap:14px;justify-content:space-between">'
+               + '<span style="opacity:.72">' + k + '</span><b>' + v + '</b></div>'; };
+        var out = '<div style="font-weight:700;margin-bottom:5px">' + days[i] + '</div>'
+          + row('시가', mark + num(b[0], dp))
+          + row('고가', mark + num(b[3], dp))
+          + row('저가', mark + num(b[2], dp))
+          + row('종가', mark + num(b[1], dp))
+          + '<div style="display:flex;gap:14px;justify-content:space-between">'
+          + '<span style="opacity:.72">전일 대비</span>'
+          + '<b style="color:' + col + '">' + (ch >= 0 ? '+' : '') + num(ch, 2) + '%</b></div>';
+        if (hasVol && vols[i].value) out += row('거래량', num(vols[i].value, 0));
+        return out;
+      }
+    },
+    dataZoom:[
+      { type:'inside', xAxisIndex: hasVol ? [0,1] : [0], start:0, end:100 },
+      { type:'slider', xAxisIndex: hasVol ? [0,1] : [0], bottom:6, height:18,
+        borderColor:'transparent', backgroundColor:'#f4f6fa',
+        fillerColor:'rgba(44,62,107,.10)', handleSize:'85%',
+        handleStyle:{ color:'#fff', borderColor:'#c3cad8' },
+        textStyle:{ fontSize:10, color:'#8a93a8' } }
+    ],
+    series: series
   }, true);
   mtSymChart.resize();
+}
+
+/*  봉 ↔ 선 바꾸기. 기본은 봉입니다.  */
+var mtChartKind = 'candle';
+function mtSetChartKind(k){
+  mtChartKind = k;
+  ['candle','line'].forEach(function(x){
+    var b = $('mtKind-' + x); if (b) b.classList.toggle('on', x === k);
+  });
+  mtDrawSymChart();
+  var el = $('mtChartNote');
+  if (el && mtSymPts && mtSymPts.length){
+    el.innerHTML = (mtAvgShown ? '초록 점선이 평단가입니다. ' : '')
+      + (k === 'candle'
+          ? '<b>빨강</b>이 오른 날, <b>파랑</b>이 내린 날입니다 (한국식). '
+          : '')
+      + '끌어서 옮기고, 휠로 확대할 수 있습니다.';
+  }
 }
 
 /*  ── 표에서 바로 팔기 ──────────────────────────────────────
