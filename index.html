@@ -254,6 +254,14 @@
   /* 전략 편집기 */
   .rule-row{display:grid;grid-template-columns:1fr 78px 74px 90px 34px;gap:7px;margin-bottom:7px;align-items:center}
   .rule-row select,.rule-row input{padding:7px 9px;font-size:12.5px;border-radius:8px;width:100%}
+  /*  ⚠️ 칸에 이름이 없으면 「RSI · 30 · < · 40」 을 "30~40일 때" 로 읽습니다.
+      실제로는 <30일 RSI 가 40 미만> 이라는 뜻인데 정반대로 읽히는 거라,
+      머리말을 눈에 보이게 답니다.                                        */
+  .rule-head{display:grid;grid-template-columns:1fr 78px 74px 90px 34px;gap:7px;
+    margin:2px 0 4px;font-size:10.5px;color:var(--text-sub);font-weight:600}
+  .rule-head span{text-align:center}
+  .rule-head span:first-child{text-align:left}
+  @media(max-width:520px){.rule-head{display:none}}
   .rule-note{font-size:11px;color:var(--text-sub);margin:-3px 0 10px 2px}
   .rule-sub{font-size:11.5px;color:var(--text-sub);margin:-3px 0 6px 2px;display:flex;
     align-items:center;gap:6px}
@@ -904,13 +912,14 @@
             <h2>기간 · 표시</h2>
             <div class="row">
               <label>기간</label>
-              <select id="rangeSel" class="grow" onchange="reloadAll()">
-                <option value="1">최근 1년</option>
-                <option value="3" selected>최근 3년</option>
-                <option value="5">최근 5년</option>
-                <option value="10">최근 10년</option>
-                <option value="25">전체</option>
+              <select id="rangeSel" onchange="onRangeMode()" style="width:120px">
+                <option value="ytd">올해 (YTD)</option>
+                <option value="yrs" selected>최근 N년</option>
+                <option value="all">전체</option>
               </select>
+              <input type="number" id="rangeYrs" value="3" min="1" max="120" step="1"
+                     onchange="reloadAll()" style="width:70px" title="몇 년치를 볼지">
+              <span class="st-hint" id="rangeYrsUnit">년</span>
             </div>
             <div class="row">
               <label style="min-width:auto">
@@ -3249,16 +3258,27 @@ function dtDraw(){
     var barDiff = bars.some(function(r){ return r.diff; });
     if ($('dtBarTitle')) $('dtBarTitle').textContent =
       dtTopLabel() + (barDiff ? ' 차이 (%p)' : ' 변화율');
-    bb.style.height = Math.max(120, 24 + bars.length * 28) + 'px';
+    /*  이름을 안 자르고 줄바꿈으로 다 보여주므로, 긴 이름이 있으면
+        줄당 높이도 그만큼 있어야 글자가 겹치지 않습니다.            */
+    var longest = Math.max.apply(null, bars.map(function(r){ return String(r.name || '').length; }));
+    var perRow = longest > 30 ? 44 : (longest > 18 ? 34 : 28);
+    bb.style.height = Math.max(120, 24 + bars.length * perRow) + 'px';
     if (!dtBar) dtBar = echarts.init(bb);
     dtBar.resize();
     dtBar.setOption({
       backgroundColor: theme ? theme.bg : '#fff', animation:false,
       grid:{ left:8, right:78, top:12, bottom:12, containLabel:true },
+      //  이름이 두 줄이 될 수 있어 줄 간격을 넓게 잡습니다
       xAxis:{ type:'value', axisLabel:{ color:'#77809a', fontSize:11 },
         splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } } },
+      /*  ⚠️ 180px 에서 잘라내니 "Personal computers and periph…" 처럼
+          <어느 항목인지 알 수 없는> 이름이 나왔습니다. 게다가 앞부분이
+          같은 항목이 둘이면 화면에서 구분이 아예 안 됩니다.
+          자르지 말고 줄을 바꿔서 다 보여줍니다 — 폭은 넉넉히 두고,
+          containLabel 이 켜져 있어 그림이 알아서 밀립니다.            */
       yAxis:{ type:'category', data: bars.map(function(r){ return r.name; }),
-        axisLabel:{ color:'#5a6278', fontSize:11, width:180, overflow:'truncate' },
+        axisLabel:{ color:'#5a6278', fontSize:11, width: 260,
+                    overflow:'break', lineHeight:14 },
         axisLine:{ show:false }, axisTick:{ show:false } },
       series:[{ type:'bar', barWidth: barW(),
                 barMaxWidth: Math.max(8, Math.round(BARW.pct * 1.2)),
@@ -6628,7 +6648,7 @@ function addSeries(s){
   if (series.length >= 8) { warn('researchWarn','한 차트에 최대 8개까지 넣을 수 있습니다.'); return; }
   warn('researchWarn','');
   s.key = key;
-  s.color = theme.palette[series.length % theme.palette.length];
+  s.color = freeColor(series);
   //  단위가 같은 지표끼리 축을 나눠 씁니다 — 그래야 하나가 평평해지지 않습니다.
   //  단위는 자료를 받아봐야 알 수 있어서, 일단 넣고 loadSeries 에서 다시 고릅니다.
   s.axis = series.length === 0 ? 0 : 1;
@@ -6717,6 +6737,23 @@ function onDocDown(e){ if (palPop && !palPop.contains(e.target)) closePalette();
 function closePalette(){
   if (palPop){ palPop.remove(); palPop = null; document.removeEventListener('mousedown', onDocDown); }
 }
+/*  ── 아직 안 쓴 색을 고릅니다 ────────────────────────────────
+
+    ⚠️ 예전에는 <지금 몇 개 올렸나> 로 색을 정했습니다(palette[n]).
+    A·B·C 를 올린 뒤 A 를 지우면 개수가 2 가 되어, 새로 올린 D 가
+    C 와 같은 색을 받았습니다. 선 목록에 같은 색이 둘 생깁니다.
+    개수가 아니라 <이미 쓰고 있는 색> 을 보고 고르면 안 겹칩니다.      */
+function freeColor(list){
+  var pal = (theme && theme.palette) || ['#2c3e6b'];
+  var used = {};
+  (list || []).forEach(function(x){ if (x && x.color) used[String(x.color).toLowerCase()] = 1; });
+  for (var i = 0; i < pal.length; i++){
+    if (!used[String(pal[i]).toLowerCase()]) return pal[i];
+  }
+  //  팔레트를 다 썼으면 어쩔 수 없이 돌려 씁니다 (그때는 굵기로 구분됩니다)
+  return pal[(list || []).length % pal.length];
+}
+
 function pickColor(i, v, keepOpen, which){
   which = which || 'main';
   seriesArr(which)[i].color = v;
@@ -7025,15 +7062,50 @@ function resetChartSize(){
   applyChartSize();
 }
 
+/*  ── 얼마나 거슬러 볼까 ─────────────────────────────────────
+
+    ⚠️ 예전에는 「전체」 가 25년이었습니다. 이름이 '전체' 인데 25년에서
+    끊기니, 1962년부터 있는 국채금리도 2000년쯤부터만 보였습니다.
+    '전체' 는 정말 전체여야 합니다.
+
+    ⚠️ 다만 <우리가 다 달라고 해도> FRED 쪽에 없는 것이 있습니다.
+    S&P 500(SP500)·다우(DJIA) 는 FRED 가 라이선스 때문에 최근 10년치만
+    줍니다. 그건 우리 코드가 자르는 게 아니라 원자료가 거기까지입니다.
+    그래서 받은 자료가 요청한 기간보다 짧으면 화면에 그렇게 적어둡니다 —
+    "우리가 안 준 것" 과 "저쪽에 없는 것" 은 다른 이야기니까요.        */
+var RANGE_ALL_FROM = '1900-01-01';
+
+function rangeMode(){ var e = $('rangeSel'); return e ? e.value : 'yrs'; }
+function rangeYears(){
+  var v = Number(($('rangeYrs') || {}).value);
+  return (isFinite(v) && v >= 1) ? Math.min(120, v) : 3;
+}
+function onRangeMode(){
+  var m = rangeMode(), box = $('rangeYrs'), unit = $('rangeYrsUnit');
+  if (box) box.style.display = (m === 'yrs') ? '' : 'none';
+  if (unit) unit.style.display = (m === 'yrs') ? '' : 'none';
+  reloadAll();
+}
 function startDate(){          /* 화면에 보일 시작일 */
-  var y = Number($('rangeSel').value||3);
-  var d = new Date(); d.setFullYear(d.getFullYear()-y);
+  var m = rangeMode();
+  if (m === 'all') return RANGE_ALL_FROM;
+  if (m === 'ytd') return new Date().getFullYear() + '-01-01';
+  var d = new Date(); d.setFullYear(d.getFullYear() - rangeYears());
   return d.toISOString().slice(0,10);
 }
 function fetchStart(){         /* 실제로 받아올 시작일 — YoY 계산용 1년 여유 */
-  var y = Number($('rangeSel').value||3) + 1;
-  var d = new Date(); d.setFullYear(d.getFullYear()-y);
+  var m = rangeMode();
+  if (m === 'all') return RANGE_ALL_FROM;
+  if (m === 'ytd'){
+    var y = new Date().getFullYear() - 1;      //  전년 대비를 내려면 작년치도 필요합니다
+    return y + '-01-01';
+  }
+  var d = new Date(); d.setFullYear(d.getFullYear() - rangeYears() - 1);
   return d.toISOString().slice(0,10);
+}
+function rangeLabel(){
+  var m = rangeMode();
+  return m === 'all' ? '전체' : (m === 'ytd' ? '올해' : ('최근 ' + rangeYears() + '년'));
 }
 
 async function loadSeries(s){
@@ -7122,7 +7194,14 @@ function applyDefaultTf(s){
 async function reloadAll(){
   for (var i=0;i<series.length;i++){ series[i].points = null; }
   renderSeriesList();
-  for (var j=0;j<series.length;j++){ await loadSeries(series[j]); }
+  /*  ⚠️ 지표를 하나씩 줄 세워 받고 있었습니다. 네 개를 올려두고 기간을
+      바꾸면 왕복 네 번을 차례로 기다립니다. 서로 상관없는 요청이라
+      한꺼번에 보내면 됩니다. FRED 한도(분당 120회)를 생각해 3개씩 끊습니다. */
+  for (var j = 0; j < series.length; j += 3){
+    await Promise.all(series.slice(j, j + 3).map(function(x){
+      return loadSeries(x).catch(function(){ /* 하나 실패해도 나머지는 그립니다 */ });
+    }));
+  }
 }
 
 /* ══════════ 차트 ══════════ */
@@ -7203,6 +7282,25 @@ function alignAxes(ranges, N, needZero){
     var nPos = N - nNeg;
     return ranges.map(function(r){
       if (!r || !isFinite(r.min) || !isFinite(r.max)) return null;
+
+      /*  ⚠️ 0 밑으로 내려갈 일이 없는 축까지 마이너스 칸을 파주면 안 됩니다.
+
+          금리차(마이너스 있음)와 S&P 500 을 같이 그리면, 금리차 축에
+          마이너스가 필요하다는 이유로 지수 축까지 −6,000 부터 시작했습니다.
+          지수가 마이너스가 되는 일은 없으니 화면 아래 절반이 통째로 낭비되고,
+          "S&P 가 0 근처까지 갈 수도 있나" 하는 오해까지 줍니다.
+
+          칸 수(N)만 같으면 가로 눈금선은 그대로 맞습니다. 0 선이 두 축에서
+          같은 높이에 있을 필요는 없습니다 — 지수 축의 0 은 맨 아래입니다.  */
+      if (r.min >= 0){
+        var st0 = niceStep(Math.max(1e-9, r.max) / N);
+        for (var g0 = 0; g0 < 40; g0++){
+          if (N * st0 >= r.max - 1e-9) break;
+          st0 = nextNice(st0);
+        }
+        return { min: 0, max: N * st0, interval: st0, zero: true };
+      }
+
       var need = 0;
       if (nPos > 0) need = Math.max(need, Math.max(0, r.max) / nPos);
       if (nNeg > 0) need = Math.max(need, Math.max(0, -Math.min(0, r.min)) / nNeg);
@@ -7395,11 +7493,29 @@ function drawChart(){
   chart.setOption(opt, true);
 
   var anyTf = series.some(function(s){ return (s.tf||'raw') !== 'raw'; });
-  $('chartMsg').textContent = norms.length + '개 지표 · ' + $('rangeSel').selectedOptions[0].text
+
+  /*  ⚠️ 「전체」 를 골랐는데도 선이 최근 몇 년치뿐인 지표가 있습니다.
+      우리가 자른 게 아니라 <FRED 에 그만큼밖에 없는> 것입니다 —
+      S&P 500·다우는 라이선스 때문에 10년치만 줍니다. 그 사실을 안 적어두면
+      "왜 주가지수가 2010년대부터야?" 하고 코드를 의심하게 됩니다.        */
+  var want = startDate(), shortOnes = [];
+  norms.forEach(function(x){
+    var p0 = (x.pts && x.pts[0]) ? String(x.pts[0].d).slice(0,10) : null;
+    if (!p0) return;
+    //  1년 넘게 늦게 시작하면 '자료가 거기까지' 로 봅니다
+    if (Date.parse(p0) - Date.parse(want) > 400 * 864e5)
+      shortOnes.push(x.s.label + ' ' + p0.slice(0,4) + '~');
+  });
+
+  $('chartMsg').innerHTML = esc(norms.length + '개 지표 · ' + rangeLabel()
     + (norm ? ' · 지수화' : (nAxis > 2 ? ' · 축 ' + nAxis + '개'
                             : (usedRight ? ' · 좌우 축 분리 (눈금 맞춤)' : '')))
     + (bands.length ? ' · 침체 ' + bands.length + '구간 음영' : '')
-    + (anyTf ? ' · 변환 적용' : '');
+    + (anyTf ? ' · 변환 적용' : ''))
+    + (shortOnes.length
+        ? '<br><span style="color:var(--text-sub)">자료가 있는 데까지만 그렸습니다 — '
+          + esc(shortOnes.join(' · ')) + ' <b>(FRED 에 그만큼만 있습니다)</b></span>'
+        : '');
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -8389,7 +8505,12 @@ function ruleWords(r){
   if (sp && sp.cmp === 'cross')
     return nm + ' ' + (r.period || sp.d1) + '↔' + (r.period2 || sp.d2)
          + (r.op === 'dead' ? ' 데드크로스' : ' 골든크로스');
-  return nm + (r.period ? '(' + r.period + ')' : '') + ' ' + (r.op || '') + ' ' + r.value;
+  /*  ⚠️ 부등호를 그대로 적으면 「RSI 30 < 40」 이 되어, 보는 사람이
+      "30에서 40 사이" 로 읽습니다. 실제로는 <30일짜리 RSI 가 40 미만>
+      이라는 뜻입니다. 말로 풀어 적어야 그 오해가 안 생깁니다.        */
+  var W = { '<':'보다 작을 때', '<=':'이하일 때', '>':'보다 클 때', '>=':'이상일 때' };
+  return (r.period ? r.period + '일 ' : '') + nm
+       + ' 값이 ' + r.value + ' ' + (W[r.op] || (r.op || ''));
 }
 
 function renderStratLive(){
@@ -9303,16 +9424,23 @@ var CHART_BOXES = ['chartBox','dtChartBox','dtBarBox','homeFxBox',
   'dvMapBox','dvTermBox','dvPayBox','dvIvBox','dvOiBox','dvGkBox',
   'dkBox'];
 
+/*  ⚠️ 안 보이는 차트는 크기를 다시 잡아봐야 소용이 없습니다 (폭이 0 입니다).
+    탭을 옮길 때마다 전부 훑으면 그만큼 헛일이고, 어차피 그 탭을 열 때
+    상자 크기가 바뀌면서 watchChartBoxes 가 다시 잡아줍니다.            */
+function shownNow(el){
+  return !!(el && (el.offsetWidth > 0 || el.offsetHeight > 0));
+}
 function resizeAllCharts(){
   if (typeof echarts === 'undefined') return;
   watchChartBoxes();
   CHART_BOXES.forEach(function(id){
-    var el = $(id); if (!el) return;
+    var el = $(id); if (!shownNow(el)) return;
     var c = echarts.getInstanceByDom(el); if (c) c.resize();
   });
   if (typeof distCharts === 'object' && distCharts)
     Object.keys(distCharts).forEach(function(k){
-      if (distCharts[k]) distCharts[k].resize(); });
+      var c = distCharts[k];
+      if (c && shownNow(c.getDom && c.getDom())) c.resize(); });
   //  가격대 지도 이름표는 점선 자리에 맞춰 세워둔 것이라 같이 다시 잡습니다
   if (typeof dvMapPlaceChips === 'function') setTimeout(dvMapPlaceChips, 40);
 }
@@ -9512,6 +9640,8 @@ async function initCompany(){
     document.querySelectorAll('#pane-company .admin-only')
       .forEach(function(e){ e.classList.remove('hidden'); });
   }
+  //  기업 DB 상태는 자주 바뀌지 않습니다 — 탭을 오갈 때마다 물을 일이 아닙니다
+  if (tooSoon('coStatus', 60000)) return;
   var st = await sb.rpc('company_db_status');
   if (st.error){
     warn('coWarn', /does not exist|function/i.test(st.error.message)
@@ -9941,8 +10071,8 @@ function coFinKey(x){
   return x.kind + '|' + (x.source||'') + '|' + (x.code||'') + '|' + (x.item_code||'');
 }
 function coFinColor(){
-  var pal = theme.palette || ['#2c3e6b'];
-  return pal[(coFinSeries.length + 4) % pal.length];
+  //  이미 쓰고 있는 색을 피해서 고릅니다 (개수로 정하면 지웠을 때 겹칩니다)
+  return freeColor((coFinSeries || []).concat(coSeries || []));
 }
 
 function addCoFinX(x){
@@ -10422,7 +10552,7 @@ function addCoSeries(x){
     warn('coWarn','이미 추가된 항목입니다.'); return;
   }
   warn('coWarn','');
-  x.color = theme.palette[(coSeries.length + 1) % theme.palette.length];
+  x.color = freeColor(coSeries.concat(coFinSeries || []));
   x.width = 2;
   x.axis  = 1;
   x.points = null;
@@ -10659,10 +10789,26 @@ async function loadCoOwn(){
 }
 
 /* ══════════ 모의투자 ══════════ */
+/*  ── 탭을 오갈 때 같은 것을 또 받지 않게 ────────────────────
+
+    ⚠️ 탭은 누를 때마다 init… 이 돕니다. 그래서 모의투자 ↔ 홈 을 몇 번
+    왔다갔다 하면, 1초 사이에 순위표를 네 번 다시 받습니다. 몇 초 안에
+    다시 들어온 것이면 방금 받은 값을 그대로 씁니다 — 그보다 오래됐으면
+    당연히 다시 받습니다 (성적은 바뀌니까요).                          */
+var FRESH = {};
+function tooSoon(key, ms){
+  var now = Date.now();
+  if (FRESH[key] && now - FRESH[key] < (ms || 20000)) return true;
+  FRESH[key] = now;
+  return false;
+}
+
 async function initTrading(){
   //  ① 대회 상태와 순위를 먼저 — 리그 홈이 첫 화면입니다
-  await mtLoadContest();
-  await mtLoadLeague();
+  if (!tooSoon('mtLeague', 20000)){
+    await mtLoadContest();
+    await mtLoadLeague();
+  }
 
   //  ② 임원진 화면(팀 만들기·유니버스)이 쓰는 목록은 뒤에서 채웁니다
   if (teams.length) return;
@@ -10696,11 +10842,15 @@ async function loadTeam(){
   var st = await sb.rpc('team_state', { p_team_id: team });
   if (st.error) { warn('tradingWarn', esc(errMsg(st.error))); return; }
   var pos = (st.data && st.data.positions) || [];
-  for (var i=0;i<pos.length;i++){
-    try {
-      await edge({ source: quoteSource(pos[i].market),
-                   code: pos[i].symbol, start: startOfYear() });
-    } catch(e){ /* 가격 갱신 실패는 무시하고 마지막 값을 씁니다 */ }
+  /*  ⚠️ 예전에는 보유 종목을 <하나씩 차례로> 불렀습니다. 다섯 종목이면
+      왕복 다섯 번을 줄 세워 기다려서, 팀 방 들어가는 데만 2초 넘게
+      걸렸습니다. 서로 기다릴 이유가 없는 요청들입니다 — 한꺼번에 보냅니다.
+      (그래도 한도가 있으니 6개씩 끊어서 보냅니다)                      */
+  for (var pi = 0; pi < pos.length; pi += 6){
+    await Promise.all(pos.slice(pi, pi + 6).map(function(p){
+      return edge({ source: quoteSource(p.market), code: p.symbol, start: startOfYear() })
+               .catch(function(){ /* 하나 실패해도 마지막 값을 씁니다 */ });
+    }));
   }
 
   var snap = await sb.rpc('record_snapshot', { p_team_id: team });
@@ -12553,6 +12703,18 @@ function indOptions(sel){
   }).join('');
 }
 
+/*  규칙 목록 맨 위의 머리말. 칸 순서가 바뀌면 여기도 같이 바꿔야 합니다.  */
+function ruleHeadHTML(rules){
+  var sp = specOf((rules && rules[0] && rules[0].ind) || 'RSI');
+  var cross = sp.cmp === 'cross';
+  return '<div class="rule-head">'
+    + '<span>지표</span>'
+    + '<span>' + esc(sp.p1 || '—') + '</span>'
+    + '<span>' + (cross ? esc(sp.p2 || '장기') : (sp.p2 ? esc(sp.p2) : '부등호')) + '</span>'
+    + '<span>' + (cross ? '교차 방향' : '기준값') + '</span>'
+    + '<span></span></div>';
+}
+
 function ruleRowHTML(kind, r, i){
   var sp = specOf(r.ind);
   var h = '<div class="rule-row">';
@@ -12586,6 +12748,11 @@ function ruleRowHTML(kind, r, i){
 
   h += '<button class="xbtn" onclick="delRule(\''+kind+'\','+i+')" title="삭제">&times;</button>';
   h += '</div>';
+  //  방금 만든 규칙을 사람 말로 한 번 더 적어줍니다 (오해가 여기서 걸립니다)
+  h += '<div class="rule-note">→ ' + esc(ruleWords(Object.assign({}, r,
+        { period: r.period || sp.d1, period2: r.period2 || sp.d2,
+          op: r.op || (sp.cmp === 'cross' ? 'golden' : '<'),
+          value: (r.value != null ? r.value : sp.dv) }))) + '</div>';
 
   // 부등호가 4번째 칸으로 밀린 경우(장·단기 둘 다 쓰는 지표) 별도 줄로
   if (sp.p2 && sp.cmp !== 'cross'){
@@ -12754,10 +12921,13 @@ function renderStrategyEditor(){
   renderPresets(); renderAlloc();
   $('symRows').innerHTML = (strat.symbols||[]).map(symRowHTML).join('')
     || '<div class="empty" style="padding:16px">종목을 추가해 주세요.</div>';
-  $('buyRows').innerHTML = (strat.buy||[]).map(function(r,i){ return ruleRowHTML('buy', r, i); }).join('')
-    || '<div class="empty" style="padding:16px">매수 조건을 추가해 주세요.</div>';
-  $('sellRows').innerHTML = (strat.sell||[]).map(function(r,i){ return ruleRowHTML('sell', r, i); }).join('')
-    || '<div class="empty" style="padding:16px">매도 조건을 추가해 주세요.</div>';
+  //  칸 머리말을 먼저 얹습니다 — 「30 · < · 40」 을 범위로 읽지 않게
+  $('buyRows').innerHTML = ((strat.buy||[]).length
+      ? ruleHeadHTML(strat.buy) + (strat.buy||[]).map(function(r,i){ return ruleRowHTML('buy', r, i); }).join('')
+      : '') || '<div class="empty" style="padding:16px">매수 조건을 추가해 주세요.</div>';
+  $('sellRows').innerHTML = ((strat.sell||[]).length
+      ? ruleHeadHTML(strat.sell) + (strat.sell||[]).map(function(r,i){ return ruleRowHTML('sell', r, i); }).join('')
+      : '') || '<div class="empty" style="padding:16px">매도 조건을 추가해 주세요.</div>';
   $('stBuyPct').value = String(strat.buy_pct||100);
   $('stSellPct').value = String(strat.sell_pct||100);
   $('stCooldown').value = String(strat.cooldown != null ? strat.cooldown : 3);
