@@ -971,6 +971,13 @@
               <div style="font-size:12px;font-weight:600;margin-bottom:8px">선 색 팔레트</div>
               <div id="palList"></div>
               <button class="btn-sm" style="width:100%;margin-top:4px" onclick="addPaletteColor()">+ 색 추가</button>
+              <button class="btn-sm" style="width:100%;margin-top:4px" onclick="resetPalette()"
+                      title="색맹 구분 · 정상시야 구분까지 검사기로 확인한 값입니다">학회 기본색으로 되돌리기</button>
+              <p class="st-hint" style="margin:6px 0 0;line-height:1.6">
+                기본색 8가지는 <b>서로 구분되는지 검사</b>를 통과한 조합입니다 —
+                밝기 · 채도 · 색맹일 때 구분 · 정상시야 구분 · 배경 대비.
+                색을 직접 바꾸면 그 보장이 깨질 수 있습니다.
+              </p>
               <div class="hint" style="font-size:11px;color:var(--text-sub);margin-top:7px;line-height:1.6">
                 여기 등록한 색이 <b>선 목록의 색 상자</b>에 나타납니다. 학회원은 매번 RGB를 입력하지 않고 골라 쓰면 됩니다.
               </div>
@@ -1255,6 +1262,12 @@
               조건을 실시간으로 맞춰볼 수가 없습니다.
             </div>
             <div id="mtAutoMsg" class="msg"></div>
+            <!--  "켜뒀는데 아무것도 안 사요" 를 짐작이 아니라 숫자로 봅니다  -->
+            <div class="row" style="margin-top:8px">
+              <button class="btn-sm" id="mtWhyBtn" onclick="mtWhy()">왜 안 샀는지 보기</button>
+              <span class="st-hint">지금 이 순간 어디서 막히는지 단계별로 세어 봅니다 — 매매는 하지 않습니다</span>
+            </div>
+            <div id="mtWhyBox"></div>
           </div>
 
           <!-- ② 무엇을 살까 -->
@@ -2646,8 +2659,25 @@ function edge(body){    return edgeCall('market-data',  body); }
 function edgeCo(body){  return edgeCall('company-data', body); }
 
 /* ══════════ 테마 ══════════ */
+/*  ── 차트 기본색 ─────────────────────────────────────────────
+
+    ⚠️ 앞 네 가지는 학회 색 그대로입니다. 뒤 네 가지가 문제였습니다 —
+    5번(#6b5ca5)과 6번(#3d52a0)은 색맹이 아닌 사람 눈으로도 ΔE 7.6 밖에
+    안 떨어져서, 항목을 여섯 개 고르면 두 계열이 사실상 같은 색이었습니다.
+    (「많이 변한 항목 자동 선택」이 정확히 여섯 개를 고릅니다)
+
+    색을 다시 골라 검사기를 돌렸습니다 — 밝기 · 채도 · 색맹 구분 ·
+    정상시야 구분 · 배경 대비 다섯 가지 모두 통과합니다.
+    1번 남색만 살짝 밝게 했습니다(#2c3e6b → #2a5aa8). 원래 값은 너무 어둡고
+    탁해서 검사에서 걸렸습니다 — 화면 UI 색은 그대로 두고 <차트 선 색>
+    만 바꿉니다.
+
+    ⚠️ 이 값은 <새로 까는 경우> 의 기본값입니다. 이미 저장해 둔 팔레트가
+    있으면 그게 우선입니다 — 설정 탭에서 「학회 기본색으로」 를 누르면
+    이 값으로 바뀝니다.                                                */
 var DEFAULT_THEME = { bg:'#ffffff', grid:'#e8ecf4', axis_left:'#2c3e6b', axis_right:'#b26a00',
-  text_color:'#1a1f36', palette:['#2c3e6b','#c0392b','#1f8a70','#b26a00','#6b5ca5','#3d52a0','#8a6d1f','#2f7d95'] };
+  text_color:'#1a1f36',
+  palette:['#2a5aa8','#c0392b','#1f8a70','#b26a00','#7d3c98','#e87ba4','#2a78d6','#4d7c3f'] };
 
 async function loadTheme(){
   var r = await sb.from('chart_themes').select('*').eq('is_default', true).maybeSingle();
@@ -2680,6 +2710,14 @@ function setPaletteColor(i,v){
   theme.palette[i] = v.toLowerCase();
   renderPalette(); drawChart();
 }
+/*  검사기를 통과한 기본 조합으로 되돌립니다.
+    (예전 팔레트는 5번·6번 색이 정상시야로도 거의 구분이 안 됐습니다)  */
+function resetPalette(){
+  theme.palette = DEFAULT_THEME.palette.slice();
+  renderPalette(); drawChart();
+  warn('researchWarn','학회 기본색으로 되돌렸습니다. <b>테마 저장</b>을 눌러야 다른 학회원에게도 적용됩니다.', 'info');
+}
+
 function addPaletteColor(){
   if ((theme.palette||[]).length >= 16){ warn('researchWarn','팔레트는 최대 16색까지입니다.'); return; }
   theme.palette.push('#2c3e6b'); renderPalette();
@@ -3080,9 +3118,13 @@ function dtPickTop(){
   var pool = dtItems.filter(function(x){
     return !x.head && x.code != null && dtFreqOk(x); });
   var withY = pool.filter(function(x){ return x[k] != null; });
+  /*  ⚠️ 팔레트보다 많이 고르면 색을 돌려 쓰게 되고, 그러면 <같은 색인
+      다른 항목> 이 생깁니다. 범례를 봐도 어느 선인지 알 수 없습니다.
+      고를 수 있는 최대는 팔레트 색 수입니다.                        */
+  var maxPick = Math.min(6, ((theme && theme.palette) || DEFAULT_THEME.palette).length);
   if (withY.length >= 3){
     withY.sort(function(a, b){ return Math.abs(b[k]) - Math.abs(a[k]); });
-    withY.slice(0, 6).forEach(function(x){ dtPick[dtKey(x)] = x; });
+    withY.slice(0, maxPick).forEach(function(x){ dtPick[dtKey(x)] = x; });
   } else if (pool.some(function(x){ return x[k] != null; })){
     warn('dtWarn', esc(dtTopLabel()) + ' 값이 있는 항목이 3개가 안 됩니다. '
        + '다른 기준으로 골라보세요.', 'info');
@@ -3091,7 +3133,7 @@ function dtPickTop(){
   } else {
     var minLv = Math.min.apply(null, pool.map(function(x){ return x.level; }));
     var lv2 = pool.filter(function(x){ return x.level === minLv + 1; });
-    (lv2.length >= 3 ? lv2 : pool).slice(0, 6)
+    (lv2.length >= 3 ? lv2 : pool).slice(0, maxPick)
       .forEach(function(x){ dtPick[dtKey(x)] = x; });
   }
   warn('dtWarn','');
@@ -3225,6 +3267,13 @@ function dtDraw(){
       valueFormatter:function(v){ return v == null ? '—' : Number(v).toFixed(2); } },
     xAxis:{ type:'category', data:axis,
       axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
+      /*  한 달에 막대가 6개씩 서면 옆 달과 이어져 보여서 <어디까지가
+          이번 달인지> 를 알 수 없습니다. 칸마다 세로 눈금선을 그어
+          경계를 만들어 줍니다 (막대 사이가 아니라 <칸 사이> 입니다).   */
+      splitLine:{ show: shape === 'bar', interval: 0,
+                  lineStyle:{ color: theme ? theme.grid : '#e8ecf4', type:'solid' } },
+      splitArea:{ show: shape === 'bar', interval: 0,
+                  areaStyle:{ color:['rgba(0,0,0,0)','rgba(44,62,107,.035)'] } },
       axisLabel:{ color:'#77809a', fontSize:11, hideOverlap:true } },
     yAxis:{ type:'value', scale:true, name:unitTxt, nameGap:12,
       nameTextStyle:{ fontSize:11, color:'#77809a' },
@@ -3233,9 +3282,16 @@ function dtDraw(){
     series: rows.map(function(r){
       var m = {}; r.pts.forEach(function(p){ m[p.d] = p.v; });
       var data = axis.map(function(d){ return m[d] == null ? null : m[d]; });
+      /*  ⚠️ 항목 여럿을 나란히 세우는 막대에서는 barMaxWidth 를 키워도
+          아무 일도 안 일어납니다. 한 달 칸을 6개가 나눠 쓰니 한 막대는
+          이미 8px 남짓이고, 상한(30px)에는 근처도 안 갑니다.
+          여기서 굵기를 정하는 건 <칸을 얼마나 채우느냐(barCategoryGap)>
+          입니다. 손잡이를 그쪽에 겁니다 — 100% 면 칸을 꽉 채우고,
+          낮추면 달과 달 사이가 벌어져 <어느 달인지 구분이 쉬워집니다>.  */
       if (shape === 'bar')
         return { name:r.name, type:'bar',
-                 barMaxWidth: Math.max(6, Math.round(BARW.pct * 0.5)), barGap:'10%',
+                 barCategoryGap: Math.max(0, Math.min(60, 100 - BARW.pct)) + '%',
+                 barGap: '8%', barMinWidth: 1,
                  itemStyle:{ color:r.color }, data:data };
       return { name:r.name, type:'line', showSymbol:false, smooth:false, connectNulls:true,
                lineStyle:{ width:2, color:r.color }, itemStyle:{ color:r.color }, data:data };
@@ -11795,6 +11851,47 @@ async function assignMembers(){
   $('assignSids').value = '';
 }
 
+/*  ── 왜 안 샀는지 ──────────────────────────────────────────
+
+    "자동매매를 켰는데 하루 종일 한 종목도 안 샀다" — 지금까지는 이 말에
+    답할 방법이 없었습니다. 막힐 수 있는 자리가 여덟 군데인데 화면에는
+    "매수 조건에 맞는 종목이 없었습니다" 한 줄만 나왔으니까요.
+    단계마다 몇 종목이 남는지 세어서, 어디서 0 이 되는지 보여줍니다.   */
+async function mtWhy(){
+  var btn = $('mtWhyBtn'), box = $('mtWhyBox');
+  btn.disabled = true; btn.textContent = '세는 중…';
+  box.innerHTML = '<div class="st-hint" style="margin-top:8px">지금 상태로 한 번 훑어보는 중입니다…</div>';
+  try {
+    var d = await edge({ source:'mt_why', team_id: team });
+    var rows = (d.steps || []).map(function(s, i){
+      var zero = (s.left === 0);
+      //  0 이 처음 나온 자리가 범인입니다 — 거기만 빨갛게 표시합니다
+      var firstZero = zero && !(d.steps || []).slice(0, i).some(function(x){ return x.left === 0; });
+      return '<tr' + (firstZero ? ' style="background:rgba(192,57,43,.07)"' : '') + '>'
+        + '<td>' + (firstZero ? '<b>⚠️ </b>' : '') + esc(s.step) + '</td>'
+        + '<td class="num"><b' + (zero ? ' style="color:var(--danger)"' : '') + '>'
+        + (s.left == null ? '—' : num(s.left, 0)) + '</b></td>'
+        + '<td class="st-hint">' + esc(s.note || '') + '</td></tr>';
+    }).join('');
+    var bad = (d.steps || []).filter(function(s){ return s.left === 0; })[0];
+    box.innerHTML =
+        '<div class="note ' + (bad ? 'warn' : 'info') + '" style="margin-top:10px">'
+      + (bad ? '<b>여기서 막혔습니다 — ' + esc(bad.step) + '</b><br>' + esc(bad.note || '')
+             : '<b>막히는 데가 없습니다.</b> 조건에 맞는 종목이 나오면 다음 차례에 삽니다.')
+      + '</div>'
+      + '<div class="tbl-wrap" style="margin-top:8px"><table class="tbl">'
+      + '<thead><tr><th>단계</th><th class="num" style="width:110px">남은 수</th><th>설명</th></tr></thead>'
+      + '<tbody>' + rows + '</tbody></table></div>'
+      + '<p class="st-hint" style="margin-top:6px">'
+      + '봉 기준 <b>' + esc(d.bar_tf || '—') + '</b> · 도는 간격 <b>' + esc(d.interval || '—') + '</b>'
+      + ' · 미국 장 ' + (d.us_open ? '<b>열림</b>' : '<b>닫힘</b>')
+      + ' · 이번 확인에 Alpaca 호출 ' + num(d.api_calls || 0, 0) + '회</p>';
+  } catch(e){
+    box.innerHTML = '<div class="note err" style="margin-top:10px">' + esc(e.message) + '</div>';
+  }
+  btn.disabled = false; btn.textContent = '왜 안 샀는지 보기';
+}
+
 /* ══════════ 회의 자료 (PDF) ══════════
 
    카톡방에 올린 파일은 방을 나가거나 시간이 지나면 못 받습니다.
@@ -12896,7 +12993,25 @@ function syncStratNums(){
       tip = ' · ⚠️ 미국이 ' + us + '개로 국내 ' + kr + '개보다 많아 미국 쪽에 쏠릴 수 있습니다';
     if (mk === 'CRYPTO' || (mk === 'both' && cc))
       tip += ' · 코인은 주말·야간에도 움직이고 변동성이 큽니다 — 손절 폭을 따로 잡으세요';
-    $('stMarketHint').innerHTML = '<b>' + n + '종목</b>을 훑습니다' + tip;
+    /*  ⚠️ 여기가 가장 흔한 오해입니다.
+
+        미국 장은 한국시간 밤 10:30 ~ 새벽 5:00 에 열립니다(서머타임 기준).
+        한국 낮에 자동매매를 켜두고 "왜 안 사지" 하고 보면, 그 시간에는
+        <미국 종목이 아예 대상에서 빠져 있습니다>. 코인을 안 넣어뒀으면
+        훑을 것이 하나도 없습니다. 화면에 미리 적어둡니다.            */
+    var mk = $('stMarkets') ? $('stMarkets').value : 'both';
+    var hasUS = (mk === 'both' || mk === 'US' || mk === 'stock');
+    var hasCC = (mk === 'both' || mk === 'CRYPTO');
+    var when = '';
+    if (hasUS){
+      var h = new Date().getHours();
+      var usNow = (h >= 22 || h < 5);          //  한국시간 기준 대략
+      when = '<br><b>미국 장은 한국시간 밤 10:30 ~ 새벽 5:00</b> 에 열립니다'
+           + (usNow ? ' — <b>지금 열려 있습니다</b>.'
+                    : ' — <b>지금은 닫혀 있어 미국 종목은 안 훑습니다</b>'
+                      + (hasCC ? ' (코인만 봅니다).' : '. 코인을 같이 넣으면 낮에도 돕니다.'));
+    }
+    $('stMarketHint').innerHTML = '<b>' + n + '종목</b>을 훑습니다' + tip + when;
   }
 }
 
