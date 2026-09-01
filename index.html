@@ -8077,10 +8077,20 @@ function mtLeave(){
   mtLoadLeague();
 }
 
-//  보기 전용이면 손대는 것들을 전부 잠급니다
+/*  보기 전용이면 손대는 것들을 전부 잠급니다.
+
+    ⚠️ 여기서 <잠그기만> 합니다. 예전에는 disabled = !mtCanTrade 라서
+    내 팀 방에 들어서는 순간 주문 버튼이 <아무것도 안 고른 상태로> 켜졌습니다.
+    그걸 누르면 "종목을 먼저 골라주세요" 가 뜨고, 그 말이 화면에 그대로
+    남아서, 나중에 종목을 제대로 골라도 계속 그 문구가 보였습니다.
+    주문 버튼을 켜는 건 mtCalc 하나만 합니다 — 종목·시세·수량·장 시간을
+    다 아는 건 거기뿐입니다.                                            */
 function mtApplyLock(){
-  ['tSymbol','tQty','tSide','tradeBtn','mtAutoOn','mtAutoIv','mtAutoBudget']
+  ['tSymbol','tQty','tSide','mtAutoOn','mtAutoIv','mtAutoBudget']
     .forEach(function(id){ var e = $(id); if (e) e.disabled = !mtCanTrade; });
+  //  주문 버튼은 <끄기만> 합니다. 켜는 건 mtCalc 가 판단합니다.
+  var tb = $('tradeBtn');
+  if (tb && !mtCanTrade) tb.disabled = true;
   var st = $('stratSaveBtn'); if (st) st.disabled = !mtCanTrade;
   ['tSeg-manual','tSeg-auto'].forEach(function(id){
     var b = $(id); if (b) b.title = mtCanTrade ? '' : '자기 팀에서만 매매할 수 있습니다';
@@ -8791,6 +8801,8 @@ function mtPickSym(i){
   var box = $('mtSymList'), x = (box._rows || [])[i];
   if (!x) return;
   mtPick = x;
+  //  "종목을 먼저 골라주세요" 같은 지난 경고를 남겨두지 않습니다
+  warn('tradeMsg', '');
   box.classList.add('hidden');
   $('tSymbol').value = '';
   $('mtPicked').style.display = '';
@@ -8801,6 +8813,7 @@ function mtPickSym(i){
 }
 function mtClearPick(){
   mtPick = null; mtQuote = null;
+  warn('tradeMsg', '');
   $('mtPicked').style.display = 'none';
   $('mtQuoteBox').classList.add('hidden');
   $('tradeBtn').disabled = true;
@@ -8849,7 +8862,17 @@ function mtCalc(){
   H += '<div class="st-hint">' + esc(mtQuote.note || '') + '</div>';
   if (blocked) H += '<div class="dn" style="margin-top:6px">' + mtQuote.window.why + '</div>';
   box.innerHTML = H;
-  $('tradeBtn').disabled = !mtCanTrade || !(qty > 0) || blocked;
+  /*  주문을 누를 수 있는 조건을 <한 군데> 에서 다 봅니다.
+      종목·시세가 없으면 눌러도 어차피 거절이라 아예 못 누르게 합니다.  */
+  var btn = $('tradeBtn');
+  btn.disabled = !mtCanTrade || !mtPick || !mtQuote || !(qty > 0) || blocked;
+  //  왜 못 누르는지 버튼 위에 올리면 보이게 합니다
+  btn.title = !mtCanTrade ? '자기 팀에서만 매매할 수 있습니다'
+            : !mtPick    ? '종목을 먼저 골라주세요'
+            : !mtQuote   ? '시세를 받는 중입니다'
+            : !(qty > 0) ? '수량을 넣어주세요'
+            : blocked    ? ((mtQuote.window && mtQuote.window.why) || '지금은 주문할 수 없습니다')
+            : '';
 }
 
 function mtAllIn(){
@@ -9085,8 +9108,17 @@ async function mtScanNow(){
   warn('mtAutoMsg','스캔하는 중…', 'info');
   try {
     var d = await edge({ source:'mt_scan' });
+    /*  API 를 몇 번 불렀는지 같이 보여줍니다. "세 팀이 동시에 돌면
+        무료 요금제로 버티나" 를 감이 아니라 숫자로 볼 수 있어야 합니다.  */
+    var api = (d.api_calls != null)
+      ? ' <span class="st-hint">· 이번 회차 Alpaca 호출 ' + num(d.api_calls, 0) + '회'
+        + (d.api_limit ? ' / 분당 한도 ' + num(d.api_limit, 0) + '회' : '')
+        + (d.bar_tfs && d.bar_tfs.length > 1
+            ? ' (봉 기준 ' + d.bar_tfs.length + '가지)' : '')
+        + '</span>'
+      : '';
     warn('mtAutoMsg', '스캔 완료 — 팀 ' + num(d.ran || 0, 0) + '개 처리, 종목 '
-       + num(d.scanned || 0, 0) + '개 훑음.' + (d.note ? ' ' + esc(d.note) : ''), 'ok');
+       + num(d.scanned || 0, 0) + '개 훑음.' + (d.note ? ' ' + esc(d.note) : '') + api, 'ok');
     await mtLoadAuto(); await mtLoadAccount();
   } catch(e){ warn('mtAutoMsg', esc(e.message)); }
 }
