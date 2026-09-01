@@ -919,6 +919,13 @@
               </label>
             </div>
             <div class="row">
+              <label style="min-width:auto">봉 너비</label>
+              <input type="range" id="barwMacro" min="15" max="100" value="60"
+                     oninput="setBarW(this.value, 'macro')" style="width:130px">
+              <span id="barwMacroV" style="font-size:11.5px;color:var(--text-sub);min-width:38px">60%</span>
+              <span class="st-hint">막대 사이가 휑하면 넓혀보세요</span>
+            </div>
+            <div class="row">
               <label style="min-width:auto">
                 <input type="checkbox" id="recSel" onchange="toggleRecession()" style="width:auto;vertical-align:-2px">
                 경기침체 음영 <span style="font-size:11px;color:var(--text-sub)">(FRED 방식)</span>
@@ -1668,13 +1675,28 @@
           </div>
           <div class="row">
             <label style="min-width:auto">
-              <input type="checkbox" id="coGrid" onchange="setCoGrid()" style="width:auto;vertical-align:-2px">
+              <input type="checkbox" id="coGrid" checked onchange="setCoGrid()" style="width:auto;vertical-align:-2px">
               눈금선
             </label>
             <input type="color" id="coGridColor" value="#c8d0e0" oninput="setCoGrid()">
             <label style="min-width:auto">진하기</label>
             <input type="range" id="coGridAlpha" min="5" max="100" value="45" oninput="setCoGrid()" style="width:130px">
             <span id="coGridAlphaV" style="font-size:11.5px;color:var(--text-sub);min-width:38px">45%</span>
+          </div>
+          <div class="row">
+            <label style="min-width:auto">봉 너비</label>
+            <input type="range" id="barwCo" min="15" max="100" value="60"
+                   oninput="setBarW(this.value, 'co')" style="width:130px">
+            <span id="barwCoV" style="font-size:11.5px;color:var(--text-sub);min-width:38px">60%</span>
+            <span class="st-hint">막대 사이가 휑하면 넓혀보세요</span>
+          </div>
+          <div class="row">
+            <label style="min-width:auto">주가 겹치기</label>
+            <select id="coPxMode" onchange="renderCoFinChart()" style="width:150px">
+              <option value="daily" selected>일별 그대로</option>
+              <option value="period">재무 기간에 맞춰</option>
+            </select>
+            <span class="st-hint">「일별」은 실제 주가 흐름 그대로, 「기간」은 결산일 값 하나씩</span>
           </div>
           <div class="row">
             <label>차트 크기</label>
@@ -2418,6 +2440,36 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
 <script>
+/*  ══════════ 모든 차트에 공통으로 먹이는 밑바탕 ══════════
+
+    축 아래로 삐져나온 짧은 눈금선(axisTick)은 특히 막대 차트에서
+    지저분합니다. 차트마다 하나씩 꺼주면 <새로 만드는 차트에서 또
+    빠지므로>, 여기 한 군데에서 끕니다.
+
+    echarts.init 을 한 번 감싸서 우리 밑바탕을 기본으로 씌웁니다.
+    차트 쪽 코드는 아무것도 안 바꿔도 됩니다.                        */
+(function(){
+  if (typeof echarts === 'undefined') return;
+  echarts.registerTheme('safe', {
+    categoryAxis: { axisTick:{ show:false } },
+    valueAxis:    { axisTick:{ show:false } },
+    timeAxis:     { axisTick:{ show:false } },
+    logAxis:      { axisTick:{ show:false } }
+  });
+  var _init = echarts.init;
+  echarts.init = function(dom, theme, opts){
+    return _init.call(echarts, dom, theme || 'safe', opts);
+  };
+})();
+
+/*  ── 봉 너비 ────────────────────────────────────────────────
+    지표를 하나만 올리면 막대 사이가 휑하게 벌어집니다. ECharts 는
+    기본으로 <칸의 60%> 를 쓰는데, 칸이 넓으면 그만큼 막대도 얇아
+    보이는 게 아니라 <사이가> 넓어 보입니다.
+
+    화면에서 조절할 수 있게 두되, 값은 한 군데(BARW)에 모아둡니다.  */
+var BARW = { pct: 60 };
+function barW(){ return Math.max(10, Math.min(100, Number(BARW.pct) || 60)) + '%'; }
 /* ═══════════════════════════════════════════════
    SAFE Terminal — Phase 0~3
    로그인 게이트 · 경제지표 차트 · 모의투자
@@ -3173,7 +3225,8 @@ function dtDraw(){
       var m = {}; r.pts.forEach(function(p){ m[p.d] = p.v; });
       var data = axis.map(function(d){ return m[d] == null ? null : m[d]; });
       if (shape === 'bar')
-        return { name:r.name, type:'bar', barMaxWidth:14, barGap:'10%',
+        return { name:r.name, type:'bar',
+                 barMaxWidth: Math.max(6, Math.round(BARW.pct * 0.5)), barGap:'10%',
                  itemStyle:{ color:r.color }, data:data };
       return { name:r.name, type:'line', showSymbol:false, smooth:false, connectNulls:true,
                lineStyle:{ width:2, color:r.color }, itemStyle:{ color:r.color }, data:data };
@@ -3207,7 +3260,8 @@ function dtDraw(){
       yAxis:{ type:'category', data: bars.map(function(r){ return r.name; }),
         axisLabel:{ color:'#5a6278', fontSize:11, width:180, overflow:'truncate' },
         axisLine:{ show:false }, axisTick:{ show:false } },
-      series:[{ type:'bar', barMaxWidth:16,
+      series:[{ type:'bar', barWidth: barW(),
+                barMaxWidth: Math.max(8, Math.round(BARW.pct * 1.2)),
         data: bars.map(function(r){
           return { value:r.cmp, itemStyle:{ color: r.cmp >= 0 ? '#c0392b' : '#1b5fa8' } }; }),
         label:{ show:true, position:'right', fontSize:11,
@@ -4609,7 +4663,8 @@ function valDrawChart(out, px, mid){
     yAxis:{ type:'category', data:names, inverse:true,
       axisLabel:{ color:'#5a6278', fontSize:11.5 },
       axisLine:{ show:false }, axisTick:{ show:false } },
-    series:[{ type:'bar', barMaxWidth:20, data:data,
+    series:[{ type:'bar', barWidth: barW(),
+              barMaxWidth: Math.max(8, Math.round(BARW.pct * 0.9)), data:data,
       label:{ show:true, position:'right', fontSize:11,
         formatter:function(a){ return a.value == null ? ''
           : (cur === '원' ? num(a.value,0) : '$' + num(a.value,2)); } },
@@ -6200,11 +6255,11 @@ function dvDrawOi(list, spot){
             nameTextStyle:{ color: theme.text_color, fontSize:11 } },
     yAxis: dvAxis('미결제약정'),
     series: [
-      { name:'콜', type:'bar', stack:'oi', barMaxWidth:26,
+      { name:'콜', type:'bar', stack:'oi', barMaxWidth: Math.max(8, Math.round(BARW.pct * 0.55)),
         data: list.map(function(x){ return x.call ? x.call.oi : 0; }), itemStyle:{ color: pal[0] },
         //  콜벽 · 풋벽이 지금 가격의 위인지 아래인지 보이게 합니다
         markLine: dvMarkAt(list.map(function(x){ return x.strike; }), spot, '현재가 $') },
-      { name:'풋', type:'bar', stack:'oi', barMaxWidth:26,
+      { name:'풋', type:'bar', stack:'oi', barMaxWidth: Math.max(8, Math.round(BARW.pct * 0.55)),
         data: list.map(function(x){ return x.put ? -(x.put.oi || 0) : 0; }), itemStyle:{ color: pal[1] } }
     ]
   }, true);
@@ -7311,7 +7366,11 @@ function drawChart(){
         type: isBar ? 'bar' : 'line',
         yAxisIndex: norm ? 0 : (Number(s.axis) || 0),
         showSymbol:false,
-        barMaxWidth: 18,
+        /*  지표를 하나만 올리면 막대 사이가 휑했습니다. 18px 로 못 박아
+            둬서, 칸이 넓어질수록 <막대가> 아니라 <사이가> 넓어졌습니다.
+            칸의 몇 %를 쓸지로 정하고, 화면에서 조절하게 둡니다.        */
+        barWidth: barW(),
+        barMaxWidth: Math.max(6, Math.round(BARW.pct * 1.2)),
         lineStyle:{ color:s.color, width:s.width },
         itemStyle:{ color:s.color },
         data: pts.map(function(p){ return [p.d, norm ? (base ? p.v/base*100 : 0) : p.v]; })
@@ -7472,7 +7531,8 @@ function dkDraw(d){
         splitLine:{ lineStyle:{ color:theme.grid } } },
     ],
     series: [
-      { name:'다크풀 거래량', type:'bar', barMaxWidth:22,
+      { name:'다크풀 거래량', type:'bar', barWidth: barW(),
+        barMaxWidth: Math.max(8, Math.round(BARW.pct * 0.9)),
         itemStyle:{ color:theme.axis_left, borderRadius:[3,3,0,0] },
         data: w.map(function(x){ return [x.d, x.ats]; }) },
     ].concat(hasPct ? [
@@ -9274,14 +9334,32 @@ window.addEventListener('resize', function(){
 /* ══════════ 기업 분석 (DART · SEC) ══════════ */
 var co = null, coHits = [], coFin = null, coFinChart = null, coPriceChart = null;
 var coSeries = [], coPricePts = [];
-var coView = { period:'annual', range:8, grid:false, gridColor:'#c8d0e0', gridAlpha:45, h:420, w:null };
+//  눈금선은 기본으로 켭니다 — 값을 눈으로 읽으려면 가로줄이 있는 편이 낫습니다
+var coView = { period:'annual', range:8, grid:true, gridColor:'#c8d0e0', gridAlpha:45, h:420, w:null };
 
-/* 눈금선 — 기본은 꺼져 있습니다 */
+/* 눈금선 — 기본은 켜져 있습니다 */
 function coSplit(){
   return coView.grid
     ? { show:true, lineStyle:{ color: coView.gridColor, opacity: coView.gridAlpha/100 } }
     : { show:false };
 }
+/*  봉 너비 — 어느 화면에서 움직여도 같은 값을 씁니다.
+    막대 굵기는 결국 한 가지 취향이라 탭마다 따로 기억할 이유가 없습니다.  */
+function setBarW(v, which){
+  BARW.pct = Math.max(15, Math.min(100, Number(v) || 60));
+  ['barwMacro','barwCo'].forEach(function(id){
+    var el = $(id); if (el) el.value = BARW.pct;
+    var lb = $(id + 'V'); if (lb) lb.textContent = BARW.pct + '%';
+  });
+  //  지금 보고 있는 화면만 다시 그립니다
+  if (which === 'macro'){
+    if (typeof drawChart === 'function') drawChart();
+    if (typeof dtDraw === 'function' && dtChart) dtDraw();
+  } else {
+    renderCoFinChart();
+  }
+}
+
 function setCoGrid(){
   coView.grid       = $('coGrid').checked;
   coView.gridColor  = $('coGridColor').value;
@@ -10062,15 +10140,55 @@ function renderCoFinChart(){
   //  그래야 화면을 그대로 캡처해서 리포트에 쓸 수 있습니다.
   var series = [];
 
+  /*  ── 주가를 <일별 그대로> 그릴 수 있게 ──────────────────────
+
+      재무제표 차트의 가로축은 <결산 기간> 입니다. 주가를 여기 얹으면
+      한 분기에 점 하나뿐이라, 실제로는 오르내림이 심한 주가가
+      밋밋한 꺾은선이 됩니다. "주가 탭에서 보던 그 그림" 과 딴판입니다.
+
+      그래서 시간축을 하나 더 깔고(xAxisIndex 1), 주가는 거기에
+      <받은 날짜 그대로> 얹습니다. 막대는 그대로 기간축에 있으니
+      둘이 같은 그림 안에서 각자 제 눈금을 씁니다.
+
+      두 축의 좌우 끝을 맞춰야 막대와 선이 어긋나 보이지 않습니다.
+      기간축은 칸 가운데에 막대를 놓으므로(boundaryGap), 시간축도
+      양 끝에 반 칸씩 여유를 둡니다.                                 */
+  var pxDaily = $('coPxMode') ? $('coPxMode').value === 'daily' : true;
+  var tSpan = (function(){
+    if (!pxDaily || rows.length < 2) return null;
+    var ts = rows.map(function(r){ return Date.parse(coPeriodEnd(r)); })
+                 .filter(function(t){ return isFinite(t); });
+    if (ts.length < 2) return null;
+    var half = (ts[ts.length-1] - ts[0]) / (ts.length - 1) / 2;
+    return { min: ts[0] - half, max: ts[ts.length-1] + half };
+  })();
+  var useTime = false;
+
   /* 사용자가 얹은 재무 계정 · 주가 · 경제지표 */
   var useThird = false;
   coFinSeries.forEach(function(x){
+    //  주가를 일별로 그리는 경우 — 기간에 맞춰 깎지 않고 그대로 씁니다
+    if (pxDaily && tSpan && x.kind === 'price' && (x.points || []).length){
+      var pts = x.points.filter(function(p){
+        var t = Date.parse(p.d);
+        return isFinite(t) && t >= tSpan.min && t <= tSpan.max;
+      }).map(function(p){ return [p.d, Number(p.v)]; });
+      if (pts.length >= 2){
+        useThird = true; useTime = true;
+        series.push({ name:x.label, type:'line', xAxisIndex:1, yAxisIndex:2,
+          data:pts, showSymbol:false, smooth:false, connectNulls:true,
+          lineStyle:{ color:x.color, width:Number(x.width)||1.8 },
+          itemStyle:{ color:x.color }, z:3 });
+        return;
+      }
+    }
     var data = coFinValues(x, rows, u);
     if (!data.some(function(v){ return v != null; })) return;
     if (x.axis === 2) useThird = true;
     if (x.type === 'bar'){
       series.push({ name:x.label, type:'bar', yAxisIndex:x.axis,
-        data:data, itemStyle:{ color:x.color }, barMaxWidth:34 });
+        data:data, itemStyle:{ color:x.color },
+        barWidth: barW(), barMaxWidth: Math.max(8, Math.round(BARW.pct * 0.9)) });
     } else {
       series.push({ name:x.label, type:'line', yAxisIndex:x.axis, smooth:false,
         data:data, connectNulls:true,
@@ -10103,10 +10221,24 @@ function renderCoFinChart(){
     grid:{ left:70, right: (useThird ? (usePct ? 128 : 66) : (usePct ? 62 : 26)),
            top:52, bottom:40 },
     legend:{ top:8, type:'scroll', textStyle:{ color: theme.text_color, fontSize:12 } },
-    tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' },
-      valueFormatter:function(v){ return v == null ? '-' : num(v, 1); } },
-    xAxis:{ type:'category', data: yrs, axisLine:{ lineStyle:{ color: theme.grid } },
-      axisLabel:{ color: theme.text_color, fontSize:11 } },
+    /*  주가가 시간축에 있으면 <같은 세로줄> 이라는 개념이 어긋납니다.
+        그때는 점 하나하나에 물어보는 편이 정확합니다.                 */
+    tooltip: useTime
+      ? { trigger:'item',
+          formatter:function(p){
+            var v = Array.isArray(p.value) ? p.value[1] : p.value;
+            var d = Array.isArray(p.value) ? fmtDateKo(p.value[0]) : p.name;
+            return '<b>' + esc(p.seriesName) + '</b><br>' + esc(String(d)) + ' · '
+                 + (v == null ? '-' : num(v, 1)); } }
+      : { trigger:'axis', axisPointer:{ type:'shadow' },
+          valueFormatter:function(v){ return v == null ? '-' : num(v, 1); } },
+    xAxis:[
+      { type:'category', data: yrs, axisLine:{ lineStyle:{ color: theme.grid } },
+        axisLabel:{ color: theme.text_color, fontSize:11 } },
+      //  주가를 일별로 얹을 때만 쓰는 숨은 시간축 (막대와 좌우 끝을 맞춥니다)
+      { type:'time', show:false, min: tSpan ? tSpan.min : null,
+        max: tSpan ? tSpan.max : null, axisPointer:{ show:false } }
+    ],
     yAxis:[
       { type:'value', name:u.label, nameTextStyle:{ color: theme.axis_left, fontSize:11 },
         axisLine:{ show:true, lineStyle:{ color: theme.axis_left } },
@@ -11032,7 +11164,8 @@ function drawDist(boxId, rets){
       axisLabel:{ fontSize:10, color:'#5a6278', interval: 3 } },
     yAxis:{ type:'value', splitLine:{ lineStyle:{ color:'#eef1f7' } },
       axisLabel:{ fontSize:10, color:'#5a6278' } },
-    series:[{ type:'bar', data:bins, barMaxWidth:22,
+    series:[{ type:'bar', data:bins, barWidth: barW(),
+              barMaxWidth: Math.max(8, Math.round(BARW.pct * 0.9)),
       itemStyle:{ color:function(p){ return parseFloat(labels[p.dataIndex]) < 0 ? '#c0392b' : '#1f8a70'; } } }]
   }, true);
 }
