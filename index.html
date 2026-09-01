@@ -8088,8 +8088,32 @@ function mtResetRoomView(){
   var cl = $('mtClosedCard'); if (cl) cl.classList.add('hidden');
   var sl = $('stratLive'); if (sl) sl.innerHTML = '';
 
-  //  백테스트 결과와 전략은 팀 것이라 반드시 비웁니다
+  /*  ⚠️ 백테스트는 <값(lastPreview)> 만 지우면 안 됩니다.
+      지난번에 그것만 지워놓고 "고쳤다" 고 했는데, 화면에 남는 것은
+      값이 아니라 <그림과 숫자판> 입니다 — 결과 상자·타일·수익 곡선·
+      분포 그래프. 그래서 채권팀에서 돌려본 백테스트가 인플레이션팀
+      방에 그대로 떠 있었습니다. 보이는 것까지 전부 치웁니다.        */
   lastPreview = null; strat = null; stratList = [];
+  var pv = $('stratPreview'); if (pv) pv.classList.add('hidden');
+  ['stratPrevTiles','stratPrevQuant','stratHist'].forEach(function(id){
+    var e = $(id); if (e) e.innerHTML = '';
+  });
+  if (prevChart){ try { prevChart.clear(); } catch(e){} }
+  //  분포 그래프는 상자를 지우면서 같이 사라지지만, 인스턴스도 놓아줍니다
+  if (typeof distCharts !== 'undefined' && distCharts.prevDistBox){
+    try { distCharts.prevDistBox.dispose(); } catch(e){}
+    delete distCharts.prevDistBox;
+  }
+
+  /*  성과 그림 · 보유 표 · 기록도 팀 것입니다. 다음 팀 값을 받아오기
+      전까지 <이전 팀 그림> 이 남아 있으면 그게 새 팀 성적으로 읽힙니다. */
+  [pieChart, pnlChart, benchChart].forEach(function(c){
+    if (c){ try { c.clear(); } catch(e){} }
+  });
+  ['mtPosTable','mtClosedTable','tradeTable','teamSummary'].forEach(function(id){
+    var e = $(id); if (e) e.innerHTML = '';
+  });
+
   var sm = $('stratMsg'); if (sm) sm.innerHTML = '';
   var am = $('mtAutoMsg'); if (am) am.innerHTML = '';
   var tm = $('tradeMsg'); if (tm) tm.innerHTML = '';
