@@ -224,6 +224,10 @@
   .fs-dlt.flat{color:var(--text-sub)}
   /* 보고서에 없어서 0 으로 채운 칸 — 회사가 적어낸 0 과 구분되게 흐리게 */
   .fs-num.zero{color:var(--text-sub);opacity:.45}
+  /*  줄 단위 표시 — 표 기본 단위와 다른 줄에만 붙습니다  */
+  .fs-unit{display:inline-block;margin-left:6px;padding:0 5px;border-radius:5px;
+    font-size:10.5px;font-weight:600;color:var(--text-sub);
+    background:var(--bg);border:1px solid var(--border);vertical-align:1px}
   .fs-row{cursor:pointer}
   .fs-row:hover{background:var(--accent-soft)}
   .fs-row td:first-child::after{content:' ＋';color:var(--accent);opacity:0;font-size:11px}
@@ -1867,6 +1871,7 @@
               <button class="btn-sm" onclick="coFsAll(false)">모두 접기</button>
               <span class="st-hint" style="margin-left:4px">▸ 를 눌러 항목별로 열고 닫을 수 있습니다</span>
             </div>
+            <p class="st-hint" id="coFsUnitNote" style="margin:0 0 8px"></p>
             <div id="coFsWarn"></div>
             <div class="scroll"><table id="coFinTable"></table></div>
           </div>
@@ -9354,6 +9359,39 @@ function coUnit(){
   return mx >= 1e13 ? { div:1e12, label:'조 원', cur:'KRW', dp:1 }
                     : { div:1e8,  label:'억 원', cur:'KRW', dp:0 };
 }
+/*  ── 줄마다 단위를 따로 ──────────────────────────────────────
+
+    ⚠️ 현금흐름표 한 장에 <영업활동 현금흐름 30조> 와 <무형자산의 처분
+    200억> 이 같이 있습니다. 표 전체를 '조 원' 으로 맞추면 뒤엣것은
+    전부 0.0 으로 찍힙니다. 값이 0 인 게 아니라 <단위가 너무 커서 안
+    보이는> 것뿐인데, 화면만 보면 "이 회사는 무형자산을 안 판다" 로
+    읽힙니다. 실제로 그렇게 보였습니다.
+
+    표 전체 단위를 실적요약(매출 · 자산)에서 가져온 것이 원인이었습니다 —
+    <보여줄 값> 이 아니라 <다른 숫자> 로 단위를 정한 것입니다.
+    그래서 그 줄에서 가장 큰 값을 보고 조 · 억 · 만 중에 고릅니다.       */
+function coRowUnit(r, years, base){
+  if (r.per_share) return { div: 1, dp: 2, tag: '' };
+  var mx = 0;
+  (years || []).forEach(function(y){
+    var v = Math.abs(Number(r.values[y.key] || 0));
+    if (v > mx) mx = v;
+  });
+  //  정말 0 인 줄은 표 기본 단위를 그대로 씁니다 (괜히 '만' 이라고 안 적습니다)
+  if (!(mx > 0)) return { div: base.div, dp: base.dp, tag: '' };
+
+  if (base.cur === 'KRW'){
+    if (mx >= 5e12) return { div: 1e12, dp: 1, tag: '조' };
+    if (mx >= 1e10) return { div: 1e8,  dp: 0, tag: '억' };
+    if (mx >= 1e8)  return { div: 1e8,  dp: 1, tag: '억' };
+    return { div: 1e4, dp: 0, tag: '만' };
+  }
+  if (mx >= 5e9) return { div: 1e9, dp: 1, tag: '십억' };
+  if (mx >= 1e9) return { div: 1e6, dp: 0, tag: '백만' };
+  if (mx >= 1e6) return { div: 1e6, dp: 1, tag: '백만' };
+  return { div: 1, dp: 0, tag: '' };
+}
+
 function coAmt(v){
   if (v == null || !isFinite(v)) return '—';
   var u = coUnit();
@@ -9605,6 +9643,8 @@ async function renderCoStatement(group){
     var u = coUnit();
 
     function cells(r){
+      //  이 줄에 맞는 단위 (표 전체 단위로는 작은 줄이 전부 0.0 이 됩니다)
+      var ru = coRowUnit(r, years, u);
       return years.map(function(y, k){
         //  값이 없으면 0 입니다 (그 해에 그 거래가 없었다는 뜻).
         //  숫자는 흐리게 두어 '회사가 적어낸 0' 과 구분됩니다.
@@ -9612,7 +9652,7 @@ async function renderCoStatement(group){
         var v = raw == null ? 0 : raw;
         var prevRaw = k > 0 ? r.values[years[k-1].key] : null;
         var prev = (k > 0) ? (prevRaw == null ? 0 : prevRaw) : null;
-        var txt = r.per_share ? num(v, 2) : num(v / u.div, u.dp);
+        var txt = r.per_share ? num(v, 2) : num(v / ru.div, ru.dp);
         var made = r.derived && r.derived[y.key];
         var dd = '';
         if (prev != null && !r.per_share && Number(prev) !== 0){
@@ -9656,7 +9696,14 @@ async function renderCoStatement(group){
               + '<span class="fs-kids">' + opts.kids + '</span>';
       }
       return '<tr class="' + cls + '" onclick="toggleFinSeries(\'' + esc(group) + '\',' + r.__i + ')">'
-        + '<td>' + caret + '<span class="fs-nm">' + esc(r.name) + '</span></td>'
+        + '<td>' + caret + '<span class="fs-nm">' + esc(r.name) + '</span>'
+        + (function(){
+            var ru = coRowUnit(r, years, u);
+            //  표 기본 단위와 다를 때만 적습니다 — 다 붙이면 시끄럽습니다
+            return (ru.tag && ru.div !== u.div)
+              ? '<span class="fs-unit">' + esc(ru.tag) + '</span>' : '';
+          })()
+        + '</td>'
         + cells(r) + '</tr>';
     }
 
@@ -9731,6 +9778,12 @@ async function loadCoFin(){
     });
     $('coFinUnit').textContent = coFin.length
       ? '단위: ' + coUnit().label + (q ? ' · 분기' : ' · 연간') : '';
+    //  아래 재무제표 표는 줄마다 단위가 다를 수 있습니다 (작은 줄이 0.0 이 되지 않게)
+    var fu = $('coFsUnitNote');
+    if (fu) fu.innerHTML = coFin.length
+      ? '기본 단위 <b>' + esc(coUnit().label) + '</b> · 금액이 작은 줄은 '
+        + '<span class="fs-unit">억</span> 처럼 그 줄에 맞는 단위로 적습니다'
+      : '';
     if (!coFin.length){
       $('coTiles').innerHTML = '<div class="empty">' + esc(d.note || '재무 자료를 찾지 못했습니다.') + '</div>';
       if (coFinChart) coFinChart.clear();
@@ -10046,7 +10099,9 @@ function renderCoFinChart(){
   coFinChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:70, right: (useThird ? 128 : (usePct ? 62 : 26)), top:52, bottom:40 },
+    //  오른쪽 여백도 <실제로 놓이는 축 수> 만큼만 둡니다
+    grid:{ left:70, right: (useThird ? (usePct ? 128 : 66) : (usePct ? 62 : 26)),
+           top:52, bottom:40 },
     legend:{ top:8, type:'scroll', textStyle:{ color: theme.text_color, fontSize:12 } },
     tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' },
       valueFormatter:function(v){ return v == null ? '-' : num(v, 1); } },
@@ -10062,9 +10117,12 @@ function renderCoFinChart(){
         position:'right', axisLine:{ show:true, lineStyle:{ color: theme.axis_right } },
         axisLabel:{ color: theme.axis_right, fontSize:11, formatter:'{value}%' },
         splitLine:{ show:false } },
+      /*  ⚠️ offset 은 <앞에 놓인 오른쪽 축> 을 비켜서는 값입니다.
+          % 축이 숨어 있는데도 64 를 그대로 두면, 이 축만 그림에서
+          64px 떨어져 허공에 떠 있게 됩니다. % 축이 보일 때만 비킵니다.  */
       { type:'value', name: thirdName, show: useThird, scale:true,
         nameTextStyle:{ color: theme.text_sub || '#5a6278', fontSize:11 },
-        position:'right', offset:64,
+        position:'right', offset: usePct ? 64 : 0,
         axisLine:{ show:true, lineStyle:{ color:'#8b93a7' } },
         axisLabel:{ color:'#5a6278', fontSize:11, formatter: numAxisBy(thirdSpan) },
         splitLine:{ show:false } }
