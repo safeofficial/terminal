@@ -338,6 +338,11 @@
   .mt-team .pl{font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums}
   .mt-team .sub{font-size:11.5px;color:var(--text-sub)}
   .mt-team.mine{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary) inset}
+  /*  카드가 <문> 이라는 표시. 평소엔 옅게, 올리면 또렷하게.  */
+  .mt-team .go{margin-top:6px;font-size:11.5px;font-weight:600;color:var(--primary);
+    opacity:.62;transition:opacity .12s}
+  .mt-team:hover .go{opacity:1}
+  .mt-team.mine .go{opacity:1}
   .mt-badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;
     border-radius:999px;margin-left:8px;vertical-align:2px}
   .mt-badge.edit{background:var(--accent-soft);color:var(--primary)}
@@ -563,6 +568,13 @@
   }
   button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/*  옵션 체인 한가운데 긋는 현재가 줄 */
+.dv-spot td{ padding:0 !important; border:0 !important; height:0; position:relative; }
+.dv-spot td::before{ content:''; position:absolute; left:0; right:0; top:0;
+  border-top:2px dashed #2c3e6b; opacity:.75; }
+.dv-spot span{ position:relative; top:-9px; display:inline-block; margin-left:8px;
+  background:var(--card, #fff); color:#2c3e6b; font-size:11px; font-weight:700;
+  padding:1px 7px; border-radius:9px; border:1px solid rgba(44,62,107,.28); }
 </style>
 </head>
 <body>
@@ -760,6 +772,39 @@
         <p class="st-hint" style="margin-top:8px" id="nfNote"></p>
       </div>
 
+      <!-- ── 회의 자료 (PDF) ──
+           카톡방은 나가거나 시간이 지나면 파일을 못 받습니다.
+           여기 두면 기수가 바뀌어도 남습니다.                    -->
+      <div class="card" id="homeDocsCard">
+        <h2>회의 자료
+          <span class="tools" style="font-weight:400;font-size:11.5px;color:var(--text-sub)">
+            임원진이 올립니다 · 학회원은 내려받을 수 있습니다
+          </span>
+        </h2>
+
+        <div class="admin-only hidden" id="mdUpBox"
+             style="border:1px dashed var(--border);border-radius:10px;padding:12px;margin-bottom:12px">
+          <div class="row">
+            <input type="text" id="mdTitle" class="grow" placeholder="자료 이름 (예: 3주차 세미나 · 밸류에이션)">
+            <label style="min-width:auto;font-size:12px;color:var(--text-sub)">회의 날짜</label>
+            <input type="date" id="mdDate" style="width:160px" title="회의한 날짜">
+          </div>
+          <div class="row">
+            <input type="text" id="mdNote" class="grow" placeholder="설명 (선택)">
+          </div>
+          <div class="row">
+            <input type="file" id="mdFile" accept="application/pdf,.pdf" class="grow">
+            <button class="btn-sm btn-solid" id="mdUpBtn" onclick="mdUpload()">올리기</button>
+          </div>
+          <div class="msg" id="mdMsg"></div>
+          <p style="font-size:11px;color:var(--text-sub);margin:6px 0 0;line-height:1.6">
+            PDF 만 · 한 개 25MB 까지. 올린 자료는 활동 기수 학회원만 볼 수 있습니다.
+          </p>
+        </div>
+
+        <div id="mdBody"><div class="empty">불러오는 중…</div></div>
+      </div>
+
       <!-- 처음 온 학회원용 안내 -->
       <div class="card" id="homeGuide">
         <h2>어디에 무엇이 있나
@@ -823,7 +868,10 @@
             </div>
             <p style="font-size:11px;color:var(--text-sub);margin:8px 0 0;line-height:1.6">
               지표 <b>안의 세부 항목</b>은 오른쪽 <b>상세 항목 분석</b>에서 봅니다 —
-              전월 대비 · 전년 대비까지 한 표로 나옵니다.
+              전월 대비 · 전년 대비까지 한 표로 나옵니다.<br>
+              <b>원자재</b>는 목록 아래쪽 「원자재」 묶음에 있습니다. 유가 · 천연가스 ·
+              구리 · 밀 · 옥수수는 <b>실제 가격</b>이고, 금 · 은처럼 공개 가격 계열이
+              없어진 것은 <b>그 원자재 ETF 시세</b>로 대신 봅니다 (이름에 ETF 라고 적어뒀습니다).
             </p>
 
             <div id="manualBox" class="hidden" style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
@@ -2619,8 +2667,9 @@ function addFromCatalog(){
   if (!c) return;
   addSeries({ source:c.source, code:c.code, item_code:c.item_code||'', cycle:c.cycle||'M',
               label:c.label, unit:c.unit||'' });
-  //  차트에 올린 지표를 아래 '상세 항목 분석' 에서도 바로 열어줍니다
-  dtFollow(c.id);
+  //  차트에 올린 지표를 아래 '상세 항목 분석' 에서도 바로 열어줍니다.
+  //  주가(원자재 ETF 등) 는 FRED 보고서가 없으니 건드리지 않습니다.
+  if (c.source === 'fred' || c.source === 'ecos') dtFollow(c.id);
 }
 
 /*  ── 차트에 올린 지표를 상세 분석에도 맞춰줍니다 ──────────
@@ -3272,6 +3321,7 @@ function initHome(){
       들어가야 순위가 채워졌기 때문에, 홈에서는 제목만 있고 표가 비어
       있었습니다. 홈에 있는 이상 홈이 직접 불러와야 합니다.            */
   loadLeaderboard();
+  loadMeetingDocs();
 }
 
 /* 모의투자는 서버에 쌓인 원/달러 표를 씁니다. 비어 있으면 미국 주식 평가액이
@@ -3354,8 +3404,12 @@ function drawHomeFx(){
   var vals = pts.map(function(x){ return x.v; });
   var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
   var pad = (hi - lo) * 0.12 || (hi * 0.01);
-  //  축 끝이 1,367.1 처럼 어중간하면 읽기 나쁩니다 — 보기 좋은 단위로 맞춥니다.
-  var step = Math.pow(10, Math.floor(Math.log(pad) / Math.LN10));
+  /*  축 끝이 1,271 · 1,368 처럼 어중간하면 눈금 간격이 들쭉날쭉해집니다.
+      여백 크기가 아니라 <눈금 한 칸> 을 먼저 정하고, 그 배수로 끝을 맞춥니다.  */
+  var span = Math.max(1e-9, hi - lo);
+  var step = Math.pow(10, Math.floor(Math.log(span / 4) / Math.LN10));
+  if (span / step > 8)      step *= 5;
+  else if (span / step > 4) step *= 2;
   if (step > 0){
     lo = Math.floor((lo - pad) / step) * step;
     hi = Math.ceil((hi + pad) / step) * step;
@@ -3376,8 +3430,9 @@ function drawHomeFx(){
       axisLabel:{ color:'#77809a', fontSize:11 } },
     yAxis:{ type:'value', scale:true, min: lo - pad, max: hi + pad,
       splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
+      //  하루치만 보면 폭이 1원도 안 됩니다 — 그때는 소수점을 더 적어야 합니다
       axisLabel:{ color:'#77809a', fontSize:11,
-        formatter:function(v){ return num(v, dp); } } },
+        formatter: numAxisBy((hi + pad) - (lo - pad)) } },
     series:[{ type:'line', data: vals, showSymbol:false, smooth:false,
       lineStyle:{ width:2, color: col },
       areaStyle:{ color:{ type:'linear', x:0,y:0,x2:0,y2:1, colorStops:[
@@ -5267,7 +5322,8 @@ async function dvRender(){
     ? spot * atmIv * Math.sqrt(dte / 365) : null;
 
   $('dvAsOf').textContent = dv.symbol + ' · ' + dv.expiration + ' 만기 · ' + dte + '일 남음 · '
-    + (dv.band ? '행사가 ' + num(dv.band[0], 0) + '~' + num(dv.band[1], 0) + ' · ' : '')
+    + (dv.band ? '행사가 ' + num(dv.band[0], dpForList(list.map(function(x){ return x.strike; })))
+               + '~' + num(dv.band[1], dpForList(list.map(function(x){ return x.strike; }))) + ' · ' : '')
     + (dv.settle ? dv.settle + ' · ' : '')
     + (dv.greeks_computed ? '계약 ' + dv.rows.length + '개 · 그릭스 직접 계산'
                           : '계약 ' + (dv.credits || 0) + '개 조회');
@@ -5276,6 +5332,8 @@ async function dvRender(){
   dvLevels = L;
   var ivHv = (L.atmIv != null && L.hv20) ? L.atmIv / L.hv20 : null;
 
+  //  행사가는 간격만큼만 적습니다 (싼 종목이 13 · 13 · 13 이 되지 않게)
+  var kdp = dpForList(list.map(function(x){ return x.strike; }));
   $('dvTiles').innerHTML = '<div class="tiles">'
     + tile('현재가', spot ? '$' + num(spot, 2) : '—', dv.symbol, '')
     + tile('등가격 IV', atmIv != null ? num(atmIv * 100, 1) + '%' : '—', '연율 기준', '')
@@ -5290,11 +5348,11 @@ async function dvRender(){
     + '</div><div class="tiles" style="margin-top:10px">'
     + tile('예상 변동폭', move != null ? '±$' + num(move, 2) : '—',
            move != null && spot ? '±' + num(move / spot * 100, 1) + '%' : '', '')
-    + tile('콜벽 (저항)', L.callWall != null ? '$' + num(L.callWall, 0) : '—',
+    + tile('콜벽 (저항)', L.callWall != null ? '$' + num(L.callWall, kdp) : '—',
            L.callWall != null ? num(L.callWallOi, 0) + '계약' : '', '')
-    + tile('풋벽 (지지)', L.putWall != null ? '$' + num(L.putWall, 0) : '—',
+    + tile('풋벽 (지지)', L.putWall != null ? '$' + num(L.putWall, kdp) : '—',
            L.putWall != null ? num(L.putWallOi, 0) + '계약' : '', '')
-    + tile('최대 고통', pain != null ? '$' + num(pain, 0) : '—', '미결제 기준', '')
+    + tile('최대 고통', pain != null ? '$' + num(pain, kdp) : '—', '미결제 기준', '')
     + tile('52주 범위', L.hi52 != null ? '$' + num(L.lo52, 0) + ' ~ ' + num(L.hi52, 0) : '—',
            '기초자산', '')
     + tile('총 미결제', num(callOi + putOi, 0), '콜 ' + num(callOi, 0) + ' · 풋 ' + num(putOi, 0), '')
@@ -5724,7 +5782,7 @@ function dvDrawMap(L){
     xAxis:{ type:'value', min: lo - pad, max: hi + pad,
       axisLine:{ lineStyle:{ color: theme.grid } },
       axisLabel:{ color: theme.text_color, fontSize:11,
-        formatter:function(v){ return num(Number(v), dp); } },
+        formatter: numAxisBy((hi + pad) - (lo - pad)) },
       splitLine:{ lineStyle:{ color: theme.grid, type:'dashed' } } },
     yAxis:{ type:'category', data: cats, inverse:true,
       axisLine:{ show:false }, axisTick:{ show:false },
@@ -5797,17 +5855,21 @@ function dvDrawTerm(){
     return;
   }
   var pal = theme.palette;
+  /*  만기가 많으면 날짜를 비스듬히 눕힙니다. 그러면 날짜가 아래로 더
+      내려와서 '만기일' 이라는 축 이름과 겹칩니다 — 눕힌 만큼 이름을
+      더 아래로 내리고, 아래 여백도 같이 넓힙니다.                    */
+  var rot = t.length > 6 ? 30 : 0;
+  var gap = rot ? 62 : 34;
   dvTermChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:66, right:30, top:36, bottom:66 },
+    grid:{ left:66, right:30, top:36, bottom: rot ? 92 : 66 },
     tooltip:{ trigger:'axis', valueFormatter:function(v){ return v == null ? '-' : v + '%'; } },
     xAxis:{ type:'category', data: t.map(function(x){ return x.date; }),
-      name:'만기일', nameLocation:'middle', nameGap:34,
+      name:'만기일', nameLocation:'middle', nameGap: gap,
       nameTextStyle:{ color: theme.text_color, fontSize:11 },
       axisLine:{ lineStyle:{ color: theme.grid } },
-      axisLabel:{ color: theme.text_color, fontSize:10, hideOverlap:true,
-        rotate: t.length > 6 ? 30 : 0 } },
+      axisLabel:{ color: theme.text_color, fontSize:10, hideOverlap:true, rotate: rot } },
     yAxis: Object.assign(dvAxis('등가격 IV %'),
       { axisLabel:{ color: theme.text_color, fontSize:11, formatter:'{value}%' } }),
     series:[{ name:'등가격 IV', type:'line', smooth:true, symbolSize:7,
@@ -5846,10 +5908,12 @@ function dvFillStrikes(list, spot){
   //  (코인처럼 행사가 간격이 넓으면 비율 기준으로는 하나도 안 걸립니다)
   var atmK = null, gap = Infinity;
   use.forEach(function(x){ var g = Math.abs(x.strike - spot); if (g < gap){ gap = g; atmK = x.strike; } });
+  //  12.5 · 13.0 · 13.5 가 전부 "13" 이 되지 않도록 <행사가 간격> 으로 정합니다
+  var kdp = dpForList(use.map(function(x){ return x.strike; }));
   sel.innerHTML = use.map(function(x){
     var tag = x.strike === atmK ? ' · 등가격'
             : ' · ' + (x.strike > spot ? '+' : '') + num((x.strike/spot-1)*100, 1) + '%';
-    return '<option value="' + x.strike + '">' + num(x.strike, x.strike < 20 ? 2 : 0) + tag + '</option>';
+    return '<option value="' + x.strike + '">' + num(x.strike, kdp) + tag + '</option>';
   }).join('');
   if (use.some(function(x){ return x.strike === keep; })) sel.value = String(keep);
   else if (atmK != null) sel.value = String(atmK);
@@ -5909,14 +5973,21 @@ function dvDrawPayoff(){
       nameTextStyle:{ color: theme.text_color, fontSize:11 },
       axisLine:{ lineStyle:{ color: theme.grid } },
       axisLabel:{ color: theme.text_color, fontSize:10, hideOverlap:true,
-        formatter:function(v){ return num(Number(v), 0); } } },
+        formatter:function(v){ return num(Number(v), dpForList(xs)); } } },
     yAxis: dvAxis('손익 ($/주)'),
     series:[{
       name:'손익', type:'line', data: ys, showSymbol:false, smooth:false,
       lineStyle:{ width:2, color:'#2c3e6b' },
       areaStyle:{ origin:'start', color:'rgba(44,62,107,.10)' },
       markLine:{ symbol:'none', silent:true, data:
-        [{ yAxis:0, lineStyle:{ color:'#8b93a7', type:'dashed' }, label:{ show:false } }]
+        [{ yAxis:0, lineStyle:{ color:'#8b93a7', type:'dashed' }, label:{ show:false } },
+         //  지금 주가가 이 그림의 어디쯤인지 (본전까지 얼마나 남았는지 보입니다)
+         { xAxis: String(xs.reduce(function(a,b){
+             return Math.abs(b - spot) < Math.abs(a - spot) ? b : a; })),
+           lineStyle:{ color:'#2c3e6b', type:'dashed', width:1.4 },
+           label:{ formatter:'현재가 $' + num(spot, 2), fontSize:10, color:'#2c3e6b',
+                   fontWeight:600, backgroundColor:'rgba(255,255,255,.82)',
+                   padding:[2,4], borderRadius:3 } }]
         .concat(be.map(function(v){
           return { xAxis: String(xs.reduce(function(a,b){
                      return Math.abs(b - v) < Math.abs(a - v) ? b : a; })),
@@ -5929,7 +6000,7 @@ function dvDrawPayoff(){
   var st = DV_STRAT[kind];
   var maxLoss = { call:cp, put:pp, straddle:(cp+pp), csp:(K - pp), covered:(spot - cp) }[kind];
   $('dvPayHint').innerHTML = '<b>' + esc(st.n) + '</b> — ' + esc(st.d)
-    + '<br>행사가 <b>$' + num(K, K < 20 ? 2 : 0) + '</b>, 계약 가격 '
+    + '<br>행사가 <b>$' + num(K, dpForList(list.map(function(x){ return x.strike; }))) + '</b>, 계약 가격 '
     + (kind === 'straddle' ? '콜 $' + num(cp, 2) + ' + 풋 $' + num(pp, 2) + ' = $' + num(cp+pp, 2)
        : '$' + num(kind === 'put' || kind === 'csp' ? pp : cp, 2))
     + ' · 미국 옵션 1계약 = 100주라 실제로는 <b>×100</b> 입니다.'
@@ -6046,10 +6117,34 @@ function dvAxis(name, horiz){
   if (horiz){ o.nameLocation = 'middle'; o.nameGap = 30; }
   return o;
 }
-function dvMark(spot){
-  return { symbol:'none', label:{ formatter:'현재가', fontSize:10, color: theme.text_color },
-           lineStyle:{ color:'#8b93a7', type:'dashed' },
+/*  현재가 선. "현재가" 라고만 적으면 그 선이 얼마인지 알 수 없어서
+    옆의 행사가와 눈으로 비교가 안 됩니다 — 금액을 같이 적습니다.     */
+function dvMark(spot, dp){
+  var d = dp == null ? (Math.abs(spot) >= 100 ? 0 : 2) : dp;
+  return { symbol:'none', silent:true, animation:false,
+           label:{ formatter:'현재가 $' + num(spot, d), fontSize:10,
+                   color:'#2c3e6b', fontWeight:600,
+                   backgroundColor:'rgba(255,255,255,.82)', padding:[2,4], borderRadius:3 },
+           lineStyle:{ color:'#2c3e6b', type:'dashed', width:1.4 },
            data:[{ xAxis: spot }] };
+}
+/*  가로축이 <목록> 인 그림(막대 등)에서는 현재가가 행사가 사이에 놓입니다.
+    가장 가까운 두 칸 사이를 소수 자리로 가리켜 선을 정확히 그립니다.   */
+function dvMarkAt(vals, spot, label){
+  var a = (vals || []).map(Number);
+  if (!a.length || !isFinite(spot)) return undefined;
+  var i = 0;
+  while (i < a.length - 1 && a[i + 1] <= spot) i++;
+  var pos = i;
+  if (i < a.length - 1 && a[i + 1] > a[i])
+    pos = i + Math.max(0, Math.min(1, (spot - a[i]) / (a[i + 1] - a[i])));
+  var dp = dpForList(a);
+  return { symbol:'none', silent:true, animation:false,
+           label:{ formatter:(label || '현재가 ') + num(spot, Math.max(dp, 2)), fontSize:10,
+                   color:'#2c3e6b', fontWeight:600,
+                   backgroundColor:'rgba(255,255,255,.82)', padding:[2,4], borderRadius:3 },
+           lineStyle:{ color:'#2c3e6b', type:'dashed', width:1.4 },
+           data:[{ xAxis: pos }] };
 }
 
 function dvDrawIv(list, spot){
@@ -6071,7 +6166,7 @@ function dvDrawIv(list, spot){
     series: [
       { name:'콜', type:'line', data:c, smooth:true, symbolSize:6,
         lineStyle:{ color: pal[0], width:2 }, itemStyle:{ color: pal[0] },
-        markLine: dvMark(spot) },
+        markLine: dvMark(spot, Math.max(2, dpForList(list.map(function(x){ return x.strike; })))) },
       { name:'풋', type:'line', data:p, smooth:true, symbolSize:6,
         lineStyle:{ color: pal[1], width:2 }, itemStyle:{ color: pal[1] } }
     ]
@@ -6096,7 +6191,9 @@ function dvDrawOi(list, spot){
     yAxis: dvAxis('미결제약정'),
     series: [
       { name:'콜', type:'bar', stack:'oi', barMaxWidth:26,
-        data: list.map(function(x){ return x.call ? x.call.oi : 0; }), itemStyle:{ color: pal[0] } },
+        data: list.map(function(x){ return x.call ? x.call.oi : 0; }), itemStyle:{ color: pal[0] },
+        //  콜벽 · 풋벽이 지금 가격의 위인지 아래인지 보이게 합니다
+        markLine: dvMarkAt(list.map(function(x){ return x.strike; }), spot, '현재가 $') },
       { name:'풋', type:'bar', stack:'oi', barMaxWidth:26,
         data: list.map(function(x){ return x.put ? -(x.put.oi || 0) : 0; }), itemStyle:{ color: pal[1] } }
     ]
@@ -6139,7 +6236,8 @@ function dvDrawGreeks(){
     yAxis: dvAxis(g),
     series: [
       { name:'콜', type:'line', data:c, smooth:true, symbolSize:6,
-        lineStyle:{ color: pal[0], width:2 }, itemStyle:{ color: pal[0] }, markLine: dvMark(spot) },
+        lineStyle:{ color: pal[0], width:2 }, itemStyle:{ color: pal[0] },
+        markLine: dvMark(spot, Math.max(2, dpForList(list.map(function(x){ return x.strike; })))) },
       { name:'풋', type:'line', data:p, smooth:true, symbolSize:6,
         lineStyle:{ color: pal[1], width:2 }, itemStyle:{ color: pal[1] } }
     ]
@@ -6147,6 +6245,8 @@ function dvDrawGreeks(){
 }
 
 function dvTable(list, spot){
+  //  행사가는 간격만큼만 적습니다 (13 · 13 · 14 로 뭉개지지 않게)
+  var kdp = dpForList(list.map(function(x){ return x.strike; }));
   function cell(r){
     if (!r) return '<td class="num">—</td><td class="num">—</td><td class="num">—</td>';
     return '<td class="num">' + (okNum(r.mid) ? num(r.mid, 2) : '—') + '</td>'
@@ -6160,12 +6260,20 @@ function dvTable(list, spot){
     + '<tr><th class="num">중간값</th><th class="num">IV</th><th class="num">미결제</th>'
     + '<th></th>'
     + '<th class="num">중간값</th><th class="num">IV</th><th class="num">미결제</th></tr></thead><tbody>'
-    + list.map(function(x){
+    + list.map(function(x, i){
+        /*  현재가가 이 행사가와 다음 행사가 사이면, 그 자리에 선을 하나 긋습니다.
+            표만 보면 "지금 얼마인데 이 행사가가 위인가 아래인가" 를 알 수 없어서
+            콜벽 · 풋벽 · 등가격이 전부 감으로만 읽힙니다.                    */
+        var nx = list[i + 1];
+        var cross = spot > 0 && nx && x.strike <= spot && nx.strike > spot;
         var near = Math.abs(x.strike - spot) < spot * 0.01;
-        return '<tr' + (near ? ' style="background:var(--accent-soft)"' : '') + '>'
+        var row = '<tr' + (near ? ' style="background:var(--accent-soft)"' : '') + '>'
           + cell(x.call)
-          + '<td class="num"><b>' + num(x.strike, 0) + '</b></td>'
+          + '<td class="num"><b>' + num(x.strike, kdp) + '</b></td>'
           + cell(x.put) + '</tr>';
+        if (cross) row += '<tr class="dv-spot"><td colspan="7">'
+          + '<span>현재가 $' + num(spot, Math.max(2, kdp)) + '</span></td></tr>';
+        return row;
       }).join('')
     + '</tbody>';
 }
@@ -6740,7 +6848,77 @@ function viewPoints(s){
   return applyTf(s.points, s.tf || 'raw', startDate());
 }
 
-/* 금액 축 라벨 — 규모에 맞춰 단위를 바꿉니다 (1000백만 → 10.0억) */
+/*  ── 금액 축 라벨 ────────────────────────────────────────────
+    ⚠️ 자릿수는 <값의 크기> 가 아니라 <축이 걸친 폭> 으로 정해야 합니다.
+
+    1억 언저리에서 몇십만원씩 움직이는 계좌를 그리면, 값만 보고
+    "1억이 넘으니 소수점 두 자리" 라고 정하는 순간
+        100,050,000 → 1.00억
+        100,020,000 → 1.00억
+        100,000,000 → 1.00억
+    이 되어 눈금 세 개가 전부 "1억" 으로 찍혔습니다. 눈금이 서로
+    구분이 안 되면 축이 아무 말도 안 하는 것과 같습니다.
+
+    그래서 축의 위아래 폭을 받아 <눈금 한 칸> 이 드러나는 자리까지 적습니다.
+    적을 때는 "10,050만" 처럼 환산이 필요한 표기 대신, 읽는 그대로
+    "1억 50만" 이라고 씁니다.                                        */
+function wonAxisBy(span){
+  var step = Math.max(1, Math.abs(span)) / 5;      // 눈금 한 칸쯤
+  //  눈금 한 칸보다 한 자리 더 아래까지 적으면 눈금이 서로 겹치지 않습니다
+  var q = Math.pow(10, Math.floor(Math.log10(Math.max(1, step / 2))));
+  return function(v){ return wonWords(v, q); };
+}
+
+/*  100,500,000 → "1억 50만".  q 는 "여기까지만 적는다" 는 뜻입니다.
+    "10,050만" 처럼 머리로 환산해야 하는 표기를 쓰지 않습니다.        */
+function wonWords(v, q){
+  var neg = Number(v) < 0;
+  var a = Math.round(Math.abs(Number(v) || 0) / q) * q;
+  if (a < 1) return '0';
+  var out = [], U = [[1e12, '조'], [1e8, '억'], [1e4, '만']];
+  for (var i = 0; i < U.length; i++){
+    var big = Math.floor(a / U[i][0]);
+    if (big >= 1){ out.push(num(big, 0) + U[i][1]); a -= big * U[i][0]; }
+    if (a < q){ a = 0; break; }        // 눈금보다 작은 나머지는 안 적습니다
+  }
+  if (a >= 1) out.push(num(Math.round(a), 0) + (out.length ? '원' : ''));
+  return (neg ? '-' : '') + out.join(' ');
+}
+
+/*  ── 소수 자릿수 ─────────────────────────────────────────────
+    ⚠️ 자릿수는 <값의 크기> 가 아니라 <값과 값 사이 간격> 으로 정합니다.
+
+    행사가가 12.5 · 13.0 · 13.5 인데 "값이 20 보다 작으니 정수" 라고
+    정하면 화면에는 13 · 13 · 14 가 찍힙니다. 옵션 체인에서 실제로
+    이렇게 나왔습니다. 축도, 표도 같은 원칙을 씁니다.               */
+function dpForStep(step){
+  var s = Math.abs(Number(step) || 0);
+  if (!(s > 0))    return 2;
+  if (s >= 1)      return 0;
+  if (s >= 0.1)    return 1;
+  if (s >= 0.01)   return 2;
+  if (s >= 0.001)  return 3;
+  return 4;
+}
+/*  줄지어 놓인 값들(행사가 등)이 서로 구분되는 자릿수  */
+function dpForList(vals){
+  var a = (vals || []).map(Number).filter(function(v){ return isFinite(v); })
+                      .sort(function(x, y){ return x - y; });
+  var gap = Infinity;
+  for (var i = 1; i < a.length; i++){
+    var d = a[i] - a[i-1];
+    if (d > 1e-9 && d < gap) gap = d;
+  }
+  return gap === Infinity ? dpForStep(Math.abs(a[0] || 0) / 100) : dpForStep(gap);
+}
+/*  축이 걸친 폭으로 자릿수를 정하는 숫자 축 (달러 · 배수 등)  */
+function numAxisBy(span, unit){
+  var u = Number(unit) || 1;                       // 백만 주 처럼 나눠서 적을 때
+  var dp = dpForStep(Math.abs(Number(span) || 0) / 5 / u);
+  return function(v){ return num(Number(v) / u, dp); };
+}
+
+/*  범위를 모를 때 쓰는 예전 방식 (단독 값 표기용).  */
 function wonAxis(v){
   var a = Math.abs(v);
   function trim(x, dp){
@@ -7241,6 +7419,11 @@ function dkDraw(d){
   var pctSeries = w.map(function(x){
     return [x.d, (x.otc && x.otc > 0) ? x.ats / x.otc * 100 : null]; });
   var hasPct = pctSeries.some(function(p){ return p[1] != null; });
+  /*  축이 0 에서 시작하니 폭 = 가장 큰 값입니다. 거래량이 적은 종목이면
+      "백만 주" 로 나눈 뒤 소수 한 자리로는 0.0 · 0.0 · 0.0 이 됩니다.     */
+  var dpMaxVol = Math.max.apply(null,
+    [0].concat(w.map(function(x){ return Number(x.ats) || 0; })
+                .concat(w.map(function(x){ return Number(x.otc) || 0; }))));
 
   dkChart.setOption({
     backgroundColor: theme.bg, animation:false,
@@ -7266,7 +7449,7 @@ function dkDraw(d){
     yAxis: hasPct ? [
       { type:'value', name:'백만 주', nameTextStyle:{ color:theme.axis_left, fontSize:11 },
         min:0, axisLabel:{ color:theme.axis_left, fontSize:11,
-          formatter:function(v){ return num(v/1e6, 1); } },
+          formatter: numAxisBy(dpMaxVol, 1e6) },
         splitLine:{ lineStyle:{ color:theme.grid } } },
       { type:'value', name:'%', nameTextStyle:{ color:theme.axis_right, fontSize:11 },
         min:0, max:100, position:'right',
@@ -7275,7 +7458,7 @@ function dkDraw(d){
     ] : [
       { type:'value', name:'백만 주', nameTextStyle:{ color:theme.axis_left, fontSize:11 },
         min:0, axisLabel:{ color:theme.axis_left, fontSize:11,
-          formatter:function(v){ return num(v/1e6, 1); } },
+          formatter: numAxisBy(dpMaxVol, 1e6) },
         splitLine:{ lineStyle:{ color:theme.grid } } },
     ],
     series: [
@@ -7798,8 +7981,14 @@ async function mtLoadLeague(){
       + (up ? '+' : '') + mtMoney(t.pnl) + '원</span>'
       + '<span class="sub">팀원 ' + num(t.members, 0) + '명'
       + (t.auto_on ? ' · 자동매매 켬' : '') + '</span>'
+      //  카드가 <문> 이라는 걸 적어둡니다. 예전에는 눌러야 방이 열리는데
+      //  화면 어디에도 그 말이 없어서 순위표로만 보였습니다.
+      + '<span class="go">' + (mine ? '내 팀 방 열기' : '이 팀 방 보기') + ' →</span>'
       + '</button>';
-  }).join('') + '</div>';
+  }).join('') + '</div>'
+    + '<p class="st-hint" style="margin:10px 2px 0">'
+    + '팀 카드를 누르면 그 팀 <b>방</b>으로 들어갑니다 — 매매 · 전략 · 기록은 방 안에서 팀별로 따로 돌아갑니다.'
+    + (mtMyTeam ? '' : ' 소속 팀이 없으면 보기만 됩니다.') + '</p>';
 }
 
 /* ── 방 드나들기 ─────────────────────────────── */
@@ -9801,6 +9990,15 @@ function renderCoFinChart(){
   });
 
   var usePct = coFinSeries.some(function(x){ return x.axis === 1; });
+  /*  세 번째 축(주가 · 경제지표)이 걸친 폭. 값 크기로 자릿수를 정하면
+      13.1 · 13.2 · 13.3 짜리 주가가 전부 "13" 으로 뭉개집니다.        */
+  var thirdVals = [];
+  coFinSeries.forEach(function(x){
+    if (x.axis !== 2) return;
+    coFinValues(x, rows, u).forEach(function(v){ if (v != null && isFinite(v)) thirdVals.push(Number(v)); });
+  });
+  var thirdSpan = thirdVals.length
+    ? Math.max.apply(null, thirdVals) - Math.min.apply(null, thirdVals) : 0;
   var thirdName = (function(){
     var p = coFinSeries.filter(function(x){ return x.axis === 2 && x.kind === 'price'; })[0];
     if (p) return /quote_kr/.test(p.source) ? '원' : '$';
@@ -9831,8 +10029,7 @@ function renderCoFinChart(){
         nameTextStyle:{ color: theme.text_sub || '#5a6278', fontSize:11 },
         position:'right', offset:64,
         axisLine:{ show:true, lineStyle:{ color:'#8b93a7' } },
-        axisLabel:{ color:'#5a6278', fontSize:11,
-          formatter:function(v){ return num(v, Math.abs(v) < 100 ? 1 : 0); } },
+        axisLabel:{ color:'#5a6278', fontSize:11, formatter: numAxisBy(thirdSpan) },
         splitLine:{ show:false } }
     ],
     series: series
@@ -10405,13 +10602,17 @@ async function loadHistory(){
         textStyle:{ fontSize:13, fontWeight:'normal', color:'#5a6278' } } });
   } else {
     var seed = Number(tstate.seed||1);
+    /*  축이 걸친 폭을 먼저 재서 눈금 자릿수를 정합니다 (시드선도 범위에 넣습니다).
+        안 그러면 1억 근처에서 "1억 · 1억 · 1억" 이 반복됩니다.        */
+    var tots = hist.map(function(h){ return Number(h.total); }).concat([seed]);
+    var pSpan = Math.max.apply(null, tots) - Math.min.apply(null, tots);
     pnlChart.setOption({
       backgroundColor:'transparent', animation:false,
-      grid:{ left:74, right:22, top:22, bottom:36 },
+      grid:{ left:80, right:22, top:22, bottom:36 },
       tooltip:{ trigger:'axis', valueFormatter:function(v){ return num(v)+' 원'; } },
       xAxis:{ type:'time', axisLine:{ lineStyle:{ color:'#e2e6f0' } }, axisLabel:{ fontSize:10, color:'#5a6278' } },
       yAxis:{ type:'value', scale:true, splitLine:{ lineStyle:{ color:'#eef1f7' } },
-        axisLabel:{ fontSize:10, color:'#5a6278', formatter: wonAxis } },
+        axisLabel:{ fontSize:10, color:'#5a6278', formatter: wonAxisBy(pSpan) } },
       series:[{ type:'line', showSymbol:false, smooth:false,
         lineStyle:{ color:'#2c3e6b', width:2 }, itemStyle:{ color:'#2c3e6b' },
         areaStyle:{ color:'rgba(44,62,107,.08)' },
@@ -10445,14 +10646,18 @@ async function drawBenchmark(hist){
     bseries.push([h.d, seed * (last / b0)]);
   });
 
+  //  두 선이 다 들어가는 폭으로 눈금 자릿수를 정합니다
+  var bAll = hist.map(function(h){ return Number(h.total); })
+                 .concat(bseries.map(function(x){ return Number(x[1]); }));
+  var bSpan = bAll.length ? Math.max.apply(null, bAll) - Math.min.apply(null, bAll) : 0;
   benchChart.setOption({
     backgroundColor:'transparent', animation:false,
-    grid:{ left:64, right:20, top:28, bottom:34 },
+    grid:{ left:80, right:20, top:28, bottom:34 },
     legend:{ top:0, textStyle:{ fontSize:11, color:'#5a6278' }, itemWidth:16, itemHeight:3 },
     tooltip:{ trigger:'axis', valueFormatter:function(v){ return num(v)+' 원'; } },
     xAxis:{ type:'time', axisLine:{ lineStyle:{ color:'#e2e6f0' } }, axisLabel:{ fontSize:10, color:'#5a6278' } },
     yAxis:{ type:'value', scale:true, splitLine:{ lineStyle:{ color:'#eef1f7' } },
-      axisLabel:{ fontSize:10, color:'#5a6278', formatter: wonAxis } },
+      axisLabel:{ fontSize:10, color:'#5a6278', formatter: wonAxisBy(bSpan) } },
     series:[
       { name:'우리 팀', type:'line', showSymbol:false, lineStyle:{ color:'#2c3e6b', width:2.4 },
         itemStyle:{ color:'#2c3e6b' }, data: hist.map(function(h){ return [h.d, Number(h.total)]; }) },
@@ -11186,6 +11391,126 @@ async function assignMembers(){
   $('teamAdminMsg').textContent = found.length + '명 배정 완료.'
     + (missing.length ? ' 찾지 못한 학번: ' + missing.join(', ') : '');
   $('assignSids').value = '';
+}
+
+/* ══════════ 회의 자료 (PDF) ══════════
+
+   카톡방에 올린 파일은 방을 나가거나 시간이 지나면 못 받습니다.
+   여기 올려두면 기수가 바뀌어도 남습니다.
+
+   ⚠️ 버킷은 <비공개> 입니다. 주소만 알면 누구나 받을 수 있게 두면
+      학회 내부 자료가 그대로 밖으로 나갑니다. 그래서 누를 때마다
+      <잠깐만 열리는 주소> 를 새로 받아서 엽니다.                     */
+var mdDocs = [];
+
+function mdSize(b){
+  var n = Number(b) || 0;
+  if (n >= 1048576) return num(n / 1048576, 1) + 'MB';
+  if (n >= 1024)    return num(n / 1024, 0) + 'KB';
+  return num(n, 0) + 'B';
+}
+
+async function loadMeetingDocs(){
+  var box = $('mdBody'); if (!box) return;
+  var r = await sb.rpc('meeting_docs_list');
+  if (r.error){
+    box.innerHTML = '<div class="empty">회의 자료를 불러오지 못했습니다. '
+      + 'terminal-회의자료.sql 을 실행했는지 확인하세요.<br><span style="font-size:11px">'
+      + esc(errMsg(r.error)) + '</span></div>';
+    return;
+  }
+  mdDocs = r.data || [];
+  if (!mdDocs.length){
+    box.innerHTML = '<div class="empty">아직 올라온 자료가 없습니다.'
+      + (isOfficer() ? ' 위에서 PDF 를 올려보세요.' : '') + '</div>';
+    return;
+  }
+  box.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr>'
+    + '<th style="width:110px">회의 날짜</th><th>자료</th>'
+    + '<th class="num" style="width:80px">크기</th>'
+    + '<th style="width:110px">올린 사람</th>'
+    + '<th style="width:' + (isOfficer() ? '150' : '80') + 'px"></th>'
+    + '</tr></thead><tbody>'
+    + mdDocs.map(function(d){
+        return '<tr>'
+          + '<td>' + esc(d.meeting_on || String(d.created_at || '').slice(0, 10)) + '</td>'
+          + '<td><b>' + esc(d.title) + '</b>'
+          + (d.note ? '<div class="nt" style="font-size:11.5px;color:var(--text-sub)">'
+                      + esc(d.note) + '</div>' : '') + '</td>'
+          + '<td class="num">' + mdSize(d.bytes) + '</td>'
+          + '<td>' + esc(d.by_name || '—') + '</td>'
+          + '<td style="white-space:nowrap"><button class="btn-sm" onclick="mdOpen(' + Number(d.id) + ')">열기</button>'
+          + (isOfficer()
+              ? ' <button class="btn-sm" onclick="mdDelete(' + Number(d.id) + ')">삭제</button>' : '')
+          + '</td></tr>';
+      }).join('')
+    + '</tbody></table></div>';
+}
+
+/*  누를 때마다 새 주소를 받습니다 — 주소가 돌아다녀도 곧 막힙니다  */
+async function mdOpen(id){
+  var d = mdDocs.filter(function(x){ return Number(x.id) === Number(id); })[0];
+  if (!d) return;
+  var r = await sb.storage.from('meeting-docs').createSignedUrl(d.path, 120);
+  if (r.error || !r.data || !r.data.signedUrl){
+    alert('파일을 여는 데 실패했습니다: ' + errMsg(r.error || { message:'주소를 못 받았습니다' }));
+    return;
+  }
+  window.open(r.data.signedUrl, '_blank', 'noopener');
+}
+
+async function mdUpload(){
+  if (!isOfficer()) return;
+  var f = $('mdFile').files && $('mdFile').files[0];
+  var t = $('mdTitle').value.trim();
+  var msg = function(txt, ok){
+    $('mdMsg').style.color = ok ? 'var(--ok)' : 'var(--danger)';
+    $('mdMsg').textContent = txt;
+  };
+  if (!f){ msg('PDF 파일을 골라주세요.'); return; }
+  if (!t){ msg('자료 이름을 적어주세요.'); return; }
+  //  확장자만 보고 넘기면 이름만 바꾼 파일이 들어옵니다 — 종류도 같이 봅니다
+  var isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+  if (!isPdf){ msg('PDF 만 올릴 수 있습니다.'); return; }
+  if (f.size > 25 * 1024 * 1024){ msg('파일이 25MB 를 넘습니다.'); return; }
+
+  $('mdUpBtn').disabled = true; msg('올리는 중…', true);
+  //  파일 이름에 한글 · 공백이 있으면 주소가 깨집니다 — 날짜 + 임의 값으로 짓습니다
+  var key = (($('mdDate').value || today()).replace(/-/g, '')) + '-'
+          + Math.random().toString(36).slice(2, 10) + '.pdf';
+  try {
+    var up = await sb.storage.from('meeting-docs')
+      .upload(key, f, { contentType:'application/pdf', upsert:false });
+    if (up.error) throw up.error;
+    //  올린 사람은 서버가 로그인 정보로 채웁니다 (화면이 보내지 않습니다)
+    var ins = await sb.from('meeting_docs').insert({
+      title: t, meeting_on: $('mdDate').value || null,
+      note: $('mdNote').value.trim() || null,
+      path: key, bytes: f.size });
+    if (ins.error){
+      //  목록에 못 넣었으면 올린 파일도 치웁니다 — 안 그러면 주인 없는 파일이 남습니다
+      await sb.storage.from('meeting-docs').remove([key]);
+      throw ins.error;
+    }
+    $('mdTitle').value = ''; $('mdNote').value = ''; $('mdFile').value = '';
+    msg('올렸습니다.', true);
+    loadMeetingDocs();
+  } catch(e){
+    msg(errMsg(e));
+  } finally {
+    $('mdUpBtn').disabled = false;
+  }
+}
+
+async function mdDelete(id){
+  if (!isOfficer()) return;
+  var d = mdDocs.filter(function(x){ return Number(x.id) === Number(id); })[0];
+  if (!d) return;
+  if (!confirm('「' + d.title + '」 을 삭제할까요? 되돌릴 수 없습니다.')) return;
+  var r = await sb.from('meeting_docs').delete().eq('id', id);
+  if (r.error){ alert(errMsg(r.error)); return; }
+  await sb.storage.from('meeting-docs').remove([d.path]);
+  loadMeetingDocs();
 }
 
 /* ══════════ 자료실 ══════════ */
@@ -12581,9 +12906,12 @@ function renderPreview(st, snaps, seed, m, trades, backDays){
   if (typeof echarts === 'undefined') return;
   if (!prevChart) prevChart = echarts.init($('stratPrevBox'));
   if (!snaps.length){ prevChart.clear(); return; }
+  //  백테스트 그림도 같은 이유로 폭을 재서 눈금을 정합니다
+  var sAll = snaps.map(function(x){ return Number(x.total); }).concat([seed]);
+  var sSpan = Math.max.apply(null, sAll) - Math.min.apply(null, sAll);
   prevChart.setOption({
     backgroundColor:'transparent', animation:false,
-    grid:{ left:74, right:22, top:18, bottom:36 },
+    grid:{ left:80, right:22, top:18, bottom:36 },
     tooltip:{ trigger:'axis',
       formatter:function(ps){
         return fmtDateKo(ps[0].value[0]) + '<br><b>' + num(ps[0].value[1]) + '원</b>'; } },
@@ -12591,7 +12919,7 @@ function renderPreview(st, snaps, seed, m, trades, backDays){
       axisLabel:{ fontSize:10, color:'#5a6278', hideOverlap:true,
         formatter:{ year:'{yyyy}년', month:'{M}월', day:'{M}/{d}', none:'{yyyy}-{MM}-{dd}' } } },
     yAxis:{ type:'value', scale:true, splitLine:{ lineStyle:{ color:'#eef1f7' } },
-      axisLabel:{ fontSize:10, color:'#5a6278', formatter: wonAxis } },
+      axisLabel:{ fontSize:10, color:'#5a6278', formatter: wonAxisBy(sSpan) } },
     series:[{ type:'line', showSymbol:false,
       lineStyle:{ color: st.ret >= 0 ? '#1f8a70' : '#c0392b', width:2 },
       areaStyle:{ color: st.ret >= 0 ? 'rgba(31,138,112,.10)' : 'rgba(192,57,43,.10)' },
