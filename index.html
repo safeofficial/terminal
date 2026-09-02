@@ -1411,12 +1411,20 @@
             <div class="st-h"><span class="st-n">5</span>돌려보고 저장</div>
             <div class="row">
               <label>백테스트 기간</label>
-              <select id="stBackDays" onchange="lastPreview=null" style="width:130px">
+              <select id="stBackDays" onchange="lastPreview=null;syncBackTf()" style="width:130px">
                 <option value="30">최근 1개월</option>
                 <option value="90" selected>최근 3개월</option>
                 <option value="180">최근 6개월</option>
                 <option value="365">최근 1년</option>
               </select>
+              <label style="min-width:auto">봉 기준</label>
+              <select id="stBackTf" onchange="lastPreview=null;syncBackTf()" style="width:120px">
+                <option value="1d" selected>일봉</option>
+                <option value="4h">4시간봉</option>
+              </select>
+            </div>
+            <div class="st-hint" id="stBackTfHint" style="margin-top:-4px"></div>
+            <div class="row">
               <span class="st-hint">활동 기간과 같은 3개월로 보는 게 가장 현실적입니다</span>
             </div>
             <button class="btn-sm" style="width:100%" id="stratPrevBtn" onclick="previewStrategy()">
@@ -12911,7 +12919,7 @@ function replayStrategy(strategies, priceMap, seed, startDate, manualTrades){
 
   // 손매매도 같은 시간축 위에서 현금에 반영합니다
   var manual = (manualTrades || []).slice()
-    .filter(function(t){ return t.traded_on >= startDate; })
+    .filter(function(t){ return t.traded_on >= dayOf(startDate); })
     .sort(function(a,b){ return a.traded_on.localeCompare(b.traded_on); });
   manual.forEach(function(t){ dateSet[t.traded_on] = 1; });
 
@@ -12921,7 +12929,7 @@ function replayStrategy(strategies, priceMap, seed, startDate, manualTrades){
   days.forEach(function(day, dayNo){
 
     // 0) 그날의 손매매를 먼저 반영 — 남은 현금이 자동매매의 상한이 됩니다
-    while (mi < manual.length && manual[mi].traded_on <= day){
+    while (mi < manual.length && manual[mi].traded_on <= dayOf(day)){
       var mt = manual[mi];
       var amt = Number(mt.qty) * Number(mt.price) * Number(mt.fx || 1);
       cash += (mt.side === 'buy' ? -amt : amt);
@@ -13072,21 +13080,29 @@ function replayStrategy(strategies, priceMap, seed, startDate, manualTrades){
   return trades;
 }
 
+/*  봉 열쇠에서 날짜만 (분·시간봉은 "2026-09-01T13:30" 으로 옵니다).
+    일별 기록은 <하루에 한 줄> 이어야 합니다 — 4시간봉이라고 하루에
+    두 줄씩 쌓으면 수익 곡선이 하루를 두 번 세는 꼴이 됩니다.        */
+function dayOf(x){ return String(x || '').slice(0, 10); }
+
 function rebuildSnapshots(allTrades, priceMap, seed, startDate){
+  var from = dayOf(startDate);
   var dates = {};
   Object.keys(priceMap).forEach(function(k){
-    priceMap[k].forEach(function(p){ if (p.d >= startDate) dates[p.d] = 1; });
+    priceMap[k].forEach(function(p){ var d = dayOf(p.d); if (d >= from) dates[d] = 1; });
   });
-  allTrades.forEach(function(t){ if (t.traded_on >= startDate) dates[t.traded_on] = 1; });
+  allTrades.forEach(function(t){
+    var d = dayOf(t.traded_on); if (d >= from) dates[d] = 1; });
   var days = Object.keys(dates).sort();
   if (!days.length) return [];
 
-  var sorted = allTrades.slice().sort(function(a,b){ return a.traded_on.localeCompare(b.traded_on); });
+  var sorted = allTrades.slice().sort(function(a,b){
+    return String(a.traded_on).localeCompare(String(b.traded_on)); });
   var pos = {}, cash = seed, ti = 0, out = [];
   var lastPrice = {};
 
   days.forEach(function(day){
-    while (ti < sorted.length && sorted[ti].traded_on <= day){
+    while (ti < sorted.length && dayOf(sorted[ti].traded_on) <= day){
       var t = sorted[ti], k = t.market+'|'+t.symbol;
       var q = Number(t.qty), pr = Number(t.price), fx = Number(t.fx || 1);
       if (t.side === 'buy'){ pos[k] = (pos[k]||0) + q; cash -= q*pr*fx; }
@@ -13095,7 +13111,8 @@ function rebuildSnapshots(allTrades, priceMap, seed, startDate){
     }
     Object.keys(priceMap).forEach(function(k){
       var arr = priceMap[k];
-      for (var i=arr.length-1;i>=0;i--){ if (arr[i].d <= day){ lastPrice[k] = arr[i].v; break; } }
+      //  그날 <마지막> 봉의 값이 그날 종가입니다
+      for (var i=arr.length-1;i>=0;i--){ if (dayOf(arr[i].d) <= day){ lastPrice[k] = arr[i].v; break; } }
     });
     var hold = 0;
     Object.keys(pos).forEach(function(k){
@@ -13370,6 +13387,7 @@ function syncStratNums(){
 }
 
 function renderStrategyEditor(){
+  syncBackTf();                       //  백테스트 봉 기준 안내도 같이 새로
   if (!strat) return;
   if (!strat.mode) strat.mode = 'scan';
   var scan = strat.mode === 'scan';
@@ -13657,10 +13675,68 @@ async function cachedPrices(since){
      1) 공용 보관함에서 한 번에 읽고
      2) 거기 없는 종목만 엣지 함수로 20개씩 채웁니다.
    임원진이 "과거 시세 채우기"를 돌려뒀다면 대부분 1)에서 끝납니다. */
+/*  ── 백테스트를 일봉보다 잘게 돌리기 ─────────────────────────
+
+    ⚠️ 무엇이든 잘게 할 수 있는 게 아닙니다. 재 봤습니다 (550종목·90일):
+         일봉    35,500봉 · 3MB   → 넉넉
+         4시간봉 89,000봉 · 7MB   → 넉넉
+         1시간봉 325,000봉 · 26MB → 무료 월 egress(5GB)로 약 200회
+         15분봉  1,238,000봉      → 3팀이 동시에 누르면 Alpaca 한도 초과
+         5분봉   3,714,000봉·301MB→ Edge Function 메모리(256MB)를 넘겨 죽음
+    그래서 화면에는 <일봉 · 4시간봉> 만 둡니다. 되는 것만 내놓습니다.
+
+    ⚠️ 주말·공휴일은 빈 봉을 만들어 넣지 않습니다. 안 열린 날은 봉이
+       아예 없고, 거래일만 그대로 이어 붙입니다. 그래야 "20봉 이동평균"
+       이 20 거래봉이 됩니다 (달력 20일이 아니라).                     */
+var BACK_TF = {
+  '1d': { label:'일봉',    us:1, cc:1,  time:false },
+  '4h': { label:'4시간봉', us:2, cc:6,  time:true  },
+};
+function backTf(){
+  var el = $('stBackTf');
+  var k = el ? el.value : '1d';
+  return BACK_TF[k] ? k : '1d';
+}
+function syncBackTf(){
+  var el = $('stBackTfHint'); if (!el) return;
+  var k = backTf(), days = Number(($('stBackDays') && $('stBackDays').value) || 90);
+  if (k === '1d'){
+    el.innerHTML = '거래일 종가로 재생합니다. 자동매매의 <b>지표 기준 봉</b>도 '
+                 + '일봉이면 백테스트와 실제가 같은 것을 봅니다.';
+    return;
+  }
+  var t = BACK_TF[k];
+  var bars = Math.round(days * 5/7 * t.us);
+  el.innerHTML = '미국 종목은 하루 <b>' + t.us + '봉</b>, 코인은 <b>' + t.cc + '봉</b>이라 '
+    + days + '일이면 미국 기준 약 <b>' + bars + '봉</b>입니다. '
+    + '자동매매의 <b>지표 기준 봉</b>도 ' + esc(t.label) + '으로 맞춰야 같은 전략이 됩니다.'
+    + '<br>주말·공휴일은 봉이 없어 그냥 건너뜁니다 — 「20봉 이동평균」은 '
+    + '<b>20 거래봉</b>이지 달력 20일이 아닙니다.';
+}
+
+/*  분봉·시간봉은 보관함(일별 종가)에 없어서 Alpaca 에서 직접 받아옵니다.
+    한 번에 다 받으면 Edge Function 메모리를 넘기니 나눠서 부릅니다.     */
+async function gatherBars(syms, tfKey, from, onProgress){
+  var use = syms.filter(function(x){ return autoTradable(x.market); });
+  var out = {}, CH = 20;                //  서버의 BARS_BULK_MAX 와 같은 값
+  for (var i = 0; i < use.length; i += CH){
+    var chunk = use.slice(i, i + CH);
+    if (onProgress) onProgress(Math.min(i + chunk.length, use.length), use.length);
+    try {
+      var d = await edgeCall('market-data', {
+        source:'bars_bulk', tf: tfKey, start: from,
+        codes: chunk.map(function(x){ return { market:x.market, symbol:x.symbol }; }) });
+      var got = d.series || {};
+      Object.keys(got).forEach(function(k){ out[k] = got[k]; });
+    } catch(e){ /* 한 묶음이 실패해도 나머지는 계속 */ }
+  }
+  return out;
+}
+
 /*  창 앞으로 며칠치를 더 받아와야 하나 — <전략이> 정합니다.
     RSI 80 이면 80봉, ADX 60 이면 (평활을 두 번 해서) 120봉이 필요합니다.
     넉넉히 받으면 좋지만 그만큼 자료를 더 실어 나르니, 쓸 만큼만 받습니다. */
-function warmupDays(cfg){
+function warmupDays(cfg, tfKey){
   var mx = 0;
   ['buy', 'sell'].forEach(function(k){
     ((cfg && cfg[k]) || []).forEach(function(r){
@@ -13670,13 +13746,21 @@ function warmupDays(cfg){
       mx = Math.max(mx, p * (sp.warm || 1));
     });
   });
-  //  일봉 거래일 → 달력 날짜 (주말·공휴일 몫 1.55배) + 여유 20봉
+  //  ⚠️ 먼저 <봉 개수> 로 정하고, 그다음에 날짜로 바꿉니다.
+  //     날짜로 먼저 정하면 4시간봉일 때 봉이 두 배로 들어와 낭비되고,
+  //     반대로 하한을 날짜로 걸면 봉 기준마다 봉 수가 달라집니다.
+  var bars = Math.max(30, mx + 20);          //  조건이 없어도 최소 30봉
+  //  하루에 몇 봉 나오나 (일봉 1개, 4시간봉은 미국 2개 — 적은 쪽으로
+  //  잡아야 모자라지 않습니다). 주말·공휴일 몫 1.55배.
+  var per = (BACK_TF[tfKey || '1d'] || BACK_TF['1d']).us;
   //  400일은 보관함이 들고 있는 범위입니다 (price_bulk 기본값).
-  return Math.min(400, Math.max(60, Math.ceil((mx + 20) * 1.55)));
+  return Math.min(400, Math.max(14, Math.ceil(bars / per * 1.55)));
 }
 
-async function gatherPrices(syms, startDate, onProgress, cfg){
-  var from = backDate(startDate, warmupDays(cfg));
+async function gatherPrices(syms, startDate, onProgress, cfg, tfKey){
+  var from = backDate(startDate, warmupDays(cfg, tfKey));
+  //  일봉이 아니면 보관함(일별 종가)에 없는 자료라 Alpaca 에서 직접 받습니다
+  if (tfKey && tfKey !== '1d') return await gatherBars(syms, tfKey, from, onProgress);
   var priceMap = await cachedPrices(from);
 
   var missing = syms.filter(function(x){
@@ -13764,9 +13848,10 @@ async function previewStrategy(){
         btn.disabled = false; btn.textContent = '미리 돌려보기 — 기록에 남지 않습니다'; return;
       }
     }
+    var tfKey = backTf();
     var priceMap = await gatherPrices(syms, startDate, function(done, all){
       btn.textContent = '시세 ' + done + '/' + all + '…';
-    }, cfg);
+    }, cfg, tfKey);
     btn.textContent = '계산 중…';
 
     var man = await sb.from('trades')
@@ -13790,7 +13875,7 @@ async function previewStrategy(){
       } catch(e){ m = null; }
     }
     renderPreview(st, snaps, seed, m, trades, backDays,
-                  coverage(syms, priceMap, startDate));
+                  coverage(syms, priceMap, startDate), tfKey);
     lastPreview = st;
 
     var need = Number(contest.min_auto_trades || 10);
@@ -13840,18 +13925,26 @@ function coverage(syms, priceMap, startDate){
        분봉으로 돌릴 방법이 없습니다. 그러면 최소한 <다르다는 사실> 은
        화면에 적어야 합니다. 조용히 두면 "백테스트대로 안 움직인다" 를
        영영 못 풀게 됩니다.                                              */
-function tfMismatchHTML(){
+function tfMismatchHTML(usedTf){
   var el = $('mtBarTf');
-  var tf = el ? el.value : '1d';
-  if (!tf || tf === '1d') return '';
-  var nm = el ? el.options[el.selectedIndex].textContent : tf;
+  var live = el ? el.value : '1d';
+  var back = usedTf || '1d';
+  if (live === back) return '';
+  var NM = { '5m':'5분봉','15m':'15분봉','30m':'30분봉','1h':'1시간봉',
+             '4h':'4시간봉','1d':'일봉','1w':'주봉' };
+  var canBack = !!BACK_TF[live];
   return '<div class="note warn" style="margin:0 0 12px">'
-       + '이 백테스트는 <b>일봉</b>으로 돌렸습니다. 그런데 팀의 '
-       + '<b>지표 기준 봉</b>은 <b>' + esc(nm) + '</b>으로 되어 있습니다. '
-       + '같은 「RSI 20」이라도 여기서는 <b>20일</b>, 실제 자동매매에서는 '
-       + '<b>20개 ' + esc(nm) + '</b> 을 봅니다 — 이름만 같지 다른 전략입니다. '
-       + '백테스트와 실제를 맞추려면 모의투자 화면에서 지표 기준 봉을 '
-       + '<b>일봉</b>으로 바꿔 주세요.</div>';
+       + '이 백테스트는 <b>' + esc(NM[back] || back) + '</b>으로 돌렸습니다. '
+       + '그런데 팀의 <b>지표 기준 봉</b>은 <b>' + esc(NM[live] || live) + '</b>입니다. '
+       + '같은 「RSI 20」이라도 여기서는 <b>20개 ' + esc(NM[back] || back) + '</b>, '
+       + '실제 자동매매에서는 <b>20개 ' + esc(NM[live] || live) + '</b>을 봅니다 — '
+       + '이름만 같지 다른 전략입니다.<br>'
+       + (canBack
+          ? '위 <b>봉 기준</b>을 <b>' + esc(NM[live]) + '</b>으로 바꾸면 실제와 같아집니다.'
+          : '<b>' + esc(NM[live] || live) + '</b>은 무료 자료로는 백테스트가 안 됩니다 '
+            + '(자료량이 Edge Function 한도를 넘습니다). 모의투자 화면에서 지표 기준 봉을 '
+            + '<b>일봉</b>이나 <b>4시간봉</b>으로 바꾸면 백테스트와 맞출 수 있습니다.')
+       + '</div>';
 }
 
 function coverageHTML(cov){
@@ -13888,7 +13981,7 @@ function coverageHTML(cov){
        + '</div>';
 }
 
-function renderPreview(st, snaps, seed, m, trades, backDays, cov){
+function renderPreview(st, snaps, seed, m, trades, backDays, cov, tfKey){
   show('stratPreview');
   var cls = st.ret >= 0 ? 'pos' : 'neg';
   var q = $('stratPrevQuant');
@@ -13901,7 +13994,7 @@ function renderPreview(st, snaps, seed, m, trades, backDays, cov){
       : '';
     if (m) setTimeout(function(){ drawDist('prevDistBox', m.rets); }, 30);
   }
-  $('stratPrevTiles').innerHTML = tfMismatchHTML()
+  $('stratPrevTiles').innerHTML = tfMismatchHTML(tfKey)
     + (cov ? coverageHTML(cov) : '')
     + '<div class="tiles">'
     + tile('최종 자산', num(st.last), '시드 ' + num(seed), cls)
@@ -13985,7 +14078,7 @@ async function runStrategy(){
     });
     priceMap = await gatherPrices(syms, startDate, function(done, all){
       msg.textContent = '시세 수집 ' + done + '/' + all + '…';
-    }, allCfg);
+    }, allCfg, backTf());
   } catch(e){ warnStrat(e.message); return; }
 
   // 손매매는 그대로 두고, 자동 거래만 새로 씁니다
@@ -14003,9 +14096,11 @@ async function runStrategy(){
   if (generated.length){
     var u = (await sb.auth.getUser()).data.user;
     var rows = generated.map(function(t){
+      //  trades.traded_on 은 <날짜> 칸입니다. 4시간봉이면 봉 열쇠에
+      //  시각이 붙어 오므로 날짜만 잘라 넣습니다.
       return { team_id: team, market:t.market, symbol:t.symbol, name:t.name,
                side:t.side, qty:t.qty, price:t.price, fx: t.fx || 1,
-               traded_on:t.traded_on, note: t.reason || null,
+               traded_on: dayOf(t.traded_on), note: t.reason || null,
                auto: true, created_by: u ? u.id : null };
     });
     for (var j = 0; j < rows.length; j += 200){
