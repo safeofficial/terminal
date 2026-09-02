@@ -12596,7 +12596,7 @@ var IND_SPEC = {
   EMA_CROSS: { cat:'추세',   label:'이동평균 교차 (EMA)',      p1:'단기', d1:12, p2:'장기', d2:26, cmp:'cross' },
   MACD:      { cat:'추세',   label:'MACD 히스토그램',          p1:'단기', d1:12, p2:'장기', d2:26, cmp:'num', dv:0, unit:'0 위=상승' },
   MACD_CROSS:{ cat:'추세',   label:'MACD 신호선 교차',         p1:'단기', d1:12, p2:'장기', d2:26, cmp:'cross' },
-  ADX:       { cat:'추세',   label:'ADX (추세 강도)',          p1:'기간', d1:14, cmp:'num', dv:25, unit:'25↑ 추세장', needs:'hl' },
+  ADX:       { cat:'추세',   label:'ADX (추세 강도)',          p1:'기간', d1:14, cmp:'num', dv:25, unit:'25↑ 추세장', needs:'hl', warm:2 },
 
   // ── 변동성 ──
   BB_PCT:    { cat:'변동성', label:'볼린저 %B',                p1:'기간', d1:20, cmp:'num', dv:0,  unit:'0=하단 100=상단' },
@@ -12611,6 +12611,23 @@ var IND_SPEC = {
 };
 
 function specOf(ind){ return IND_SPEC[ind] || IND_SPEC.RSI; }
+/*  ── 기간을 얼마까지 넣을 수 있나 ────────────────────────────
+
+    ⚠️ 화면에서는 기간을 500 까지 넣을 수 있었습니다. 그런데 자동매매가
+       종목당 받아오는 봉은 정해져 있어서, 그보다 긴 기간을 넣으면
+       지표 값이 <아예 안 나오고>, 조건이 영영 성립하지 않습니다.
+       오류도 안 나고 경고도 없이 그냥 아무것도 안 삽니다.
+
+       특히 「기간 고점 대비」·「기간 저점 대비」는 <기본값이 252> 라,
+       손도 안 대고 그대로 쓰면 안 되는 상태였습니다.
+
+    ADX 는 평활을 두 번 하느라 기간의 두 배가 필요합니다 (warm:2).       */
+var MT_BARS_UI = 300;                 //  서버의 MT_BARS 와 같은 값
+function maxPeriod(ind){
+  var sp = specOf(ind);
+  return Math.max(2, Math.floor((MT_BARS_UI - 20) / (sp.warm || 1)));
+}
+
 function ruleKey(r){ return r.ind + '|' + (r.period||0) + '|' + (r.period2||0); }
 
 /* 규칙이 필요로 하는 지표들을 한 번씩만 계산해 둡니다 */
@@ -12865,10 +12882,27 @@ function replayStrategy(strategies, priceMap, seed, startDate, manualTrades){
   keys.forEach(function(k){
     //  서버 자동매매가 못 만지는 시장은 백테스트에서도 안 만집니다
     if (!autoTradable(k.split('|')[0])){ book[k] = null; return; }
-    var pts = (priceMap[k] || []).filter(function(p){ return p.d >= startDate; });
-    if (pts.length < 30){ book[k] = null; return; }        // 자료가 짧으면 제외
+    var all = priceMap[k] || [];
+    var win = all.filter(function(p){ return p.d >= startDate; });
+    if (win.length < 30){ book[k] = null; return; }        // 자료가 짧으면 제외
+
+    /*  ⚠️ 지표는 <창 앞의 자료까지> 넣고 계산해야 합니다.
+
+        예전에는 창 안(90일 = 거래일 62개)만 잘라 넣었습니다. 그러면
+        RSI 80 은 83봉이 필요하니 <값이 아예 안 나오고>, 그 조건은 영영
+        성립하지 않습니다. "RSI 80 이 65보다 크면 매도" 를 걸어둔 전략이
+        백테스트에서 그 조건으로는 <한 번도 안 팔았습니다> — 손절·익절만
+        걸렸습니다. 오류도 경고도 없이 조용히요.
+
+        RSI 20 처럼 짧은 것도 마찬가지입니다. 창 앞 20일이 없으니 백테스트
+        앞부분이 통째로 눈을 감고 시작합니다.
+
+        gatherPrices 는 이미 창 앞 자료까지 받아옵니다. 버리지 말고 씁니다.
+        <계산> 은 전체로, <매매> 는 창 안에서만 합니다.                  */
+    var pts = all;
     var idx = {};
-    pts.forEach(function(p,i){ idx[p.d] = i; dateSet[p.d] = 1; });
+    pts.forEach(function(p, i){ idx[p.d] = i; });
+    win.forEach(function(p){ dateSet[p.d] = 1; });
     book[k] = { pts:pts, ctx:buildCtx(pts, allRules), idx:idx,
                 qty:0, spent:0, buys:0, lastAct:-999,
                 market:k.split('|')[0], symbol:k.split('|')[1],
@@ -13110,20 +13144,24 @@ function ruleRowHTML(kind, r, i){
   h += '<select onchange="updRule(\''+kind+'\','+i+',\'ind\',this.value)">' + indOptions(r.ind) + '</select>';
 
   // 기간 (없는 지표도 있음)
+  var mx = maxPeriod(r.ind);
   h += sp.p1
-    ? '<input type="number" value="'+(r.period||sp.d1)+'" min="1" max="500" title="'+esc(sp.p1)+'"'
+    ? '<input type="number" value="'+(r.period||sp.d1)+'" min="1" max="'+mx+'" title="'
+      + esc(sp.p1) + ' (최대 ' + mx + ')"'
       + ' onchange="updRule(\''+kind+'\','+i+',\'period\',this.value)">'
     : '<span style="font-size:11px;color:var(--text-sub);text-align:center">—</span>';
 
   if (sp.cmp === 'cross'){
-    h += '<input type="number" value="'+(r.period2||sp.d2)+'" min="2" max="500" title="'+esc(sp.p2||'장기')+'"'
+    h += '<input type="number" value="'+(r.period2||sp.d2)+'" min="2" max="'+mx+'" title="'
+      +  esc(sp.p2||'장기') + ' (최대 ' + mx + ')"'
       +  ' onchange="updRule(\''+kind+'\','+i+',\'period2\',this.value)">';
     h += '<select onchange="updRule(\''+kind+'\','+i+',\'op\',this.value)">'
       +    '<option value="golden"'+(r.op==='golden'?' selected':'')+'>골든크로스</option>'
       +    '<option value="dead"'+(r.op==='dead'?' selected':'')+'>데드크로스</option></select>';
   } else {
     if (sp.p2){
-      h += '<input type="number" value="'+(r.period2||sp.d2)+'" min="2" max="500" title="'+esc(sp.p2)+'"'
+      h += '<input type="number" value="'+(r.period2||sp.d2)+'" min="2" max="'+mx+'" title="'
+        +  esc(sp.p2) + ' (최대 ' + mx + ')"'
         +  ' onchange="updRule(\''+kind+'\','+i+',\'period2\',this.value)">';
     } else {
       h += '<select onchange="updRule(\''+kind+'\','+i+',\'op\',this.value)">'
@@ -13142,6 +13180,17 @@ function ruleRowHTML(kind, r, i){
         { period: r.period || sp.d1, period2: r.period2 || sp.d2,
           op: r.op || (sp.cmp === 'cross' ? 'golden' : '<'),
           value: (r.value != null ? r.value : sp.dv) }))) + '</div>';
+  /*  ⚠️ 거래량을 쓰는 지표는 미국 주식에서 조심해야 합니다.
+      무료 요금제는 IEX 한 거래소만 줍니다. Alpaca 문서에 IEX 는 전체
+      거래량의 <약 2.5%> 라고 적혀 있습니다. 값·고가·저가는 그 거래소
+      가격이라 크게 안 틀리지만, 거래량은 40분의 1 짜리 표본입니다.
+      "거래량이 평소의 200%" 같은 조건은 여기서 뜻이 달라집니다.       */
+  if (sp.needs === 'vol'){
+    h += '<div class="rule-sub" style="color:var(--warn,#b26a00)">'
+      +  '⚠️ 미국 주식의 거래량은 무료 요금제에서 <b>IEX 한 거래소</b>만 잡힙니다 '
+      +  '(전체의 약 2.5%). 가격은 괜찮지만 거래량 조건은 실제와 다를 수 있어요. '
+      +  '코인은 Alpaca 자체 체결이라 그대로입니다.</div>';
+  }
 
   // 부등호가 4번째 칸으로 밀린 경우(장·단기 둘 다 쓰는 지표) 별도 줄로
   if (sp.p2 && sp.cmp !== 'cross'){
@@ -13383,6 +13432,22 @@ function updRule(kind,i,k,v){
     renderStrategyEditor();
     return;
   }
+  /*  ⚠️ 기간은 봉 수보다 길 수 없습니다. 길면 지표 값이 안 나와서
+      조건이 영영 성립하지 않는데, 오류도 경고도 없이 그냥 안 삽니다.
+      직접 타이핑하면 max 를 넘길 수 있어서 여기서 한 번 더 자릅니다. */
+  if (k === 'period' || k === 'period2'){
+    var mx = maxPeriod(r.ind), n = Math.round(Number(v));
+    if (!(n > 0)) n = specOf(r.ind)[k === 'period' ? 'd1' : 'd2'] || 14;
+    if (n > mx){
+      n = mx;
+      warnStrat('기간은 최대 <b>' + mx + '</b> 까지입니다 — 자동매매가 종목당 '
+              + MT_BARS_UI + '개 봉만 받아오기 때문에 그보다 길면 지표 값이 '
+              + '아예 안 나옵니다 (조건이 영영 안 맞습니다).');
+      setTimeout(renderStrategyEditor, 0);
+    }
+    r[k] = n;
+    return;
+  }
   r[k] = (k === 'op') ? v : Number(v);
 }
 
@@ -13592,8 +13657,26 @@ async function cachedPrices(since){
      1) 공용 보관함에서 한 번에 읽고
      2) 거기 없는 종목만 엣지 함수로 20개씩 채웁니다.
    임원진이 "과거 시세 채우기"를 돌려뒀다면 대부분 1)에서 끝납니다. */
-async function gatherPrices(syms, startDate, onProgress){
-  var from = backDate(startDate, 200);
+/*  창 앞으로 며칠치를 더 받아와야 하나 — <전략이> 정합니다.
+    RSI 80 이면 80봉, ADX 60 이면 (평활을 두 번 해서) 120봉이 필요합니다.
+    넉넉히 받으면 좋지만 그만큼 자료를 더 실어 나르니, 쓸 만큼만 받습니다. */
+function warmupDays(cfg){
+  var mx = 0;
+  ['buy', 'sell'].forEach(function(k){
+    ((cfg && cfg[k]) || []).forEach(function(r){
+      var sp = specOf(r.ind);
+      var p  = Math.max(Number(r.period) || sp.d1 || 14,
+                        Number(r.period2) || sp.d2 || 0);
+      mx = Math.max(mx, p * (sp.warm || 1));
+    });
+  });
+  //  일봉 거래일 → 달력 날짜 (주말·공휴일 몫 1.55배) + 여유 20봉
+  //  400일은 보관함이 들고 있는 범위입니다 (price_bulk 기본값).
+  return Math.min(400, Math.max(60, Math.ceil((mx + 20) * 1.55)));
+}
+
+async function gatherPrices(syms, startDate, onProgress, cfg){
+  var from = backDate(startDate, warmupDays(cfg));
   var priceMap = await cachedPrices(from);
 
   var missing = syms.filter(function(x){
@@ -13683,7 +13766,7 @@ async function previewStrategy(){
     }
     var priceMap = await gatherPrices(syms, startDate, function(done, all){
       btn.textContent = '시세 ' + done + '/' + all + '…';
-    });
+    }, cfg);
     btn.textContent = '계산 중…';
 
     var man = await sb.from('trades')
@@ -13892,9 +13975,17 @@ async function runStrategy(){
 
   var priceMap;
   try {
+    /*  여러 전략이 줄줄이 있을 수 있으니, 그중 가장 긴 기간을 쓰는
+        것에 맞춰 창 앞 자료를 받아옵니다 (하나라도 모자라면 그 조건이
+        조용히 성립하지 않습니다).                                      */
+    var allCfg = { buy:[], sell:[] };
+    stratList.forEach(function(st){
+      allCfg.buy  = allCfg.buy.concat((st.config || {}).buy  || []);
+      allCfg.sell = allCfg.sell.concat((st.config || {}).sell || []);
+    });
     priceMap = await gatherPrices(syms, startDate, function(done, all){
       msg.textContent = '시세 수집 ' + done + '/' + all + '…';
-    });
+    }, allCfg);
   } catch(e){ warnStrat(e.message); return; }
 
   // 손매매는 그대로 두고, 자동 거래만 새로 씁니다
