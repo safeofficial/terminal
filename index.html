@@ -1499,7 +1499,8 @@
             <button class="btn-sm btn-solid" id="tradeBtn" onclick="submitTrade()" disabled>주문</button>
             <div class="hint" style="font-size:11.5px;color:var(--text-sub);line-height:1.7">
               <b>미국·코인</b>은 누르는 순간의 시세로 체결됩니다.
-              <b>국내</b>는 그날 종가로 체결되고, 종가가 나오는 <b>오후 3시 30분 이후</b>에만 주문됩니다.
+              <b>국내</b>는 <b>언제든 주문할 수 있고</b>, 체결가 옆에 그 값이
+              <b>실시간</b>인지 <b>며칠자 종가</b>인지 적힙니다 — 그대로 체결됩니다.
               화면에 보인 값과 실제 체결가가 조금 다를 수 있습니다 — 실제 매매도 그렇습니다.
             </div>
           </div>
@@ -1521,6 +1522,22 @@
                   id="mtPosAsOf"></span>
           </h2>
           <div class="scroll"><table id="mtPosTable"></table></div>
+        </div>
+
+        <!--  ══ 배당 ══
+              배당주를 고른 팀이 손해 보지 않게, 받은 배당과 대회 끝까지
+              들어올 배당을 따로 보여줍니다. 배당을 안 세면 배당락일에
+              주가가 빠진 만큼만 반영되어 배당주가 무조건 지는 게임이
+              됩니다 — 실제로는 그만큼이 현금으로 들어옵니다.            -->
+        <div class="card" id="mtDivCard">
+          <h2>배당금
+            <span style="font-size:11.5px;color:var(--text-sub);font-weight:400"
+                  id="mtDivAsOf"></span>
+            <span class="tools"><button class="btn-sm" onclick="mtLoadDividends(true)">새로고침</button></span>
+          </h2>
+          <div id="mtDivTiles"></div>
+          <div class="scroll"><table id="mtDivTable"></table></div>
+          <p class="st-hint" id="mtDivNote" style="margin-top:8px"></p>
         </div>
 
         <!--  고른 종목의 주가 추이. 표에서 종목을 누르면 여기 펼쳐집니다.  -->
@@ -8436,6 +8453,11 @@ function mtResetRoomView(){
       분포 그래프. 그래서 채권팀에서 돌려본 백테스트가 인플레이션팀
       방에 그대로 떠 있었습니다. 보이는 것까지 전부 치웁니다.        */
   lastPreview = null; strat = null; stratList = [];
+  //  배당도 팀마다 다릅니다 — 안 지우면 옆 팀 배당이 잠깐 보입니다
+  mtDiv = null;
+  ['mtDivTiles','mtDivTable','mtDivNote','mtDivAsOf'].forEach(function(id){
+    var el = $(id); if (el) el.innerHTML = '';
+  });
   var pv = $('stratPreview'); if (pv) pv.classList.add('hidden');
   ['stratPrevTiles','stratPrevQuant','stratHist'].forEach(function(id){
     var e = $(id); if (e) e.innerHTML = '';
@@ -8552,6 +8574,94 @@ async function mtRefresh(){
   await loadTeam(); await mtLoadAccount(); await mtLoadAuto();
 }
 
+/*  ── 배당금 ────────────────────────────────────────────────
+
+    ⚠️ 배당을 안 세면 배당주가 무조건 지는 게임이 됩니다. 배당락일에
+       주가는 배당만큼 떨어지는데, 그 떨어진 것만 반영되고 들어온 현금은
+       안 세니까요. 그래서 <받은 배당> 을 현금에 더하고, 대회가 끝날
+       때까지 <더 들어올 배당> 도 같이 보여줍니다.
+
+    ⚠️ '받은' 과 '받을' 을 나누는 기준은 <지급일> 입니다. 배당락일이
+       지났어도 돈은 지급일에 들어옵니다 (국내 결산배당은 보통 이듬해
+       4월). 배당락일로 세면 아직 없는 돈으로 주식을 살 수 있게 됩니다. */
+var mtDiv = null;
+async function mtLoadDividends(force){
+  if (!team) return;
+  if (mtDiv && !force && mtDiv.__team === team) { mtRenderDividends(); return; }
+  var box = $('mtDivTable');
+  try {
+    mtDiv = await edge({ source:'mt_dividends', team_id: team });
+    mtDiv.__team = team;
+  } catch(e){
+    mtDiv = null;
+    if (box) box.innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>';
+    return;
+  }
+  mtRenderDividends();
+}
+
+function mtRenderDividends(){
+  var tiles = $('mtDivTiles'), tb = $('mtDivTable'),
+      note = $('mtDivNote'), asOf = $('mtDivAsOf');
+  if (!tiles || !tb) return;
+  var d = mtDiv || {};
+  var rows = d.rows || [];
+  var ends = d.ends_on ? fmtDateKo(d.ends_on) : '대회 종료일';
+
+  tiles.innerHTML = '<div class="tiles">'
+    + tile('받은 배당', mtMoney(d.paid_krw || 0) + '원',
+           '현금에 이미 들어와 있습니다', (d.paid_krw || 0) > 0 ? 'pos' : '')
+    + tile('대회 끝까지 더', mtMoney(d.coming_krw || 0) + '원',
+           ends + ' 까지 들어올 예정', (d.coming_krw || 0) > 0 ? 'pos' : '')
+    + tile('합계', mtMoney((d.paid_krw || 0) + (d.coming_krw || 0)) + '원',
+           '세후 기준')
+    + tile('뗀 세금', mtMoney(d.tax_krw || 0) + '원',
+           '국내 15.4% · 미국 15%')
+    + '</div>';
+
+  if (!rows.length){
+    tb.innerHTML = '<tr><td class="empty">아직 배당 기록이 없습니다.</td></tr>';
+  } else {
+    var head = '<thead><tr><th>종목</th><th>주당</th><th>수량</th>'
+             + '<th>세전</th><th>세금</th><th>실수령</th>'
+             + '<th>기준일</th><th>지급일</th><th>상태</th></tr></thead>';
+    tb.innerHTML = head + '<tbody>' + rows.map(function(r){
+      var krw = Number(r.net) * Number(r.fx || 1);
+      var dp = r.market === 'KR' ? 0 : 2;
+      var on = r.ex_date || r.record_date;
+      return '<tr>'
+        + '<td><b>' + esc(r.name || r.symbol) + '</b>'
+        +   '<div class="st-hint">' + esc(r.market) + ' · ' + esc(r.symbol) + '</div></td>'
+        + '<td class="num">' + mtCur(r.per_share, r.market, dp) + '</td>'
+        + '<td class="num">' + num(r.qty, 0) + '</td>'
+        + '<td class="num">' + mtCur(r.gross, r.market, dp) + '</td>'
+        + '<td class="num" style="color:var(--text-sub)">-' + mtCur(r.tax, r.market, dp) + '</td>'
+        + '<td class="num"><b>' + mtMoney(krw) + '원</b></td>'
+        + '<td class="num st-hint">' + esc(on || '—') + '</td>'
+        + '<td class="num st-hint">' + esc(r.pay_date || '—') + '</td>'
+        + '<td>' + (r.paid ? '<span class="pos">받음</span>'
+                           : '<span class="st-hint">예정</span>') + '</td>'
+        + '</tr>';
+    }).join('') + '</tbody>';
+  }
+
+  var est = rows.filter(function(r){ return !r.pay_date; }).length;
+  note.innerHTML =
+      '<b>받는 기준</b> — 미국은 배당락일 <b>전날</b>까지, 국내는 <b>기준일</b>에 '
+    + '들고 있어야 받습니다. 배당락일에 사면 못 받고, 그날 주가가 그만큼 빠집니다.'
+    + '<br><b>세금</b> — 국내 15.4%(소득세 14% + 지방소득세 1.4%), '
+    + '미국 15%(한·미 조세조약)를 뗀 <b>실수령액</b>이 현금에 들어갑니다.'
+    + '<br><b>어디서 받아오나</b> — 미국은 Alpaca 기업행위(무료), '
+    + '국내는 한국투자증권 예탁원 배당일정입니다.'
+    + (d.kis === false
+       ? ' <span style="color:var(--warn,#b26a00)">지금은 증권사 창구(KIS)가 연결돼 있지 않아 '
+         + '<b>국내 배당이 안 잡힙니다</b> — 미국만 나옵니다.</span>' : '')
+    + ((d.later_krw || 0) > 0
+       ? '<br>대회가 끝난 뒤에 지급되는 배당이 ' + mtMoney(d.later_krw) + '원 더 있는데, '
+         + '이번 성적에는 <b>안 들어갑니다</b> (그때는 이미 대회가 끝났으니까요).' : '');
+  if (asOf) asOf.textContent = rows.length ? (rows.length + '건') : '';
+}
+
 /* ── 계좌 · 보유 종목 ────────────────────────── */
 async function mtLoadAccount(){
   if (!team) return;
@@ -8564,6 +8674,7 @@ async function mtLoadAccount(){
   mtRenderPositions();
   mtRenderClosed();
   mtRenderSummary();
+  mtLoadDividends();
   //  원형 차트는 mtAcc 를 보고 그립니다. 계좌를 새로 받았으니 같이 다시 그립니다.
   try { renderPie(); } catch(e){}
   mtRenderAutoBar();
@@ -9296,7 +9407,12 @@ function mtCalc(){
          + mtMoney(mtAcc.cash - gross * rate) + '원</div>';
   }
   H += '<div class="st-hint">' + esc(mtQuote.note || '') + '</div>';
-  if (blocked) H += '<div class="dn" style="margin-top:6px">' + mtQuote.window.why + '</div>';
+  /*  ⚠️ 예전에는 <막혔을 때만> 안내를 보여줬습니다. 이제 국내는 막지
+      않고 대신 "무슨 값으로 체결되는지" 를 알려주므로, 막히지 않았어도
+      할 말이 있으면 보여줍니다.                                        */
+  if (mtQuote.window && mtQuote.window.why)
+    H += '<div class="' + (blocked ? 'dn' : 'st-hint') + '" style="margin-top:6px">'
+       + mtQuote.window.why + '</div>';
   box.innerHTML = H;
   /*  주문을 누를 수 있는 조건을 <한 군데> 에서 다 봅니다.
       종목·시세가 없으면 눌러도 어차피 거절이라 아예 못 누르게 합니다.  */
