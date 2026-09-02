@@ -864,6 +864,7 @@
               <button class="btn-sm btn-solid grow" onclick="addFromCatalog()">+ 차트에 추가</button>
               <button class="btn-sm" onclick="toggleManual()">직접 입력</button>
             </div>
+            <div class="row" id="macroBundles" style="display:none;margin-top:2px"></div>
             <div class="row" style="margin-top:2px">
               <input type="text" id="drillQ" class="grow" placeholder="지표 이름으로 찾기 (예: shelter, unemployment, 실업률)"
                      onkeydown="if(event.key==='Enter'){event.preventDefault();drillSearch();}">
@@ -1310,6 +1311,13 @@
                   <option value="33">33%</option>
                 </select>
                 <span id="stScanHint" class="st-hint"></span>
+              </div>
+              <div class="st-hint" style="margin-top:2px">
+                조건에 맞는 종목이 <b>자리보다 많으면</b> — 시장(미국 · 코인)마다 한 자리씩
+                먼저 주고, 남는 자리는 <b>조건을 가장 넉넉히 만족한 종목</b>부터 채웁니다.
+                (RSI 45 이하가 조건이면 RSI 20 이 RSI 44 보다 먼저입니다)
+                <br><b>국내 주식은 자동매매에서 빠집니다</b> — 무료 실시간 창구가 없어
+                조건을 실시간으로 맞춰볼 수가 없습니다. 직접 매매는 그대로 됩니다.
               </div>
             </div>
 
@@ -2761,6 +2769,7 @@ async function loadCatalog(){
     html += '</optgroup>';
   });
   $('catalogSel').innerHTML = html;
+  renderBundles();
   dtFillParents();
 }
 
@@ -6101,10 +6110,42 @@ function dvDrawPayoff(){
     }
   }
 
+  /*  현재가와 본전은 대개 서로 가까워서 (프리미엄만큼 떨어져 있습니다) 이름표를
+      그냥 두면 같은 자리에 겹쳐 찍혀 둘 다 못 읽습니다. 서로 부딪히는 것만
+      윗줄로 올립니다 — 멀리 떨어져 있으면 굳이 올리지 않아 그림이 덜 비어 보입니다.
+      두 줄이 항상 들어가게 grid.top 을 미리 잡아 두었으므로(PAY_TOP),
+      윗줄로 올려도 그림 위쪽 밖으로 잘려 나가지 않습니다.                    */
+  var PAY_L = 70, PAY_R = 30, PAY_ROW = 20;
+  function payLabW(t){                     //  한글 ≈10px, 나머지 ≈5.5px (10px 글자 기준)
+    var k = (t.match(/[가-힣]/g) || []).length;
+    return k * 10 + (t.length - k) * 5.5 + 12;
+  }
+  var payW = Math.max(200, dvPayChart.getWidth() || 700);
+  var paySpan = Math.max(1e-9, xs[xs.length-1] - xs[0]);
+  var payPlot = Math.max(1, payW - PAY_L - PAY_R);
+  var marks = [{ v: spot, t: '현재가 $' + num(spot, 2), c:'#2c3e6b', lw:1.4 }]
+    .concat(be.map(function(v){ return { v: v, t: '본전 ' + num(v, 2), c:'#b26a00', lw:1 }; }));
+  var payRows = [[], [], []];      //  좁은 화면에서는 셋까지 필요할 수 있습니다
+  //  현재가는 언제나 아랫줄(그림에 붙은 줄)에 둡니다 — 전략을 바꿔도 같은 자리에
+  //  있어야 눈이 헤매지 않습니다. 자리를 비켜 주는 쪽은 본전입니다.
+  marks.forEach(function(m){
+    var half = payLabW(m.t) / 2;
+    var cx = PAY_L + (m.v - xs[0]) / paySpan * payPlot;
+    var a = cx - half, z = cx + half;
+    m.row = 0;
+    for (var r = 0; r < payRows.length; r++){
+      var hit = payRows[r].some(function(sg){ return !(z <= sg[0] || a >= sg[1]); });
+      if (!hit || r === payRows.length - 1){ payRows[r].push([a, z]); m.row = r; break; }
+    }
+  });
+  //  쓴 줄 수만큼만 위를 비웁니다 — 한 줄이면 굳이 그림을 눌러 앉히지 않습니다.
+  var payUsed = payRows.filter(function(r){ return r.length; }).length;
+  var PAY_TOP = 10 + Math.max(1, payUsed) * PAY_ROW;
+
   dvPayChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:70, right:30, top:26, bottom:60 },
+    grid:{ left:PAY_L, right:PAY_R, top:PAY_TOP, bottom:60 },
     tooltip:{ trigger:'axis',
       formatter:function(a){
         return '주가 $' + num(Number(a[0].axisValue), 2) + '<br/>계약당 손익 <b>'
@@ -6121,19 +6162,16 @@ function dvDrawPayoff(){
       lineStyle:{ width:2, color:'#2c3e6b' },
       areaStyle:{ origin:'start', color:'rgba(44,62,107,.10)' },
       markLine:{ symbol:'none', silent:true, data:
-        [{ yAxis:0, lineStyle:{ color:'#8b93a7', type:'dashed' }, label:{ show:false } },
-         //  지금 주가가 이 그림의 어디쯤인지 (본전까지 얼마나 남았는지 보입니다)
-         { xAxis: String(xs.reduce(function(a,b){
-             return Math.abs(b - spot) < Math.abs(a - spot) ? b : a; })),
-           lineStyle:{ color:'#2c3e6b', type:'dashed', width:1.4 },
-           label:{ formatter:'현재가 $' + num(spot, 2), fontSize:10, color:'#2c3e6b',
-                   fontWeight:600, backgroundColor:'rgba(255,255,255,.82)',
-                   padding:[2,4], borderRadius:3 } }]
-        .concat(be.map(function(v){
+        //  지금 주가·본전이 이 그림의 어디쯤인지 (본전까지 얼마나 남았는지 보입니다)
+        [{ yAxis:0, lineStyle:{ color:'#8b93a7', type:'dashed' }, label:{ show:false } }]
+        .concat(marks.map(function(m){
           return { xAxis: String(xs.reduce(function(a,b){
-                     return Math.abs(b - v) < Math.abs(a - v) ? b : a; })),
-                   lineStyle:{ color:'#b26a00', type:'dashed' },
-                   label:{ formatter:'본전 ' + num(v, 2), fontSize:10, color:'#b26a00' } };
+                     return Math.abs(b - m.v) < Math.abs(a - m.v) ? b : a; })),
+                   lineStyle:{ color:m.c, type:'dashed', width:m.lw },
+                   label:{ formatter:m.t, fontSize:10, color:m.c, fontWeight:600,
+                           position:'end', distance: 5 + m.row * PAY_ROW,
+                           backgroundColor:'rgba(255,255,255,.82)',
+                           padding:[2,4], borderRadius:3 } };
         })) }
     }]
   }, true);
@@ -6698,6 +6736,66 @@ function addManual(){
   $('mCode').value=''; $('mLabel').value=''; $('mItem').value='';
 }
 
+/*  ── 자주 같이 보는 지표 묶음 ─────────────────────────────
+
+    "미국채를 누가 들고 있나" 같은 그림은 지표 하나로는 안 됩니다.
+    목록에서 여섯 개를 하나씩 찾아 여섯 번 누르는 대신 한 번에 올립니다.
+
+    ⚠️ 한 묶음 안에는 <주기와 단위가 같은 것만> 넣습니다. 주간과 분기를
+       섞으면 주간 선만 유난히 출렁여 보이는데, 그건 자료가 촘촘해서
+       그런 것이지 실제로 더 요동친 게 아닙니다. 오해를 부릅니다.
+    ⚠️ 색은 8개뿐이라 한 묶음은 6개를 넘기지 않습니다.
+    코드가 카탈로그에 없으면 (해당 SQL 을 아직 안 돌렸으면) 조용히
+    건너뜁니다 — 있는 것만 올라갑니다.                                  */
+var MACRO_BUNDLES = [
+  { n:'미국채 — 누가 들고 있나', d:'연준 · 해외 · 은행 · 가계 · 펀드 · 연기금 (분기, 1945~)',
+    keepRaw:true,
+    c:['BOGZ1FL713061103Q','BOGZ1LM263061105Q','BOGZ1FL763061100Q',
+       'HNOTSAQ027S','BOGZ1FL653061105Q','BOGZ1FL593061105Q'] },
+  { n:'미국채 — 나라별 보유', d:'외국인 전체 · 일본 · 중국 · 영국 · 한국 (월간, 2003~)',
+    keepRaw:true,
+    c:['FORTREASPOS99996','FORTREASPOS42609','FORTREASPOS41408',
+       'FORTREASPOS13005','FORTREASPOS43001'] }
+];
+
+function renderBundles(){
+  var box = $('macroBundles'); if (!box) return;
+  var html = MACRO_BUNDLES.map(function(b, i){
+    var have = b.c.filter(function(code){
+      return catalog.some(function(x){ return x.code === code; }); }).length;
+    if (!have) return '';                //  SQL 을 안 돌렸으면 단추를 아예 안 보여줍니다
+    return '<button class="btn-sm" onclick="macroBundle(' + i + ')" '
+         + 'title="' + esc(b.d) + '">' + esc(b.n) + ' (' + have + ')</button>';
+  }).join('');
+  box.innerHTML = html;
+  box.style.display = html ? 'flex' : 'none';
+}
+
+async function macroBundle(i, replace){
+  var b = MACRO_BUNDLES[i]; if (!b) return;
+  var want = b.c.map(function(code){
+    return catalog.filter(function(x){ return x.code === code; })[0];
+  }).filter(Boolean);
+  if (!want.length){ warn('researchWarn','이 묶음의 지표가 아직 등록되지 않았습니다.'); return; }
+
+  //  배열을 새로 만들지 않고 비웁니다 — 다른 곳이 이 배열을 들고 있습니다
+  if (replace) { series.splice(0, series.length); renderSeriesList(); drawChart(); }
+  //  자리가 모자라면 말없이 몇 개만 올리지 않습니다 — 반쪽짜리 그림이 됩니다.
+  var room = 8 - series.length;
+  if (want.length > room){
+    warn('researchWarn', '이 묶음은 ' + want.length + '개인데 차트에 자리가 '
+       + room + '개 남았습니다. '
+       + '<button class="btn-sm" onclick="macroBundle(' + i + ',true)" '
+       + 'style="margin-left:6px">지금 것 지우고 올리기</button>');
+    return;
+  }
+  warn('researchWarn','');
+  want.forEach(function(c){
+    addSeries({ source:c.source, code:c.code, item_code:c.item_code||'',
+                cycle:c.cycle||'M', label:c.label, unit:c.unit||'', keepRaw:!!b.keepRaw });
+  });
+}
+
 function addSeries(s){
   var key = s.source+'|'+s.code+'|'+(s.item_code||'');
   if (series.some(function(x){ return x.key === key; })) { warn('researchWarn','이미 추가된 지표입니다.'); return; }
@@ -6714,7 +6812,10 @@ function addSeries(s){
   s.tf = 'raw';
   //  단위를 알아야 '전기비(%)' 가 말이 되는 지표인지 판단할 수 있습니다.
   //  단위는 자료를 받아봐야 아니까 loadSeries 에서 다시 정합니다.
-  s.autoTf = true;
+  //  다만 <보유량> 처럼 값 자체가 하고 싶은 말인 지표는 부르는 쪽이
+  //  keepRaw 로 알려줍니다 — "일본이 1조 달러를 들고 있다" 를 굳이
+  //  "지난 분기보다 0.4% 늘었다" 로 바꿔 보여줄 이유가 없습니다.
+  s.autoTf = !s.keepRaw;
   s.points = null;
   series.push(s);
   renderSeriesList();
@@ -7025,6 +7126,52 @@ function wonAxisBy(span){
   //  눈금 한 칸보다 한 자리 더 아래까지 적으면 눈금이 서로 겹치지 않습니다
   var q = Math.pow(10, Math.floor(Math.log10(Math.max(1, step / 2))));
   return function(v){ return wonWords(v, q); };
+}
+
+/*  ── 백만달러로 오는 계열 ────────────────────────────────
+
+    FRED 의 국채 보유량은 <백만달러> 단위로 옵니다. 축에 그대로 찍으면
+    "4,800,000" 이 되는데, 이게 4.8조 달러라는 걸 읽는 사람이 머리로
+    환산해야 합니다. 0 을 여섯 개 세는 일을 시키지 않습니다.
+
+    ⚠️ 눈금마다 단위를 따로 고르면 안 됩니다 ("9,000억 · 1.0조 · 1.1조").
+       <축 전체> 를 보고 하나로 정하고, 소수 자릿수는 <눈금 간격> 으로
+       정합니다 (크기로 정하면 "1조 1조 1조" 가 됩니다).              */
+function isMusd(u){ return /백만\s*달러/.test(String(u || '')); }
+function musdUnit(top){
+  var t = Math.abs(Number(top) || 0) * 1e6;
+  return t >= 1e12 ? [1e12, '조'] : t >= 1e8 ? [1e8, '억'] : [1e6, '백만'];
+}
+function musdFmt(step, top, span){
+  var u = musdUnit(top);
+  var st = Math.abs(Number(step) || 0) * 1e6;
+  //  눈금 간격을 아는 축은 간격으로, 눈금을 ECharts 에 맡긴 축(지표가
+  //  하나뿐일 때) 은 값의 크기로 자릿수를 정합니다.
+  /*  눈금을 ECharts 에 맡긴 축(지표가 하나뿐일 때)은 간격을 모릅니다.
+      ⚠️ <값의 크기> 로 정하면 안 됩니다. 축이 2.5조~5조 면 눈금은 0.5조
+         간격인데 크기(5조)로 정하면 정수가 되어 "5조 4조 4조 3조 3조 2조"
+         가 찍힙니다 — 같은 글자가 두 번씩 나옵니다.
+      그래서 <값이 퍼진 폭> 을 눈금 수로 나눠 간격을 어림합니다. 여섯으로
+      나누는 건 ECharts 가 우리 짐작보다 촘촘히 끊는 쪽이 더 나쁘기
+      때문입니다 (자릿수가 모자라면 또 겹칩니다). 한 자리 더 적히는 건
+      "5.0조" 정도라 읽는 데 지장이 없습니다.                            */
+  if (!(st > 0)){
+    var sp = Math.abs(Number(span)) || Math.abs(Number(top) || 0);
+    st = niceStep(Math.max(1e-9, sp * 1e6 / 6));
+  }
+  var dp = Math.min(3, dpForStep(st / u[0]));
+  //  단위 이름(달러) 은 축 이름에 한 번만 적습니다 — 눈금마다 붙이면
+  //  "4.50조 달러" 가 여섯 줄 서서 축 자리를 넘어갑니다.
+  return function(v){
+    if (!Number(v)) return '0';            //  "0.0조" 는 그냥 0 입니다
+    return num(Number(v) * 1e6 / u[0], dp) + u[1];
+  };
+}
+//  풍선말은 값 하나만 보여주므로 그 값에 맞는 단위를 씁니다
+function musdWords(v){
+  var u = musdUnit(v);
+  var x = Number(v) * 1e6 / u[0];
+  return num(x, Math.abs(x) >= 100 ? 0 : 2) + u[1] + ' 달러';
 }
 
 /*  100,500,000 → "1억 50만".  q 는 "여기까지만 적는다" 는 뜻입니다.
@@ -7415,10 +7562,18 @@ function drawChart(){
   if (!norms.length) norms = loaded, bands = [];   // 침체만 넣었으면 그냥 그립니다
 
   var nAxis = Math.max(2, axisCount(norms.map(function(x){ return x.s; })));
-  var axLabel = [];
+  var axLabel = [], axMusd = [], axTop = [], axLo = [];
   norms.forEach(function(x){
     var j = Number(x.s.axis) || 0;
-    if (!axLabel[j]) axLabel[j] = unitOf(x.s);
+    //  백만달러 축은 조·억으로 바꿔 적으므로 축 이름도 '달러' 가 맞습니다
+    if (isMusd(unitOf(x.s))) axMusd[j] = true;
+    if (!axLabel[j]) axLabel[j] = axMusd[j] ? '달러' : unitOf(x.s);
+    //  조로 적을지 억으로 적을지는 <축에서 가장 큰 값> 이 정합니다
+    x.pts.forEach(function(p){
+      if (p.v == null || !isFinite(p.v)) return;
+      if (!(Math.abs(p.v) <= (axTop[j] || 0))) axTop[j] = Math.abs(p.v);
+      if (axLo[j] == null || p.v < axLo[j]) axLo[j] = p.v;
+    });
   });
   var usedRight = norms.some(function(x){ return Number(x.s.axis) === 1; });
   var pad = axisPad(norm ? 1 : nAxis);
@@ -7449,6 +7604,9 @@ function drawChart(){
 
   //  범례가 몇 줄인지 재서 그만큼 위를 비웁니다 (축 이름이 가려지지 않게)
   var lgNames = norms.map(function(x){ return x.s.label + tfSuffix(x.s); });
+  //  풍선말에서 이름만 보고 그 지표의 단위를 찾을 수 있게 해둡니다
+  var musdBy = {};
+  norms.forEach(function(x, i){ if (isMusd(unitOf(x.s))) musdBy[lgNames[i]] = true; });
   var lgRows = legendRows(lgNames, boxWidth('chartBox') - 24, 12);
   var topPad = 10 + lgRows * 20 + 20;          // 범례 + 축 이름 자리
 
@@ -7469,7 +7627,9 @@ function drawChart(){
         return head + ps.map(function(p){
           var v = p.value[1];
           return p.marker + ' ' + p.seriesName + ' &nbsp;<b>'
-               + (v == null ? '-' : Number(v).toLocaleString('ko-KR',{maximumFractionDigits:2}))
+               + (v == null ? '-'
+                  : musdBy[p.seriesName] ? musdWords(v)
+                  : Number(v).toLocaleString('ko-KR',{maximumFractionDigits:2}))
                + '</b>';
         }).join('<br>');
       } },
@@ -7500,8 +7660,10 @@ function drawChart(){
           //  정수 반올림이 되어 "0 0 0 0 1" 처럼 찍혔습니다.
           axisLabel: rg
             ? { show: on, color: col, fontSize:11, hideOverlap:true,
-                formatter: axFmt(rg.interval) }
-            : { show: on, color: col, fontSize:11, hideOverlap:true },
+                formatter: axMusd[j] ? musdFmt(rg.interval, Math.max(Math.abs(rg.max), Math.abs(rg.min)))
+                                     : axFmt(rg.interval) }
+            : { show: on, color: col, fontSize:11, hideOverlap:true,
+                formatter: axMusd[j] ? musdFmt(0, axTop[j], axTop[j] - (axLo[j] || 0)) : undefined },
           splitLine: j === 0 ? { lineStyle:{ color:theme.grid } } : { show:false } };
         if (rg){ ax.scale = false; ax.min = rg.min; ax.max = rg.max; ax.interval = rg.interval; }
         out.push(ax);
@@ -9486,12 +9648,21 @@ var CHART_BOXES = ['chartBox','dtChartBox','dtBarBox','homeFxBox',
 function shownNow(el){
   return !!(el && (el.offsetWidth > 0 || el.offsetHeight > 0));
 }
+/*  ⚠️ resize() 는 <이미 정해둔 그림> 을 새 크기에 맞춰 늘일 뿐입니다.
+    폭을 재서 자리를 잡아둔 그림은 그것만으로 부족합니다 — 손익 그림의
+    현재가·본전 이름표는 "이 폭에서 서로 겹치나" 를 보고 위/아래 줄을
+    나눠둔 것이라, 창을 좁히면 늘이기만 해서는 다시 겹칩니다.        */
+function redrawAfterResize(el){
+  if (!el || el.id !== 'dvPayBox') return;
+  if (typeof dvDrawPayoff === 'function' && typeof dv !== 'undefined' && dv) dvDrawPayoff();
+}
+
 function resizeAllCharts(){
   if (typeof echarts === 'undefined') return;
   watchChartBoxes();
   CHART_BOXES.forEach(function(id){
     var el = $(id); if (!shownNow(el)) return;
-    var c = echarts.getInstanceByDom(el); if (c) c.resize();
+    var c = echarts.getInstanceByDom(el); if (c){ c.resize(); redrawAfterResize(el); }
   });
   if (typeof distCharts === 'object' && distCharts)
     Object.keys(distCharts).forEach(function(k){
@@ -9524,6 +9695,7 @@ function watchChartBoxes(){
         if (Math.abs(c.getWidth() - el.clientWidth) < 2
          && Math.abs(c.getHeight() - el.clientHeight) < 2) return;
         c.resize();
+        redrawAfterResize(el);
       });
     });
   }
@@ -12517,6 +12689,99 @@ function testRule(rule, ctx, i){
   return false;
 }
 
+/*  ── 자동매매가 실제로 손댈 수 있는 시장 ─────────────────────
+
+    ⚠️ 국내 주식은 무료 실시간 창구가 없어 <서버 자동매매에서 빠져> 있습니다
+       (모의투자 화면에도 그렇게 적어 뒀습니다). 그런데 백테스트는 국내까지
+       사고팔았습니다. 그래서 "미리 돌려보기에서 가온전선이 수익의 14% 를
+       냈다" 같은, 실제로는 절대 일어날 수 없는 결과가 나왔습니다.
+
+       백테스트는 <실제로 일어날 수 있는 일> 만 보여줘야 합니다. 두 엔진이
+       같은 이 함수를 봅니다 — 한쪽만 고치면 engine_same41 에서 걸립니다.
+       (국내 주식을 직접 매매하는 것은 그대로 됩니다. 자동매매만 빠집니다.) */
+function autoTradable(market){
+  return String(market || '').toUpperCase() !== 'KR';
+}
+
+/*  ── 자리보다 후보가 많을 때 누구를 사는가 ─────────────────────
+
+    ⚠️ 예전에는 <명단에 먼저 나온 것> 부터 담았습니다. 명단이 시장 이름
+       순(CRYPTO → KR → US)이라 코인이 다섯 자리를 다 채우고 미국 주식은
+       차례가 오지 않았습니다. 90일 백테스트를 돌리면 미국 종목이 한 건도
+       안 나왔습니다 — 조건이 안 맞아서가 아니라 <줄을 못 서서> 입니다.
+
+    두 가지로 고칩니다.
+      ① 조건을 <얼마나 넉넉히> 만족했는지 점수를 냅니다.
+         RSI 45 이하가 조건이면 RSI 20 이 RSI 44 보다 강한 신호입니다.
+      ② 시장을 번갈아 가며 각 시장의 1등부터 담습니다.
+         어느 시장도 굶지 않고, 왜 그걸 샀는지 설명할 수 있습니다.       */
+function ruleMargin(rule, ctx, i){
+  var arr = ctx.s[ruleKey(rule)];
+  if (!arr) return 0;
+  if (specOf(rule.ind).cmp === 'cross'){
+    //  교차에는 '얼마나' 가 없습니다. 두 선이 벌어진 폭으로 셉니다.
+    if (i < 1 || !arr.a || !arr.b) return 0;
+    var a1 = arr.a[i], b1 = arr.b[i];
+    if (a1 == null || b1 == null || !isFinite(a1) || !isFinite(b1) || !b1) return 0;
+    return Math.abs(a1 - b1) / Math.abs(b1);
+  }
+  var v = arr[i];
+  if (v == null || !isFinite(v)) return 0;
+  var t = Number(rule.value);
+  var d = (rule.op === '<' || rule.op === '<=') ? (t - v) : (v - t);
+  //  기준값이 0 인 지표가 있어서 (0 기준 확산지수 등) 그때는 값으로 나눕니다
+  var base = Math.abs(t) > 1e-9 ? Math.abs(t) : Math.max(1e-9, Math.abs(v));
+  return d > 0 ? d / base : 0;
+}
+function ruleScore(rules, ctx, i){
+  if (!rules || !rules.length) return 0;
+  var s = 0;
+  for (var r = 0; r < rules.length; r++) s += ruleMargin(rules[r], ctx, i);
+  return s / rules.length;
+}
+/*  cands = [{ market, symbol, score, ... }] · room = 남은 자리
+    같은 값을 넣으면 언제나 같은 답이 나와야 합니다 (백테스트와 실제가
+    어긋나면 안 되니까요). 그래서 점수가 같으면 종목 이름으로 줄 세웁니다. */
+function rankPicks(cands, room){
+  function better(a, b){
+    if (b.score !== a.score) return b.score - a.score;
+    return String(a.symbol) < String(b.symbol) ? -1
+         : String(a.symbol) > String(b.symbol) ? 1 : 0;
+  }
+  var list = (cands || []).slice().sort(better);
+  if (!(room > 0)) return [];
+
+  var by = {}, order = [];
+  list.forEach(function(c){
+    var m = String(c.market || '');
+    if (!by[m]){ by[m] = []; order.push(m); }
+    by[m].push(c);
+  });
+  order.sort();
+
+  /*  자리가 시장 수보다 적으면 <번갈아> 가 성립하지 않습니다. 자리가
+      하나뿐인데 순서대로 돌리면 늘 앞 시장(CRYPTO)만 삽니다. 그럴 때는
+      시장을 가리지 않고 <가장 강한 신호> 를 삽니다 — 한 자리라면
+      그게 맞습니다.                                                    */
+  if (room < order.length) return list.slice(0, room);
+
+  //  ① 먼저 시장마다 한 자리씩 — 어느 시장도 굶지 않게
+  var out = [], taken = {};
+  order.forEach(function(m){
+    if (out.length >= room) return;
+    var c = by[m][0];
+    if (c){ out.push(c); taken[m + '|' + c.symbol] = 1; }
+  });
+  //  ② 남은 자리는 시장을 가리지 않고 점수가 높은 것부터
+  for (var i = 0; i < list.length && out.length < room; i++){
+    var x = list[i];
+    if (taken[x.market + '|' + x.symbol]) continue;
+    taken[x.market + '|' + x.symbol] = 1;
+    out.push(x);
+  }
+  return out;
+}
+
 /* ── 전략 재생 ──
    날짜 순서대로 하루씩 진행하면서 모든 종목을 함께 처리합니다.
    현금을 한 곳에서 관리하므로 없는 돈으로 사는 일이 없습니다. */
@@ -12598,6 +12863,8 @@ function replayStrategy(strategies, priceMap, seed, startDate, manualTrades){
 
   var book = {}, dateSet = {};
   keys.forEach(function(k){
+    //  서버 자동매매가 못 만지는 시장은 백테스트에서도 안 만집니다
+    if (!autoTradable(k.split('|')[0])){ book[k] = null; return; }
     var pts = (priceMap[k] || []).filter(function(p){ return p.d >= startDate; });
     if (pts.length < 30){ book[k] = null; return; }        // 자료가 짧으면 제외
     var idx = {};
@@ -12690,6 +12957,31 @@ function replayStrategy(strategies, priceMap, seed, startDate, manualTrades){
     var candidates = scan
       ? keys.filter(function(k){ return book[k] && book[k].qty <= 0; })   // 스캔: 새 종목만
       : keys;
+
+    /*  ⚠️ 스캔 모드에서 이 목록을 <그냥 순서대로> 훑으면 안 됩니다.
+
+        키가 'CRYPTO|…' · 'KR|…' · 'US|…' 라서 사실상 시장 이름 순입니다.
+        먼저 나온 것부터 담으면 코인이 최대 보유 종목 수를 다 채우고
+        미국 주식은 조건을 만족해도 영영 차례가 오지 않습니다. 실제로
+        90일 백테스트에서 미국 종목이 한 건도 안 나왔습니다.
+
+        오늘 조건에 맞는 것을 <전부> 모아 점수를 매기고, 시장을 번갈아
+        가며 각 시장의 1등부터 담습니다. 서버(실제 자동매매)도 같은
+        rankPicks 를 씁니다 — 어긋나면 engine_same41 에서 걸립니다.      */
+    if (scan){
+      var pass = [];
+      candidates.forEach(function(k){
+        var b = book[k]; if (!b) return;
+        var i0 = b.idx[day]; if (i0 == null || i0 < 1) return;
+        if ((dayNo - b.lastAct) <= cool) return;
+        if (!buyRules.length) return;
+        if (!buyRules.every(function(r){ return testRule(r, b.ctx, i0); })) return;
+        pass.push({ market:b.market, symbol:b.symbol, key:k,
+                    score: ruleScore(buyRules, b.ctx, i0) });
+      });
+      candidates = rankPicks(pass, Math.max(0, maxPos - held))
+                     .map(function(c){ return c.key; });
+    }
 
     candidates.forEach(function(k){
       var b = book[k]; if (!b) return;
@@ -12984,13 +13276,21 @@ function syncStratNums(){
   if ($('stMarketHint')){
     var mk  = $('stMarkets') ? $('stMarkets').value : 'both';
     var all = scanUniverse || universe || [];
-    var n   = stratSymbols({ mode:'scan', markets: mk }).length;
+    var picked = stratSymbols({ mode:'scan', markets: mk });
+    /*  ⚠️ 예전에는 고른 종목 수를 그대로 적었습니다. 국내를 고르면
+        "100종목을 훑습니다" 라고 나오는데 <실제로는 한 종목도 안 훑습니다>
+        — 자동매매가 국내를 못 만지거든요. 셈에서 빼고, 왜 뺐는지 적습니다. */
+    var able = picked.filter(function(u){ return autoTradable(u.market); });
+    var n   = able.length;
+    var krPick = picked.length - able.length;
     var kr  = all.filter(function(u){ return u.market === 'KR'; }).length;
     var us  = all.filter(function(u){ return u.market === 'US'; }).length;
     var cc  = all.filter(function(u){ return u.market === 'CRYPTO'; }).length;
     var tip = '';
-    if ((mk === 'both' || mk === 'stock') && us > kr * 2)
-      tip = ' · ⚠️ 미국이 ' + us + '개로 국내 ' + kr + '개보다 많아 미국 쪽에 쏠릴 수 있습니다';
+    if (krPick)
+      tip += ' · 국내 ' + krPick + '개는 자동매매 대상이 아니라 뺐습니다 (직접 매매는 가능합니다)';
+    if ((mk === 'both' || mk === 'stock') && us > cc * 2)
+      tip += ' · ⚠️ 미국이 ' + us + '개로 코인 ' + cc + '개보다 많아 미국 쪽에 쏠릴 수 있습니다';
     if (mk === 'CRYPTO' || (mk === 'both' && cc))
       tip += ' · 코인은 주말·야간에도 움직이고 변동성이 큽니다 — 손절 폭을 따로 잡으세요';
     /*  ⚠️ 여기가 가장 흔한 오해입니다.
@@ -13011,7 +13311,12 @@ function syncStratNums(){
                     : ' — <b>지금은 닫혀 있어 미국 종목은 안 훑습니다</b>'
                       + (hasCC ? ' (코인만 봅니다).' : '. 코인을 같이 넣으면 낮에도 돕니다.'));
     }
-    $('stMarketHint').innerHTML = '<b>' + n + '종목</b>을 훑습니다' + tip + when;
+    $('stMarketHint').innerHTML = (n
+        ? '<b>' + n + '종목</b>을 훑습니다'
+        : '<span style="color:var(--danger)"><b>훑을 종목이 0개입니다</b>'
+          + (krPick ? ' — 국내만 고르면 자동매매가 할 일이 없습니다. '
+                      + '미국이나 코인을 같이 골라주세요.' : '') + '</span>')
+      + tip + when;
   }
 }
 
@@ -13401,7 +13706,8 @@ async function previewStrategy(){
         m = quantMetrics(snaps, bench, rf, seed);
       } catch(e){ m = null; }
     }
-    renderPreview(st, snaps, seed, m, trades, backDays);
+    renderPreview(st, snaps, seed, m, trades, backDays,
+                  coverage(syms, priceMap, startDate));
     lastPreview = st;
 
     var need = Number(contest.min_auto_trades || 10);
@@ -13417,7 +13723,89 @@ async function previewStrategy(){
   btn.disabled = false; btn.textContent = '미리 돌려보기 — 기록에 남지 않습니다';
 }
 
-function renderPreview(st, snaps, seed, m, trades, backDays){
+/*  ── 이 백테스트가 <실제로> 몇 종목을 훑었는가 ────────────────
+
+    가장 흔한 오해가 "명단에 500종목이 있으니 500종목을 봤겠지" 입니다.
+    아닙니다. 시세를 못 받았거나 기간이 짧으면 그 종목은 조용히 빠집니다
+    (replayStrategy 의 `if (pts.length < 30) book[k] = null`).
+
+    실제로 미국 주식이 결과에 한 건도 없어서 "조건이 안 맞았나" 하고
+    한참 헤맸습니다. 조용히 빠지면 안 됩니다 — 숫자로 보여줍니다.        */
+function coverage(syms, priceMap, startDate){
+  var out = {};
+  (syms || []).forEach(function(x){
+    var m = x.market || '?';
+    out[m] = out[m] || { total:0, used:0, thin:0, none:0, off:!autoTradable(m) };
+    out[m].total++;
+    if (out[m].off) return;                //  자동매매 대상이 아닌 시장
+    var pts = (priceMap[m + '|' + x.symbol] || [])
+                .filter(function(p){ return p.d >= startDate; });
+    if (!pts.length)          out[m].none++;
+    else if (pts.length < 30) out[m].thin++;
+    else                      out[m].used++;
+  });
+  return out;
+}
+/*  ── 백테스트는 <일봉> 입니다 ────────────────────────────────
+
+    ⚠️ 백테스트가 재생하는 것은 하루 한 개짜리 종가입니다. 그런데 서버
+       자동매매는 팀이 고른 <지표 기준 봉> 으로 조건을 봅니다. 5분봉을
+       골라두면 "RSI 20" 이 백테스트에서는 <20일>, 실제로는 <20개 5분봉
+       = 100분> 이 됩니다. 이름만 같지 완전히 다른 전략입니다.
+
+       무료 창구로는 500종목의 90일치 5분봉을 받을 수가 없어서 백테스트를
+       분봉으로 돌릴 방법이 없습니다. 그러면 최소한 <다르다는 사실> 은
+       화면에 적어야 합니다. 조용히 두면 "백테스트대로 안 움직인다" 를
+       영영 못 풀게 됩니다.                                              */
+function tfMismatchHTML(){
+  var el = $('mtBarTf');
+  var tf = el ? el.value : '1d';
+  if (!tf || tf === '1d') return '';
+  var nm = el ? el.options[el.selectedIndex].textContent : tf;
+  return '<div class="note warn" style="margin:0 0 12px">'
+       + '이 백테스트는 <b>일봉</b>으로 돌렸습니다. 그런데 팀의 '
+       + '<b>지표 기준 봉</b>은 <b>' + esc(nm) + '</b>으로 되어 있습니다. '
+       + '같은 「RSI 20」이라도 여기서는 <b>20일</b>, 실제 자동매매에서는 '
+       + '<b>20개 ' + esc(nm) + '</b> 을 봅니다 — 이름만 같지 다른 전략입니다. '
+       + '백테스트와 실제를 맞추려면 모의투자 화면에서 지표 기준 봉을 '
+       + '<b>일봉</b>으로 바꿔 주세요.</div>';
+}
+
+function coverageHTML(cov){
+  var names = { US:'미국 주식', KR:'국내 주식', CRYPTO:'코인' };
+  var ks = Object.keys(cov).sort();
+  if (!ks.length) return '';
+  var bad = ks.filter(function(k){ return !cov[k].off && cov[k].used === 0 && cov[k].total > 0; });
+  var offK = ks.filter(function(k){ return cov[k].off && cov[k].total > 0; });
+  var rows = ks.map(function(k){
+    var c = cov[k], miss = c.thin + c.none;
+    if (c.off) return '<span style="display:inline-block;margin-right:14px">'
+         + '<b>' + esc(names[k] || k) + '</b> <span style="color:var(--text-sub)">'
+         + '자동매매 대상 아님 (' + c.total + '종목)</span></span>';
+    return '<span style="display:inline-block;margin-right:14px">'
+         + '<b>' + esc(names[k] || k) + '</b> ' + c.used + '/' + c.total + '종목'
+         + (miss ? ' <span style="color:var(--text-sub)">(시세 없음 ' + c.none
+                  + ' · 기간 짧음 ' + c.thin + ')</span>' : '')
+         + '</span>';
+  }).join('');
+  return '<div class="note ' + (bad.length ? 'warn' : 'info')
+       + '" style="margin:0 0 12px">실제로 훑은 종목: ' + rows
+       + (bad.length
+          ? '<br><b>' + bad.map(function(k){ return esc(names[k] || k); }).join(' · ')
+            + '</b> 은(는) 과거 시세가 없어서 이번 백테스트에서 <b>통째로 빠졌습니다</b>. '
+            + '결과에 안 나오는 게 당연합니다 — 조건이 안 맞아서가 아닙니다. '
+            + '임원진 화면의 <b>「과거 시세 채우기」</b>를 돌려주세요.'
+          : '')
+       + (offK.length
+          ? '<br>' + offK.map(function(k){ return esc(names[k] || k); }).join(' · ')
+            + '은(는) 무료 실시간 창구가 없어 <b>서버 자동매매가 손대지 못합니다</b>. '
+            + '실제로 일어날 수 없는 일을 성적표에 넣지 않으려고 백테스트에서도 뺐습니다 '
+            + '(직접 매매는 그대로 됩니다).'
+          : '')
+       + '</div>';
+}
+
+function renderPreview(st, snaps, seed, m, trades, backDays, cov){
   show('stratPreview');
   var cls = st.ret >= 0 ? 'pos' : 'neg';
   var q = $('stratPrevQuant');
@@ -13430,7 +13818,9 @@ function renderPreview(st, snaps, seed, m, trades, backDays){
       : '';
     if (m) setTimeout(function(){ drawDist('prevDistBox', m.rets); }, 30);
   }
-  $('stratPrevTiles').innerHTML = '<div class="tiles">'
+  $('stratPrevTiles').innerHTML = tfMismatchHTML()
+    + (cov ? coverageHTML(cov) : '')
+    + '<div class="tiles">'
     + tile('최종 자산', num(st.last), '시드 ' + num(seed), cls)
     + tile('수익률', pct(st.ret), snaps.length + '일 기준', cls)
     + tile('최대 낙폭', st.mdd.toFixed(1) + '%', '고점 대비 최대 하락', 'neg')
