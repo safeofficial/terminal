@@ -164,6 +164,11 @@
   .exit-top{display:flex;align-items:center;gap:8px;margin-bottom:9px;cursor:pointer}
   .exit-top input{width:auto}
   .exit-top b{font-size:.88rem}
+  /*  고르기 딱지 — 경제지표 고르듯 밸류에이션 방법을 켜고 끕니다  */
+  .chk{display:inline-flex;align-items:center;gap:5px;font-size:12px;
+       color:var(--text-sub);user-select:none}
+  .chk input{margin:0}
+  .chk.off{text-decoration:line-through}
   .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
   .preset{flex:1 1 210px;text-align:left;padding:10px 12px;border:1px solid var(--border);
     border-radius:10px;background:var(--white);cursor:pointer}
@@ -1865,7 +1870,12 @@
             <h2>방법별 결과
               <span class="tools"><button class="btn-sm" onclick="chartJpg(valChart,'밸류에이션')">JPG</button></span>
             </h2>
+            <!--  경제지표 차트처럼 <무엇을 올릴지> 골라서 그림을 만듭니다.
+                  발표 자료를 만들 때 "우리는 DCF 와 EV/EBITDA 만 본다" 를
+                  그대로 보여줄 수 있어야 합니다.                          -->
+            <div class="row" id="valPick" style="flex-wrap:wrap;gap:10px;margin-bottom:8px"></div>
             <div id="valBox" style="height:300px"></div>
+            <p class="st-hint" id="valPickHint" style="margin:6px 0 0"></p>
           </div>
 
           <div class="card">
@@ -4116,8 +4126,33 @@ async function valLoad(force){
       shares = Number(d.shares.value);
       sharesNote = d.shares.basis || '';
     }
-    //  주가는 '주가' 탭이 받아둔 종가를 씁니다
+    /*  ⚠️ 주가가 없으면 밸류에이션이 <통째로> 빕니다.
+
+        예전에는 '주가' 탭이 받아둔 값만 썼습니다. 그래서 검색하자마자
+        밸류에이션을 열면 주가가 없어서
+          · PER · PBR · EV/EBITDA · EV/매출 → 막대가 전부 빈 칸
+          · 베타 → 주가 회귀를 못 해서 —
+          · 시가총액 → 주가 × 주식 수라 —
+          · WACC → 위 둘이 없어서 —
+        가 됐습니다. 화면에는 "주가 자료가 짧으면 못 냅니다" 라고 나오는데
+        사실은 <아직 안 받아온 것> 이었습니다.
+
+        바로 아래 주식 수 주석에 "다른 탭을 눌러 오라고 시키는 건 고쳐야 할
+        버그지 안내할 일이 아니다" 라고 적어놓고, 정작 주가는 그대로
+        두고 있었습니다. 여기서 직접 받아옵니다.                          */
     if (coPricePts && coPricePts.length) px = coPricePts[coPricePts.length-1].v;
+    if (!(px > 0)){
+      try {
+        var pr = await edge({ source: quoteSource(co.market), code: co.code,
+                              start: shiftIso(today(), -2, 0) });
+        var pp = (pr.points || []).filter(function(x){ return x.v > 0; });
+        if (pp.length){
+          px = pp[pp.length-1].v;
+          //  받은 김에 베타 계산에도 쓰게 남겨둡니다 (또 받지 않게)
+          if (!coPricePts || !coPricePts.length) coPricePts = pp;
+        }
+      } catch(e){ /* 그래도 없으면 아래에서 개요로 한 번 더 시도합니다 */ }
+    }
 
     /*  주식 수가 없으면 밸류에이션 전체가 멈춥니다 — 배수도, WACC 도,
         DCF 주당가치도 전부 '주식 수 ÷' 를 거치기 때문입니다. 예전에는
@@ -4630,6 +4665,54 @@ var VAL_NAME = { dcf:'DCF', per:'PER 기준', pbr:'PBR 기준', ev:'EV/EBITDA �
                  evrev:'EV/매출 기준', cons:'역산 DCF' };
 var VAL_KEYS = ['dcf','per','pbr','ev','evrev','cons'];
 
+/*  ── 그림에 무엇을 올릴까 ─────────────────────────────────────
+
+    경제지표 탭에서 지표를 골라 차트를 만드는 것과 같은 방식입니다.
+    회사마다 맞는 방법이 다릅니다 — 적자 기업에 PER 을 올려두면 빈 칸이
+    하나 늘어날 뿐이고, 은행에 EV/EBITDA 를 올리면 뜻이 없습니다.
+    발표 자료를 만들 때 <우리가 쓴 방법만> 남겨서 내보낼 수 있어야 합니다. */
+var VAL_PICK_ALL = ['dcf','per','pbr','ev','evrev','target','px'];
+var VAL_PICK_NAME = { dcf:'DCF', per:'PER', pbr:'PBR', ev:'EV/EBITDA',
+                      evrev:'EV/매출', target:'애널리스트 목표', px:'현재가' };
+//  기본은 <값이 나온 것 전부 + 현재가>. 현재가는 비교 기준이라 늘 켭니다.
+var valPick = null;
+function valPickSet(){
+  if (!valPick) valPick = VAL_PICK_ALL.slice();
+  return valPick;
+}
+function valTogglePick(k){
+  var a = valPickSet(), i = a.indexOf(k);
+  if (i >= 0){
+    //  하나는 남겨둡니다 — 전부 끄면 빈 그림이 됩니다
+    if (a.length <= 1) return;
+    a.splice(i, 1);
+  } else a.push(k);
+  valDraw();
+}
+function valRenderPick(out){
+  var box = $('valPick'); if (!box || !valData) return;
+  var sel = valPickSet();
+  var have = { px: valData.px > 0, target: valData.target != null };
+  VAL_PICK_ALL.forEach(function(k){
+    if (k !== 'px' && k !== 'target') have[k] = out && out[k] != null && isFinite(out[k]);
+  });
+  box.innerHTML = VAL_PICK_ALL.map(function(k){
+    var on = sel.indexOf(k) >= 0;
+    var ok = have[k];
+    return '<label class="chk' + (ok ? '' : ' off') + '" style="cursor:'
+      + (ok ? 'pointer' : 'default') + ';opacity:' + (ok ? 1 : .45) + '">'
+      + '<input type="checkbox"' + (on ? ' checked' : '') + (ok ? '' : ' disabled')
+      + ' onchange="valTogglePick(\'' + k + '\')"> '
+      + esc(VAL_PICK_NAME[k]) + '</label>';
+  }).join('');
+  var off = VAL_PICK_ALL.filter(function(k){ return !have[k]; });
+  $('valPickHint').innerHTML = off.length
+    ? '값이 안 나온 방법은 고를 수 없습니다 — <b>'
+      + off.map(function(k){ return esc(VAL_PICK_NAME[k]); }).join(' · ') + '</b>. '
+      + '이 회사 재무제표에 필요한 항목이 없거나(적자·자본잠식 등) 주가·주식 수를 못 받은 경우입니다.'
+    : '보고 싶은 방법만 골라서 그림을 만들 수 있습니다.';
+}
+
 /*  ── WACC 를 가정이 아니라 계산으로 ──
 
     예전에는 사용자가 슬라이더로 9% 를 넣었습니다. 그 9% 가 어디서 왔는지
@@ -4750,16 +4833,30 @@ function valImplied(f, mg, w, tg, tax, N, shares){
 }
 
 function valDrawChart(out, px, mid){
+  valRenderPick(out);
   if (typeof echarts === 'undefined') return;
   if (!valChart) valChart = echarts.init($('valBox'));
-  var ks = VAL_KEYS.filter(function(k){ return k !== 'cons'; });
+  var sel = valPickSet();
+  var ks = VAL_KEYS.filter(function(k){ return k !== 'cons' && sel.indexOf(k) >= 0; });
   var names = ks.map(function(k){ return VAL_NAME[k]; });
   var vals  = ks.map(function(k){ return out[k]; });
-  if (valData.target != null){ names.push('애널리스트 목표'); vals.push(valData.target); }
-  var data = vals.map(function(v){
+  if (valData.target != null && sel.indexOf('target') >= 0){
+    names.push('애널리스트 목표'); vals.push(valData.target);
+  }
+  /*  ⚠️ 현재가를 <막대로도> 세웁니다.
+      점선만 있으면 "얼마인지" 를 눈금에서 읽어야 하고, JPG 로 내보내면
+      더 안 보입니다. 적정주가와 나란히 세워야 "얼마나 싸다/비싸다" 가
+      한눈에 들어옵니다. 색을 따로 줘서 계산값과 구분합니다.            */
+  var pxRow = -1;
+  if (px > 0 && sel.indexOf('px') >= 0){
+    pxRow = names.length; names.push('현재가'); vals.push(px);
+  }
+  var data = vals.map(function(v, i){
     if (v == null || !isFinite(v)) return null;
     return { value: +v.toFixed(4),
-             itemStyle:{ color: (px && v > px) ? '#c0392b' : '#1b5fa8' } };
+             itemStyle:{ color: i === pxRow ? '#5a6278'          //  현재가 — 회색
+                              : (px && v > px) ? '#c0392b'       //  현재가보다 높음
+                                               : '#1b5fa8' } };
   });
   var cur = valData.cur;
   valChart.setOption({
@@ -4778,9 +4875,12 @@ function valDrawChart(out, px, mid){
       label:{ show:true, position:'right', fontSize:11,
         formatter:function(a){ return a.value == null ? ''
           : (cur === '원' ? num(a.value,0) : '$' + num(a.value,2)); } },
+      //  점선에도 금액을 적습니다 — "현재가" 세 글자만 있으면 얼마인지 모릅니다
       markLine: px ? { symbol:'none', silent:true,
-        lineStyle:{ color:'#2c3e6b', width:1.5 },
-        label:{ formatter:'현재가', fontSize:10, color:'#2c3e6b' },
+        lineStyle:{ color:'#2c3e6b', width:1.5, type:'dashed' },
+        label:{ formatter:'현재가 ' + (cur === '원' ? num(px,0) + '원' : '$' + num(px,2)),
+                fontSize:10, color:'#2c3e6b', fontWeight:600,
+                backgroundColor:'rgba(255,255,255,.85)', padding:[2,4], borderRadius:3 },
         data:[{ xAxis: px }] } : undefined }]
   }, true);
 }
@@ -5068,8 +5168,18 @@ async function loadProfile(){
   try {
     var d = await edgeCo({ action:'eod_full', code: co.code, market: co.market });
     if (!d.found){
+      /*  ⚠️ esc() 를 씌우면 안내에 넣어둔 <b> 가 글자로 보입니다.
+          서버가 만든 안내문은 우리가 쓴 것이라 그대로 보여줍니다.
+          (사용자 입력이 아니라 서버 상수입니다)                        */
       $('profBody').innerHTML = '';
-      warn('profWarn', esc(d.note || '자료를 찾지 못했습니다.'));
+      warn('profWarn', d.note || '자료를 찾지 못했습니다.',
+           d.plan_blocked ? 'info' : 'err');
+      //  요금제 때문이면 <다른 탭은 멀쩡하다> 고 같이 알려줍니다
+      if (d.plan_blocked)
+        $('profBody').innerHTML = '<div class="note info" style="margin:0">'
+          + '이 탭만 비어 있습니다. <b>재무제표 · 밸류에이션 · 주가 · 공시 · '
+          + '기관 보유(13F) · 지분·배당</b> 은 그대로 쓸 수 있습니다 — '
+          + '위 탭에서 바로 확인하세요.</div>';
       return;
     }
     coProf = d;
@@ -8693,7 +8803,32 @@ async function mtLoadAccount(){
     화면을 안 보고 있을 때(다른 탭·창 최소화)는 멈춥니다 — 15명이 하루 종일
     켜두면 헛되이 시세를 긁게 되니까요.                                    */
 var mtLiveTimer = null, mtLiveAt = 0, mtLiveFills = null, mtLiveBusy = false;
-var MT_LIVE_MS = 30000;
+/*  ── 현황을 얼마나 자주 다시 받아올까 ─────────────────────────
+
+    ⚠️ 이건 취향 문제가 아니라 <한도> 문제입니다. 재 봤습니다.
+       학회원 15명이 하루 6시간 켜 두고 30초마다 받으면
+         15명 × 2회/분 × 60분 × 6시간 = 10,800회/일 → 월 32만 4천 회
+       여기에 자동매매·탭 이동을 더하면 월 35만 회입니다.
+       Supabase 무료 Edge 함수 한도가 <월 50만 회> 이니 70% 를 씁니다.
+       시험 기간에 몇 명이 더 오래 켜두면 그냥 넘깁니다. 넘기면
+       공정사용 제한이 걸려 API 가 402 를 돌려주기 시작합니다.
+
+    그래서 <보고 있을 때만 자주> 받습니다.
+      · 방금 만진 사람   30초 — 주문하고 결과를 기다리는 중일 테니까
+      · 켜두고 안 만짐   2분  — 켜놓고 딴 일 하는 경우가 대부분입니다
+      · 다른 탭·창 최소화 아예 안 받음 (이건 원래도 그랬습니다)
+    이렇게만 해도 월 12만 회 안쪽으로 떨어집니다.                     */
+var MT_LIVE_MS = 30000;          //  방금 만졌을 때
+var MT_IDLE_MS = 120000;         //  켜두고 가만히 있을 때
+var MT_IDLE_AFTER = 90000;       //  마지막으로 만진 뒤 이만큼 지나면 '가만히'
+var mtTouchAt = Date.now();
+//  누르거나 입력하면 '보고 있다' 고 봅니다
+['click','keydown','pointerdown'].forEach(function(ev){
+  document.addEventListener(ev, function(){ mtTouchAt = Date.now(); }, { passive:true });
+});
+function mtLiveEvery(){
+  return (Date.now() - mtTouchAt) < MT_IDLE_AFTER ? MT_LIVE_MS : MT_IDLE_MS;
+}
 
 function mtLiveStart(){
   mtLiveStop();
@@ -8707,7 +8842,7 @@ async function mtLiveTick(){
   //  '몇 초 전 기준' 을 매초 고쳐 씁니다 — 살아있다는 표시입니다
   mtStampAsOf();
   if (document.hidden || mtLiveBusy) return;
-  if (Date.now() - mtLiveAt < MT_LIVE_MS) return;
+  if (Date.now() - mtLiveAt < mtLiveEvery()) return;
   mtLiveBusy = true;
   try { await mtLoadAccount(); mtLiveAt = Date.now(); }
   catch(e){ /* 한 번 실패해도 다음 차례에 다시 받습니다 */ }
@@ -8724,7 +8859,9 @@ function mtStampAsOf(){
   el.innerHTML = '환율 ' + num((mtAcc.fx || 1400), 0) + '원 고정 · '
     + '<span class="live-dot"></span>'
     + (sec < 5 ? '방금 갱신' : sec + '초 전')
-    + ' <span class="st-hint">· 30초마다 저절로 갱신됩니다</span>';
+    + ' <span class="st-hint">· '
+    + (mtLiveEvery() === MT_LIVE_MS ? '30초' : '2분') + '마다 저절로 갱신됩니다'
+    + (mtLiveEvery() === MT_LIVE_MS ? '' : ' (화면을 만지면 30초로)') + '</span>';
 }
 
 /*  자동매매가 새로 체결했으면 알려줍니다. 가만히 있는데 보유 종목이
