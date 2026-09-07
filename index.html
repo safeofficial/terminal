@@ -190,6 +190,46 @@
   .ai-side th,.ai-side td{padding:7px 9px}
   .ai-bull{border-left:3px solid #1f8a70}
   .ai-bear{border-left:3px solid #c0392b}
+
+  /*  ── 읽히는 카드 ──
+      왼쪽 라벨 + 오른쪽 줄글 두 칸은 근거 숫자가 길어지면 무너집니다.
+      제목 · 본문 · 근거를 세 줄로 쌓고, 왼쪽 색 막대로 기회/리스크를
+      구분합니다. 숫자는 등폭 딱지로 눈에 걸리게 합니다.               */
+  .ai-cards{display:flex;flex-direction:column;gap:9px}
+  .ai-card{border:1px solid var(--border);border-left:3px solid var(--border);
+           border-radius:9px;padding:10px 12px;background:var(--white)}
+  .ai-card.ok  {border-left-color:#1f8a70;background:#f6fbf9}
+  .ai-card.risk{border-left-color:#c0392b;background:#fdf7f6}
+  .ai-card.risk.hi {border-left-width:4px}
+  .ai-card.risk.lo {border-left-color:#d9a441;background:#fffdf6}
+  .ai-card-h{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+  .ai-card-h b{font-size:12.5px;color:var(--text);line-height:1.5}
+  .ai-card p{margin:5px 0 0;font-size:12.5px;color:var(--text-sub);line-height:1.7}
+  .ai-ev{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+  .ai-ev code{font-size:11px;font-variant-numeric:tabular-nums;
+              background:var(--bg);border:1px solid var(--border);border-radius:5px;
+              padding:2px 6px;color:var(--primary);white-space:nowrap;
+              max-width:100%;overflow:hidden;text-overflow:ellipsis}
+
+  /*  공시는 날짜가 축입니다 — 왼쪽에 세로로 세워 훑게 합니다  */
+  .ai-docs{display:flex;flex-direction:column}
+  .ai-doc{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--border)}
+  .ai-doc:last-child{border-bottom:0}
+  .ai-doc-d{flex:0 0 62px;font-size:11.5px;font-weight:700;color:var(--primary);
+            font-variant-numeric:tabular-nums;padding-top:1px}
+  .ai-doc-b{flex:1;min-width:0}
+  .ai-doc-b b{font-size:12.5px;color:var(--text)}
+  .ai-doc-b p{margin:3px 0 0;font-size:12.5px;color:var(--text-sub);line-height:1.7}
+
+  /*  섹터 딱지 · 보관함 필터  */
+  .ai-sector{display:inline-block;font-size:10.5px;font-weight:700;
+             padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .ai-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .ai-chip{font-size:11.5px;padding:5px 11px;border-radius:20px;cursor:pointer;
+           border:1px solid var(--border);background:var(--white);color:var(--text-sub)}
+  .ai-chip b{color:var(--primary);margin-left:2px}
+  .ai-chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
+  .ai-chip.on b{color:#fff}
   .ai-sev{font-size:10.5px;padding:1px 5px;border-radius:4px;margin-left:5px;
           background:var(--accent-soft);color:var(--primary)}
   .ai-sev.hi{background:#fdecea;color:#c0392b}
@@ -2349,46 +2389,90 @@
     <div id="pane-ai" class="hidden">
       <div class="page-head">
         <h1>AI 분석</h1>
-        <p>티커를 넣으면 터미널이 가진 자료(재무제표 · 공시 · 옵션 · 뉴스)를 모아
+        <p>티커를 넣으면 터미널이 가진 자료(재무제표 · <b>공시 원문</b> · 옵션 · 뉴스)를 모아
            증권사 리서치 형식의 리포트를 만듭니다. 마지막에 헤드 트레이더가 매매 결정을 냅니다.</p>
       </div>
       <div id="aiWarn"></div>
 
-      <div class="card">
-        <h2>종목 고르기
-          <span class="tools"><span class="st-hint" id="aiBudget"></span></span>
-        </h2>
-        <div class="row">
-          <input type="text" id="aiQ" class="grow"
-                 placeholder="회사 이름이나 티커 (예: NVIDIA, 삼성전자, 005930)"
-                 onkeydown="if(event.key==='Enter'){event.preventDefault();aiSearch();}">
-          <button class="btn-sm" onclick="aiSearch()">검색</button>
-        </div>
-        <div id="aiHits" class="drill-list"></div>
-        <div class="row" style="margin-top:6px">
-          <button class="btn-sm btn-solid grow" id="aiRunBtn" onclick="aiRun(false)" disabled>
-            리포트 만들기
-          </button>
-          <button class="btn-sm" id="aiForceBtn" onclick="aiRun(true)" disabled
-                  title="저장된 리포트를 무시하고 새로 만듭니다 (돈이 또 나갑니다)">새로 만들기</button>
-        </div>
-        <div id="aiProg" class="hidden" style="margin-top:10px">
-          <div class="ai-bar"><div class="ai-bar-in" id="aiBarIn"></div></div>
-          <div class="st-hint" id="aiStep" style="margin-top:6px"></div>
-        </div>
-        <p class="st-hint" style="margin:8px 0 0">
-          <b>이 리포트는 학습용입니다 — 투자 권유가 아닙니다.</b>
-          숫자는 터미널이 가진 자료에서 왔고, 해석은 모델이 한 것입니다.
-          발표에 쓰기 전에 근거 숫자를 재무제표 탭에서 직접 확인하세요.
-        </p>
+      <div class="mode-seg" id="aiSeg">
+        <button id="aiTab-new"  onclick="aiShow('new')"  class="on">새 리포트</button>
+        <button id="aiTab-lib"  onclick="aiShow('lib')">보관함 <span id="aiLibN"></span></button>
       </div>
 
-      <div class="card" id="aiRecentCard">
-        <h2>최근 리포트 <span class="tools"><button class="btn-sm" onclick="aiLoadList()">새로고침</button></span></h2>
-        <div class="scroll"><table id="aiList"></table></div>
+      <!-- ── 새 리포트 ── -->
+      <div id="aiPane-new">
+        <div class="card">
+          <h2>종목 고르기
+            <span class="tools"><span class="st-hint" id="aiBudget"></span></span>
+          </h2>
+          <div class="row">
+            <input type="text" id="aiQ" class="grow"
+                   placeholder="회사 이름이나 티커 (예: NVIDIA, 삼성전자, 005930)"
+                   onkeydown="if(event.key==='Enter'){event.preventDefault();aiSearch();}">
+            <button class="btn-sm" onclick="aiSearch()">검색</button>
+          </div>
+          <div id="aiHits" class="drill-list"></div>
+
+          <!--  ⚠️ 값을 화면에 안 적습니다. "0.24달러" 가 보이면 누르기가
+                부담스러워집니다. 대신 <무엇이 다른지> 만 적습니다.        -->
+          <div class="row" style="margin-top:8px;align-items:center">
+            <span class="st-hint" style="flex:none">분석 깊이</span>
+            <div class="mode-seg" id="aiDepth" style="margin:0;flex:none">
+              <button id="aiDepth-fast" class="on" onclick="aiSetDepth('fast')"
+                      title="빠르고 가볍습니다. 스크리닝·1차 검토용">빠르게</button>
+              <button id="aiDepth-deep" onclick="aiSetDepth('deep')"
+                      title="더 오래 걸리고 더 깊게 봅니다. 발표에 쓸 리포트용">꼼꼼하게</button>
+            </div>
+            <span class="st-hint grow" id="aiDepthHint"></span>
+          </div>
+
+          <div class="row" style="margin-top:6px">
+            <button class="btn-sm btn-solid grow" id="aiRunBtn" onclick="aiRun(false)" disabled>
+              리포트 만들기
+            </button>
+            <button class="btn-sm" id="aiForceBtn" onclick="aiRun(true)" disabled
+                    title="저장된 리포트를 무시하고 처음부터 새로 만듭니다">새로 만들기</button>
+          </div>
+          <div id="aiProg" class="hidden" style="margin-top:10px">
+            <div class="ai-bar"><div class="ai-bar-in" id="aiBarIn"></div></div>
+            <div class="st-hint" id="aiStep" style="margin-top:6px"></div>
+          </div>
+          <p class="st-hint" style="margin:8px 0 0">
+            <b>이 리포트는 학습용입니다 — 투자 권유가 아닙니다.</b>
+            숫자는 터미널이 가진 자료에서 왔고, 해석은 모델이 한 것입니다.
+            발표에 쓰기 전에 근거 숫자를 재무제표 탭에서 직접 확인하세요.
+          </p>
+        </div>
+        <div id="aiReport"></div>
       </div>
 
-      <div id="aiReport"></div>
+      <!-- ── 보관함 ── -->
+      <div id="aiPane-lib" class="hidden">
+        <div class="card">
+          <h2>리포트 보관함
+            <span class="tools"><button class="btn-sm" onclick="aiLibLoad(0)">새로고침</button></span>
+          </h2>
+          <p class="st-hint" style="margin:-6px 0 12px">
+            학회원이 만든 리포트는 <b>모두가 같이 봅니다</b>. 같은 종목을 또 만들기 전에
+            여기부터 찾아보세요 — 며칠 안에 만든 것이 있으면 그대로 열립니다.
+          </p>
+          <div class="row">
+            <input type="text" id="aiLibQ" class="grow"
+                   placeholder="회사명 · 티커 · 한 줄 요약으로 찾기"
+                   onkeydown="if(event.key==='Enter'){event.preventDefault();aiLibLoad(0);}">
+            <button class="btn-sm" onclick="aiLibLoad(0)">찾기</button>
+            <button class="btn-sm" onclick="aiLibReset()">전체</button>
+          </div>
+          <div id="aiSectors" style="margin-top:10px"></div>
+        </div>
+        <div class="card">
+          <h2><span id="aiLibTitle">전체</span>
+            <span class="tools st-hint" id="aiLibCount"></span></h2>
+          <div class="scroll"><table id="aiList"></table></div>
+          <div class="row" id="aiPager" style="margin-top:10px;justify-content:center"></div>
+        </div>
+        <div id="aiLibReport"></div>
+      </div>
     </div>
 
     <div id="pane-links" class="hidden">
@@ -2419,6 +2503,16 @@
         <p>누가 언제 터미널에 들어왔는지 확인합니다. IP나 위치는 저장하지 않습니다.</p>
       </div>
       <div class="note"><b>부원들에게 미리 알려주세요.</b> 학회원 개개인의 활동을 임원진이 보는 기능입니다.</div>
+
+      <!--  ⚠️ AI 리포트 비용은 <여기에만> 나옵니다. 학회원 화면에는 금액이
+            한 군데도 안 뜹니다 — "0.24달러" 가 보이면 누르기를 망설이니까요. -->
+      <div class="card" id="aiSpendCard">
+        <h2>AI 리포트 비용
+          <span class="tools"><button class="btn-sm" onclick="loadAiSpend()">새로고침</button></span>
+        </h2>
+        <div id="aiSpendBody"><div class="empty">불러오는 중…</div></div>
+      </div>
+
       <div id="accessBody"><div class="empty">불러오는 중…</div></div>
     </div>
 
@@ -10076,10 +10170,38 @@ window.addEventListener('resize', function(){
       같은 종목은 며칠간 저장된 걸 다시 쓰고, 이번 달 쓴 금액을
       화면에 항상 띄워둡니다.                                          */
 var aiHits = [], aiPick = null, aiBusy = false, aiRep = null, aiBudgetInfo = null;
+var aiSub = 'new', aiDepth = 'fast';
+var aiLib = { q:'', sector:'', off:0, per:20, total:0 }, aiLibInit = false;
+
+function aiShow(which){
+  aiSub = which;
+  ['new','lib'].forEach(function(k){
+    var p = $('aiPane-' + k); if (p) p.classList.toggle('hidden', k !== which);
+    var b = $('aiTab-' + k);  if (b) b.classList.toggle('on', k === which);
+  });
+  if (which === 'lib'){ aiLoadSectors(); aiLibLoad(aiLib.off); }
+  //  숨었다 나오면 차트 폭이 0 이었을 수 있습니다
+  setTimeout(resizeAllCharts, 60);
+}
+
+/*  ⚠️ 값을 화면에 안 적습니다 (학회장 요청). "이 리포트 0.24달러" 가 보이면
+    학회원이 누르기를 망설입니다. 대신 <무엇이 다른지> 만 말합니다.       */
+var AI_DEPTH_HINT = {
+  fast: '기본. 대부분 이걸로 충분하고 빨리 나옵니다.',
+  deep: '발표에 쓸 리포트에만. 더 오래 걸립니다.'
+};
+function aiSetDepth(d){
+  aiDepth = d;
+  ['fast','deep'].forEach(function(k){
+    var b = $('aiDepth-' + k); if (b) b.classList.toggle('on', k === d);
+  });
+  var h = $('aiDepthHint'); if (h) h.textContent = AI_DEPTH_HINT[d] || '';
+}
 
 async function initAi(){
   await aiLoadBudget();
-  aiLoadList();
+  aiSetDepth(aiDepth);
+  if (!aiLibInit){ aiLibInit = true; aiLoadSectors(); aiLibLoad(0); }
   //  기업 분석 탭에서 이미 고른 회사가 있으면 이어받습니다
   if (!aiPick && co){ aiPick = co; $('aiQ').value = co.name; aiSetPicked(); }
 }
@@ -10091,11 +10213,18 @@ async function aiLoadBudget(){
   } catch(e){ aiBudgetInfo = null; }
   var el = $('aiBudget'); if (!el) return;
   if (!aiBudgetInfo){ el.textContent = ''; return; }
-  var spent = Number(aiBudgetInfo.spent) || 0, cap = Number(aiBudgetInfo.cap) || 0;
-  var pct = cap > 0 ? Math.min(100, spent / cap * 100) : 0;
-  el.innerHTML = '이번 달 <b>$' + num(spent, 2) + '</b> / $' + num(cap, 0)
-    + ' · ' + (aiBudgetInfo.reports || 0) + '건'
-    + (pct >= 80 ? ' <span style="color:var(--danger,#c0392b)">· 예산이 얼마 안 남았습니다</span>' : '');
+  /*  ⚠️ 학회원에게는 <금액을 안 보여줍니다>. 서버도 spent/cap 을 null 로
+      내려보냅니다. 대신 이번 달 몇 건 만들었는지와, 예산이 거의 찼을 때만
+      경고를 띄웁니다. 총액은 임원진이 접속 기록 탭에서 봅니다.          */
+  var used = Number(aiBudgetInfo.used_pct) || 0;
+  var msg = '이번 달 <b>' + (aiBudgetInfo.reports || 0) + '건</b>';
+  if (used >= 100) msg += ' <span style="color:var(--danger,#c0392b)">· 이번 달 한도를 다 썼습니다</span>';
+  else if (used >= 85) msg += ' <span style="color:var(--danger,#c0392b)">· 이번 달 한도가 얼마 안 남았습니다</span>';
+  //  임원진에게만 금액이 내려옵니다
+  if (aiBudgetInfo.officer && aiBudgetInfo.spent != null)
+    msg += ' <span class="st-hint">(임원진 · $' + num(Number(aiBudgetInfo.spent), 2)
+         + ' / $' + num(Number(aiBudgetInfo.cap) || 0, 0) + ')</span>';
+  el.innerHTML = msg;
 }
 
 async function aiSearch(){
@@ -10189,6 +10318,39 @@ async function aiBuildDossier(){
     });
   } catch(e){ d.filings_err = String(e.message || e); }
 
+  /*  ②-2 미국은 <공시 원문> 을 실제로 읽어옵니다.
+
+      ⚠️ 제목과 날짜만 주면 리포트가 «세그먼트 매출 비공개» «고객별 비중
+         미공개» 로 도배됩니다. 그런데 그 숫자는 10-K 본문에 다 있습니다
+         (로켓랩: 발사서비스 $199.0M / 우주시스템 $402.8M, 상위 5개 고객 49%).
+         제목만 주고 분석하라고 한 셈이었습니다.
+      ⚠️ 최신 10-K 하나 · 10-Q 하나 · 8-K 둘까지만. 서버가 항목을 추려
+         (사업 · MD&A · 위험요인 제목) 넘겨줍니다. 이미 제출된 공시는
+         안 바뀌므로 서버가 영원히 담아둡니다 — 두 번째 사람부터는 공짜.  */
+  if (co.market === 'US' && (d.filings || []).length){
+    var pickF = [], seen = {};
+    (d.filings || []).forEach(function(x){
+      var form = String(x.title || '').split(/[ ·]/)[0].toUpperCase();
+      var cap = form === '8-K' ? 2 : 1;
+      if (!/^(10-K|10-Q|8-K|20-F)$/.test(form)) return;
+      seen[form] = (seen[form] || 0);
+      if (seen[form] >= cap || !x.url) return;
+      seen[form]++; pickF.push({ form: form, date: x.date, url: x.url });
+    });
+    var texts = await Promise.all(pickF.slice(0, 4).map(function(x){
+      return edgeCo({ action:'filing_text', url: x.url, form: x.form })
+        .then(function(r){
+          if (r.err) return null;
+          return { form:x.form, date:x.date, url:x.url,
+                   sections: r.sections || null,
+                   risk_headings: r.risk_headings || null,
+                   body: r.sections ? null : (r.body || null) };
+        })
+        .catch(function(){ return null; });
+    }));
+    d.filing_text = texts.filter(Boolean);
+  }
+
   //  ②-2 국내는 배당·대량보유·임원 공시가 따로 있습니다 — 주석 분석의 알맹이입니다
   if (co.market === 'KR' && co.corp_code){
     await Promise.all([
@@ -10206,7 +10368,18 @@ async function aiBuildDossier(){
          행사가별로 묶어야 "콜월 / 풋월" 을 볼 수 있습니다.            */
   if (co.market === 'US'){
     try {
-      var op = await edge({ source:'opt_chain', code: co.code });
+      /*  ⚠️ 만기를 <먼저 골라야> 합니다. 서버는 만기 없이 부르면
+          "만기를 먼저 골라주세요" 로 400 을 돌려주는데, 그게 아래 catch 에
+          삼켜져서 옵션 섹션이 통째로 «자료가 충분하지 않아 건너뜁니다» 로
+          나왔습니다. 로켓랩처럼 옵션이 활발한 종목에서도 그랬습니다.
+          파생상품 탭과 똑같이 20~45일 남은 만기를 고릅니다.            */
+      var ep = await edge({ source:'opt_expirations', code: co.code });
+      var exs = ep.expirations || [];
+      if (!exs.length) throw new Error('만기 없음');
+      var pick = exs.filter(function(x){ return x.dte >= 20 && x.dte <= 45; })[0] || exs[0];
+
+      var op = await edge({ source:'opt_chain', code: co.code,
+                            expiration: pick.date, pct: 30 });
       var byK = {};
       (op.rows || []).forEach(function(x){
         var k = Number(x.strike); if (!isFinite(k)) return;
@@ -10219,10 +10392,28 @@ async function aiBuildDossier(){
       //  등가격에서 먼 행사가는 미결제약정이 거의 없어 버립니다 (토큰 아낌)
       var spot = Number(op.spot) || 0;
       if (spot > 0) ks = ks.filter(function(k){ return Math.abs(k/spot - 1) <= 0.25; });
-      if (ks.length) d.options = {
-        spot: op.spot || null, expiry: op.expiration || null, dte: op.dte || null,
-        rows: ks.slice(0, 60).map(function(k){ return byK[k]; }) };
-    } catch(e){ /* 옵션은 없으면 없는 대로 갑니다 */ }
+      if (ks.length){
+        //  콜월·풋월을 모델이 직접 세지 않아도 되게 <미리 계산해서> 줍니다.
+        //  숫자를 세는 일은 코드가 훨씬 잘합니다.
+        var rows = ks.slice(0, 60).map(function(k){ return byK[k]; });
+        var top = function(key){
+          return rows.slice().filter(function(r){ return Number(r[key]) > 0; })
+            .sort(function(a,b){ return Number(b[key]) - Number(a[key]); })
+            .slice(0, 3).map(function(r){ return { k:r.k, oi:Number(r[key]) }; });
+        };
+        var sum = function(key){ return rows.reduce(function(a,r){
+          return a + (Number(r[key]) || 0); }, 0); };
+        var cOi = sum('c_oi'), pOi = sum('p_oi');
+        d.options = {
+          spot: op.spot || null, expiry: op.expiration || null, dte: op.dte || null,
+          other_expiries: exs.slice(0, 8).map(function(x){
+            return { date:x.date, dte:x.dte }; }),
+          call_wall: top('c_oi'), put_wall: top('p_oi'),
+          call_oi_total: cOi, put_oi_total: pOi,
+          put_call_oi: cOi > 0 ? +(pOi / cOi).toFixed(2) : null,
+          rows: rows };
+      }
+    } catch(e){ d.options_err = String(e.message || e); }
   }
 
   /*  ④ 뉴스 (제목만 — 본문까지 보내면 토큰이 폭발합니다)
@@ -10288,7 +10479,8 @@ async function aiRun(force){
 
     setStep(10, '리포트를 시작하는 중…');
     var st = await edgeAi({ action:'start', market: aiPick.market, code: aiPick.code,
-                            name: aiPick.name, dossier: dossier, force: !!force });
+                            name: aiPick.name, dossier: dossier, force: !!force,
+                            depth: aiDepth });
     if (st.cached){
       setStep(100, '저장된 리포트를 불러왔습니다 (' + fmtDateKo(String(st.at).slice(0,10)) + ')');
       await aiOpen(st.id);
@@ -10304,7 +10496,7 @@ async function aiRun(force){
     }
     setStep(100, '완성했습니다.');
     await aiOpen(st.id);
-    aiLoadList();
+    aiLibLoad(0); aiLoadSectors();
   } catch(e){
     warn('aiWarn', esc(e.message || String(e)));
     hide('aiProg');
@@ -10320,38 +10512,193 @@ async function aiRun(force){
     'non-2xx' 로 보입니다. edgeCall 은 이미 본문의 error 를 꺼내 씁니다. */
 function edgeAi(body){ return edgeCall('ai-report', body); }
 
-async function aiLoadList(){
-  var t = $('aiList'); if (!t) return;
+/*  ── 보관함 ────────────────────────────────────────────────
+
+    ⚠️ 왜 따로 뺐나. 리포트를 만들수록 목록이 한없이 길어져서, 새 리포트를
+       만들려면 그걸 다 지나쳐 내려가야 했습니다. 하위 탭으로 나누고
+       섹터 딱지·검색·쪽 나누기를 붙였습니다.
+
+    ⚠️ 리포트는 <학회원 모두가> 봅니다. 남이 만든 것도 열립니다 — 그래서
+       같은 종목을 두 번 만들어 돈을 두 번 쓰지 않게 여기부터 보게 합니다. */
+var AI_SECTOR_COLOR = {
+  'AI·반도체':'#2456c9', '메모리':'#1b5fa8', '양자컴퓨터':'#6b3fa0',
+  '우주·방산':'#2c3e6b', '소프트웨어·인터넷':'#0f7b6c', '하드웨어·전자':'#3d6ba5',
+  '2차전지':'#1f8a70', '자동차':'#5a6278', '철강·소재':'#8a5a2b', '화학':'#a0522d',
+  '조선·기계':'#4a6741', '건설':'#7a6a4f', '에너지':'#b8860b', '금융':'#1f4e79',
+  '바이오·헬스케어':'#c2185b', '소비재':'#d1741f', '유통·물류':'#6d757d',
+  '통신·미디어':'#7048a8', '크립토':'#e08a1e', 'ETF·기타':'#5a6278', '미분류':'#8a93a8'
+};
+function aiSectorChip(name){
+  var c = AI_SECTOR_COLOR[name] || '#5a6278';
+  return '<span class="ai-sector" style="background:' + c + '18;color:' + c + '">'
+       + esc(name || '미분류') + '</span>';
+}
+
+/*  ── 임원진만 보는 비용 화면 ────────────────────────────────
+
+    ⚠️ 학회원 화면에서는 금액을 전부 뺐습니다. 서버(ai_budget)도 학회원에게는
+       spent/cap 을 null 로 내려보내고, 보관함 목록에는 cost_usd·model 칸
+       자체가 없습니다. 그래서 총액을 볼 곳이 한 군데는 있어야 합니다.     */
+async function loadAiSpend(){
+  var box = $('aiSpendBody'); if (!box) return;
   try {
-    var r = await sb.rpc('ai_report_list', { p_limit: 30 });
+    var r = await sb.rpc('ai_spend_admin');
+    var d = (r.data && !r.error) ? r.data : null;
+    if (!d){ $('aiSpendCard').classList.add('hidden'); return; }
+    $('aiSpendCard').classList.remove('hidden');
+    var cap = Number(d.cap) || 0, sp = Number(d.month_spent) || 0;
+    var pct = cap > 0 ? Math.min(100, sp / cap * 100) : 0;
+    var tile = function(k, v, sub){
+      return '<div class="tile"><div class="k">' + esc(k) + '</div>'
+        + '<div class="v">' + v + '</div>'
+        + (sub ? '<div class="d">' + esc(sub) + '</div>' : '') + '</div>';
+    };
+    box.innerHTML =
+      '<div class="tiles">'
+      + tile('이번 달', '$' + num(sp, 2), '상한 $' + num(cap, 0))
+      + tile('이번 달 건수', num(d.month_reports, 0) + '건')
+      + tile('누적', '$' + num(Number(d.all_spent) || 0, 2),
+             num(d.all_reports, 0) + '건')
+      + tile('건당 평균', '$' + num(Number(d.all_reports) > 0
+             ? Number(d.all_spent) / Number(d.all_reports) : 0, 3))
+      + tile('캐시로 아낀 토큰', num(Number(d.cached_tok) || 0, 0),
+             '값이 1/10 로 계산됩니다')
+      + '</div>'
+      + '<div class="ai-bar" style="margin:4px 0 10px"><div class="ai-bar-in" style="width:'
+      +   pct.toFixed(0) + '%;background:' + (pct >= 85 ? '#c0392b' : 'var(--primary)')
+      +   '"></div></div>'
+      + '<p class="st-hint" style="margin:0 0 14px">지금 기본 모델은 <b>'
+      +   esc(String(d.model || '').replace('claude-','')) + '</b> 입니다. '
+      +   '바꾸려면 SQL Editor 에서 '
+      +   '<code>update public.app_settings set ai_model = \'claude-sonnet-5\' where id = 1;</code></p>'
+      + (aiArr(d.by_model).length
+          ? '<div class="scroll"><table><thead><tr><th>모델</th><th class="num">건수</th>'
+            + '<th class="num">비용</th></tr></thead><tbody>'
+            + d.by_model.map(function(x){
+                return '<tr><td>' + esc(String(x.model || '').replace('claude-','')) + '</td>'
+                  + '<td class="num">' + num(x.n, 0) + '</td>'
+                  + '<td class="num">$' + num(Number(x.usd) || 0, 3) + '</td></tr>';
+              }).join('') + '</tbody></table></div>' : '')
+      + (aiArr(d.recent).length
+          ? '<h3 style="font-size:.9rem;color:var(--primary);margin:16px 0 8px">최근 20건</h3>'
+            + '<div class="scroll"><table><thead><tr><th>종목</th><th>모델</th>'
+            + '<th class="num">비용</th><th class="num">만든 날</th></tr></thead><tbody>'
+            + d.recent.map(function(x){
+                return '<tr><td>' + esc(x.name || x.code) + '</td>'
+                  + '<td class="st-hint">' + esc(String(x.model || '').replace('claude-','')) + '</td>'
+                  + '<td class="num">$' + num(Number(x.cost_usd) || 0, 3) + '</td>'
+                  + '<td class="num st-hint">' + esc(String(x.created_at || '').slice(0,10))
+                  + '</td></tr>';
+              }).join('') + '</tbody></table></div>' : '');
+  } catch(e){
+    box.innerHTML = '<div class="empty">' + esc(e.message) + '</div>';
+  }
+}
+
+async function aiLoadSectors(){
+  var box = $('aiSectors'); if (!box) return;
+  try {
+    var r = await sb.rpc('ai_sectors');
     var rows = (r.data && !r.error) ? r.data : [];
-    if (!rows.length){
-      t.innerHTML = '<tr><td class="empty">아직 만든 리포트가 없습니다.</td></tr>'; return;
-    }
-    t.innerHTML = '<thead><tr><th>종목</th><th>한 줄</th><th>모델</th>'
-      + '<th>비용</th><th>만든 날</th><th></th></tr></thead><tbody>'
+    if (!rows.length){ box.innerHTML = ''; return; }
+    box.innerHTML = '<div class="ai-chips">'
+      + '<button class="ai-chip' + (aiLib.sector ? '' : ' on') + '"'
+      +   ' onclick="aiPickSector(\'\')">전체</button>'
       + rows.map(function(x){
+          return '<button class="ai-chip' + (aiLib.sector === x.sector ? ' on' : '') + '"'
+            + ' onclick="aiPickSector(' + JSON.stringify(String(x.sector)).replace(/"/g,'&quot;') + ')">'
+            + esc(x.sector) + ' <b>' + Number(x.n) + '</b></button>';
+        }).join('') + '</div>';
+  } catch(e){ box.innerHTML = ''; }
+}
+function aiPickSector(name){
+  aiLib.sector = name === aiLib.sector ? '' : name;
+  aiLoadSectors(); aiLibLoad(0);
+}
+function aiLibReset(){
+  aiLib.q = ''; aiLib.sector = '';
+  var q = $('aiLibQ'); if (q) q.value = '';
+  aiLoadSectors(); aiLibLoad(0);
+}
+
+async function aiLibLoad(off){
+  var t = $('aiList'); if (!t) return;
+  aiLib.off = Math.max(0, off || 0);
+  var qEl = $('aiLibQ'); if (qEl) aiLib.q = qEl.value.trim();
+  t.innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  try {
+    var r = await sb.rpc('ai_report_list', {
+      p_limit: aiLib.per, p_offset: aiLib.off,
+      p_sector: aiLib.sector || null, p_q: aiLib.q || null });
+    if (r.error) throw new Error(errMsg(r.error));
+    var d = r.data || {}, rows = d.rows || [];
+    aiLib.total = Number(d.total) || 0;
+
+    var nEl = $('aiLibN'); if (nEl) nEl.textContent = aiLib.total ? '(' + aiLib.total + ')' : '';
+    var ttl = $('aiLibTitle');
+    if (ttl) ttl.textContent = aiLib.sector ? aiLib.sector : (aiLib.q ? '「' + aiLib.q + '」 검색' : '전체');
+    var cnt = $('aiLibCount');
+    if (cnt) cnt.textContent = aiLib.total
+      ? (aiLib.off + 1) + '–' + Math.min(aiLib.off + rows.length, aiLib.total) + ' / ' + aiLib.total + '건'
+      : '';
+
+    if (!rows.length){
+      t.innerHTML = '<tr><td class="empty">'
+        + (aiLib.q || aiLib.sector ? '찾는 리포트가 없습니다.' : '아직 만든 리포트가 없습니다.')
+        + '</td></tr>';
+      $('aiPager').innerHTML = ''; return;
+    }
+    /*  ⚠️ 비용·모델 칸이 없습니다. 서버도 안 내려보냅니다.               */
+    t.innerHTML = '<thead><tr><th style="width:190px">종목</th><th style="width:130px">섹터</th>'
+      + '<th>한 줄 요약</th><th style="width:96px">만든 날</th><th style="width:64px"></th></tr></thead><tbody>'
+      + rows.map(function(x){
+        var half = x.status !== 'done';
         return '<tr>'
           + '<td><b>' + esc(x.name || x.code) + '</b>'
           +   '<div class="st-hint">' + esc(x.market) + ' · ' + esc(x.code) + '</div></td>'
-          + '<td class="st-hint">' + esc(x.headline || '—') + '</td>'
-          + '<td class="st-hint">' + esc(String(x.model || '').replace('claude-','')) + '</td>'
-          + '<td class="num st-hint">$' + num(Number(x.cost_usd) || 0, 3) + '</td>'
+          + '<td>' + aiSectorChip(x.sector) + '</td>'
+          + '<td class="st-hint">' + esc(x.headline || '—')
+          +   (half ? ' <span class="ai-sev">만드는 중 ' + Number(x.step||0)
+                    + '/' + Number(x.steps||6) + '</span>' : '') + '</td>'
           + '<td class="num st-hint">' + esc(String(x.created_at || '').slice(0,10)) + '</td>'
           + '<td><button class="btn-sm" onclick="aiOpen(' + Number(x.id) + ')">열기</button></td>'
           + '</tr>';
       }).join('') + '</tbody>';
-  } catch(e){ t.innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>'; }
+
+    //  쪽 나누기
+    var pages = Math.ceil(aiLib.total / aiLib.per), cur = Math.floor(aiLib.off / aiLib.per);
+    var pg = $('aiPager');
+    if (pages <= 1){ pg.innerHTML = ''; }
+    else {
+      var btn = function(i, label, on){
+        return '<button class="btn-sm' + (on ? ' btn-solid' : '') + '"'
+             + ' onclick="aiLibLoad(' + (i * aiLib.per) + ')">' + label + '</button>';
+      };
+      var h = '';
+      if (cur > 0) h += btn(cur - 1, '‹ 이전');
+      var from = Math.max(0, cur - 3), to = Math.min(pages, from + 7);
+      for (var i = from; i < to; i++) h += btn(i, String(i + 1), i === cur);
+      if (cur < pages - 1) h += btn(cur + 1, '다음 ›');
+      pg.innerHTML = h;
+    }
+  } catch(e){
+    t.innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>';
+    $('aiPager').innerHTML = '';
+  }
 }
+//  예전 이름을 부르는 곳이 남아 있어도 안 터지게
+function aiLoadList(){ return aiLibLoad(aiLib.off); }
 
 async function aiOpen(id){
   try {
     var r = await sb.rpc('ai_report_get', { p_id: Number(id) });
     if (r.error || !r.data) throw new Error(errMsg(r.error) || '리포트를 찾지 못했습니다.');
     aiRep = r.data;
-    aiRender(aiRep);
+    //  보관함에서 열면 보관함 쪽에, 새로 만들면 새 리포트 쪽에 그립니다
+    aiRender(aiRep, aiSub === 'lib' ? 'aiLibReport' : 'aiReport');
     hide('aiProg');
-    $('aiReport').scrollIntoView({ behavior:'smooth', block:'start' });
+    var box = $(aiSub === 'lib' ? 'aiLibReport' : 'aiReport');
+    if (box) box.scrollIntoView({ behavior:'smooth', block:'start' });
   } catch(e){ warn('aiWarn', esc(e.message)); }
 }
 
@@ -10387,6 +10734,61 @@ function aiRow(t, d, n, tag){
   if (!t && !d && !n) return '';
   return '<div class="ai-li"><b>' + esc(t || '—') + (tag || '') + '</b><span>'
        + esc(d) + (n ? '<i class="ai-n">' + esc(n) + '</i>' : '') + '</span></div>';
+}
+
+/*  ── 읽을 수 있는 카드 ──────────────────────────────────────
+
+    ⚠️ 왜 바꿨나. 왼쪽 32% 라벨 + 오른쪽 줄글 두 칸짜리는 항목이 짧을 땐
+       괜찮은데, 재무제표 기회·회계 리스크처럼 <근거 숫자가 긴> 항목에서는
+       왼쪽이 텅 비고 오른쪽만 빽빽해져 눈이 갈 곳을 잃습니다.
+       "어떻게 읽어 이거를" 이라는 말이 정확했습니다.
+
+    그래서 세 줄로 쌓습니다 —
+       ① 제목 줄 : 왼쪽 색 막대(기회 초록 / 리스크 빨강) + 제목 + 심각도
+       ② 본문    : 한 문장
+       ③ 근거 줄 : 숫자·출처를 <등폭 딱지> 로 쪼개 눈에 걸리게              */
+function aiNote(n){
+  var t = aiStr(n); if (!t) return '';
+  //  "revSeries 최종값 601,799,000 / CAGR 76.47%" 처럼 / · 로 나뉜 근거를 쪼갭니다
+  var parts = t.split(/\s*[/·]\s*/).filter(function(x){ return x.trim(); });
+  if (!parts.length) return '';
+  return '<div class="ai-ev">' + parts.slice(0, 6).map(function(x){
+    return '<code>' + esc(x.trim()) + '</code>'; }).join('') + '</div>';
+}
+function aiCards(list, kind){
+  var a = aiArr(list).filter(function(x){ return x && typeof x === 'object'; });
+  if (!a.length) return '<div class="empty" style="padding:12px">자료 없음</div>';
+  return '<div class="ai-cards">' + a.map(function(x){
+    var sev = aiStr(x.sev), tone = aiStr(x.tone || x.dir);
+    var lvl = /^(상|높|high)/i.test(sev) ? 'hi' : /^(하|낮|low)/i.test(sev) ? 'lo' : '';
+    var cls = kind === 'ok' ? 'ok'
+            : kind === 'risk' ? ('risk' + (lvl ? ' ' + lvl : ''))
+            : /긍정|우호/.test(tone) ? 'ok' : /부정|부담/.test(tone) ? 'risk' : '';
+    return '<div class="ai-card ' + cls + '">'
+      + '<div class="ai-card-h"><b>' + esc(aiStr(x.t) || '—') + '</b>'
+      +   (sev ? aiSev(sev) : '')
+      +   (tone && kind !== 'ok' && kind !== 'risk' ? aiTone(tone) : '')
+      + '</div>'
+      + (aiStr(x.d) ? '<p>' + esc(x.d) + '</p>' : '')
+      + aiNote(x.n)
+      + '</div>';
+  }).join('') + '</div>';
+}
+
+/*  공시는 <날짜가 축> 입니다 — 날짜를 왼쪽에 세워 세로로 훑게 합니다  */
+function aiDocs(list){
+  var a = aiArr(list).filter(function(x){ return x && typeof x === 'object'; });
+  if (!a.length) return '<div class="empty" style="padding:12px">자료 없음</div>';
+  return '<div class="ai-docs">' + a.map(function(x){
+    var raw = aiStr(x.n);
+    var m = raw.match(/(\d{4})[-.\/]?(\d{2})[-.\/]?(\d{2})/);
+    var when = m ? (m[1].slice(2) + '.' + m[2] + '.' + m[3]) : (raw || '—');
+    return '<div class="ai-doc">'
+      + '<div class="ai-doc-d">' + esc(when) + '</div>'
+      + '<div class="ai-doc-b"><b>' + esc(aiStr(x.t) || '—') + '</b>'
+      +   (aiStr(x.d) ? '<p>' + esc(x.d) + '</p>' : '') + '</div>'
+      + '</div>';
+  }).join('') + '</div>';
 }
 function aiRows(list, kind){
   var a = aiArr(list).filter(function(x){ return x != null; });
@@ -10557,8 +10959,8 @@ function aiSideCard(side, v, cls, curDefault){
     + '</div>';
 }
 
-function aiRender(rep){
-  var box = $('aiReport'); if (!box) return;
+function aiRender(rep, boxId){
+  var box = $(boxId || 'aiReport'); if (!box) return;
   //  전에 그린 차트를 먼저 치웁니다 — 안 치우면 ECharts 가 쌓입니다
   aiChartIns.forEach(function(c){
     try {
@@ -10574,12 +10976,14 @@ function aiRender(rep){
   var cur = aiStr(meta.cur) || (rep.market === 'KR' ? '원' : '$');
   var px = aiNum(meta.px);
 
+  /*  ⚠️ 모델 이름과 비용은 <안 적습니다> (학회장 요청). 학회원이
+      "0.24달러" 를 보면 누르기를 망설입니다. 총액은 임원진이
+      접속 기록 탭에서만 봅니다.                                        */
   var head = '<div class="card">'
     + '<h2>' + esc(rep.name || rep.code)
     + ' <span class="code">' + esc(rep.market) + ' · ' + esc(rep.code) + '</span>'
     + '<span class="tools st-hint">'
-    +   esc(String(rep.model || '').replace('claude-','')) + ' · $'
-    +   num(Number(rep.cost_usd) || 0, 3) + ' · '
+    +   (rep.sector ? aiSectorChip(rep.sector) + ' ' : '')
     +   esc(String(rep.created_at || '').slice(0,10))
     + '</span></h2>';
   if (aiStr(sec.headline))
@@ -10660,8 +11064,8 @@ function aiRender(rep){
   }).join('');
   var c3 = '<div class="card"><h2>3. 재무제표 기회 · 회계 리스크</h2>'
     + '<div class="ai-two">'
-    +   '<div>' + aiSec('기회', aiRows(fn.ops)) + '</div>'
-    +   '<div>' + aiSec('회계 리스크', aiRows(fn.risks, 'sev')) + '</div>'
+    +   '<div>' + aiSec('기회', aiCards(fn.ops, 'ok')) + '</div>'
+    +   '<div>' + aiSec('회계 리스크', aiCards(fn.risks, 'risk')) + '</div>'
     + '</div>'
     + (chartsHtml ? aiSec('시각자료', chartsHtml) : '')
     + '<p class="st-hint" style="margin:12px 0 0">숫자는 재무제표·밸류에이션 탭이 쓰는 것과 같은 자료에서 왔습니다.</p>'
@@ -10670,21 +11074,28 @@ function aiRender(rep){
   //  ④ 공시
   var fl = sec.filing || {};
   var c4 = '<div class="card"><h2>4. 공시 분석 (10-K · 10-Q · 사업보고서)</h2>'
-    + aiSec('읽은 공시', aiRows(fl.docs))
-    + aiSec('주석에서 짚을 것', aiRows(fl.notes, 'sev'))
+    + aiSec('읽은 공시', aiDocs(fl.docs))
+    + aiSec('주석에서 짚을 것', aiCards(fl.notes, 'risk'))
     + aiSec('직전 대비 달라진 점', aiPara(fl.changes) || '')
     + aiErrNote(sec, 'filing') + '</div>';
 
   //  ⑤ 옵션 매물대 · 뉴스 · 법적 리스크
   var dv = sec.deriv || {}, se = sec.senti || {};
+  /*  ⚠️ 예전에는 미국 대형주에서도 이 자리가 «옵션 자료가 충분하지 않아
+      건너뜁니다» 로 나왔습니다. 자료가 없어서가 아니라, 화면이 만기를
+      안 고르고 옵션을 불러 서버가 400 을 돌려준 것을 조용히 삼켰기
+      때문입니다 (로켓랩). 이제는 왜 없는지를 나눠서 적습니다.          */
   var derivHtml = (dv.skip || !aiArr(dv.walls).length)
-    ? '<div class="empty" style="padding:12px">옵션 자료가 충분하지 않아 건너뜁니다'
-      + (rep.market === 'KR' ? ' (국내 개별주 옵션은 자료가 없습니다).' : '.') + '</div>'
-    : aiRows(dv.walls) + aiPara(dv.read);
+    ? '<div class="empty" style="padding:12px">'
+      + (rep.market === 'KR'
+          ? '국내 개별주는 옵션이 상장돼 있지 않아 이 항목은 건너뜁니다.'
+          : '이 종목의 옵션 자료를 받지 못했습니다. 상장 옵션이 없거나, '
+            + '만기를 찾지 못했을 수 있습니다.') + '</div>'
+    : aiCards(dv.walls) + aiPara(dv.read);
   var c5 = '<div class="card"><h2>5. 옵션 매물대 · 뉴스 · 법적 리스크</h2>'
     + aiSec('옵션 매물대 (콜월 · 풋월)', derivHtml)
-    + aiSec('뉴스 · 소셜 센티먼트', aiRows(se.news, 'tone') + aiPara(se.read))
-    + aiSec('법적 리스크', aiRows(se.legal, 'sev'))
+    + aiSec('뉴스 · 소셜 센티먼트', aiCards(se.news, 'tone') + aiPara(se.read))
+    + aiSec('법적 리스크', aiCards(se.legal, 'risk'))
     + aiErrNote(sec, 'flow') + '</div>';
 
   //  ⑥ 강세 / 약세
@@ -10733,15 +11144,9 @@ function aiRender(rep){
 
   var tail = '<div class="card"><p class="st-hint" style="margin:0;line-height:1.75">'
     + '<b>학습용 분석입니다 — 투자 권유가 아닙니다.</b> '
-    + '숫자는 터미널이 가진 자료(재무제표 · 공시 · 옵션 · 뉴스)에서 왔고, '
+    + '숫자는 터미널이 가진 자료(재무제표 · 공시 원문 · 옵션 · 뉴스)에서 왔고, '
     + '해석과 목표가는 모델이 낸 것입니다. 발표나 매매에 쓰기 전에 근거 숫자를 '
-    + '재무제표 · 밸류에이션 탭에서 직접 확인하세요. '
-    + '토큰 ' + num(Number(rep.tokens_in) || 0, 0) + ' / '
-    + num(Number(rep.tokens_out) || 0, 0)
-    //  같은 재료를 6단계가 나눠 쓰므로 대부분이 캐시에서 옵니다 (값이 1/10)
-    + (Number(rep.tokens_cached) > 0
-        ? ' (그중 ' + num(Number(rep.tokens_cached), 0) + ' 은 캐시라 값이 1/10)' : '')
-    + ' · 비용 $' + num(Number(rep.cost_usd) || 0, 4)
+    + '재무제표 · 밸류에이션 탭에서 직접 확인하세요.'
     + '</p></div>';
 
   box.innerHTML = head + c1 + c2 + c3 + c4 + c5 + c6 + c7 + tail;
@@ -13290,6 +13695,7 @@ async function delLink(id){
 
 /* ══════════ 접속 기록 ══════════ */
 async function loadAccess(){
+  loadAiSpend();
   var box = $('accessBody');
   box.innerHTML = '<div class="empty">불러오는 중…</div>';
   var r = await sb.rpc('access_summary');
