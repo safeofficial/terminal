@@ -4708,7 +4708,8 @@ function valDraw(){
     tiles.push(['역산 DCF · 함의 성장률', gTxt, sub, cls2]);
   }
   if (valData.target) tiles.push(['애널리스트 목표', money(valData.target),
-    upside(valData.target), cls(valData.target)]);
+    (coProf && coProf.source === 'pplx' ? 'AI 검색 참고값 · ' : '') + upside(valData.target),
+    cls(valData.target)]);
   var vals = VAL_KEYS.filter(function(k){ return k !== 'cons'; })
     .map(function(k){ return out[k]; })
     .filter(function(x){ return x != null && isFinite(x) && x > 0; });
@@ -5344,7 +5345,9 @@ async function loadProfile(){
   $('profBody').innerHTML = '<div class="empty" style="padding:26px">불러오는 중…</div>';
   warn('profWarn','');
   try {
-    var d = await edgeCo({ action:'eod_full', code: co.code, market: co.market });
+    //  이름을 같이 보냅니다 — 예비 창구(Perplexity)가 종목을 찾는 데 씁니다
+    var d = await edgeCo({ action:'eod_full', code: co.code, market: co.market,
+                           name: co.name });
     if (!d.found){
       /*  ⚠️ esc() 를 씌우면 안내에 넣어둔 <b> 가 글자로 보입니다.
           서버가 만든 안내문은 우리가 쓴 것이라 그대로 보여줍니다.
@@ -5385,6 +5388,24 @@ function renderProfile(d){
       t = d.technicals, r = d.ratings, dv = d.dividends, cov = d.coverage;
   var cur = g.currency || '';
   var H = '';
+
+  /*  ⚠️ 이 화면의 숫자가 <어디서 왔는지> 를 반드시 먼저 밝힙니다.
+      EODHD 는 거래소·공시 기반 자료이고, Perplexity 는 <검색으로 받아온
+      참고값> 입니다. 둘을 구분 안 하면 발표 자리에서 "이 목표주가 출처가
+      뭐냐" 는 질문에 답을 못 합니다.                                    */
+  if (d.source === 'pplx'){
+    H += '<div class="note info" style="margin:0 0 14px">'
+       + '<b>이 화면의 숫자는 AI 검색으로 모은 참고값입니다</b> (Perplexity). '
+       + '거래소 원본이 아니고, <b>모의투자 체결 가격에는 쓰이지 않습니다</b>. '
+       + '재무제표 탭의 숫자는 DART · SEC 원문에서 직접 받은 것이라 그대로 정확합니다.'
+       + (aiArr(d.sources).length
+           ? '<div style="margin-top:8px">출처 · '
+             + d.sources.map(function(u, i){
+                 return '<a href="' + esc(u) + '" target="_blank" rel="noopener">'
+                      + (i+1) + '</a>'; }).join(' · ') + '</div>'
+           : '')
+       + '</div>';
+  }
 
   //  ── 사업 개요 ──
   H += '<div class="card"><h2>' + esc(g.name || co.name)
@@ -9689,7 +9710,9 @@ async function mtQuoteRefresh(){
   box.classList.remove('hidden');
   box.innerHTML = '<span class="st-hint">시세를 받는 중…</span>';
   try {
-    mtQuote = await edge({ source:'mt_quote', market: mtPick.market, symbol: mtPick.symbol });
+    //  이름을 같이 보냅니다 — 검색 창구(Perplexity)가 종목을 찾는 데 씁니다
+    mtQuote = await edge({ source:'mt_quote', market: mtPick.market,
+                           symbol: mtPick.symbol, name: mtPick.name });
   } catch(e){
     mtQuote = null;
     box.innerHTML = '<span class="dn">' + esc(e.message) + '</span>';
@@ -9721,7 +9744,23 @@ function mtCalc(){
       H += '<div class="st-hint">주문 뒤 남는 현금 약 '
          + mtMoney(mtAcc.cash - gross * rate) + '원</div>';
   }
-  H += '<div class="st-hint">' + esc(mtQuote.note || '') + '</div>';
+  /*  ⚠️ AI 검색으로 받아온 참고가면 <눈에 띄게> 알려야 합니다.
+      학회원이 "거래소 시세인 줄 알았다" 고 나중에 말하면 안 됩니다.
+      안내문은 서버가 만든 상수라 <b> 를 살려서 보여줍니다 (사용자 입력 아님).
+      출처 링크는 서버가 준 URL 이라 esc() 로 감싸 글자로만 넣습니다.      */
+  if (mtQuote.kr_feed === 'pplx'){
+    H += '<div class="note warn" style="margin:8px 0 0;font-size:12px">'
+       + (mtQuote.note || '')
+       + (aiArr(mtQuote.sources).length
+           ? '<div style="margin-top:6px">출처 · '
+             + mtQuote.sources.map(function(u, i){
+                 return '<a href="' + esc(u) + '" target="_blank" rel="noopener">'
+                      + (i+1) + '</a>'; }).join(' · ') + '</div>'
+           : '')
+       + '</div>';
+  } else {
+    H += '<div class="st-hint">' + esc(mtQuote.note || '') + '</div>';
+  }
   /*  ⚠️ 예전에는 <막혔을 때만> 안내를 보여줬습니다. 이제 국내는 막지
       않고 대신 "무슨 값으로 체결되는지" 를 알려주므로, 막히지 않았어도
       할 말이 있으면 보여줍니다.                                        */
@@ -10446,6 +10485,33 @@ async function aiBuildDossier(){
                  : '시장 뉴스 피드에서 이 종목을 언급한 기사를 찾지 못했습니다. '
                  + 'company 가 비어 있으면 종목 뉴스는 «자료 없음» 으로 쓰세요.' };
   } catch(e){ /* 뉴스도 없으면 없는 대로 */ }
+
+  /*  ④-2 컨센서스 — 애널리스트가 이 종목을 어떻게 보는가.
+      ⚠️ 「우리 계산 목표가 vs 시장 기대」 비교가 리포트의 알맹이인데,
+         EODHD 요금제가 막혀 있으면 이게 통째로 비었습니다. 예비 창구
+         (Perplexity)가 켜져 있으면 서버가 알아서 그쪽에서 받아옵니다.
+      ⚠️ 검색으로 받아온 값이면 source:'pplx' 가 붙습니다 — 모델에게도
+         그걸 알려서 «검증된 수치» 인 양 쓰지 않게 합니다.               */
+  try {
+    if (!coProf || coProf.ticker !== co.code){
+      var cp = await edgeCo({ action:'eod_full', code: co.code,
+                              market: co.market, name: co.name });
+      if (cp && cp.found) coProf = cp;
+    }
+    if (coProf && coProf.found){
+      var rt = coProf.ratings || {}, hl = coProf.highlights || {};
+      d.consensus = {
+        source: coProf.source || 'eodhd',
+        is_search: coProf.source === 'pplx',
+        sources: coProf.sources || null,
+        as_of: coProf.as_of || null,
+        target_mean: rt.target, target_high: rt.target_high, target_low: rt.target_low,
+        analysts: rt.analysts, rating_score: rt.score, rating_text: rt.text,
+        pe: hl.pe, eps_ttm: hl.eps, eps_est_cy: hl.eps_est_cy, eps_est_ny: hl.eps_est_ny,
+        sector: (coProf.general || {}).sector, industry: (coProf.general || {}).industry,
+      };
+    }
+  } catch(e){ /* 컨센서스는 없으면 없는 대로 갑니다 */ }
 
   //  ⑤ 거시 — 지금 금리·환율 정도만 (리포트의 거시 섹션 재료)
   try {
