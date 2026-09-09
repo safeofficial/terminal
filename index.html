@@ -205,6 +205,26 @@
   .ai-card-h{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
   .ai-card-h b{font-size:12.5px;color:var(--text);line-height:1.5}
   .ai-card p{margin:5px 0 0;font-size:12.5px;color:var(--text-sub);line-height:1.7}
+  /*  ⚠️ 줄글 안에서 <핵심 구절> 과 <숫자> 를 다르게 보이게 합니다.
+      회색 글씨가 죽 이어지면 눈이 잡을 데가 없습니다. 다만 너무 알록달록하면
+      전부 강조라 아무것도 강조가 아니게 되므로, 굵기·색만 살짝 씁니다.
+      ⚠️ 색이 안 보이는 사람도 있으니 굵기(600)를 같이 겁니다 — 색만으로
+         구분하게 만들면 안 됩니다.  */
+  .ai-hl{font-weight:600;color:var(--text);
+         background:linear-gradient(transparent 58%, rgba(107,140,218,.22) 58%);
+         padding:0 1px;border-radius:2px}
+  .ai-num{font-weight:600;color:var(--primary);font-variant-numeric:tabular-nums;
+          white-space:nowrap}
+  .ai-card p .ai-num,.ai-li span .ai-num{color:#2c3e6b}
+  /*  보관함에서 «빠르게 / 꼼꼼하게» 를 한눈에 구분하는 딱지  */
+  .ai-dep{display:inline-block;font-size:10.5px;padding:2px 7px;border-radius:999px;
+          background:var(--bg-sub);color:var(--text-sub);border:1px solid var(--border);
+          white-space:nowrap}
+  .ai-dep.deep{background:rgba(107,140,218,.14);color:var(--primary);
+               border-color:rgba(107,140,218,.35);font-weight:600}
+  .ai-set{border:1px solid var(--border);border-radius:8px;padding:12px 14px;
+          margin:0 0 14px;background:var(--bg-sub)}
+  .ai-set h3{margin:0 0 8px;font-size:.9rem;color:var(--primary)}
   .ai-ev{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
   .ai-ev code{font-size:11px;font-variant-numeric:tabular-nums;
               background:var(--bg);border:1px solid var(--border);border-radius:5px;
@@ -1706,6 +1726,7 @@
           <div class="card">
             <h2>S&amp;P 500 대비</h2>
             <div id="benchBox"></div>
+            <div class="st-hint" id="benchHint" style="margin-top:4px"></div>
           </div>
         </div>
 
@@ -2473,6 +2494,8 @@
             </div>
             <span class="st-hint grow" id="aiDepthHint"></span>
           </div>
+          <!--  ⚠️ 돈을 쓰기 <전에> 보관함에 있는지 알려주는 자리입니다  -->
+          <div id="aiDupBox"></div>
 
           <div class="row" style="margin-top:6px">
             <button class="btn-sm btn-solid grow" id="aiRunBtn" onclick="aiRun(false)" disabled>
@@ -2501,8 +2524,10 @@
             <span class="tools"><button class="btn-sm" onclick="aiLibLoad(0)">새로고침</button></span>
           </h2>
           <p class="st-hint" style="margin:-6px 0 12px">
-            학회원이 만든 리포트는 <b>모두가 같이 봅니다</b>. 같은 종목을 또 만들기 전에
-            여기부터 찾아보세요 — 며칠 안에 만든 것이 있으면 그대로 열립니다.
+            학회원이 만든 리포트는 <b>모두가 같이 봅니다</b>. 리포트 한 건이 곧 돈이라,
+            <b>같은 종목·같은 깊이</b>는 한 달에 한 번만 만들 수 있습니다 —
+            이미 있으면 여기서 열어 보세요.
+            「빠르게」와 「꼼꼼하게」는 <b>따로</b> 셉니다.
           </p>
           <div class="row">
             <input type="text" id="aiLibQ" class="grow"
@@ -2510,6 +2535,24 @@
                    onkeydown="if(event.key==='Enter'){event.preventDefault();aiLibLoad(0);}">
             <button class="btn-sm" onclick="aiLibLoad(0)">찾기</button>
             <button class="btn-sm" onclick="aiLibReset()">전체</button>
+          </div>
+          <!--  ⚠️ 리포트가 쌓이면 «최신순» 하나로는 못 찾습니다.
+                시총순으로 세우면 큰 회사부터 훑을 수 있습니다.        -->
+          <div class="row" style="margin-top:8px">
+            <label style="min-width:auto">정렬</label>
+            <select id="aiLibSort" style="width:170px" onchange="aiLibLoad(0)">
+              <option value="new" selected>최신순</option>
+              <option value="mcap">시가총액 큰 순</option>
+              <option value="name">이름순</option>
+              <option value="sector">섹터별</option>
+              <option value="old">오래된 순</option>
+            </select>
+            <label style="min-width:auto">깊이</label>
+            <select id="aiLibDepth" style="width:186px" onchange="aiLibLoad(0)">
+              <option value="">빠르게 + 꼼꼼하게</option>
+              <option value="fast">빠르게만</option>
+              <option value="deep">꼼꼼하게만</option>
+            </select>
           </div>
           <div id="aiSectors" style="margin-top:10px"></div>
         </div>
@@ -2762,6 +2805,103 @@
     화면에서 조절할 수 있게 두되, 값은 한 군데(BARW)에 모아둡니다.  */
 var BARW = { pct: 60 };
 function barW(){ return Math.max(10, Math.min(100, Number(BARW.pct) || 60)) + '%'; }
+
+/*  ── 막대가 <여럿> 일 때 ────────────────────────────────────
+
+    ⚠️ 실제로 터진 버그입니다. 막대 계열마다 barWidth 를 '60%' 로 줬는데,
+       ECharts 에서 그 %는 <칸(카테고리) 전체> 기준입니다. 계열이 3개면
+       60% × 3 = 180%, 4개면 240% 라 <한 칸을 넘쳐> 옆 칸을 침범합니다.
+       화면에서는 이렇게 보였습니다 —
+         · 막대 무리가 이름표에서 오른쪽으로 밀림
+         · 뒤로 갈수록 밀림이 쌓임
+         · 계열을 4개 얹으면 <마지막 막대가 잘림>
+
+    올바른 방법: 계열이 여럿이면 barWidth 를 <주지 않습니다>. ECharts 가
+    칸을 나눠 씁니다. 대신 —
+      · barCategoryGap : 칸과 칸 사이 여백 (= 100 − 막대가 쓸 %)
+      · barGap         : 한 무리 안에서 막대끼리의 간격
+    둘은 <첫 막대 계열> 에만 주면 전체에 적용됩니다.
+
+    ⚠️ barMaxWidth 도 여럿일 때는 안 줍니다. 상한에 걸리면 무리 전체 폭이
+       줄어드는데 시작 위치는 그대로라 또 어긋납니다.                    */
+function barPct(){ return Math.max(10, Math.min(100, Number(BARW.pct) || 60)); }
+function barProps(nBar){
+  var pct = barPct();
+  if (!(nBar > 1)) return { barWidth: pct + '%', barMaxWidth: 64 };
+  return { barCategoryGap: (100 - pct) + '%', barGap: '10%' };
+}
+/*  series 배열을 통째로 받아 막대 폭을 알맞게 붙여 줍니다.
+    ⚠️ 같은 x축(xAxisIndex)·같은 stack 끼리만 칸을 나눠 씁니다. 거래량처럼
+       별도 축에 있는 막대는 따로 셉니다 — 안 그러면 폭이 엉뚱해집니다.  */
+function applyBarProps(series){
+  if (!Array.isArray(series)) return series;
+  /*  한 x축 안에서 <막대가 몇 자리를 차지하는지> 를 셉니다.
+      ⚠️ 쌓기(stack)는 겹쳐 그리므로 이름이 같은 것끼리 «한 자리» 입니다.
+         쌓기 무리가 둘이면(예: 콜 묶음 + 풋 묶음) 자리는 2개입니다 —
+         예전 코드는 이걸 각각 1로 세어 둘 다 60% 를 줬고, 합이 120% 라
+         옆 칸을 침범했습니다.
+      ⚠️ 거래량처럼 <다른 x축> 에 있는 막대는 따로 셉니다.               */
+  var axes = {};
+  series.forEach(function(sr){
+    if (!sr || sr.type !== 'bar') return;
+    var ax = String(sr.xAxisIndex || 0);
+    var a = axes[ax] || (axes[ax] = { list: [], slots: {}, n: 0 });
+    a.list.push(sr);
+    var slot = sr.stack ? ('s:' + sr.stack) : ('u:' + a.n);
+    if (!(slot in a.slots)) { a.slots[slot] = 1; a.n++; }
+  });
+  Object.keys(axes).forEach(function(ax){
+    var a = axes[ax], props = barProps(a.n);
+    a.list.forEach(function(sr, i){
+      if (a.n > 1){
+        //  여럿이면 폭을 <주지 않습니다> — ECharts 가 칸을 나눠 씁니다
+        delete sr.barWidth; delete sr.barMaxWidth;
+        //  ⚠️ 간격 설정은 «첫 계열에만». 계열마다 다른 값이 들어 있으면
+        //     어느 게 이길지 알 수 없어 화면이 그때그때 달라집니다.
+        if (i === 0){ sr.barCategoryGap = props.barCategoryGap; sr.barGap = props.barGap; }
+        else { delete sr.barCategoryGap; delete sr.barGap; }
+      } else {
+        sr.barWidth = props.barWidth; sr.barMaxWidth = props.barMaxWidth;
+        delete sr.barCategoryGap; delete sr.barGap;
+      }
+    });
+  });
+  return series;
+}
+
+/*  ── 차트 그릇 잡기 ─────────────────────────────────────────
+
+    ⚠️ 실제로 터진 버그입니다. 퀀트 「일간 수익률 분포」가 두 번째부터
+       아예 안 그려졌습니다. 이유 —
+
+         box.innerHTML = '... <div id="distBox"></div>';   ← 그릇을 새로 만듦
+         if (!distCharts['distBox']) ...                    ← 이미 있다고 건너뜀
+         distChart.setOption(...)                           ← <떨어져 나간> 옛 div 에 그림
+
+       ECharts 는 «DOM 노드» 에 붙습니다. innerHTML 로 그릇을 다시 그리면
+       우리가 들고 있던 차트는 화면에서 사라진 옛 노드에 계속 그립니다.
+       오류도 안 납니다 — 그냥 <아무것도 안 보입니다>.
+
+    그래서 그릴 때마다 <지금 그 자리에 있는 노드> 에 붙은 것을 찾아 씁니다.
+    떨어져 나간 옛 것은 여기서 정리합니다 (안 하면 메모리에 쌓입니다).     */
+function chartOn(box, old){
+  if (typeof echarts === 'undefined') return null;
+  if (typeof box === 'string') box = $(box);
+  if (!box || !box.isConnected) return null;
+  var cur = echarts.getInstanceByDom(box);
+  //  들고 있던 게 화면에서 떨어져 나갔으면 버립니다
+  if (old && old !== cur){
+    try { var d = old.getDom && old.getDom(); if (!d || !d.isConnected) old.dispose(); } catch(e){}
+  }
+  if (!cur){
+    cur = echarts.init(box);
+    if (typeof chartRO !== 'undefined' && chartRO && !box.__roOn){
+      box.__roOn = 1; chartRO.observe(box);
+    }
+  }
+  return cur;
+}
+
 /* ═══════════════════════════════════════════════
    SAFE Terminal — Phase 0~3
    로그인 게이트 · 경제지표 차트 · 모의투자
@@ -3515,7 +3655,7 @@ function dtDraw(){
   });
 
   //  ── 선 차트 ──
-  if (!dtChart) dtChart = echarts.init($('dtChartBox'));
+  dtChart = chartOn('dtChartBox', dtChart); if (!dtChart) return;
   var days = {};
   rows.forEach(function(r){ r.pts.forEach(function(p){ days[p.d] = 1; }); });
   var axis = Object.keys(days).sort();
@@ -3591,7 +3731,7 @@ function dtDraw(){
     var longest = Math.max.apply(null, bars.map(function(r){ return String(r.name || '').length; }));
     var perRow = longest > 30 ? 44 : (longest > 18 ? 34 : 28);
     bb.style.height = Math.max(120, 24 + bars.length * perRow) + 'px';
-    if (!dtBar) dtBar = echarts.init(bb);
+    dtBar = chartOn(bb, dtBar); if (!dtBar) return;
     dtBar.resize();
     dtBar.setOption({
       backgroundColor: theme ? theme.bg : '#fff', animation:false,
@@ -3808,7 +3948,7 @@ function drawHomeFx(){
   var box = $('homeFxBox'); if (!box) return;
   var sym = $('homeFxSel').value;
   var p = homeFx.pairs.filter(function(x){ return x.symbol === sym; })[0];
-  if (!homeFxChart) homeFxChart = echarts.init(box);
+  homeFxChart = chartOn(box, homeFxChart); if (!homeFxChart) return;
   if (!p || !p.points.length){ homeFxChart.clear(); return; }
 
   var n = Number($('homeFxRange').value) || 0;
@@ -5072,7 +5212,7 @@ function valImplied(f, mg, w, tg, tax, N, shares){
 function valDrawChart(out, px, mid){
   valRenderPick(out);
   if (typeof echarts === 'undefined') return;
-  if (!valChart) valChart = echarts.init($('valBox'));
+  valChart = chartOn('valBox', valChart); if (!valChart) return;
   var sel = valPickSet();
   var ks = VAL_KEYS.filter(function(k){ return k !== 'cons' && sel.indexOf(k) >= 0; });
   var names = ks.map(function(k){ return VAL_NAME[k]; });
@@ -5937,7 +6077,7 @@ async function dvRender(){
     $('dvTermBtn').classList.remove('hidden');
     dvTerm = null;
     if (typeof echarts !== 'undefined'){
-      if (!dvTermChart){ dvTermChart = echarts.init($('dvTermBox')); watchChartBoxes(); }
+      dvTermChart = chartOn('dvTermBox', dvTermChart); if (!dvTermChart) return; watchChartBoxes();
       dvTermChart.clear();
       dvTermChart.setOption({ backgroundColor: theme.bg,
         title:{ left:'center', top:'42%', text:'위 「만기별 IV 받기」 를 누르면 그립니다',
@@ -6208,7 +6348,7 @@ function dvMapPlaceChips(){
 
 function dvDrawMap(L){
   if (typeof echarts === 'undefined') return;
-  if (!dvMapChart){ dvMapChart = echarts.init($('dvMapBox')); watchChartBoxes(); }
+  dvMapChart = chartOn('dvMapBox', dvMapChart); if (!dvMapChart) return; watchChartBoxes();
   if (!L || L.sd == null){
     dvMapChart.clear();
     dvMapChart.setOption({ backgroundColor: theme.bg,
@@ -6387,7 +6527,7 @@ async function dvLoadTerm(){
 
 function dvDrawTerm(){
   if (typeof echarts === 'undefined') return;
-  if (!dvTermChart){ dvTermChart = echarts.init($('dvTermBox')); watchChartBoxes(); }
+  dvTermChart = chartOn('dvTermBox', dvTermChart); if (!dvTermChart) return; watchChartBoxes();
   var t = (dvTerm && dvTerm.term) || [];
   if (!t.length){
     dvTermChart.clear();
@@ -6463,7 +6603,7 @@ function dvFillStrikes(list, spot){
 
 function dvDrawPayoff(){
   if (!dv || typeof echarts === 'undefined') return;
-  if (!dvPayChart){ dvPayChart = echarts.init($('dvPayBox')); watchChartBoxes(); }
+  dvPayChart = chartOn('dvPayBox', dvPayChart); if (!dvPayChart) return; watchChartBoxes();
   var list = dvByStrike(), spot = Number(dv.spot) || 0;
   var K = Number($('dvPayK').value);
   var row = list.filter(function(x){ return x.strike === K; })[0];
@@ -6720,7 +6860,7 @@ function dvMarkAt(vals, spot, label){
 
 function dvDrawIv(list, spot){
   if (typeof echarts === 'undefined') return;
-  if (!dvIvChart){ dvIvChart = echarts.init($('dvIvBox')); watchChartBoxes(); }
+  dvIvChart = chartOn('dvIvBox', dvIvChart); if (!dvIvChart) return; watchChartBoxes();
   var pal = theme.palette;
   var c = list.filter(function(x){ return x.call && okNum(x.call.iv) && x.call.iv > 0; })
               .map(function(x){ return [x.strike, +(x.call.iv * 100).toFixed(2)]; });
@@ -6746,7 +6886,7 @@ function dvDrawIv(list, spot){
 
 function dvDrawOi(list, spot){
   if (typeof echarts === 'undefined') return;
-  if (!dvOiChart){ dvOiChart = echarts.init($('dvOiBox')); watchChartBoxes(); }
+  dvOiChart = chartOn('dvOiBox', dvOiChart); if (!dvOiChart) return; watchChartBoxes();
   var pal = theme.palette;
   dvOiChart.setOption({
     backgroundColor: theme.bg, animation:false,
@@ -6779,7 +6919,7 @@ var GREEK_HINT = {
 };
 function dvDrawGreeks(){
   if (!dv || typeof echarts === 'undefined') return;
-  if (!dvGkChart){ dvGkChart = echarts.init($('dvGkBox')); watchChartBoxes(); }
+  dvGkChart = chartOn('dvGkBox', dvGkChart); if (!dvGkChart) return; watchChartBoxes();
   var g = $('dvGreek').value;
   $('dvGreekHint').innerHTML = GREEK_HINT[g] || '';
   var list = dvByStrike(), pal = theme.palette, spot = Number(dv.spot) || 0;
@@ -7926,7 +8066,7 @@ function alignAxes(ranges, N, needZero){
 
 function drawChart(){
   if (!chartsReady()) return;
-  if (!chart) chart = echarts.init($('chartBox'), null, { renderer:'canvas' });
+  chart = chartOn('chartBox', chart); if (!chart) return;
   var norm = $('normSel') && $('normSel').checked;
 
   var loaded = [];
@@ -8074,11 +8214,9 @@ function drawChart(){
         type: isBar ? 'bar' : 'line',
         yAxisIndex: norm ? 0 : (Number(s.axis) || 0),
         showSymbol:false,
-        /*  지표를 하나만 올리면 막대 사이가 휑했습니다. 18px 로 못 박아
-            둬서, 칸이 넓어질수록 <막대가> 아니라 <사이가> 넓어졌습니다.
-            칸의 몇 %를 쓸지로 정하고, 화면에서 조절하게 둡니다.        */
-        barWidth: barW(),
-        barMaxWidth: Math.max(6, Math.round(BARW.pct * 1.2)),
+        /*  ⚠️ 폭은 여기서 안 정합니다 — applyBarProps 가 <막대가 몇 개인지>
+            세어보고 한 번에 붙입니다. 여기서 계열마다 60% 를 주면
+            3개일 때 180% 가 되어 옆 칸을 침범합니다.                    */
         lineStyle:{ color:s.color, width:s.width },
         itemStyle:{ color:s.color },
         data: pts.map(function(p){ return [p.d, norm ? (base ? p.v/base*100 : 0) : p.v]; })
@@ -8100,6 +8238,9 @@ function drawChart(){
       return o;
     })
   };
+  //  ⚠️ 막대가 여럿이면 칸을 나눠 쓰게 합니다 (barProps 주석 참고).
+  //     예전에는 계열마다 60% 를 줘서 3개만 얹어도 옆 칸을 침범했습니다.
+  applyBarProps(opt.series);
   chart.setOption(opt, true);
 
   var anyTf = series.some(function(s){ return (s.tf||'raw') !== 'raw'; });
@@ -8117,6 +8258,24 @@ function drawChart(){
       shortOnes.push(x.s.label + ' ' + p0.slice(0,4) + '~');
   });
 
+  /*  ── 막대가 실처럼 얇아질 때 ──────────────────────────────
+
+      ⚠️ 이 차트의 가로축은 <시간> 입니다. 그래서 막대 폭을 «칸의 몇 %»
+         가 아니라 <점과 점 사이 간격> 으로 정합니다. 그 간격은 막대로
+         그리는 지표 중 <가장 촘촘한 것> 이 정합니다.
+
+         월간 지표 3개에 일간 지표(국채 10년 같은) 하나를 막대로 얹으면
+         간격이 «하루» 가 되어 막대가 1~2px 실처럼 됩니다. 겹치는 건
+         아니지만 읽을 수가 없습니다.
+
+      ⚠️ 폭을 억지로 키우면 이번엔 <옆 날짜를 침범> 합니다. 그래서 폭을
+         건드리지 않고 «왜 얇은지» 를 적어 줍니다 — 주기를 맞추거나
+         선으로 바꾸면 바로 해결됩니다.                                  */
+  var barCycles = {};
+  norms.forEach(function(x){
+    if (x.s.type === 'bar') barCycles[String(x.s.cycle || '?').toUpperCase()] = 1; });
+  var thinBars = Object.keys(barCycles).length > 1;
+
   $('chartMsg').innerHTML = esc(norms.length + '개 지표 · ' + rangeLabel()
     + (norm ? ' · 지수화' : (nAxis > 2 ? ' · 축 ' + nAxis + '개'
                             : (usedRight ? ' · 좌우 축 분리 (눈금 맞춤)' : '')))
@@ -8125,6 +8284,12 @@ function drawChart(){
     + (shortOnes.length
         ? '<br><span style="color:var(--text-sub)">자료가 있는 데까지만 그렸습니다 — '
           + esc(shortOnes.join(' · ')) + ' <b>(FRED 에 그만큼만 있습니다)</b></span>'
+        : '')
+    + (thinBars
+        ? '<br><span style="color:var(--text-sub)">막대가 얇게 나옵니다 — '
+          + '<b>주기가 다른 지표</b>를 함께 막대로 그렸기 때문입니다 '
+          + '(월간과 일간을 섞으면 하루 폭에 맞춰집니다). '
+          + '주기를 맞추거나 하나를 <b>선</b>으로 바꾸면 잘 보입니다.</span>'
         : '');
 }
 
@@ -8209,7 +8374,7 @@ function dkTiles(d){
 
 function dkDraw(d){
   if (typeof echarts === 'undefined') return;
-  if (!dkChart){ dkChart = echarts.init($('dkBox')); watchChartBoxes(); }
+  dkChart = chartOn('dkBox', dkChart); if (!dkChart) return; watchChartBoxes();
   var w = d.weeks;
   var pctSeries = w.map(function(x){
     return [x.d, (x.otc && x.otc > 0) ? x.ats / x.otc * 100 : null]; });
@@ -8257,8 +8422,7 @@ function dkDraw(d){
         splitLine:{ lineStyle:{ color:theme.grid } } },
     ],
     series: [
-      { name:'다크풀 거래량', type:'bar', barWidth: barW(),
-        barMaxWidth: Math.max(8, Math.round(BARW.pct * 0.9)),
+      { name:'다크풀 거래량', type:'bar', barWidth: barW(), barMaxWidth: 64,
         itemStyle:{ color:theme.axis_left, borderRadius:[3,3,0,0] },
         data: w.map(function(x){ return [x.d, x.ats]; }) },
     ].concat(hasPct ? [
@@ -8938,7 +9102,12 @@ function tradeTab(k){
 }
 
 async function mtRefresh(){
-  await loadTeam(); await mtLoadAccount(); await mtLoadAuto();
+  /*  ⚠️ 순서가 중요합니다. 거래 내역(loadTrades)은 loadTeam 안에서 그려지는데,
+      그 재료는 <계좌(mtAcc)> 에 실려 옵니다. 계좌를 나중에 받으면 방금 한
+      주문이 <한 박자 늦게> 나옵니다 — 팔고 나서 기록 탭을 열면 산 것만
+      보이고, 새로고침을 눌러야 그제서야 판 게 나타났습니다.
+      계좌를 <먼저> 받고 그 다음에 화면을 그립니다.                       */
+  await mtLoadAccount(); await loadTeam(); await mtLoadAuto();
 }
 
 /*  ── 배당금 ────────────────────────────────────────────────
@@ -9363,7 +9532,7 @@ function mtCloseSymChart(){
 function mtDrawSymChart(){
   if (typeof echarts === 'undefined' || !mtSymPts) return;
   var box = $('mtSymBox'); if (!box) return;
-  if (!mtSymChart) mtSymChart = echarts.init(box);
+  mtSymChart = chartOn(box, mtSymChart); if (!mtSymChart) return;
   var n = Number($('mtChartRange').value) || 130;
   var pts = mtSymPts.slice(-n);
   if (!pts.length){ mtSymChart.clear(); return; }
@@ -10268,7 +10437,7 @@ window.addEventListener('resize', function(){
       화면에 항상 띄워둡니다.                                          */
 var aiHits = [], aiPick = null, aiBusy = false, aiRep = null, aiBudgetInfo = null;
 var aiSub = 'new', aiDepth = 'fast';
-var aiLib = { q:'', sector:'', off:0, per:20, total:0 }, aiLibInit = false;
+var aiLib = { q:'', sector:'', sort:'new', depth:'', off:0, per:20, total:0 }, aiLibInit = false;
 
 function aiShow(which){
   aiSub = which;
@@ -10289,6 +10458,8 @@ var AI_DEPTH_HINT = {
 };
 function aiSetDepth(d){
   aiDepth = d;
+  //  ⚠️ 깊이가 바뀌면 <다른 리포트> 이므로 중복 판정을 다시 합니다
+  setTimeout(aiCheckDup, 0);
   ['fast','deep'].forEach(function(k){
     var b = $('aiDepth-' + k); if (b) b.classList.toggle('on', k === d);
   });
@@ -10345,12 +10516,74 @@ function aiPickCo(i){
   $('aiQ').value = aiPick.name;
   warn('aiWarn','');          //  종목을 새로 고르면 지난 오류는 지웁니다
   aiSetPicked();
+  aiCheckDup();
+}
+
+/*  ── 이미 보관함에 있는지 <먼저> 봅니다 ──────────────────────
+
+    ⚠️ 리포트 한 건이 곧 돈입니다. 학회원 13명이 같은 종목을 각자 누르면
+       같은 글을 열세 번 사는 셈입니다. 누르기 <전에> 알려줘야 합니다.
+
+    ⚠️ 「빠르게」와 「꼼꼼하게」는 <서로 다른 리포트> 입니다. 빠르게로
+       뽑았다고 꼼꼼하게까지 막지 않습니다 — 깊이까지 같을 때만 막습니다.
+
+    ⚠️ 화면만 믿지 않습니다. 진짜 잠금은 엣지 함수에 있습니다 (돈이
+       나가는 문은 하나여야 합니다). 여기는 «미리 알려주는» 역할입니다.  */
+var aiDup = null;
+async function aiCheckDup(){
+  aiDup = null;
+  var box = $('aiDupBox'); if (box) box.innerHTML = '';
+  aiSetPicked();
+  if (!aiPick) return;
+  try {
+    var r = await sb.rpc('ai_existing', {
+      p_market: aiPick.market, p_code: aiPick.code, p_depth: aiDepth });
+    var d = (r && !r.error) ? r.data : null;
+    if (!d || !d.found) return;
+    aiDup = d;
+    var when = String(d.at || '').slice(0, 10);
+    var next = String(d.next_at || '').slice(0, 10);
+    var deep = aiDepth === 'deep';
+    if (box) box.innerHTML =
+      '<div class="note warn" style="margin-top:8px">'
+      + '<b>이미 보관함에 있습니다.</b> '
+      + esc(aiPick.name) + ' 「' + (deep ? '꼼꼼하게' : '빠르게') + '」 리포트를 '
+      + esc(fmtDateKo(when)) + '에 만들어 뒀습니다.'
+      + (d.headline ? '<div class="st-hint" style="margin-top:4px">' + esc(d.headline) + '</div>' : '')
+      + '<div class="row" style="margin-top:8px">'
+      +   '<button class="btn-sm btn-solid" onclick="aiShow(\'new\');aiOpen(' + Number(d.id) + ')">'
+      +     '보관함 리포트 열기</button>'
+      +   '<span class="st-hint">' + esc(fmtDateKo(next)) + ' 이후에 새로 뽑을 수 있습니다'
+      +     ' (' + Number(d.days) + '일)</span>'
+      + '</div>'
+      + (d.officer
+          ? '<div class="st-hint" style="margin-top:6px">임원진은 <b>새로 만들기</b>로 '
+            + '지금 다시 뽑을 수 있습니다. 기간은 설정에서 바꿉니다.</div>'
+          : '<div class="st-hint" style="margin-top:6px">더 최신 리포트가 필요하면 '
+            + '임원진에게 말해주세요.</div>')
+      + '</div>';
+  } catch(e){ /* 함수가 아직 없는 곳 — 조용히 넘어갑니다 */ }
+  aiSetPicked();
 }
 /*  ⚠️ 여기서 경고를 지우면 안 됩니다. aiRun 의 finally 가 이 함수를 부르는데,
     "예산을 다 썼습니다" 를 방금 띄워놓고 곧바로 지워버려서 화면에는
     아무 일도 안 일어난 것처럼 보였습니다. 버튼만 다시 켭니다.        */
 function aiSetPicked(){
-  ['aiRunBtn','aiForceBtn'].forEach(function(id){ var b = $(id); if (b) b.disabled = !aiPick; });
+  var off = aiBusy || !aiPick;
+  var run = $('aiRunBtn'), fb = $('aiForceBtn');
+  //  ⚠️ 이미 있으면 «만들기» 를 잠급니다. 임원진만 «새로 만들기» 로 넘어갑니다.
+  var blocked = !!(aiDup && aiDup.found) && !(aiDup && aiDup.officer);
+  if (run){
+    run.disabled = off || !!(aiDup && aiDup.found);
+    run.textContent = (aiDup && aiDup.found) ? '보관함에 이미 있습니다' : '리포트 만들기';
+  }
+  if (fb){
+    fb.disabled = off || blocked;
+    //  ⚠️ 왜 안 눌리는지 말해줍니다. 그냥 회색이면 «고장났나» 로 읽습니다.
+    fb.title = blocked
+      ? '보관함에 최근 리포트가 있어 잠겨 있습니다. 임원진만 다시 뽑을 수 있습니다.'
+      : '저장된 리포트를 무시하고 처음부터 새로 만듭니다';
+  }
 }
 
 /*  ── 재료 모으기 ─────────────────────────────────────────────
@@ -10390,6 +10623,17 @@ async function aiBuildDossier(){
       d.multiples = { per:m.per, pbr:m.pbr, psr:m.psr, evEbitda:m.evEbitda,
                       evRev:m.evRev, roic:m.roic, mcap:m.mcap, ev:m.ev,
                       netDebt:m.netDebt, ebitda:m.ebitda, fcf:m.fcf, peg:m.peg };
+      /*  ⚠️ 보관함을 «시총순» 으로 세우려면 <같은 잣대> 여야 합니다.
+          시가총액은 국내 종목이면 원, 미국 종목이면 달러라 그대로 줄 세우면
+          삼성전자(500조)가 엔비디아(4.4조 달러)보다 커 보입니다.
+          달러로 환산한 값을 따로 보내 그걸로 정렬합니다.               */
+      if (m.mcap > 0){
+        var fxr = 0;
+        try { fxr = await getFx(); } catch(e){ fxr = 0; }
+        d.mcap_usd = (valData.cur === '원')
+          ? (fxr > 0 ? m.mcap / fxr : null)
+          : m.mcap;
+      }
       var w = (typeof valWacc === 'function') ? valWacc() : null;
       if (w) d.wacc = { rf:w.rf, beta:w.beta, erp:w.erp, ke:w.ke, kd:w.kd,
                         wacc:w.wacc, missing:w.missing };
@@ -10617,6 +10861,16 @@ async function aiRun(force){
       await aiOpen(st.id);
       return;
     }
+    /*  ⚠️ 서버가 «이미 있다» 고 돌려보낸 경우. 화면에서 미리 막지만,
+        다른 사람이 방금 만들었을 수도 있어 여기서도 받습니다.
+        돈은 <안 나갔습니다> — 만들기 전에 걸렀습니다.                */
+    if (st.exists){
+      hide('aiProg');
+      warn('aiWarn', esc(st.error || '이미 보관함에 있습니다.'), 'info');
+      await aiCheckDup();
+      await aiOpen(st.id);
+      return;
+    }
     var steps = st.steps || 6, labels = st.step_labels || [];
     for (var i = 0; i < steps; i++){
       setStep(10 + (i / steps) * 85,
@@ -10628,6 +10882,8 @@ async function aiRun(force){
     setStep(100, '완성했습니다.');
     await aiOpen(st.id);
     aiLibLoad(0); aiLoadSectors();
+    //  방금 만들었으니 이제 <이미 있음> 이 됩니다 — 버튼 상태를 맞춥니다
+    await aiCheckDup();
   } catch(e){
     warn('aiWarn', esc(e.message || String(e)));
     hide('aiProg');
@@ -10642,6 +10898,31 @@ async function aiRun(force){
     "예산을 다 썼습니다" 같은 서버 메시지가 화면에 안 뜨고 그냥
     'non-2xx' 로 보입니다. edgeCall 은 이미 본문의 error 를 꺼내 씁니다. */
 function edgeAi(body){ return edgeCall('ai-report', body); }
+
+/*  ⚠️ 임원진만 바꿀 수 있습니다 — 진짜 막는 곳은 SQL 함수(ai_admin_set)
+    입니다. 화면은 «편하게 하는» 역할이지 «막는» 역할이 아닙니다.      */
+async function aiSaveAdmin(){
+  var msg = $('aiSetMsg'); if (msg) msg.textContent = '저장 중…';
+  try {
+    var rd = Number(($('aiRecheck') || {}).value);
+    var cp = Number(($('aiCap') || {}).value);
+    //  ⚠️ null 을 보내면 그 값은 <안 건드립니다>. 칸이 비어 있으면 안 바꿉니다.
+    var days = isFinite(rd) ? Math.round(rd) : null;
+    var capv = isFinite(cp) ? cp : null;
+    var r = await sb.rpc('ai_admin_set', {
+      p_recheck_days: days, p_cap: capv, p_cache_days: null });
+    if (r.error) throw new Error(errMsg(r.error));
+    var d = r.data || {};
+    if (msg){
+      msg.style.color = 'var(--pos)';
+      msg.textContent = '저장했습니다 — 재출력 ' + Number(d.recheck_days) + '일 · 월 상한 $'
+                      + num(Number(d.cap), 0);
+    }
+    await aiLoadBudget();
+  } catch(e){
+    if (msg){ msg.style.color = 'var(--neg)'; msg.textContent = e.message || String(e); }
+  }
+}
 
 /*  ── 보관함 ────────────────────────────────────────────────
 
@@ -10702,6 +10983,31 @@ async function loadAiSpend(){
       +   esc(String(d.model || '').replace('claude-','')) + '</b> 입니다. '
       +   '바꾸려면 SQL Editor 에서 '
       +   '<code>update public.app_settings set ai_model = \'claude-sonnet-5\' where id = 1;</code></p>'
+      /*  ── 재출력 잠금 ──────────────────────────────────────
+          ⚠️ 같은 종목·같은 깊이 리포트를 이 기간 안에는 다시 못 뽑습니다.
+             학회원 13명이 같은 종목을 각자 누르면 같은 글을 열세 번 사는
+             셈이라 기본을 30일로 뒀습니다. 0 이면 잠금을 아예 끕니다.
+          ⚠️ 「빠르게」와 「꼼꼼하게」는 따로 셉니다 — 한쪽을 뽑아도
+             다른 쪽은 뽑을 수 있습니다.                              */
+      + '<div class="ai-set">'
+      +   '<h3>리포트 재출력 잠금</h3>'
+      +   '<div class="row">'
+      +     '<label>다시 뽑기까지</label>'
+      +     '<input type="number" id="aiRecheck" min="0" max="365" style="width:110px" value="'
+      +       Number(d.recheck_days != null ? d.recheck_days : 30) + '">'
+      +     '<span class="st-hint" style="flex:none">일</span>'
+      +     '<label style="min-width:auto">월 상한</label>'
+      +     '<input type="number" id="aiCap" min="0" max="1000" step="1" style="width:110px" value="'
+      +       Number(cap) + '">'
+      +     '<span class="st-hint" style="flex:none">달러</span>'
+      +     '<button class="btn-sm btn-solid" onclick="aiSaveAdmin()">저장</button>'
+      +   '</div>'
+      +   '<p class="st-hint" style="margin:6px 0 0">같은 종목·같은 깊이 리포트를 '
+      +     '이 기간 안에는 다시 못 만듭니다. 학회원에게는 <b>보관함에 있습니다</b>로 '
+      +     '안내됩니다. <b>0</b> 을 넣으면 잠금을 끕니다. '
+      +     '「빠르게」와 「꼼꼼하게」는 따로 세므로 한쪽을 뽑아도 다른 쪽은 만들 수 있습니다.</p>'
+      +   '<div id="aiSetMsg" class="st-hint" style="margin-top:6px"></div>'
+      + '</div>'
       + (aiArr(d.by_model).length
           ? '<div class="scroll"><table><thead><tr><th>모델</th><th class="num">건수</th>'
             + '<th class="num">비용</th></tr></thead><tbody>'
@@ -10749,6 +11055,8 @@ function aiPickSector(name){
 function aiLibReset(){
   aiLib.q = ''; aiLib.sector = '';
   var q = $('aiLibQ'); if (q) q.value = '';
+  var sEl = $('aiLibSort'); if (sEl) sEl.value = 'new';
+  var dEl = $('aiLibDepth'); if (dEl) dEl.value = '';
   aiLoadSectors(); aiLibLoad(0);
 }
 
@@ -10758,9 +11066,13 @@ async function aiLibLoad(off){
   var qEl = $('aiLibQ'); if (qEl) aiLib.q = qEl.value.trim();
   t.innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
   try {
+    var sortEl = $('aiLibSort'), dEl = $('aiLibDepth');
+    aiLib.sort = (sortEl && sortEl.value) || 'new';
+    aiLib.depth = (dEl && dEl.value) || '';
     var r = await sb.rpc('ai_report_list', {
       p_limit: aiLib.per, p_offset: aiLib.off,
-      p_sector: aiLib.sector || null, p_q: aiLib.q || null });
+      p_sector: aiLib.sector || null, p_q: aiLib.q || null,
+      p_sort: aiLib.sort, p_depth: aiLib.depth || null });
     if (r.error) throw new Error(errMsg(r.error));
     var d = r.data || {}, rows = d.rows || [];
     aiLib.total = Number(d.total) || 0;
@@ -10780,17 +11092,27 @@ async function aiLibLoad(off){
       $('aiPager').innerHTML = ''; return;
     }
     /*  ⚠️ 비용·모델 칸이 없습니다. 서버도 안 내려보냅니다.               */
-    t.innerHTML = '<thead><tr><th style="width:190px">종목</th><th style="width:130px">섹터</th>'
-      + '<th>한 줄 요약</th><th style="width:96px">만든 날</th><th style="width:64px"></th></tr></thead><tbody>'
+    t.innerHTML = '<thead><tr><th style="width:190px">종목</th><th style="width:78px">깊이</th>'
+      + '<th style="width:118px">섹터</th>'
+      + '<th>한 줄 요약</th>'
+      + (aiLib.sort === 'mcap' ? '<th class="num" style="width:104px">시가총액<div class="st-hint" '
+          + 'style="font-weight:400">달러 환산</div></th>' : '')
+      + '<th style="width:96px">만든 날</th><th style="width:64px"></th></tr></thead><tbody>'
       + rows.map(function(x){
         var half = x.status !== 'done';
+        var deep = String(x.depth || 'fast') === 'deep';
         return '<tr>'
           + '<td><b>' + esc(x.name || x.code) + '</b>'
           +   '<div class="st-hint">' + esc(x.market) + ' · ' + esc(x.code) + '</div></td>'
+          + '<td><span class="ai-dep' + (deep ? ' deep' : '') + '">'
+          +   (deep ? '꼼꼼하게' : '빠르게') + '</span></td>'
           + '<td>' + aiSectorChip(x.sector) + '</td>'
           + '<td class="st-hint">' + esc(x.headline || '—')
           +   (half ? ' <span class="ai-sev">만드는 중 ' + Number(x.step||0)
                     + '/' + Number(x.steps||6) + '</span>' : '') + '</td>'
+          + (aiLib.sort === 'mcap'
+              ? '<td class="num st-hint">' + (x.mcap ? esc(musdWords(Number(x.mcap) / 1e6)) : '—') + '</td>'
+              : '')
           + '<td class="num st-hint">' + esc(String(x.created_at || '').slice(0,10)) + '</td>'
           + '<td><button class="btn-sm" onclick="aiOpen(' + Number(x.id) + ')">열기</button></td>'
           + '</tr>';
@@ -10860,11 +11182,36 @@ function aiTone(s){
         : /부정|부담|negative/i.test(t) ? ' dn' : '';
   return '<span class="ai-tone' + c + '">' + esc(t) + '</span>';
 }
+/*  ── 줄글 꾸미기 ────────────────────────────────────────────
+
+    ⚠️ 「컴퓨팅·스토리지·AI 인프라를 기업에 임대하는 고마진 사업」 처럼
+       잘 요약된 문장인데도 회색 글씨가 죽 이어지면 눈이 어디를 잡을지
+       모릅니다. <핵심 구절> 과 <숫자> 를 다르게 보이게 합니다.
+
+    ⚠️⚠️ 안전. 모델이 만든 글은 <절대> 그대로 innerHTML 에 넣지 않습니다.
+       먼저 esc() 로 태그를 다 죽인 <다음> 에, 우리가 정한 표시만
+       되살립니다. 그래서 모델이 <script> 를 써 보내도 글자로만 보입니다.
+       · **이렇게**  → 굵게 (모델이 직접 고른 핵심 구절)
+       · 12.3% · 4.2조원 · $180  → 숫자만 색을 달리 (규칙으로 우리가 찾음)
+       되살리는 태그는 <b>·<span> 둘뿐이고 속성은 우리가 적은 class 뿐입니다. */
+var AI_NUM_RE = new RegExp(
+  '(\\d[\\d,]*(?:\\.\\d+)?\\s?(?:%p|%|배|bp|pp|조\\s?원|억\\s?원|만\\s?원|천\\s?원|원|조|억|만|달러|억\\s?달러|년|분기|개월|주|명|건))',
+  'g');
+function aiRich(v){
+  var h = esc(aiStr(v));
+  if (!h) return '';
+  //  **핵심 구절** → 굵게. 별표 안에 태그가 들어올 일은 없습니다(이미 esc 됨).
+  h = h.replace(/\*\*([^*]{1,120})\*\*/g, '<b class="ai-hl">$1</b>');
+  //  달러 표기는 앞에 기호가 붙어 위 규칙에 안 걸리므로 따로 잡습니다
+  h = h.replace(/(\$\s?\d[\d,]*(?:\.\d+)?)/g, '<span class="ai-num">$1</span>');
+  h = h.replace(AI_NUM_RE, '<span class="ai-num">$1</span>');
+  return h;
+}
 function aiRow(t, d, n, tag){
   t = aiStr(t); d = aiStr(d); n = aiStr(n);
   if (!t && !d && !n) return '';
   return '<div class="ai-li"><b>' + esc(t || '—') + (tag || '') + '</b><span>'
-       + esc(d) + (n ? '<i class="ai-n">' + esc(n) + '</i>' : '') + '</span></div>';
+       + aiRich(d) + (n ? '<i class="ai-n">' + aiRich(n) + '</i>' : '') + '</span></div>';
 }
 
 /*  ── 읽을 수 있는 카드 ──────────────────────────────────────
@@ -10891,12 +11238,24 @@ function aiRow(t, d, n, tag){
       ① 화면 : 내용이 «자료 없음» 뿐인 근거·항목은 <아예 안 그립니다>
       ② 프롬프트 : 모델에게 «없으면 그 줄을 빼라» 고 시킵니다 (edge-ai-report.ts)
     ①만 하면 모델은 계속 빈 줄을 만들어 토큰을 태웁니다. 둘 다 해야 합니다. */
-var AI_EMPTY = /^(자료\s*없음|정보\s*없음|비공개|미공개|해당\s*없음|알\s*수\s*없음|확인\s*불가|N\/?A|없음|-+|—+|\.+)$/i;
+var AI_EMPTY = /^(자료\s*없음|정보\s*없음|공시\s*없음|데이터\s*없음|수치\s*없음|비공개|미공개|미상|해당\s*없음|알\s*수\s*없음|파악\s*불가|확인\s*불가|산출\s*불가|추정\s*불가|N\/?A|없음|미\s*확인|-+|—+|\.+|\?+)$/i;
+/*  ⚠️ 모델은 «자료 없음» 을 <괄호로 이유를 달아> 내놓는 버릇이 있습니다 —
+       "자료 없음(세그먼트 수치 비공개)", "비공개 (10-K 미기재)".
+       괄호 안 설명은 학회원한테 아무 쓸모가 없습니다. 괄호를 떼고
+       본문만 놓고 판정합니다. 값이 통째로 이런 모양이면 <안 붙입니다>. */
+function aiBare(t){
+  return String(t || '')
+    .replace(/[（(\[［]{1}[^)）\]］]*[)）\]］]{1}/g, ' ')   // 괄호 설명 제거
+    .replace(/\s+/g, ' ').replace(/[·,./]+$/, '').trim();
+}
 function aiBlank(v){
   var t = aiStr(v);
   if (!t) return true;
+  var bare = aiBare(t);
+  if (!bare) return true;
   //  "비중 자료 없음", "세그먼트 매출 비공개" 처럼 <앞에 말만 붙은> 것도 잡습니다
-  return AI_EMPTY.test(t) || /(자료|정보)\s*없음$|비공개$|미공개$/.test(t);
+  return AI_EMPTY.test(bare)
+      || /(자료|정보|공시|데이터|수치)\s*없음$|비공개$|미공개$|불가$|미\s*확인$/.test(bare);
 }
 function aiNote(n){
   var t = aiStr(n); if (aiBlank(t)) return '';
@@ -10933,7 +11292,7 @@ function aiCards(list, kind){
       +   (sev ? aiSev(sev) : '')
       +   (tone && kind !== 'ok' && kind !== 'risk' ? aiTone(tone) : '')
       + '</div>'
-      + (aiStr(x.d) ? '<p>' + esc(x.d) + '</p>' : '')
+      + (aiStr(x.d) ? '<p>' + aiRich(x.d) + '</p>' : '')
       + aiNote(x.n)
       + '</div>';
   }).join('') + '</div>';
@@ -10950,7 +11309,7 @@ function aiDocs(list){
     return '<div class="ai-doc">'
       + '<div class="ai-doc-d">' + esc(when) + '</div>'
       + '<div class="ai-doc-b"><b>' + esc(aiStr(x.t) || '—') + '</b>'
-      +   (aiStr(x.d) ? '<p>' + esc(x.d) + '</p>' : '') + '</div>'
+      +   (aiStr(x.d) ? '<p>' + aiRich(x.d) + '</p>' : '') + '</div>'
       + '</div>';
   }).join('') + '</div>';
 }
@@ -10969,7 +11328,7 @@ function aiRows(list, kind){
 function aiPara(s){
   var t = aiStr(s);
   if (aiBlank(t)) return '';
-  return '<p class="st-hint" style="margin:10px 0 0;line-height:1.75">' + esc(t) + '</p>';
+  return '<p class="st-hint" style="margin:10px 0 0;line-height:1.75">' + aiRich(t) + '</p>';
 }
 function aiSec(title, inner){
   if (!inner) return '';
@@ -11066,7 +11425,8 @@ function aiDrawSpec(box, spec){
   var n = Math.min.apply(null, [labels.length].concat(ss.map(function(sr){ return sr.data.length; })));
   labels = labels.slice(0, n);
   var line = /line|선/i.test(aiStr(spec.kind));
-  var c = echarts.init(box);
+  var c = chartOn(box);
+  if (!c) return;
   aiChartIns.push(c);
   var unit = aiStr(spec.unit);
   //  ⚠️ 값을 막대·점에 직접 적습니다. 계열이 많으면 겹치니 그때만 뺍니다.
@@ -11090,7 +11450,7 @@ function aiDrawSpec(box, spec){
     yAxis: Object.assign(aiAxis(unit), { type:'value',
       axisLabel:{ color:'#8a93a8', fontSize:10.5,
                   formatter:function(v){ return aiShort(v); } } }),
-    series: ss.map(function(sr, i){
+    series: applyBarProps(ss.map(function(sr, i){
       var col = AI_PAL[i % AI_PAL.length];
       var d = sr.data.slice(0, n);
       return line
@@ -11102,12 +11462,13 @@ function aiDrawSpec(box, spec){
                 { offset:0, color: col + '33' }, { offset:1, color: col + '05' }] } } : undefined,
             label: showLab ? { show:true, position:'top', fontSize:10.5,
               color:'#5a6278', formatter:function(p){ return aiShort(p.value); } } : undefined }
+        //  ⚠️ 폭은 아래 applyBarProps 가 <계열 수를 세어> 붙입니다.
+        //     여기서 계열마다 주면 여럿일 때 칸을 넘칩니다.
         : { name:sr.name, type:'bar', data:d,
-            barWidth: aiBarW(n), barMaxWidth: 64,
             itemStyle:{ borderRadius:[4,4,0,0] },
             label: showLab ? { show:true, position:'top', fontSize:10.5,
               color:'#5a6278', formatter:function(p){ return aiShort(p.value); } } : undefined };
-    })
+    }))
   }, true);
 }
 
@@ -11123,12 +11484,51 @@ function aiDrawWalls(box, rows, spot, cur){
     return r && aiNum(r.k) != null && (aiNum(r.c_oi) || aiNum(r.p_oi)); });
   if (a.length < 3){ box.innerHTML = ''; return; }
   a.sort(function(x, y){ return x.k - y.k; });
-  var c = echarts.init(box);
+  var c = chartOn(box);
+  if (!c) return;
   aiChartIns.push(c);
   var ks = a.map(function(r){ return num(r.k, 0); });
+
+  /*  ── 콜월 · 풋월 · 현재가를 <그림 위에> 세웁니다 ──────────────
+
+      ⚠️ 물량이 제일 많이 쌓인 행사가(=벽)를 글로만 적어두니, 차트를
+         보다가 아래 문장을 다시 찾아 읽어야 했습니다. 어차피 그림에
+         있는 숫자입니다 — 그 자리에 점선을 긋고 값을 적습니다.
+      · 콜월 = 콜 미결제가 가장 많은 행사가 (위쪽 저항으로 읽습니다)
+      · 풋월 = 풋 미결제가 가장 많은 행사가 (아래쪽 지지로 읽습니다)
+      · 이름표는 위·가운데·아래로 나눠 달아 서로 겹치지 않게 합니다.   */
+  function peak(key){
+    var bi = -1, bv = 0;
+    a.forEach(function(r, i){ var v = aiNum(r[key]) || 0; if (v > bv){ bv = v; bi = i; } });
+    return bi;
+  }
+  var iCall = peak('c_oi'), iPut = peak('p_oi'), iSpot = -1;
+  if (spot > 0){
+    var gap = Infinity;
+    a.forEach(function(r, i){ var g = Math.abs(r.k - spot); if (g < gap){ gap = g; iSpot = i; } });
+  }
+  /*  ⚠️ rotate:0 을 꼭 줍니다. ECharts 는 세로선의 이름표를 기본으로 «세로로»
+      돌려 씁니다 — 글자가 막대 위에 세로로 누워 읽기도 어렵고 막대와 겹칩니다.
+      가로로 눕히고, 셋을 위·가운데·아래로 나눠 서로도 안 겹치게 합니다.     */
+  function tag(idx, txt, color, pos){
+    if (idx < 0) return null;
+    return { xAxis: idx,
+      lineStyle:{ color: color, width:1.5, type:'dashed' },
+      label:{ formatter: txt, fontSize:10.5, color: color, fontWeight:600,
+              position: pos, rotate: 0, distance: 4,
+              backgroundColor:'rgba(255,255,255,.94)', borderColor: color,
+              borderWidth: 0.6, padding:[2,5], borderRadius:3 } };
+  }
+  var ml = [
+    tag(iSpot, '현재가 ' + aiMoney(spot, cur), '#2c3e6b', 'insideEndTop'),
+    tag(iCall, '콜월 ' + aiMoney(a[iCall] && a[iCall].k, cur), '#14705a', 'insideMiddleTop'),
+    tag(iPut,  '풋월 ' + aiMoney(a[iPut] && a[iPut].k, cur), '#96271b', 'insideMiddleBottom'),
+  ].filter(function(x){ return x; });
+
   c.setOption({
     backgroundColor: theme ? theme.bg : '#fff', animation:false,
-    grid:{ left:8, right:16, top:34, bottom:6, containLabel:true },
+    //  ⚠️ 이름표 세 개가 그림 안에 들어가야 하니 위를 조금 더 비웁니다
+    grid:{ left:8, right:16, top:46, bottom:6, containLabel:true },
     legend:{ top:0, itemWidth:12, itemHeight:8,
              textStyle:{ fontSize:11, color:'#5a6278' } },
     tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' },
@@ -11141,25 +11541,26 @@ function aiDrawWalls(box, rows, spot, cur){
     yAxis: Object.assign(aiAxis('미결제약정'), { type:'value',
       axisLabel:{ color:'#8a93a8', fontSize:10.5,
                   formatter:function(v){ return aiShort(v); } } }),
-    series:[
-      { name:'콜', type:'bar', stack:null, barWidth:'42%',
-        itemStyle:{ color:'#1f8a70', borderRadius:[3,3,0,0] },
-        data: a.map(function(r){ return aiNum(r.c_oi) || 0; }),
-        markLine: spot > 0 ? { symbol:'none', silent:true,
-          lineStyle:{ color:'#2c3e6b', width:1.5, type:'dashed' },
-          label:{ formatter:'현재가 ' + (cur === '원' ? num(spot,0) + '원' : '$' + num(spot,2)),
-                  fontSize:10, color:'#2c3e6b', fontWeight:600, position:'insideEndTop',
-                  backgroundColor:'rgba(255,255,255,.9)', padding:[2,4], borderRadius:3 },
-          //  현재가와 가장 가까운 행사가 자리에 세웁니다
-          data:[{ xAxis: (function(){
-            var best = 0, gap = Infinity;
-            a.forEach(function(r, i){ var g = Math.abs(r.k - spot);
-              if (g < gap){ gap = g; best = i; } });
-            return best; })() }] } : undefined },
-      { name:'풋', type:'bar', barWidth:'42%',
-        itemStyle:{ color:'#c0392b', borderRadius:[3,3,0,0] },
-        data: a.map(function(r){ return aiNum(r.p_oi) || 0; }) },
-    ]
+    /*  ⚠️ 벽이 선 자리만 <진하게>. 나머지는 옅게 두어야 어디가 벽인지
+        한눈에 들어옵니다.
+        ⚠️ 색을 itemStyle.color 에 «함수» 로 주면 안 됩니다 — ECharts 가
+           범례 색을 못 정해서 «콜=파랑, 풋=초록» 같은 엉뚱한 딱지를 답니다
+           (그림은 초록·빨강인데). 계열 색은 글자로 두고, 진하게 할 <그 막대
+           하나만> 자기 색을 들고 가게 합니다.                              */
+    series: applyBarProps([
+      { name:'콜', type:'bar',
+        itemStyle:{ color:'#4fb89c', borderRadius:[3,3,0,0] },
+        data: a.map(function(r, i){
+          var v = aiNum(r.c_oi) || 0;
+          return i === iCall ? { value:v, itemStyle:{ color:'#14705a' } } : v; }),
+        markLine: ml.length ? { symbol:'none', silent:true, animation:false,
+          data: ml } : undefined },
+      { name:'풋', type:'bar',
+        itemStyle:{ color:'#e08b80', borderRadius:[3,3,0,0] },
+        data: a.map(function(r, i){
+          var v = aiNum(r.p_oi) || 0;
+          return i === iPut ? { value:v, itemStyle:{ color:'#96271b' } } : v; }) },
+    ])
   }, true);
 }
 
@@ -11188,7 +11589,8 @@ function aiDrawTargets(box, sec){
     return;
   }
   var entry = aiNum(sec.trader && sec.trader.entry);
-  var c = echarts.init(box);
+  var c = chartOn(box);
+  if (!c) return;
   aiChartIns.push(c);
   var ml = [];
   if (px  != null && px  > 0) ml.push({ xAxis: px,
@@ -11238,8 +11640,8 @@ function aiValTable(v, curDefault){
     + a.map(function(x){
         var cur = aiStr(x.cur) || curDefault;
         return '<tr><td><b>' + esc(aiStr(x.method) || '—') + '</b></td>'
-          + '<td>' + esc(aiStr(x.multiple) || '—') + '</td>'
-          + '<td class="st-hint">' + esc(aiStr(x.why) || '—') + '</td>'
+          + '<td>' + (aiBlank(x.multiple) ? '—' : aiRich(x.multiple)) + '</td>'
+          + '<td class="st-hint">' + (aiBlank(x.why) ? '—' : aiRich(x.why)) + '</td>'
           + '<td class="num">' + esc(aiMoney(x.target, cur)) + '</td></tr>';
       }).join('')
     + '</tbody></table></div>';
@@ -11367,7 +11769,7 @@ function aiRender(rep, boxId){
     if (vcNotes.length){
       chainHtml += '<div class="vc-note">'
         + vcNotes.map(function(x){
-            return '<b>' + esc(aiStr(x.stage)) + '</b> \u00b7 ' + esc(aiStr(x.note)); })
+            return '<b>' + esc(aiStr(x.stage)) + '</b> \u00b7 ' + aiRich(x.note); })
           .join('<br>')
         + '</div>';
     }
@@ -12319,7 +12721,7 @@ function coChartRows(){
 function renderCoFinChart(){
   if (typeof echarts === 'undefined') return;
   var rows = coChartRows();
-  if (!coFinChart) coFinChart = echarts.init($('coFinBox'));
+  coFinChart = chartOn('coFinBox', coFinChart); if (!coFinChart) return;
 
   //  아무것도 안 얹었으면 빈 차트에 안내만 띄웁니다
   if (!rows.length || !coFinSeries.length){
@@ -12386,9 +12788,12 @@ function renderCoFinChart(){
     if (!data.some(function(v){ return v != null; })) return;
     if (x.axis === 2) useThird = true;
     if (x.type === 'bar'){
+      /*  ⚠️ 폭은 <여기서 안 정합니다>. 막대가 몇 개인지 다 세어봐야
+          알 수 있어서, series 를 다 만든 뒤 아래에서 한 번에 붙입니다.
+          예전에는 계열마다 60% 를 줘서 4개 얹으면 240% 가 되어
+          마지막 막대가 잘렸습니다.                                     */
       series.push({ name:x.label, type:'bar', yAxisIndex:x.axis,
-        data:data, itemStyle:{ color:x.color },
-        barWidth: barW(), barMaxWidth: Math.max(8, Math.round(BARW.pct * 0.9)) });
+        data:data, itemStyle:{ color:x.color } });
     } else {
       series.push({ name:x.label, type:'line', yAxisIndex:x.axis, smooth:false,
         data:data, connectNulls:true,
@@ -12413,6 +12818,9 @@ function renderCoFinChart(){
     var i = coFinSeries.filter(function(x){ return x.axis === 2; })[0];
     return (i && i.unit) || '';
   })();
+
+  //  ⚠️ 막대 폭은 <다 세어본 뒤> 한 번에 정합니다 (barProps 주석 참고)
+  applyBarProps(series);
 
   coFinChart.setOption({
     backgroundColor: theme.bg, animation:false,
@@ -12682,7 +13090,7 @@ async function loadCoSeries(x){
 
 function drawCoPrice(){
   if (typeof echarts === 'undefined') return;
-  if (!coPriceChart) coPriceChart = echarts.init($('coPriceBox'));
+  coPriceChart = chartOn('coPriceBox', coPriceChart); if (!coPriceChart) return;
   if (!coPricePts.length && !coSeries.some(function(x){ return x.points && x.points.length; })) return;
 
   var norm = $('coNorm') && $('coNorm').checked;
@@ -12743,7 +13151,7 @@ function drawCoPrice(){
 
 async function loadCoPrice(){
   if (typeof echarts === 'undefined') return;
-  if (!coPriceChart) coPriceChart = echarts.init($('coPriceBox'));
+  coPriceChart = chartOn('coPriceBox', coPriceChart); if (!coPriceChart) return;
   coPricePts = [];
   coPriceChart.clear();
   try {
@@ -12979,7 +13387,7 @@ function renderPositions(){
 
 function renderPie(){
   if (typeof echarts === 'undefined') return;
-  if (!pieChart) pieChart = echarts.init($('pieBox'));
+  pieChart = chartOn('pieBox', pieChart); if (!pieChart) return;
 
   /*  ⚠️ 여기는 반드시 mtAcc 를 봅니다.
 
@@ -13041,7 +13449,7 @@ async function loadHistory(){
   var hist = (r.data && !r.error) ? r.data : [];
 
   if (typeof echarts === 'undefined') return;
-  if (!pnlChart) pnlChart = echarts.init($('pnlBox'));
+  pnlChart = chartOn('pnlBox', pnlChart); if (!pnlChart) return;
   if (hist.length < 2){
     pnlChart.clear();
     pnlChart.setOption({ backgroundColor:'transparent',
@@ -13073,7 +13481,7 @@ async function loadHistory(){
 
 async function drawBenchmark(hist){
   if (typeof echarts === 'undefined') return;
-  if (!benchChart) benchChart = echarts.init($('benchBox'));
+  benchChart = chartOn('benchBox', benchChart); if (!benchChart) return;
   if (!hist || hist.length < 2){
     benchChart.clear();
     benchChart.setOption({ backgroundColor:'transparent',
@@ -13105,13 +13513,20 @@ async function drawBenchmark(hist){
     xAxis:{ type:'time', axisLine:{ lineStyle:{ color:'#e2e6f0' } }, axisLabel:{ fontSize:10, color:'#5a6278' } },
     yAxis:{ type:'value', scale:true, splitLine:{ lineStyle:{ color:'#eef1f7' } },
       axisLabel:{ fontSize:10, color:'#5a6278', formatter: wonAxisBy(bSpan) } },
-    series:[
+    /*  ⚠️ 비교 지수를 못 받아왔으면 <계열을 아예 안 넣습니다>.
+        빈 계열을 넣으면 범례에 'S&P 500' 이 뜨는데 선은 없습니다 —
+        "우리가 지수랑 똑같았나?" 하고 잘못 읽게 됩니다.              */
+    series: [
       { name:'우리 팀', type:'line', showSymbol:false, lineStyle:{ color:'#2c3e6b', width:2.4 },
-        itemStyle:{ color:'#2c3e6b' }, data: hist.map(function(h){ return [h.d, Number(h.total)]; }) },
-      { name:'S&P 500', type:'line', showSymbol:false, lineStyle:{ color:'#b26a00', width:1.8, type:'dashed' },
-        itemStyle:{ color:'#b26a00' }, data: bseries }
-    ]
+        itemStyle:{ color:'#2c3e6b' }, data: hist.map(function(h){ return [h.d, Number(h.total)]; }) }
+    ].concat(bseries.length
+      ? [{ name:'S&P 500', type:'line', showSymbol:false,
+           lineStyle:{ color:'#b26a00', width:1.8, type:'dashed' },
+           itemStyle:{ color:'#b26a00' }, data: bseries }]
+      : [])
   }, true);
+  var bh = $('benchHint');
+  if (bh) bh.textContent = bseries.length ? '' : '비교 지수(S&P 500)를 받지 못해 우리 팀만 그렸습니다.';
 }
 
 async function getBenchmark(from){
@@ -13365,11 +13780,9 @@ var distCharts = {};
 function drawDist(boxId, rets){
   if (typeof echarts === 'undefined' || !rets.length) return;
   var box = $(boxId); if (!box) return;
-  if (!distCharts[boxId]){
-    distCharts[boxId] = echarts.init(box);
-    if (chartRO && !box.__roOn){ box.__roOn = 1; chartRO.observe(box); }
-  }
-  var distChart = distCharts[boxId];
+  var distChart = chartOn(box, distCharts[boxId]);
+  if (!distChart) return;
+  distCharts[boxId] = distChart;
   var pctv = rets.map(function(r){ return r*100; });
   var lo = Math.min.apply(null, pctv), hi = Math.max.apply(null, pctv);
   var n = 21, w = (hi-lo)/n || 1, bins = new Array(n).fill(0), labels = [];
@@ -15818,7 +16231,7 @@ function renderPreview(st, snaps, seed, m, trades, backDays, cov, tfKey){
     + '</div>';
 
   if (typeof echarts === 'undefined') return;
-  if (!prevChart) prevChart = echarts.init($('stratPrevBox'));
+  prevChart = chartOn('stratPrevBox', prevChart); if (!prevChart) return;
   if (!snaps.length){ prevChart.clear(); return; }
   //  백테스트 그림도 같은 이유로 폭을 재서 눈금을 정합니다
   var sAll = snaps.map(function(x){ return Number(x.total); }).concat([seed]);
