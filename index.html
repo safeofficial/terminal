@@ -225,6 +225,13 @@
   .ai-set{border:1px solid var(--border);border-radius:8px;padding:12px 14px;
           margin:0 0 14px;background:var(--bg-sub)}
   .ai-set h3{margin:0 0 8px;font-size:.9rem;color:var(--primary)}
+  /*  목표가 옆 «현재가 대비» 딱지 — 이 숫자는 터미널이 계산합니다  */
+  .ai-vs{display:inline-block;margin-left:7px;font-size:11px;font-weight:600;
+         padding:1px 6px;border-radius:999px;vertical-align:middle;
+         background:rgba(31,138,112,.13);color:#1f8a70}
+  .ai-vs.neg{background:rgba(192,57,43,.13);color:#c0392b}
+  /*  앞뒤가 안 맞는 것(강세인데 아래·약세인데 위)은 테두리로 눈에 띄게  */
+  .ai-vs.odd{outline:1.5px solid #c0392b;outline-offset:1px}
   .ai-ev{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
   .ai-ev code{font-size:11px;font-variant-numeric:tabular-nums;
               background:var(--bg);border:1px solid var(--border);border-radius:5px;
@@ -1005,6 +1012,20 @@
         <div>
           <div class="card">
             <h2>지표 추가</h2>
+            <!--  ⚠️ 지표가 133개입니다. 신입 부원이 처음 열면 어디서부터
+                  봐야 할지 모릅니다. 별로 이정표를 세워 둡니다.        -->
+            <div class="row" style="margin-bottom:2px">
+              <span class="st-hint" style="flex:none">중요도</span>
+              <div class="mode-seg" id="catStar" style="margin:0;flex:none;white-space:nowrap">
+                <button id="catStar-0" class="on" onclick="setCatStar(0)"
+                        title="등록된 지표를 전부 봅니다">전체</button>
+                <button id="catStar-2" onclick="setCatStar(2)" style="white-space:nowrap"
+                        title="★★ 이상 — 흐름을 볼 때 같이 보는 것까지">★★ 이상</button>
+                <button id="catStar-3" onclick="setCatStar(3)" style="white-space:nowrap"
+                        title="★★★ — 발표 때 시장이 크게 움직이는 것">★★★</button>
+              </div>
+              <span class="st-hint grow" id="catStarHint"></span>
+            </div>
             <div class="row">
               <select id="catalogSel" class="grow"></select>
             </div>
@@ -3157,21 +3178,70 @@ async function saveTheme(){
 }
 
 /* ══════════ 지표 목록 ══════════ */
+
+/*  ── 별(중요도) ──────────────────────────────────────────────
+
+    ⚠️ 왜 넣었나. 지표가 133개입니다. 처음 여는 신입 부원한테는
+       «어디서부터 봐야 하는지» 가 안 보입니다.
+
+      ★★★  발표 순간 시장이 크게 움직이는 것 · 매일 보는 것
+      ★★    흐름을 볼 때 같이 보는 것
+      ★      특정 주제를 팔 때 찾아보는 것
+
+    ⚠️ «어느 지표가 더 훌륭한가» 가 아닙니다. 리서치 주제에 따라 ★ 하나가
+       제일 중요할 수도 있습니다 — 그래서 <전체> 가 기본이고, 별은 걸러
+       보는 도구일 뿐입니다.
+    ⚠️ 등급은 DB(indicator_catalog.importance)에 있고 임원진이 화면에서
+       바꿉니다. 화면에 박아두면 고치려고 코드를 건드려야 합니다.        */
+var catStar = 0;
+function starOf(c){
+  var n = Number(c && c.importance);
+  return (n === 2 || n === 3) ? n : 1;
+}
+function starTxt(n){ return '★★★☆☆'.slice(3 - n, 6 - n); }   // 3 → ★★★, 2 → ★★☆, 1 → ★☆☆
+function setCatStar(n){
+  catStar = Number(n) || 0;
+  [0, 2, 3].forEach(function(k){
+    var b = $('catStar-' + k); if (b) b.classList.toggle('on', k === catStar);
+  });
+  renderCatalogSel();
+}
+function renderCatalogSel(){
+  var sel = $('catalogSel'); if (!sel) return;
+  var keep = sel.value;
+  var list = catalog.filter(function(c){ return !catStar || starOf(c) >= catStar; });
+  var byCat = {};
+  list.forEach(function(c){ (byCat[c.category] = byCat[c.category] || []).push(c); });
+  var html = '<option value="">지표를 고르세요</option>';
+  Object.keys(byCat).forEach(function(cat){
+    //  ⚠️ 분류 안에서는 <별이 많은 것부터>. 그래야 열자마자 눈에 띕니다.
+    var g = byCat[cat].slice().sort(function(a, b){
+      return (starOf(b) - starOf(a)) || (Number(a.sort_order) - Number(b.sort_order)); });
+    html += '<optgroup label="' + esc(cat) + '">';
+    g.forEach(function(c){
+      html += '<option value="' + c.id + '">'
+            + starTxt(starOf(c)) + '  ' + esc(c.label)
+            + (c.unit ? ' (' + esc(c.unit) + ')' : '') + '</option>';
+    });
+    html += '</optgroup>';
+  });
+  sel.innerHTML = html;
+  //  걸러도 고르던 지표가 목록에 남아 있으면 그대로 둡니다
+  if (keep && sel.querySelector('option[value="' + keep + '"]')) sel.value = keep;
+
+  var n3 = catalog.filter(function(c){ return starOf(c) === 3; }).length;
+  var h = $('catStarHint');
+  if (h) h.textContent = catStar === 3
+    ? '발표 때 시장이 크게 움직이는 ' + n3 + '개'
+    : catStar === 2 ? '흐름을 볼 때 같이 보는 것까지 ' + list.length + '개'
+    : '전체 ' + catalog.length + '개 (★★★ ' + n3 + '개)';
+}
+
 async function loadCatalog(){
   var r = await sb.from('indicator_catalog').select('*').order('sort_order');
   if (r.error) { warn('researchWarn','지표 목록을 불러오지 못했습니다. terminal-phase2.sql 을 실행했는지 확인하세요.'); return; }
   catalog = r.data || [];
-  var byCat = {};
-  catalog.forEach(function(c){ (byCat[c.category] = byCat[c.category] || []).push(c); });
-  var html = '<option value="">지표를 고르세요</option>';
-  Object.keys(byCat).forEach(function(cat){
-    html += '<optgroup label="'+esc(cat)+'">';
-    byCat[cat].forEach(function(c){
-      html += '<option value="'+c.id+'">'+esc(c.label)+(c.unit?' ('+esc(c.unit)+')':'')+'</option>';
-    });
-    html += '</optgroup>';
-  });
-  $('catalogSel').innerHTML = html;
+  renderCatalogSel();
   renderBundles();
   dtFillParents();
 }
@@ -7849,6 +7919,10 @@ async function loadSeries(s){
                          cycle:s.cycle, start:fetchStart() });
     s.points = d.points || [];
     if (d.unit && !s.unit) s.unit = d.unit;
+    /*  ⚠️ «언제까지 저장된 값을 쓰는지» 를 들고 다닙니다. 학회원이
+        "이거 오늘 값 맞아?" 하고 물을 때 화면이 답할 수 있어야 합니다.  */
+    s.until = d.until || d.valid_until || null;
+    s.stale = !!d.stale;
     /*  단위를 알고 나서 축을 고릅니다.
         같은 단위면 같은 축, 처음 보는 단위면 축을 새로 냅니다 —
         축이 둘뿐이라 세 번째 지표가 바닥에 눌려 평평해 보이던 문제입니다. */
@@ -8285,6 +8359,23 @@ function drawChart(){
         ? '<br><span style="color:var(--text-sub)">자료가 있는 데까지만 그렸습니다 — '
           + esc(shortOnes.join(' · ')) + ' <b>(FRED 에 그만큼만 있습니다)</b></span>'
         : '')
+    /*  ⚠️ 저장해 둔 값을 쓰고 있으면 <언제까지 쓰는지> 를 적어 줍니다.
+        경제지표는 발표 때만 바뀌므로 다음 발표까지는 이 값이 맞습니다 —
+        그 사실을 안 적으면 "오늘 값이 아닌가?" 하고 계속 의심하게 됩니다. */
+    + (function(){
+        var us = norms.map(function(x){ return x.s.until; })
+                      .filter(function(u){ return !!u; }).sort();
+        var st = norms.filter(function(x){ return x.s.stale; })
+                      .map(function(x){ return x.s.label; });
+        var h = '';
+        if (us.length)
+          h += '<br><span style="color:var(--text-sub)">저장해 둔 값입니다 — '
+             + '<b>다음 발표(' + esc(fmtDateKo(us[0])) + ')</b> 때 저절로 갱신됩니다.</span>';
+        if (st.length)
+          h += '<br><span style="color:var(--text-sub)">' + esc(st.join(' · '))
+             + ' 은 지금 새로 받지 못해 <b>마지막으로 받아둔 값</b>입니다.</span>';
+        return h;
+      })()
     + (thinBars
         ? '<br><span style="color:var(--text-sub)">막대가 얇게 나옵니다 — '
           + '<b>주기가 다른 지표</b>를 함께 막대로 그렸기 때문입니다 '
@@ -8801,13 +8892,19 @@ async function warmStart(){
     warmRender(d);
 
     if (d.done){
+      //  ⚠️ 여기까지는 <세부항목 표> 만 채운 것입니다. 매크로 차트가 그리는
+      //     지표(카탈로그)는 아직 아무도 안 열어봤으면 비어 있습니다.
+      //     그것까지 채워야 학회원이 열 때 <기다리지 않습니다>.
+      await warmCatalog();
       warmRun = false;
       $('warmGo').classList.remove('hidden');
       $('warmStop').classList.add('hidden');
       $('warmFill').style.width = '100%';
       $('warmMsg').innerHTML = '<b>전부 최신입니다.</b> ' + warmCalls + '번 불러서 '
-        + warmFilled + '개 지표를 채웠습니다. '
-        + '<br>지표가 새로 발표되면 이 버튼을 다시 눌러주세요 — 바뀐 것만 골라 받습니다. '
+        + warmFilled + '개 지표를 채웠습니다'
+        + (warmCat ? ' · 차트 지표 ' + warmCat + '개도 저장해 뒀습니다' : '') + '. '
+        + '<br>이제 학회원이 열면 <b>우리 DB 에 저장된 값</b>을 바로 봅니다 — '
+        + '다음 발표 때 저절로 갱신됩니다. '
         + '<span style="opacity:.8">(자동 예약은 아직 걸어두지 않았습니다. '
         + '걸고 싶으면 Supabase 의 pg_cron 으로 이 기능을 밤마다 부르게 하면 됩니다.)</span>';
       return;
@@ -8819,6 +8916,42 @@ async function warmStart(){
     $('warmMsg').innerHTML += ' <b>— 한 번에 도는 횟수를 넘겨 멈췄습니다.</b> 다시 눌러 이어받으세요.';
   }
   warmHalt();
+}
+
+/*  ── 차트 지표까지 미리 받아두기 ────────────────────────────
+
+    ⚠️ 왜 필요한가. 서버의 「예열」은 <세부항목 표>(CPI 보고서 안의 300개
+       항목 같은 것)를 채웁니다. 그런데 매크로 차트가 그리는 것은 카탈로그에
+       등록된 지표 133개이고, 그건 <누군가 처음 열 때> 받아옵니다.
+       회의 시간에 처음 여는 사람만 몇 초 기다리게 됩니다.
+
+    ⚠️ 여기서는 <화면이 평소에 쓰는 그 길> 로 한 번씩 불러 둡니다.
+       이미 저장돼 있는 것은 서버가 «저장된 값» 을 즉시 돌려주므로
+       FRED 를 다시 부르지 않습니다 — 공짜입니다.
+
+    ⚠️ 한 번에 4개씩만 보냅니다. 133개를 한꺼번에 던지면 서버 쪽 속도
+       제한에 걸려 오히려 느려집니다.                                    */
+var warmCat = 0;
+async function warmCatalog(){
+  warmCat = 0;
+  var list = (catalog || []).filter(function(c){
+    return c && c.source && c.code; });
+  if (!list.length) return;
+  var i = 0, LANES = 4, start = fetchStart();
+  async function lane(){
+    while (warmRun !== false && i < list.length){
+      var c = list[i++];
+      $('warmMsg').innerHTML = '차트 지표를 저장하는 중… <b>' + i + ' / ' + list.length + '</b>'
+        + ' <span style="opacity:.75">(' + esc(c.label || c.code) + ')</span>';
+      $('warmFill').style.width = (i / list.length * 100).toFixed(1) + '%';
+      try {
+        await edge({ source: c.source, code: c.code, item_code: c.item_code || '',
+                     cycle: c.cycle || 'M', start: start });
+        warmCat++;
+      } catch(e){ /* 하나 실패해도 나머지는 계속 받습니다 */ }
+    }
+  }
+  await Promise.all(Array.from({ length: LANES }, lane));
 }
 
 function warmRender(d){
@@ -11631,30 +11764,78 @@ function aiDrawTargets(box, sec){
 /*  밸류에이션 표 — 기법 / 배수 / 왜 그 배수인가 / 목표가
     ⚠️ "왜 그 배수인가" 가 이 표의 알맹이입니다. 배수만 있으면
        숫자를 고른 근거가 없어 발표에서 그대로 무너집니다.             */
-function aiValTable(v, curDefault){
+/*  ── 목표가가 현재가보다 위인가 아래인가 ─────────────────────
+
+    ⚠️ 실제로 나온 리포트입니다. 마이크론 현재가가 $1,000 인데 강세
+       목표가가 $175 였고, 모델은 그걸 «현재 $1,000 대비 82.5% 상향
+       잠재력» 이라고 적었습니다. 부호가 반대입니다 — 실제로는 <-82.5%>.
+
+    ⚠️ 방향은 <모델이 쓴 글> 이 아니라 <숫자> 가 정합니다. 여기서 직접
+       계산해서 붙입니다. 모델 문장과 어긋나면 숫자가 이깁니다.
+
+    ⚠️ 강세인데 목표가가 현재가보다 «낮으면» 그건 강세 논거가 아닙니다.
+       그런 카드에는 경고를 답니다 — 발표 전에 걸러야 합니다.          */
+function aiVsPx(target, px){
+  var t = aiNum(target), p = aiNum(px);
+  if (t == null || p == null || !(p > 0) || !(t > 0)) return null;
+  return { pct: (t / p - 1) * 100 };
+}
+function aiVsChip(target, px, side){
+  var r = aiVsPx(target, px);
+  if (!r) return '';
+  var up = r.pct >= 0;
+  //  강세 목표가가 아래 / 약세 목표가가 위 → 앞뒤가 안 맞습니다
+  var odd = (side === 'bull' && !up) || (side === 'bear' && up);
+  return '<span class="ai-vs ' + (up ? 'pos' : 'neg') + (odd ? ' odd' : '') + '"'
+       + ' title="현재가 대비">'
+       + esc((up ? '+' : '') + r.pct.toFixed(1) + '%') + '</span>';
+}
+/*  카드 아래에 «이건 한 번 더 보라» 고 적어 줍니다.                  */
+function aiTargetWarn(v, px, side){
+  var r = aiVsPx(v && v.target, px);
+  if (!r) return '';
+  var up = r.pct >= 0, out = [];
+  if (side === 'bull' && !up)
+    out.push('<b>강세 목표가가 현재가보다 낮습니다.</b> 강세 논거로 쓸 수 없는 숫자입니다 — '
+           + '어느 EPS·어느 기간에 배수를 곱했는지 확인하세요.');
+  if (side === 'bear' && up)
+    out.push('<b>약세 목표가가 현재가보다 높습니다.</b> 약세 논거로 쓸 수 없는 숫자입니다.');
+  if (Math.abs(r.pct) >= 60)
+    out.push('현재가와 <b>' + esc(Math.abs(r.pct).toFixed(0)) + '%</b> 차이입니다. '
+           + '경기민감주(반도체·조선·해운 등)에서 <b>지난 12개월 EPS</b>에 배수를 곱하면 '
+           + '이런 값이 나옵니다. 컨센서스 EPS를 썼는지 근거 칸을 보세요.');
+  if (!out.length) return '';
+  return '<div class="note warn" style="margin-top:10px">' + out.join('<br>') + '</div>';
+}
+function aiValTable(v, curDefault, px, side){
   var a = aiArr(v && v.valuation).filter(function(x){
     return x && typeof x === 'object' && !aiBlank(x.method); });
   if (!a.length) return '';
   return '<div class="scroll"><table>'
-    + '<thead><tr><th>기법</th><th>배수·가정</th><th>근거</th><th class="num">목표가</th></tr></thead><tbody>'
+    + '<thead><tr><th>기법</th><th>배수·가정</th><th>근거</th><th class="num">목표가</th>'
+    + '<th class="num">현재가 대비</th></tr></thead><tbody>'
     + a.map(function(x){
         var cur = aiStr(x.cur) || curDefault;
         return '<tr><td><b>' + esc(aiStr(x.method) || '—') + '</b></td>'
           + '<td>' + (aiBlank(x.multiple) ? '—' : aiRich(x.multiple)) + '</td>'
           + '<td class="st-hint">' + (aiBlank(x.why) ? '—' : aiRich(x.why)) + '</td>'
-          + '<td class="num">' + esc(aiMoney(x.target, cur)) + '</td></tr>';
+          + '<td class="num">' + esc(aiMoney(x.target, cur)) + '</td>'
+          //  ⚠️ 이 칸은 <터미널이 계산> 합니다. 모델 글이 아닙니다.
+          + '<td class="num">' + (aiVsChip(x.target, px, side) || '—') + '</td></tr>';
       }).join('')
     + '</tbody></table></div>';
 }
 
-function aiSideCard(side, v, cls, curDefault){
+function aiSideCard(side, v, cls, curDefault, px, which){
   var t = aiNum(v && v.target);
   return '<div class="ai-side ' + cls + '">'
     + '<h4>' + esc(side)
-    + '<b>' + (t != null && t > 0 ? esc(aiMoney(t, curDefault)) : '목표가 없음') + '</b></h4>'
+    + '<b>' + (t != null && t > 0 ? esc(aiMoney(t, curDefault)) : '목표가 없음')
+    +   aiVsChip(t, px, which) + '</b></h4>'
     + aiSec('논거', aiRows(v && v.points))
-    + aiSec('밸류에이션 (기법 · 배수 근거 · 목표가)', aiValTable(v, curDefault))
+    + aiSec('밸류에이션 (기법 · 배수 근거 · 목표가)', aiValTable(v, curDefault, px, which))
     + aiPara(v && v.target_why)
+    + aiTargetWarn(v, px, which)
     + '</div>';
 }
 
@@ -11690,6 +11871,15 @@ function aiRender(rep, boxId){
           + esc(sec.headline) + '</p>';
   var chips = [];
   if (px != null && px > 0) chips.push('현재가 ' + aiMoney(px, cur));
+  /*  ⚠️ 애널리스트 컨센서스를 <머리 딱지> 에 같이 답니다. 모델 목표가가
+      시장 기대와 얼마나 다른지 한 줄에서 보이게 하려는 것입니다.
+      (마이크론: 모델 $175 vs 컨센서스 $1,513 — 나란히 놓으면 바로 보입니다) */
+  if (aiNum(meta.cons_target) != null && aiNum(meta.cons_target) > 0)
+    chips.push('컨센서스 목표가 ' + aiMoney(meta.cons_target, cur)
+      + (aiNum(meta.cons_n) ? ' (' + num(meta.cons_n, 0) + '명)' : '')
+      + (meta.cons_search ? ' · 검색 참고값' : ''));
+  if (aiNum(meta.cons_eps_ny) != null && aiNum(meta.cons_eps_ny) > 0)
+    chips.push('내년 EPS 추정 ' + aiMoney(meta.cons_eps_ny, cur));
   if (aiNum(meta.mcap) != null)
     chips.push('시가총액 ' + (cur === '원' ? num(meta.mcap / 1e8, 0) + '억'
                                            : '$' + num(meta.mcap / 1e6, 0) + 'M'));
@@ -11857,8 +12047,8 @@ function aiRender(rep, boxId){
   var c6 = '<div class="card"><h2>6. 강세 · 약세 논거와 목표가</h2>'
     + (hasSide
         ? '<div class="ai-two">'
-          + aiSideCard('BULL · 강세', sec.bull, 'ai-bull', cur)
-          + aiSideCard('BEAR · 약세', sec.bear, 'ai-bear', cur)
+          + aiSideCard('BULL · 강세', sec.bull, 'ai-bull', cur, px, 'bull')
+          + aiSideCard('BEAR · 약세', sec.bear, 'ai-bear', cur, px, 'bear')
           + '</div>'
           + aiSec('목표가 한눈에', aiChartBox({ __targets: true }, Math.max(220,
               120 + 26 * (aiArr(sec.bull && sec.bull.valuation).length
@@ -14516,13 +14706,41 @@ async function saveGen(){
 function renderIndicatorTable(){
   var t = $('icTable');
   if (!catalog.length){ t.innerHTML = '<tr><td class="empty">등록된 지표가 없습니다.</td></tr>'; return; }
-  t.innerHTML = '<thead><tr><th>출처</th><th>코드</th><th>이름</th><th>단위</th><th>분류</th><th></th></tr></thead><tbody>'
+  t.innerHTML = '<thead><tr><th>출처</th><th>코드</th><th>이름</th><th>단위</th><th>분류</th>'
+    + '<th style="width:132px">중요도</th><th></th></tr></thead><tbody>'
     + catalog.map(function(c){
+        var n = starOf(c);
         return '<tr><td>'+esc(c.source.toUpperCase())+'</td>'
           + '<td class="num">'+esc(c.code)+(c.item_code?' / '+esc(c.item_code):'')+'</td>'
           + '<td>'+esc(c.label)+'</td><td>'+esc(c.unit||'—')+'</td><td>'+esc(c.category)+'</td>'
+          /*  ⚠️ 임원진이 여기서 바로 바꿉니다. SQL 편집기를 열어야만 바꿀 수
+              있으면 아무도 안 바꿉니다. 바꾸면 «손으로 정한 것» 이 되어
+              지표 SQL 을 다시 돌려도 안 덮어씁니다.                     */
+          + '<td><select onchange="setIndicatorStar('+c.id+',this.value)" '
+          +   'style="width:104px" title="발표 때 시장이 얼마나 움직이는가">'
+          +   [3,2,1].map(function(k){
+                return '<option value="'+k+'"'+(n===k?' selected':'')+'>'
+                     + starTxt(k) + '</option>'; }).join('')
+          + '</select>'
+          + (c.importance_auto === false
+              ? '<div class="st-hint" style="font-size:10px">손으로 정함</div>' : '')
+          + '</td>'
           + '<td class="num"><button class="xbtn" onclick="delIndicator('+c.id+')">&times;</button></td></tr>';
       }).join('') + '</tbody>';
+}
+
+/*  임원진이 별을 바꿉니다.
+    ⚠️ importance_auto 를 false 로 같이 내려서, 나중에 지표 중요도 SQL 을
+       다시 돌려도 이 지표만은 안 덮어쓰게 합니다.                       */
+async function setIndicatorStar(id, v){
+  var n = Math.max(1, Math.min(3, Number(v) || 1));
+  var r = await sb.from('indicator_catalog')
+    .update({ importance: n, importance_auto: false }).eq('id', id);
+  if (r.error){ alert(errMsg(r.error)); return; }
+  var c = catalog.filter(function(x){ return Number(x.id) === Number(id); })[0];
+  if (c){ c.importance = n; c.importance_auto = false; }
+  renderIndicatorTable();
+  renderCatalogSel();
 }
 async function addIndicator(){
   var code = $('icCode').value.trim(), label = $('icLabel').value.trim();
