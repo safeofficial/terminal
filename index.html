@@ -232,6 +232,26 @@
   .ai-vs.neg{background:rgba(192,57,43,.13);color:#c0392b}
   /*  앞뒤가 안 맞는 것(강세인데 아래·약세인데 위)은 테두리로 눈에 띄게  */
   .ai-vs.odd{outline:1.5px solid #c0392b;outline-offset:1px}
+  /*  고른 지표 설명 — 목록 바로 아래에 붙습니다  */
+  /*  접속 현황 — 색만으로 구분하지 않게 글자를 같이 씁니다  */
+  .pres{display:inline-flex;align-items:center;gap:5px;font-size:12px;white-space:nowrap}
+  .pres i{width:7px;height:7px;border-radius:50%;background:#a7b0c2;flex:none}
+  .pres.on{color:#1f8a70;font-weight:600}   .pres.on i{background:#1f8a70;
+    box-shadow:0 0 0 3px rgba(31,138,112,.16)}
+  .pres.idle{color:#b26a00}                 .pres.idle i{background:#e0a030}
+  .pres.off,.pres.never{color:var(--text-sub)}
+  .pres-dev{display:inline-block;font-size:11px;padding:1px 7px;margin:1px 3px 1px 0;
+            border:1px solid var(--border);border-radius:999px;color:var(--text-sub)}
+  .pres-off{font-size:10px;padding:1px 5px;border-radius:4px;
+            background:rgba(107,140,218,.14);color:var(--primary);font-weight:600}
+  .ic-desc td{padding-top:0;border-top:0}
+  .cat-desc{border:1px solid var(--border);border-left:3px solid var(--primary);
+            border-radius:6px;background:var(--bg-sub);padding:9px 12px;margin:2px 0 4px}
+  .cat-desc-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .cat-desc-h b{font-size:13px;color:var(--text)}
+  .cat-star{font-size:11px;color:var(--primary);letter-spacing:-1px}
+  .cat-meta{font-size:11px;color:var(--text-sub);font-variant-numeric:tabular-nums}
+  .cat-desc p{margin:5px 0 0;font-size:12.5px;line-height:1.65;color:var(--text-sub)}
   .ai-ev{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
   .ai-ev code{font-size:11px;font-variant-numeric:tabular-nums;
               background:var(--bg);border:1px solid var(--border);border-radius:5px;
@@ -1027,8 +1047,11 @@
               <span class="st-hint grow" id="catStarHint"></span>
             </div>
             <div class="row">
-              <select id="catalogSel" class="grow"></select>
+              <select id="catalogSel" class="grow" onchange="showCatDesc()"></select>
             </div>
+            <!--  ⚠️ 이름만 보고는 «그래서 이게 뭔데» 를 알 수 없습니다.
+                  고르는 순간 한 줄로 알려줍니다.                        -->
+            <div id="catDesc" class="cat-desc hidden"></div>
             <div class="row">
               <button class="btn-sm btn-solid grow" onclick="addFromCatalog()">+ 차트에 추가</button>
               <button class="btn-sm" onclick="toggleManual()">직접 입력</button>
@@ -2625,6 +2648,30 @@
         <p>팀 · 학회원 · 활동 기수 · 지표 목록을 관리합니다.</p>
       </div>
 
+      <!--  ── 지금 누가 켜놨나 ──────────────────────────────────
+            ⚠️ IP·위치는 안 남깁니다 (접속 기록과 같은 원칙).
+               브라우저·OS 와 «그 브라우저에 저장된 임의의 번호» 만 씁니다.
+            ⚠️ «자리비움» 은 «컴퓨터 앞에 없다» 가 아니라 «이 화면을 안
+               보고 있다» 입니다. 다른 탭을 보면 신호를 멈춥니다.       -->
+      <div class="card" id="presenceCard">
+        <h2>지금 누가 켜놨나
+          <span class="tools">
+            <label class="st-hint" style="min-width:auto">
+              <input type="checkbox" id="presAuto" checked onchange="presTick()"> 자동 새로고침
+            </label>
+            <button class="btn-sm" onclick="loadPresence()">새로고침</button>
+          </span>
+        </h2>
+        <div id="presSum" class="st-hint" style="margin:-6px 0 10px"></div>
+        <div class="scroll"><table id="presTable"></table></div>
+        <p class="st-hint" style="margin:8px 0 0">
+          <b>IP 주소·위치는 남기지 않습니다.</b> 브라우저·OS 와 그 브라우저에 저장된
+          임의의 번호만 씁니다 — 학회원이 브라우저 저장소를 지우면 사라집니다.
+          <b>자리비움</b>은 «자리에 없다»가 아니라 «이 화면을 안 보고 있다»는 뜻입니다
+          (다른 탭을 보면 신호를 멈춥니다).
+        </p>
+      </div>
+
       <!--  ⚠️ AI 리포트 비용은 <여기에만> 나옵니다.
             · 학회원 화면에는 금액이 한 군데도 안 뜹니다 (누르기를 망설이니까)
             · AI 분석 탭에도 안 뜹니다 (발표 중 화면 공유 때 보이면 곤란)
@@ -3016,6 +3063,9 @@ async function afterLogin(){
     return;
   }
   await recordAccess();
+  //  ⚠️ «켜져 있다» 는 신호를 1분마다 보냅니다 (다른 탭을 보면 멈춥니다).
+  //     임원진 설정 화면이 이걸로 «지금 누가 켜놨나» 를 보여줍니다.
+  presenceStart();
   enterApp();
 }
 
@@ -3206,6 +3256,33 @@ function setCatStar(n){
   });
   renderCatalogSel();
 }
+/*  고른 지표가 무엇인지 한 줄로 알려줍니다.
+
+    ⚠️ 신입 부원이 CFNAI 를 골라놓고 무슨 뜻인지 몰라 그냥 지우는 일이
+       실제로 생깁니다. 이름 옆에 «무엇을 재나 · 왜 보나» 를 붙입니다.
+    ⚠️ 설명은 DB(indicator_catalog.description)에 있습니다. 화면에
+       박아두면 고치려고 코드를 건드려야 합니다.                        */
+function showCatDesc(){
+  var box = $('catDesc'); if (!box) return;
+  var id = ($('catalogSel') || {}).value;
+  var c = catalog.filter(function(x){ return String(x.id) === String(id); })[0];
+  if (!c){ box.classList.add('hidden'); box.innerHTML = ''; return; }
+  var d = aiStr(c.description);
+  box.classList.remove('hidden');
+  box.innerHTML =
+      '<div class="cat-desc-h"><b>' + esc(c.label) + '</b>'
+    +   '<span class="cat-star" title="중요도">' + starTxt(starOf(c)) + '</span>'
+    +   '<span class="cat-meta">' + esc(String(c.source).toUpperCase())
+    +     ' · ' + esc(c.code) + ' · ' + esc(cycleName(c.cycle))
+    +     (c.unit ? ' · ' + esc(c.unit) : '') + '</span>'
+    + '</div>'
+    + (d ? '<p>' + esc(d) + '</p>'
+         : '<p class="st-hint">설명이 아직 없습니다 — 설정 → 지표 관리에서 적어둘 수 있습니다.</p>');
+}
+function cycleName(c){
+  return { D:'일간', M:'월간', Q:'분기', A:'연간' }[String(c || 'M').toUpperCase()] || '월간';
+}
+
 function renderCatalogSel(){
   var sel = $('catalogSel'); if (!sel) return;
   var keep = sel.value;
@@ -3229,6 +3306,7 @@ function renderCatalogSel(){
   //  걸러도 고르던 지표가 목록에 남아 있으면 그대로 둡니다
   if (keep && sel.querySelector('option[value="' + keep + '"]')) sel.value = keep;
 
+  showCatDesc();
   var n3 = catalog.filter(function(c){ return starOf(c) === 3; }).length;
   var h = $('catStarHint');
   if (h) h.textContent = catStar === 3
@@ -3463,9 +3541,16 @@ async function dtLoadItems(auto){
     차이로 계산해 보내주고, 여기서는 <b>%p</b> 로 적습니다.              */
 function dtPctCell(v, isDiff){
   if (v == null) return '<td class="num st-hint">—</td>';
-  var dp = isDiff ? 2 : 1;
-  return '<td class="num ' + (v > 0 ? 'pos' : (v < 0 ? 'neg' : '')) + '">'
-       + (v > 0 ? '+' : '') + num(v, dp) + (isDiff ? '%p' : '%') + '</td>';
+  /*  ⚠️ 자릿수를 <하나로> 맞춥니다. 예전에는 %p 만 소수점 두 자리라
+      «+2.00%p» 옆에 «+1.5%» 가 서서 표가 들쭉날쭉했습니다.
+      («2.00p 이런 거 통일 안 되나» 가 정확히 이 얘기였습니다)
+
+      ⚠️ 그렇다고 %p 를 % 로 <바꾸지는 않습니다>. 뜻이 다릅니다 —
+      실업률이 4.0 → 4.5 면 «0.5%p 올랐다» 와 «12.5% 올랐다» 가 둘 다
+      맞는 말이고 숫자가 완전히 다릅니다. 표에 한 줄로 적어두었습니다.  */
+  return '<td class="num ' + (v > 0 ? 'pos' : (v < 0 ? 'neg' : '')) + '"'
+       + (isDiff ? ' title="퍼센트포인트 — 값 자체가 이미 비율이라 뺄셈으로 잽니다"' : '') + '>'
+       + (v > 0 ? '+' : '') + num(v, 1) + (isDiff ? '%p' : '%') + '</td>';
 }
 
 /*  주기가 월간인 계열만 남깁니다 (기본).
@@ -3537,6 +3622,17 @@ function dtRenderPicker(){
        + '<td class="st-hint">' + esc(x.on || '—') + '</td></tr>';
   });
   H += '</tbody></table>';
+  /*  ⚠️ %p 가 왜 섞여 있는지 <표 안에> 적어둡니다. 이걸 안 적으면
+      «왜 어떤 건 % 고 어떤 건 %p 냐» 를 매번 물어보게 됩니다.
+      값 자체가 이미 비율인 항목(실업률·금리 등)은 뺄셈으로 재는 게 맞고,
+      그걸 %로 적으면 «4% 가 4.5% 됐는데 12.5% 올랐다» 가 되어
+      읽는 사람이 반드시 헷갈립니다.                                     */
+  var anyDiff = dtItems.some(function(x){ return x.diff; });
+  if (anyDiff)
+    H += '<div class="st-hint" style="margin:6px 2px 0;line-height:1.6">'
+       + '<b>%p</b> 는 퍼센트포인트입니다 — 값 자체가 이미 비율인 항목'
+       + '(실업률·금리 등)은 나누기가 아니라 <b>뺄셈</b>으로 잽니다. '
+       + '실업률 4.0 → 4.5 는 <b>+0.5%p</b> 이지 +0.5% 가 아닙니다.</div>';
   $('dtPicker').innerHTML = H;
 
   var n = Object.keys(dtPick).length;
@@ -3746,7 +3842,13 @@ function dtDraw(){
       itemGap:14, data: dtNames },
     tooltip:{ trigger:'axis', order:'valueDesc', textStyle:{ fontSize:11.5 },
       axisPointer:{ type: shape === 'bar' ? 'shadow' : 'line' },
-      valueFormatter:function(v){ return v == null ? '—' : Number(v).toFixed(2); } },
+      /*  ⚠️ 표와 <같은 자릿수·같은 단위> 로 적습니다. 표에서는 «+1.5%» 인데
+          풍선말에서는 «1.50» 이면 같은 값인지 헷갈립니다.               */
+      valueFormatter:function(v){
+        if (v == null) return '—';
+        var d = (mode === 'raw') ? 2 : 1;
+        return (mode !== 'raw' && v > 0 ? '+' : '') + num(Number(v), d)
+             + (mode === 'raw' ? '' : (dtItems.some(function(x){ return x.diff; }) ? '%p' : '%')); } },
     xAxis:{ type:'category', data:axis,
       axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
       /*  한 달에 막대가 6개씩 서면 옆 달과 이어져 보여서 <어디까지가
@@ -3824,7 +3926,8 @@ function dtDraw(){
           return { value:r.cmp, itemStyle:{ color: r.cmp >= 0 ? '#c0392b' : '#1b5fa8' } }; }),
         label:{ show:true, position:'right', fontSize:11,
           formatter:function(a){
-            return (a.value >= 0 ? '+' : '') + Number(a.value).toFixed(barDiff ? 2 : 1)
+            //  ⚠️ 표·풍선말과 같은 «소수점 한 자리» 로 맞춥니다
+            return (a.value >= 0 ? '+' : '') + Number(a.value).toFixed(1)
                  + (barDiff ? '%p' : '%'); } } }]
     }, true);
   } else {
@@ -3845,12 +3948,15 @@ function dtReadout(rows, mode){
   var top = sorted[0], bot = sorted[sorted.length - 1];
   var upN = ok.filter(function(r){ return r.cmp > 0; }).length;
   var parent = dtParentCat ? dtParentCat.label : '이 지표';
+  /*  ⚠️ 표·차트와 <같은 단위> 를 씁니다. 표에서는 %p 로 적어놓고 해설에서만
+      % 라고 하면, 같은 숫자를 두 가지로 부르는 셈이라 반드시 헷갈립니다.  */
+  var U = ok.some(function(r){ return r.diff; }) ? '%p' : '%';
 
   var H = '<b>' + esc(parent) + ' 안을 쪼개서 보면</b><br>';
   H += '· ' + esc(lab) + '로 견주면 <b>' + esc(top.name) + '</b>('
-     + (top.cmp > 0 ? '+' : '') + num(top.cmp, 1) + '%)가 가장 많이 올랐고, '
+     + (top.cmp > 0 ? '+' : '') + num(top.cmp, 1) + U + ')가 가장 많이 올랐고, '
      + '<b>' + esc(bot.name) + '</b>('
-     + (bot.cmp > 0 ? '+' : '') + num(bot.cmp, 1) + '%)가 가장 덜 올랐습니다.<br>';
+     + (bot.cmp > 0 ? '+' : '') + num(bot.cmp, 1) + U + ')가 가장 덜 올랐습니다.<br>';
   if (ok.length > 1){
     var spread = top.cmp - bot.cmp;
     H += '· 둘 사이 격차가 <b>' + num(spread, 1) + '%p</b>입니다. '
@@ -8895,10 +9001,18 @@ async function warmStart(){
       //  ⚠️ 여기까지는 <세부항목 표> 만 채운 것입니다. 매크로 차트가 그리는
       //     지표(카탈로그)는 아직 아무도 안 열어봤으면 비어 있습니다.
       //     그것까지 채워야 학회원이 열 때 <기다리지 않습니다>.
-      await warmCatalog();
+      var finished = await warmCatalog();
       warmRun = false;
       $('warmGo').classList.remove('hidden');
       $('warmStop').classList.add('hidden');
+      /*  ⚠️ 멈추기를 눌렀는데 «전부 최신입니다» 로 덮어쓰면, 학회원은
+          다 된 줄 알고 나갑니다. 멈춘 건 멈췄다고 적습니다.            */
+      if (!finished){
+        $('warmMsg').innerHTML = '<b>2단계에서 멈췄습니다.</b> 차트 지표 '
+          + warmCat + '개까지 저장했습니다. 다시 누르면 <b>이어서</b> 받습니다 '
+          + '<span style="opacity:.8">(이미 받아둔 것은 그냥 지나갑니다)</span>.';
+        return;
+      }
       $('warmFill').style.width = '100%';
       $('warmMsg').innerHTML = '<b>전부 최신입니다.</b> ' + warmCalls + '번 불러서 '
         + warmFilled + '개 지표를 채웠습니다'
@@ -8936,13 +9050,22 @@ async function warmCatalog(){
   warmCat = 0;
   var list = (catalog || []).filter(function(c){
     return c && c.source && c.code; });
-  if (!list.length) return;
+  if (!list.length) return true;
   var i = 0, LANES = 4, start = fetchStart();
+  var stopped = false;
   async function lane(){
     while (warmRun !== false && i < list.length){
       var c = list[i++];
-      $('warmMsg').innerHTML = '차트 지표를 저장하는 중… <b>' + i + ' / ' + list.length + '</b>'
-        + ' <span style="opacity:.75">(' + esc(c.label || c.code) + ')</span>';
+      /*  ⚠️ «2단계» 라고 밝힙니다. 1단계에서 막대가 100% 까지 찼다가
+          여기서 다시 0 부터 올라가는데, 단계를 안 적어두면 «되돌아갔나»
+          로 읽힙니다. 실제로 학회장이 «이거 맞아?» 하고 물었습니다.     */
+      $('warmMsg').innerHTML =
+          '<b>2단계</b> · 차트 지표를 저장하는 중 '
+        + '<b>' + i + ' / ' + list.length + '</b>'
+        + ' <span style="opacity:.75">(' + esc(c.label || c.code) + ')</span>'
+        + '<br><span style="color:var(--text-sub)">1단계(세부 항목 표)는 끝났습니다. '
+        + '이제 매크로 차트가 그리는 지표를 미리 받아둡니다 — '
+        + '이미 받아둔 것은 그냥 지나갑니다.</span>';
       $('warmFill').style.width = (i / list.length * 100).toFixed(1) + '%';
       try {
         await edge({ source: c.source, code: c.code, item_code: c.item_code || '',
@@ -8950,8 +9073,11 @@ async function warmCatalog(){
         warmCat++;
       } catch(e){ /* 하나 실패해도 나머지는 계속 받습니다 */ }
     }
+    if (warmRun === false && i < list.length) stopped = true;
   }
   await Promise.all(Array.from({ length: LANES }, lane));
+  //  ⚠️ 중간에 멈췄으면 «다 됐다» 고 말하면 안 됩니다
+  return !stopped;
 }
 
 function warmRender(d){
@@ -8960,23 +9086,41 @@ function warmRender(d){
   var pctv = ck.length ? doneN / ck.length * 100 : 0;
   $('warmFill').style.width = pctv.toFixed(1) + '%';
 
-  var head = '<b>' + doneN + ' / ' + ck.length + '</b> 지표 최신';
+  //  ⚠️ 1단계라고 밝혀야 2단계로 넘어갈 때 «되돌아갔다» 로 안 읽힙니다
+  var head = '<b>1단계</b> · <b>' + doneN + ' / ' + ck.length + '</b> 지표 최신';
   if (d.warmed){
     head += ' · 지금 <b>' + esc(d.release || d.warmed) + '</b> 받는 중 ('
           + num(d.counted, 0) + '/' + num(d.total, 0) + ' 항목'
           + (d.remaining > 0 ? ', ' + num(d.remaining, 0) + '개 남음' : '') + ')';
   }
+  /*  ⚠️ 숫자가 어제 14 였다가 오늘 11 로 <내려갈 수 있습니다>.
+      그게 정상입니다 — 밤사이 발표가 난 보고서는 다시 받아야 하니까요
+      (주간 실업수당은 매주 목요일에 납니다).
+
+      그런데 숫자만 오르내리면 사람은 «고장났나» 로 읽습니다. 그래서
+      «왜 다시 받는지» 를 종류별로 세어 같이 적습니다. 이걸 안 적어두면
+      학회장이 매번 물어봐야 합니다.                                     */
+  var by = {};
+  ck.forEach(function(x){ if (x.stale && x.why) by[String(x.why).split(' · ')[0]] =
+    (by[String(x.why).split(' · ')[0]] || 0) + 1; });
+  var parts = Object.keys(by).map(function(k){ return k + ' ' + by[k] + '개'; });
+  if (parts.length) head += '<br><span style="color:var(--text-sub)">다시 받을 것 — '
+    + esc(parts.join(' · ')) + '</span>';
   $('warmMsg').innerHTML = head;
 
   $('warmTable').innerHTML =
-    '<thead><tr><th>지표</th><th>받아둔 날</th><th>마지막 발표</th><th>다음 발표</th><th>상태</th></tr></thead><tbody>'
+    '<thead><tr><th>지표</th><th>받아둔 날</th><th>마지막 발표</th><th>다음 발표</th>'
+  + '<th>상태</th><th>이유</th></tr></thead><tbody>'
   + ck.map(function(x){
       return '<tr><td><code>' + esc(x.series) + '</code></td>'
            + '<td>' + esc(x.got || '—') + '</td>'
-           + '<td>' + esc(x.last_release || '—') + '</td>'
+           + '<td>' + esc(x.last_release
+               || (x.no_schedule ? '일정 없음' : '—')) + '</td>'
            + '<td>' + esc(x.next || '—') + '</td>'
            + '<td class="' + (x.stale ? 'dn' : 'up') + '">'
-           + (x.stale ? '받아야 함' : '최신') + '</td></tr>';
+           + (x.stale ? '받아야 함' : '최신') + '</td>'
+           //  ⚠️ 이 칸이 «왜 숫자가 내려갔나» 에 답합니다
+           + '<td class="st-hint">' + esc(x.why || '') + '</td></tr>';
     }).join('')
   + '</tbody>';
 }
@@ -14689,11 +14833,132 @@ async function loadAccess(){
 async function loadAdmin(){
   loadAiSpend();
   loadTradableStat();
+  loadPresence(); presTick();
   var s = await sb.from('app_settings').select('current_gen').eq('id',1).maybeSingle();
   if (s.data) $('curGen').value = s.data.current_gen;
   renderIndicatorTable();
   loadMembers();
 }
+/*  ── 지금 누가 켜놨나 ────────────────────────────────────────
+
+    ⚠️ 무엇을 남기나. 브라우저·OS 요약("Chrome · Windows")과, <그 브라우저에
+       저장된 임의의 번호> 뿐입니다. IP·위치·화면 크기 같은 지문은 안 씁니다
+       (접속 기록과 같은 원칙입니다).
+
+    ⚠️ 왜 임의의 번호가 필요한가. 노트북 두 대가 둘 다 "Chrome · Windows"
+       라서, 이 번호가 없으면 <몇 대인지> 를 셀 수가 없습니다. 사람을
+       따라다니는 값이 아니고, 브라우저 저장소를 지우면 사라집니다.
+
+    ⚠️ 「자리비움」은 «자리에 없다» 가 아니라 «이 화면을 안 보고 있다» 입니다.
+       다른 탭을 보면 신호를 멈춥니다 — 30명이 하루 종일 켜두면 헛되이
+       서버를 두드리게 되니까요.                                          */
+var PRES_KEY = 'safe_device_id';
+function deviceId(){
+  try {
+    var v = localStorage.getItem(PRES_KEY);
+    if (!v || v.length < 8){
+      v = 'd' + Math.random().toString(36).slice(2, 10)
+              + Math.random().toString(36).slice(2, 6);
+      localStorage.setItem(PRES_KEY, v);
+    }
+    return v;
+  } catch(e){
+    /*  저장소를 막아둔 브라우저(사생활 보호 모드 등)도 있습니다.
+        그때는 이번 창에서만 쓰는 번호로 갑니다 — 기기 수가 조금
+        부풀 수 있지만 화면이 멈추는 것보다 낫습니다.                  */
+    if (!window.__devId) window.__devId = 'x' + Math.random().toString(36).slice(2, 12);
+    return window.__devId;
+  }
+}
+
+var presTimer = null, presLoadTimer = null;
+async function presencePing(){
+  if (!me) return;
+  try { await sb.rpc('presence_ping', { p_device_id: deviceId(), p_device: deviceLabel() }); }
+  catch(e){ /* 이 SQL 을 아직 안 돌린 곳도 있습니다 — 조용히 넘어갑니다 */ }
+}
+/*  1분마다 «켜져 있다» 고 알립니다. 화면을 안 보고 있으면 멈춥니다.   */
+function presenceStart(){
+  if (presTimer) return;
+  presencePing();
+  presTimer = setInterval(function(){
+    if (document.visibilityState === 'visible') presencePing();
+  }, 60000);
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible') presencePing();
+  });
+}
+
+//  설정 탭을 열어두면 30초마다 다시 봅니다 (탭을 닫으면 멈춥니다)
+function presTick(){
+  if (presLoadTimer){ clearInterval(presLoadTimer); presLoadTimer = null; }
+  var on = $('presAuto') && $('presAuto').checked;
+  if (!on) return;
+  presLoadTimer = setInterval(function(){
+    var pane = $('pane-admin');
+    if (!pane || pane.classList.contains('hidden')){ clearInterval(presLoadTimer); presLoadTimer = null; return; }
+    if (document.visibilityState === 'visible') loadPresence();
+  }, 30000);
+}
+
+function presDot(st){
+  var m = { online:['on','접속 중'], idle:['idle','자리비움'],
+            offline:['off','오프라인'], never:['never','접속한 적 없음'] }[st]
+        || ['off','오프라인'];
+  return '<span class="pres ' + m[0] + '"><i></i>' + m[1] + '</span>';
+}
+function presAgo(t){
+  if (!t) return '—';
+  var s = Math.max(0, (Date.now() - Date.parse(t)) / 1000);
+  if (s < 60)    return '방금';
+  if (s < 3600)  return Math.floor(s / 60) + '분 전';
+  if (s < 86400) return Math.floor(s / 3600) + '시간 전';
+  return Math.floor(s / 86400) + '일 전';
+}
+
+async function loadPresence(){
+  var t = $('presTable'); if (!t) return;
+  try {
+    var r = await sb.rpc('presence_list', { p_minutes: 5 });
+    if (r.error) throw new Error(errMsg(r.error));
+    var d = r.data || {}, rows = d.rows || [];
+    if (!rows.length){
+      t.innerHTML = '<tr><td class="empty">아직 기록이 없습니다. '
+        + '학회원이 한 번 접속하면 여기에 나옵니다.</td></tr>';
+      $('presSum').textContent = ''; return;
+    }
+    var onN = rows.filter(function(x){ return x.status === 'online'; }).length;
+    var idleN = rows.filter(function(x){ return x.status === 'idle'; }).length;
+    var devN = rows.reduce(function(a, x){ return a + (Number(x.devices_now) || 0); }, 0);
+    $('presSum').innerHTML =
+      '<b>' + onN + '명</b>이 켜져 있습니다 (기기 ' + devN + '대)'
+      + (idleN ? ' · 자리비움 ' + idleN + '명' : '')
+      + ' · 전체 ' + rows.length + '명'
+      + ' <span style="opacity:.75">· 최근 ' + Number(d.minutes || 5) + '분 기준</span>';
+
+    t.innerHTML = '<thead><tr><th>이름</th><th style="width:104px">상태</th>'
+      + '<th class="num" style="width:78px">지금 기기</th>'
+      + '<th class="num" style="width:92px">최근 7일</th>'
+      + '<th style="width:96px">마지막 활동</th><th>기기</th></tr></thead><tbody>'
+      + rows.map(function(x){
+          var devs = aiArr(x.devices).slice(0, 4).map(function(v){
+            return '<span class="pres-dev">' + esc(aiStr(v.device) || '기타') + '</span>'; }).join('');
+          return '<tr>'
+            + '<td><b>' + esc(x.name || '—') + '</b>'
+            +   (x.role === 'officer' ? ' <span class="pres-off">임원</span>' : '')
+            +   '<div class="st-hint">' + esc(x.gen || '') + '기</div></td>'
+            + '<td>' + presDot(x.status) + '</td>'
+            + '<td class="num">' + (Number(x.devices_now) || 0) + '</td>'
+            + '<td class="num st-hint">' + (Number(x.devices_7d) || 0) + '</td>'
+            + '<td class="st-hint">' + esc(presAgo(x.last_seen)) + '</td>'
+            + '<td>' + (devs || '<span class="st-hint">—</span>') + '</td></tr>';
+        }).join('') + '</tbody>';
+  } catch(e){
+    t.innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>';
+    $('presSum').textContent = '';
+  }
+}
+
 async function saveGen(){
   var g = Number($('curGen').value);
   if (!(g > 0)){ $('genMsg').textContent = '올바른 기수를 입력해주세요.'; return; }
@@ -14725,8 +14990,26 @@ function renderIndicatorTable(){
           + (c.importance_auto === false
               ? '<div class="st-hint" style="font-size:10px">손으로 정함</div>' : '')
           + '</td>'
-          + '<td class="num"><button class="xbtn" onclick="delIndicator('+c.id+')">&times;</button></td></tr>';
+          + '<td class="num"><button class="xbtn" onclick="delIndicator('+c.id+')">&times;</button></td></tr>'
+          /*  ⚠️ 설명은 길어서 칸에 안 들어갑니다. 아래 줄을 통째로 씁니다.
+              여기서 못 고치면 SQL 편집기를 열어야 하고, 그러면 아무도 안 고칩니다. */
+          + '<tr class="ic-desc"><td></td><td colspan="6">'
+          +   '<input type="text" value="' + esc(c.description || '') + '"'
+          +     ' placeholder="이 지표가 무엇을 재는지 한 줄로 (화면에서 고르면 여기 뜹니다)"'
+          +     ' style="width:100%" onchange="setIndicatorDesc(' + c.id + ',this.value)">'
+          + '</td></tr>';
       }).join('') + '</tbody>';
+}
+
+/*  임원진이 지표 설명을 고칩니다.                                     */
+async function setIndicatorDesc(id, v){
+  var t = String(v || '').trim().slice(0, 300);
+  var r = await sb.from('indicator_catalog')
+    .update({ description: t || null }).eq('id', id);
+  if (r.error){ alert(errMsg(r.error)); return; }
+  var c = catalog.filter(function(x){ return Number(x.id) === Number(id); })[0];
+  if (c) c.description = t || null;
+  showCatDesc();
 }
 
 /*  임원진이 별을 바꿉니다.
