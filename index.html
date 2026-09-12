@@ -234,6 +234,11 @@
   .ai-vs.odd{outline:1.5px solid #c0392b;outline-offset:1px}
   /*  고른 지표 설명 — 목록 바로 아래에 붙습니다  */
   /*  접속 현황 — 색만으로 구분하지 않게 글자를 같이 씁니다  */
+  /*  ⚠️ 되돌릴 수 없는 버튼은 다른 버튼과 <다르게> 보여야 합니다.
+      옆 버튼과 똑같이 생기면 습관적으로 누릅니다.  */
+  .btn-danger{background:#c0392b;border-color:#c0392b;color:#fff;font-weight:600}
+  .btn-danger:hover{background:#a93226;border-color:#a93226}
+  .btn-danger:disabled{background:#d8a09a;border-color:#d8a09a}
   .pres{display:inline-flex;align-items:center;gap:5px;font-size:12px;white-space:nowrap}
   .pres i{width:7px;height:7px;border-radius:50%;background:#a7b0c2;flex:none}
   .pres.on{color:#1f8a70;font-weight:600}   .pres.on i{background:#1f8a70;
@@ -679,6 +684,10 @@
   .by-tag{display:inline-block;padding:2px 7px;border-radius:6px;font-size:11px;
           font-weight:700;letter-spacing:-.2px;white-space:nowrap;margin-right:4px}
   .by-tag.manual{background:#eef1f6;color:#5a6278}
+
+  /*  «누가» — 이름표. 같은 팀 팀원과 임원진만 봅니다.            */
+  .who{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;
+       font-weight:700;background:#f3f0fa;color:#5b3ea8;white-space:nowrap}
 
   /*  종목 검색 딱지 — 무엇인지 알려줄 뿐, 못 사게 막는 표시가 아닙니다.  */
   .sym-tag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:5px;
@@ -2648,6 +2657,49 @@
         <p>팀 · 학회원 · 활동 기수 · 지표 목록을 관리합니다.</p>
       </div>
 
+      <!--  ── 대회 초기화 ───────────────────────────────────────
+            ⚠️ 되돌릴 수 없습니다. 그래서 <누르기 전에> 무엇이 몇 건
+               지워지는지 숫자로 먼저 보여줍니다.                      -->
+      <div class="card" id="resetCard">
+        <h2>대회 초기화
+          <span class="tools st-hint">포트폴리오 프로젝트를 새로 시작할 때</span>
+        </h2>
+        <div class="note warn" style="margin:-4px 0 12px">
+          <b>되돌릴 수 없습니다.</b> 매매 기록 · 일별 스냅샷 · 배당 · 자동매매
+          기록 · 저장해둔 전략이 <b>영구히</b> 지워집니다.
+          팀 구성과 학회원 계정은 그대로 남습니다.
+        </div>
+        <div class="row">
+          <label>범위</label>
+          <select id="rsTeam" style="width:230px" onchange="rsPreview()">
+            <option value="">전체 팀 (현재 기수)</option>
+          </select>
+          <label style="min-width:auto">시드머니</label>
+          <input type="number" id="rsSeed" style="width:150px" value="100000000"
+                 min="0" step="1000000">
+          <span class="st-hint" style="flex:none">원</span>
+        </div>
+        <div class="row" id="rsWhenRow">
+          <label>대회 시작</label>
+          <input type="datetime-local" id="rsStart" style="width:210px">
+          <label style="min-width:auto">종료</label>
+          <input type="datetime-local" id="rsEnd" style="width:210px">
+          <span class="st-hint grow">비워두면 지금 기간을 그대로 둡니다</span>
+        </div>
+        <div class="row">
+          <input type="text" id="rsNote" class="grow" maxlength="200"
+                 placeholder="메모 (예: 2학기 포트폴리오 프로젝트 시작) — 기록에 남습니다">
+        </div>
+        <div id="rsPreview" class="st-hint" style="margin:8px 0"></div>
+        <div class="row">
+          <button class="btn-sm" onclick="rsPreview()">무엇이 지워지는지 다시 세기</button>
+          <button class="btn-sm btn-danger" id="rsGo" onclick="rsRun()">초기화 실행</button>
+          <span class="st-hint grow" id="rsMsg"></span>
+        </div>
+        <h3 style="font-size:.9rem;color:var(--primary);margin:16px 0 8px">초기화 기록</h3>
+        <div class="scroll"><table id="rsTable"></table></div>
+      </div>
+
       <!--  ── 지금 누가 켜놨나 ──────────────────────────────────
             ⚠️ IP·위치는 안 남깁니다 (접속 기록과 같은 원칙).
                브라우저·OS 와 «그 브라우저에 저장된 임의의 번호» 만 씁니다.
@@ -2801,6 +2853,28 @@
         </div>
         <div class="msg" id="genMsg"></div>
       </div>
+      <!--  ── 학번 이름표 ───────────────────────────────────────
+            계정은 학번으로 이미 나눠줬습니다. 학번만 뜨면 누가 누군지
+            모르니, 학번마다 <부를 이름> 을 붙입니다.                  -->
+      <div class="card" id="labelCard">
+        <h2>
+          <span>학번 이름표</span>
+          <span class="tools">
+            <input type="text" id="nkFind" placeholder="학번·이름 찾기"
+                   style="width:150px;padding:5px 9px;font-size:12.5px"
+                   oninput="renderLabels()">
+            <button class="btn-sm" onclick="loadLabels()">새로고침</button>
+          </span>
+        </h2>
+        <div class="note info" style="margin-bottom:12px">
+          여기서 붙인 이름이 <b>매매 기록 · 접속 현황 · 초기화 기록</b>에 그대로 나옵니다.
+          안 붙이면 <b>24학번</b>처럼 <b>앞 두 자리</b>만 보입니다 —
+          학번 전체는 이 화면 밖으로 안 나갑니다.
+        </div>
+        <div class="msg" id="nkMsg"></div>
+        <div class="scroll"><table id="nkTable"></table></div>
+      </div>
+
       <div class="card">
         <h2>
           <span>학회원 관리</span>
@@ -14288,14 +14362,25 @@ async function loadTrades(){
       나옵니다 — 화면에서 다시 훑으면 서버와 어긋날 수 있습니다.     */
   var rows = (mtAcc && mtAcc.trades) || [];
   if (!rows.length){
-    var r = await sb.from('trades').select('*').eq('team_id', team)
-      .order('traded_on', { ascending:false }).order('id', { ascending:false }).limit(200);
-    rows = r.data || [];
+    /*  ⚠️ 뒷길도 <이름이 붙는> 길로 갑니다. 예전에는 trades 를 그냥
+        읽어서 «누가» 칸이 늘 비어 있었습니다. team_trades 안에서
+        «같은 팀 + 임원진만» 규칙을 지킵니다.                        */
+    var r = await sb.rpc('team_trades', { p_team_id: team, p_limit: 200 });
+    rows = aiArr(r.data);
+    if (r.error || !rows.length){
+      var r2 = await sb.from('trades').select('*').eq('team_id', team)
+        .order('traded_on', { ascending:false }).order('id', { ascending:false }).limit(200);
+      rows = r2.data || [];
+    }
   }
+  /*  이름 칸을 보여줄지 — 한 사람이라도 이름이 실려 왔으면 봅니다.
+      남의 팀 방에서는 서버가 이름을 <아예 안 보내므로> 칸이 사라집니다. */
+  var showWho = rows.some(function(x){ return x.by_name; });
   if (!rows.length){ t.innerHTML = '<tr><td class="empty">거래 내역이 없습니다.</td></tr>'; return; }
 
   var fx = (mtAcc && mtAcc.fx) || 1400;
-  t.innerHTML = '<thead><tr><th>날짜</th><th>시장</th><th>종목</th><th>산 방법</th><th>구분</th>'
+  t.innerHTML = '<thead><tr><th>날짜</th><th>시장</th><th>종목</th>'
+    + (showWho ? '<th>누가</th>' : '') + '<th>산 방법</th><th>구분</th>'
     + '<th class="num">수량</th><th class="num">단가</th><th class="num">금액</th>'
     + '<th class="num">손익</th><th></th></tr></thead><tbody>'
     + rows.map(function(x){
@@ -14311,6 +14396,9 @@ async function loadTrades(){
           + '<td class="num">'+esc(x.traded_on)+'</td>'
           + '<td><span class="pill '+esc(mk)+'">'+esc(mk)+'</span></td>'
           + '<td>'+esc(x.name||x.symbol)+'</td>'
+          + (showWho ? '<td>' + (x.by_name
+              ? '<span class="who">' + esc(x.by_name) + '</span>'
+              : '<span class="st-hint">—</span>') + '</td>' : '')
           + '<td>'+(x.source === 'auto'
                     ? '<span class="by-tag auto">자동</span>'
                     : '<span class="by-tag manual">직접</span>')+'</td>'
@@ -14834,11 +14922,150 @@ async function loadAdmin(){
   loadAiSpend();
   loadTradableStat();
   loadPresence(); presTick();
+  rsInit();
   var s = await sb.from('app_settings').select('current_gen').eq('id',1).maybeSingle();
   if (s.data) $('curGen').value = s.data.current_gen;
   renderIndicatorTable();
-  loadMembers();
+  loadMembers(); loadLabels();
 }
+/*  ── 대회 초기화 ────────────────────────────────────────────
+
+    ⚠️ 되돌릴 수 없습니다. 백업도 안 만듭니다 (학회장 결정). 그래서
+       <누르기 전에> 무엇이 몇 건 지워지는지 숫자로 먼저 보여줍니다.
+       "매매 214건 · 스냅샷 63일치" 를 보고 나면 실수로 누르는 일이
+       확 줄어듭니다.
+
+    ⚠️ 한 팀만 초기화할 때는 대회 시작·종료 시각을 안 건드립니다 —
+       한 팀 사고 때문에 전 팀 일정이 바뀌면 안 되니까요. 그래서 팀을
+       고르면 날짜 칸을 숨깁니다.
+
+    ⚠️ 진짜 자물쇠는 DB 함수(contest_reset)에 있습니다. 화면은 안내입니다. */
+var rsInited = false;
+async function rsInit(){
+  //  팀 목록을 채웁니다 (한 번만)
+  var sel = $('rsTeam');
+  if (sel && !rsInited){
+    rsInited = true;
+    try {
+      var r = await sb.from('teams').select('id,name,gen').order('name');
+      var g = me && me.current_gen;
+      (r.data || []).filter(function(t){ return !g || t.gen === g; })
+        .forEach(function(t){
+          var o = document.createElement('option');
+          o.value = t.id; o.textContent = t.name + ' 만';
+          sel.appendChild(o);
+        });
+    } catch(e){ /* 팀을 못 읽어도 «전체» 로는 됩니다 */ }
+    //  기본값: 다음 월요일 09:00 시작 (한국시간)
+    var d = new Date(), add = (8 - d.getDay()) % 7 || 7;
+    var mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() + add, 9, 0);
+    var pad = function(n){ return String(n).padStart(2, '0'); };
+    var fmt = function(x){ return x.getFullYear() + '-' + pad(x.getMonth()+1) + '-'
+      + pad(x.getDate()) + 'T' + pad(x.getHours()) + ':' + pad(x.getMinutes()); };
+    if ($('rsStart') && !$('rsStart').value) $('rsStart').value = fmt(mon);
+  }
+  rsPreview(); rsLog();
+}
+
+function rsScopeTeam(){
+  var v = ($('rsTeam') || {}).value;
+  return v ? Number(v) : null;
+}
+
+async function rsPreview(){
+  var box = $('rsPreview'); if (!box) return;
+  //  한 팀만 고르면 대회 기간은 안 건드리므로 칸을 숨깁니다
+  var one = rsScopeTeam();
+  var wr = $('rsWhenRow'); if (wr) wr.style.display = one ? 'none' : '';
+  box.textContent = '세는 중…';
+  try {
+    var r = await sb.rpc('contest_reset_preview', { p_team_id: one });
+    if (r.error) throw new Error(errMsg(r.error));
+    var d = r.data || {};
+    var names = aiArr(d.team_names);
+    box.innerHTML =
+        '<b>' + (one ? esc(String(d.scope || '')) : '전체 ' + Number(d.teams) + '팀')
+      + '</b> 에서 지워질 것 — '
+      + '매매 <b>' + num(d.trades, 0) + '건</b>'
+      + ' · 스냅샷 <b>' + num(d.snapshots, 0) + '일치</b>'
+      + ' · 배당 <b>' + num(d.dividends, 0) + '건</b>'
+      + ' · 자동매매 기록 <b>' + num(d.auto_runs, 0) + '건</b>'
+      + ' · 전략 <b>' + num(d.strategies, 0) + '개</b>'
+      + (d.first_trade
+          ? '<br><span style="opacity:.8">매매 기간 ' + esc(d.first_trade)
+            + ' ~ ' + esc(d.last_trade || '') + '</span>' : '')
+      + (!one && names.length
+          ? '<br><span style="opacity:.8">대상 팀 — ' + esc(names.join(' · ')) + '</span>' : '');
+  } catch(e){
+    box.innerHTML = '<span style="color:var(--neg)">' + esc(e.message) + '</span>';
+  }
+}
+
+async function rsRun(){
+  var one = rsScopeTeam();
+  var seed = Number(($('rsSeed') || {}).value);
+  var note = (($('rsNote') || {}).value || '').trim();
+  var where = one ? (($('rsTeam').selectedOptions[0] || {}).textContent || '이 팀')
+                  : '전체 팀';
+  /*  ⚠️ 타이핑 확인은 안 넣습니다 (학회장 결정). 대신 <무엇이 몇 건>
+      지워지는지 확인창에 다시 한 번 적습니다 — 숫자를 보고 누르게. */
+  var pv = ($('rsPreview') || {}).textContent || '';
+  if (!confirm(where + ' 을(를) 초기화합니다.\n\n' + pv
+      + '\n\n되돌릴 수 없습니다. 계속할까요?')) return;
+
+  var btn = $('rsGo'); btn.disabled = true; btn.textContent = '초기화 중…';
+  $('rsMsg').style.color = 'var(--text-sub)'; $('rsMsg').textContent = '';
+  try {
+    var args = { p_team_id: one, p_seed: isFinite(seed) && seed > 0 ? seed : null,
+                 p_starts: null, p_ends: null, p_note: note || null };
+    if (!one){
+      //  ⚠️ 화면은 한국시간으로 받습니다. 서버에 보낼 때 시간대를 밝힙니다.
+      var s1 = ($('rsStart') || {}).value, s2 = ($('rsEnd') || {}).value;
+      if (s1) args.p_starts = s1 + ':00+09:00';
+      if (s2) args.p_ends   = s2 + ':00+09:00';
+    }
+    var r = await sb.rpc('contest_reset', args);
+    if (r.error) throw new Error(errMsg(r.error));
+    var d = r.data || {}, del = d.deleted || {};
+    $('rsMsg').style.color = 'var(--pos)';
+    $('rsMsg').innerHTML = '✅ 초기화했습니다 — 팀 ' + num(d.teams, 0) + '개 · '
+      + '매매 ' + num(del.trades, 0) + '건 · 스냅샷 ' + num(del.snapshots, 0) + '일치 · '
+      + '전략 ' + num(del.strategies, 0) + '개를 지웠습니다.';
+    await rsPreview(); await rsLog();
+    //  모의투자 화면도 새로 읽게 합니다 (열어둔 채로 초기화했을 수 있습니다)
+    try { mtBoard = []; tstate = null; mtAcc = null; } catch(e){}
+  } catch(e){
+    $('rsMsg').style.color = 'var(--neg)';
+    $('rsMsg').textContent = e.message;
+  }
+  btn.disabled = false; btn.textContent = '초기화 실행';
+}
+
+async function rsLog(){
+  var t = $('rsTable'); if (!t) return;
+  try {
+    var r = await sb.rpc('reset_log_list', { p_limit: 20 });
+    if (r.error) throw new Error(errMsg(r.error));
+    var rows = aiArr(r.data);
+    if (!rows.length){
+      t.innerHTML = '<tr><td class="empty">아직 초기화한 적이 없습니다.</td></tr>'; return;
+    }
+    t.innerHTML = '<thead><tr><th style="width:130px">언제</th><th style="width:90px">누가</th>'
+      + '<th style="width:110px">범위</th><th>지운 것</th><th>메모</th></tr></thead><tbody>'
+      + rows.map(function(x){
+          var d = x.deleted || {};
+          return '<tr><td class="st-hint">' + esc(String(x.at || '').slice(0, 16).replace('T', ' ')) + '</td>'
+            + '<td>' + esc(x.by || '—') + '</td>'
+            + '<td>' + esc(x.scope === 'all' ? '전체' : (x.scope || '—')) + '</td>'
+            + '<td class="st-hint">매매 ' + num(d.trades, 0) + ' · 스냅샷 ' + num(d.snapshots, 0)
+            +   ' · 전략 ' + num(d.strategies, 0) + '</td>'
+            + '<td class="st-hint">' + esc(x.note || '') + '</td></tr>';
+        }).join('') + '</tbody>';
+  } catch(e){
+    t.innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>';
+  }
+}
+
 /*  ── 지금 누가 켜놨나 ────────────────────────────────────────
 
     ⚠️ 무엇을 남기나. 브라우저·OS 요약("Chrome · Windows")과, <그 브라우저에
@@ -16858,6 +17085,73 @@ async function runStrategy(){
 function backDate(iso, days){
   var d = new Date(iso); d.setDate(d.getDate() - days);
   return d.toISOString().slice(0,10);
+}
+
+/* ══════════ 학번 이름표 (임원진) ══════════
+
+   ⚠️ 학번 전체는 이 화면 안에서만 씁니다 (임원진 전용). 붙인 이름은
+      다른 화면으로 나가지만 학번은 안 나갑니다.
+   ⚠️ 같은 이름표 두 개는 서버가 막습니다 — 매매 기록에서 누가 누군지
+      모르게 되니까요.                                              */
+var labelRows = [];
+async function loadLabels(){
+  var t = $('nkTable'); if (!t) return;
+  var r = await sb.rpc('member_label_list');
+  if (r.error){
+    t.innerHTML = '<tr><td class="empty">' + esc(errMsg(r.error)) + '</td></tr>';
+    return;
+  }
+  labelRows = aiArr(r.data);
+  renderLabels();
+}
+
+function renderLabels(){
+  var t = $('nkTable'); if (!t) return;
+  var q = (($('nkFind') || {}).value || '').trim().toLowerCase();
+  var rows = labelRows.filter(function(m){
+    if (!q) return true;
+    return (String(m.student_id || '') + ' ' + (m.name || '') + ' '
+          + (m.nickname || '')).toLowerCase().indexOf(q) >= 0;
+  });
+  if (!rows.length){
+    t.innerHTML = '<tr><td class="empty">'
+      + (labelRows.length ? '찾는 사람이 없습니다.' : '등록된 계정이 없습니다.')
+      + '</td></tr>';
+    return;
+  }
+  t.innerHTML = '<thead><tr><th style="width:120px">학번</th><th style="width:100px">이름</th>'
+    + '<th style="width:170px">이름표 (터미널에 보일 이름)</th>'
+    + '<th style="width:80px">기수</th><th>지금 이렇게 보입니다</th></tr></thead><tbody>'
+    + rows.map(function(m){
+        var i = labelRows.indexOf(m);
+        return '<tr>'
+          + '<td class="num">' + esc(m.student_id || '—') + '</td>'
+          + '<td>' + (m.name ? esc(m.name) : '<span class="st-hint">—</span>') + '</td>'
+          + '<td><input type="text" maxlength="20" value="' + esc(m.nickname || '')
+          +   '" placeholder="예: 민수" style="width:150px;padding:5px 8px;font-size:12.5px"'
+          +   ' onchange="setLabel(' + i + ', this.value)"></td>'
+          + '<td class="num">' + (m.gen != null ? esc(String(m.gen)) + '기' : '—') + '</td>'
+          + '<td><span class="who" id="nkShow-' + i + '">' + esc(m.label || '') + '</span>'
+          +   (m.role === 'officer' ? ' <span class="by-tag manual">임원진</span>' : '')
+          + '</td></tr>';
+      }).join('') + '</tbody>';
+}
+
+async function setLabel(i, v){
+  var m = labelRows[i]; if (!m) return;
+  var msg = $('nkMsg');
+  var r = await sb.rpc('member_label_set', { p_id: m.id, p_nickname: v });
+  if (r.error){
+    msg.style.color = 'var(--neg)'; msg.textContent = errMsg(r.error);
+    //  서버가 거절했으면 화면도 되돌립니다 (저장된 척하면 안 됩니다)
+    renderLabels();
+    return;
+  }
+  var d = r.data || {};
+  m.nickname = d.nickname; m.label = d.label;
+  var box = $('nkShow-' + i); if (box) box.textContent = d.label || '';
+  msg.style.color = 'var(--pos)';
+  msg.textContent = '✅ ' + (m.student_id || '') + ' → ' + (d.label || '') + ' 로 저장했습니다.';
 }
 
 /* ══════════ 학회원 관리 (임원진) ══════════ */
