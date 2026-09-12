@@ -10982,6 +10982,19 @@ async function aiBuildDossier(){
     coSeries = []; coFinSeries = []; coPricePts = []; valData = null;
   }
 
+  /*  최근 4분기 합계 — «연간 표가 작년까지» 인 빈틈을 메웁니다.
+      기업 분석 탭이 이미 받아둔 값을 그대로 씁니다 (추가 호출 없음). */
+  function ttmOf(){
+    var h = (coProf && coProf.highlights) || {};
+    var out = { rev: aiNum(h.revenue_ttm), eps: aiNum(h.eps),
+                profit_margin: aiNum(h.profit_margin),
+                op_margin: aiNum(h.op_margin) };
+    //  순이익은 직접 안 주면 매출 × 순이익률로 셉니다
+    if (out.rev != null && out.profit_margin != null)
+      out.net = out.rev * out.profit_margin;
+    return (out.rev != null || out.eps != null) ? out : null;
+  }
+
   //  ① 재무제표 (연간) — 밸류에이션 탭이 쓰는 것과 같은 자료
   try {
     await valLoad(true);
@@ -11001,6 +11014,12 @@ async function aiBuildDossier(){
         unit: f.unit || null, px: pxFall, shares: valData.shares,
         cur: valData.cur,
         rev: f.rev, op: f.op, net: f.net, eq: f.eq, debt: f.debt, cash: f.cash,
+        /*  ⚠️ 연간 재무제표는 <마지막으로 끝난 회계연도> 까지입니다.
+            지금이 9월이면 올해 숫자는 아직 없습니다. 그 자리를 0 으로
+            메우면 «절벽» 그림이 되고, 비워두면 «최근이 안 보인다» 는
+            말이 나옵니다. 그래서 <최근 4분기 합계(TTM)> 를 같이 보냅니다 —
+            모델이 마지막 점을 «TTM» 으로 붙일 수 있게.                */
+        ttm: ttmOf(),
         cfo: f.cfo, capex: f.capex, dep: f.dep, interest: f.interest, cagr: f.cagr,
         revSeries: f.revSeries, opSeries: f.opSeries, netSeries: f.netSeries,
         epsSeries: f.epsSeries, years: f.years,
@@ -11554,7 +11573,19 @@ async function aiOpen(id){
 var aiChartIns = [], aiChartQ = [], aiChartN = 0;
 
 function aiArr(v){ return Array.isArray(v) ? v : []; }
-function aiNum(v){ var n = Number(v); return isFinite(n) ? n : null; }
+/*  ⚠️ 여기가 조용한 사고의 진원지였습니다.
+    Number(null) 은 0 입니다. Number('') 도, Number(false) 도, Number([]) 도
+    전부 0 입니다. 그래서 «값이 없음» 이 리포트 어디에서든 «0» 이 됐습니다 —
+    차트의 빈 해가 0 으로 그려져 «매출 급락» 처럼 보인 것도 이것입니다.
+    <없는 것> 과 <0 인 것> 은 다릅니다. 없으면 null 로 둡니다.          */
+function aiNum(v){
+  if (v == null) return null;
+  if (typeof v === 'boolean') return null;
+  if (typeof v === 'string' && !v.trim()) return null;
+  if (Array.isArray(v)) return null;
+  var n = Number(v);
+  return isFinite(n) ? n : null;
+}
 function aiStr(v){ return String(v == null ? '' : v).trim(); }
 
 function aiSev(s){
@@ -11777,11 +11808,16 @@ function aiBarW(n){
 function aiTrim(t){
   return String(t).replace(/(\.\d*?)0+(?=$|[^\d])/, '$1').replace(/\.$/, '');
 }
+/*  ⚠️ 자릿수를 0 으로 잘랐더니 <서로 다른 눈금이 같은 글자> 가 됐습니다.
+    15,000 과 20,000 이 둘 다 «2만» 으로 찍혀서, 축에 «2만» 이 두 번
+    나오고 눈금을 읽을 수가 없었습니다 (Eaton 매출 차트).
+    소수 한 자리까지 두고, 필요 없으면 aiTrim 이 떼어냅니다 —
+    «1.5만 · 2만 · 2.5만 · 3만» 처럼 서로 다르게 나옵니다.            */
 function aiShort(v){
   var a = Math.abs(Number(v) || 0);
   if (a >= 1e12) return aiTrim(num(v / 1e12, 1)) + '조';
-  if (a >= 1e8)  return aiTrim(num(v / 1e8, 0)) + '억';
-  if (a >= 1e4)  return aiTrim(num(v / 1e4, 0)) + '만';
+  if (a >= 1e8)  return aiTrim(num(v / 1e8, 1)) + '억';
+  if (a >= 1e4)  return aiTrim(num(v / 1e4, 1)) + '만';
   if (a >= 100)  return num(v, 0);
   return aiTrim(num(v, a >= 10 ? 1 : 2));
 }
@@ -12349,18 +12385,62 @@ function aiRender(rep, boxId){
   /*  ⚠️ 숫자가 하나도 없는 차트는 <자리를 아예 안 내줍니다>. 모델이
       가끔 제목만 있고 series 가 빈 차트를 만드는데, 그때 280px 짜리
       빈 상자가 리포트 한가운데를 차지합니다. 그릴 게 있는 것만 남깁니다. */
+  /*  ── 아직 안 끝난 기간을 «0» 으로 그리지 않습니다 ─────────────
+
+      ⚠️ 실제로 나간 Eaton 리포트가 이랬습니다. 모델이 2018~2026 라벨을
+         붙여놓고 <아직 발표 안 된 2026> 을 0 으로 채웠습니다. 그러면
+         차트가 «매출이 절벽처럼 0 으로 떨어진» 그림이 됩니다 —
+         팩트가 아닌 그림입니다. 바로 아래 글에는 «완만한 성장» 이라고
+         적혀 있어서 글과 그림이 서로 딴소리를 했습니다.
+
+      규칙: <맨 뒤에서부터> 모든 계열이 비었거나 0 인 자리는 잘라냅니다.
+            모든 계열이 0 인 기간은 보여줄 것이 애초에 없습니다.
+            가운데가 비면 <끊어진 선> 으로 둡니다 (0 으로 잇지 않습니다).
+      ⚠️ 라벨을 지웠으면 «어디까지 나온 자료인지» 를 적어 줍니다.
+         조용히 지우면 그것대로 속이는 셈입니다.                       */
+  function aiChartClean(x){
+    var labels = aiArr(x.labels).slice();
+    var ser = aiArr(x.series).map(function(sr){
+      return Object.assign({}, sr, {
+        data: aiArr(sr && sr.data).map(function(v){ return aiNum(v); }) });
+    });
+    var dropped = [];
+    while (labels.length){
+      var i = labels.length - 1;
+      var empty = ser.every(function(sr){
+        var v = sr.data[i];
+        return v == null || v === 0;
+      });
+      if (!empty) break;
+      dropped.unshift(labels[i]);
+      labels.pop();
+      ser.forEach(function(sr){ sr.data = sr.data.slice(0, i); });
+    }
+    return { labels: labels, series: ser, dropped: dropped,
+             title: x.title, kind: x.kind, unit: x.unit, note: x.note };
+  }
+
   var charts = aiArr(fn.charts).filter(function(x){
     if (!x || typeof x !== 'object') return false;
     if (!aiArr(x.labels).length) return false;
     return aiArr(x.series).some(function(sr){
       return sr && aiArr(sr.data).some(function(v){ return aiNum(v) != null; });
     });
+  }).map(aiChartClean).filter(function(x){
+    //  다 잘라내고 나면 그릴 것이 없습니다
+    return x.labels.length >= 2 && x.series.some(function(sr){
+      return sr.data.some(function(v){ return v != null; }); });
   });
   var chartsHtml = charts.map(function(x){
     return '<div style="margin-top:14px">'
       + '<div style="font-size:12.5px;font-weight:600;color:var(--text)">'
       +   esc(aiStr(x.title) || '차트') + '</div>'
       + aiChartBox(x, 280)
+      + (x.dropped && x.dropped.length
+          ? '<p class="st-hint" style="margin:6px 0 0;color:var(--text-sub)">'
+            + '※ <b>' + esc(x.dropped.map(function(v){ return aiStr(v); }).join(' · '))
+            + '</b> 은(는) 아직 실적이 나오지 않아 뺐습니다 — '
+            + '0 으로 그리면 «급감» 처럼 보입니다.</p>' : '')
       + (aiStr(x.note) ? '<p class="st-hint" style="margin:6px 0 0">'
                          + esc(x.note) + '</p>' : '')
       + '</div>';
