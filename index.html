@@ -290,42 +290,60 @@
   .vc{border:1px solid var(--border);border-radius:12px;padding:16px 16px 14px;
       background:var(--bg);margin-top:10px}
   .vc-flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+  /*  ⚠️ flex:1 1 0 만 두면 <내용이 넓은 칸> 이 칸 밖으로 삐져나갑니다.
+      min-width:0 이 있어야 flex 가 «줄여도 된다» 고 판단해 글이 접힙니다.
+      회사 이름은 «Schneider Electric» 처럼 긴 한 덩어리가 자주 나오니
+      overflow-wrap 으로 단어 안에서도 끊어줍니다.                      */
   .vc-step{flex:1 1 0;min-width:132px;background:var(--white);
            border:1px solid var(--border);border-radius:10px;padding:10px 12px;
-           position:relative}
+           position:relative;min-height:0;overflow:hidden}
   .vc-step b{display:block;font-size:12.5px;font-weight:700;color:var(--text);
-             line-height:1.4}
+             line-height:1.4;overflow-wrap:anywhere}
   .vc-step .who{display:block;font-size:11px;color:var(--text-sub);margin-top:4px;
-                line-height:1.5}
+                line-height:1.5;white-space:normal;overflow-wrap:anywhere;
+                word-break:break-word}
   .vc-step .pw{display:inline-block;font-size:10px;font-weight:700;margin-top:6px;
                padding:1px 6px;border-radius:5px;background:var(--bg);color:var(--text-sub)}
   .vc-step .pw.hi{background:#fdecea;color:#c0392b}
   /*  분석 대상 회사가 있는 단계 — 여기가 이 그림의 요점입니다  */
   .vc-step.here{background:var(--primary);border-color:var(--primary);
                 box-shadow:0 4px 14px rgba(44,62,107,.22)}
-  .vc-step.here b, .vc-step.here .who{color:#fff}
-  .vc-step.here .who{opacity:.9}
-  .vc-step.here .pw{background:rgba(255,255,255,.2);color:#fff}
-  .vc-here{position:absolute;top:-9px;right:8px;font-size:10px;font-weight:700;
-           background:var(--primary);color:#fff;padding:2px 8px;border-radius:20px;
-           box-shadow:0 2px 6px rgba(44,62,107,.25)}
+  /*  ⚠️ 칠해진 칸 안에서는 <배경도> 반드시 다시 정해야 합니다.
+      색만 흰색으로 바꾸면, 다른 데서 배경을 깔았을 때 흰 글자 +
+      밝은 배경이 되어 통째로 안 읽힙니다 (실제로 그렇게 됐습니다).   */
+  .vc-step.here b, .vc-step.here .who{color:#fff;background:transparent}
+  .vc-step.here .who{opacity:.95}
+  .vc-step.here .pw{background:rgba(255,255,255,.22);color:#fff}
+  /*  ⚠️ 칸에 overflow:hidden 을 줬으니 딱지를 칸 <위로> 띄울 수 없습니다.
+      안쪽 오른쪽 위에 붙입니다. 제목이 딱지에 가리지 않게 자리를 비웁니다. */
+  .vc-here{position:absolute;top:8px;right:8px;font-size:10px;font-weight:700;
+           background:rgba(255,255,255,.22);color:#fff;padding:2px 8px;
+           border-radius:20px;letter-spacing:-.2px}
+  .vc-step.here b{padding-right:52px}
   .vc-arrow{flex:0 0 26px;display:flex;align-items:center;justify-content:center;
             color:var(--border);font-size:20px;font-weight:700;line-height:1}
   .vc-up{margin-top:14px;border:1.5px dashed #d9a441;border-radius:10px;
          padding:11px 12px;background:rgba(217,164,65,.06)}
   .vc-up-h{font-size:11px;font-weight:700;color:#a8791f;margin-bottom:8px}
   .vc-up-list{display:flex;flex-wrap:wrap;gap:8px}
-  .vc-box{flex:1 1 150px;background:var(--white);border:1px solid var(--border);
-          border-radius:9px;padding:8px 11px;position:relative}
-  .vc-box b{display:block;font-size:12px;font-weight:700;color:var(--text)}
+  .vc-box{flex:1 1 150px;min-width:0;background:var(--white);border:1px solid var(--border);
+          border-radius:9px;padding:8px 11px;position:relative;overflow:hidden}
+  .vc-box b{display:block;font-size:12px;font-weight:700;color:var(--text);
+            overflow-wrap:anywhere}
   .vc-box .who{display:block;font-size:10.5px;color:var(--text-sub);margin-top:3px;
-               line-height:1.5}
+               line-height:1.5;white-space:normal;overflow-wrap:anywhere;
+               word-break:break-word}
   .vc-box.here{background:var(--primary);border-color:var(--primary)}
-  .vc-box.here b, .vc-box.here .who{color:#fff}
+  .vc-box.here b, .vc-box.here .who{color:#fff;background:transparent}
   .vc-note{font-size:11.5px;color:var(--text-sub);margin-top:10px;line-height:1.6}
+  @media (max-width:1100px){
+    /*  칸이 좁아지면 이름이 세 줄 네 줄이 됩니다. 억지로 한 줄에
+        네 칸을 밀어넣지 말고 두 줄로 접습니다.                        */
+    .vc-step{flex:1 1 45%}
+  }
   @media (max-width:820px){
     .vc-flow{flex-direction:column;gap:6px}
-    .vc-step{min-width:0}
+    .vc-step{min-width:0;flex:1 1 auto}
     .vc-arrow{flex:0 0 18px;transform:rotate(90deg)}
   }
   .ai-sev{font-size:10.5px;padding:1px 5px;border-radius:4px;margin-left:5px;
@@ -685,9 +703,16 @@
           font-weight:700;letter-spacing:-.2px;white-space:nowrap;margin-right:4px}
   .by-tag.manual{background:#eef1f6;color:#5a6278}
 
-  /*  «누가» — 이름표. 같은 팀 팀원과 임원진만 봅니다.            */
-  .who{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;
-       font-weight:700;background:#f3f0fa;color:#5b3ea8;white-space:nowrap}
+  /*  «누가» — 이름표. 같은 팀 팀원과 임원진만 봅니다.
+      ⚠️ 이름을 «who» 로 지었다가 사고가 났습니다. 그 이름은 이미
+         ① 머리말의 로그인 정보 ② 밸류체인 그림의 «누가 있나» 줄
+         ③ 13F 빠른버튼 이 쓰고 있었습니다. 뒤에 선언한 이 규칙이
+         앞을 덮어써서, 밸류체인 글자에 연보라 알약이 깔리고
+         white-space:nowrap 때문에 <줄바꿈이 안 돼> 칸 밖으로 삐져
+         나갔습니다. 칠해진 칸에서는 흰 글자 + 연보라 배경이 되어
+         아예 안 읽혔습니다. 그래서 <이 화면만의 이름> 으로 바꿉니다. */
+  .by-who{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;
+          font-weight:700;background:#f3f0fa;color:#5b3ea8;white-space:nowrap}
 
   /*  종목 검색 딱지 — 무엇인지 알려줄 뿐, 못 사게 막는 표시가 아닙니다.  */
   .sym-tag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:5px;
@@ -10962,8 +10987,18 @@ async function aiBuildDossier(){
     await valLoad(true);
     if (valData){
       var f = valData.f || {};
+      /*  ⚠️ 현재가가 비면 리포트의 안전장치가 <전부> 꺼집니다
+          («현재가 대비 %», «강세인데 목표가가 더 낮다» 경고, 차트의
+           현재가 점선). 실제로 Eaton 리포트가 그래서 아무 경고 없이
+          현재가 $425 에 목표가 $186~292 로 나갔습니다.
+          밸류에이션 탭이 못 구했으면 <가격 차트의 마지막 점> 이라도 씁니다. */
+      var pxFall = aiNum(valData.px);
+      if (pxFall == null && aiArr(coPricePts).length){
+        var lastPt = coPricePts[coPricePts.length - 1];
+        pxFall = aiNum(lastPt && (lastPt.v != null ? lastPt.v : lastPt.c));
+      }
       d.fin = {
-        unit: f.unit || null, px: valData.px, shares: valData.shares,
+        unit: f.unit || null, px: pxFall, shares: valData.shares,
         cur: valData.cur,
         rev: f.rev, op: f.op, net: f.net, eq: f.eq, debt: f.debt, cash: f.cash,
         cfo: f.cfo, capex: f.capex, dep: f.dep, interest: f.interest, cagr: f.cagr,
@@ -11940,16 +11975,32 @@ function aiDrawTargets(box, sec){
     return;
   }
   var entry = aiNum(sec.trader && sec.trader.entry);
+  var cons  = aiNum(sec.meta && sec.meta.cons_target);
   var c = chartOn(box);
   if (!c) return;
   aiChartIns.push(c);
   var ml = [];
   if (px  != null && px  > 0) ml.push({ xAxis: px,
-    lineStyle:{ color:'#2c3e6b' },
-    label:{ formatter:'현재가 ' + aiMoney(px, cur), color:'#2c3e6b' } });
+    lineStyle:{ color:'#2c3e6b', width:2 },
+    label:{ formatter:'현재가 ' + aiMoney(px, cur), color:'#2c3e6b',
+            rotate:0, position:'insideEndTop' } });
+  //  ⚠️ 시장이 얼마로 보는지 나란히 — 목표가가 터무니없으면 바로 드러납니다
+  if (cons != null && cons > 0) ml.push({ xAxis: cons,
+    lineStyle:{ color:'#7d3c98' },
+    label:{ formatter:'컨센서스 ' + aiMoney(cons, cur), color:'#7d3c98',
+            rotate:0, position:'insideMiddleTop' } });
   if (entry != null && entry > 0 && entry !== px) ml.push({ xAxis: entry,
     lineStyle:{ color:'#b8860b' },
-    label:{ formatter:'진입 ' + aiMoney(entry, cur), color:'#b8860b' } });
+    label:{ formatter:'진입 ' + aiMoney(entry, cur), color:'#b8860b',
+            rotate:0, position:'insideMiddleBottom' } });
+
+  /*  ⚠️ 막대가 $292 까지인데 현재가가 $425 면, 축을 막대에만 맞추면
+      <현재가 점선이 화면 밖으로 나갑니다>. 제일 봐야 할 선이 안 보이는
+      셈입니다. 점선까지 품도록 축 최대·최소를 우리가 정합니다.        */
+  var span = rows.map(function(r){ return r.v; })
+    .concat(ml.map(function(m){ return m.xAxis; }));
+  var vmax = Math.max.apply(null, span), vmin = Math.min.apply(null, span);
+  var pad = Math.max((vmax - vmin) * 0.12, vmax * 0.06);
   c.setOption({
     backgroundColor: theme ? theme.bg : '#fff', animation:false,
     grid:{ left:10, right:96, top:16, bottom:10, containLabel:true },
@@ -11957,7 +12008,8 @@ function aiDrawTargets(box, sec){
       backgroundColor:'rgba(255,255,255,.96)', borderColor:'#e8ecf4',
       textStyle:{ color:'#2c3e6b', fontSize:12 },
       valueFormatter:function(v){ return aiMoney(v, cur); } },
-    xAxis:{ type:'value', axisLabel:{ color:'#8a93a8', fontSize:10.5,
+    xAxis:{ type:'value', min:0, max: Math.ceil((vmax + pad)),
+      axisLabel:{ color:'#8a93a8', fontSize:10.5,
         formatter:function(v){ return aiShort(v); } },
       axisLine:{ show:false }, axisTick:{ show:false },
       splitLine:{ lineStyle:{ color:'#eef1f6' } } },
@@ -11971,10 +12023,14 @@ function aiDrawTargets(box, sec){
       data: rows.map(function(r){ return { value:+r.v.toFixed(4), itemStyle:{ color:r.c } }; }),
       label:{ show:true, position:'right', fontSize:11,
         formatter:function(a){ return aiMoney(a.value, cur); } },
+      /*  ⚠️ 세로선 위의 글씨는 ECharts 가 <기본으로 90도 돌려> 놓습니다.
+          «컨센서스 $478.17» 이 세로로 서서 못 읽습니다 (옵션 매물대에서
+          똑같이 당했습니다). rotate:0 을 반드시 줍니다.
+          ⚠️ 선이 셋이면 글씨가 겹칩니다 — 위·가운데·아래로 어긋나게 둡니다. */
       markLine: ml.length ? { symbol:'none', silent:true,
         lineStyle:{ width:1.5, type:'dashed' },
-        label:{ fontSize:10, fontWeight:600, position:'end',
-                backgroundColor:'rgba(255,255,255,.85)', padding:[2,4], borderRadius:3 },
+        label:{ fontSize:10.5, fontWeight:700, rotate:0, position:'insideEndTop',
+                backgroundColor:'rgba(255,255,255,.92)', padding:[2,5], borderRadius:3 },
         data: ml } : undefined }]
   }, true);
 }
@@ -11993,6 +12049,97 @@ function aiDrawTargets(box, sec){
 
     ⚠️ 강세인데 목표가가 현재가보다 «낮으면» 그건 강세 논거가 아닙니다.
        그런 카드에는 경고를 답니다 — 발표 전에 걸러야 합니다.          */
+/*  ── 현재가를 반드시 손에 쥡니다 ───────────────────────────────
+
+    ⚠️ 이게 없으면 «현재가 대비 %», «강세인데 목표가가 더 낮다» 경고,
+       차트의 현재가 점선이 <전부 조용히 사라집니다>. 안전장치를 몇 개나
+       만들어 뒀는데 px 하나가 비면 통째로 꺼지는 구조였습니다 —
+       실제로 Eaton 리포트가 그렇게 나왔습니다 (현재가 $425 인데
+       목표가가 $186~292 로 찍혔고, 아무 경고도 안 떴습니다).
+
+    ⚠️ 리포트에 저장된 px 가 없으면 <지금 시세를 받아> 씁니다.
+       이미 만들어 둔 옛 리포트도 열면 현재가가 붙습니다.
+    ⚠️ 시세는 «참고용 현재가» 입니다 — 리포트를 만든 날의 값이 아닙니다.
+       그래서 화면에 «오늘 기준» 이라고 적습니다.                      */
+var aiPxLive = {};
+async function aiFillPx(rep){
+  if (!rep || !rep.sections) return false;
+  var meta = rep.sections.meta || (rep.sections.meta = {});
+  if (aiNum(meta.px) != null) return false;
+  var key = (rep.market || '') + '|' + (rep.code || '');
+  if (aiPxLive[key] === 'wait') return false;
+  if (aiPxLive[key] != null && aiPxLive[key] !== 'wait'){
+    meta.px = aiPxLive[key]; meta.px_live = true; return true;
+  }
+  aiPxLive[key] = 'wait';
+  try {
+    var r = await edge({ source: rep.market === 'KR' ? 'quote_kr' : 'quote_us',
+                         code: rep.code });
+    var pts = aiArr(r && r.points);
+    var v = pts.length ? aiNum(pts[pts.length - 1].v) : aiNum(r && r.price);
+    if (v != null && v > 0){
+      aiPxLive[key] = v; meta.px = v; meta.px_live = true;
+      if (!aiStr(meta.cur)) meta.cur = rep.market === 'KR' ? '원' : '$';
+      return true;
+    }
+    aiPxLive[key] = null;
+  } catch(e){ aiPxLive[key] = null; }
+  return false;
+}
+
+/*  ── 목표가가 <앞뒤가 맞는가> ─────────────────────────────────
+
+    ⚠️ 한 칸씩 보면 «그럴 수도 있지» 인데, 나란히 놓으면 말이 안 되는
+       경우가 있습니다. Eaton 리포트가 그랬습니다 —
+         · 강세 종합 $203  <  약세 종합 $272   (거꾸로)
+         · 현재가 $425 인데 <모든> 목표가가 그 아래
+       숫자가 맞는지는 우리가 못 정합니다. 다만 <서로 모순인지> 는
+       기계가 셀 수 있습니다. 그건 반드시 말해 줘야 합니다.           */
+function aiTargetSanity(sec, px, cur){
+  var out = [];
+  var bull = aiNum(sec.bull && sec.bull.target);
+  var bear = aiNum(sec.bear && sec.bear.target);
+  var all = [];
+  ['bull','bear'].forEach(function(k){
+    var v = sec[k]; if (!v) return;
+    var t = aiNum(v.target); if (t != null && t > 0) all.push(t);
+    aiArr(v.valuation).forEach(function(x){
+      var n = aiNum(x && x.target); if (n != null && n > 0) all.push(n); });
+  });
+
+  if (bull != null && bear != null && bull > 0 && bear > 0 && bull <= bear)
+    out.push('<b>강세 목표가(' + esc(aiMoney(bull, cur)) + ')가 약세 목표가('
+      + esc(aiMoney(bear, cur)) + ')보다 낮거나 같습니다.</b> 두 시나리오가 뒤바뀌었거나, '
+      + '한쪽이 다른 EPS·다른 기간으로 계산됐습니다. 그대로 쓰면 안 됩니다.');
+
+  if (px != null && px > 0 && all.length){
+    var hi = Math.max.apply(null, all), lo = Math.min.apply(null, all);
+    if (hi < px)
+      out.push('<b>모든 목표가가 현재가(' + esc(aiMoney(px, cur)) + ')보다 낮습니다.</b> '
+        + '가장 높은 목표가도 ' + esc(aiMoney(hi, cur)) + ' 입니다 — '
+        + '강세 논거가 성립하지 않습니다. 지난 12개월 EPS에 배수를 곱했는지, '
+        + '주식수·통화 단위가 맞는지 확인하세요.');
+    else if (lo > px)
+      out.push('<b>모든 목표가가 현재가(' + esc(aiMoney(px, cur)) + ')보다 높습니다.</b> '
+        + '약세 시나리오가 빠진 셈입니다.');
+  }
+
+  //  ⚠️ 컨센서스가 있으면 «시장은 얼마로 보나» 와 나란히 둡니다
+  var ct = aiNum(sec.meta && sec.meta.cons_target);
+  if (ct != null && ct > 0 && all.length){
+    var hi2 = Math.max.apply(null, all), lo2 = Math.min.apply(null, all);
+    if (ct > hi2 * 1.5 || ct < lo2 * 0.67)
+      out.push('애널리스트 컨센서스는 <b>' + esc(aiMoney(ct, cur))
+        + '</b>' + (aiNum(sec.meta.cons_n) ? ' (' + esc(String(aiNum(sec.meta.cons_n))) + '명)' : '')
+        + ' 인데, 이 리포트의 목표가는 ' + esc(aiMoney(lo2, cur)) + ' ~ '
+        + esc(aiMoney(hi2, cur)) + ' 입니다. <b>차이가 큽니다</b> — '
+        + '어느 쪽이 맞는지 근거 칸을 보고 직접 판단하세요.');
+  }
+  if (!out.length) return '';
+  return '<div class="note warn" style="margin:0 0 12px">'
+       + '⚠️ <b>목표가를 그대로 믿지 마세요</b><br>' + out.join('<br><br>') + '</div>';
+}
+
 function aiVsPx(target, px){
   var t = aiNum(target), p = aiNum(px);
   if (t == null || p == null || !(p > 0) || !(t > 0)) return null;
@@ -12073,6 +12220,13 @@ function aiRender(rep, boxId){
   var meta = sec.meta || {};
   var cur = aiStr(meta.cur) || (rep.market === 'KR' ? '원' : '$');
   var px = aiNum(meta.px);
+
+  /*  ⚠️ 현재가가 없으면 안전장치가 <전부> 꺼집니다. 그래서 없으면
+      지금 시세를 받아 한 번만 다시 그립니다 (무한 반복 방지).       */
+  if (px == null && !rep.__pxTried){
+    rep.__pxTried = true;
+    aiFillPx(rep).then(function(got){ if (got) aiRender(rep, boxId); });
+  }
 
   /*  ⚠️ 모델 이름과 비용은 <안 적습니다> (학회장 요청). 학회원이
       "0.24달러" 를 보면 누르기를 망설입니다. 총액은 임원진이
@@ -12263,6 +12417,8 @@ function aiRender(rep, boxId){
   var hasSide = (sec.bull && aiArr(sec.bull.points).length)
              || (sec.bear && aiArr(sec.bear.points).length);
   var c6 = '<div class="card"><h2>6. 강세 · 약세 논거와 목표가</h2>'
+    //  ⚠️ 경고는 <숫자를 보기 전에> 읽어야 뜻이 있습니다. 맨 위에 둡니다.
+    + (hasSide ? aiTargetSanity(sec, px, cur) : '')
     + (hasSide
         ? '<div class="ai-two">'
           + aiSideCard('BULL · 강세', sec.bull, 'ai-bull', cur, px, 'bull')
@@ -14397,7 +14553,7 @@ async function loadTrades(){
           + '<td><span class="pill '+esc(mk)+'">'+esc(mk)+'</span></td>'
           + '<td>'+esc(x.name||x.symbol)+'</td>'
           + (showWho ? '<td>' + (x.by_name
-              ? '<span class="who">' + esc(x.by_name) + '</span>'
+              ? '<span class="by-who">' + esc(x.by_name) + '</span>'
               : '<span class="st-hint">—</span>') + '</td>' : '')
           + '<td>'+(x.source === 'auto'
                     ? '<span class="by-tag auto">자동</span>'
@@ -17131,7 +17287,7 @@ function renderLabels(){
           +   '" placeholder="예: 민수" style="width:150px;padding:5px 8px;font-size:12.5px"'
           +   ' onchange="setLabel(' + i + ', this.value)"></td>'
           + '<td class="num">' + (m.gen != null ? esc(String(m.gen)) + '기' : '—') + '</td>'
-          + '<td><span class="who" id="nkShow-' + i + '">' + esc(m.label || '') + '</span>'
+          + '<td><span class="by-who" id="nkShow-' + i + '">' + esc(m.label || '') + '</span>'
           +   (m.role === 'officer' ? ' <span class="by-tag manual">임원진</span>' : '')
           + '</td></tr>';
       }).join('') + '</tbody>';
