@@ -12476,9 +12476,74 @@ function aiTargetSanity(sec, px, cur){
         + esc(aiMoney(hi2, cur)) + ' 입니다. <b>차이가 큽니다</b> — '
         + '어느 쪽이 맞는지 근거 칸을 보고 직접 판단하세요.');
   }
+  /*  ── 헤드 트레이더 결정이 앞의 논거와 맞는가 ──────────────────
+
+      ⚠️ 여기가 통째로 비어 있었습니다. 목표가는 그렇게 따져놓고, 정작
+         «그래서 얼마에 사라» 는 아무도 안 봤습니다. 실제로 나간 Eaton
+         리포트가 이랬습니다 —
+           강세 목표가 $203 · 약세 $272 인데  진입가 $380
+         팔 값보다 <비싸게 사라> 는 말입니다. 앞뒤가 안 맞습니다.
+
+      ⚠️ 이 칸이 제일 위험합니다. 앞의 글은 «참고» 로 읽히지만
+         진입가·손절·목표는 <그대로 따라 하는> 숫자니까요.            */
+  /*  ── 종합이 기법들 범위 밖인가 ────────────────────────────
+      ⚠️ 「PER 229 · EV/EBITDA 192 · DCF 186 을 종합해 203」 은 말이 됩니다.
+         그런데 종합이 <셋 다보다 위나 아래> 면 어디서 온 숫자인지
+         알 수 없습니다. 종합은 기법들의 <가운데 어딘가> 여야 합니다.   */
+  [['강세', sec.bull], ['약세', sec.bear]].forEach(function(sd){
+    var v = sd[1]; if (!v) return;
+    var tot = aiNum(v.target); if (tot == null || !(tot > 0)) return;
+    var ms = aiArr(v.valuation).map(function(x){ return aiNum(x && x.target); })
+      .filter(function(x){ return x != null && x > 0; });
+    if (ms.length < 2) return;
+    var mn = Math.min.apply(null, ms), mx = Math.max.apply(null, ms);
+    //  ⚠️ 반올림 여유 2% («203 vs 186~229» 처럼 딱 맞을 필요는 없습니다)
+    if (tot > mx * 1.02 || tot < mn * 0.98)
+      out.push('<b>' + sd[0] + ' 종합(' + esc(aiMoney(tot, cur))
+        + ')이 기법별 목표가 범위(' + esc(aiMoney(mn, cur)) + ' ~ '
+        + esc(aiMoney(mx, cur)) + ') 밖입니다.</b> '
+        + '종합은 기법들을 버무린 값이어야 하는데, 어디서 온 숫자인지 알 수 없습니다.');
+  });
+
+  var tr = sec.trader || {};
+  var act = aiStr(tr.action);
+  var en = aiNum(tr.entry), st = aiNum(tr.stop), tk = aiNum(tr.take);
+  var wp = aiNum(tr.weight_pct);
+  var isBuy = /매수|buy|사/i.test(act);
+  var tOut = [];
+
+  if (en != null && en > 0){
+    //  ① 살 값이 팔 값보다 비싸면 안 됩니다
+    if (bull != null && bull > 0 && en > bull)
+      tOut.push('진입가(<b>' + esc(aiMoney(en, cur)) + '</b>)가 <b>강세 목표가('
+        + esc(aiMoney(bull, cur)) + ')보다 높습니다.</b> '
+        + '가장 좋게 봐도 그 값인데 그보다 비싸게 사라는 말이 됩니다.');
+    //  ② 매수인데 손절이 진입 위 / 목표가 진입 아래
+    if (isBuy && st != null && st > 0 && st >= en)
+      tOut.push('매수인데 <b>손절(' + esc(aiMoney(st, cur)) + ')이 진입가('
+        + esc(aiMoney(en, cur)) + ')보다 높거나 같습니다.</b> 사자마자 손절입니다.');
+    if (isBuy && tk != null && tk > 0 && tk <= en)
+      tOut.push('매수인데 <b>목표(' + esc(aiMoney(tk, cur)) + ')가 진입가('
+        + esc(aiMoney(en, cur)) + ')보다 낮거나 같습니다.</b> 오를 자리가 없습니다.');
+    //  ③ 목표가 강세 논거보다 공격적
+    if (tk != null && tk > 0 && bull != null && bull > 0 && tk > bull * 1.02)
+      tOut.push('트레이더 목표(<b>' + esc(aiMoney(tk, cur)) + '</b>)가 '
+        + '<b>강세 목표가(' + esc(aiMoney(bull, cur)) + ')를 넘습니다.</b> '
+        + '앞의 밸류에이션보다 공격적인 값입니다 — 근거가 따로 있어야 합니다.');
+  }
+  //  ④ 비중은 0~100 입니다
+  if (wp != null && (wp < 0 || wp > 100))
+    tOut.push('포트폴리오 비중이 <b>' + esc(num(wp, 1)) + '%</b> 입니다 — '
+      + '0~100 사이여야 합니다.');
+
+  if (tOut.length)
+    out.push('<b>헤드 트레이더 결정이 앞의 논거와 안 맞습니다.</b><br>'
+      + tOut.map(function(x){ return '· ' + x; }).join('<br>')
+      + '<br><b>이 칸은 그대로 따라 하는 숫자입니다.</b> 앞의 목표가와 맞춰 다시 보세요.');
+
   if (!out.length) return '';
   return '<div class="note warn" style="margin:0 0 12px">'
-       + '⚠️ <b>목표가를 그대로 믿지 마세요</b><br>' + out.join('<br><br>') + '</div>';
+       + '⚠️ <b>이 리포트는 앞뒤가 안 맞습니다</b><br>' + out.join('<br><br>') + '</div>';
 }
 
 function aiVsPx(target, px){
