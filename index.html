@@ -1523,12 +1523,16 @@
               </div>
               <div class="row">
                 <label>훑을 시장</label>
-                <select id="stMarkets" onchange="stratChanged()" style="width:200px">
-                  <option value="both">전부 (국내 + 미국 + 코인)</option>
-                  <option value="KR">국내만 (코스피·코스닥)</option>
+                <!--  ⚠️ 국내를 뺐습니다. 자동매매는 국내를 <원래 못 만집니다>
+                      (거래소 실시간 시세 창구가 없어 체결가를 믿을 수 없습니다).
+                      그런데 고를 수는 있게 해뒀더니, 「국내만」 을 고른 팀은
+                      훑을 종목이 0개인 채로 며칠을 기다렸습니다.
+                      <고를 수 없는 것은 보여주지도 않는> 게 맞습니다.
+                      직접 매매는 국내도 그대로 됩니다.                    -->
+                <select id="stMarkets" onchange="stratChanged()" style="width:210px">
+                  <option value="both">전부 (미국 + 코인)</option>
                   <option value="US">미국만 (S&amp;P500)</option>
-                  <option value="CRYPTO">코인만</option>
-                  <option value="stock">주식만 (국내 + 미국)</option>
+                  <option value="CRYPTO">코인만 (24시간)</option>
                 </select>
                 <span id="stMarketHint" class="st-hint"></span>
               </div>
@@ -17118,12 +17122,72 @@ function syncStratNums(){
                     : ' — <b>지금은 닫혀 있어 미국 종목은 안 훑습니다</b>'
                       + (hasCC ? ' (코인만 봅니다).' : '. 코인을 같이 넣으면 낮에도 돕니다.'));
     }
+    /*  ⚠️ 0개라고만 적어두면 <무엇을 해야 하는지> 를 모릅니다.
+        실제로 학회장이 「코인만」 을 골라놓고 0개를 며칠 봤습니다.
+        원인은 코인이 종목 명단에 <한 개도 등록돼 있지 않아서> 였습니다.
+        그래서 원인을 짚고, 임원진이면 <그 자리에서 등록하는 단추> 를 답니다. */
+    var why = '', fix = '';
+    if (!n){
+      if (mk === 'CRYPTO' || mk === 'both'){
+        if (!cc){
+          why = ' — <b>코인이 종목 명단에 하나도 없습니다.</b> '
+              + '자동매매는 명단에 있는 종목만 훑습니다.';
+          fix = ' <button class="btn-sm" onclick="stratAddCrypto()" id="stCcBtn"'
+              + ' style="margin-left:6px">코인 명단 지금 등록</button>';
+        } else if (mk === 'both' && !us){
+          why = ' — 미국 종목이 명단에 없습니다.';
+        }
+      } else if (mk === 'US' && !us){
+        why = ' — <b>미국 종목이 명단에 없습니다.</b> 설정에서 S&P500 을 등록하세요.';
+      }
+    }
     $('stMarketHint').innerHTML = (n
         ? '<b>' + n + '종목</b>을 훑습니다'
         : '<span style="color:var(--danger)"><b>훑을 종목이 0개입니다</b>'
-          + (krPick ? ' — 국내만 고르면 자동매매가 할 일이 없습니다. '
-                      + '미국이나 코인을 같이 골라주세요.' : '') + '</span>')
-      + tip + when;
+          + why + '</span>' + fix)
+      + tip + when
+      + (stratLegacyMk
+          ? '<br><span style="color:var(--accent-dark,#b26a00)">※ 예전에 저장한 '
+            + '<b>' + esc(stratLegacyMk === 'KR' ? '국내만' : '주식만') + '</b> 설정이었습니다. '
+            + '자동매매는 국내를 못 만져서 <b>'
+            + esc(stratLegacyMk === 'KR' ? '전부 (미국 + 코인)' : '미국만') + '</b> 으로 바꿨습니다 — '
+            + '저장을 눌러야 반영됩니다.</span>' : '');
+  }
+}
+
+/*  ── 코인 명단을 그 자리에서 등록합니다 ─────────────────────
+
+    ⚠️ 원래는 설정 탭 깊숙이 「코인 명단 맞추기」 단추가 있었습니다.
+       그런데 «훑을 종목 0개» 를 보는 사람은 전략 화면에 있지 설정
+       탭에 있지 않습니다. 고쳐야 할 자리에서 고칠 수 있어야 합니다.
+    ⚠️ 명단 등록은 임원진만 할 수 있습니다. 학회원에게는 <누구에게
+       말해야 하는지> 를 알려줍니다 — 막다른 길로 보내면 안 됩니다.   */
+var stratLegacyMk = '';
+async function stratAddCrypto(){
+  var b = $('stCcBtn');
+  if (!(me && me.role === 'officer')){
+    if (b) b.outerHTML = '<span style="color:var(--danger)">'
+      + '임원진에게 «설정 → 코인 명단 맞추기» 를 눌러달라고 하세요.</span>';
+    return;
+  }
+  if (b){ b.disabled = true; b.textContent = '등록 중…'; }
+  try {
+    var d = await edge({ source:'universe_crypto', top: 50 });
+    /*  명단이 바뀌었으니 <다시 읽어> «몇 개를 훑는지» 를 새로 셉니다.
+        ⚠️ 여기서 안 읽으면 등록은 됐는데 화면은 계속 «0개» 입니다 —
+           고쳤는데 안 고쳐진 것처럼 보이는 게 제일 나쁩니다.          */
+    scanUniverse = null;
+    await loadScanUniverse();
+    /*  ⚠️ 순서가 중요합니다. stratChanged() 가 «훑을 종목» 줄을 통째로
+        다시 그리기 때문에, 그 줄에 성공 메시지를 써두면 <바로 지워집니다>.
+        개수가 0 → 50 으로 바뀌는 것 자체가 증거이므로 그건 그 줄에 맡기고,
+        «등록했다» 는 말은 <지워지지 않는 자리> 에 적습니다.            */
+    stratChanged();
+    warn('stratMsg', '✅ 코인 <b>' + num(d.picked, 0)
+      + '개</b>를 종목 명단에 등록했습니다. 이제 자동매매가 코인을 훑습니다.', 'info');
+  } catch(e){
+    if (b){ b.disabled = false; b.textContent = '코인 명단 지금 등록'; }
+    warn('stratMsg', esc(e.message));
   }
 }
 
@@ -17138,7 +17202,18 @@ function renderStrategyEditor(){
   $('stScanBox').classList.toggle('hidden', !scan);
   $('stFixedBox').classList.toggle('hidden', scan);
 
-  if ($('stMarkets')) $('stMarkets').value = strat.markets || 'both';
+  /*  ⚠️ 예전에 「국내만」·「주식만」 으로 저장한 전략이 있습니다.
+      그대로 두면 드롭다운에 없는 값이라 <빈 칸> 이 되고, 저장하면
+      엉뚱한 값이 들어갑니다. 열 때 바꿔주고 <바꿨다고 말해> 줍니다.  */
+  if ($('stMarkets')){
+    var mkSaved = strat.markets || 'both';
+    var mkFix = (mkSaved === 'KR') ? 'both' : (mkSaved === 'stock' ? 'US' : mkSaved);
+    if (mkFix !== mkSaved){
+      strat.markets = mkFix;
+      stratLegacyMk = mkSaved;          //  아래 안내에 씁니다
+    }
+    $('stMarkets').value = mkFix;
+  }
   $('stMaxPos').value = String(strat.max_positions || 5);
   $('stPerPct').value = String(strat.per_position_pct || 20);
   $('stSlOn').checked = Number(strat.sl_pct || 0) > 0;
