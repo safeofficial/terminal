@@ -1224,11 +1224,21 @@
             <h2>
               <span id="chartTitle">차트</span>
               <span class="tools">
+                <!--  ⚠️ 확대해 놓고 «원래대로» 를 못 찾으면 새로고침밖에
+                      길이 없습니다. 확대할 수 있게 만들면 되돌릴 길도
+                      같이 만들어야 합니다.                            -->
+                <button class="btn-sm" onclick="chartZoomReset()">원래 크기</button>
                 <button class="btn-sm" onclick="downloadJPG()">JPG 저장</button>
                 <button class="btn-sm" onclick="downloadCSV()">CSV 다운로드</button>
               </span>
             </h2>
             <div id="chartBox"></div>
+            <!--  ⚠️ 안 보이는 기능은 없는 기능입니다. 어떻게 쓰는지 적어둡니다. -->
+            <div class="st-hint" style="margin-top:6px;display:flex;gap:14px;flex-wrap:wrap">
+              <span>🖱 <b>휠</b> — 좌우(기간) 확대·축소</span>
+              <span>⇧ <b>Shift + 휠</b> — 위아래(값) 확대·축소</span>
+              <span>✋ <b>끌기</b> — 보는 자리 옮기기</span>
+            </div>
             <div id="chartMsg" style="font-size:12px;color:var(--text-sub);margin-top:10px"></div>
           </div>
 
@@ -7912,6 +7922,19 @@ function boxWidth(id){
     축이 좌우 두 개뿐이면 단위가 다른 지표를 셋 이상 넣는 순간
     하나가 바닥에 붙어 평평해 보입니다. 세 번째부터는 바깥쪽으로
     번갈아 붙여 나갑니다.                                              */
+/*  ── 확대한 것을 되돌립니다 ──────────────────────────────────
+    ⚠️ 가로만 되돌리면 세로가 확대된 채로 남습니다. dataZoom 이
+       여러 개라 <전부> 100% 로 돌려놔야 «원래 크기» 가 됩니다.      */
+function chartZoomReset(){
+  if (typeof echarts === 'undefined') return;
+  var box = $('chartBox'); if (!box) return;
+  var c = echarts.getInstanceByDom(box); if (!c) return;
+  var dz = (c.getOption().dataZoom || []);
+  c.dispatchAction({ type:'dataZoom',
+    dataZoomIndex: dz.map(function(_, i){ return i; }),
+    start: 0, end: 100 });
+}
+
 /*  ── 경기침체 구간 ──
 
     FRED 의 USREC 계열은 침체면 1, 아니면 0 인 깃발입니다. 이걸 선이나
@@ -7936,9 +7959,15 @@ function recBands(pts){
   if (from != null && prev != null) out.push([from, prev]);
   return out;
 }
+/*  ⚠️ 예전에는 불투명도가 .16 이라 <거의 안 보였습니다>. 회색이 너무
+    옅어서 «침체 구간이 어디냐» 를 눈으로 못 찾았습니다.
+    FRED 실물처럼 <또렷하되 선을 가리지 않는> 정도로 올립니다 —
+    면은 .30, 가장자리에 옅은 테두리를 둘러 구간의 시작·끝을 분명히.   */
 function recMarkArea(bands){
   return {
-    silent: true, itemStyle:{ color:'rgba(120,132,158,.16)' },
+    silent: true,
+    itemStyle:{ color:'rgba(104,118,146,.30)',
+                borderColor:'rgba(104,118,146,.55)', borderWidth:1 },
     label:{ show:false },
     emphasis:{ disabled:true },
     data: bands.map(function(b){ return [{ xAxis:b[0] }, { xAxis:b[1] }]; })
@@ -8630,9 +8659,38 @@ function drawChart(){
       }
       return out;
     })(),
-    dataZoom:[{ type:'inside' }, { type:'slider', show:true, height:18, bottom:16,
-      borderColor:theme.grid, fillerColor:'rgba(107,140,218,.15)',
-      handleStyle:{ color:theme.axis_left }, textStyle:{ color:theme.text_color, fontSize:10 } }],
+    /*  ── 확대·축소 ──────────────────────────────────────────
+        ⚠️ 지금까지는 <가로(시간)> 만 늘였다 줄였다 할 수 있었습니다.
+           그런데 지표 둘을 겹치면 한쪽이 아래에 납작하게 깔려서
+           «위아래로도 당겨보고 싶다» 는 말이 나옵니다.
+
+        어떻게 나눴냐면 —
+          · 그냥 휠        → 가로(시간) 확대·축소   ← 제일 자주 씁니다
+          · Shift + 휠     → 세로(값) 확대·축소
+          · 드래그         → 보고 있는 자리 옮기기
+          · 아래 손잡이    → 가로 구간 직접 집기
+        ⚠️ 휠 하나에 가로·세로를 둘 다 물리면 <어느 쪽이 움직였는지>
+           알 수 없어서 금방 길을 잃습니다. 그래서 세로는 Shift 를
+           눌러야만 움직입니다.
+        ⚠️ 축마다 dataZoom 을 따로 답니다. 왼쪽 축과 오른쪽 축은 단위가
+           다른 값이라, 하나로 묶으면 한쪽이 터집니다.                */
+    dataZoom:[
+      { type:'inside', zoomOnMouseWheel:true, moveOnMouseMove:true,
+        moveOnMouseWheel:false },
+      { type:'slider', show:true, height:18, bottom:16,
+        borderColor:theme.grid, fillerColor:'rgba(107,140,218,.15)',
+        handleStyle:{ color:theme.axis_left },
+        textStyle:{ color:theme.text_color, fontSize:10 } }
+    ].concat((function(){
+      //  Y 축 개수만큼 세로 확대·축소를 답니다
+      var nY = norm ? 1 : Math.max(1, nAxis);
+      var out = [];
+      for (var j = 0; j < nY; j++)
+        out.push({ type:'inside', yAxisIndex: j, filterMode:'none',
+                   zoomOnMouseWheel:'shift', moveOnMouseMove:false,
+                   moveOnMouseWheel:false });
+      return out;
+    })()),
     series: norms.map(function(x, i){
       var s = x.s, pts = x.pts;
       var base = norm ? pts[0].v : 1;
