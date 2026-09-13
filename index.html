@@ -1236,7 +1236,8 @@
             <!--  ⚠️ 안 보이는 기능은 없는 기능입니다. 어떻게 쓰는지 적어둡니다. -->
             <div class="st-hint" style="margin-top:6px;display:flex;gap:14px;flex-wrap:wrap">
               <span>🖱 <b>휠</b> — 좌우(기간) 확대·축소</span>
-              <span>⇧ <b>Shift + 휠</b> — 위아래(값) 확대·축소</span>
+              <span>↕ <b>축 위에서 휠</b> — 그 축만 확대·축소</span>
+              <span>⇧ <b>Shift + 휠</b> — 위아래(값) 전부</span>
               <span>✋ <b>끌기</b> — 보는 자리 옮기기</span>
             </div>
             <div id="chartMsg" style="font-size:12px;color:var(--text-sub);margin-top:10px"></div>
@@ -7922,6 +7923,99 @@ function boxWidth(id){
     축이 좌우 두 개뿐이면 단위가 다른 지표를 셋 이상 넣는 순간
     하나가 바닥에 붙어 평평해 보입니다. 세 번째부터는 바깥쪽으로
     번갈아 붙여 나갑니다.                                              */
+/*  ── Y 축 위에서 휠 = 그 축만 확대·축소 ──────────────────────
+
+    ⚠️ Shift + 휠 을 만들어 뒀는데 «축 위에서 그냥 휠로 하고 싶다» 는
+       말이 나왔습니다. 맞는 말입니다 — 차트 보는 사람은 조절하고 싶은
+       축에 커서를 올린 채로 굴리는 게 몸에 배어 있습니다.
+
+    ECharts 는 «커서가 축 위일 때만» 이라는 조건을 기본으로 안 줍니다.
+    그래서 직접 답니다 —
+      ① 커서가 그림 <바깥 좌우 여백> 에 있나 (거기가 축 자리입니다)
+      ② 왼쪽이면 왼쪽 축들 중, 오른쪽이면 오른쪽 축들 중 어느 칸인가
+         (축이 셋 이상이면 offset 만큼 바깥으로 밀려 있습니다)
+      ③ 그 축에 걸린 dataZoom 을 찾아 <커서 높이를 붙박이로> 두고 늘립니다
+
+    ⚠️ 커서가 <그림 안> 이면 손대지 않습니다 — 거기선 ECharts 가
+       가로(기간)를 맡습니다. 둘이 겹치면 어느 쪽이 움직였는지 모릅니다.  */
+function axisAtPixel(c, o, x, y){
+  var g = (o.grid || [])[0]; if (!g) return null;
+  var x0 = Number(g.left) || 0, x1 = c.getWidth()  - (Number(g.right)  || 0);
+  var y0 = Number(g.top)  || 0, y1 = c.getHeight() - (Number(g.bottom) || 0);
+  if (y < y0 || y > y1) return null;      //  위아래 여백(범례·슬라이더)은 그냥 둡니다
+  /*  ⚠️ 그림 안에서는 ECharts 가 휠을 <먼저 먹고 전파를 끊습니다> — 그래서
+      사실 이 줄까지 안 옵니다. 그래도 남겨둡니다. ECharts 설정이 바뀌거나
+      (zoomOnMouseWheel 을 끄거나) 판올림하면 전파가 살아날 수 있는데,
+      그때 가로·세로가 같이 움직이면 «뭐가 움직였지» 가 됩니다.
+      <2차 방어선> 입니다 — 이게 유일한 방어라는 뜻은 아닙니다.        */
+  if (x >= x0 && x <= x1) return null;
+  var hit = null;
+  (o.yAxis || []).forEach(function(a, i){
+    if (hit != null) return;
+    var off = Number(a.offset) || 0, lo, hi;
+    if (a.position === 'right'){ lo = x1 + off; hi = lo + AXIS_STEP; }
+    else                       { hi = x0 - off; lo = hi - AXIS_STEP; }
+    if (x >= lo && x <= hi) hit = i;
+  });
+  return hit;
+}
+
+function zoomIndexForAxis(o, yi){
+  var dz = o.dataZoom || [];
+  for (var k = 0; k < dz.length; k++){
+    if (dz[k].type !== 'inside') continue;
+    var a = dz[k].yAxisIndex;
+    if (a === yi || (Array.isArray(a) && a.indexOf(yi) >= 0)) return k;
+  }
+  return -1;
+}
+
+function bindAxisWheel(){
+  var box = $('chartBox'); if (!box || box.__axWheel) return;
+  box.__axWheel = 1;
+
+  //  커서를 올리면 «여기서 굴릴 수 있다» 고 모양으로 알려줍니다
+  box.addEventListener('mousemove', function(e){
+    var c = echarts.getInstanceByDom(box); if (!c) return;
+    var r = box.getBoundingClientRect();
+    var hit = axisAtPixel(c, c.getOption(), e.clientX - r.left, e.clientY - r.top);
+    box.style.cursor = (hit != null) ? 'ns-resize' : '';
+  });
+  box.addEventListener('mouseleave', function(){ box.style.cursor = ''; });
+
+  box.addEventListener('wheel', function(e){
+    var c = echarts.getInstanceByDom(box); if (!c) return;
+    var o = c.getOption();
+    var r = box.getBoundingClientRect();
+    var x = e.clientX - r.left, y = e.clientY - r.top;
+    var yi = axisAtPixel(c, o, x, y);
+    if (yi == null) return;                       //  축 위가 아니면 그냥 둡니다
+    var idx = zoomIndexForAxis(o, yi); if (idx < 0) return;
+
+    e.preventDefault();                           //  페이지가 같이 스크롤되면 안 됩니다
+    var dz = o.dataZoom[idx];
+    var st = Number(dz.start), en = Number(dz.end);
+    if (!isFinite(st)) st = 0;
+    if (!isFinite(en)) en = 100;
+    var span = en - st; if (!(span > 0)) return;
+
+    /*  ⚠️ 커서가 가리키는 <값> 을 붙박이로 둡니다. 안 그러면 확대할 때마다
+        보던 자리가 달아나서 «어디를 보고 있었는지» 를 잃습니다.        */
+    var g = o.grid[0];
+    var gy0 = Number(g.top) || 0, gy1 = c.getHeight() - (Number(g.bottom) || 0);
+    var p = (gy1 - y) / Math.max(1, gy1 - gy0);   //  아래 0 · 위 1
+    p = Math.min(1, Math.max(0, p));
+
+    var f  = e.deltaY < 0 ? 0.85 : (1 / 0.85);    //  위로 굴리면 확대
+    var ns = Math.min(100, Math.max(0.5, span * f));
+    var anchor = st + p * span;
+    var s2 = anchor - p * ns, e2 = s2 + ns;
+    if (s2 < 0){ s2 = 0; e2 = ns; }
+    if (e2 > 100){ e2 = 100; s2 = 100 - ns; }
+    c.dispatchAction({ type:'dataZoom', dataZoomIndex: idx, start: s2, end: e2 });
+  }, { passive: false });
+}
+
 /*  ── 확대한 것을 되돌립니다 ──────────────────────────────────
     ⚠️ 가로만 되돌리면 세로가 확대된 채로 남습니다. dataZoom 이
        여러 개라 <전부> 100% 로 돌려놔야 «원래 크기» 가 됩니다.      */
@@ -8524,6 +8618,7 @@ function alignAxes(ranges, N, needZero){
 function drawChart(){
   if (!chartsReady()) return;
   chart = chartOn('chartBox', chart); if (!chart) return;
+  bindAxisWheel();
   var norm = $('normSel') && $('normSel').checked;
 
   var loaded = [];
