@@ -2327,6 +2327,24 @@
           <div id="dvMapBox" style="width:100%;height:250px"></div>
           <div id="dvMapChips"></div>
           <div id="dvMapLegend" class="st-hint" style="margin-top:8px"></div>
+
+          <!--  ⚠️ 지도만 보면 «지금 어디쯤인지» 는 알아도 «어떻게 여기까지
+                왔는지» 는 안 보입니다. 같은 가격축 위에 실제 봉을 깔면,
+                풋벽·콜벽이 <전에도 막혔던 자리인지> 가 눈에 들어옵니다.  -->
+          <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:12px">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <b style="font-size:12.5px;color:var(--text)">주가 추이와 주요 자리</b>
+              <span class="st-hint grow">같은 가격대를 봉차트 위에 겹쳐 봅니다</span>
+              <select id="dvCandleRange" style="width:110px;padding:5px 8px;font-size:12.5px"
+                      onchange="dvDrawCandle()">
+                <option value="60">최근 3개월</option>
+                <option value="120" selected>최근 6개월</option>
+                <option value="250">최근 1년</option>
+              </select>
+            </div>
+            <div id="dvCandleBox" style="width:100%;height:300px;margin-top:8px"></div>
+            <div id="dvCandleHint" class="st-hint" style="margin-top:6px"></div>
+          </div>
         </div>
 
         <!--  두 카드의 키를 맞춥니다. 예전에는 만기별 변동성 카드가 짧아서
@@ -2695,6 +2713,25 @@
       <!--  ── 대회 초기화 ───────────────────────────────────────
             ⚠️ 되돌릴 수 없습니다. 그래서 <누르기 전에> 무엇이 몇 건
                지워지는지 숫자로 먼저 보여줍니다.                      -->
+      <!--  ── 자동매매 자가진단 ─────────────────────────────────
+            ⚠️ 채권팀이 2주를 기다렸는데 체결이 하나도 없었습니다.
+               «안 도는 것» 과 «돌았는데 조건이 안 맞은 것» 은 화면에서
+               똑같아 보입니다. 앞은 고장이고 뒤는 정상입니다.
+               구분해서 말해 줘야 합니다.                              -->
+      <div class="card" id="autoDocCard">
+        <h2>자동매매 진단
+          <span class="tools">
+            <button class="btn-sm" onclick="autoDoc()">지금 상태 보기</button>
+          </span>
+        </h2>
+        <div class="note info" style="margin-bottom:12px">
+          «자동매매를 켰는데 아무것도 안 산다» 싶을 때 여기를 누르세요.
+          <b>어디서 막혔는지</b> 한 줄로 알려줍니다. 돈은 안 듭니다.
+        </div>
+        <div id="autoDocBox"><div class="empty" style="padding:14px">
+          「지금 상태 보기」를 누르세요.</div></div>
+      </div>
+
       <div class="card" id="resetCard">
         <h2>대회 초기화
           <span class="tools st-hint">포트폴리오 프로젝트를 새로 시작할 때</span>
@@ -6249,7 +6286,7 @@ function dvByStrike(){
           .sort(function(a,b){ return a.strike - b.strike; });
 }
 
-/* 최대 고통 — 만기에 옵션 보유자 전체 가치가 가장 작아지는 행사가.
+/* 맥스 페인 — 만기에 옵션 보유자 전체 가치가 가장 작아지는 행사가.
    시장이 그쪽으로 끌린다는 속설이 있어 참고 지표로 씁니다. */
 function dvMaxPain(list){
   var best = null, bestVal = Infinity;
@@ -6319,7 +6356,7 @@ async function dvRender(){
            L.callWall != null ? num(L.callWallOi, 0) + '계약' : '', '')
     + tile('풋벽 (지지)', L.putWall != null ? '$' + num(L.putWall, kdp) : '—',
            L.putWall != null ? num(L.putWallOi, 0) + '계약' : '', '')
-    + tile('최대 고통', pain != null ? '$' + num(pain, kdp) : '—', '미결제 기준', '')
+    + tile('맥스 페인', pain != null ? '$' + num(pain, kdp) : '—', '미결제 기준', '')
     + tile('52주 범위', L.hi52 != null ? '$' + num(L.lo52, 0) + ' ~ ' + num(L.hi52, 0) : '—',
            '기초자산', '')
     + tile('총 미결제', num(callOi + putOi, 0), '콜 ' + num(callOi, 0) + ' · 풋 ' + num(putOi, 0), '')
@@ -6334,13 +6371,14 @@ async function dvRender(){
     reads.push('시장은 만기까지 <b>±' + num(move / spot * 100, 1) + '%</b> 정도의 움직임을 값으로 매기고 있습니다. '
              + '(등가격 IV × √(잔존일/365), 약 68% 구간)');
   if (pain != null && spot)
-    reads.push('최대 고통 행사가는 <b>$' + num(pain, 0) + '</b>로 현재가보다 '
+    reads.push('맥스 페인 행사가는 <b>$' + num(pain, 0) + '</b>로 현재가보다 '
              + (pain > spot ? num((pain / spot - 1) * 100, 1) + '% 위' : num((1 - pain / spot) * 100, 1) + '% 아래')
              + '입니다. 통계적 근거가 확실한 지표는 아니니 참고만 하세요.');
   if (dv.note) reads.push('<span style="color:var(--text-sub)">' + esc(dv.note) + '</span>');
   $('dvRead').innerHTML = reads.map(function(x){ return '· ' + x; }).join('<br>');
 
   dvDrawMap(L);
+  dvDrawCandle();
   dvDrawIv(list, spot);
   dvDrawOi(list, spot);
   dvDrawGreeks();
@@ -6631,6 +6669,107 @@ function dvMapPlaceChips(){
   box.style.height = (items[0].el.offsetHeight + 12) + 'px';
 }
 
+/*  ── 주가 추이 + 주요 자리 ────────────────────────────────────
+
+    ⚠️ 가격대 지도는 «지금 어디쯤인가» 를 보여주지만 «어떻게 왔는가» 는
+       안 보입니다. 학회장 제안대로 같은 가격축에 실제 봉을 깔면,
+       풋벽·콜벽이 <전에도 막혔던 자리> 인지 한눈에 보입니다.
+
+    ⚠️ 봉은 이미 받아둔 것을 씁니다 (dvLoadHist 캐시). 새로 안 받습니다.
+    ⚠️ 선은 <넷> 입니다 — 풋벽(지지)·맥스 페인·콜벽(저항)·현재가.
+       색은 지도와 <같게> 씁니다. 두 그림에서 색이 다르면 같은 자리인지
+       못 알아봅니다.                                                    */
+var dvCandleChart = null;
+async function dvDrawCandle(){
+  var box = $('dvCandleBox'); if (!box || typeof echarts === 'undefined') return;
+  var L = dvLevels;
+  dvCandleChart = chartOn(box, dvCandleChart); if (!dvCandleChart) return;
+  watchChartBoxes();
+
+  var h = await dvLoadHist();
+  var all = aiArr(h && h.points).filter(function(x){
+    return x && x.v > 0 && x.o > 0 && x.h > 0 && x.l > 0; });
+  var nWant = Number(($('dvCandleRange') || {}).value) || 120;
+  var pts = all.slice(-nWant);
+
+  if (pts.length < 5){
+    dvCandleChart.clear();
+    dvCandleChart.setOption({ backgroundColor: theme.bg,
+      title:{ left:'center', top:'44%', text:'봉 자료를 받지 못했습니다',
+        textStyle:{ fontSize:13, color:'#8b93a7', fontWeight:400 } } }, true);
+    $('dvCandleHint').textContent = '';
+    return;
+  }
+
+  var dp = (dvMkt === 'crypto' || (L && L.spot < 10)) ? 2 : 2;
+  var f = function(v){ return '$' + num(v, dp); };
+
+  //  ⚠️ 지도와 <같은 색> 을 씁니다
+  var LINES = [];
+  function ln(v, name, color, dash){
+    if (!okNum(v) || !(v > 0)) return;
+    LINES.push({ yAxis: v, name: name,
+      lineStyle:{ color: color, width: dash ? 1.5 : 2,
+                  type: dash ? 'dashed' : 'solid' },
+      label:{ formatter: name + ' ' + f(v), color: color, rotate: 0,
+              position: 'insideEndTop', fontSize: 10.5, fontWeight: 700,
+              backgroundColor:'rgba(255,255,255,.92)', padding:[2,5], borderRadius:3 } });
+  }
+  if (L){
+    ln(L.callWall, '콜벽 (저항)', '#c0392b', true);
+    ln(L.pain,     '맥스 페인',   '#b26a00', true);
+    ln(L.putWall,  '풋벽 (지지)', '#1b5fa8', true);
+    ln(L.spot,     '현재가',      '#2c3e6b', false);
+  }
+
+  //  축이 선까지 품게 합니다 — 벽이 화면 밖이면 볼 이유가 없습니다
+  var vals = pts.map(function(x){ return x.h; })
+    .concat(pts.map(function(x){ return x.l; }))
+    .concat(LINES.map(function(x){ return x.yAxis; }));
+  var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+  var pad = (hi - lo) * 0.06 || 1;
+
+  dvCandleChart.setOption({
+    backgroundColor: theme.bg, animation: false,
+    grid:{ left: 8, right: 96, top: 18, bottom: 26, containLabel: true },
+    tooltip:{ trigger:'axis', axisPointer:{ type:'cross' },
+      backgroundColor:'rgba(255,255,255,.96)', borderColor:'#e8ecf4',
+      textStyle:{ color:'#2c3e6b', fontSize:12 },
+      formatter: function(ps){
+        var a = ps.filter(function(x){ return x.seriesType === 'candlestick'; })[0];
+        if (!a) return '';
+        var v = a.value;   //  [i, open, close, low, high]
+        return '<b>' + esc(a.name) + '</b><br>'
+          + '시가 ' + f(v[1]) + '<br>고가 ' + f(v[4]) + '<br>'
+          + '저가 ' + f(v[3]) + '<br><b>종가 ' + f(v[2]) + '</b>';
+      } },
+    xAxis:{ type:'category', data: pts.map(function(x){ return x.d; }),
+      axisLabel:{ color:'#8a93a8', fontSize:10, hideOverlap: true },
+      axisLine:{ lineStyle:{ color:'#e8ecf4' } }, axisTick:{ show:false },
+      splitLine:{ show:false } },
+    yAxis:{ type:'value', scale:true, min: lo - pad, max: hi + pad,
+      axisLabel:{ color:'#8a93a8', fontSize:10.5,
+        formatter: function(v){ return num(v, 0); } },
+      axisLine:{ show:false }, axisTick:{ show:false },
+      splitLine:{ lineStyle:{ color:'#eef1f6' } } },
+    dataZoom:[{ type:'inside', start: 0, end: 100 }],
+    series:[{
+      type:'candlestick', name:'주가',
+      data: pts.map(function(x){ return [x.o, x.v, x.l, x.h]; }),
+      itemStyle:{ color:'#c0392b', color0:'#1f8a70',
+                  borderColor:'#c0392b', borderColor0:'#1f8a70' },
+      markLine: LINES.length ? { symbol:'none', silent:true, data: LINES } : undefined
+    }]
+  }, true);
+
+  var names = LINES.map(function(x){ return x.name; });
+  $('dvCandleHint').innerHTML =
+    '최근 <b>' + pts.length + '거래일</b>' + (names.length
+      ? ' · 겹친 자리 — ' + esc(names.join(' · ')) : '')
+    + '<br>봉이 <b>벽 근처에서 자주 멈췄다면</b> 그 자리가 실제로 힘을 쓴다는 뜻입니다. '
+    + '<b>지지·저항은 «반드시 막힌다» 가 아니라 «사람이 몰려 있다» 입니다.</b>';
+}
+
 function dvDrawMap(L){
   if (typeof echarts === 'undefined') return;
   dvMapChart = chartOn('dvMapBox', dvMapChart); if (!dvMapChart) return; watchChartBoxes();
@@ -6662,13 +6801,13 @@ function dvDrawMap(L){
 
   /*  축 범위.
 
-      예전에는 콜벽·풋벽·최대고통까지 전부 축에 넣었습니다. 그런데 아주 멀리
+      예전에는 콜벽·풋벽·맥스 페인까지 전부 축에 넣었습니다. 그런데 아주 멀리
       떨어진 행사가(예: 현물 6.8만인데 풋벽이 200)에 미결제가 조금이라도 쌓이면
       축이 그쪽까지 늘어나면서, 정작 봐야 할 구간이 화면 오른쪽 끄트머리에
       찌그러졌습니다.
 
       그래서 축은 '뜻이 있는 구간' — 95% 예상 범위와 지난 1년 실제 범위, 그리고
-      현재가 — 로만 잡습니다. 벽·최대고통은 그 안에 들어올 때만 축에 반영하고,
+      현재가 — 로만 잡습니다. 벽·맥스 페인은 그 안에 들어올 때만 축에 반영하고,
       벗어나면 점을 찍지 않고 아래 설명줄에 '범위 밖'이라고 적어둡니다.
       (없는 것처럼 숨기면 안 되니까요.)                                    */
   var coreLo = Math.min.apply(null, ROWS.filter(function(r){ return r[1] != null; })
@@ -6680,7 +6819,7 @@ function dvDrawMap(L){
   function inView(v){ return okNum(v) && v >= okLo && v <= okHi; }
 
   var lo = coreLo, hi = coreHi, outside = [];
-  [[L.putWall,'풋벽'], [L.callWall,'콜벽'], [L.pain,'최대 고통']].forEach(function(t){
+  [[L.putWall,'풋벽'], [L.callWall,'콜벽'], [L.pain,'맥스 페인']].forEach(function(t){
     if (!okNum(t[0])) return;
     if (inView(t[0])){ lo = Math.min(lo, t[0]); hi = Math.max(hi, t[0]); }
     else outside.push(t[1] + ' ' + f(t[0]));
@@ -6691,7 +6830,7 @@ function dvDrawMap(L){
   var pad = (hi - lo) * 0.07 || 1;
 
   //  주요 가격 자리.
-  //  최대 고통이 콜벽과 같은 행사가에 오는 일이 흔해서, 가까운 값끼리는
+  //  맥스 페인이 콜벽과 같은 행사가에 오는 일이 흔해서, 가까운 값끼리는
   //  한 점으로 묶어 이름표를 합칩니다 (안 그러면 글자가 겹쳐 못 읽습니다).
   var pick = [];
   function mk(v, label, color){
@@ -6701,7 +6840,7 @@ function dvDrawMap(L){
   mk(L.spot, '현재가', '#2c3e6b');
   if (inView(L.callWall)) mk(L.callWall, '콜벽 (저항)', '#c0392b');
   if (inView(L.putWall))  mk(L.putWall,  '풋벽 (지지)', '#1b5fa8');
-  if (inView(L.pain))     mk(L.pain,     '최대 고통',   '#b26a00');
+  if (inView(L.pain))     mk(L.pain,     '맥스 페인',   '#b26a00');
 
   //  묶는 기준은 전체 축이 아니라 '68% 예상 구간' 폭입니다.
   //  52주 막대 때문에 축이 넓어져도 자리들이 통째로 뭉치지 않게 하려는 것입니다.
@@ -6715,7 +6854,7 @@ function dvDrawMap(L){
   });
   /*  이름표를 차트 밖으로 뺍니다.
 
-      원래는 점 옆에 글자를 붙였습니다. 그런데 콜벽·풋벽·최대고통·현재가는
+      원래는 점 옆에 글자를 붙였습니다. 그런데 콜벽·풋벽·맥스 페인·현재가는
       값이 서로 가까운 게 정상이라 (다들 등가격 근처에 몰립니다) 어떻게
       배치해도 결국 겹쳤습니다. 칸을 나눠 밀어내는 것도 해봤지만, 밀어낼수록
       선에서 멀어져서 어느 선의 이름인지 알 수 없게 됐습니다.
@@ -7052,7 +7191,7 @@ function dvPlain(L, list){
   }
 
   if (L.pain != null){
-    st.push(['최대 고통',
+    st.push(['맥스 페인',
       lv(L.pain, 'now') + away(L.pain) + ' — 만기에 이 가격이면 옵션을 산 사람들 전체 가치가 가장 작아집니다. '
       + '통계적으로 검증된 지표는 아니고, <b>미결제가 어디에 쏠려 있는지를 한 숫자로 줄인 것</b> 정도로 보세요.']);
   }
@@ -14466,6 +14605,32 @@ function quantMetrics(hist, bench, rf, seed){
   };
 }
 
+/*  ── 퀀트 지표 ───────────────────────────────────────────────
+
+    ⚠️ 학회장 지적: «알파 같은 게 말이 안 된다». 맞는 지적이었습니다.
+       19일 치로 계산한 화면이 이랬습니다 —
+         트레이너 +1756.56%  (베타가 −0.01 이라 0 으로 나눈 셈)
+         알파 −14.19%  ·  하락장 포착 −51%  ·  추적오차 15.76%
+       전부 <표본이 모자라서 나온 숫자> 입니다. 뜻이 없습니다.
+
+    그래서 두 가지를 고쳤습니다.
+
+    ① <칸을 줄였습니다> — 25개에서 9개로.
+       뺀 것들(트레이너·정보비율·오메가·칼마·소르티노·울서·VaR·CVaR·
+       상관계수·추적오차·상승장 포착·하락장 포착·왜도·첨도)은 전부
+       «비율의 비율» 이거나 «분포의 꼬리» 라서, 한 학기짜리 표본에서는
+       숫자가 널을 뜁니다. 학회원이 잘못 읽기 딱 좋습니다.
+
+    ② <표본이 모자라면 숫자를 안 보여줍니다>.
+       샤프·알파·베타는 며칠 치로는 아무 말도 못 합니다. 그럴 땐
+       «표본 부족» 이라고 적고 며칠이 더 필요한지 알려줍니다 —
+       틀린 숫자를 보여주느니 «아직 모른다» 가 낫습니다.
+
+    ⚠️ 남긴 9개 중 <누적·벤치마크·초과·최대낙폭·승률> 은 표본과 무관하게
+       정확합니다. 더하고 빼기만 하면 나오는 값이라 틀릴 수가 없습니다.  */
+var Q_MIN_RATIO = 60;    //  샤프·알파·베타 — 최소 거래일
+var Q_MIN_VOL   = 20;    //  변동성 — 최소 거래일
+
 function quantHTML(m, note){
   function g(title, hint, tiles){
     return '<div class="q-group"><div class="q-title">' + esc(title)
@@ -14473,49 +14638,53 @@ function quantHTML(m, note){
          + '<div class="tiles">' + tiles + '</div></div>';
   }
   var p = function(v){ return v>=0?'pos':'neg'; };
+  var n = Number(m.days) || 0;
+
+  /*  표본이 모자라면 숫자 대신 «얼마나 더 필요한지» 를 적습니다.
+      ⚠️ 숨기는 게 아니라 <아직 못 믿는다> 고 말하는 것입니다.        */
+  function need(minDays, make){
+    if (n >= minDays) return make();
+    return { v: '표본 부족', h: n + '일 · ' + minDays + '일부터', c: '' };
+  }
+  function T(label, spec){
+    return tile(label, spec.v, spec.h, spec.c || '');
+  }
 
   return g('수익', '벤치마크는 S&P 500',
-      tile('누적 수익률', pct(m.totalRet*100), m.days + '일', p(m.totalRet))
-    + tile('연환산 (CAGR)', pct(m.cagr*100), '연 기준', p(m.cagr))
-    + tile('벤치마크', pct(m.bTotal*100), '같은 기간 S&P 500')
-    + tile('초과 수익', pct(m.excess*100), '벤치마크 대비', p(m.excess)))
+      T('누적 수익률', { v: pct(m.totalRet*100), h: n + '일', c: p(m.totalRet) })
+    + T('벤치마크',   { v: pct(m.bTotal*100),   h: '같은 기간 S&P 500' })
+    + T('초과 수익',  { v: pct(m.excess*100),   h: '벤치마크 대비', c: p(m.excess) }))
 
   + g('위험', '낮을수록 좋습니다',
-      tile('변동성', (m.vol*100).toFixed(2)+'%', '연환산 표준편차')
-    + tile('하방 변동성', (m.dsd*100).toFixed(2)+'%', '손실 구간만')
-    + tile('최대 낙폭', (m.mdd*100).toFixed(2)+'%', 'MDD', 'neg')
-    + tile('울서 지수', m.ulcer.toFixed(2), '낙폭의 깊이×기간')
-    + tile('VaR 95%', (m.var95*100).toFixed(2)+'%', '하루 최악 5% 경계', 'neg')
-    + tile('CVaR 95%', (m.cvar95*100).toFixed(2)+'%', '그 5%의 평균', 'neg'))
+      T('변동성', need(Q_MIN_VOL, function(){
+          return { v: (m.vol*100).toFixed(2)+'%', h: '연환산 표준편차' }; }))
+    + T('최대 낙폭', { v: (m.mdd*100).toFixed(2)+'%', h: '고점 대비 최대 하락', c: 'neg' }))
 
-  + g('위험조정 수익', '위험 1단위당 얼마를 벌었나',
-      tile('샤프지수', m.sharpe.toFixed(2), '1 이상이면 양호', m.sharpe>=1?'pos':'')
-    + tile('소르티노', m.sortino.toFixed(2), '하락 위험 대비', m.sortino>=1?'pos':'')
-    + tile('칼마지수', m.calmar.toFixed(2), 'CAGR ÷ MDD')
-    + tile('정보비율', m.ir.toFixed(2), '초과수익 ÷ 추적오차', m.ir>=0.5?'pos':'')
-    + tile('트레이너', pct(m.treynor*100), '베타 1단위당 초과수익')
-    + tile('오메가', m.omega.toFixed(2), '이익 합 ÷ 손실 합', m.omega>=1?'pos':'neg'))
+  + g('위험조정 · 시장 대비', '표본이 쌓여야 뜻이 생깁니다',
+      T('샤프지수', need(Q_MIN_RATIO, function(){
+          return { v: m.sharpe.toFixed(2), h: '1 이상이면 양호',
+                   c: m.sharpe>=1?'pos':'' }; }))
+    + T('알파', need(Q_MIN_RATIO, function(){
+          return { v: pct(m.alpha*100), h: '시장으로 설명 안 되는 성과',
+                   c: p(m.alpha) }; }))
+    + T('베타', need(Q_MIN_RATIO, function(){
+          return { v: m.beta.toFixed(2), h: '시장 민감도' }; })))
 
-  + g('시장 대비', 'S&P 500 기준',
-      tile('베타', m.beta.toFixed(2), '시장 민감도')
-    + tile('알파', pct(m.alpha*100), '시장으로 설명 안 되는 성과', p(m.alpha))
-    + tile('상관계수', m.corr.toFixed(2), '−1 ~ +1')
-    + tile('추적오차', (m.te*100).toFixed(2)+'%', '벤치마크와 벌어진 정도')
-    + tile('상승장 포착', m.upCap.toFixed(0)+'%', '시장이 오를 때', m.upCap>=100?'pos':'')
-    + tile('하락장 포착', m.dnCap.toFixed(0)+'%', '낮을수록 방어 잘함', m.dnCap<=100?'pos':'neg'))
-
-  + g('분포 · 매매', '수익률이 어떤 모양인가',
-      tile('승률', m.winRate.toFixed(1)+'%', '상승 마감일 비율')
-    + tile('최대 연속 손실', m.lossStreak + '일', '가장 길었던 하락 구간')
-    + tile('낙폭 회복', m.recovery.done ? (m.recovery.days + '일') : '미회복',
-           m.recovery.done ? '저점에서 전고점까지' : '아직 전고점 아래')
-    + tile('왜도', m.skew.toFixed(2), '양수면 큰 이익 쪽 꼬리')
-    + tile('첨도', m.kurt.toFixed(2), '높을수록 극단값 잦음'))
+  + g('매매', '표본과 상관없이 정확한 값',
+      T('승률', { v: m.winRate.toFixed(1)+'%', h: '오른 날 ÷ 전체 거래일',
+                  c: m.winRate>=50?'pos':'' }))
 
   + '<div class="note info" style="margin-top:4px;margin-bottom:0">'
   + (note ? note + ' ' : '')
-  + '무위험수익률은 <b>미국 국채 3개월(' + (m.rf*100).toFixed(2) + '%)</b>, 벤치마크는 <b>S&amp;P 500</b> 입니다. '
-  + '표본이 짧으면 샤프·알파·베타가 크게 흔들립니다. <b>최소 한 달 이상</b> 쌓인 뒤 해석하세요.</div>';
+  + '무위험수익률은 <b>미국 국채 3개월(' + (m.rf*100).toFixed(2) + '%)</b>, '
+  + '벤치마크는 <b>S&amp;P 500</b> 입니다.<br>'
+  + (n < Q_MIN_RATIO
+      ? '⚠️ 지금 <b>' + n + '일</b> 쌓였습니다. <b>샤프·알파·베타</b>는 '
+        + '<b>' + Q_MIN_RATIO + '일</b>부터 보여드립니다 — 며칠 치로 계산하면 '
+        + '숫자가 널을 뛰어서 <b>없느니만 못합니다</b>. '
+        + '<b>누적 수익률 · 초과 수익 · 최대 낙폭 · 승률</b>은 지금도 정확합니다.'
+      : '<b>' + n + '일</b> 쌓였습니다. 모든 지표를 해석할 수 있습니다.')
+  + '</div>';
 }
 
 /* 종목별 손익 기여도 — 실현 + 평가 */
@@ -17487,6 +17656,114 @@ async function runStrategy(){
 function backDate(iso, days){
   var d = new Date(iso); d.setDate(d.getDate() - days);
   return d.toISOString().slice(0,10);
+}
+
+/*  ── 자동매매 진단 ───────────────────────────────────────────
+
+    ⚠️ 왜 이게 필요했냐면 — 채권팀이 자동매매를 켜두고 2주를 기다렸는데
+       체결이 하나도 없었습니다. 그런데 화면 어디에도 이유가 없었습니다.
+
+    자동매매가 «아무것도 안 사는» 이유는 갈래가 여럿이고, 갈래마다
+    고치는 법이 완전히 다릅니다. 그런데 화면에서는 전부 똑같이
+    «조용함» 으로 보입니다. 그래서 <어느 갈래인지> 를 짚어 줍니다.
+
+      · 스캔을 부르는 사람이 없다  → 고장. SQL 을 안 돌린 것
+      · 팀이 안 켰다 / 배정 0 / 전략 없음 → 설정 문제. 화면에서 고침
+      · 조건에 맞는 종목이 없었다 → 정상. 전략이 빡센 것
+      · 봉을 못 받았다            → 고장. Alpaca 키·요금제                */
+async function autoDoc(){
+  var box = $('autoDocBox'); if (!box) return;
+  box.innerHTML = '<div class="empty" style="padding:14px">보는 중…</div>';
+  try {
+    var r = await sb.rpc('auto_health');
+    if (r.error) throw new Error(errMsg(r.error));
+    var d = r.data || {};
+    var teams = aiArr(d.teams), recent = aiArr(d.recent);
+
+    //  ── 제일 위에 «한 줄 진단» ──
+    var head, cls;
+    var lastMs = d.last_run ? Date.parse(d.last_run) : 0;
+    var ageH = lastMs ? (Date.now() - lastMs) / 36e5 : null;
+    var ready = teams.filter(function(t){ return !t.blocked; });
+
+    if (d.cron_readable && !d.scan_scheduled){
+      cls = 'warn';
+      head = '⛔ <b>스캔을 부르는 예약 작업이 없습니다.</b> 자동매매는 '
+           + '<b>한 번도 돌지 않았습니다</b> — 팀이 뭘 어떻게 설정했든 상관없습니다.<br>'
+           + '고치는 법: Supabase SQL Editor 에서 <b>terminal-예열자동.sql</b> → '
+           + '<b>terminal-자동운영.sql</b> 을 차례로 돌리세요.';
+    } else if (!d.cfg){
+      cls = 'warn';
+      head = '⛔ <b>주소·열쇠가 저장돼 있지 않습니다</b> (private_warm_cfg). '
+           + '예약 작업이 있어도 서버를 못 부릅니다.<br>'
+           + '고치는 법: <b>terminal-예열자동.sql</b> 의 1단계를 마치세요.';
+    } else if (!lastMs){
+      cls = 'warn';
+      head = '⛔ <b>스캔이 한 번도 돈 적이 없습니다.</b> 예약은 걸려 있는데 '
+           + '실행 기록이 없습니다 — 예약 작업이 실패하고 있을 수 있습니다.';
+    } else if (ageH > 2){
+      cls = 'warn';
+      head = '⛔ <b>마지막 스캔이 ' + num(ageH, 1) + '시간 전입니다.</b> '
+           + '5분마다 돌아야 정상입니다 — 예약 작업이 멈췄습니다.';
+    } else if (!ready.length){
+      cls = 'warn';
+      head = '⚠️ <b>스캔은 잘 돌고 있는데, 준비된 팀이 없습니다.</b> '
+           + '아래 표에서 팀마다 무엇이 막고 있는지 보세요.';
+    } else {
+      cls = '';
+      head = '✅ <b>스캔이 돌고 있습니다</b> (마지막 '
+           + (ageH < 1 ? num(ageH * 60, 0) + '분' : num(ageH, 1) + '시간') + ' 전, '
+           + '24시간 동안 ' + num(d.runs_24h, 0) + '회). '
+           + '준비된 팀 ' + ready.length + '개 · 자동 체결 누적 '
+           + num(d.trades_auto, 0) + '건.';
+    }
+    if (!d.cron_readable)
+      head += '<br><span class="st-hint">※ 예약 작업 목록은 못 읽었습니다 '
+            + '(권한). 아래 «마지막 스캔» 시각으로 판단하세요.</span>';
+
+    var H = '<div class="note ' + cls + '" style="margin-bottom:12px">' + head + '</div>';
+
+    //  ── 팀별 ──
+    H += '<div class="scroll"><table><thead><tr><th>팀</th><th>자동매매</th>'
+       + '<th class="num">배정 금액</th><th class="num">전략</th>'
+       + '<th>마지막 차례</th><th>막고 있는 것</th></tr></thead><tbody>'
+       + (teams.length ? teams.map(function(t){
+           return '<tr><td><b>' + esc(aiStr(t.name)) + '</b></td>'
+             + '<td>' + (t.auto_on ? '<span class="by-tag auto">켜짐</span>'
+                                   : '<span class="by-tag manual">꺼짐</span>') + '</td>'
+             + '<td class="num">' + num(t.budget, 0) + '원</td>'
+             + '<td class="num">' + num(t.strategies, 0) + '개</td>'
+             + '<td class="st-hint">' + esc(String(t.last_at || '—').slice(0, 16).replace('T', ' ')) + '</td>'
+             + '<td>' + (t.blocked
+                 ? '<span style="color:var(--neg)">' + esc(t.blocked) + '</span>'
+                 : '<span style="color:var(--pos)">준비됨</span>') + '</td></tr>';
+         }).join('') : '<tr><td class="empty" colspan="6">팀이 없습니다.</td></tr>')
+       + '</tbody></table></div>';
+
+    //  ── 최근 실행 기록 — note 에 이유가 적혀 있습니다 ──
+    H += '<h3 style="font-size:.9rem;color:var(--primary);margin:16px 0 8px">'
+       + '최근 스캔 기록</h3>'
+       + '<div class="scroll"><table><thead><tr><th style="width:130px">언제</th>'
+       + '<th>팀</th><th class="num">훑음</th><th class="num">맞음</th>'
+       + '<th class="num">삼</th><th>서버가 남긴 말</th></tr></thead><tbody>'
+       + (recent.length ? recent.map(function(x){
+           return '<tr><td class="st-hint">'
+             + esc(String(x.ran_at || '').slice(0, 16).replace('T', ' ')) + '</td>'
+             + '<td>' + esc(aiStr(x.team) || '—') + '</td>'
+             + '<td class="num">' + num(x.scanned, 0) + '</td>'
+             + '<td class="num">' + num(x.matched, 0) + '</td>'
+             + '<td class="num"><b>' + num(x.filled, 0) + '</b></td>'
+             + '<td class="st-hint">' + esc(aiStr(x.note) || '—') + '</td></tr>';
+         }).join('')
+         : '<tr><td class="empty" colspan="6">스캔이 한 번도 안 돌았습니다 — '
+           + '이게 «아무것도 안 사는» 이유입니다.</td></tr>')
+       + '</tbody></table></div>';
+
+    box.innerHTML = H;
+  } catch(e){
+    box.innerHTML = '<div class="note warn">' + esc(e.message)
+      + '<br><span class="st-hint">terminal-자동진단.sql 을 아직 안 돌렸을 수 있습니다.</span></div>';
+  }
 }
 
 /* ══════════ 학번 이름표 (임원진) ══════════
