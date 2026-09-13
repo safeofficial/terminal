@@ -757,6 +757,14 @@
   .auto-bar .ab-v{font-size:.92rem;font-weight:700;color:var(--text);
                   font-variant-numeric:tabular-nums}
   .auto-bar .ab-sp{margin-left:auto}
+  /*  ⚠️ «멈춰 있음» 은 «꺼져 있음» 과 <다른 색> 이어야 합니다.
+      꺼진 건 내가 끈 것이고, 멈춘 건 켰는데 안 도는 것 — 손을 써야 하는
+      쪽은 후자뿐입니다. 회색으로 같이 묶으면 눈에 안 들어옵니다.       */
+  .auto-bar.stuck{border-color:#e6b4ad;background:var(--danger-soft,#fdf3f2)}
+  .auto-bar.stuck .ab-dot{background:var(--danger)}
+  .auto-bar.stuck .ab-state{color:var(--danger)}
+  .auto-bar .ab-warn{flex:1 0 100%;font-size:12.5px;line-height:1.65;
+                     color:var(--text);border-top:1px solid #eadbd8;padding-top:10px}
   @media (prefers-reduced-motion:reduce){ .auto-bar.on .ab-dot{animation:none} }
 
   .note{background:var(--warn-soft);border:1px solid #f0d68a;border-radius:11px;padding:13px 16px;
@@ -2875,17 +2883,28 @@
             <div class="note info" style="margin-bottom:9px">
               <b>평소에는 아무것도 안 눌러도 됩니다.</b>
               <code>terminal-자동운영.sql</code> 을 한 번 실행해 두면 서버가
-              <b>매주 일요일 오전 8시</b>에 세 시장의 명단을 알아서 새로 짭니다.
+              <b>매주 일요일 오전 8시</b>에 미국·코인 명단을 알아서 새로 짭니다.
               아래 버튼은 <b>지금 당장</b> 갱신하고 싶을 때만 쓰세요.
             </div>
+            <!--  ⚠️ 국내를 여기서 뺐습니다.
+
+                  이 명단은 <자동매매가 훑을> 목록입니다. 그런데 자동매매는
+                  국내를 원래 못 만집니다 (거래소 실시간 창구가 없어 체결가를
+                  믿을 수 없습니다). 그런데도 「국내 상위 100 등록」 단추가
+                  여기 있어서, 누르면 139종목이 명단에 쌓이고 화면은
+                  «오늘 스캔 대상 국내 139» 라고 적었습니다. 한 종목도 안
+                  훑으면서요. 애초에 <못 넣게> 하는 게 맞습니다.
+                  국내 <직접> 매매와 국내 종가 받기는 위 「살 수 있는 종목」
+                  에서 그대로 됩니다.                                      -->
             <div class="st-hint" style="margin-bottom:9px">
-              국내는 <b>코스피 + 코스닥 전 종목</b> 중 그날 거래대금 상위 100개를,
-              미국은 <b>미국 증시 전 종목</b> 중 상위 100개를 뽑습니다.
+              미국은 <b>S&amp;P 500 전 종목</b>, 코인은 학회 후보 중
+              <b>거래대금 상위 50개</b>를 뽑습니다.
               명단에서 빠진 종목도 <b>팔 수는 있습니다</b> — 산 종목이 묶이는 일은 없습니다.
               손으로 넣은 종목은 자동 갱신에도 지워지지 않습니다.
+              <br><b>국내는 이 명단에 넣지 않습니다</b> — 자동매매가 국내를 못 만지기 때문입니다.
+              국내는 <b>직접 매매 전용</b>이고, 위 「살 수 있는 종목」에서 매일 갱신됩니다.
             </div>
             <div class="row">
-              <button class="btn-sm btn-solid" id="uniKrBtn" onclick="autoUniverse('KR')">국내 상위 100 등록</button>
               <button class="btn-sm btn-solid" id="uniUsBtn" onclick="autoUniverse('US')">미국 S&amp;P500 등록</button>
               <button class="btn-sm btn-solid" id="uniCcBtn" onclick="autoUniverse('CRYPTO')">코인 상위 50 등록</button>
               <button class="btn-sm" id="uniBackBtn" onclick="backfillUniverse()">과거 시세 채우기</button>
@@ -2903,15 +2922,15 @@
           <div class="st-hint" style="margin-bottom:9px">
             자동 등록으로 충분하면 아래는 건드리지 않아도 됩니다.
             한 줄에 하나씩 <code>시장,종목코드,이름</code> 형식으로 넣으세요.
-            예) <code>KR,005930,삼성전자</code> &nbsp; <code>US,NVDA,NVIDIA</code><br>
-            등록하면 <b>그 안에서만</b> 매매와 전략이 가능합니다. 비워두면 제한이 없습니다.
+            예) <code>US,NVDA,NVIDIA</code> &nbsp; <code>CRYPTO,BTC-USD,비트코인</code><br>
             여기서 넣은 종목은 자동 갱신에도 지워지지 않습니다.
+            <b><code>KR</code> 줄은 무시됩니다</b> — 자동매매가 국내를 못 만지기 때문입니다.
           </div>
           <textarea id="uniText" rows="7" spellcheck="false"
             style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:9px;
                    font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;line-height:1.7;
                    background:var(--white);color:var(--text);resize:vertical"
-            placeholder="KR,005930,삼성전자&#10;KR,000660,SK하이닉스&#10;US,NVDA,NVIDIA"></textarea>
+            placeholder="US,NVDA,NVIDIA&#10;US,AVGO,Broadcom&#10;CRYPTO,BTC-USD,비트코인"></textarea>
           <div class="row" style="margin-top:9px">
             <label style="min-width:auto">
               <input type="checkbox" id="uniReplace" checked style="width:auto;vertical-align:-2px">
@@ -10823,6 +10842,56 @@ function mtAutoBudgetAll(){
     알 수가 없었습니다. 남은 시간이 1초씩 줄어드는 걸 보여주는 게
     "살아 있다" 를 말하는 가장 솔직한 방법입니다.                    */
 var mtBarTimer = null;
+
+/*  ── 정말로 돌고 있는가 ───────────────────────────────────────
+
+    ⚠️ 실제로 터진 사고입니다.
+
+       학회장이 이 띠에서 «● 돌고 있습니다» 와 «다음 실행까지 — 지금 도는
+       중…» 을 읽고 12시간을 그냥 뒀습니다. 그동안 자동 체결은 0건이었고,
+       바로 옆 칸에는 «마지막 실행 16일 전» 이 <같이> 적혀 있었습니다.
+       화면이 스스로 앞뒤가 안 맞는 말을 하고 있었던 겁니다.
+
+       원인은 판정이 <스위치 하나> 뿐이었다는 것입니다 — 켜져 있으면
+       무조건 초록불에 «돌고 있습니다» 였습니다.
+       그런데 «자동매매 사용» 스위치가 켜진 것과 서버가 실제로 훑는 것은
+       전혀 다른 이야기입니다. 훑는 것은 <예약 작업(pg_cron)> 이 부르고,
+       그 SQL 을 안 돌렸으면 스위치를 아무리 켜도 영영 안 돕니다.
+
+       «마지막 실행» 이 간격보다 한참 지났으면 그건 도는 게 아니라
+       <멈춘> 것입니다. 그렇게 말해야 합니다.
+
+    여유(grace)를 왜 «간격 + 10분» 으로 잡았나:
+      예약 작업이 5분마다 돌면서 «이 팀 차례인가» 를 봅니다. 그래서
+      최악이라도 간격 + 5분 안에는 돌아야 하고, 서버가 느린 날을 위해
+      5분을 더 줍니다. 이보다 늦으면 «좀 늦네» 가 아니라 «안 돕니다».  */
+function mtAutoStale(a){
+  if (!a || !a.on) return null;
+  if (!a.last_at) return { why:'never' };
+  var ivMin  = Number(a.interval_min) || 1440;
+  var lateS  = Math.round((Date.now() - Date.parse(a.last_at)) / 1000);
+  if (!isFinite(lateS)) return null;
+  return lateS > (ivMin * 60 + 600) ? { why:'stale', late:lateS } : null;
+}
+
+/*  멈췄을 때 <무엇을 해야 하는지> 까지 적습니다. "멈췄습니다" 만
+    적으면 화면만 빨개지고 할 수 있는 게 없습니다.                    */
+function mtStuckHTML(a, st){
+  var head = st.why === 'never'
+    ? '<b>자동매매를 켠 뒤 서버가 <u>한 번도</u> 훑지 않았습니다.</b>'
+    : '<b>마지막으로 훑은 게 ' + esc(mtAgo(a.last_at)) + '입니다 — 멈춰 있습니다.</b>';
+  return '<div class="ab-warn">' + head
+    + '<br>스위치를 켜는 것과 서버가 훑는 것은 <b>다른 이야기</b>입니다. '
+    + '훑는 일은 <b>예약 작업</b>이 5분마다 불러줘야 하는데, 그게 안 걸려 있습니다.'
+    + (isOfficer()
+        ? '<br>임원진: <code>terminal-예열자동.sql</code>(주소·열쇠) → '
+          + '<code>terminal-자동운영.sql</code> 을 한 번 실행하세요. '
+          + '설정 → <b>자동매매 진단</b>에서 확인할 수 있고, '
+          + '아래 <b>실행 기록</b>의 <b>「지금 한 번 돌리기」</b>로 당장 한 번 돌려볼 수도 있습니다.'
+        : '<br>임원진에게 <b>자동매매 예약 작업</b>이 걸려 있는지 확인해 달라고 하세요.')
+    + '</div>';
+}
+
 function mtRenderAutoBar(){
   var el = $('mtAutoBar'); if (!el) return;
   var a = mtAcc && mtAcc.auto;
@@ -10831,7 +10900,8 @@ function mtRenderAutoBar(){
 
   var ivName = { '5m':'5분', '15m':'15분', '30m':'30분', '2h':'2시간',
                  '4h':'4시간', '1d':'하루', '1w':'일주일' }[a.interval] || a.interval;
-  el.className = 'auto-bar ' + (a.on ? 'on' : 'off');
+  var stuck = mtAutoStale(a);
+  el.className = 'auto-bar ' + (a.on ? (stuck ? 'stuck' : 'on') : 'off');
 
   if (!a.on){
     el.innerHTML = '<div class="ab-state"><span class="ab-dot"></span>꺼져 있음</div>'
@@ -10842,7 +10912,9 @@ function mtRenderAutoBar(){
   }
 
   el.innerHTML =
-      '<div class="ab-state"><span class="ab-dot"></span>돌고 있습니다</div>'
+      '<div class="ab-state"><span class="ab-dot"></span>'
+    + (stuck ? (stuck.why === 'never' ? '한 번도 안 돌았습니다' : '멈춰 있습니다')
+             : '돌고 있습니다') + '</div>'
     + '<div class="ab-i"><span class="ab-k">훑는 간격</span><span class="ab-v">'
     +   ivName + '마다</span></div>'
     + '<div class="ab-i"><span class="ab-k">지표 기준</span><span class="ab-v">'
@@ -10855,7 +10927,8 @@ function mtRenderAutoBar(){
     + '<div class="ab-i"><span class="ab-k">자동 체결</span><span class="ab-v">'
     +   num(a.fills, 0) + '건</span></div>'
     + '<div class="ab-i ab-sp"><span class="ab-k">쓸 수 있는 돈</span><span class="ab-v">'
-    +   mtMoney(a.room) + '원</span></div>';
+    +   mtMoney(a.room) + '원</span></div>'
+    + (stuck ? mtStuckHTML(a, stuck) : '');
 
   mtAutoEtaTick();
   if (mtBarTimer) clearInterval(mtBarTimer);
@@ -10866,6 +10939,18 @@ function mtAutoEtaTick(){
   var el = $('mtAutoEta');
   var a = mtAcc && mtAcc.auto;
   if (!el || !a){ if (mtBarTimer) { clearInterval(mtBarTimer); mtBarTimer = null; } return; }
+  /*  ⚠️ 여기가 두 번째 거짓말이었습니다.
+
+      다음 실행 시각이 지나기만 하면 «지금 도는 중…» 이라고 적었습니다.
+      그런데 <아무도 안 부르면> 그 시각은 영원히 지나 있습니다. 16일째
+      멈춰 있는 팀에게도 «지금 도는 중…» 이라고 말하고 있었습니다.      */
+  var st = mtAutoStale(a);
+  if (st){
+    el.textContent = st.why === 'never' ? '한 번도 안 돎' : '안 돌고 있음';
+    el.style.color = 'var(--danger)';
+    return;
+  }
+  el.style.color = '';
   if (!a.next_at){ el.textContent = '곧 (첫 실행 대기)'; return; }
   var left = Math.round((Date.parse(a.next_at) - Date.now()) / 1000);
   if (left <= 0){ el.textContent = '지금 도는 중…'; return; }
@@ -15358,16 +15443,27 @@ async function loadTradableStat(){
 }
 
 async function autoUniverse(mk){
-  var id = mk === 'KR' ? 'uniKrBtn' : (mk === 'CRYPTO' ? 'uniCcBtn' : 'uniUsBtn');
+  /*  ⚠️ 국내는 <자동매매가 훑을 명단> 에 넣지 않습니다.
+      단추는 없앴지만, 예전 화면을 열어둔 브라우저나 북마클릿이 아직
+      부를 수 있으니 여기서도 한 번 더 막습니다. 조용히 무시하지 않고
+      <왜> 안 되는지 적어줍니다.                                     */
+  if (!autoTradable(mk)){
+    warn('autoUniMsg',
+      '국내는 <b>자동매매가 훑을 명단</b>에 넣지 않습니다 — 실시간 시세 창구가 없어 '
+      + '자동매매가 국내를 못 만집니다. 국내 <b>직접 매매</b>는 위 '
+      + '<b>「국내 전 종목·ETF 받기」</b> 로 그대로 됩니다.');
+    return;
+  }
+  var id = mk === 'CRYPTO' ? 'uniCcBtn' : 'uniUsBtn';
   var b = $(id), label = b.textContent;
   b.disabled = true; b.textContent = '불러오는 중…';
   warn('autoUniMsg','');
   try {
-    var src = mk === 'KR' ? 'universe_kr' : (mk === 'CRYPTO' ? 'universe_crypto' : 'universe_us');
+    var src = mk === 'CRYPTO' ? 'universe_crypto' : 'universe_us';
     /*  미국은 <S&P500 전 종목> 을 등록합니다 (top:0 = 자르지 않음).
         버튼에 "S&P500" 이라고 써놓고 상위 100개만 넣고 있었습니다.
         500종목이면 봉 조회가 5번, 시세가 3번이라 분당 200회 한도에 여유가 있습니다.  */
-    var top = mk === 'CRYPTO' ? 50 : (mk === 'US' ? 0 : 100);
+    var top = mk === 'CRYPTO' ? 50 : 0;
     var d = await edge({ source: src, top: top });
     //  시세를 못 받으면 as_of 가 없습니다 — "( 기준," 처럼 빈칸이 보이지 않게 합니다
     var asOf = d.as_of ? esc(d.as_of) + ' 기준, ' : '';
@@ -15387,15 +15483,18 @@ async function backfillUniverse(){
   var b = $('uniBackBtn');
   b.disabled = true; b.textContent = '채우는 중…';
   warn('autoUniMsg','');
+  /*  국내도 같이 받습니다 — 자동매매는 국내를 안 만지지만, 팀이 <직접>
+      산 국내 종목의 지난 종가가 없으면 팀 수익률 곡선에 구멍이 납니다.
+      (서버는 명단이 아니라 <실제로 거래된 국내 종목> 을 기준으로 받습니다) */
   var msg = [];
   for (var i = 0; i < 2; i++){
     var mk = i === 0 ? 'KR' : 'US';
     try {
       var d = await edge({ source: mk === 'KR' ? 'backfill_kr' : 'backfill_us', days: 10 });
-      msg.push((mk === 'KR' ? '국내' : '미국') + ' ' + d.days_fetched + '일 · '
+      msg.push((mk === 'KR' ? '국내(직접 매매용)' : '미국') + ' ' + d.days_fetched + '일 · '
                + num(d.rows_saved, 0) + '건');
     } catch(e){
-      msg.push((mk === 'KR' ? '국내' : '미국') + ' 실패 (' + esc(e.message) + ')');
+      msg.push((mk === 'KR' ? '국내(직접 매매용)' : '미국') + ' 실패 (' + esc(e.message) + ')');
     }
   }
   warn('autoUniMsg', '과거 시세: ' + msg.join(' / '), 'info');
@@ -15405,11 +15504,25 @@ async function backfillUniverse(){
 async function saveUniverse(){
   var m = $('uniMsg'); m.style.color = 'var(--danger)';
   var txt = $('uniText').value;
+  /*  ⚠️ 서버(universe_bulk)도 KR 줄을 버립니다. 그런데 서버만 버리면
+      화면에는 «3개 처리» 라고만 나오고, 5줄을 넣은 사람은 두 줄이
+      어디로 갔는지 모릅니다. 여기서 세어서 <몇 줄이 왜 빠졌는지> 를
+      직접 말해줍니다.                                               */
+  var krLines = txt.split('\n').filter(function(ln){
+    var t = ln.trim();
+    if (!t || t.charAt(0) === '#') return false;
+    return t.split(',')[0].trim().toUpperCase() === 'KR';
+  }).length;
   var r = await sb.rpc('universe_bulk', { p_text: txt, p_replace: $('uniReplace').checked });
   if (r.error){ m.textContent = errMsg(r.error); return; }
   await loadContest();
   m.style.color = 'var(--ok)';
-  m.textContent = '✅ ' + num(r.data) + '개 처리 — 현재 ' + num(universe.length) + '개 등록됨.';
+  m.innerHTML = '✅ ' + num(r.data) + '개 처리 — 현재 ' + num(universe.length) + '개 등록됨.'
+    + (krLines
+        ? '<br><span style="color:var(--text-sub)">국내 ' + krLines
+          + '줄은 넣지 않았습니다 — 자동매매가 국내를 못 만집니다. '
+          + '국내 직접 매매는 「살 수 있는 종목」 에서 그대로 됩니다.</span>'
+        : '');
   $('uniStat').textContent = '· ' + universe.length + '개 등록됨';
 }
 
@@ -16972,10 +17085,22 @@ function ruleRowHTML(kind, r, i){
 }
 
 function symRowHTML(sy, i){
+  /*  ⚠️ 국내를 <새로 고를 수는> 없습니다.
+
+      자동매매는 국내를 못 만집니다 (autoTradable). 그런데 이 칸의
+      첫 선택지가 「국내」였고, 「+ 종목 추가」 를 누르면 기본값도
+      국내였습니다. 그대로 저장한 팀은 <한 종목도 안 사는> 전략을
+      들고 며칠을 기다리게 됩니다.
+
+      다만 예전에 국내로 저장해 둔 줄은 <그 줄에만> 국내를 남겨
+      보여줍니다. 몰래 바꿔 놓으면 왜 안 사는지 알 수가 없고,
+      아예 안 보여주면 칸이 비어 버립니다.                           */
+  var isKr = String(sy.market || '').toUpperCase() === 'KR';
   return '<div class="sym-row">'
     + '<select onchange="updSym('+i+',\'market\',this.value)">'
-    +   '<option value="KR"'+(sy.market==='KR'?' selected':'')+'>국내</option>'
-    +   '<option value="US"'+(sy.market==='US'?' selected':'')+'>해외</option></select>'
+    +   (isKr ? '<option value="KR" selected>국내 (자동매매 안 됨)</option>' : '')
+    +   '<option value="US"'+(sy.market==='US'?' selected':'')+'>미국</option>'
+    +   '<option value="CRYPTO"'+(sy.market==='CRYPTO'?' selected':'')+'>코인</option></select>'
     + '<input type="text" value="'+esc(sy.symbol||'')+'" placeholder="005930"'
     +   ' onchange="updSym('+i+',\'symbol\',this.value)">'
     + '<input type="text" value="'+esc(sy.name||'')+'" placeholder="종목명"'
@@ -17037,11 +17162,21 @@ function renderAlloc(){
   var box = $('allocMsg'); if (!box) return;
   var syms = (strat && strat.symbols) || [];
   if (!syms.length){ box.innerHTML = ''; return; }
+  /*  ⚠️ 예전에 국내로 저장해 둔 줄이 남아 있으면 <몇 줄이 안 사는지>
+      를 숫자로 말해줍니다. 배분 합계는 100% 인데 실제로는 그만큼
+      안 쓰이는 상황이라, 말 안 해주면 영영 모릅니다.                */
+  var krRows = syms.filter(function(x){ return !autoTradable(x.market); });
+  var krNote = krRows.length
+    ? '<div class="note warn" style="margin-bottom:10px">국내 <b>' + krRows.length
+      + '줄</b>은 자동매매가 <b>사지 않습니다</b> — 실시간 시세 창구가 없어서입니다. '
+      + '(' + esc(krRows.map(function(x){ return x.symbol || '종목코드 없음'; }).join(', ')) + ')<br>'
+      + '미국·코인으로 바꾸거나, 국내는 <b>직접 매매</b>로 사세요.</div>'
+    : '';
   var sum = syms.reduce(function(a,x){ return a + Number(x.alloc||0); }, 0);
   var over = sum > 100.001;
   var short = sum < 99.999;
-  box.innerHTML =
-    '<div class="alloc-bar'+(over?' over':'')+'"><i style="width:'+Math.min(100,sum)+'%"></i></div>'
+  box.innerHTML = krNote
+    + '<div class="alloc-bar'+(over?' over':'')+'"><i style="width:'+Math.min(100,sum)+'%"></i></div>'
     + '<div style="font-size:11.5px;color:'+(over?'var(--danger)':(short?'var(--text-sub)':'var(--ok)'))
     + ';margin-bottom:12px">배분 합계 <b>'+sum.toFixed(0)+'%</b>'
     + (over  ? ' — 100%를 넘어 일부 종목은 현금이 모자라 못 삽니다.'
@@ -17237,7 +17372,9 @@ function renderStrategyEditor(){
   syncStratNums();
 }
 function addSymRow(){ strat.symbols = strat.symbols||[]; lastPreview = null;
-  strat.symbols.push({ market:'KR', symbol:'', name:'', alloc:0 }); renderStrategyEditor(); }
+  //  ⚠️ 기본값이 'KR' 이었습니다 — 자동매매가 못 만지는 시장입니다.
+  //     그대로 저장하면 한 종목도 안 사는 전략이 됩니다.
+  strat.symbols.push({ market:'US', symbol:'', name:'', alloc:0 }); renderStrategyEditor(); }
 function delSym(i){ strat.symbols.splice(i,1); lastPreview = null; renderStrategyEditor(); }
 function updSym(i,k,v){
   strat.symbols[i][k] = (k==='alloc') ? Number(v) : v.trim();
@@ -17298,26 +17435,42 @@ async function loadContest(){
   universe = (u.data && !u.error) ? u.data : [];
   await loadScanUniverse();
 
-  var n = (scanUniverse || universe).length;
-  var kr = (scanUniverse || []).filter(function(x){ return x.market === 'KR'; }).length;
-  var us = (scanUniverse || []).filter(function(x){ return x.market === 'US'; }).length;
-  var cc = (scanUniverse || []).filter(function(x){ return x.market === 'CRYPTO'; }).length;
+  /*  ⚠️ 이 칸은 <자동매매 탭> 안에 뜹니다.
+
+      예전엔 여기에 «오늘 스캔 대상은 국내 100 · 미국 100 · 코인 50»
+      이라고 적었습니다. 그런데 자동매매는 국내를 <원래 못 만집니다>
+      (autoTradable). 실제로 훑는 건 100개인데 250개를 훑는다고 적어둔
+      셈이었고, 그걸 믿고 기다린 팀은 «왜 안 사지» 를 알 길이 없었습니다.
+
+      자동매매가 <실제로 훑는 것만> 셉니다. 국내가 명단에 남아 있으면
+      숨기지 않고 <직접 매매 전용이라 빠졌다>고 한 줄로 알려줍니다.   */
+  var uniAll = scanUniverse || universe || [];
+  var kr = uniAll.filter(function(x){ return x.market === 'KR'; }).length;
+  var us = uniAll.filter(function(x){ return x.market === 'US'; }).length;
+  var cc = uniAll.filter(function(x){ return x.market === 'CRYPTO'; }).length;
+  var n  = uniAll.filter(function(x){ return autoTradable(x.market); }).length;
+  var krTail = kr
+    ? '<br><span class="st-hint">국내 ' + kr + '개는 <b>직접 매매 전용</b>입니다 — '
+      + '자동매매는 훑지 않습니다. 실시간 시세를 받을 무료 창구가 없어서입니다.</span>'
+    : '';
   if ($('uniCount')) $('uniCount').textContent = n ? (n + '개') : '전';
   if ($('uniNote')){
     if (n){
-      $('uniNote').innerHTML = (kr || us || cc)
-        ? '<div class="note info" style="margin-bottom:14px">오늘 스캔 대상은 '
-          + '<b>국내 ' + kr + '</b> · <b>미국 ' + us + '</b>'
-          + (cc ? ' · <b>코인 ' + cc + '</b>' : '') + ' 종목입니다. 매일 자동으로 갱신됩니다. '
-          + '명단에서 빠진 종목도 <b>팔 수는 있습니다</b>.</div>'
-        : '';
+      $('uniNote').innerHTML =
+          '<div class="note info" style="margin-bottom:14px">자동매매가 오늘 훑을 종목은 '
+        + '<b>미국 ' + us + '</b>'
+        + (cc ? ' · <b>코인 ' + cc + '</b>' : '')
+        + ' — 모두 <b>' + n + '개</b>입니다. 매일 자동으로 갱신됩니다. '
+        + '명단에서 빠진 종목도 <b>팔 수는 있습니다</b>.'
+        + krTail + '</div>';
     } else {
       $('uniNote').innerHTML =
-        '<div class="note warn" style="margin-bottom:14px">아직 <b>스캔할 종목이 없습니다.</b> '
+        '<div class="note warn" style="margin-bottom:14px">아직 <b>자동매매가 훑을 종목이 없습니다.</b> '
         + (isOfficer()
-            ? '아래 <b>팀 관리</b>에서 <b>국내 상위 100 등록</b>을 한 번 눌러주세요. 바로 채워집니다.'
-            : '임원진이 종목을 등록하면 바로 쓸 수 있습니다.')
-        + '</div>';
+            ? '설정 → <b>팀 관리</b>에서 <b>미국 S&amp;P500 등록</b>과 '
+              + '<b>코인 상위 50 등록</b>을 한 번씩 눌러주세요. 바로 채워집니다.'
+            : '임원진이 미국·코인 종목을 등록하면 바로 쓸 수 있습니다.')
+        + krTail + '</div>';
     }
   }
   return contest;
