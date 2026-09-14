@@ -2358,6 +2358,16 @@
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
               <b style="font-size:12.5px;color:var(--text)">주가 추이와 주요 자리</b>
               <span class="st-hint grow">같은 가격대를 봉차트 위에 겹쳐 봅니다</span>
+              <!--  ⚠️ 봉 기준과 기간은 <따로> 고릅니다. 15분봉으로 «최근 1년»
+                    은 자료가 몇 만 개라 받지도 그리지도 못합니다. 기간 칸은
+                    고른 봉에 맞춰 dvSyncTf() 가 말을 바꿔 답니다.        -->
+              <select id="dvCandleTf" style="width:104px;padding:5px 8px;font-size:12.5px"
+                      onchange="dvSyncTf(); dvDrawCandle()">
+                <option value="15m">15분봉</option>
+                <option value="1h">1시간봉</option>
+                <option value="4h">4시간봉</option>
+                <option value="1d" selected>일봉</option>
+              </select>
               <select id="dvCandleRange" style="width:110px;padding:5px 8px;font-size:12.5px"
                       onchange="dvDrawCandle()">
                 <option value="60">최근 3개월</option>
@@ -2830,6 +2840,38 @@
         <div id="aiSpendBody"><div class="empty">불러오는 중…</div></div>
       </div>
 
+      <!--  ⚠️ «누가 어떤 회사를 찾아봤나».
+
+            사람이 무엇을 봤는지를 담는 칸입니다. 그래서
+              · 학회원은 이 표를 <아예> 못 읽습니다 (RLS 정책 없음)
+              · 임원진만 함수로 봅니다 (막는 곳은 SQL 안입니다)
+              · IP·기기·위치는 안 남깁니다
+              · 학번 전체도 안 내려갑니다 (이름표 규칙 그대로)          -->
+      <div class="card admin-only hidden" id="aiViewCard">
+        <h2>AI 분석 — 누가 무엇을 찾아봤나
+          <span class="tools">
+            <select id="avDays" onchange="loadAiViews()" style="width:auto;min-width:110px">
+              <option value="7">최근 7일</option>
+              <option value="30" selected>최근 30일</option>
+              <option value="90">최근 90일</option>
+              <option value="365">올해 전체</option>
+            </select>
+            <button class="btn-sm" onclick="loadAiViews()">새로고침</button>
+          </span>
+        </h2>
+        <div class="row" style="margin-bottom:10px">
+          <input type="text" id="avQ" class="grow" placeholder="이름 · 종목코드 · 회사명으로 찾기"
+                 onkeydown="if(event.key==='Enter')loadAiViews()">
+          <button class="btn-sm" onclick="loadAiViews()">찾기</button>
+        </div>
+        <div class="mode-seg" id="avSeg" style="margin-bottom:12px">
+          <button id="avTab-rows"  onclick="avTab('rows')">하나씩 보기</button>
+          <button id="avTab-who"   onclick="avTab('who')">사람별</button>
+          <button id="avTab-code"  onclick="avTab('code')">회사별</button>
+        </div>
+        <div id="aiViewBody"><div class="empty">불러오는 중…</div></div>
+      </div>
+
       <div class="card admin-only hidden">
         <h2>팀 관리 (임원진)</h2>
         <div class="row">
@@ -3041,7 +3083,28 @@
   });
   var _init = echarts.init;
   echarts.init = function(dom, theme, opts){
-    return _init.call(echarts, dom, theme || 'safe', opts);
+    var c = _init.call(echarts, dom, theme || 'safe', opts);
+    /*  ── 축 위에서 휠 = 그 축만 확대·축소 (트레이딩뷰 방식) ──────
+
+        ⚠️ 차트마다 손으로 붙이면 <새로 만드는 차트에서 또 빠집니다>.
+           실제로 매크로 차트 한 곳에만 붙어 있었고, 파생상품 봉차트·
+           기업 재무 차트에서는 안 됐습니다. 여기 한 군데에서 붙입니다.
+
+        ⚠️ setOption 도 같이 감쌉니다. ECharts 는 <dataZoom 이 걸린 축> 만
+           dispatchAction 으로 움직일 수 있는데, 터미널 차트 대부분은
+           dataZoom 을 안 답니다. 없으면 조용히 아무 일도 안 일어나서
+           «왜 이 차트만 안 되지» 가 됩니다.                          */
+    try {
+      if (c && !c.__axPatched){
+        c.__axPatched = 1;
+        var _set = c.setOption;
+        c.setOption = function(o, a, b){
+          return _set.call(c, (typeof ensureAxisZoom === 'function') ? ensureAxisZoom(o) : o, a, b);
+        };
+        if (typeof bindChartAxisWheel === 'function') bindChartAxisWheel(dom);
+      }
+    } catch(e){ /* 차트가 안 뜨느니 휠이 안 되는 게 낫습니다 */ }
+    return c;
   };
 })();
 
@@ -6552,17 +6615,65 @@ function dvPick(sym){
 }
 
 /* ── 기초자산 시세 (실현변동성 · 52주 고저) ──── */
+/*  ── 봉 기준별로 <며칠치> 를 받나 ───────────────────────────
+
+    ⚠️ 무료 창구는 한 번에 주는 봉 수에 한계가 있습니다. 15분봉으로 1년을
+       달라고 하면 2만 6천 개라 못 받습니다. 봉마다 <받을 수 있는 만큼>
+       거슬러 올라갑니다. 화면의 기간 칸도 여기에 맞춰 말을 바꿉니다.
+
+    ⚠️ 장이 열린 시간만 봉이 생깁니다 (미국 주식은 하루 6.5시간). 코인은
+       24시간이라 같은 날짜라도 봉이 네 배쯤 많습니다 — 넉넉히 잡습니다.  */
+var DV_TF = {
+  '15m': { days: 30,  label:'15분봉' },
+  '1h':  { days: 90,  label:'1시간봉' },
+  '4h':  { days: 250, label:'4시간봉' },
+  '1d':  { days: 400, label:'일봉' }
+};
+function dvTf(){
+  var v = (($('dvCandleTf') || {}).value) || '1d';
+  return DV_TF[v] ? v : '1d';
+}
+
+/*  기간 칸은 <봉 개수> 를 고르는 칸입니다. 봉이 바뀌면 같은 «120개» 가
+    전혀 다른 길이가 되므로, 무슨 뜻인지 말을 바꿔 적어줍니다.          */
+function dvSyncTf(){
+  var k = dvTf(), sel = $('dvCandleRange'); if (!sel) return;
+  var NM = { '15m': ['1일','3일','1주'], '1h': ['3일','1주','3주'],
+             '4h':  ['2주','1달','2달'], '1d': ['3개월','6개월','1년'] };
+  var n = NM[k] || NM['1d'];
+  var opts = sel.options;
+  for (var i = 0; i < opts.length && i < 3; i++)
+    opts[i].textContent = '최근 ' + n[i];
+}
+
 async function dvLoadHist(){
-  var key = dvMkt + '|' + (dv ? dv.symbol : '');
+  var tf = dvTf();
+  var key = dvMkt + '|' + (dv ? dv.symbol : '') + '|' + tf;
   if (dvHist && dvHist.key === key) return dvHist;
-  var start = new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 10);
+  var days = (DV_TF[tf] || DV_TF['1d']).days;
+  var start = new Date(Date.now() - days * 864e5).toISOString().slice(0, 10);
   try {
-    var d = await edge(dvMkt === 'crypto'
-      ? { source:'quote_crypto', code: dv.symbol + '-USD', start: start }
-      : { source:'quote_us',     code: dv.symbol,          start: start });
-    var pts = (d.points || []).filter(function(p){ return p.v > 0; });
-    dvHist = { key: key, points: pts };
-  } catch(e){ dvHist = { key: key, points: [] }; }
+    var pts;
+    if (tf === '1d'){
+      //  일봉은 예전 창구가 더 길게 줍니다 (400일)
+      var d = await edge(dvMkt === 'crypto'
+        ? { source:'quote_crypto', code: dv.symbol + '-USD', start: start }
+        : { source:'quote_us',     code: dv.symbol,          start: start });
+      pts = (d.points || []).filter(function(p){ return p.v > 0; });
+    } else {
+      /*  분봉·시간봉은 보관함(일별 종가)에 없습니다 — 자동매매가 쓰는
+          것과 <같은 창구> 로 받습니다. 한 군데서만 받아야 백테스트와
+          화면이 다른 봉을 보는 일이 안 생깁니다.                      */
+      var mk = dvMkt === 'crypto' ? 'CRYPTO' : 'US';
+      var sym = dvMkt === 'crypto' ? (dv.symbol + '-USD') : dv.symbol;
+      var r = await edge({ source:'bars_bulk', tf: tf, start: start,
+                           codes: [{ market: mk, symbol: sym }] });
+      var ser = (r.series || {});
+      pts = (ser[mk + '|' + sym.toUpperCase()] || ser[mk + '|' + sym] || [])
+              .filter(function(p){ return p.v > 0; });
+    }
+    dvHist = { key: key, points: pts, tf: tf };
+  } catch(e){ dvHist = { key: key, points: [], tf: tf, err: e.message || String(e) }; }
   return dvHist;
 }
 
@@ -6716,6 +6827,7 @@ function dvMapPlaceChips(){
 var dvCandleChart = null;
 async function dvDrawCandle(){
   var box = $('dvCandleBox'); if (!box || typeof echarts === 'undefined') return;
+  dvSyncTf();                      //  고른 봉에 맞춰 기간 칸 말을 바꿔둡니다
   var L = dvLevels;
   dvCandleChart = chartOn(box, dvCandleChart); if (!dvCandleChart) return;
   watchChartBoxes();
@@ -6727,11 +6839,18 @@ async function dvDrawCandle(){
   var pts = all.slice(-nWant);
 
   if (pts.length < 5){
+    /*  ⚠️ «봉 자료를 받지 못했습니다» 한 줄만 띄우면 <무슨 봉을 달라고
+        했는지> 를 모릅니다. 15분봉이 안 되는 종목인지, 창구가 막힌 건지
+        구분이 안 됩니다. 고른 봉을 같이 적습니다.                     */
+    var tfNm = (DV_TF[dvTf()] || DV_TF['1d']).label;
     dvCandleChart.clear();
     dvCandleChart.setOption({ backgroundColor: theme.bg,
-      title:{ left:'center', top:'44%', text:'봉 자료를 받지 못했습니다',
+      title:{ left:'center', top:'44%', text: tfNm + ' 자료를 받지 못했습니다',
         textStyle:{ fontSize:13, color:'#8b93a7', fontWeight:400 } } }, true);
-    $('dvCandleHint').textContent = '';
+    $('dvCandleHint').innerHTML = (h && h.err)
+      ? esc(h.err)
+      : '이 종목은 <b>' + esc(tfNm) + '</b> 을 받을 수 없습니다. '
+        + '봉 기준을 <b>일봉</b>으로 바꿔 보세요.';
     return;
   }
 
@@ -6777,8 +6896,17 @@ async function dvDrawCandle(){
           + '시가 ' + f(v[1]) + '<br>고가 ' + f(v[4]) + '<br>'
           + '저가 ' + f(v[3]) + '<br><b>종가 ' + f(v[2]) + '</b>';
       } },
+    /*  ⚠️ 분봉·시간봉은 «2026-09-12T14:30» 으로 옵니다. 그대로 적으면
+        가로가 글자로 꽉 차서 아무것도 안 읽힙니다. 날짜와 시각을 잘라
+        보기 좋게 적습니다 (일봉은 예전 그대로 «09-12»).               */
     xAxis:{ type:'category', data: pts.map(function(x){ return x.d; }),
-      axisLabel:{ color:'#8a93a8', fontSize:10, hideOverlap: true },
+      axisLabel:{ color:'#8a93a8', fontSize:10, hideOverlap: true,
+        formatter: function(v){
+          var t = String(v);
+          return t.indexOf('T') > 0
+            ? t.slice(5, 10) + ' ' + t.slice(11, 16)   //  09-12 14:30
+            : t.slice(5);                              //  09-12
+        } },
       axisLine:{ lineStyle:{ color:'#e8ecf4' } }, axisTick:{ show:false },
       splitLine:{ show:false } },
     yAxis:{ type:'value', scale:true, min: lo - pad, max: hi + pad,
@@ -7962,81 +8090,279 @@ function boxWidth(id){
     ⚠️ 커서가 <그림 안> 이면 손대지 않습니다 — 거기선 ECharts 가
        가로(기간)를 맡습니다. 둘이 겹치면 어느 쪽이 움직였는지 모릅니다.  */
 function axisAtPixel(c, o, x, y){
-  var g = (o.grid || [])[0]; if (!g) return null;
-  var x0 = Number(g.left) || 0, x1 = c.getWidth()  - (Number(g.right)  || 0);
-  var y0 = Number(g.top)  || 0, y1 = c.getHeight() - (Number(g.bottom) || 0);
-  if (y < y0 || y > y1) return null;      //  위아래 여백(범례·슬라이더)은 그냥 둡니다
-  /*  ⚠️ 그림 안에서는 ECharts 가 휠을 <먼저 먹고 전파를 끊습니다> — 그래서
-      사실 이 줄까지 안 옵니다. 그래도 남겨둡니다. ECharts 설정이 바뀌거나
-      (zoomOnMouseWheel 을 끄거나) 판올림하면 전파가 살아날 수 있는데,
-      그때 가로·세로가 같이 움직이면 «뭐가 움직였지» 가 됩니다.
-      <2차 방어선> 입니다 — 이게 유일한 방어라는 뜻은 아닙니다.        */
-  if (x >= x0 && x <= x1) return null;
-  var hit = null;
-  (o.yAxis || []).forEach(function(a, i){
-    if (hit != null) return;
-    var off = Number(a.offset) || 0, lo, hi;
-    if (a.position === 'right'){ lo = x1 + off; hi = lo + AXIS_STEP; }
-    else                       { hi = x0 - off; lo = hi - AXIS_STEP; }
-    if (x >= lo && x <= hi) hit = i;
-  });
-  return hit;
+  var h = axisHitAt(c, o, x, y);
+  return (h && h.axis === 'y') ? h.i : null;
+}
+
+/*  ── 그림(플롯)이 <실제로> 어디에 그려졌나 ────────────────────
+
+    ⚠️ 여기서 크게 틀렸습니다. grid 옵션의 left·right 를 그대로 썼는데,
+       터미널 차트 상당수가 <containLabel: true> 를 씁니다. 그러면
+       left·right 는 «이름표까지 포함한 바깥 상자» 가 되고, 진짜 그림은
+       그 안쪽에서 시작합니다. 이름표(= 축)가 <바깥 상자 안> 에 그려지는
+       겁니다.
+
+       예: grid.left 가 8 인데 실제 그림은 x=36 부터. 그 사이 8~36 이
+       가격 축 자리입니다. 그런데 옛 판정은 «8~오른쪽 사이는 그림 안» 으로
+       보고 손을 뗐습니다. 그래서 <파생상품 봉차트에서 휠이 영영 안 먹었습니다>.
+
+       옵션을 믿지 말고 <그려진 좌표> 를 물어봐야 합니다.
+
+    ⚠️ grid 가 <여럿> 인 차트도 있습니다 (모의투자 종목차트 = 주가 + 거래량).
+       첫 번째 grid 만 보면 아래쪽 거래량 차트의 축은 잡히지 않습니다.
+       전부 훑습니다.                                                   */
+function gridRects(c){
+  var out = [];
+  try {
+    var mdl = c.getModel();
+    for (var i = 0; i < 8; i++){
+      var g = mdl.getComponent('grid', i);
+      if (!g || !g.coordinateSystem || !g.coordinateSystem.getRect) break;
+      var r = g.coordinateSystem.getRect();
+      if (!(r.width > 0 && r.height > 0)) break;
+      out.push({ x:r.x, y:r.y, w:r.width, h:r.height });
+    }
+  } catch(e){ /* 좌표를 못 물어보면 휠만 안 될 뿐입니다 */ }
+  return out;
+}
+
+/*  ── 커서가 어느 축 위인가 ────────────────────────────────────
+
+    그림 <바깥> 좌우 여백이 값 축(Y), 바로 아래 띠가 기간 축(X) 입니다.
+    축이 셋 이상이면 offset 만큼 바깥으로 밀려 있습니다.
+
+    ⚠️ 그림 <안> 은 건드리지 않습니다. 거기선 차트마다 원래 하던 대로
+       둡니다 — 가로까지 여기서 손대면 «내가 뭘 움직였지» 가 됩니다.
+    ⚠️ 아래 띠를 좁게(AXIS_BAND) 잡습니다. 더 아래에는 슬라이더나 범례가
+       앉는데, 거기서 굴리는 것까지 가로채면 페이지가 안 내려갑니다.     */
+var AXIS_BAND = 30;
+function axisHitAt(c, o, x, y){
+  var rects = gridRects(c);
+  if (!rects.length) return null;
+  var ys = o.yAxis || [], xs = o.xAxis || [];
+
+  for (var gi = 0; gi < rects.length; gi++){
+    var r = rects[gi];
+    var x0 = r.x, x1 = r.x + r.w, y0 = r.y, y1 = r.y + r.h;
+
+    //  그림 바로 아래 = 기간 축
+    if (x >= x0 && x <= x1 && y > y1 && y <= y1 + AXIS_BAND){
+      for (var k = 0; k < xs.length; k++)
+        if ((Number(xs[k].gridIndex) || 0) === gi) return { axis:'x', i:k, r:r };
+    }
+    if (y < y0 - 2 || y > y1 + 2) continue;
+    if (x >= x0 && x <= x1) continue;      //  그림 안은 그대로 둡니다
+
+    for (var j = 0; j < ys.length; j++){
+      if ((Number(ys[j].gridIndex) || 0) !== gi) continue;
+      var off = Number(ys[j].offset) || 0, lo, hi;
+      if (ys[j].position === 'right'){ lo = x1 + off; hi = lo + AXIS_STEP; }
+      else                           { hi = x0 - off; lo = hi - AXIS_STEP; }
+      if (x >= lo && x <= hi) return { axis:'y', i:j, r:r };
+    }
+  }
+  return null;
 }
 
 function zoomIndexForAxis(o, yi){
+  return zoomIndexFor(o, { axis:'y', i:yi });
+}
+function zoomIndexFor(o, hit){
   var dz = o.dataZoom || [];
   for (var k = 0; k < dz.length; k++){
     if (dz[k].type !== 'inside') continue;
-    var a = dz[k].yAxisIndex;
-    if (a === yi || (Array.isArray(a) && a.indexOf(yi) >= 0)) return k;
+    var a = (hit.axis === 'y') ? dz[k].yAxisIndex : dz[k].xAxisIndex;
+    /*  ⚠️ «가로를 안 적었으면 가로 전체» 는 <세로도 안 적었을 때> 만
+        맞습니다. 세로만 적힌 손잡이를 가로로 착각해서, 아래 기간 축에서
+        굴리면 엉뚱하게 값 축이 늘어났습니다.                          */
+    if (hit.axis === 'x' && a == null){
+      if (dz[k].yAxisIndex == null) return k;
+      continue;
+    }
+    if (a === hit.i || (Array.isArray(a) && a.indexOf(hit.i) >= 0)) return k;
   }
   return -1;
 }
 
-function bindAxisWheel(){
-  var box = $('chartBox'); if (!box || box.__axWheel) return;
+/*  커서가 가리키는 <값> 을 붙박이로 두고 늘립니다. 안 그러면 확대할
+    때마다 보던 자리가 달아나서 «어디를 보고 있었는지» 를 잃습니다.   */
+function axisZoomStep(c, o, hit, x, y, factor){
+  var idx = zoomIndexFor(o, hit); if (idx < 0) return false;
+  var dz = o.dataZoom[idx];
+  var st = Number(dz.start), en = Number(dz.end);
+  if (!isFinite(st)) st = 0;
+  if (!isFinite(en)) en = 100;
+  var span = en - st; if (!(span > 0)) return false;
+
+  var r = hit.r, p;
+  if (hit.axis === 'y') p = (r.y + r.h - y) / Math.max(1, r.h);   //  아래 0 · 위 1
+  else                  p = (x - r.x) / Math.max(1, r.w);          //  왼쪽 0 · 오른쪽 1
+  p = Math.min(1, Math.max(0, p));
+
+  var ns = Math.min(100, Math.max(0.5, span * factor));
+  var anchor = st + p * span;
+  var s2 = anchor - p * ns, e2 = s2 + ns;
+  if (s2 < 0){ s2 = 0; e2 = ns; }
+  if (e2 > 100){ e2 = 100; s2 = 100 - ns; }
+  c.dispatchAction({ type:'dataZoom', dataZoomIndex: idx, start: s2, end: e2 });
+  return true;
+}
+
+function bindChartAxisWheel(box){
+  if (!box || box.__axWheel) return;
   box.__axWheel = 1;
 
-  //  커서를 올리면 «여기서 굴릴 수 있다» 고 모양으로 알려줍니다
-  box.addEventListener('mousemove', function(e){
-    var c = echarts.getInstanceByDom(box); if (!c) return;
-    var r = box.getBoundingClientRect();
-    var hit = axisAtPixel(c, c.getOption(), e.clientX - r.left, e.clientY - r.top);
-    box.style.cursor = (hit != null) ? 'ns-resize' : '';
-  });
-  box.addEventListener('mouseleave', function(){ box.style.cursor = ''; });
-
-  box.addEventListener('wheel', function(e){
-    var c = echarts.getInstanceByDom(box); if (!c) return;
-    var o = c.getOption();
+  var inst = function(){ return echarts.getInstanceByDom(box); };
+  var at = function(e){
+    var c = inst(); if (!c) return null;
     var r = box.getBoundingClientRect();
     var x = e.clientX - r.left, y = e.clientY - r.top;
-    var yi = axisAtPixel(c, o, x, y);
-    if (yi == null) return;                       //  축 위가 아니면 그냥 둡니다
-    var idx = zoomIndexForAxis(o, yi); if (idx < 0) return;
+    var o = c.getOption();
+    var h = axisHitAt(c, o, x, y);
+    return h ? { c:c, o:o, h:h, x:x, y:y } : null;
+  };
 
-    e.preventDefault();                           //  페이지가 같이 스크롤되면 안 됩니다
-    var dz = o.dataZoom[idx];
-    var st = Number(dz.start), en = Number(dz.end);
-    if (!isFinite(st)) st = 0;
-    if (!isFinite(en)) en = 100;
-    var span = en - st; if (!(span > 0)) return;
+  //  커서를 올리면 «여기서 늘릴 수 있다» 고 모양으로 알려줍니다
+  box.addEventListener('mousemove', function(e){
+    if (box.__axDrag) return;
+    var g = at(e);
+    box.style.cursor = g ? (g.h.axis === 'y' ? 'ns-resize' : 'ew-resize') : '';
+  });
+  box.addEventListener('mouseleave', function(){
+    if (!box.__axDrag) box.style.cursor = '';
+  });
 
-    /*  ⚠️ 커서가 가리키는 <값> 을 붙박이로 둡니다. 안 그러면 확대할 때마다
-        보던 자리가 달아나서 «어디를 보고 있었는지» 를 잃습니다.        */
-    var g = o.grid[0];
-    var gy0 = Number(g.top) || 0, gy1 = c.getHeight() - (Number(g.bottom) || 0);
-    var p = (gy1 - y) / Math.max(1, gy1 - gy0);   //  아래 0 · 위 1
-    p = Math.min(1, Math.max(0, p));
+  //  ⚠️ 축을 두 번 누르면 그 축만 원래대로. 트레이딩뷰와 같습니다 —
+  //     확대해 놓고 되돌릴 길이 없으면 새로고침밖에 방법이 없습니다.
+  box.addEventListener('dblclick', function(e){
+    var g = at(e); if (!g) return;
+    var idx = zoomIndexFor(g.o, g.h); if (idx < 0) return;
+    e.preventDefault();
+    g.c.dispatchAction({ type:'dataZoom', dataZoomIndex: idx, start: 0, end: 100 });
+  });
 
-    var f  = e.deltaY < 0 ? 0.85 : (1 / 0.85);    //  위로 굴리면 확대
-    var ns = Math.min(100, Math.max(0.5, span * f));
-    var anchor = st + p * span;
-    var s2 = anchor - p * ns, e2 = s2 + ns;
-    if (s2 < 0){ s2 = 0; e2 = ns; }
-    if (e2 > 100){ e2 = 100; s2 = 100 - ns; }
-    c.dispatchAction({ type:'dataZoom', dataZoomIndex: idx, start: s2, end: e2 });
+  //  휠 = 그 축만 확대·축소
+  box.addEventListener('wheel', function(e){
+    var g = at(e); if (!g) return;         //  축 위가 아니면 그냥 둡니다
+    var f = e.deltaY < 0 ? 0.85 : (1 / 0.85);   //  위로 굴리면 확대
+    if (axisZoomStep(g.c, g.o, g.h, g.x, g.y, f)) e.preventDefault();
   }, { passive: false });
+
+  /*  ── 축을 <끌어서> 늘리기 ─────────────────────────────────
+
+      트레이딩뷰는 가격 축을 위아래로 끌어도 눈금이 늘었다 줄었다 합니다.
+      휠만 있으면 노트북 트랙패드에서 미세 조정이 어렵습니다.
+
+      ⚠️ 끄는 동안에는 문서 전체에서 움직임을 받습니다. 상자 안에서만
+         받으면 커서가 잠깐 밖으로 나갔을 때 <끌기가 끊깁니다>.        */
+  box.addEventListener('mousedown', function(e){
+    if (e.button !== 0) return;
+    var g = at(e); if (!g) return;
+    e.preventDefault();
+    box.__axDrag = { h:g.h, x:g.x, y:g.y, last:(g.h.axis === 'y' ? e.clientY : e.clientX) };
+    box.style.cursor = (g.h.axis === 'y') ? 'ns-resize' : 'ew-resize';
+
+    var move = function(ev){
+      var d = box.__axDrag; if (!d) return;
+      var c = inst(); if (!c) return;
+      var now = (d.h.axis === 'y') ? ev.clientY : ev.clientX;
+      var dd  = now - d.last;
+      if (!dd) return;
+      d.last = now;
+      /*  아래로 끌면(값이 커지면) <눌러서 좁힙니다> — 트레이딩뷰와 같은 방향.
+          80px 당 대략 두 배. 한 번에 확 튀지 않게 완만히 잡았습니다.     */
+      var f = Math.pow(2, dd / 80);
+      f = Math.min(1.6, Math.max(0.625, f));
+      axisZoomStep(c, c.getOption(), d.h, d.x, d.y, f);
+    };
+    var up = function(){
+      box.__axDrag = null;
+      box.style.cursor = '';
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+    };
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+  });
+}
+
+//  예전 부르던 이름 — 매크로 차트 한 곳에서 씁니다
+function bindAxisWheel(){ bindChartAxisWheel($('chartBox')); }
+
+/*  ── 축을 늘리려면 <그 축에 걸린 dataZoom> 이 있어야 합니다 ─────
+
+    ECharts 는 dataZoom 이 없는 축을 dispatchAction 으로 못 움직입니다.
+    그런데 터미널의 차트 대부분은 dataZoom 을 안 달고 있습니다. 차트마다
+    손으로 달면 <새로 만드는 차트에서 또 빠지므로>, setOption 을 감싸
+    여기서 한 번에 채웁니다.
+
+    ⚠️ 그림 안 동작은 <하나도 안 바꿉니다>. 끼워 넣는 dataZoom 은
+       zoomOnMouseWheel·moveOnMouseMove·moveOnMouseWheel 을 전부 꺼둡니다.
+       오직 <축 위에서 굴릴 때> 우리 손잡이가 dispatchAction 으로만
+       움직입니다. 그래서 기존 차트가 하던 일이 달라지지 않습니다.
+
+    ⚠️ filterMode 는 'none' 입니다. 'filter' 로 두면 범위 밖 <자료를 지워>
+       다른 축의 자동 눈금과 markLine 까지 흔들립니다. 우리가 원하는 건
+       «눈금만 늘렸다 줄였다» 입니다.
+
+    ⚠️ 파이·게이지·레이더처럼 축이 없는 차트는 건드리지 않습니다.        */
+var AX_CARTESIAN = { line:1, bar:1, candlestick:1, k:1, scatter:1,
+                     effectScatter:1, boxplot:1, pictorialBar:1, custom:1 };
+function ensureAxisZoom(o){
+  try {
+    if (!o || typeof o !== 'object' || Array.isArray(o)) return o;
+    if (!o.grid || !o.yAxis || !o.xAxis) return o;
+    var ys = Array.isArray(o.yAxis) ? o.yAxis : [o.yAxis];
+    var xs = Array.isArray(o.xAxis) ? o.xAxis : [o.xAxis];
+    if (!ys.length || !xs.length) return o;
+
+    var ser = Array.isArray(o.series) ? o.series : (o.series ? [o.series] : []);
+    for (var i = 0; i < ser.length; i++){
+      var t = ser[i] && ser[i].type;
+      if (t && !AX_CARTESIAN[t]) return o;        //  축이 없는 차트입니다
+    }
+
+    var dz = Array.isArray(o.dataZoom) ? o.dataZoom.slice()
+           : (o.dataZoom ? [o.dataZoom] : []);
+    var has = function(kind, i){
+      for (var k = 0; k < dz.length; k++){
+        var z = dz[k]; if (!z || z.type !== 'inside') continue;
+        var a = (kind === 'y') ? z.yAxisIndex : z.xAxisIndex;
+        /*  ⚠️ «가로를 안 적었으면 가로 전체» 는 <세로도 안 적었을 때> 만
+            맞습니다. 세로만 적힌 손잡이(우리가 끼운 것)는 가로와 아무
+            상관이 없는데, 이걸 «가로가 이미 있다» 로 읽어서 가로 손잡이가
+            영영 안 생겼습니다 — 아래 기간 축에서 휠이 먹통이었습니다.  */
+        if (kind === 'x' && a == null) return z.yAxisIndex == null;
+        if (a === i || (Array.isArray(a) && a.indexOf(i) >= 0)) return true;
+      }
+      return false;
+    };
+
+    var added = 0;
+    ys.forEach(function(a, i){
+      var ty = (a && a.type) || 'value';
+      if (ty !== 'value' && ty !== 'log') return; //  글자 축은 늘려도 뜻이 없습니다
+      if (has('y', i)) return;
+      dz.push({ type:'inside', yAxisIndex:i, filterMode:'none', start:0, end:100,
+                zoomOnMouseWheel:false, moveOnMouseMove:false, moveOnMouseWheel:false });
+      added++;
+    });
+    if (!has('x', 0)){
+      dz.push({ type:'inside',
+                xAxisIndex: xs.map(function(_, i){ return i; }),
+                filterMode:'none', start:0, end:100,
+                zoomOnMouseWheel:false, moveOnMouseMove:false, moveOnMouseWheel:false });
+      added++;
+    }
+    if (!added) return o;
+
+    //  ⚠️ 부르는 쪽 객체를 <고치지 않습니다>. 같은 객체로 여러 번
+    //     setOption 하는 차트가 있어서, 고쳐 두면 끼운 게 쌓입니다.
+    var out = {};
+    for (var k2 in o) if (Object.prototype.hasOwnProperty.call(o, k2)) out[k2] = o[k2];
+    out.dataZoom = dz;
+    return out;
+  } catch(e){ return o; }
 }
 
 /*  ── 확대한 것을 되돌립니다 ──────────────────────────────────
@@ -9662,9 +9988,9 @@ async function mtLoadLeague(){
     있는 팀 방에 애플 차트가 <채권팀 평단선까지 달고> 떠 있었습니다.
     돈이 섞이는 건 아니지만 "팀마다 따로" 라는 말을 화면이 배신합니다.
 
-    특히 백테스트 결과(lastPreview)는 그냥 보기 흉한 정도가 아닙니다 —
-    저장은 "미리 돌려보기를 한 번 했어야" 열리는데, 그게 남아 있으면
-    A팀에서 돌려본 결과로 B팀 전략을 저장할 수 있게 됩니다.            */
+    백테스트 결과(lastPreview)도 지웁니다. 이제 저장을 막지는 않지만,
+    남아 있으면 <A팀에서 돌려본 기대치가 B팀 전략에 붙어> 저장됩니다.
+    순위표의 «기대 대비» 칸이 남의 숫자로 채워지는 셈입니다.           */
 function mtResetRoomView(){
   //  주가 차트
   mtSymPick = null; mtSymPts = null; mtAvgShown = false;
@@ -10119,7 +10445,12 @@ function renderStratLive(){
   if (!stratList || !stratList.length){
     box.innerHTML = '<div class="note" style="margin-bottom:14px">'
       + '<b>아직 저장한 전략이 없습니다.</b> 아래에서 조건을 정하고 '
-      + '<b>미리 돌려보기</b> → <b>저장하고 실행</b> 을 누르면 그때부터 이 전략으로 돕니다.</div>';
+      + '<b>저장하고 실행</b> 을 누르면 그때부터 이 전략으로 돕니다.'
+      //  ⚠️ 예전에는 «미리 돌려보기 → 저장» 이라고 적어뒀는데, 실제로도
+      //     돌려보지 않으면 저장이 막혔습니다. 이제 안 막습니다 —
+      //     문구도 같이 고칩니다. 화면과 동작이 다르면 그게 더 나쁩니다.
+      + '<br><span class="st-hint">미리 돌려보기는 <b>해도 되고 안 해도 됩니다</b> — '
+      + '일봉·4시간봉만 되기 때문에, 분봉으로 돌리는 팀에게는 참고가 안 됩니다.</span></div>';
     return;
   }
   var cur = stratList[stratList.length - 1];
@@ -11628,9 +11959,31 @@ async function aiBuildDossier(){
   return d;
 }
 
+/*  ── 찾아본 기록 남기기 ──────────────────────────────────────
+
+    ⚠️ <끝난 뒤에 한 번만> 부릅니다. 어떻게 끝났는지(새로·캐시·보관함·
+       실패)까지 같이 남겨야 «몇 번이 돈이 나간 건가» 를 셀 수 있습니다.
+
+    ⚠️ 기록이 안 남는다고 분석이 막히면 안 됩니다. 실패는 삼킵니다 —
+       터미널을 못 쓰게 만드는 것보다 기록 한 줄 빠지는 게 낫습니다.
+       (누가 찾았는지는 서버가 auth.uid() 로만 정합니다. 화면이 보내는
+        값을 믿으면 남의 이름으로 기록을 심을 수 있습니다.)             */
+async function aiLogView(pick, how, id, depth){
+  if (!pick) return;
+  try {
+    await sb.rpc('ai_view_log', {
+      p_market: pick.market, p_code: pick.code, p_name: pick.name || null,
+      p_depth: depth || null, p_how: how, p_report_id: id || null });
+  } catch(e){ /* terminal-AI열람.sql 을 아직 안 돌렸을 수 있습니다 */ }
+}
+
 async function aiRun(force){
   if (!aiPick || aiBusy) return;
   aiBusy = true;
+  /*  어떻게 끝났는지를 담아 두었다가 finally 에서 한 번 남깁니다.
+      중간에 return 하는 길이 셋이라, 각 자리에 흩어 두면 언젠가
+      하나를 빠뜨립니다.                                             */
+  var avHowNow = '실패', avId = null, avPick = aiPick;
   var btn = $('aiRunBtn'), fb = $('aiForceBtn');
   btn.disabled = true; fb.disabled = true;
   show('aiProg');
@@ -11653,6 +12006,7 @@ async function aiRun(force){
                             name: aiPick.name, dossier: dossier, force: !!force,
                             depth: aiDepth });
     if (st.cached){
+      avHowNow = '캐시'; avId = st.id;
       setStep(100, '저장된 리포트를 불러왔습니다 (' + fmtDateKo(String(st.at).slice(0,10)) + ')');
       await aiOpen(st.id);
       return;
@@ -11661,6 +12015,7 @@ async function aiRun(force){
         다른 사람이 방금 만들었을 수도 있어 여기서도 받습니다.
         돈은 <안 나갔습니다> — 만들기 전에 걸렀습니다.                */
     if (st.exists){
+      avHowNow = '보관함'; avId = st.id;
       hide('aiProg');
       warn('aiWarn', esc(st.error || '이미 보관함에 있습니다.'), 'info');
       await aiCheckDup();
@@ -11675,6 +12030,7 @@ async function aiRun(force){
       if (r.err) console.warn('AI 단계 경고:', r.err);
       if (r.done){ break; }
     }
+    avHowNow = '새로'; avId = st.id;
     setStep(100, '완성했습니다.');
     await aiOpen(st.id);
     aiLibLoad(0); aiLoadSectors();
@@ -11685,6 +12041,7 @@ async function aiRun(force){
     hide('aiProg');
   } finally {
     aiBusy = false; aiSetPicked();
+    await aiLogView(avPick, avHowNow, avId, aiDepth);
     await aiLoadBudget();
   }
 }
@@ -11740,6 +12097,124 @@ function aiSectorChip(name){
   var c = AI_SECTOR_COLOR[name] || '#5a6278';
   return '<span class="ai-sector" style="background:' + c + '18;color:' + c + '">'
        + esc(name || '미분류') + '</span>';
+}
+
+/*  ── 누가 어떤 회사를 찾아봤나 (임원진) ────────────────────
+
+    ⚠️ ai_reports 를 세지 않는 이유.
+
+       ai_reports 에는 «돈을 써서 새로 뽑은» 한 건만 행이 생깁니다.
+       같은 회사를 3일 안에 다시 찾으면 캐시가 열리고, 30일 안이면
+       «보관함에 있습니다» 로 돌려보냅니다 — 둘 다 행이 안 생깁니다.
+       그걸로 세면 15명이 같은 회사를 찾아봐도 <맨 처음 한 명만> 남습니다.
+       «누가 뭘 찾아봤나» 를 물었는데 «누가 돈을 썼나» 를 답하게 됩니다.
+       그래서 찾아본 것을 ai_views 에 따로 남깁니다.                    */
+var avMode = 'rows', avData = null;
+
+function avTab(m){
+  avMode = m;
+  ['rows','who','code'].forEach(function(k){
+    var b = $('avTab-' + k); if (b) b.classList.toggle('on', k === m);
+  });
+  avRender();
+}
+
+async function loadAiViews(){
+  var box = $('aiViewBody'); if (!box) return;
+  box.innerHTML = '<div class="empty">불러오는 중…</div>';
+  try {
+    var r = await sb.rpc('ai_view_log_list', {
+      p_days:  Number(($('avDays') || {}).value) || 30,
+      p_limit: 300,
+      p_q:     (($('avQ') || {}).value || '').trim() || null });
+    if (r.error) throw new Error(errMsg(r.error));
+    avData = r.data || {};
+    avTab(avMode);
+  } catch(e){
+    //  ⚠️ SQL 을 아직 안 돌렸을 때가 가장 흔합니다. «오류» 한 줄만 띄우면
+    //     무엇을 해야 하는지 알 수가 없습니다.
+    box.innerHTML = '<div class="empty">열람 기록을 불러오지 못했습니다.'
+      + '<br><span style="font-size:11.5px">' + esc(e.message || String(e)) + '</span>'
+      + '<br><span style="font-size:11.5px"><code>terminal-AI열람.sql</code> 을 '
+      + '실행했는지 확인하세요.</span></div>';
+  }
+}
+
+function avHow(h){
+  //  「새로」만 돈이 나갑니다 — 그걸 눈에 보이게 합니다
+  var C = { '새로':'var(--danger)', '캐시':'var(--text-sub)',
+            '보관함':'var(--text-sub)', '실패':'var(--text-sub)' };
+  return '<span style="color:' + (C[h] || 'var(--text-sub)') + ';font-weight:600">'
+       + esc(h || '—') + '</span>';
+}
+
+function avRender(){
+  var box = $('aiViewBody'); if (!box || !avData) return;
+  var d = avData;
+
+  var head = '<div class="note info" style="margin-bottom:12px">'
+    + '최근 <b>' + num(d.days, 0) + '일</b> 동안 <b>' + num(d.total, 0) + '번</b> 찾아봤습니다 — '
+    + '그중 <b>' + num(d.fresh, 0) + '번</b>만 새로 뽑았습니다(돈이 나간 건 이것뿐입니다).'
+    + (d.first_at
+        ? '<br><span class="st-hint">기록은 ' + esc(String(d.first_at).slice(0,10))
+          + ' 부터 쌓였습니다 — 그 전에 찾아본 것은 남아 있지 않습니다.</span>'
+        : '<br><span class="st-hint">아직 기록이 없습니다. '
+          + '누군가 AI 분석을 한 번 돌리면 여기부터 쌓입니다.</span>')
+    + '</div>';
+
+  var rows = aiArr(d.rows), who = aiArr(d.by_who), code = aiArr(d.by_code);
+  var body = '';
+
+  if (avMode === 'rows'){
+    body = rows.length
+      ? '<div class="tbl-wrap"><table class="tbl"><thead><tr>'
+        + '<th style="width:150px">언제</th><th style="width:120px">누가</th>'
+        + '<th>회사</th><th style="width:70px">시장</th>'
+        + '<th style="width:80px">깊이</th><th style="width:90px">어떻게</th>'
+        + '</tr></thead><tbody>'
+        + rows.map(function(x){
+            return '<tr><td>' + esc(String(x.created_at).slice(0,16).replace('T',' ')) + '</td>'
+              + '<td><b>' + esc(x.who || '—') + '</b></td>'
+              + '<td>' + esc(x.name || x.code)
+              + ' <span class="st-hint">' + esc(x.code) + '</span></td>'
+              + '<td>' + esc(x.market) + '</td>'
+              + '<td>' + esc(x.depth === 'deep' ? '꼼꼼하게' : (x.depth ? '빠르게' : '—')) + '</td>'
+              + '<td>' + avHow(x.how) + '</td></tr>'; }).join('')
+        + '</tbody></table></div>'
+      : '<div class="empty">기간 안에 찾아본 기록이 없습니다.</div>';
+  } else if (avMode === 'who'){
+    body = who.length
+      ? '<div class="tbl-wrap"><table class="tbl"><thead><tr>'
+        + '<th>누가</th><th class="num" style="width:90px">찾은 횟수</th>'
+        + '<th class="num" style="width:90px">회사 수</th>'
+        + '<th class="num" style="width:110px">새로 뽑음</th>'
+        + '<th style="width:150px">마지막</th></tr></thead><tbody>'
+        + who.map(function(x){
+            return '<tr><td><b>' + esc(x.who || '—') + '</b></td>'
+              + '<td class="num">' + num(x.n, 0) + '</td>'
+              + '<td class="num">' + num(x.companies, 0) + '</td>'
+              + '<td class="num">' + num(x.fresh, 0) + '</td>'
+              + '<td>' + esc(String(x.last_at).slice(0,16).replace('T',' ')) + '</td></tr>'; }).join('')
+        + '</tbody></table></div>'
+      : '<div class="empty">기간 안에 찾아본 기록이 없습니다.</div>';
+  } else {
+    body = code.length
+      ? '<div class="tbl-wrap"><table class="tbl"><thead><tr>'
+        + '<th>회사</th><th style="width:70px">시장</th>'
+        + '<th class="num" style="width:90px">찾은 횟수</th>'
+        + '<th class="num" style="width:90px">몇 명이</th>'
+        + '<th style="width:150px">마지막</th></tr></thead><tbody>'
+        + code.map(function(x){
+            return '<tr><td><b>' + esc(x.name || x.code) + '</b> '
+              + '<span class="st-hint">' + esc(x.code) + '</span></td>'
+              + '<td>' + esc(x.market) + '</td>'
+              + '<td class="num">' + num(x.n, 0) + '</td>'
+              + '<td class="num">' + num(x.people, 0) + '</td>'
+              + '<td>' + esc(String(x.last_at).slice(0,16).replace('T',' ')) + '</td></tr>'; }).join('')
+        + '</tbody></table></div>'
+      : '<div class="empty">기간 안에 찾아본 기록이 없습니다.</div>';
+  }
+  box.innerHTML = head + body;
 }
 
 /*  ── 임원진만 보는 비용 화면 ────────────────────────────────
@@ -15826,6 +16301,7 @@ async function loadAccess(){
 /* ══════════ 설정 (임원진) ══════════ */
 async function loadAdmin(){
   loadAiSpend();
+  loadAiViews();
   loadTradableStat();
   loadPresence(); presTick();
   rsInit();
@@ -16559,7 +17035,15 @@ function testRule(rule, ctx, i){
     if (i < 1 || !arr.a || !arr.b) return false;
     var a0=arr.a[i-1], b0=arr.b[i-1], a1=arr.a[i], b1=arr.b[i];
     if (a0==null||b0==null||a1==null||b1==null) return false;
-    return rule.op === 'dead' ? (a0 >= b0 && a1 < b1) : (a0 <= b0 && a1 > b1);
+    /*  ⚠️ 예전에는 «'dead' 가 아니면 전부 골든크로스» 였습니다. 오타 하나,
+        예전 견본의 'down' 하나가 <반대 뜻으로 조용히 통과> 합니다.
+        모르는 값은 <아무것도 아니라고> 해야 합니다.
+        (예전 저장분 'up'·'down' 은 그대로 알아듣습니다)
+        ⚠️ 서버(edge-market-data.ts)와 <글자 하나까지> 같아야 합니다      */
+    var op = String(rule.op || '');
+    if (op === 'dead' || op === 'down')   return a0 >= b0 && a1 < b1;
+    if (op === 'golden' || op === 'up')   return a0 <= b0 && a1 > b1;
+    return false;
   }
 
   var v = arr[i];
@@ -16958,13 +17442,38 @@ function rebuildSnapshots(allTrades, priceMap, seed, startDate){
     return String(a.traded_on).localeCompare(String(b.traded_on)); });
   var pos = {}, cash = seed, ti = 0, out = [];
   var lastPrice = {};
+  /*  ⚠️ 여기서 돈이 <증발>하고 있었습니다.
+
+      아래 평가 줄이 원래 이랬습니다.
+          if (pos[k] > 0 && lastPrice[k]) hold += pos[k] * lastPrice[k] * rate;
+      시세가 없으면 <그 종목은 아예 안 더합니다>. 그런데 살 때 현금은
+      이미 빼놨습니다. 결과가 «현금은 나갔는데 주식은 없다» — 산 만큼
+      그대로 손실로 잡힙니다.
+
+      실제로 터졌습니다. 채권팀 백테스트가 «수익률 −45.10%» 를 냈는데,
+      바로 아래 <종목별 기여도> 를 다 더하면 −223만원(−2.2%) 이었습니다.
+      같은 39번의 매매인데 20배가 달랐습니다.
+
+      원인: 팀이 직접 산 ETHU(2x Ether)·SOXS(반도체 3X 인버스)는
+      S&P500 명단에 없습니다. 백테스트는 <스캔 명단의 시세만> 받아오니
+      이 둘은 시세가 없었고, 4,067만원어치가 통째로 0 원이 됐습니다.
+      («최종 자산 54,895,080 = 현금 + AAPL» 만 남은 값이었습니다.)
+
+      값을 못 매기면 <산 값(원가)> 으로라도 세웁니다. 틀릴 수는 있어도
+      «없는 것» 보다 낫습니다 — 0 원은 «−100%» 라고 단언하는 것이라,
+      모르는 것 중 가장 틀린 답입니다.                                */
+  var cost = {};
 
   days.forEach(function(day){
     while (ti < sorted.length && dayOf(sorted[ti].traded_on) <= day){
       var t = sorted[ti], k = t.market+'|'+t.symbol;
       var q = Number(t.qty), pr = Number(t.price), fx = Number(t.fx || 1);
-      if (t.side === 'buy'){ pos[k] = (pos[k]||0) + q; cash -= q*pr*fx; }
-      else { pos[k] = Math.max(0, (pos[k]||0) - q); cash += q*pr*fx; }
+      if (t.side === 'buy'){
+        pos[k] = (pos[k]||0) + q; cash -= q*pr*fx;
+        //  원가(현지 통화)를 기억해 둡니다 — 시세를 못 받았을 때 씁니다
+        cost[k] = cost[k] || { q:0, sum:0 };
+        cost[k].q += q; cost[k].sum += q*pr;
+      } else { pos[k] = Math.max(0, (pos[k]||0) - q); cash += q*pr*fx; }
       ti++;
     }
     Object.keys(priceMap).forEach(function(k){
@@ -16974,14 +17483,27 @@ function rebuildSnapshots(allTrades, priceMap, seed, startDate){
     });
     var hold = 0;
     Object.keys(pos).forEach(function(k){
-      if (pos[k] > 0 && lastPrice[k]){
-        var mk = k.split('|')[0];
-        var rate = fxAt(day, mk);
-        hold += pos[k] * lastPrice[k] * (rate == null ? 1 : rate);
+      if (!(pos[k] > 0)) return;
+      var mk = k.split('|')[0];
+      var rate = fxAt(day, mk);
+      var px = lastPrice[k];
+      if (!(px > 0)){
+        //  시세를 못 받았습니다 — 0 으로 지우지 말고 <산 값> 으로 세웁니다
+        var c = cost[k];
+        if (!c || !(c.q > 0)) return;         //  판 뒤 남은 자투리 등
+        px = c.sum / c.q;
       }
+      hold += pos[k] * px * (rate == null ? 1 : rate);
     });
     out.push({ d: day, cash: Math.round(cash*100)/100,
                holdings: Math.round(hold*100)/100, total: Math.round((cash+hold)*100)/100 });
+  });
+  /*  «값을 못 매긴 종목» 은 <마지막 날 기준으로> 셉니다. 도중에 원가로
+      세웠더라도 그 뒤에 팔았으면 판 값이 진짜 값이라 최종 자산은
+      정확합니다 — 그런 종목까지 경고에 올리면 «고칠 것 없는 경고» 가
+      되어 다음부터 안 읽게 됩니다.                                   */
+  out.noPrice = Object.keys(pos).filter(function(k){
+    return pos[k] > 0 && !(lastPrice[k] > 0) && cost[k] && cost[k].q > 0;
   });
   return out;
 }
@@ -17121,8 +17643,12 @@ var STRAT_PRESETS = [
     buy:[{ind:'VS_SMA',period:20,op:'<',value:-3}], sell:[],
     buy_pct:50, sell_pct:100, cooldown:3, sl_pct:6, tp_pct:12 },
   { name:'추세 진입 (골든크로스)', desc:'5일선이 20일선을 위로 뚫는 순간 매수',
-    buy:[{ind:'CROSS',period:5,period2:20,op:'up'}],
-    sell:[{ind:'CROSS',period:5,period2:20,op:'down'}],
+    /*  ⚠️ op 가 'up'·'down' 이었습니다. 판정은 «'dead' 면 데드크로스,
+        <아니면 전부> 골든크로스» 라 'down' 은 골든크로스로 읽혔습니다 —
+        이 견본을 고른 팀은 «살 때 골든 · 팔 때 골든» 이 됩니다.
+        화면 고르는 칸이 쓰는 값은 'golden'·'dead' 입니다. 맞춥니다.  */
+    buy:[{ind:'CROSS',period:5,period2:20,op:'golden'}],
+    sell:[{ind:'CROSS',period:5,period2:20,op:'dead'}],
     buy_pct:100, sell_pct:100, cooldown:5, sl_pct:8, tp_pct:0 },
   { name:'볼린저 하단', desc:'밴드 하단(%B 10 이하)에서 4번에 나눠 담기',
     buy:[{ind:'BB_PCT',period:20,op:'<',value:10}], sell:[],
@@ -17522,18 +18048,42 @@ async function saveStrategy(){
     if (totalAlloc === 0){ warnStrat('배분 비중을 입력해주세요.'); return; }
   }
 
-  /* 저장 전에 반드시 한 번 돌려봅니다.
-     · 거래가 너무 적은 전략을 걸러내고
-     · 그때의 기대 성적을 함께 남겨 나중에 실제와 비교합니다 */
+  /*  ── 백테스트는 <관문이 아닙니다> ────────────────────────────
+
+      예전에는 «미리 돌려보기» 를 한 번 거쳐야만 저장이 됐고, 백테스트
+      매매가 10회 미만이면 아예 막았습니다. 두 가지가 잘못됐습니다.
+
+      ① <다른 봉을 재고 있었습니다.> 백테스트는 일봉·4시간봉만 됩니다
+         (무료 창구로 500종목 90일치 분봉을 못 받습니다). 그런데 팀이
+         실제로 돌리는 건 5분봉입니다. 일봉으로 «10회» 가 안 나온다고
+         5분봉 전략을 막는 것은 <재는 자가 다른> 것입니다. 5분봉 팀은
+         아무리 해도 통과할 수 없는 관문 앞에 서 있었습니다.
+
+      ② <그 숫자가 한동안 틀렸습니다.> 시세를 못 받은 보유 종목을
+         0원으로 세는 버그가 있어서 «수익률 −45%» 같은 값이 나왔습니다.
+         틀린 숫자로 저장을 막고 있었던 셈입니다.
+
+      그래서 <막지 않습니다>. 돌려본 사람은 그 기대치를 같이 남기고,
+      안 돌려본 사람은 그냥 저장합니다. 거래가 적을 것 같으면 <말은>
+      해주되, 결정은 팀이 합니다.
+
+      ⚠️ 학회 기준(min_auto_trades)이 없어진 건 아닙니다. 순위표의
+         <매매 횟수> 로 임원진이 그대로 봅니다 — 저장을 막는 방식이
+         아니라 결과를 보는 방식으로 지킵니다.                        */
   var need = Number(contest.min_auto_trades || 10);
+  var tfLive = ($('mtBarTf') || {}).value || '1d';
+  var canBack = !!BACK_TF[tfLive];
+  var saveNote = '';
   if (!lastPreview){
-    warnStrat('설정이 바뀌었습니다. "미리 돌려보기"로 결과를 한 번 확인한 뒤 저장할 수 있습니다.');
-    return;
-  }
-  if (lastPreview.n < need){
-    warnStrat('매매가 ' + lastPreview.n + '회뿐이라 저장할 수 없습니다. 학회 기준은 '
-            + need + '회 이상입니다. 조건을 느슨하게 해보세요.');
-    return;
+    saveNote = canBack
+      ? '미리 돌려보지 않고 저장했습니다. 아래 <b>미리 돌려보기</b>로 언제든 확인할 수 있습니다.'
+      : '지표 기준이 <b>' + esc(({ '5m':'5분봉','15m':'15분봉','30m':'30분봉','1h':'1시간봉' })[tfLive] || tfLive)
+        + '</b>이라 백테스트로는 확인할 수 없습니다 (무료 자료로는 분봉 백테스트가 안 됩니다). '
+        + '실제 매매 결과를 <b>실행 기록</b>에서 보세요.';
+  } else if (lastPreview.n < need){
+    saveNote = '백테스트 매매가 <b>' + lastPreview.n + '회</b>로 학회 기준(' + need + '회)보다 적습니다. '
+             + '막지는 않지만, 조건이 빡빡하지 않은지 한 번 보세요.'
+             + (canBack ? '' : ' (지금 지표 기준으로는 백테스트와 실제가 다른 봉입니다)');
   }
 
   $('stratSaveBtn').disabled = true;
@@ -17543,8 +18093,13 @@ async function saveStrategy(){
     var ins = await sb.from('strategies').insert({
       team_id: team, name: cfg.mode === 'scan' ? '스캔 전략' : '지정 종목 전략',
       config: cfg, effective_from: today(), created_by: u ? u.id : null,
-      expect: { ret: lastPreview.ret, mdd: lastPreview.mdd,
-                win: lastPreview.win, n: lastPreview.n, as_of: today() } });
+      /*  ⚠️ 안 돌려봤으면 <비워 둡니다>. 0 이나 지어낸 값을 넣으면
+          순위표의 «기대 대비» 칸이 거짓말을 합니다. 비어 있으면
+          team_scorecard 가 그 칸을 null 로 내려보냅니다 (확인했습니다). */
+      expect: lastPreview
+        ? { ret: lastPreview.ret, mdd: lastPreview.mdd,
+            win: lastPreview.win, n: lastPreview.n, as_of: today() }
+        : null });
     if (ins.error) throw ins.error;
     await runStrategy();
 
@@ -17570,7 +18125,10 @@ async function saveStrategy(){
                      + '예전 전략은 기록으로만 남습니다. '
                    : '저장했습니다. ')
         + '<b>' + esc(ivN) + '</b> ' + esc(tfN) + ' 기준으로 시장을 훑습니다.'
-        + (had ? '<br>이미 사둔 종목은 그대로 있습니다 — 새 전략의 매도 조건에 걸리면 그때 팝니다.' : ''),
+        + (had ? '<br>이미 사둔 종목은 그대로 있습니다 — 새 전략의 매도 조건에 걸리면 그때 팝니다.' : '')
+        //  ⚠️ 막지 않는 대신 <말은> 합니다. 안 돌려봤다는 사실이 조용히
+        //     묻히면 «백테스트를 봤다» 고 착각한 채로 굴리게 됩니다.
+        + (saveNote ? '<br><span style="color:var(--text-sub)">' + saveNote + '</span>' : ''),
         'ok');
     } catch(e2){
       warnStrat('전략은 저장됐지만 자동매매를 켜지 못했습니다: ' + esc(e2.message));
@@ -17818,15 +18376,32 @@ async function previewStrategy(){
       }
     }
     var tfKey = backTf();
-    var priceMap = await gatherPrices(syms, startDate, function(done, all){
-      btn.textContent = '시세 ' + done + '/' + all + '…';
-    }, cfg, tfKey);
-    btn.textContent = '계산 중…';
 
+    /*  ⚠️ 순서를 바꿨습니다 — 예전에는 시세를 <먼저> 받고 팀이 직접 산
+        종목을 <나중에> 읽었습니다. 그래서 팀이 들고 있지만 스캔 명단에
+        없는 종목(ETHU·SOXS 같은 레버리지 ETF)은 시세를 받을 기회가
+        아예 없었고, 평가액이 0 이 됐습니다. 산 만큼 그대로 손실로
+        잡혀서 «수익률 −45.10%» 가 나왔습니다. 실제 전략 성적은
+        −2.2% 였습니다.                                               */
     var man = await sb.from('trades')
       .select('market,symbol,side,qty,price,fx,traded_on')
       .eq('team_id', team).eq('auto', false);
+    if (man.error) console.warn('직접 매매 내역을 못 읽었습니다', man.error);
     var manual = man.data || [];
+
+    //  스캔 명단 + 팀이 실제로 산 종목 (겹치는 것은 한 번만)
+    var seenSym = {}, want = [];
+    syms.concat(manual.map(function(t){ return { market:t.market, symbol:t.symbol }; }))
+        .forEach(function(x){
+          var k = x.market + '|' + x.symbol;
+          if (seenSym[k]) return;
+          seenSym[k] = 1; want.push(x);
+        });
+
+    var priceMap = await gatherPrices(want, startDate, function(done, all){
+      btn.textContent = '시세 ' + done + '/' + all + '…';
+    }, cfg, tfKey);
+    btn.textContent = '계산 중…';
 
     var list   = [{ effective_from: startDate, config: cfg }];
     var trades = replayStrategy(list, priceMap, seed, startDate, manual);
@@ -17844,7 +18419,7 @@ async function previewStrategy(){
       } catch(e){ m = null; }
     }
     renderPreview(st, snaps, seed, m, trades, backDays,
-                  coverage(syms, priceMap, startDate), tfKey);
+                  coverage(syms, priceMap, startDate), tfKey, manual);
     lastPreview = st;
 
     var need = Number(contest.min_auto_trades || 10);
@@ -17894,6 +18469,42 @@ function coverage(syms, priceMap, startDate){
        분봉으로 돌릴 방법이 없습니다. 그러면 최소한 <다르다는 사실> 은
        화면에 적어야 합니다. 조용히 두면 "백테스트대로 안 움직인다" 를
        영영 못 풀게 됩니다.                                              */
+/*  ── 값을 못 매긴 종목이 있으면 반드시 말합니다 ───────────────
+    ⚠️ 조용히 넘어가면 «−45%» 같은 숫자가 진짜인 줄 알고 전략을 버리게
+       됩니다. 실제로 그랬습니다.                                     */
+function noPriceHTML(snaps){
+  var ks = (snaps && snaps.noPrice) || [];
+  if (!ks.length) return '';
+  return '<div class="note warn" style="margin:0 0 12px">'
+    + '<b>' + esc(ks.map(function(k){ return k.split('|')[1]; }).join(' · ')) + '</b> '
+    + '은(는) 지난 시세를 못 받아 <b>산 값 그대로</b> 세웠습니다 — 이 종목들의 '
+    + '오르내림은 아래 성적에 <b>안 들어가 있습니다</b>.'
+    + '<br>예전에는 이런 종목을 <b>0 원</b>으로 쳤습니다. 산 만큼이 그대로 손실로 잡혀서 '
+    + '«수익률 −45%» 같은 숫자가 나왔습니다 — 전략과 아무 상관 없는 숫자였습니다.'
+    + (isOfficer()
+        ? '<br>설정 → 팀 관리의 <b>「과거 시세 채우기」</b>를 돌리면 채워집니다.'
+        : '<br>임원진에게 <b>「과거 시세 채우기」</b>를 부탁하세요.')
+    + '</div>';
+}
+
+/*  ── 직접 산 종목이 성적에 섞여 있다는 사실 ───────────────────
+    ⚠️ 이 백테스트는 <시드 1억으로 처음부터> 돌리는 게 아닙니다. 팀이
+       직접 산 것을 깔아놓고 그 위에서 전략을 돌립니다. 그래서 «수익률»
+       에는 직접 매매 손익이 섞여 있고, <종목별 기여도> 는 <전략이 한
+       매매만> 셉니다 — 두 숫자가 다른 게 정상입니다.                  */
+function manualHTML(manual){
+  if (!manual || !manual.length) return '';
+  var syms = {};
+  manual.forEach(function(t){ syms[t.market + '|' + t.symbol] = 1; });
+  var n = Object.keys(syms).length;
+  return '<div class="note info" style="margin:0 0 12px">'
+    + '팀이 <b>직접 산 ' + n + '종목</b>도 함께 굴린 결과입니다 — '
+    + '<b>수익률</b>에는 직접 매매 손익이 같이 들어 있습니다.'
+    + '<br>아래 <b>종목별 기여도</b>는 <b>전략이 한 매매만</b> 셉니다. '
+    + '두 숫자가 다른 것이 정상입니다.'
+    + '</div>';
+}
+
 function tfMismatchHTML(usedTf){
   var el = $('mtBarTf');
   var live = el ? el.value : '1d';
@@ -17950,7 +18561,7 @@ function coverageHTML(cov){
        + '</div>';
 }
 
-function renderPreview(st, snaps, seed, m, trades, backDays, cov, tfKey){
+function renderPreview(st, snaps, seed, m, trades, backDays, cov, tfKey, manual){
   show('stratPreview');
   var cls = st.ret >= 0 ? 'pos' : 'neg';
   var q = $('stratPrevQuant');
@@ -17964,6 +18575,8 @@ function renderPreview(st, snaps, seed, m, trades, backDays, cov, tfKey){
     if (m) setTimeout(function(){ drawDist('prevDistBox', m.rets); }, 30);
   }
   $('stratPrevTiles').innerHTML = tfMismatchHTML(tfKey)
+    + noPriceHTML(snaps)
+    + manualHTML(manual)
     + (cov ? coverageHTML(cov) : '')
     + '<div class="tiles">'
     + tile('최종 자산', num(st.last), '시드 ' + num(seed), cls)
