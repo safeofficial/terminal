@@ -3112,7 +3112,27 @@
         c.__axPatched = 1;
         var _set = c.setOption;
         c.setOption = function(o, a, b){
-          return _set.call(c, (typeof ensureAxisZoom === 'function') ? ensureAxisZoom(o) : o, a, b);
+          /*  ── 다시 그려도 <보던 자리> 를 지킵니다 ──────────────────
+
+              ⚠️ 처음에는 «색 바꾸기» 한 군데만 감쌌습니다. 반쪽이었습니다.
+                 지표를 하나 더 얹어도, 선 굵기를 바꿔도, 기준을 바꿔도
+                 매번 원래 크기로 돌아갔습니다. 다시 그리는 자리가
+                 열여덟 군데인데 하나씩 감싸면 <새로 만드는 자리에서 또>
+                 빠집니다. 그래서 여기 한 군데에서 지킵니다.
+
+              ⚠️ 축을 <번호> 로 맞추면 안 됩니다. 지표를 더하면 축이 늘어서
+                 번호가 밀립니다 — 세로 1번이 2번이 되면 엉뚱한 축에
+                 옛 확대가 붙습니다. <어느 축에 걸린 손잡이인지> 로 맞춥니다.
+
+              ⚠️ 일부러 되돌려야 할 때가 있습니다 (기간을 바꾸면 보는 범위
+                 자체가 달라집니다). 그때는 chartZoomResetNext() 를 먼저
+                 부르면 이번 한 번만 안 지킵니다.                        */
+          var keep = !c.__axNoKeep;
+          var snap = keep ? axZoomSnap(c) : null;
+          c.__axNoKeep = false;
+          var r = _set.call(c, (typeof ensureAxisZoom === 'function') ? ensureAxisZoom(o) : o, a, b);
+          if (snap && snap.length) axZoomApply(c, snap);
+          return r;
         };
         if (typeof bindChartAxisWheel === 'function') bindChartAxisWheel(dom);
       }
@@ -3442,59 +3462,19 @@ function renderPalette(){
       + '</div>';
   }).join('');
 }
-/*  ── 다시 그려도 <보던 자리> 를 지킵니다 ──────────────────────
-
-    ⚠️ 색 하나 바꿀 때마다 확대해 둔 차트가 통째로 원래 크기로 돌아갔습니다.
-       색을 고르는 일은 <보는 자리와 아무 상관이 없습니다>. 그런데 매번
-       다시 확대하고 자리를 잡아야 했습니다.
-
-    ⚠️ 기간·모양을 바꿀 때는 <일부러 안 지킵니다>. 그건 보는 범위 자체가
-       달라지는 일이라, 예전 확대를 끌고 오면 엉뚱한 데를 보게 됩니다.
-       «겉모습만 바뀌는» 일에만 씁니다.                                */
-function withChartZoom(boxId, fn){
-  var box = $(boxId), snap = null;
-  try {
-    var c0 = box && echarts.getInstanceByDom(box);
-    if (c0) snap = (c0.getOption().dataZoom || []).map(function(z){
-      return { s: z.start, e: z.end }; });
-  } catch(e){}
-
-  var out = fn();
-
-  var apply = function(){
-    try {
-      var c = box && echarts.getInstanceByDom(box);
-      if (!c || !snap || !snap.length) return;
-      var dz = c.getOption().dataZoom || [];
-      //  ⚠️ 손잡이 개수가 달라졌으면(계열 수가 바뀌면 축도 바뀝니다)
-      //     겹치는 데까지만 되돌립니다. 억지로 맞추면 엉뚱한 축이 움직입니다.
-      var k = Math.min(dz.length, snap.length);
-      for (var i = 0; i < k; i++){
-        if (snap[i].s == null || snap[i].e == null) continue;
-        if (snap[i].s === 0 && snap[i].e === 100) continue;   // 원래 크기면 둘 것도 없습니다
-        c.dispatchAction({ type:'dataZoom', dataZoomIndex: i,
-                           start: snap[i].s, end: snap[i].e });
-      }
-    } catch(e){}
-  };
-  if (out && typeof out.then === 'function') out.then(apply, apply);
-  else setTimeout(apply, 0);
-  return out;
-}
-
 function setPaletteColor(i,v){
   v = String(v||'').trim();
   if (!/^#[0-9a-fA-F]{6}$/.test(v)){ renderPalette(); return; }
   theme.palette[i] = v.toLowerCase();
   renderPalette();
-  withChartZoom('chartBox', drawChart);
+  drawChart();          //  보던 자리는 setOption 감싼 자리에서 지킵니다
 }
 /*  검사기를 통과한 기본 조합으로 되돌립니다.
     (예전 팔레트는 5번·6번 색이 정상시야로도 거의 구분이 안 됐습니다)  */
 function resetPalette(){
   theme.palette = DEFAULT_THEME.palette.slice();
   renderPalette();
-  withChartZoom('chartBox', drawChart);
+  drawChart();          //  보던 자리는 setOption 감싼 자리에서 지킵니다
   warn('researchWarn','학회 기본색으로 되돌렸습니다. <b>테마 저장</b>을 눌러야 다른 학회원에게도 적용됩니다.', 'info');
 }
 
@@ -8478,6 +8458,90 @@ function bindAxisWheel(){ bindChartAxisWheel($('chartBox')); }
        «눈금만 늘렸다 줄였다» 입니다.
 
     ⚠️ 파이·게이지·레이더처럼 축이 없는 차트는 건드리지 않습니다.        */
+/*  ── 보던 자리를 떠 두었다가 다시 씌웁니다 ────────────────────
+
+    ⚠️ 손잡이를 <어느 축에 걸렸는지> 로 짝지읍니다. 번호로 맞추면
+       지표가 늘 때 축 번호가 밀려서 엉뚱한 축이 확대됩니다.          */
+function axKeyOf(z){
+  var y = (z.yAxisIndex == null) ? 'n' : JSON.stringify(z.yAxisIndex);
+  var x = (z.xAxisIndex == null) ? 'n' : JSON.stringify(z.xAxisIndex);
+  return y + '|' + x;
+}
+/*  ⚠️ «몇 퍼센트» 로만 떠 두면 <지표를 하나 더 얹었을 때 기간이 밀립니다>.
+    2022~2024 를 보고 있었는데 1990년부터 있는 지표를 얹으면, 같은 30~70%
+    가 1999~2011 이 됩니다. 학회장이 «그대로 두라» 고 한 건 <퍼센트> 가
+    아니라 <그 기간> 입니다. 그래서 실제 값(startValue/endValue)도 같이
+    떠 둡니다. 세로축도 마찬가지입니다 — 180~220 을 보고 있었으면
+    지표가 늘어도 180~220 이어야 합니다.                                */
+function axZoomSnap(c){
+  try {
+    var out = [];
+    (c.getOption().dataZoom || []).forEach(function(z){
+      if (!z || z.type !== 'inside') return;
+      var s = Number(z.start), e = Number(z.end);
+      if (!isFinite(s) || !isFinite(e)) return;
+      //  원래 크기면 떠 둘 것도 없습니다
+      if (s <= 0 && e >= 100) return;
+      var sv = Number(z.startValue), ev = Number(z.endValue);
+      out.push({ k: axKeyOf(z), s: s, e: e,
+                 sv: isFinite(sv) ? sv : null, ev: isFinite(ev) ? ev : null });
+    });
+    return out;
+  } catch(err){ return []; }
+}
+/*  그 손잡이가 붙은 축이 <지금 통째로 얼마부터 얼마까지인지>.
+    떠 둔 기간이 새 자료와 아예 안 겹치면(종목을 바꿨다든지) 값으로
+    되돌리면 빈 화면이 됩니다. 그때만 퍼센트로 물러섭니다.             */
+function axFullExtent(c, z){
+  try {
+    var kind = (z.yAxisIndex != null) ? 'yAxis' : 'xAxis';
+    var idx  = (z.yAxisIndex != null) ? z.yAxisIndex : z.xAxisIndex;
+    if (Array.isArray(idx)) idx = idx[0];
+    if (idx == null) idx = 0;
+    var cm = c.getModel().getComponent(kind, idx);
+    var ex = cm && cm.axis && cm.axis.scale && cm.axis.scale.getExtent();
+    if (!ex || !isFinite(ex[0]) || !isFinite(ex[1])) return null;
+    return ex;
+  } catch(err){ return null; }
+}
+function axZoomApply(c, snap){
+  try {
+    var dz = c.getOption().dataZoom || [];
+    for (var i = 0; i < dz.length; i++){
+      var z = dz[i]; if (!z || z.type !== 'inside') continue;
+      var k = axKeyOf(z), hit = null;
+      for (var j = 0; j < snap.length; j++)
+        if (snap[j].k === k){ hit = snap[j]; break; }
+      if (!hit) continue;
+
+      //  ① 되도록 <그 기간 그대로> 되돌립니다
+      if (hit.sv != null && hit.ev != null){
+        var full = axFullExtent(c, z);
+        //  겹치는 데가 있을 때만 — 아예 딴 자료면 빈 화면이 됩니다
+        if (full && hit.ev > full[0] && hit.sv < full[1]){
+          if (Number(z.startValue) === hit.sv && Number(z.endValue) === hit.ev) continue;
+          c.dispatchAction({ type:'dataZoom', dataZoomIndex: i,
+                             startValue: hit.sv, endValue: hit.ev });
+          continue;
+        }
+      }
+      //  ② 값으로 못 맞추면 퍼센트로라도 (원래 크기로 돌려보내진 않습니다)
+      if (Number(z.start) === hit.s && Number(z.end) === hit.e) continue;
+      c.dispatchAction({ type:'dataZoom', dataZoomIndex: i, start: hit.s, end: hit.e });
+    }
+  } catch(err){}
+}
+
+/*  기간을 바꾸는 것처럼 <보는 범위 자체가 달라지는> 일에는 이걸 먼저
+    부르세요. 그 차트의 <다음 한 번> 만 보던 자리를 안 지킵니다.       */
+function chartZoomResetNext(boxId){
+  try {
+    var box = $(boxId); if (!box) return;
+    var c = echarts.getInstanceByDom(box); if (!c) return;
+    c.__axNoKeep = true;
+  } catch(e){}
+}
+
 var AX_CARTESIAN = { line:1, bar:1, candlestick:1, k:1, scatter:1,
                      effectScatter:1, boxplot:1, pictorialBar:1, custom:1 };
 function ensureAxisZoom(o){
