@@ -1349,6 +1349,10 @@
                   <option value="5">최근 5년</option>
                   <option value="10">최근 10년</option>
                 </select>
+                <!--  ⚠️ JPG 단추가 카드 <맨 위 헤더> 에만 있었습니다. 차트에서
+                      한참 떨어져 있어서 «저장이 안 된다» 고 읽힙니다.
+                      보는 자리 옆에 하나 더 둡니다.                     -->
+                <button class="btn-sm" onclick="dtJpg('chart')">JPG 저장</button>
                 <span class="st-hint" id="dtStatus"></span>
               </div>
               <div id="dtChartBox" style="height:360px;margin-top:6px"></div>
@@ -3438,17 +3442,59 @@ function renderPalette(){
       + '</div>';
   }).join('');
 }
+/*  ── 다시 그려도 <보던 자리> 를 지킵니다 ──────────────────────
+
+    ⚠️ 색 하나 바꿀 때마다 확대해 둔 차트가 통째로 원래 크기로 돌아갔습니다.
+       색을 고르는 일은 <보는 자리와 아무 상관이 없습니다>. 그런데 매번
+       다시 확대하고 자리를 잡아야 했습니다.
+
+    ⚠️ 기간·모양을 바꿀 때는 <일부러 안 지킵니다>. 그건 보는 범위 자체가
+       달라지는 일이라, 예전 확대를 끌고 오면 엉뚱한 데를 보게 됩니다.
+       «겉모습만 바뀌는» 일에만 씁니다.                                */
+function withChartZoom(boxId, fn){
+  var box = $(boxId), snap = null;
+  try {
+    var c0 = box && echarts.getInstanceByDom(box);
+    if (c0) snap = (c0.getOption().dataZoom || []).map(function(z){
+      return { s: z.start, e: z.end }; });
+  } catch(e){}
+
+  var out = fn();
+
+  var apply = function(){
+    try {
+      var c = box && echarts.getInstanceByDom(box);
+      if (!c || !snap || !snap.length) return;
+      var dz = c.getOption().dataZoom || [];
+      //  ⚠️ 손잡이 개수가 달라졌으면(계열 수가 바뀌면 축도 바뀝니다)
+      //     겹치는 데까지만 되돌립니다. 억지로 맞추면 엉뚱한 축이 움직입니다.
+      var k = Math.min(dz.length, snap.length);
+      for (var i = 0; i < k; i++){
+        if (snap[i].s == null || snap[i].e == null) continue;
+        if (snap[i].s === 0 && snap[i].e === 100) continue;   // 원래 크기면 둘 것도 없습니다
+        c.dispatchAction({ type:'dataZoom', dataZoomIndex: i,
+                           start: snap[i].s, end: snap[i].e });
+      }
+    } catch(e){}
+  };
+  if (out && typeof out.then === 'function') out.then(apply, apply);
+  else setTimeout(apply, 0);
+  return out;
+}
+
 function setPaletteColor(i,v){
   v = String(v||'').trim();
   if (!/^#[0-9a-fA-F]{6}$/.test(v)){ renderPalette(); return; }
   theme.palette[i] = v.toLowerCase();
-  renderPalette(); drawChart();
+  renderPalette();
+  withChartZoom('chartBox', drawChart);
 }
 /*  검사기를 통과한 기본 조합으로 되돌립니다.
     (예전 팔레트는 5번·6번 색이 정상시야로도 거의 구분이 안 됐습니다)  */
 function resetPalette(){
   theme.palette = DEFAULT_THEME.palette.slice();
-  renderPalette(); drawChart();
+  renderPalette();
+  withChartZoom('chartBox', drawChart);
   warn('researchWarn','학회 기본색으로 되돌렸습니다. <b>테마 저장</b>을 눌러야 다른 학회원에게도 적용됩니다.', 'info');
 }
 
@@ -3971,13 +4017,67 @@ function dtPickTop(){
   dtRun();
 }
 
+/*  ── 받아둔 세부항목을 브라우저에 둡니다 ──────────────────────
+
+    ⚠️ 학회장: «경제지표 계속 받아둬야돼? 왜 지금 또 받고 있는거지?»
+
+       서버는 이미 제대로 저장하고 있습니다 — FRED 는 <다음 발표일까지>
+       다시 안 받습니다 (valid_until). 그런데 <브라우저> 는 아무것도
+       기억하지 않아서, 새로고침할 때마다 서버에 6번씩 다시 물었습니다.
+       FRED 를 부르는 건 아니라 돈이 더 들지는 않지만, 매번 «불러오는 중»
+       을 보게 됩니다. 그게 귀찮았던 겁니다.
+
+    ⚠️ 언제까지 들고 있을지는 <서버가 정합니다>. 응답의 until(다음 발표일)
+       을 그대로 따릅니다. 우리가 «한 달» 같은 숫자를 지어내면 발표가 난
+       뒤에도 옛 값을 보여주게 됩니다.                                  */
+var DT_CACHE_KEY = 'safe.dt.v1';
+function dtCacheAll(){
+  try { return JSON.parse(localStorage.getItem(DT_CACHE_KEY) || '{}') || {}; }
+  catch(e){ return {}; }
+}
+function dtCacheGet(k, start){
+  try {
+    var c = dtCacheAll()[k];
+    if (!c || c.start !== start) return null;
+    var today = new Date().toISOString().slice(0, 10);
+    //  다음 발표일을 알면 그때까지, 모르면 그날 하루만
+    if (c.until ? (today >= c.until) : (c.savedOn !== today)) return null;
+    return c;
+  } catch(e){ return null; }
+}
+function dtCachePut(k, v){
+  try {
+    var all = dtCacheAll();
+    all[k] = { start:v.start, points:v.points, name:v.name, unit:v.unit,
+               note:v.note, until:v.until || null,
+               savedOn: new Date().toISOString().slice(0, 10) };
+    //  ⚠️ 자리가 꽉 차면(5MB) 통째로 비우고 다시 시작합니다. 오래된 것을
+    //     골라 지우려다 또 터지느니, 비우고 새로 받는 편이 단순합니다.
+    try { localStorage.setItem(DT_CACHE_KEY, JSON.stringify(all)); }
+    catch(e){ localStorage.removeItem(DT_CACHE_KEY); }
+  } catch(e){ /* 저장이 막혀 있어도 화면은 그대로 돕니다 */ }
+}
+
 async function dtRun(){
   var keys = Object.keys(dtPick);
   if (!keys.length){ $('dtResult').classList.add('hidden'); return; }
   $('dtResult').classList.remove('hidden');
   var yrs = Number($('dtRange').value) || 3;
   var back = Math.max(yrs + 1.2, 4.5);
-  var start = new Date(Date.now() - back * 365 * 864e5).toISOString().slice(0, 10);
+  /*  ⚠️ 시작일을 <오늘 기준> 으로 잡았더니 날짜가 매일 바뀌었습니다.
+      그러면 어제 받아둔 것이 «다른 요청» 이 되어 <매일 전부 다시> 받습니다.
+      경제지표는 하루 단위로 시작점이 달라질 이유가 없습니다 — <그 달 1일>
+      로 고정합니다. 같은 달 안에서는 요청이 똑같아집니다.               */
+  var _s = new Date(Date.now() - back * 365 * 864e5);
+  var start = new Date(Date.UTC(_s.getUTCFullYear(), _s.getUTCMonth(), 1))
+                .toISOString().slice(0, 10);
+
+  //  새로고침해도 다시 안 받게 — 브라우저에 둡니다
+  keys.forEach(function(k){
+    if (dtSeries[k] && dtSeries[k].start === start) return;
+    var c = dtCacheGet(k, start);
+    if (c) dtSeries[k] = c;
+  });
 
   var need = keys.filter(function(k){
     return !dtSeries[k] || dtSeries[k].start !== start; });
@@ -3994,7 +4094,10 @@ async function dtRun(){
                                code: x.code, item_code: x.item || '',
                                cycle: x.cycle || 'M', start: start });
           dtSeries[k] = { start:start, points:(d.points || []), name:x.name,
-                          unit:x.unit || (d.unit || ''), note:d.note || null };
+                          unit:x.unit || (d.unit || ''), note:d.note || null,
+                          //  서버가 «다음 발표일까지 유효» 라고 알려주면 그때까지 씁니다
+                          until: d.until || null };
+          dtCachePut(k, dtSeries[k]);
         } catch(e){
           dtSeries[k] = { start:start, points:[], name:x.name, err:e.message };
         }
@@ -13252,11 +13355,39 @@ function aiTargetSanity(sec, px, cur){
 
   if (px != null && px > 0 && all.length){
     var hi = Math.max.apply(null, all), lo = Math.min.apply(null, all);
-    if (hi < px)
-      out.push('<b>모든 목표가가 현재가(' + esc(aiMoney(px, cur)) + ')보다 낮습니다.</b> '
-        + '가장 높은 목표가도 ' + esc(aiMoney(hi, cur)) + ' 입니다 — '
-        + '강세 논거가 성립하지 않습니다. 지난 12개월 EPS에 배수를 곱했는지, '
-        + '주식수·통화 단위가 맞는지 확인하세요.');
+    /*  ── «목표가가 전부 현재가 아래» 가 반드시 잘못은 아닙니다 ────
+
+        ⚠️ 여기서 한 번 틀렸습니다. 예전에는 이 경우를 무조건
+           «강세 논거가 성립하지 않습니다 — 단위를 확인하세요» 라고
+           <계산 실수 취급> 했습니다.
+
+           그런데 63배에 거래되는 주식을 31배가 맞다고 보면 적정가는
+           당연히 현재가의 절반입니다. 그건 <틀린 계산> 이 아니라
+           **«고평가» 라는 결론**입니다. 결론을 오류라고 부르면, 정작
+           맞는 분석을 한 사람이 숫자를 억지로 올리게 됩니다.
+
+        가르는 기준은 <계산> 이 아니라 <앞뒤> 입니다.
+          · 고평가라고 보면서 «사라» 고 하면 — 앞뒤가 안 맞습니다
+          · 고평가라고 보고 «사지 말라» 고 하면 — 그건 온전한 분석입니다
+                                                                      */
+    var trAct = aiStr((sec.trader || {}).action);
+    var trEn  = aiNum((sec.trader || {}).entry);
+    var wantsBuy = /매수|buy|사/i.test(trAct) || (trEn != null && trEn > 0);
+    if (hi < px && wantsBuy)
+      out.push('<b>고평가라고 보면서 «사라» 고 합니다.</b> '
+        + '가장 높은 목표가가 ' + esc(aiMoney(hi, cur)) + ' 인데 현재가는 '
+        + esc(aiMoney(px, cur)) + ' 입니다 — 파는 자리이지 사는 자리가 아닙니다.<br>'
+        + '둘 중 하나입니다. <b>진짜 고평가라면</b> 헤드 트레이더를 «관망·비중축소»로 '
+        + '바꾸세요. <b>살 이유가 있다면</b> 강세 배수를 다시 고르세요 — '
+        + '지금 배수가 그 종목이 실제로 받는 배수보다 한참 낮을 수 있습니다.');
+    else if (hi < px)
+      //  ⚠️ 이건 «틀렸다» 가 아닙니다. 그렇게 읽히지 않게 말을 고릅니다.
+      out.push('<span style="font-weight:700">이 리포트의 결론은 «고평가» 입니다.</span> '
+        + '목표가가 전부 현재가(' + esc(aiMoney(px, cur)) + ') 아래입니다 '
+        + '(가장 높은 것 ' + esc(aiMoney(hi, cur)) + ').<br>'
+        + '앞뒤는 맞습니다. 다만 <b>왜 시장이 지금 값을 주는지</b>와 '
+        + '<b>무엇이 일어나야 배수가 내려오는지</b>가 본문에 적혀 있는지 확인하세요. '
+        + '그게 없으면 결론만 있고 근거가 없는 리포트입니다.');
     else if (lo > px)
       out.push('<b>모든 목표가가 현재가(' + esc(aiMoney(px, cur)) + ')보다 높습니다.</b> '
         + '약세 시나리오가 빠진 셈입니다.');
