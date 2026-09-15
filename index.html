@@ -143,6 +143,12 @@
   .sw-pop{position:absolute;z-index:60;background:var(--white);border:1px solid var(--border);border-radius:11px;
     padding:10px;box-shadow:0 10px 30px rgba(20,30,60,.16);display:grid;grid-template-columns:repeat(6,26px);gap:7px}
   .sw-pop .sw{width:26px;height:26px;border-radius:6px;border:1px solid rgba(0,0,0,.12);cursor:pointer;padding:0}
+  /*  ⚠️ 끌어서 고르는 동안 <지금 어디에 있는지> 가 보여야 합니다.
+      안 그러면 색은 바뀌는데 어느 칸인지 몰라 손을 못 뗍니다.       */
+  .sw-pop .sw.on{outline:2px solid var(--text);outline-offset:2px}
+  .sw-pop{touch-action:none}
+  .sw-pop .sw-tip{grid-column:1/-1;font-size:11px;color:var(--text-sub);line-height:1.5;
+    margin-top:2px;border-top:1px solid var(--border);padding-top:7px}
   .sw-pop .sw-more{grid-column:1/-1;display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-sub);
     border-top:1px solid var(--border);padding-top:8px;margin-top:2px}
   .pal-row{display:flex;align-items:center;gap:7px;margin-bottom:6px}
@@ -1383,19 +1389,26 @@
                   <option value="line">선</option>
                 </select>
                 <label style="min-width:auto">기간</label>
-                <select id="dtRange" onchange="dtDraw()" style="width:130px">
-                  <option value="1">최근 1년</option>
-                  <option value="3" selected>최근 3년</option>
-                  <option value="5">최근 5년</option>
-                  <option value="10">최근 10년</option>
-                </select>
+                <!--  ⚠️ 예전에는 1·3·5·10년 네 개뿐이었습니다. «2년치만»
+                      «8년치» 를 보려면 방법이 없었습니다. 숫자로 적습니다. -->
+                <input type="number" id="dtRange" value="3" min="1" max="120" step="1"
+                       onchange="dtSetYears(this.value)" style="width:64px"
+                       title="몇 년치를 볼지">
+                <span class="st-hint">년</span>
+                <!--  위 차트에서 보고 있던 구간을 그대로 끌어옵니다 -->
+                <button class="btn-sm" id="dtFromMain" onclick="dtPullMain()"
+                        title="위 차트에서 지금 보고 있는 기간과 지표를 가져옵니다">↑ 위 차트에서</button>
+                <span class="st-hint" id="dtRangeNote"></span>
                 <!--  ⚠️ JPG 단추가 카드 <맨 위 헤더> 에만 있었습니다. 차트에서
                       한참 떨어져 있어서 «저장이 안 된다» 고 읽힙니다.
                       보는 자리 옆에 하나 더 둡니다.                     -->
                 <button class="btn-sm" onclick="dtJpg('chart')">JPG 저장</button>
                 <span class="st-hint" id="dtStatus"></span>
               </div>
-              <div id="dtChartBox" style="height:calc(360px * var(--chz,1));margin-top:6px"></div>
+              <!--  ⚠️ 이 두 차트만 «차트 높이» 손잡이를 안 따릅니다. 항목이 여섯 개면
+      세로가 곧 막대 개수라, 두 배로 늘리면 <빈 칸만 두 배> 가 됩니다.
+      학회장이 원래 크기로 돌려달라고 한 자리입니다.              -->
+              <div id="dtChartBox" style="height:360px;margin-top:6px"></div>
               <div id="dtBarWrap" class="hidden">
                 <div class="dt-sub">
                   <b id="dtBarTitle">전년 대비 변화율</b>
@@ -3713,6 +3726,8 @@ function dtFollow(catId){
    체크한 항목만 아래 차트에 그립니다. 메인 차트는 건드리지 않습니다. */
 var dtItems = [], dtPick = {}, dtSeries = {}, dtChart = null, dtBar = null;
 var dtParentCat = null, dtMeta = null;
+//  지금 화면에 올라간 보고서들 (CPI 와 PPI 를 같이 볼 수 있습니다)
+var dtLoaded = [];
 var ECOS_AXIS_HINT = '이 통계표는 <b>항목 축이 여러 개</b>입니다 (예: 품목 × 지역). '
   + '항목 이름에 축이 " · " 로 이어져 나옵니다.';
 var DT_MAX = 10;
@@ -3729,6 +3744,14 @@ function dtFillParents(){
   if (keep) sel.value = keep;
 }
 
+/*  올라가 있는 보고서 이름들. 둘 이상이면 «CPI · PPI» 처럼 붙입니다. */
+function dtLoadedLabel(){
+  var seen = {}, out = [];
+  (dtLoaded || []).forEach(function(c){
+    if (c && c.label && !seen[c.label]){ seen[c.label] = 1; out.push(c.label); }
+  });
+  return out.join(' · ');
+}
 function dtCat(){
   var id = $('dtParent').value;
   return catalog.filter(function(x){ return String(x.id) === String(id); })[0] || null;
@@ -3801,7 +3824,11 @@ async function dtFredValues(code){
     var next;
     try { next = await edge({ source:'fred_report', code:code }); }
     catch(e){ warn('dtWarn', esc(e.message)); break; }
-    if (dtParentCat !== null && dtCat() && dtCat().code !== code) return;  // 다른 지표로 옮겨갔으면 멈춤
+    /*  ⚠️ 예전에는 <지금 고른 지표> 와 다르면 멈췄습니다. 이제 CPI·PPI 를
+        같이 올릴 수 있어서, 그러면 뒤엣것을 받는 동안 앞엣것 값 채우기가
+        멈춰버립니다. <올라가 있는 것 중에 있나> 로 봅니다.              */
+    if (dtLoaded.length && !dtLoaded.some(function(x){ return String(x.code) === String(code); }))
+      return;   // 그 지표가 화면에서 내려갔으면 멈춤
     d = next;
     dtFillFrom(d); dtRenderPicker(); dtProgress(d);
     rounds++;
@@ -3816,29 +3843,117 @@ function dtMore(){ var c = dtCat(); if (c) dtFredValues(c.code); }
 
 var dtBusy = false;
 
+/*  ── 위 차트에서 «보고 있던 그대로» 가져오기 ──────────────────
+
+    ⚠️ 학회장: «난 2022년 2월~2024년 6월 CPI, PPI 추이를 보고 있었어.
+       그 기간의 데이터를 CPI, PPI 둘 중 하나 고르거나 다 불러올 수
+       있게». 그러니까 <기간> 과 <지표> 를 같이 들고 와야 합니다.
+
+    ⚠️ «기간» 은 설정값이 아니라 <지금 눈에 보이는 구간> 입니다.
+       기간을 최근 3년으로 두고 휠로 확대해 2022~2024 를 보고 있을 수
+       있습니다. 그래서 설정값이 아니라 차트의 <가로 손잡이> 를 읽습니다.
+       없으면 그때만 설정값(startDate)으로 물러섭니다.                */
+function dtMainWindow(){
+  try {
+    var box = $('chartBox'), c = box && echarts.getInstanceByDom(box);
+    if (c){
+      var dz = c.getOption().dataZoom || [];
+      for (var i = 0; i < dz.length; i++){
+        var z = dz[i];
+        if (!z || z.type !== 'inside' || z.yAxisIndex != null) continue;
+        var a = Number(z.startValue), b = Number(z.endValue);
+        if (isFinite(a) && isFinite(b) && b > a)
+          return { from: new Date(a).toISOString().slice(0, 10),
+                   to:   new Date(b).toISOString().slice(0, 10) };
+      }
+    }
+  } catch(e){}
+  //  확대를 안 했으면 «기간» 설정 그대로
+  return { from: startDate(), to: new Date().toISOString().slice(0, 10) };
+}
+/*  위 차트에 올라간 지표 중 <상세 항목이 있는 것> 만 고를 수 있습니다.
+    (모든 지표가 발표 표를 갖고 있지는 않습니다)                      */
+function dtMainCats(){
+  var out = [], seen = {};
+  shownSeries().forEach(function(x){
+    var hit = catalog.filter(function(c){
+      return String(c.code) === String(x.code) && String(c.source) === String(x.source);
+    })[0];
+    if (hit && !seen[hit.id]){ seen[hit.id] = 1; out.push({ cat: hit, label: x.label }); }
+  });
+  return out;
+}
+function dtPullMain(){
+  var w = dtMainWindow();
+  var cats = dtMainCats();
+  if (!cats.length){
+    //  기간만이라도 가져옵니다 — 그게 절반은 하는 일입니다
+    dtFrom = w.from; dtTo = w.to; dtRangeNote(); dtDraw();
+    warn('dtWarn', '기간(<b>' + esc(w.from.slice(0,7)) + ' ~ ' + esc(w.to.slice(0,7))
+       + '</b>)만 가져왔습니다. 위 차트에 올린 지표 중에 <b>상세 항목을 제공하는 것이 '
+       + '없습니다</b> — CPI·PPI 처럼 발표 표가 있는 지표를 올려보세요.', 'info');
+    return;
+  }
+  var H = '<div class="note info" style="margin:8px 0">'
+    + '<b>' + esc(w.from.slice(0,7)) + ' ~ ' + esc(w.to.slice(0,7)) + '</b> 구간으로 '
+    + '어느 지표의 상세 항목을 불러올까요?<br>'
+    + '<div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap">'
+    + cats.map(function(x, i){
+        return '<button class="btn-sm" onclick="dtPullGo(' + i + ')">'
+             + esc(x.label) + '</button>'; }).join('')
+    + (cats.length > 1
+        ? '<button class="btn-sm btn-solid" onclick="dtPullGo(-1)">전부 (' + cats.length + '개)</button>'
+        : '')
+    + '<button class="btn-sm" onclick="warn(\'dtWarn\',\'\')">취소</button>'
+    + '</div></div>';
+  dtPullCats = cats; dtPullWin = w;
+  warn('dtWarn', H, 'info');
+}
+var dtPullCats = [], dtPullWin = null;
+async function dtPullGo(i){
+  var w = dtPullWin, list = (i < 0) ? dtPullCats : [dtPullCats[i]];
+  if (!w || !list.length || !list[0]) return;
+  warn('dtWarn','');
+  dtFrom = w.from; dtTo = w.to; dtRangeNote();
+  /*  ⚠️ 여러 개를 <동시에> 부르면 안 됩니다. 값 채우기 루프가 dtStop 으로
+      서로를 세워서 뒤엣것만 남습니다. 하나씩 끝내고 다음으로 갑니다.  */
+  for (var k = 0; k < list.length; k++){
+    $('dtParent').value = list[k].cat.id;
+    await dtLoadItems(false, k > 0);       //  두 번째부터는 <덧붙이기>
+  }
+  dtPickTop();
+}
+
 /*  auto=true 는 '차트에 지표를 올려서 따라온' 경우입니다.
 
     사람이 직접 '보고서 불러오기' 를 눌렀을 때는 이미 받는 중이더라도
     새 요청이 이깁니다 — 버튼을 눌렀는데 아무 일도 안 일어나면
     고장으로 보이니까요. 따라온 요청만 양보합니다.                      */
-async function dtLoadItems(auto){
+async function dtLoadItems(auto, append){
   var c = dtCat();
   if (!c){ warn('dtWarn','지표를 하나 골라주세요.'); return; }
   if (auto === true && dtBusy) return;
   //  앞서 돌던 값 채우기 루프가 있으면 세웁니다 (엉뚱한 표에 값이 들어갑니다)
   dtStop = true;
   dtBusy = true;
-  dtParentCat = c; dtItems = []; dtPick = {}; dtSeries = {}; dtMeta = null;
+  /*  ⚠️ append 면 <지우지 않고 덧붙입니다>. CPI 와 PPI 를 한 화면에서
+      같이 보려면 이게 있어야 합니다. 항목 열쇠(dtKey)가 지표 코드까지
+      담고 있어서 섞여도 안 부딪힙니다.                               */
+  var keep = !!append && dtItems.length > 0;
+  dtParentCat = c;
+  if (!keep){ dtItems = []; dtPick = {}; dtSeries = {}; dtLoaded = []; }
+  dtMeta = null;
+  dtLoaded.push(c);
   $('dtResult').classList.add('hidden');
   $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">'
     + '보고서 항목을 펼치는 중…</div>';
   $('dtStatus').textContent = '';
   warn('dtWarn','');
   try {
-    var d;
+    var d, fresh;
     if (c.source === 'fred'){
       d = await dtFredAll(c.code);
-      dtItems = (d.items || []).map(function(x){
+      fresh = (d.items || []).map(function(x){
         return { kind:'fred', code:x.series_id, name:x.name,
                  level:Number(x.level) || 1, head: !x.series_id,
                  value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3,
@@ -3846,18 +3961,25 @@ async function dtLoadItems(auto){
       });
     } else {
       d = await edge({ source:'ecos_report', code:c.code, cycle:(c.cycle || 'M') });
-      dtItems = (d.items || []).map(function(x){
+      fresh = (d.items || []).map(function(x){
         return { kind:'ecos', code:c.code, item:x.item, name:x.name,
                  cycle:(c.cycle || 'M'), unit:x.unit || '',
                  level:Number(x.level) || 1, head:false,
                  value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3,
              m6:x.m6, m9:x.m9 };
       });
-      if (dtItems.some(function(x){ return String(x.name).indexOf(' · ') >= 0; }))
+      if (fresh.some(function(x){ return String(x.name).indexOf(' · ') >= 0; }))
         warn('dtWarn', ECOS_AXIS_HINT, 'info');
     }
     dtMeta = d;
     if (d.note) warn('dtWarn', esc(d.note), 'info');
+
+    /*  ⚠️ 덧붙일 때는 <어디부터 어느 지표인지> 를 표시해야 합니다.
+        안 그러면 CPI 항목과 PPI 항목이 구분 없이 한 덩어리로 보입니다. */
+    if (keep && fresh.length)
+      fresh.unshift({ kind:'head', code:c.code, name:'── ' + c.label + ' ──',
+                      level:0, head:true });
+    dtItems = keep ? dtItems.concat(fresh) : fresh;
 
     if (!dtItems.length){
       $('dtPicker').innerHTML = '<div class="empty" style="padding:18px">'
@@ -4199,7 +4321,38 @@ function dtTransform(pts, mode){
   return out;
 }
 
+/*  ── 어느 구간을 볼 것인가 ───────────────────────────────────
+
+    ⚠️ «최근 N년» 만으로는 «2022년 2월 ~ 2024년 6월» 을 못 적습니다.
+       위 차트에서 그 구간을 보고 있다가 여기로 가져오면, 시작·끝을
+       <그대로> 들고 와야 같은 기간을 보는 겁니다.
+
+    그래서 두 가지를 다 둡니다 —
+      · 숫자만 적으면  → 최근 N년 (dtFrom 을 비웁니다)
+      · 위에서 가져오면 → 시작·끝 날짜를 못 박습니다                  */
+var dtFrom = null, dtTo = null;
+function dtSetYears(v){
+  var n = Number(v);
+  if (!isFinite(n) || n < 1) n = 3;
+  n = Math.min(120, Math.round(n));
+  if ($('dtRange')) $('dtRange').value = n;
+  //  숫자를 직접 적었으면 «가져온 구간» 은 버립니다 (둘이 싸우면 안 됩니다)
+  dtFrom = null; dtTo = null;
+  dtRangeNote();
+  dtDraw();
+}
+function dtRangeNote(){
+  var el = $('dtRangeNote'); if (!el) return;
+  el.innerHTML = (dtFrom || dtTo)
+    ? '<b>' + esc(String(dtFrom || '').slice(0, 7)) + ' ~ '
+      + esc(String(dtTo || '').slice(0, 7)) + '</b> (위 차트에서 가져옴)'
+    : '';
+}
 function dtCut(pts, yrs){
+  if (dtFrom || dtTo){
+    var a = dtFrom || '0000-00-00', b = dtTo || '9999-99-99';
+    return pts.filter(function(p){ return p.d >= a && p.d <= b; });
+  }
   var lim = new Date(Date.now() - yrs * 365 * 864e5).toISOString().slice(0, 10);
   return pts.filter(function(p){ return p.d >= lim; });
 }
@@ -4234,7 +4387,8 @@ function dtDraw(){
   var dtNames = rows.map(function(r){ return r.name; });
   var dtRows = legendRows(dtNames, boxWidth('dtChartBox') - 20, 11, 14);
   var dtTop = 8 + dtRows * 18 + 22;
-  $('dtChartBox').style.height = Math.round((300 + dtRows * 20) * chz()) + 'px';
+  //  ⚠️ 여기는 chz() 를 안 곱합니다 — 위 주석 참고
+  $('dtChartBox').style.height = (300 + dtRows * 20) + 'px';
   dtChart.resize();
   dtChart.setOption({
     backgroundColor: theme ? theme.bg : '#fff', animation:false,
@@ -4303,7 +4457,7 @@ function dtDraw(){
         줄당 높이도 그만큼 있어야 글자가 겹치지 않습니다.            */
     var longest = Math.max.apply(null, bars.map(function(r){ return String(r.name || '').length; }));
     var perRow = longest > 30 ? 44 : (longest > 18 ? 34 : 28);
-    bb.style.height = Math.round(Math.max(120, 24 + bars.length * perRow) * chz()) + 'px';
+    bb.style.height = Math.max(120, 24 + bars.length * perRow) + 'px';
     dtBar = chartOn(bb, dtBar); if (!dtBar) return;
     dtBar.resize();
     dtBar.setOption({
@@ -4348,7 +4502,7 @@ function dtReadout(rows, mode){
   var sorted = ok.slice().sort(function(a, b){ return b.cmp - a.cmp; });
   var top = sorted[0], bot = sorted[sorted.length - 1];
   var upN = ok.filter(function(r){ return r.cmp > 0; }).length;
-  var parent = dtParentCat ? dtParentCat.label : '이 지표';
+  var parent = dtLoadedLabel() || '이 지표';
   /*  ⚠️ 표·차트와 <같은 단위> 를 씁니다. 표에서는 %p 로 적어놓고 해설에서만
       % 라고 하면, 같은 숫자를 두 가지로 부르는 셈이라 반드시 헷갈립니다.  */
   var U = ok.some(function(r){ return r.diff; }) ? '%p' : '%';
@@ -4390,7 +4544,7 @@ function dtReadout(rows, mode){
 function dtJpg(which){
   var c = which === 'bar' ? dtBar : dtChart;
   if (!c){ warn('dtWarn','먼저 항목을 골라 그림을 그려주세요.'); return; }
-  chartJpg(c, (dtParentCat ? dtParentCat.label : '상세항목'));
+  chartJpg(c, dtLoadedLabel() || '상세항목');
 }
 
 //  보고서 표를 그대로 내려받습니다 — 발표 자료에 붙이기 좋게
@@ -4406,7 +4560,7 @@ function dtCsv(){
       x.q3 == null ? '' : Number(x.q3.toFixed(2)),
       x.on || '']);
   });
-  saveCsv(rows, (dtParentCat ? dtParentCat.label : '상세항목') + '_보고서');
+  saveCsv(rows, (dtLoadedLabel() || '상세항목') + '_보고서');
 }
 
 //  선택한 항목을 메인 차트로 올리기
@@ -8250,21 +8404,88 @@ function openPalette(i, el, which){
   pop.className = 'sw-pop';
   pop.dataset.idx = tag;
   pop.innerHTML = (theme.palette||[]).map(function(c){
-    return '<button class="sw" style="background:'+esc(c)+'" title="'+esc(c)
-         + '" onclick="pickColor('+i+',\''+esc(c)+'\',false,\''+which+'\')"></button>';
+    return '<button class="sw" data-c="'+esc(c)+'" style="background:'+esc(c)+'" '
+         + 'title="'+esc(c)+'" onclick="pickColor('+i+',\''+esc(c)+'\',\''+which+'\')"></button>';
   }).join('')
   + '<div class="sw-more">직접 지정 <input type="color" value="'+esc(arr[i].color)
-  + '" oninput="pickColor('+i+',this.value,true,\''+which+'\')"></div>';
+  + '" oninput="pickColor('+i+',this.value,\''+which+'\')"></div>'
+  + '<div class="sw-tip">누른 채로 <b>끌면</b> 색이 바로바로 바뀝니다. '
+  + '다 고르면 <b>바깥을 누르세요</b> (Esc 도 됩니다).</div>';
   var item = el.parentNode.parentNode;
   item.appendChild(pop);
   pop.style.left = '12px';
   pop.style.top  = (el.offsetTop + el.offsetHeight + 7) + 'px';
   palPop = pop;
-  setTimeout(function(){ document.addEventListener('mousedown', onDocDown); }, 0);
+  /*  ⚠️ 이 창을 연 색 상자를 기억해 둡니다. 바깥 누르기 감시가 그 상자까지
+      «바깥» 으로 치면, 같은 상자를 다시 눌러 닫으려 할 때 <닫혔다가 곧바로
+      다시 열립니다> — 영영 안 닫히는 것처럼 보입니다.                  */
+  pop.__opener = el;
+  palDragBind(pop, i, which);
+  palMark(i, arr[i].color, which);
+  setTimeout(function(){
+    document.addEventListener('mousedown', onDocDown);
+    document.addEventListener('keydown', onPalKey);
+  }, 0);
 }
-function onDocDown(e){ if (palPop && !palPop.contains(e.target)) closePalette(); }
+
+/*  ── 끌면서 색을 훑어봅니다 ──────────────────────────────────
+
+    ⚠️ 학회장: «색을 드래그하면서 색들을 탐색해보고 싶은데».
+       색은 옆에 대봐야 고를 수 있습니다. 한 칸씩 눌러서 확인하면
+       매번 창이 닫혀 다시 열어야 했습니다.
+
+    ⚠️ 칸 위에서 누르면 브라우저가 그 칸에 <포인터를 묶어버려서>, 옆 칸에는
+       pointerover 가 안 옵니다. 그래서 문서에서 듣고 <커서 밑에 뭐가 있나>
+       를 직접 찾습니다. 이래야 칸 사이를 넘어가도 따라옵니다.
+
+    ⚠️ 움직일 때마다 다시 그리면 차트가 8개 계열이라 버벅입니다.
+       <칸이 바뀐 순간에만> 다시 그립니다.                            */
+function palDragBind(pop, i, which){
+  var on = false, lastC = null;
+  var swAt = function(x, y){
+    var el = document.elementFromPoint(x, y);
+    if (!el) return null;
+    var b = el.closest ? el.closest('.sw') : null;
+    return (b && pop.contains(b)) ? b : null;
+  };
+  var apply = function(b){
+    if (!b) return;
+    var c = b.dataset.c;
+    if (!c || c === lastC) return;      //  같은 칸이면 다시 그릴 것도 없습니다
+    lastC = c;
+    pickColor(i, c, which);
+  };
+  var move = function(e){ if (on) apply(swAt(e.clientX, e.clientY)); };
+  var up = function(){
+    on = false;
+    document.removeEventListener('pointermove', move);
+    document.removeEventListener('pointerup', up);
+  };
+  pop.addEventListener('pointerdown', function(e){
+    var b = swAt(e.clientX, e.clientY);
+    if (!b) return;                      //  «직접 지정» 칸은 그냥 두세요
+    e.preventDefault();                  //  끌 때 글자가 선택되지 않게
+    on = true; lastC = null;
+    apply(b);
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+  });
+}
+/*  ⚠️ 닫는 건 <바깥 누르기> 와 Esc 뿐입니다. 색을 고르는 것으로는
+    안 닫힙니다 — 여러 색을 대보는 게 이 창의 목적입니다.            */
+function onDocDown(e){
+  if (!palPop || palPop.contains(e.target)) return;
+  //  연 상자를 다시 누른 것이면 openPalette 의 토글에 맡깁니다
+  if (palPop.__opener && palPop.__opener.contains(e.target)) return;
+  closePalette();
+}
+function onPalKey(e){ if (e.key === 'Escape') closePalette(); }
 function closePalette(){
-  if (palPop){ palPop.remove(); palPop = null; document.removeEventListener('mousedown', onDocDown); }
+  if (palPop){
+    palPop.remove(); palPop = null;
+    document.removeEventListener('mousedown', onDocDown);
+    document.removeEventListener('keydown', onPalKey);
+  }
 }
 /*  ── 아직 안 쓴 색을 고릅니다 ────────────────────────────────
 
@@ -8283,7 +8504,11 @@ function freeColor(list){
   return pal[(list || []).length % pal.length];
 }
 
-function pickColor(i, v, keepOpen, which){
+/*  ⚠️ 예전에는 keepOpen 이라는 칸이 하나 더 있었습니다 — «이번엔 닫지
+    마라» 는 뜻이었죠. 이제 <색을 고르는 것으로는 아예 안 닫으므로>
+    그 칸은 쓰이지 않습니다. 남겨두면 나중에 누가 false 를 넣어
+    옛 동작을 되살릴 수 있어서 <치웁니다>.                            */
+function pickColor(i, v, which){
   which = which || 'main';
   seriesArr(which)[i].color = v;
   var btn = $((which === 'co' ? 'cosw' : (which === 'cofin' ? 'cfsw' : 'sw')) + i);
@@ -8291,7 +8516,21 @@ function pickColor(i, v, keepOpen, which){
   if (which === 'co') drawCoPrice();
   else if (which === 'cofin') renderCoFinChart();
   else drawChart();
-  if (!keepOpen) closePalette();
+  /*  ⚠️ 예전에는 색을 <한 번 누르면 바로 닫혔습니다>. 그래서 여러 색을
+      대보려면 매번 다시 열어야 했습니다 — 색은 옆에 놓고 비교해 봐야
+      고를 수 있는데, 한 번에 하나씩만 볼 수 있었던 셈입니다.
+      이제 닫는 건 <바깥을 누를 때> 와 Esc 뿐입니다.                   */
+  palMark(i, v, which);
+}
+/*  지금 고른 색이 어느 칸인지 표시합니다 (끌면서 볼 때 길잡이).   */
+function palMark(i, v, which){
+  if (!palPop || palPop.dataset.idx !== (which || 'main') + ':' + i) return;
+  var lower = String(v || '').toLowerCase();
+  palPop.querySelectorAll('.sw').forEach(function(b){
+    b.classList.toggle('on', String(b.dataset.c || '').toLowerCase() === lower);
+  });
+  var inp = palPop.querySelector('input[type=color]');
+  if (inp && inp.value.toLowerCase() !== lower && /^#[0-9a-f]{6}$/.test(lower)) inp.value = lower;
 }
 
 /*  ── 글자가 서로 겹치지 않게 자리를 재는 도우미들 ──
