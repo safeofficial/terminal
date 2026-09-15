@@ -1213,6 +1213,21 @@
                 경기침체 음영 <span style="font-size:11px;color:var(--text-sub)">(FRED 방식)</span>
               </label>
             </div>
+            <!--  ⚠️ 학회장: «왼쪽 축이든 오른쪽 축이든 그리드 연하게 적용해줘.
+                  왼쪽축만 그리드 넣고 있더라». 기업 분석 쪽에는 이미 있는
+                  손잡이라 같은 모양으로 둡니다.                        -->
+            <div class="row">
+              <label style="min-width:auto">
+                <input type="checkbox" id="mgGrid" checked onchange="setMacroGrid()"
+                       style="width:auto;vertical-align:-2px">
+                눈금선
+              </label>
+              <input type="color" id="mgGridColor" value="#c8d0e0" oninput="setMacroGrid()">
+              <label style="min-width:auto">진하기</label>
+              <input type="range" id="mgGridAlpha" min="5" max="100" value="45"
+                     oninput="setMacroGrid()" style="width:120px">
+              <span id="mgGridAlphaV" style="font-size:11.5px;color:var(--text-sub);min-width:38px">45%</span>
+            </div>
             <div class="row">
               <label>차트 크기</label>
               <input type="number" id="wSel" placeholder="자동" min="320" max="3000" step="20"
@@ -8084,12 +8099,8 @@ function dvTable(list, spot){
 
 function dvJpg(chart, name){
   if (!chart){ warn('dvWarn','먼저 옵션을 불러와주세요.'); return; }
-  var url = chart.getDataURL({ type:'jpeg', pixelRatio:2, backgroundColor: theme.bg });
-  var bin = atob(url.split(',')[1]);
-  var buf = new Uint8Array(bin.length);
-  for (var i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-  saveBlob(new Blob([buf], { type:'image/jpeg' }),
-           'SAFE_' + ((dv && dv.symbol) || 'option') + '_' + name + '_' + today() + '.jpg');
+  saveChartJpg(chart,
+    'SAFE_' + ((dv && dv.symbol) || 'option') + '_' + name + '_' + today() + '.jpg');
 }
 
 /* ══════════ 13F — 기관 보유 내역 ══════════
@@ -9528,6 +9539,28 @@ function resetChartSize(){
   applyChartSize();
 }
 
+/*  ── 눈금선 ──────────────────────────────────────────────────
+
+    ⚠️ 학회장: «왼쪽 축이든 오른쪽 축이든 그리드 연하게 적용해줘».
+       그리고 «색·투명도 고를 수 있게». 기업 분석 쪽에 이미 같은 손잡이가
+       있어서 그쪽과 같은 모양·같은 기본값으로 둡니다 — 화면마다 다르게
+       생기면 어느 쪽이 맞는지 헷갈립니다.                             */
+var macroGrid = { on:true, color:'#c8d0e0', alpha:45 };
+function macroSplit(){
+  return macroGrid.on
+    ? { show:true, lineStyle:{ color: macroGrid.color,
+                               opacity: macroGrid.alpha / 100 } }
+    : { show:false };
+}
+function setMacroGrid(){
+  if ($('mgGrid'))      macroGrid.on    = $('mgGrid').checked;
+  if ($('mgGridColor')) macroGrid.color = $('mgGridColor').value;
+  if ($('mgGridAlpha')) macroGrid.alpha = Number($('mgGridAlpha').value) || 45;
+  var v = $('mgGridAlphaV'); if (v) v.textContent = macroGrid.alpha + '%';
+  //  ⚠️ 보던 자리는 setOption 감싼 자리가 지킵니다 (색만 바뀌는 일입니다)
+  drawChart();
+}
+
 /*  ── 얼마나 거슬러 볼까 ─────────────────────────────────────
 
     ⚠️ 예전에는 「전체」 가 25년이었습니다. 이름이 '전체' 인데 25년에서
@@ -9939,7 +9972,13 @@ function drawChart(){
                                      : axFmt(rg.interval) }
             : { show: on, color: col, fontSize:11, hideOverlap:true,
                 formatter: axMusd[j] ? musdFmt(0, axTop[j], axTop[j] - (axLo[j] || 0)) : undefined },
-          splitLine: j === 0 ? { lineStyle:{ color:theme.grid } } : { show:false } };
+          /*  ⚠️ 예전에는 <왼쪽 축만> 눈금선을 그렸습니다. 오른쪽 축에 붙은
+              지표를 읽을 때 기댈 선이 없었습니다. 이제 축마다 그립니다.
+
+              ⚠️ 겹쳐 그려도 지저분해지지 않습니다 — alignAxes 가 축들의
+                 칸 수를 같게 맞춰 놔서 선이 <정확히 포개집니다>.
+                 (그 맞춤이 없으면 두 벌의 어긋난 격자가 됩니다)       */
+          splitLine: macroSplit() };
         if (rg){ ax.scale = false; ax.min = rg.min; ax.max = rg.max; ax.interval = rg.interval; }
         out.push(ax);
       }
@@ -12301,13 +12340,8 @@ function downloadJPG(){
   // 아래 타임라인 막대를 잠시 숨기고 차트·축만 저장합니다
   chart.setOption({ dataZoom:[{ type:'inside' }, { type:'slider', show:false }], grid:{ bottom:36 } });
   setTimeout(function(){
-    var url = chart.getDataURL({ type:'jpeg', pixelRatio:2, backgroundColor: theme.bg });
+    saveChartJpg(chart, 'SAFE_chart_' + today() + '.jpg');
     chart.setOption({ dataZoom:[{ type:'inside' }, { type:'slider', show:true }], grid:{ bottom:64 } });
-    // data: URL 을 그대로 내려받으면 일부 브라우저가 막습니다. blob 으로 바꿔서 저장합니다.
-    var bin = atob(url.split(',')[1]);
-    var buf = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-    saveBlob(new Blob([buf], { type:'image/jpeg' }), 'SAFE_chart_' + today() + '.jpg');
   }, 90);
 }
 
@@ -12315,13 +12349,7 @@ function downloadJPG(){
    차트가 있는 곳이면 어디서나 같은 방식으로 그림을 뽑을 수 있게 해둡니다. */
 function chartJpg(chart, name){
   if (!chart){ alert('먼저 차트를 그려주세요.'); return; }
-  var url = chart.getDataURL({ type:'jpeg', pixelRatio:2,
-                               backgroundColor:(theme && theme.bg) || '#fff' });
-  var bin = atob(url.split(',')[1]);
-  var buf = new Uint8Array(bin.length);
-  for (var i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-  saveBlob(new Blob([buf], { type:'image/jpeg' }),
-           'SAFE_' + (name || 'chart') + '_' + today() + '.jpg');
+  saveChartJpg(chart, 'SAFE_' + (name || 'chart') + '_' + today() + '.jpg');
 }
 
 function saveCsv(rows, name){
@@ -12334,6 +12362,100 @@ function saveCsv(rows, name){
   //  엑셀이 한글을 깨뜨리지 않도록 BOM 을 붙입니다
   saveBlob(new Blob(['\ufeff' + body], { type:'text/csv;charset=utf-8' }),
            'SAFE_' + (name || 'data') + '_' + today() + '.csv');
+}
+
+/*  ── 그림을 저장할 때 빈 여백을 잘라냅니다 ──────────────────────
+
+    ⚠️ 학회장: «자료들 jpg로 저장할 때 하얀 부분들이 양옆, 위아래로 너무
+       많아». 발표 자료에 붙이면 그 여백만큼 슬라이드 자리를 잡아먹고,
+       PPT 에서 매번 손으로 자르게 됩니다.
+
+    ⚠️ ECharts 는 <상자 크기 그대로> 그림을 내보냅니다. 범례가 오른쪽에
+       몰려 있거나 봉이 아래쪽에만 있으면 그 반대편은 통째로 흰색입니다.
+       실제로 넓은 화면의 도넛은 오른쪽 3분의 1이 빈 흰색이었습니다.
+
+    ⚠️ PNG 로 받아서 자릅니다. JPEG 로 받으면 압축 때문에 흰 여백이
+       249·251 처럼 <미세하게 얼룩덜룩해져서> 어디까지가 여백인지
+       가려낼 수가 없습니다. 자른 다음에 JPEG 로 바꿉니다.
+
+    ⚠️ 여백을 0 으로 깎지 않습니다. 글자가 가장자리에 딱 붙으면 슬라이드에
+       올렸을 때 답답합니다. 조금 남깁니다.                             */
+var JPG_PAD = 14;          //  잘라낸 뒤 남기는 여백 (그림 픽셀 기준)
+var JPG_TOL = 14;          //  이 정도 차이는 «같은 흰색» 으로 봅니다
+function jpgTrim(img, bg){
+  var w = img.width, h = img.height;
+  var cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  var cx = cv.getContext('2d');
+  cx.drawImage(img, 0, 0);
+  var d;
+  try { d = cx.getImageData(0, 0, w, h).data; }
+  catch(e){ return cv; }                       //  못 읽으면 자르지 않습니다
+  var br = bg[0], bgG = bg[1], bb = bg[2];
+  var isBg = function(i){
+    return Math.abs(d[i] - br) + Math.abs(d[i+1] - bgG) + Math.abs(d[i+2] - bb) <= JPG_TOL;
+  };
+  var top = 0, bot = h - 1, left = 0, right = w - 1, x, y, hit;
+  for (y = 0; y < h; y++){
+    hit = false;
+    for (x = 0; x < w; x++) if (!isBg((y*w + x) * 4)){ hit = true; break; }
+    if (hit){ top = y; break; }
+  }
+  for (y = h - 1; y >= top; y--){
+    hit = false;
+    for (x = 0; x < w; x++) if (!isBg((y*w + x) * 4)){ hit = true; break; }
+    if (hit){ bot = y; break; }
+  }
+  for (x = 0; x < w; x++){
+    hit = false;
+    for (y = top; y <= bot; y++) if (!isBg((y*w + x) * 4)){ hit = true; break; }
+    if (hit){ left = x; break; }
+  }
+  for (x = w - 1; x >= left; x--){
+    hit = false;
+    for (y = top; y <= bot; y++) if (!isBg((y*w + x) * 4)){ hit = true; break; }
+    if (hit){ right = x; break; }
+  }
+  //  전부 흰색이면(빈 차트) 자르지 않습니다 — 0×0 그림이 나옵니다
+  if (right <= left || bot <= top) return cv;
+  var x0 = Math.max(0, left - JPG_PAD), y0 = Math.max(0, top - JPG_PAD);
+  var x1 = Math.min(w - 1, right + JPG_PAD), y1 = Math.min(h - 1, bot + JPG_PAD);
+  var out = document.createElement('canvas');
+  out.width = x1 - x0 + 1; out.height = y1 - y0 + 1;
+  var oc = out.getContext('2d');
+  oc.fillStyle = 'rgb(' + br + ',' + bgG + ',' + bb + ')';
+  oc.fillRect(0, 0, out.width, out.height);
+  oc.drawImage(cv, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
+  return out;
+}
+function hexRgb(c){
+  var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(String(c || '#ffffff'));
+  return m ? [parseInt(m[1],16), parseInt(m[2],16), parseInt(m[3],16)] : [255,255,255];
+}
+/*  차트 하나를 <여백을 잘라> 내려받습니다. JPG 를 내는 자리는 전부
+    이 함수를 지납니다 — 한 군데서만 자르면 새로 만드는 화면에서도
+    저절로 잘립니다.                                                  */
+function saveChartJpg(chart, filename){
+  var bgc = (theme && theme.bg) || '#ffffff';
+  var url = chart.getDataURL({ type:'png', pixelRatio:2, backgroundColor: bgc });
+  var img = new Image();
+  img.onload = function(){
+    var cv;
+    try { cv = jpgTrim(img, hexRgb(bgc)); }
+    catch(e){ cv = null; }
+    var done = function(blob){ if (blob) saveBlob(blob, filename); };
+    if (cv && cv.toBlob) cv.toBlob(done, 'image/jpeg', 0.92);
+    else {
+      //  캔버스를 못 쓰면 자르지 않고 그대로 내보냅니다
+      var b = atob(chart.getDataURL({ type:'jpeg', pixelRatio:2,
+                                      backgroundColor: bgc }).split(',')[1]);
+      var buf = new Uint8Array(b.length);
+      for (var i = 0; i < b.length; i++) buf[i] = b.charCodeAt(i);
+      done(new Blob([buf], { type:'image/jpeg' }));
+    }
+  };
+  img.onerror = function(){ warn('researchWarn','그림을 만들지 못했습니다.'); };
+  img.src = url;
 }
 
 function saveBlob(blob, filename){
@@ -15691,12 +15813,8 @@ function coCsv(){
 
 function coJpg(chart, name){
   if (!chart){ warn('coWarn','먼저 기업을 선택해주세요.'); return; }
-  var url = chart.getDataURL({ type:'jpeg', pixelRatio:2, backgroundColor: theme.bg });
-  var bin = atob(url.split(',')[1]);
-  var buf = new Uint8Array(bin.length);
-  for (var i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-  saveBlob(new Blob([buf], { type:'image/jpeg' }),
-           'SAFE_' + ((co && co.sub) || 'company') + '_' + name + '_' + today() + '.jpg');
+  saveChartJpg(chart,
+    'SAFE_' + ((co && co.sub) || 'company') + '_' + name + '_' + today() + '.jpg');
 }
 function coFinJpg(){   coJpg(coFinChart,   '재무'); }
 function coPriceJpg(){ coJpg(coPriceChart, '주가'); }
