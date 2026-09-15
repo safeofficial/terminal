@@ -4127,16 +4127,60 @@ function dtRenderPicker(){
     + (n ? ' · <b>' + n + '개 선택</b>' : '');
 }
 
-/*  다음 발표일이 지났는가 — 지났으면 새 발표가 이미 나왔다는 뜻입니다. */
-function dtStaleHTML(){
+/*  ── 이 표가 지금 값인가 ─────────────────────────────────────
+
+    ⚠️ 처음에는 «다음 발표일이 지났나» 로만 봤습니다. 그런데 학회장이
+       겪은 건 그게 아니었습니다 — 다음 발표는 10/14 라 아직 멀었는데,
+       표는 7월이고 <차트에는 8월이 이미 그려져> 있었습니다.
+       9/11 에 나온 8월 발표를 표만 못 받은 것입니다.
+
+    ⚠️ 그래서 세 가지로 봅니다. 하나라도 걸리면 알립니다.
+       ① 차트에 표보다 <새로운 달> 이 있다  ← 화면이 스스로 모순입니다.
+          제일 확실한 증거라 이걸 먼저 봅니다.
+       ② 다음 발표일이 이미 지났다                                    */
+function dtNewestPoint(){
+  var best = '';
+  Object.keys(dtSeries || {}).forEach(function(k){
+    var pts = (dtSeries[k] && dtSeries[k].points) || [];
+    var last = pts.length ? String(pts[pts.length - 1].d) : '';
+    if (last > best) best = last;
+  });
+  return best;
+}
+function dtAsOf(){
+  var on = '';
+  (dtItems || []).forEach(function(x){ if (x && x.on && String(x.on) > on) on = String(x.on); });
+  return on;
+}
+function dtStaleWhy(){
+  var asOf = dtAsOf();
+  var newest = dtNewestPoint();
+  //  ① 차트가 더 최신이면 표가 뒤처진 것입니다
+  if (asOf && newest && newest > asOf)
+    return '차트에는 <b>' + esc(newest.slice(0, 7)) + '</b> 이 있는데 표는 <b>'
+         + esc(asOf.slice(0, 7)) + '</b> 입니다';
+  /*  ⚠️ «마지막 발표일 > 표의 기준일» 로도 잡아보려 했는데 <버렸습니다>.
+      발표일(9/11)과 자료의 달(8월)은 단위가 다릅니다. 발표 시차가
+      지표마다 달라서(월간은 약 6주, 분기는 몇 달) 그걸로 재면 멀쩡한
+      표에도 경고가 붙습니다. 실제로 9월 기준 자료에 «9/11 에 새 발표»
+      라고 잘못 띄웠습니다. 추측으로 경고하면 곧 아무도 안 읽습니다.  */
+  //  ② 다음 발표일이 지났으면
   var vu = dtMeta && dtMeta.valid_until;
-  if (!vu) return '';
   var today = new Date().toISOString().slice(0, 10);
-  if (String(vu) > today)
-    return ' · 다음 발표(<b>' + esc(vu) + '</b>)까지 이 값이 유지됩니다';
-  return ' · <span style="color:var(--danger);font-weight:700">⚠️ 새 발표('
-       + esc(vu) + ')가 이미 나왔습니다</span> — 화면 값은 그 전 것입니다. '
-       + '<a href="#" onclick="dtRefetch();return false;"><b>새로 받기</b></a>';
+  if (vu && String(vu) <= today)
+    return '다음 발표(<b>' + esc(vu) + '</b>)가 이미 지났습니다';
+  return '';
+}
+function dtStaleHTML(){
+  var why = dtStaleWhy();
+  if (why)
+    return ' · <span style="color:var(--danger);font-weight:700">⚠️ 표가 옛 값입니다</span> — '
+         + why + '. <a href="#" onclick="dtRefetch();return false;"><b>새로 받기</b></a>';
+  var vu = dtMeta && dtMeta.valid_until;
+  /*  ⚠️ 멀쩡할 때도 «새로 받기» 는 남겨둡니다. 우리가 못 잡는 이유로
+      멈춰 있을 수 있는데, 그때 누를 곳이 없으면 손을 못 씁니다.      */
+  return (vu ? ' · 다음 발표(<b>' + esc(vu) + '</b>)까지 이 값이 유지됩니다' : '')
+       + ' · <a href="#" onclick="dtRefetch();return false;">새로 받기</a>';
 }
 /*  캐시를 무시하고 통째로 다시 받습니다 (force).                      */
 async function dtRefetch(){
