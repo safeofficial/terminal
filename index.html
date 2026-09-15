@@ -1880,7 +1880,17 @@
         </div>
 
         <div class="card">
-          <h2>포트폴리오 구성</h2>
+          <h2>포트폴리오 구성
+            <span class="tools">
+              <!--  ⚠️ 어느 쪽이 좋은지는 사람마다·종목 수마다 다릅니다.
+                    종목이 적으면 조각에 붙은 이름이 한눈에 들어오고,
+                    많으면 목록이 낫습니다. 고르게 둡니다.            -->
+              <select id="pieMode" onchange="setPieMode(this.value)" style="width:150px">
+                <option value="list">이름을 옆 목록으로</option>
+                <option value="pie">이름을 조각에 연결</option>
+              </select>
+            </span>
+          </h2>
           <div class="pie-wrap pie-host">
             <div id="pieBox"></div>
             <div class="pie-center" id="pieCenter"></div>
@@ -8530,6 +8540,37 @@ function mixWhite(hex, t){
     return ('0' + v.toString(16)).slice(-2); }).join('');
 }
 
+/*  ── 포트폴리오 표시 방식 ────────────────────────────────────
+
+    ⚠️ 학회장이 둘 다 원했습니다 — 옆 목록과, 예전처럼 조각에 이름을
+       연결하는 방식. 어느 쪽이 나은지는 <종목 수> 에 달렸습니다.
+       적으면 연결이 한눈에 들어오고, 많으면 목록이 낫습니다.
+
+    ⚠️ 이 기기에만 저장합니다. 학회 공통이 아닙니다.               */
+var PIE_MODE_KEY = 'safe.pie.mode.v1';
+function pieModeNow(){
+  var v = (($('pieMode') || {}).value) || '';
+  if (v === 'list' || v === 'pie') return v;
+  try { var q = localStorage.getItem(PIE_MODE_KEY);
+        if (q === 'list' || q === 'pie') return q; } catch(e){}
+  return 'list';
+}
+function setPieMode(v){
+  if (v !== 'list' && v !== 'pie') v = 'list';
+  var sel = $('pieMode'); if (sel) sel.value = v;
+  try { localStorage.setItem(PIE_MODE_KEY, v); } catch(e){}
+  //  ⚠️ 방식이 바뀌면 높이도 달라집니다. 옛 높이가 남으면 잘립니다.
+  var box = $('pieBox'); if (box) box.style.height = '';
+  if (typeof renderPie === 'function') renderPie();
+}
+function initPieMode(){
+  var sel = $('pieMode'); if (!sel) return;
+  var v = 'list';
+  try { var q = localStorage.getItem(PIE_MODE_KEY);
+        if (q === 'list' || q === 'pie') v = q; } catch(e){}
+  sel.value = v;
+}
+
 /* 선 색 고르기 — 저장된 팔레트에서 선택 */
 var palPop = null;
 function seriesArr(which){
@@ -9463,6 +9504,8 @@ function initChartZoom(){
 //  ⚠️ 첫 그림이 그려지기 <전에> 걸어야 합니다. 나중에 걸면 캔버스가
 //     옛 크기로 박힌 채 남아 한 박자 늦게 커집니다.
 initChartZoom();
+//  ⚠️ 저장해 둔 표시 방식을 화면에 먼저 반영합니다 (첫 그림부터 맞게)
+try { initPieMode(); } catch(e){}
 
 /* 차트 크기 */
 function applyChartSize(){
@@ -16124,6 +16167,7 @@ function renderPie(){
 
       ⚠️ 좁아지면 옆에 못 세웁니다 — 아래로 내립니다.                 */
   var pieN = data.length;
+  var pieMode = pieModeNow();
   var pieBox = $('pieBox');
   /*  ⚠️ 다른 소메뉴를 보고 있으면 상자가 display:none 이라 clientWidth 가
       <0> 입니다. 예전에는 그때 700 이라고 찍어서 «넓은 화면» 배치로
@@ -16143,13 +16187,19 @@ function renderPie(){
   /*  ⚠️ 좁을 때 범례를 <가로> 로 깔면 한 줄에 한 개씩만 보이고 «1/12»
       쪽넘김이 붙습니다 — 아무것도 못 읽습니다. 좁으면 고리를 위에,
       목록을 <세로로 그 아래> 둡니다. 세로로 길어지는 건 괜찮습니다.  */
-  var nRo = Math.min(Math.round(pieW * 0.26), 110);   // 좁을 때 고리 반지름
-  /*  ⚠️ 한 줄은 <글자 높이 + 사이 간격> 이라 24px 로 잡으면 모자랍니다.
-      실제로 좁은 화면에서 아래 두어 줄이 상자 밖으로 나갔습니다.
-      재보니 27px 쯤이라 28 로 잡습니다.                              */
-  var pieH = wide
-    ? Math.max(300, Math.min(700, 70 + pieN * 27))
-    : Math.max(320, Math.min(900, nRo * 2 + 46 + pieN * 28));
+  var nRo = Math.min(Math.round(pieW * 0.26), 130);   // 좁을 때 고리 반지름
+  /*  ⚠️ 학회장: «위아래를 좀 더 늘려줘. 왤케 작아. 종목이 많을수록
+      프레임 커지게 해서 공간 더 부여하게 해».
+      예전 값(70 + n×27)은 <글자가 안 겹치는 최소치> 였습니다. 안 겹칠
+      뿐이지 빽빽했고, 고리도 높이에 눌려 작았습니다. 바닥을 올리고
+      한 줄에 주는 자리도 늘립니다.
+
+      ⚠️ 조각에 이름을 붙이는 방식은 <훨씬 더> 필요합니다. 이름이 방사형
+         으로 퍼져서 한 종목이 세로 한 칸을 통째로 씁니다.            */
+  var pieH = (pieMode === 'pie')
+    ? Math.max(480, Math.min(980, 190 + pieN * 50))
+    : (wide ? Math.max(420, Math.min(880, 150 + pieN * 32))
+            : Math.max(400, Math.min(1000, nRo * 2 + 70 + pieN * 32)));
   if (pieBox && pieBox.style.height !== pieH + 'px'){
     pieBox.style.height = pieH + 'px';
     pieChart.resize();
@@ -16160,10 +16210,11 @@ function renderPie(){
     var w2 = pieWidthNow();
     if ((w2 >= 620) !== wide){
       pieW = w2; wide = pieW >= 620;
-      nRo = Math.min(Math.round(pieW * 0.26), 110);
-      pieH = wide
-        ? Math.max(300, Math.min(700, 70 + pieN * 27))
-        : Math.max(320, Math.min(900, nRo * 2 + 46 + pieN * 28));
+      nRo = Math.min(Math.round(pieW * 0.26), 130);
+      pieH = (pieMode === 'pie')
+        ? Math.max(480, Math.min(980, 190 + pieN * 50))
+        : (wide ? Math.max(420, Math.min(880, 150 + pieN * 32))
+                : Math.max(400, Math.min(1000, nRo * 2 + 70 + pieN * 32)));
       pieBox.style.height = pieH + 'px';
       pieChart.resize();
     } else pieW = w2;
@@ -16171,9 +16222,18 @@ function renderPie(){
 
   //  고리는 <남는 자리 안에서> 잡습니다. % 로 주면 상자가 길어질 때
   //  같이 커져서 목록 자리를 도로 뺏습니다.
-  var cx = wide ? Math.round(pieW * 0.26) : Math.round(pieW / 2);
-  var ro = wide ? Math.max(64, Math.min(pieW * 0.21, pieH / 2 - 14)) : nRo;
-  var cy = wide ? Math.round(pieH / 2) : Math.round(ro + 14);
+  var cx, cy, ro;
+  if (pieMode === 'pie'){
+    //  이름이 사방으로 뻗으므로 가운데에 두고 고리를 작게 잡습니다
+    cx = Math.round(pieW / 2); cy = Math.round(pieH / 2);
+    ro = Math.max(70, Math.min(pieW * 0.16, pieH * 0.24));
+  } else if (wide){
+    cx = Math.round(pieW * 0.26);
+    ro = Math.max(76, Math.min(pieW * 0.22, pieH / 2 - 20));
+    cy = Math.round(pieH / 2);
+  } else {
+    cx = Math.round(pieW / 2); ro = nRo; cy = Math.round(ro + 18);
+  }
   var ri = Math.round(ro * 0.68);
 
   /*  ⚠️ 가운데 숫자가 고리 안쪽보다 넓으면 <잘립니다>. 실제로 «99,878,06…»
@@ -16187,7 +16247,9 @@ function renderPie(){
   data.forEach(function(x){ pieP[x.name] = total > 0 ? (x.value / total * 100) : 0; });
   //  ⚠️ 이름에 중괄호가 있으면 서식 문자열이 깨집니다. 지웁니다.
   var pieSafe = function(t){ return String(t == null ? '' : t).replace(/[{}]/g, ''); };
-  var nameW = wide ? Math.max(120, Math.min(260, pieW - cx - ro - 130))
+  /*  ⚠️ 260 에서 묶어 뒀더니 넓은 화면에서 오른쪽이 휑하게 비고 이름은
+      … 로 잘렸습니다. 자리가 있으면 이름을 더 보여줍니다.            */
+  var nameW = wide ? Math.max(120, Math.min(420, pieW - cx - ro - 120))
                    : Math.max(110, pieW - 120);
   /*  ⚠️ rich 칸에 width·overflow 를 줘도 범례에서는 안 잘립니다. 실제로
       «State Street Consumer Staples Select Sector SPDR ETF» 가 옆 비중 칸을
@@ -16241,7 +16303,8 @@ function renderPie(){
       right: wide ? Math.round(pieW * 0.04) : undefined,
       left:  wide ? undefined : 16,
       top: wide ? 'middle' : Math.round(cy + ro + 20),
-      itemWidth:11, itemHeight:11, itemGap:11,
+      show: pieMode !== 'pie',
+      itemWidth:11, itemHeight:11, itemGap:15,
       icon:'circle',
       pageIconSize:9, pageTextStyle:{ fontSize:11, color:'#5a6278' },
       formatter:function(nm){
@@ -16259,9 +16322,21 @@ function renderPie(){
       type:'pie', radius:[ri, Math.round(ro)], center:[cx, cy],
       minAngle:3, padAngle:1.5, avoidLabelOverlap:false,
       itemStyle:{ borderColor:'#fff', borderWidth:2, borderRadius:4 },
-      //  ⚠️ 조각 바깥 이름표는 아예 끕니다. 이름은 옆 목록이 맡습니다.
-      label:{ show:false },
-      labelLine:{ show:false },
+      avoidLabelOverlap: pieMode === 'pie',
+      /*  ⚠️ 목록 방식에서는 조각 바깥 이름표를 아예 끕니다 — 이름은 옆
+          목록이 맡습니다. 연결 방식에서는 반대로 목록을 끄고 이름을
+          조각에 붙입니다. 둘 다 켜면 같은 말을 두 번 하게 됩니다.   */
+      label: pieMode === 'pie'
+        ? { show:true, formatter:'{b}\n{d}%', fontSize:12.5, fontWeight:600,
+            color:'#1a1f36', lineHeight:17,
+            width: Math.max(120, Math.round(pieW / 2 - ro - 60)),
+            overflow:'truncate', ellipsis:'…' }
+        : { show:false },
+      labelLine: pieMode === 'pie'
+        ? { show:true, length:20, length2:24, showAbove:true,
+            lineStyle:{ color:'#c3cad8' } }
+        : { show:false },
+      labelLayout: pieMode === 'pie' ? { hideOverlap:true } : undefined,
       emphasis:{ scale:true, scaleSize:8,
         itemStyle:{ shadowBlur:16, shadowColor:'rgba(44,62,107,.28)' } },
       data:data }]
