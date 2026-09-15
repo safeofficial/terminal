@@ -1854,10 +1854,20 @@
                 <button id="mtKind-candle" class="on" onclick="mtSetChartKind('candle')">봉</button>
                 <button id="mtKind-line" onclick="mtSetChartKind('line')">선</button>
               </span>
+              <!--  ⚠️ 봉 간격이 없으면 <일봉만> 볼 수 있습니다. 파생상품 쪽에는
+                    이미 있는데 여기만 없었습니다.                          -->
+              <select id="mtSymTf" onchange="mtReloadSym()" style="width:106px"
+                      title="봉 하나가 얼마짜리인지">
+                <option value="15m">15분봉</option>
+                <option value="1h">1시간봉</option>
+                <option value="4h">4시간봉</option>
+                <option value="1d" selected>일봉</option>
+              </select>
               <select id="mtChartRange" onchange="mtDrawSymChart()" style="width:110px">
-                <option value="60">3개월</option>
-                <option value="130" selected>6개월</option>
-                <option value="260">1년</option>
+                <option value="60">60개</option>
+                <option value="130" selected>130개</option>
+                <option value="260">260개</option>
+                <option value="0">전부</option>
               </select>
               <button class="btn-sm" onclick="mtCloseSymChart()">닫기</button>
             </span>
@@ -8476,6 +8486,17 @@ function shownSeries(){
   return series.filter(function(s){ return !s.hidden; });
 }
 
+/*  색을 흰색과 섞어 연하게 만듭니다 (0 = 그대로, 1 = 흰색).        */
+function mixWhite(hex, t){
+  var m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ''));
+  if (!m) return hex;
+  var n = parseInt(m[1], 16);
+  var r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  var f = function(v){ return Math.round(v + (255 - v) * t); };
+  return '#' + [f(r), f(g), f(b)].map(function(v){
+    return ('0' + v.toString(16)).slice(-2); }).join('');
+}
+
 /* 선 색 고르기 — 저장된 팔레트에서 선택 */
 var palPop = null;
 function seriesArr(which){
@@ -11274,20 +11295,69 @@ async function mtOpenSymChart(mk, sym){
   mtSymPts = null;
 
   try {
-    var d = await edge({ source: quoteSource(mk), code: sym, start: startOfYear() });
-    mtSymPts = (d && d.points) || [];
+    mtSymPts = await mtSymBars(mk, sym);
     mtDrawSymChart();
     //  차트를 그린 뒤에 적습니다 — 평단선이 실제로 그려졌는지 알아야 하니까요
     $('mtChartNote').innerHTML = !mtSymPts.length
       ? '이 종목의 지난 시세를 받지 못했습니다.'
       : (mtAvgShown ? '초록 점선이 평단가입니다. ' : '')
         + '<b>빨강</b>이 오른 날, <b>파랑</b>이 내린 날입니다 (한국식). '
-        + '끌어서 옮기고, 휠로 확대할 수 있습니다. · '
+        + '끌어서 옮기고(위아래로도), 축 위에서 휠을 굴리면 그 축만 늘어납니다. · '
+        + (mtSymTfUsed === '1d' ? '일봉' : (MT_TF[mtSymTfUsed] || {}).label || '')
+        + (mk === 'KR' && mtSymTf() !== '1d'
+            ? ' <b>(국내는 분봉·시간봉 창구가 없어 일봉으로 보여줍니다)</b>' : '')
+        + ' · '
         + marketLabel(mk) + ' · ' + esc(sym);
   } catch(e){
     $('mtChartNote').textContent = '시세를 받지 못했습니다: ' + e.message;
     if (mtSymChart) mtSymChart.clear();
   }
+}
+
+/*  ── 고른 봉으로 시세를 받아옵니다 ──────────────────────────
+
+    ⚠️ 학회장: «주가 추이 몇분/몇시간/일 봉 정할 수 있게 해줘».
+
+    ⚠️ 분봉·시간봉은 일별 보관함에 없습니다. <자동매매가 쓰는 것과 같은
+       창구(bars_bulk)> 로 받습니다. 한 군데서만 받아야 «백테스트가 본 봉»
+       과 «화면이 보여주는 봉» 이 갈라지지 않습니다. 파생상품 쪽도
+       같은 창구를 씁니다.
+
+    ⚠️ 국내는 이 창구에 없습니다 — 일봉으로 물러섭니다. 조용히 다른 걸
+       보여주면 안 되니 화면에 그렇게 적습니다.                        */
+var MT_TF = { '15m':{ days:30, label:'15분봉' }, '1h':{ days:90, label:'1시간봉' },
+              '4h':{ days:250, label:'4시간봉' }, '1d':{ days:400, label:'일봉' } };
+function mtSymTf(){
+  var v = (($('mtSymTf') || {}).value) || '1d';
+  return MT_TF[v] ? v : '1d';
+}
+var mtSymTfUsed = '1d';
+async function mtSymBars(mk, sym){
+  var tf = mtSymTf();
+  //  국내·일봉은 예전 창구가 더 길게 줍니다
+  if (tf === '1d' || mk === 'KR'){
+    mtSymTfUsed = mk === 'KR' ? '1d' : tf;
+    var d = await edge({ source: quoteSource(mk), code: sym, start: startOfYear() });
+    return (d && d.points) || [];
+  }
+  mtSymTfUsed = tf;
+  var days = (MT_TF[tf] || MT_TF['1d']).days;
+  var start = new Date(Date.now() - days * 864e5).toISOString().slice(0, 10);
+  var sy = (mk === 'CRYPTO' && sym.indexOf('-') < 0) ? (sym + '-USD') : sym;
+  var r = await edge({ source:'bars_bulk', tf: tf, start: start,
+                       codes: [{ market: mk, symbol: sy }] });
+  var ser = r.series || {};
+  return (ser[mk + '|' + sy.toUpperCase()] || ser[mk + '|' + sy] || [])
+           .filter(function(p){ return p.v > 0; });
+}
+//  봉을 바꾸면 <다시 받아야> 합니다 (기간만 바꾸는 것과 다릅니다)
+async function mtReloadSym(){
+  if (!mtSymPick) return;
+  var parts = mtSymPick.split('|');
+  var keep = mtSymPick;
+  mtSymPick = null;                       //  같은 종목 다시 누르기로 안 접히게
+  await mtOpenSymChart(parts[0], parts.slice(1).join('|'));
+  mtSymPick = keep;
 }
 
 function mtCloseSymChart(){
@@ -11306,8 +11376,8 @@ function mtDrawSymChart(){
   if (typeof echarts === 'undefined' || !mtSymPts) return;
   var box = $('mtSymBox'); if (!box) return;
   mtSymChart = chartOn(box, mtSymChart); if (!mtSymChart) return;
-  var n = Number($('mtChartRange').value) || 130;
-  var pts = mtSymPts.slice(-n);
+  var n = Number($('mtChartRange').value);
+  var pts = (n > 0) ? mtSymPts.slice(-n) : mtSymPts.slice();
   if (!pts.length){ mtSymChart.clear(); return; }
 
   var mk = (mtSymPick || '').split('|')[0];
@@ -11397,7 +11467,37 @@ function mtDrawSymChart(){
                  axisTick:{ show:false },
                  splitLine:{ show:false },
                  axisPointer:{ label:{ show:true, backgroundColor:'#2c3e6b' } } }];
-  var yAxes = [{ type:'value', scale:true, position:'left',
+  /*  ── 봉이 없는 자리까지 위아래로 움직이기 ────────────────────
+
+      ⚠️ 학회장: «위아래 봉이 없어도 위 아래로 더 자유롭게 움직일 수
+         있게». 세로 확대는 되는데 <봉이 있는 데까지> 만 움직였습니다.
+         dataZoom 은 «자료의 0~100%» 안에서만 도니까요. 봉 위쪽 빈 하늘로
+         끌어올리면 거기서 딱 멈췄습니다.
+
+      ⚠️ 그래서 축을 <자료보다 넓게> 잡습니다. 위아래로 60% 씩 여백을
+         만들어 두고, 처음 보이는 창은 그 한가운데(봉이 꽉 차는 자리)로
+         맞춥니다. 눈에 보이는 건 예전과 같고, 끌면 빈 자리로 나갑니다.
+
+      ⚠️ 창 크기를 1/2.2 = 45.45% 로 두어야 <딱 자료만큼> 보입니다.
+         (여백 0.6 + 자료 1 + 여백 0.6 = 2.2)                        */
+  /*  ⚠️ min·max 를 <함수> 로 주면 안 됩니다. ECharts 는 그 함수에
+      «지금 보이는 구간» 을 넘겨줍니다. 그걸로 다시 여백을 얹으면
+      끌 때마다 축이 넓어지는 눈덩이가 됩니다 — 실제로 102~118 이
+      96~124 로 불어났습니다. 자료에서 <한 번> 재서 숫자로 못 박습니다. */
+  var MT_PAD = 0.6;
+  var yLo = Infinity, yHi = -Infinity;
+  ohlc.forEach(function(b){
+    if (b[2] < yLo) yLo = b[2];
+    if (b[3] > yHi) yHi = b[3];
+  });
+  if (avg > 0){ yLo = Math.min(yLo, avg); yHi = Math.max(yHi, avg); }
+  if (!isFinite(yLo) || !isFinite(yHi)){ yLo = 0; yHi = 1; }
+  var ySp = (yHi - yLo) || Math.abs(yHi) || 1;
+  var yMin = yLo - ySp * MT_PAD, yMax = yHi + ySp * MT_PAD;
+  //  여백까지 합친 전체 중에서 <자료만큼> 이 차지하는 비율
+  var yWin = 100 * MT_PAD / (1 + 2 * MT_PAD);
+  var yAxes = [{ type:'value', position:'left',
+                 min: yMin, max: yMax,
                  axisLabel:{ fontSize:11, color:'#5a6278',
                    formatter:function(v){ return mark + num(v, dp); } },
                  axisLine:{ show:false }, axisTick:{ show:false },
@@ -11452,6 +11552,12 @@ function mtDrawSymChart(){
     },
     dataZoom:[
       { type:'inside', xAxisIndex: hasVol ? [0,1] : [0], start:0, end:100 },
+      /*  ⚠️ 세로 손잡이를 <여기서> 답니다. 안 달면 전역에서 0~100 으로
+          끼워 넣어져 여백까지 다 보이게 됩니다 — 봉이 납작해집니다.
+          한가운데만 보이게 두면 봉은 예전 크기 그대로입니다.          */
+      { type:'inside', yAxisIndex:0, filterMode:'none',
+        start: yWin, end: 100 - yWin,
+        zoomOnMouseWheel:false, moveOnMouseMove:true, moveOnMouseWheel:false },
       { type:'slider', xAxisIndex: hasVol ? [0,1] : [0], bottom:6, height:18,
         borderColor:'transparent', backgroundColor:'#f4f6fa',
         fillerColor:'rgba(44,62,107,.10)', handleSize:'85%',
@@ -15958,67 +16064,169 @@ function renderPie(){
     return b.value - a.value;
   });
   var total = data.reduce(function(a,x){ return a + x.value; }, 0);
+  /*  ⚠️ 가운데 숫자는 이제 <캔버스 안> 에 그립니다 (JPG 로 저장해도 남게).
+      HTML 로 덮어 두면 둘이 겹쳐 보이므로 비웁니다. 그릇은 남겨둡니다 —
+      지우면 옛 화면을 띄운 사람에게 오류가 납니다.                    */
   var cen = $('pieCenter');
-  if (cen) cen.innerHTML = '<div class="cv">' + num(total) + '</div><div class="ck">총 자산 (원)</div>';
+  if (cen) cen.innerHTML = '';
 
-  /*  ── 이름표가 들어갈 자리를 먼저 잡습니다 ────────────────────
+  /*  ── 도넛 + 옆목록 ──────────────────────────────────────────
 
-      ⚠️ 종목이 열댓 개면 이름표가 한쪽에 층층이 쌓입니다(현금이 왼쪽
-         절반을 통째로 먹으니 나머지가 전부 오른쪽으로 갑니다).
-         그래서 <높이는 종목 수가 정합니다> — 고정값으로 두면 종목이
-         늘어날 때마다 다시 겹칩니다.
+      ⚠️ 학회장: «왜이래... 파이 그래프 좀 잘 디자인해줘라».
+         이름을 조각 바깥에 방사형으로 뿌리는 방식이 문제였습니다.
+         종목이 여덟 개만 넘어도 이름표가 사방으로 뻗어 자리를 다투고,
+         긴 ETF 이름은 … 로 잘려 <뭔지 알아볼 수가 없었습니다>.
+         가운데 총자산 숫자까지 고리에 잘려 나갔습니다.
 
-      ⚠️ 고리 크기를 % 로 주면 상자가 길어질수록 같이 커져서 이름표
-         자리를 도로 뺏습니다. px 로 못 박습니다.                      */
+      ⚠️ 그래서 <이름을 고리에서 떼어 옆 목록으로> 옮깁니다. 목록은
+         줄을 서니까 겹칠 일이 없고, 이름을 훨씬 길게 적을 수 있고,
+         비중까지 나란히 읽힙니다. 고리는 <크기만> 보여주면 됩니다.
+
+      ⚠️ 목록을 HTML 로 만들면 JPG 저장에 안 담깁니다 (캔버스만 저장됩니다).
+         발표 자료로 쓰는 화면이라 ECharts 범례로 넣습니다.
+
+      ⚠️ 좁아지면 옆에 못 세웁니다 — 아래로 내립니다.                 */
   var pieN = data.length;
-  var pieH = Math.min(1000, Math.max(420, 120 + pieN * 42));
   var pieBox = $('pieBox');
-  /*  ⚠️ offsetHeight 로 견주면 안 됩니다. 다른 소메뉴를 보고 있을 때는
-      상자가 안 보여서 0 으로 나오고, 그러면 <매번> 다시 크기를 잡습니다. */
+  /*  ⚠️ 다른 소메뉴를 보고 있으면 상자가 display:none 이라 clientWidth 가
+      <0> 입니다. 예전에는 그때 700 이라고 찍어서 «넓은 화면» 배치로
+      그렸고, 실제 폭은 470 이라 목록이 상자 밖으로 흘러나갔습니다.
+      ECharts 는 자기 폭을 기억하고 있으니 그걸 먼저 믿습니다.        */
+  var pieWidthNow = function(){
+    var a = (pieBox && pieBox.clientWidth) || 0;
+    if (a > 0) return a;
+    var b = (pieChart.getWidth && pieChart.getWidth()) || 0;
+    return b > 0 ? b : 700;
+  };
+  var pieW = pieWidthNow();
+  var wide = pieW >= 620;
+
+  /*  높이는 <목록 줄 수> 가 정합니다. 예전에는 조각마다 이름표가 아래로
+      쌓여서 한 줄에 42px 이 필요했는데, 목록은 22px 이면 됩니다.      */
+  /*  ⚠️ 좁을 때 범례를 <가로> 로 깔면 한 줄에 한 개씩만 보이고 «1/12»
+      쪽넘김이 붙습니다 — 아무것도 못 읽습니다. 좁으면 고리를 위에,
+      목록을 <세로로 그 아래> 둡니다. 세로로 길어지는 건 괜찮습니다.  */
+  var nRo = Math.min(Math.round(pieW * 0.26), 110);   // 좁을 때 고리 반지름
+  /*  ⚠️ 한 줄은 <글자 높이 + 사이 간격> 이라 24px 로 잡으면 모자랍니다.
+      실제로 좁은 화면에서 아래 두어 줄이 상자 밖으로 나갔습니다.
+      재보니 27px 쯤이라 28 로 잡습니다.                              */
+  var pieH = wide
+    ? Math.max(300, Math.min(700, 70 + pieN * 27))
+    : Math.max(320, Math.min(900, nRo * 2 + 46 + pieN * 28));
   if (pieBox && pieBox.style.height !== pieH + 'px'){
     pieBox.style.height = pieH + 'px';
     pieChart.resize();
+    /*  ⚠️ 크기를 다시 잡고 나면 폭이 달라져 <배치가 바뀌어야 할> 수 있습니다.
+        예전에는 wide 만 갱신하고 높이는 그대로 뒀는데, 그러면 세로 목록이
+        넓은 화면용 높이(짧음) 안에 들어가 아래가 잘렸습니다.
+        폭이 바뀌어 배치가 뒤집히면 <한 번만> 다시 잽니다.            */
+    var w2 = pieWidthNow();
+    if ((w2 >= 620) !== wide){
+      pieW = w2; wide = pieW >= 620;
+      nRo = Math.min(Math.round(pieW * 0.26), 110);
+      pieH = wide
+        ? Math.max(300, Math.min(700, 70 + pieN * 27))
+        : Math.max(320, Math.min(900, nRo * 2 + 46 + pieN * 28));
+      pieBox.style.height = pieH + 'px';
+      pieChart.resize();
+    } else pieW = w2;
   }
-  var pieW = pieChart.getWidth() || 700;
-  //  고리는 이름표를 다 넣고 <남는 만큼> 만 씁니다
-  var pieR = Math.max(72, Math.min(168, Math.min(pieW * 0.19, pieH * 0.22)));
-  //  이름 칸: 한쪽에 남는 폭의 절반쯤 (너무 좁으면 죄다 … 가 됩니다)
-  var pieNameW = Math.max(110, Math.min(260, (pieW / 2) - pieR - 44));
+
+  //  고리는 <남는 자리 안에서> 잡습니다. % 로 주면 상자가 길어질 때
+  //  같이 커져서 목록 자리를 도로 뺏습니다.
+  var cx = wide ? Math.round(pieW * 0.26) : Math.round(pieW / 2);
+  var ro = wide ? Math.max(64, Math.min(pieW * 0.21, pieH / 2 - 14)) : nRo;
+  var cy = wide ? Math.round(pieH / 2) : Math.round(ro + 14);
+  var ri = Math.round(ro * 0.68);
+
+  /*  ⚠️ 가운데 숫자가 고리 안쪽보다 넓으면 <잘립니다>. 실제로 «99,878,06…»
+      까지만 보였습니다. 안쪽 지름에 맞춰 글자 크기를 줄입니다.
+      (숫자는 폭이 고른 서체라 글자수 × 0.58 로 거의 맞습니다)        */
+  var cText = num(total);
+  var cFit = Math.max(13, Math.min(30, Math.floor((ri * 2 * 0.86) / (cText.length * 0.58))));
+
+  //  범례에 비중을 같이 적습니다 — 이름만 있으면 결국 고리를 눈대중해야 합니다
+  var pieP = {};
+  data.forEach(function(x){ pieP[x.name] = total > 0 ? (x.value / total * 100) : 0; });
+  //  ⚠️ 이름에 중괄호가 있으면 서식 문자열이 깨집니다. 지웁니다.
+  var pieSafe = function(t){ return String(t == null ? '' : t).replace(/[{}]/g, ''); };
+  var nameW = wide ? Math.max(120, Math.min(260, pieW - cx - ro - 130))
+                   : Math.max(110, pieW - 120);
+  /*  ⚠️ rich 칸에 width·overflow 를 줘도 범례에서는 안 잘립니다. 실제로
+      «State Street Consumer Staples Select Sector SPDR ETF» 가 옆 비중 칸을
+      덮고 지나갔습니다. 글자 수로 <직접> 자릅니다. (한글은 폭이 두 배라
+      영문 기준 글자수로 재면 한글 이름이 일찍 잘립니다 — 폭으로 잽니다) */
+  var pieClip = function(t){
+    t = pieSafe(t);
+    var w = 0, out = '';
+    for (var i = 0; i < t.length; i++){
+      w += (t.charCodeAt(i) > 0x1100) ? 12 : 12 * 0.56;
+      if (w > nameW - 6) return out + '…';
+      out += t.charAt(i);
+    }
+    return out;
+  };
 
   pieChart.setOption({
     backgroundColor:'transparent', animation:true, animationDuration:600,
     animationEasing:'cubicOut',
-    color: theme.palette,
+    /*  ⚠️ 종목이 팔레트보다 많으면 <아홉 번째가 첫 번째와 똑같은 색> 이
+        됩니다. 실제로 파란 조각이 두 개 나와서 어느 게 어느 건지
+        고리만 봐서는 구분이 안 됐습니다. 한 바퀴를 넘어가면 같은 색을
+        <연하게> 씁니다 — 색조는 같아도 밝기로 갈립니다.
+        (이름은 어차피 옆 목록이 맡으니 색은 «옆 조각과 구분» 만 되면 됩니다) */
+    color: (function(){
+      var pal = theme.palette || DEFAULT_THEME.palette, out = [];
+      for (var i = 0; i < Math.max(pal.length, pieN); i++){
+        var c = pal[i % pal.length];
+        var lap = Math.floor(i / pal.length);
+        out.push(lap === 0 ? c : mixWhite(c, lap === 1 ? 0.38 : 0.62));
+      }
+      return out;
+    })(),
+    //  가운데 총자산 — 캔버스 안에 둡니다 (JPG 로 저장해도 남게)
+    title:[{
+      text: cText, subtext: '총 자산 (원)',
+      left: cx, top: cy, textAlign:'center', textVerticalAlign:'middle',
+      itemGap: 4,
+      textStyle:{ fontSize: cFit, fontWeight:700, color:'#2c3e6b',
+                  fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+      subtextStyle:{ fontSize:11, color:'#5a6278' },
+    }],
     tooltip:{ trigger:'item', borderWidth:0,
       backgroundColor:'rgba(26,31,54,.92)', textStyle:{ color:'#fff', fontSize:12.5 },
       formatter:function(p){
-        return '<b>'+p.name+'</b><br/>'+num(p.value)+' 원<br/>비중 '+p.percent+'%'; } },
-    /*  ⚠️ 범례를 뺐습니다. 조각마다 이름을 이미 적고 있어서 <같은 말을
-        두 번> 하는데, 아래에 깔리면서 이름표와 겹치고 저 자신도 잘렸습니다.
-        색을 알아보려고 보는 게 아니라 이름을 보는 화면입니다.           */
+        return '<b>'+esc(p.name)+'</b><br/>'+num(p.value)+' 원<br/>비중 '+p.percent+'%'; } },
+    legend:{
+      type:'scroll',
+      //  ⚠️ 좁아도 <세로> 입니다. 가로로 두면 한 줄에 하나씩만 보입니다.
+      orient:'vertical',
+      right: wide ? Math.round(pieW * 0.04) : undefined,
+      left:  wide ? undefined : 16,
+      top: wide ? 'middle' : Math.round(cy + ro + 20),
+      itemWidth:11, itemHeight:11, itemGap:11,
+      icon:'circle',
+      pageIconSize:9, pageTextStyle:{ fontSize:11, color:'#5a6278' },
+      formatter:function(nm){
+        var v = pieP[nm];
+        return '{a|' + pieClip(nm) + '}{b|' + (v == null ? '' : v.toFixed(1) + '%') + '}';
+      },
+      /*  ⚠️ 글자는 <글자 색> 을 씁니다. 계열 색을 글자에 칠하면 분홍처럼
+          옅은 색이 배경에 묻혀 안 읽힙니다 — 색은 옆의 점이 맡습니다.  */
+      textStyle:{ fontSize:12, color:'#5a6278',
+        rich:{ a:{ width:nameW, overflow:'truncate', ellipsis:'…',
+                   fontSize:12, color:'#5a6278' },
+               b:{ width:52, align:'right', fontSize:12, fontWeight:700, color:'#1a1f36' } } },
+    },
     series:[{
-      /*  ⚠️ 이름표는 <아래로만> 밀립니다(겹치면 내려보냅니다). 고리를
-          한가운데 두면 사다리가 아래로 치우쳐 위가 휑해집니다.
-          고리를 살짝 올려 둡니다.                                      */
-      type:'pie', radius:[Math.round(pieR * 0.66), Math.round(pieR)], center:['50%','45%'],
-      avoidLabelOverlap:true, minAngle:4,
-      padAngle:1.5,
-      itemStyle:{ borderColor:'#fff', borderWidth:3, borderRadius:5 },
-      /*  ⚠️ 이름이 깁니다 — "State Street Consumer Staples Select Sector
-          SPDR ETF" 처럼요. 그대로 두면 이름표가 화면 밖으로 나가고, 옆
-          조각 이름표와 겹칩니다. 폭을 정해 두고 넘치면 … 로 줄입니다.
-          전체 이름은 조각에 마우스를 올리면 나옵니다.                   */
-      label:{ show:true, formatter:'{b}\n{d}%', fontSize:12.5, fontWeight:600,
-        color:'#1a1f36', lineHeight:17,
-        width: pieNameW, overflow:'truncate', ellipsis:'…' },
-      labelLine:{ length:18, length2:20, showAbove:true,
-                  lineStyle:{ color:'#c3cad8' } },
-      /*  ⚠️ 그래도 겹치면 <겹친 채로 두느니> 하나를 감춥니다. 겹쳐서 둘 다
-          못 읽는 것보다 낫고, 감춘 것도 마우스를 올리면 나옵니다.       */
-      labelLayout:{ hideOverlap:true },
-      emphasis:{ scale:true, scaleSize:10,
-        itemStyle:{ shadowBlur:18, shadowColor:'rgba(44,62,107,.28)' },
-        label:{ fontSize:14, fontWeight:700 } },
+      type:'pie', radius:[ri, Math.round(ro)], center:[cx, cy],
+      minAngle:3, padAngle:1.5, avoidLabelOverlap:false,
+      itemStyle:{ borderColor:'#fff', borderWidth:2, borderRadius:4 },
+      //  ⚠️ 조각 바깥 이름표는 아예 끕니다. 이름은 옆 목록이 맡습니다.
+      label:{ show:false },
+      labelLine:{ show:false },
+      emphasis:{ scale:true, scaleSize:8,
+        itemStyle:{ shadowBlur:16, shadowColor:'rgba(44,62,107,.28)' } },
       data:data }]
   }, true);
 }
