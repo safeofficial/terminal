@@ -106,7 +106,7 @@
   .eq-h .grow-chart{flex:1 1 auto}
   .grid-half.smile-oi{grid-template-columns:0.86fr 1.14fr}
   @media(max-width:940px){.grid2,.grid-half,.grid-half.smile-oi{grid-template-columns:1fr}}
-  @media(max-width:760px){#pieBox{height:420px} .trade-foot button{flex:1 1 100%}}
+  @media(max-width:760px){#pieBox{height:calc(420px * var(--chz,1))} .trade-foot button{flex:1 1 100%}}
 
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
   .row > label{font-size:.79rem;font-weight:600;color:var(--text-sub);min-width:52px}
@@ -147,8 +147,8 @@
     border-top:1px solid var(--border);padding-top:8px;margin-top:2px}
   .pal-row{display:flex;align-items:center;gap:7px;margin-bottom:6px}
   .pal-row input[type=text]{flex:1;font-size:11.5px;text-transform:uppercase;padding:5px 8px;border-radius:7px}
-  #coFinBox{width:100%;height:420px} #coPriceBox{width:100%;height:400px}
-  @media(max-width:760px){#coFinBox{height:340px} #coPriceBox{height:300px}}
+  #coFinBox{width:100%;height:calc(420px * var(--chz,1))} #coPriceBox{width:100%;height:calc(400px * var(--chz,1))}
+  @media(max-width:760px){#coFinBox{height:calc(340px * var(--chz,1))} #coPriceBox{height:calc(300px * var(--chz,1))}}
   .co-hits{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .co-hit{display:flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--border);
     border-radius:9px;background:var(--white);cursor:pointer;font-size:.86rem;text-align:left}
@@ -383,7 +383,7 @@
   .alloc-bar{height:7px;border-radius:4px;background:var(--border);overflow:hidden;margin:6px 0 4px}
   .alloc-bar i{display:block;height:100%;background:var(--primary);transition:width .2s}
   .alloc-bar.over i{background:var(--danger)}
-  #stratPrevBox{width:100%;height:260px}
+  #stratPrevBox{width:100%;height:calc(260px * var(--chz,1))}
   .lb-h{cursor:pointer;user-select:none;white-space:nowrap}
   .lb-h:hover{color:var(--primary)}
   .lb-h.on{color:var(--primary);font-weight:700}
@@ -391,7 +391,7 @@
   .q-title{display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:700;
     color:var(--primary);margin-bottom:9px}
   .q-title span{font-weight:400;color:var(--text-sub);font-size:11.5px}
-  #distBox{width:100%;height:230px}
+  #distBox{width:100%;height:calc(230px * var(--chz,1))}
   .auto-uni{background:var(--accent-soft);border:1px solid var(--border);
             border-radius:10px;padding:12px 14px;margin-bottom:14px}
   .f13-quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -451,7 +451,11 @@
   .xbtn:hover{background:var(--danger-soft)}
 
   #chartBox,#pieBox,#pnlBox,#benchBox{width:100%;border-radius:11px;overflow:hidden}
-  #chartBox{height:460px} #pieBox{height:580px} #pnlBox,#benchBox{height:320px}
+  .chz-wrap{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-sub);white-space:nowrap}
+  .chz-wrap select{padding:4px 7px;font-size:11.5px;border-radius:7px;width:auto;min-width:76px}
+  @media(max-width:760px){ .chz-wrap span{display:none} }
+  #chartBox{height:calc(460px * var(--chz,1))} #pieBox{height:calc(620px * var(--chz,1))}
+  #pnlBox,#benchBox{height:calc(320px * var(--chz,1))}
   .trade-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:0 20px}
   .trade-foot{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-top:4px}
   .trade-foot .hint{flex:1 1 320px;margin:0}
@@ -804,7 +808,7 @@
   @media(max-width:640px){
     .top-in,.tabs-in,main{padding-left:15px;padding-right:15px}
     .who-chip .nm{display:none}
-    #chartBox{height:340px}
+    #chartBox{height:calc(340px * var(--chz,1))}
     .card{padding:18px 16px}
   }
   button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -873,6 +877,18 @@
         </div>
       </div>
       <div class="who">
+        <!--  ⚠️ 차트 높이는 <사람마다> 다릅니다. 큰 모니터에서는 시원한
+              크기가 노트북에서는 화면을 다 잡아먹습니다. 설정 탭은
+              임원진만 보이므로, 학회원도 닿는 머리말에 둡니다.        -->
+        <label class="chz-wrap" title="모든 차트의 높이를 한 번에 바꿉니다 (이 기기에만 저장됩니다)">
+          <span>차트 높이</span>
+          <select id="chZoom" onchange="setChartZoom(this.value)">
+            <option value="1">보통</option>
+            <option value="1.5">크게</option>
+            <option value="2">두 배</option>
+            <option value="2.5">아주 크게</option>
+          </select>
+        </label>
         <div class="who-chip"><span class="badge" id="whoBadge">임원진</span><span class="nm" id="whoName">—</span></div>
         <button class="btn-ghost" onclick="doLogout()">로그아웃</button>
       </div>
@@ -924,7 +940,7 @@
             <option value="0">전체</option>
           </select>
         </div>
-        <div id="homeFxBox" style="height:280px"></div>
+        <div id="homeFxBox" style="height:calc(280px * var(--chz,1))"></div>
       </div>
 
       <!-- 팀 성적표 — 모의투자 탭에서 여기로 옮겨왔습니다 -->
@@ -1231,11 +1247,22 @@
               </div>
             </div>
             <div class="row" style="margin-top:6px">
-              <button class="btn-sm btn-solid grow" onclick="saveTheme()">전체에 적용</button>
+              <button class="btn-sm btn-solid grow" id="thSaveBtn" onclick="saveTheme()">전체에 적용</button>
               <button class="btn-sm" onclick="applyThemeInputs()">미리보기</button>
+            </div>
+            <!--  ⚠️ 색을 바꾸면 화면에는 바로 보입니다. 그래서 <저장된 줄 알고>
+                  새로고침했다가 잃어버리기 쉽습니다. 아직 저장 안 됐다고
+                  화면이 먼저 말해야 합니다.                                  -->
+            <div id="thDirty" class="hint hidden"
+                 style="font-size:11.5px;margin-top:8px;padding:7px 10px;border-radius:8px;
+                        background:var(--warn-soft,#fff6e5);color:var(--warn-text,#8a5a00);
+                        border:1px solid var(--warn-line,#f0d9ab);line-height:1.55">
+              아직 <b>저장 안 됐습니다</b>. 지금 새로고침하면 바뀐 색이 사라집니다 —
+              <b>전체에 적용</b>을 누르세요.
             </div>
             <div class="hint" style="font-size:11px;color:var(--text-sub);margin-top:8px">
               저장하면 <b>모든 학회원의 차트</b>에 같은 색이 적용됩니다.
+              색은 <b>학회 공통</b>이라 개인별로 따로 저장되지 않습니다.
             </div>
           </div>
         </div>
@@ -1368,7 +1395,7 @@
                 <button class="btn-sm" onclick="dtJpg('chart')">JPG 저장</button>
                 <span class="st-hint" id="dtStatus"></span>
               </div>
-              <div id="dtChartBox" style="height:360px;margin-top:6px"></div>
+              <div id="dtChartBox" style="height:calc(360px * var(--chz,1));margin-top:6px"></div>
               <div id="dtBarWrap" class="hidden">
                 <div class="dt-sub">
                   <b id="dtBarTitle">전년 대비 변화율</b>
@@ -1822,7 +1849,7 @@
               <button class="btn-sm" onclick="mtCloseSymChart()">닫기</button>
             </span>
           </h2>
-          <div id="mtSymBox" style="height:400px"></div>
+          <div id="mtSymBox" style="height:calc(400px * var(--chz,1))"></div>
           <div class="st-hint" id="mtChartNote" style="margin-top:6px"></div>
         </div>
 
@@ -2136,7 +2163,7 @@
                   발표 자료를 만들 때 "우리는 DCF 와 EV/EBITDA 만 본다" 를
                   그대로 보여줄 수 있어야 합니다.                          -->
             <div class="row" id="valPick" style="flex-wrap:wrap;gap:10px;margin-bottom:8px"></div>
-            <div id="valBox" style="height:300px"></div>
+            <div id="valBox" style="height:calc(300px * var(--chz,1))"></div>
             <p class="st-hint" id="valPickHint" style="margin:6px 0 0"></p>
           </div>
 
@@ -2392,7 +2419,7 @@
                 <option value="250">최근 1년</option>
               </select>
             </div>
-            <div id="dvCandleBox" style="width:100%;height:300px;margin-top:8px"></div>
+            <div id="dvCandleBox" style="width:100%;height:calc(300px * var(--chz,1));margin-top:8px"></div>
             <div id="dvCandleHint" class="st-hint" style="margin-top:6px"></div>
           </div>
         </div>
@@ -2408,7 +2435,7 @@
                 <button class="btn-sm" onclick="dvJpg(dvTermChart,'기간구조')">JPG</button>
               </span>
             </h2>
-            <div id="dvTermBox" class="grow-chart" style="width:100%;min-height:300px"></div>
+            <div id="dvTermBox" class="grow-chart" style="width:100%;min-height:calc(300px * var(--chz,1))"></div>
             <p class="st-hint" id="dvTermHint">만기가 멀수록 변동성이 높은 것이 보통입니다.
               가까운 만기가 더 높으면(<b>역전</b>) 코앞에 무슨 일을 앞두고 있다는 뜻입니다.</p>
           </div>
@@ -2428,7 +2455,7 @@
               <label style="min-width:auto">행사가</label>
               <select id="dvPayK" onchange="dvDrawPayoff()" class="grow"></select>
             </div>
-            <div id="dvPayBox" class="grow-chart" style="width:100%;min-height:250px"></div>
+            <div id="dvPayBox" class="grow-chart" style="width:100%;min-height:calc(250px * var(--chz,1))"></div>
             <p class="st-hint" id="dvPayHint"></p>
           </div>
         </div>
@@ -2440,7 +2467,7 @@
             <h2>변동성 곡선 (스마일)
               <span class="tools"><button class="btn-sm" onclick="dvJpg(dvIvChart,'IV')">JPG</button></span>
             </h2>
-            <div id="dvIvBox" style="width:100%;height:360px"></div>
+            <div id="dvIvBox" style="width:100%;height:calc(360px * var(--chz,1))"></div>
             <p class="st-hint">행사가별 내재변동성. 아래로 처진 U자면 시장이 <b>양쪽 꼬리</b>를,
               왼쪽만 높으면 <b>하락</b>을 더 걱정한다는 뜻입니다.</p>
           </div>
@@ -2448,7 +2475,7 @@
             <h2>미결제약정 분포
               <span class="tools"><button class="btn-sm" onclick="dvJpg(dvOiChart,'OI')">JPG</button></span>
             </h2>
-            <div id="dvOiBox" style="width:100%;height:360px"></div>
+            <div id="dvOiBox" style="width:100%;height:calc(360px * var(--chz,1))"></div>
             <p class="st-hint">행사가별로 살아 있는 계약 수. 많이 몰린 행사가는
               만기 무렵 <b>가격을 끌어당기는 자리</b>로 자주 언급됩니다.</p>
           </div>
@@ -2468,7 +2495,7 @@
             </select>
             <span id="dvGreekHint" class="st-hint"></span>
           </div>
-          <div id="dvGkBox" style="width:100%;height:320px"></div>
+          <div id="dvGkBox" style="width:100%;height:calc(320px * var(--chz,1))"></div>
         </div>
 
         <!-- 쉽게 읽기 — 체인이 길어서 위로 올려둡니다 -->
@@ -2530,7 +2557,7 @@
               <h2 style="margin:0;flex:1">주별 추이</h2>
               <span class="tools"><button class="btn-sm" onclick="chartJpg(dkChart,'다크풀')">JPG</button></span>
             </div>
-            <div id="dkBox" style="width:100%;height:300px"></div>
+            <div id="dkBox" style="width:100%;height:calc(300px * var(--chz,1))"></div>
             <div class="st-hint" id="dkHint"></div>
 
             <h2 style="margin-top:20px">어느 다크풀이 받았나</h2>
@@ -3461,7 +3488,22 @@ async function loadTheme(){
     $('thAxisL').value = theme.axis_left; $('thAxisR').value = theme.axis_right;
     $('thText').value = theme.text_color;
     renderPalette();
+    markThemeDirty(false);
   }
+}
+
+/*  ── 아직 저장 안 된 색이 있는가 ──────────────────────────────
+
+    ⚠️ 색을 바꾸면 차트가 바로 바뀝니다. 그래서 <이미 저장됐다> 고
+       믿게 됩니다. 새로고침하면 서버에 있는 예전 색으로 돌아옵니다 —
+       «분명히 바꿨는데» 가 여기서 나옵니다.
+       바꾼 순간부터 화면이 «아직 저장 안 됨» 이라고 말하게 합니다.    */
+var themeDirty = false;
+function markThemeDirty(on){
+  themeDirty = !!on;
+  var b = $('thDirty'); if (b) b.classList.toggle('hidden', !themeDirty);
+  var k = $('thSaveBtn');
+  if (k) k.textContent = themeDirty ? '전체에 적용 (저장 안 됨)' : '전체에 적용';
 }
 
 /* 팔레트 관리 (임원진 전용 화면) */
@@ -3479,6 +3521,7 @@ function setPaletteColor(i,v){
   v = String(v||'').trim();
   if (!/^#[0-9a-fA-F]{6}$/.test(v)){ renderPalette(); return; }
   theme.palette[i] = v.toLowerCase();
+  markThemeDirty(true);
   renderPalette();
   drawChart();          //  보던 자리는 setOption 감싼 자리에서 지킵니다
 }
@@ -3486,23 +3529,25 @@ function setPaletteColor(i,v){
     (예전 팔레트는 5번·6번 색이 정상시야로도 거의 구분이 안 됐습니다)  */
 function resetPalette(){
   theme.palette = DEFAULT_THEME.palette.slice();
+  markThemeDirty(true);
   renderPalette();
   drawChart();          //  보던 자리는 setOption 감싼 자리에서 지킵니다
-  warn('researchWarn','학회 기본색으로 되돌렸습니다. <b>테마 저장</b>을 눌러야 다른 학회원에게도 적용됩니다.', 'info');
+  warn('researchWarn','학회 기본색으로 되돌렸습니다. <b>전체에 적용</b>을 눌러야 저장됩니다.', 'info');
 }
 
 function addPaletteColor(){
   if ((theme.palette||[]).length >= 16){ warn('researchWarn','팔레트는 최대 16색까지입니다.'); return; }
-  theme.palette.push('#2c3e6b'); renderPalette();
+  theme.palette.push('#2c3e6b'); markThemeDirty(true); renderPalette();
 }
 function delPaletteColor(i){
   if ((theme.palette||[]).length <= 1) return;
-  theme.palette.splice(i,1); renderPalette(); drawChart();
+  theme.palette.splice(i,1); markThemeDirty(true); renderPalette(); drawChart();
 }
 function applyThemeInputs(){
   theme.bg = $('thBg').value; theme.grid = $('thGrid').value;
   theme.axis_left = $('thAxisL').value; theme.axis_right = $('thAxisR').value;
   theme.text_color = $('thText').value;
+  markThemeDirty(true);
   drawChart();
 }
 async function saveTheme(){
@@ -3510,9 +3555,17 @@ async function saveTheme(){
   var patch = { bg:theme.bg, grid:theme.grid, axis_left:theme.axis_left,
                 axis_right:theme.axis_right, text_color:theme.text_color,
                 palette:theme.palette };
+  /*  ⚠️ 처음 저장할 때 <받은 id 를 안 들고 있으면> 두 번째로 누를 때
+      또 새 줄을 만듭니다. 줄이 쌓이면 화면이 어느 걸 읽을지 헷갈립니다
+      (maybeSingle 은 여러 줄이면 아무것도 못 읽습니다).
+      insert 한 줄을 바로 돌려받아 id 를 챙깁니다.                      */
   var r = theme.id
     ? await sb.from('chart_themes').update(patch).eq('id', theme.id)
-    : await sb.from('chart_themes').insert(Object.assign({ name:'SAFE 기본', is_default:true }, patch));
+    : await sb.from('chart_themes')
+        .insert(Object.assign({ name:'SAFE 기본', is_default:true }, patch))
+        .select().maybeSingle();
+  if (!r.error && r.data && r.data.id) theme.id = r.data.id;
+  if (!r.error) markThemeDirty(false);
   warn('researchWarn', r.error ? errMsg(r.error) : '✅ 저장했습니다. 모든 학회원 차트에 적용됩니다.',
        r.error ? 'err' : 'info');
   if (!r.error) setTimeout(function(){ warn('researchWarn',''); }, 4000);
@@ -4181,7 +4234,7 @@ function dtDraw(){
   var dtNames = rows.map(function(r){ return r.name; });
   var dtRows = legendRows(dtNames, boxWidth('dtChartBox') - 20, 11, 14);
   var dtTop = 8 + dtRows * 18 + 22;
-  $('dtChartBox').style.height = (300 + dtRows * 20) + 'px';
+  $('dtChartBox').style.height = Math.round((300 + dtRows * 20) * chz()) + 'px';
   dtChart.resize();
   dtChart.setOption({
     backgroundColor: theme ? theme.bg : '#fff', animation:false,
@@ -4250,7 +4303,7 @@ function dtDraw(){
         줄당 높이도 그만큼 있어야 글자가 겹치지 않습니다.            */
     var longest = Math.max.apply(null, bars.map(function(r){ return String(r.name || '').length; }));
     var perRow = longest > 30 ? 44 : (longest > 18 ? 34 : 28);
-    bb.style.height = Math.max(120, 24 + bars.length * perRow) + 'px';
+    bb.style.height = Math.round(Math.max(120, 24 + bars.length * perRow) * chz()) + 'px';
     dtBar = chartOn(bb, dtBar); if (!dtBar) return;
     dtBar.resize();
     dtBar.setOption({
@@ -8979,11 +9032,62 @@ function fmtDateKo(v){
   return t.getFullYear()+'년 '+(t.getMonth()+1)+'월 '+t.getDate()+'일';
 }
 
+/*  ── 차트 높이 (모든 차트 공통) ────────────────────────────────
+
+    ⚠️ 학회장: «화면이 너무 작아서 잘 안보이고 불편해. 두배는 늘려줘».
+       기본을 두 배로 둡니다.
+
+    ⚠️ 차트가 열아홉 군데입니다. 상자마다 숫자를 손으로 고치면 <새로
+       만드는 차트에서 또> 빠집니다. CSS 손잡이(--chz) 하나에 전부
+       걸어두고 여기서 그 손잡이만 돌립니다.
+
+    ⚠️ <이 기기에만> 저장합니다. 학회 공통이 아닙니다 — 큰 모니터에서
+       시원한 크기가 노트북에서는 화면을 다 잡아먹습니다.
+
+    ⚠️ 파이(비중)도 같이 커집니다. 처음에는 «원만 커진다» 고 보고 1.3배에서
+       멈춰 뒀는데, 종목이 열댓 개면 이름표가 서로 겹쳐서 <높이가 곧
+       읽을 수 있느냐> 가 됩니다. 멈출 이유가 없었습니다.               */
+var CHZ_KEY = 'safe.chz.v1', CHZ_DEF = 2;
+function chz(){
+  var v = Number(document.documentElement.style.getPropertyValue('--chz'));
+  return (isFinite(v) && v > 0) ? v : CHZ_DEF;
+}
+function setChartZoom(v, quiet){
+  v = Number(v); if (!isFinite(v) || v <= 0) v = CHZ_DEF;
+  v = Math.max(0.5, Math.min(3, v));
+  var r = document.documentElement.style;
+  r.setProperty('--chz', String(v));
+  var sel = $('chZoom'); if (sel) sel.value = String(v);
+  if (!quiet){ try { localStorage.setItem(CHZ_KEY, String(v)); } catch(e){} }
+  /*  ⚠️ 상자만 키우면 <그림은 옛 크기 그대로> 남습니다. ECharts 는
+      만들어질 때의 크기를 캔버스에 박아둡니다. 다시 재게 합니다.
+      JS 로 높이를 박아둔 차트(매크로·기업·상세)는 그 숫자도 다시 냅니다. */
+  try { if (typeof resetChartSize === 'function' && $('hSel')) resetChartSize(); } catch(e){}
+  try { if (typeof coView === 'object' && coView) coView.h = Math.round(420 * v); } catch(e){}
+  try { if (typeof dtDraw === 'function' && $('dtChartBox')
+           && $('dtChartBox').offsetHeight > 0) dtDraw(); } catch(e){}
+  try { if (typeof watchChartBoxes === 'function') watchChartBoxes(); } catch(e){}
+  try {
+    if (typeof echarts !== 'undefined')
+      document.querySelectorAll('div').forEach(function(el){
+        var c = echarts.getInstanceByDom(el); if (c) c.resize();
+      });
+  } catch(e){}
+}
+function initChartZoom(){
+  var v = CHZ_DEF;
+  try { var q = Number(localStorage.getItem(CHZ_KEY)); if (isFinite(q) && q > 0) v = q; } catch(e){}
+  setChartZoom(v, true);
+}
+//  ⚠️ 첫 그림이 그려지기 <전에> 걸어야 합니다. 나중에 걸면 캔버스가
+//     옛 크기로 박힌 채 남아 한 박자 늦게 커집니다.
+initChartZoom();
+
 /* 차트 크기 */
 function applyChartSize(){
   var box = $('chartBox'); if (!box) return;
   var w = Number($('wSel') && $('wSel').value);
-  var h = Number($('hSel') && $('hSel').value) || 460;
+  var h = Number($('hSel') && $('hSel').value) || Math.round(460 * chz());
   box.style.height   = Math.max(200, h) + 'px';
   box.style.width    = (w >= 320) ? (w + 'px') : '100%';
   box.style.maxWidth = '100%';
@@ -8991,7 +9095,8 @@ function applyChartSize(){
 }
 function resetChartSize(){
   if ($('wSel')) $('wSel').value = '';
-  if ($('hSel')) $('hSel').value = 460;
+  //  «자동» 은 <지금 고른 차트 높이> 로 돌아가는 것입니다
+  if ($('hSel')) $('hSel').value = Math.round(460 * chz());
   applyChartSize();
 }
 
@@ -13036,7 +13141,9 @@ function aiMoney(v, cur){
 function aiChartBox(spec, h){
   var id = 'aiCh' + (aiChartN++);
   aiChartQ.push({ id: id, spec: spec });
-  return '<div id="' + id + '" style="height:' + (h || 300) + 'px;margin-top:10px"></div>';
+  return '<div id="' + id + '" style="height:'
+       + Math.round((h || 300) * (typeof chz === 'function' ? chz() : 1))
+       + 'px;margin-top:10px"></div>';
 }
 
 /*  모델이 준 차트 — kind/labels/series 만 읽고 나머지는 버립니다  */
@@ -14035,7 +14142,8 @@ function aiRender(rep, boxId){
 var co = null, coHits = [], coFin = null, coFinChart = null, coPriceChart = null;
 var coSeries = [], coPricePts = [];
 //  눈금선은 기본으로 켭니다 — 값을 눈으로 읽으려면 가로줄이 있는 편이 낫습니다
-var coView = { period:'annual', range:8, grid:true, gridColor:'#c8d0e0', gridAlpha:45, h:420, w:null };
+var coView = { period:'annual', range:8, grid:true, gridColor:'#c8d0e0', gridAlpha:45,
+               h: Math.round(420 * (typeof chz === 'function' ? chz() : 1)), w:null };
 
 /* 눈금선 — 기본은 켜져 있습니다 */
 function coSplit(){
@@ -15514,9 +15622,41 @@ function renderPie(){
   }
   if (cash > 0) data.push({ name:'현금 (미투자)', value: cash, itemStyle:{ color:'#c3cad8' } });
   if (!data.length){ pieChart.clear(); return; }
+  /*  ⚠️ 큰 것부터 놓습니다. 뒤죽박죽이면 이름표가 위아래로 튀어서
+      «어느 선이 어느 조각인지» 를 눈으로 따라가야 합니다.
+      현금은 성격이 달라서 맨 끝에 둡니다.                              */
+  data.sort(function(a, b){
+    var ac = a.name === '현금 (미투자)', bc = b.name === '현금 (미투자)';
+    if (ac !== bc) return ac ? 1 : -1;
+    return b.value - a.value;
+  });
   var total = data.reduce(function(a,x){ return a + x.value; }, 0);
   var cen = $('pieCenter');
   if (cen) cen.innerHTML = '<div class="cv">' + num(total) + '</div><div class="ck">총 자산 (원)</div>';
+
+  /*  ── 이름표가 들어갈 자리를 먼저 잡습니다 ────────────────────
+
+      ⚠️ 종목이 열댓 개면 이름표가 한쪽에 층층이 쌓입니다(현금이 왼쪽
+         절반을 통째로 먹으니 나머지가 전부 오른쪽으로 갑니다).
+         그래서 <높이는 종목 수가 정합니다> — 고정값으로 두면 종목이
+         늘어날 때마다 다시 겹칩니다.
+
+      ⚠️ 고리 크기를 % 로 주면 상자가 길어질수록 같이 커져서 이름표
+         자리를 도로 뺏습니다. px 로 못 박습니다.                      */
+  var pieN = data.length;
+  var pieH = Math.min(1000, Math.max(420, 120 + pieN * 42));
+  var pieBox = $('pieBox');
+  /*  ⚠️ offsetHeight 로 견주면 안 됩니다. 다른 소메뉴를 보고 있을 때는
+      상자가 안 보여서 0 으로 나오고, 그러면 <매번> 다시 크기를 잡습니다. */
+  if (pieBox && pieBox.style.height !== pieH + 'px'){
+    pieBox.style.height = pieH + 'px';
+    pieChart.resize();
+  }
+  var pieW = pieChart.getWidth() || 700;
+  //  고리는 이름표를 다 넣고 <남는 만큼> 만 씁니다
+  var pieR = Math.max(72, Math.min(168, Math.min(pieW * 0.19, pieH * 0.22)));
+  //  이름 칸: 한쪽에 남는 폭의 절반쯤 (너무 좁으면 죄다 … 가 됩니다)
+  var pieNameW = Math.max(110, Math.min(260, (pieW / 2) - pieR - 44));
 
   pieChart.setOption({
     backgroundColor:'transparent', animation:true, animationDuration:600,
@@ -15526,17 +15666,29 @@ function renderPie(){
       backgroundColor:'rgba(26,31,54,.92)', textStyle:{ color:'#fff', fontSize:12.5 },
       formatter:function(p){
         return '<b>'+p.name+'</b><br/>'+num(p.value)+' 원<br/>비중 '+p.percent+'%'; } },
-    legend:{ type:'scroll', bottom:6, itemWidth:12, itemHeight:12, itemGap:18,
-      textStyle:{ fontSize:12.5, color:'#5a6278' } },
+    /*  ⚠️ 범례를 뺐습니다. 조각마다 이름을 이미 적고 있어서 <같은 말을
+        두 번> 하는데, 아래에 깔리면서 이름표와 겹치고 저 자신도 잘렸습니다.
+        색을 알아보려고 보는 게 아니라 이름을 보는 화면입니다.           */
     series:[{
-      type:'pie', radius:['45%','64%'], center:['50%','47%'],
-      avoidLabelOverlap:true, minAngle:3,
+      /*  ⚠️ 이름표는 <아래로만> 밀립니다(겹치면 내려보냅니다). 고리를
+          한가운데 두면 사다리가 아래로 치우쳐 위가 휑해집니다.
+          고리를 살짝 올려 둡니다.                                      */
+      type:'pie', radius:[Math.round(pieR * 0.66), Math.round(pieR)], center:['50%','45%'],
+      avoidLabelOverlap:true, minAngle:4,
       padAngle:1.5,
       itemStyle:{ borderColor:'#fff', borderWidth:3, borderRadius:5 },
-      /* 라벨이 위아래로 잘리지 않도록 반지름을 줄이고 여백을 확보했습니다 */
-      label:{ show:true, formatter:'{b}\n{d}%', fontSize:13, fontWeight:600,
-        color:'#1a1f36', lineHeight:17 },
-      labelLine:{ length:20, length2:16, lineStyle:{ color:'#c3cad8' } },
+      /*  ⚠️ 이름이 깁니다 — "State Street Consumer Staples Select Sector
+          SPDR ETF" 처럼요. 그대로 두면 이름표가 화면 밖으로 나가고, 옆
+          조각 이름표와 겹칩니다. 폭을 정해 두고 넘치면 … 로 줄입니다.
+          전체 이름은 조각에 마우스를 올리면 나옵니다.                   */
+      label:{ show:true, formatter:'{b}\n{d}%', fontSize:12.5, fontWeight:600,
+        color:'#1a1f36', lineHeight:17,
+        width: pieNameW, overflow:'truncate', ellipsis:'…' },
+      labelLine:{ length:18, length2:20, showAbove:true,
+                  lineStyle:{ color:'#c3cad8' } },
+      /*  ⚠️ 그래도 겹치면 <겹친 채로 두느니> 하나를 감춥니다. 겹쳐서 둘 다
+          못 읽는 것보다 낫고, 감춘 것도 마우스를 올리면 나옵니다.       */
+      labelLayout:{ hideOverlap:true },
       emphasis:{ scale:true, scaleSize:10,
         itemStyle:{ shadowBlur:18, shadowColor:'rgba(44,62,107,.28)' },
         label:{ fontSize:14, fontWeight:700 } },
@@ -18939,7 +19091,7 @@ function renderPreview(st, snaps, seed, m, trades, backDays, cov, tfKey, manual)
       ? quantHTML(m, '<b>지난 ' + (backDays||90) + '일</b>을 그대로 재생한 결과입니다.')
         + attributionHTML(attribution(trades || [], []))
         + '<div class="q-group" style="margin-bottom:0"><div class="q-title">일간 수익률 분포</div>'
-        + '<div id="prevDistBox" style="width:100%;height:230px"></div></div>'
+        + '<div id="prevDistBox" style="width:100%;height:calc(230px * var(--chz,1))"></div></div>'
       : '';
     if (m) setTimeout(function(){ drawDist('prevDistBox', m.rets); }, 30);
   }
