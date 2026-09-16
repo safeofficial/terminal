@@ -616,6 +616,17 @@
     overflow-y:auto;box-shadow:0 8px 24px -12px rgba(26,32,48,.4)}
   .mt-ac div{padding:9px 13px;cursor:pointer;font-size:13.5px;display:flex;gap:9px;align-items:baseline}
   .mt-ac div:hover,.mt-ac div.on{background:var(--accent-soft)}
+  /*  ⚠️ 위 규칙이 <.mt-ac 안의 모든 div> 를 가로 3칸 행으로 깝니다.
+      고를 수 있는 종목 줄에는 맞지만, 안내 문장까지 flex 가 되면서
+      <b> 하나하나가 칸이 되어 버렸습니다. 그래서 «국내 / 2,871종목 /
+      은 / 받아져 / 있는데» 처럼 글자가 칸칸이 흩어졌습니다. 읽을 수가
+      없습니다. 안내는 <그냥 문단> 이어야 하고, 누를 수도 없으니
+      손가락 커서도 배경 강조도 빼야 합니다.                          */
+  .mt-ac .ac-note{display:block;cursor:default;font-size:12.5px;line-height:1.65;
+    color:var(--text-sub);padding:10px 13px}
+  .mt-ac .ac-note:hover{background:none}
+  .mt-ac .ac-note + .ac-note{padding-top:0}
+  .mt-ac .ac-note b{color:var(--text)}
   .mt-ac .c{font-family:ui-monospace,monospace;font-size:12px;color:var(--text-sub);flex:none}
   .mt-ac .m{font-size:11px;color:var(--text-sub);margin-left:auto;flex:none}
   .mt-picked{display:flex;align-items:center;gap:10px}
@@ -12156,8 +12167,7 @@ function mtHoldList(){
   var box = $('mtSymList'); if (!box) return;
   var pos = (mtAcc && mtAcc.positions) || [];
   if (!pos.length){
-    box.innerHTML = '<div class="st-hint" style="padding:10px 13px">'
-      + '지금 들고 있는 종목이 없습니다.</div>';
+    box.innerHTML = '<div class="ac-note">지금 들고 있는 종목이 없습니다.</div>';
     box.classList.remove('hidden'); return;
   }
   mtSymHit = -1;
@@ -12165,7 +12175,7 @@ function mtHoldList(){
     return { market:p.market, symbol:p.symbol, name:p.name || p.symbol,
              kind:'', leveraged:false, scannable:false, qty:p.qty };
   });
-  box.innerHTML = '<div class="st-hint" style="padding:7px 13px 3px">지금 들고 있는 종목</div>'
+  box.innerHTML = '<div class="ac-note" style="padding-bottom:3px">지금 들고 있는 종목</div>'
     + rows.map(function(x, i){
         return '<div data-i="' + i + '" onclick="mtPickSym(' + i + ')">'
              + '<span class="c">' + esc(x.symbol) + '</span>'
@@ -12213,7 +12223,7 @@ async function mtFindSymGo(){
           또 하라고> 시켰습니다. 못 찾은 이유를 모르면서 아무 지시나 하면
           안 됩니다. 여섯 자리 코드면 <국내 명단이 실제로 어떤 상태인지>
           물어보고, 아는 만큼만 말합니다.                                */
-      box.innerHTML = '<div class="st-hint" style="padding:10px 13px">'
+      box.innerHTML = '<div class="ac-note">'
         + '<b>' + esc(q) + '</b> 로 찾은 종목이 없습니다. '
         + '티커(AAPL·TQQQ)나 종목코드(005930), 회사명으로 찾아보세요.</div>';
       box.classList.remove('hidden');
@@ -12237,7 +12247,7 @@ async function mtFindSymGo(){
     box._rows = rows;
     box.classList.remove('hidden');
   } catch(e){
-    box.innerHTML = '<div class="st-hint" style="padding:10px 13px">' + esc(e.message) + '</div>';
+    box.innerHTML = '<div class="ac-note">' + esc(e.message) + '</div>';
     box.classList.remove('hidden');
   }
 }
@@ -12248,7 +12258,7 @@ async function mtFindSymGo(){
        그 상태에서 «명단을 받으세요» 라고 적는 건 거짓 안내입니다.   */
 async function mtWhyNotFound(q, box){
   var add = function(html){
-    box.innerHTML += '<div class="st-hint" style="padding:0 13px 10px">' + html + '</div>';
+    box.innerHTML += '<div class="ac-note">' + html + '</div>';
   };
   try {
     var r = await sb.rpc('tradable_status');
@@ -12281,7 +12291,14 @@ function mtSymKey(ev){
   if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp'){
     ev.preventDefault();
     mtSymHit = (mtSymHit + (ev.key === 'ArrowDown' ? 1 : -1) + n) % Math.max(1, n);
-    [].forEach.call(box.children, function(c, i){ c.classList.toggle('on', i === mtSymHit); });
+    /*  ⚠️ 예전에는 box.children 을 셌습니다. 그런데 상자 안에는 고를 수
+        없는 줄도 섞여 있습니다 — 매도할 때 맨 위의 «지금 들고 있는 종목»
+        머리줄, 못 찾았을 때의 안내 문장. 그래서 아래 화살표를 한 번
+        누르면 <머리줄> 이 파랗게 칠해지고, 실제로 골라지는 건 그 아래
+        종목이었습니다. 한 칸씩 어긋난 채로요.
+        고를 수 있는 줄만 셉니다 — data-i 가 붙은 것들입니다.          */
+    var items = box.querySelectorAll('[data-i]');
+    [].forEach.call(items, function(c, i){ c.classList.toggle('on', i === mtSymHit); });
   } else if (ev.key === 'Enter'){
     ev.preventDefault();
     mtPickSym(mtSymHit >= 0 ? mtSymHit : 0);
@@ -17607,6 +17624,22 @@ async function krEtfProbe(){
     };
     var msg = '<b>' + esc(d.symbol) + '</b> 확인 결과 (함수 ' + esc(d.build) + ')<br>'
             + line('주식 창구', st) + '<br>' + line('ETF 창구', et);
+    /*  ⚠️ «코드가 없습니다» 만으로는 <창구가 빈 것> 과 <걸러진 것> 을
+        못 가립니다. 아무 조건 없이 물어본 결과를 같이 보여줍니다 —
+        몇 건이 오는지, 어떤 종목이 오는지 보면 바로 갈립니다.       */
+    var pk = d['ETF창구 맛보기'] || [];
+    if (pk.length){
+      msg += '<br><b>ETF 창구를 그냥 불러보면</b>';
+      pk.forEach(function(p){
+        msg += '<br>· ' + esc(String(p['부른주소'] || '').split('/')[1] || '')
+             + ' · ' + esc(p['날짜'] || '') + ' — '
+             + (p['답'] ? esc(p['답'])
+                        : '전체 ' + num(p['건수'], 0) + '건, 받은 줄 '
+                          + num(p['받은줄'], 0)
+                          + (p['종목'] && p['종목'].length
+                              ? '<br>&nbsp;&nbsp;' + esc(p['종목'].join(' · ')) : ''));
+      });
+    }
     /*  ⚠️ 결과만 늘어놓으면 «그래서 뭘 하라고» 가 남습니다. 무엇을
         해야 하는지 한 줄로 붙입니다.                                */
     if (et['찾음'])
