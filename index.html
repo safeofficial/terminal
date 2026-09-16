@@ -3092,6 +3092,7 @@
                     title="학회가 정해둔 코인 후보 중 Alpaca 로 실제 주문이 되는 것만 검색에 올립니다">코인 명단 맞추기</button>
           </div>
           <div class="msg" id="trMsg"></div>
+          <div class="st-hint" id="trEtfWhy" style="margin-top:6px"></div>
           <!--  ⚠️ 국내 ETF 는 <다른 창구> 에서 옵니다.
 
                 공공데이터포털에서 우리가 쓰던 「금융위원회_주식시세정보」는
@@ -17505,7 +17506,18 @@ async function syncTradable(mk){
     var msg = marketLabel(mk) + ' <b>' + num(d.total, 0) + '종목</b>을 받았습니다.';
     if (d.etf != null) msg += ' (ETF ' + num(d.etf,0) + ' · 레버리지 ' + num(d.leveraged||0,0) + ')';
     if (d.priced)      msg += '<br>같은 날 종가 ' + num(d.priced,0) + '건도 함께 저장했습니다.';
+    /*  ⚠️ 주식과 ETF 는 <다른 창구> 라 날짜가 어긋날 수 있습니다.
+        어긋났으면 숨기지 말고 그대로 적습니다.                       */
+    if (d.etf_as_of && d.as_of && d.etf_as_of !== d.as_of)
+      msg += '<br>ETF 는 ' + esc(d.etf_as_of) + ' 종가입니다 (주식은 ' + esc(d.as_of) + ').';
     if (d.note)        msg += '<br>' + esc(d.note);
+    /*  ⚠️ «국내 ETF 0개» 의 원인이 네 갈래라 구분이 안 됐습니다.
+        ① 함수를 안 올림 ② 활용신청 안 함 ③ 창구가 그날 쉼 ④ 진짜 없음.
+        ①은 답에 build 가 아예 없는 것으로 압니다 — 옛 함수는 이 값을
+        모르니까요. 이걸 안 짚으면 ②를 아무리 확인해도 안 고쳐집니다. */
+    if (mk === 'KR' && !d.build)
+      msg += '<br><b>Supabase 에 옛 market-data 함수가 아직 떠 있습니다.</b> '
+           + '새 <code>market-data</code> 를 올리기 전에는 국내 ETF 가 들어오지 않습니다.';
     //  이름까지 보여줘야 딱지가 맞는지 눈으로 판단할 수 있습니다
     if (d.sample && d.sample.length)
       msg += '<br><span class="st-hint">레버리지로 잡힌 것: '
@@ -17528,14 +17540,43 @@ async function loadTradableStat(){
     if (r.error) throw new Error(errMsg(r.error));
     var d = r.data || {};
     var tot = Number(d.us||0) + Number(d.kr||0) + Number(d.crypto||0);
+    /*  ⚠️ 예전에는 미국 ETF 와 국내 ETF 를 <더해서> 한 숫자로 보여줬습니다.
+        미국이 4,000개쯤 되니까 «ETF 4,013» 처럼 넉넉해 보였고, 그 안에서
+        국내가 0개인 것은 아무 데도 안 드러났습니다. 학회장이 494670
+        (TIGER 조선TOP10) 을 못 찾고 나서야 알았습니다. 따로 적습니다.  */
     el.innerHTML = tot
-      ? '— 미국 ' + num(d.us,0) + ' · 국내 ' + num(d.kr,0) + ' · 코인 ' + num(d.crypto,0)
-        + ' (ETF ' + num(Number(d.us_etf||0)+Number(d.kr_etf||0), 0)
-        + ' · 레버리지 ' + num(d.us_lev,0) + ')'
+      ? '— 미국 ' + num(d.us,0) + '(ETF ' + num(d.us_etf,0) + ')'
+        + ' · 국내 ' + num(d.kr,0) + '(ETF ' + num(d.kr_etf,0) + ')'
+        + ' · 코인 ' + num(d.crypto,0)
       : '— 아직 안 받았습니다';
+    trEtfWhy(Number(d.kr||0), Number(d.kr_etf||0));
   } catch(e){
     el.textContent = '— terminal-전종목.sql 을 아직 실행하지 않았습니다';
   }
+}
+
+/*  ── 국내 ETF 가 0개일 때, 어디를 봐야 하는지 짚어줍니다 ──────────
+
+    ⚠️ 원인이 네 갈래라 «0개» 만 보고는 못 고칩니다.
+         ① Supabase 에 옛 market-data 가 떠 있음  ← 제일 흔했습니다
+         ② data.go.kr 에서 증권상품시세정보를 활용신청 안 함
+         ③ 명단 받기를 아직 한 번도 안 누름
+       ①은 함수에 판 번호(build)를 물어보면 바로 압니다 — 옛 함수는
+       그 말을 못 알아듣습니다.                                        */
+async function trEtfWhy(krTotal, krEtf){
+  var el = $('trEtfWhy'); if (!el) return;
+  if (!krTotal || krEtf > 0){ el.innerHTML = ''; return; }
+  el.innerHTML = '국내 ETF 가 <b>0개</b>입니다 — 확인하는 중…';
+  var build = null, reached = false;
+  try { var d = await edge({ source: 'build' }); reached = true; build = d && d.build; }
+  catch(e){ /* 옛 함수는 build 를 모릅니다 */ reached = true; }
+  el.innerHTML = '국내 ETF 가 <b>0개</b>입니다. '
+    + (!build
+        ? '<b>Supabase 에 옛 <code>market-data</code> 함수가 떠 있습니다.</b> '
+          + '새 함수를 올리면 국내 ETF 창구가 열립니다.'
+        : '함수는 최신입니다(' + esc(build) + '). '
+          + 'data.go.kr 에서 <b>금융위원회_증권상품시세정보</b>를 활용신청했는지 확인하고, '
+          + '위 <b>「국내 전 종목·ETF 받기」</b>를 한 번 눌러보세요 — 눌러보면 이유를 적어줍니다.');
 }
 
 async function autoUniverse(mk){
