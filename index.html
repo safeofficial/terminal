@@ -12270,13 +12270,17 @@ async function mtWhyNotFound(q, box){
       return;
     }
     if (!krEtf){
-      add('국내 주식 <b>' + num(kr,0) + '종목</b>은 받아져 있는데 '
-        + '<b>국내 ETF 는 0개</b>입니다. ' + esc(q) + ' 가 ETF 라면 이것 때문입니다 — '
-        + '국내 ETF 는 주식과 <b>다른 창구</b>(금융위원회_증권상품시세정보)에서 옵니다.'
+      /*  ⚠️ 학회장: «모의투자에는 국내 ETF 검색하면 일단 확인 중이라고만
+          표기해놔». 맞는 판단입니다. 학회원 13명에게 창구 이름이며
+          활용신청이며 늘어놓을 이유가 없습니다 — 그건 임원진이 고칠
+          일이고, 학회원은 <지금 되는지 안 되는지> 만 알면 됩니다.
+          임원진에게만 어디를 봐야 하는지 한 줄 더 붙입니다.          */
+      add('국내 ETF 는 <b>확인 중</b>입니다. 지금은 검색에 안 나옵니다 — '
+        + '국내 <b>주식</b>과 미국·코인은 그대로 됩니다.'
         + (isOfficer()
-            ? ' 설정 → <b>「살 수 있는 종목」</b>에서 <b>「ETF 창구 확인」</b>을 눌러 '
-              + '창구가 뭐라고 답하는지 보세요.'
-            : ' 임원진에게 알려주세요.'));
+            ? '<br><span style="opacity:.75">(임원진) 국내 ETF 시세 창구를 아직 못 열었습니다. '
+              + '설정 → 「살 수 있는 종목」 → <b>「ETF 창구 확인」</b>.</span>'
+            : ''));
       return;
     }
     add('국내 명단은 <b>' + num(kr,0) + '종목(ETF ' + num(krEtf,0) + ')</b>이 들어와 있습니다. '
@@ -12284,6 +12288,7 @@ async function mtWhyNotFound(q, box){
       + '(ETN·ELW 는 아직 안 받습니다).');
   } catch(e){ /* 진단은 곁가지입니다 — 검색을 막지 않습니다 */ }
 }
+
 
 function mtSymKey(ev){
   var box = $('mtSymList'); if (box.classList.contains('hidden')) return;
@@ -17627,22 +17632,31 @@ async function krEtfProbe(){
     /*  ⚠️ «코드가 없습니다» 만으로는 <창구가 빈 것> 과 <걸러진 것> 을
         못 가립니다. 아무 조건 없이 물어본 결과를 같이 보여줍니다 —
         몇 건이 오는지, 어떤 종목이 오는지 보면 바로 갈립니다.       */
+    /*  ⚠️ 포털은 두 가지를 <다른 코드> 로 구분해서 말해줍니다.
+          12 = 그 주소가 없다 · 30 = 주소는 있는데 열쇠가 등록 안 됐다.
+        이 둘을 «안 됩니다» 로 뭉치면 또 엉뚱한 데를 고치게 됩니다.   */
     var pk = d['ETF창구 맛보기'] || [];
     if (pk.length){
-      msg += '<br><b>ETF 창구를 이것저것 불러보면</b>';
+      msg += '<br><b>어느 주소가 맞는지 쓸어본 결과</b>';
       pk.forEach(function(p){
-        msg += '<br>· <b>' + esc(p['부른주소'] || '') + '</b> · ' + esc(p['방식'] || '')
-             + ' — ' + (p['답'] ? esc(p['답'])
-                : 'HTTP ' + esc(String(p['HTTP'] || '?'))
-                  + ' · 전체 ' + num(p['건수'], 0) + '건 · 받은 줄 ' + num(p['받은줄'], 0)
-                  + (p['종목'] && p['종목'].length
-                      ? '<br>&nbsp;&nbsp;' + esc(p['종목'].join(' · ')) : '')
-                  /*  ⚠️ 0건일 때 원문을 안 보여주면 <창구가 빈 것> 과
-                      <내가 못 읽는 것> 을 끝내 못 가립니다.          */
-                  + (p['원문']
-                      ? '<br>&nbsp;&nbsp;<code style="font-size:11px;word-break:break-all">'
-                        + esc(p['원문']) + '</code>' : ''));
+        msg += '<br>· <code style="font-size:11px">' + esc(p['주소'] || '') + '</code> — '
+             + '<b>' + esc(p['판정'] || '') + '</b>'
+             + (p['포털코드'] ? ' [' + esc(p['포털코드']) + ' ' + esc(p['포털문장'] || '') + ']' : '')
+             + (p['종목'] && p['종목'].length
+                 ? '<br>&nbsp;&nbsp;' + esc(p['종목'].join(' · ')) : '')
+             + (p['원문']
+                 ? '<br>&nbsp;&nbsp;<code style="font-size:11px;word-break:break-all">'
+                   + esc(p['원문']) + '</code>' : '');
       });
+      var win = pk.filter(function(p){ return /됩니다/.test(String(p['판정'] || '')); });
+      var keyGap = pk.filter(function(p){ return p['포털코드'] === '30'; });
+      msg += win.length
+        ? '<br>→ <b>' + esc(win[0]['주소']) + '</b> 가 맞습니다. 알려주시면 코드에 박겠습니다.'
+        : (keyGap.length
+            ? '<br>→ 주소는 <b>' + esc(keyGap[0]['주소']) + '</b> 가 맞는데 <b>열쇠가 그 창구에 등록이 안 됐습니다</b>. '
+              + 'data.go.kr 마이페이지 → 활용신청 상세에서 <b>「미리보기 열기」</b>로 실제 주소를 확인해 주세요.'
+            : '<br>→ 맞는 주소가 없습니다. data.go.kr 활용신청 상세의 <b>「미리보기 열기」</b>에 '
+              + '나오는 주소를 알려주세요.');
     }
     /*  ⚠️ 결과만 늘어놓으면 «그래서 뭘 하라고» 가 남습니다. 무엇을
         해야 하는지 한 줄로 붙입니다.                                */
@@ -17699,13 +17713,12 @@ async function trEtfWhy(krTotal, krEtf){
   var build = null, reached = false;
   try { var d = await edge({ source: 'build' }); reached = true; build = d && d.build; }
   catch(e){ /* 옛 함수는 build 를 모릅니다 */ reached = true; }
-  el.innerHTML = '국내 ETF 가 <b>0개</b>입니다. '
+  el.innerHTML = '국내 ETF 가 <b>0개</b>입니다 — 학회원 화면에는 «확인 중» 으로 보입니다. '
     + (!build
         ? '<b>Supabase 에 옛 <code>market-data</code> 함수가 떠 있습니다.</b> '
           + '새 함수를 올리면 국내 ETF 창구가 열립니다.'
         : '함수는 최신입니다(' + esc(build) + '). '
-          + 'data.go.kr 에서 <b>금융위원회_증권상품시세정보</b>를 활용신청했는지 확인하고, '
-          + '위 <b>「국내 전 종목·ETF 받기」</b>를 한 번 눌러보세요 — 눌러보면 이유를 적어줍니다.');
+          + '위 <b>「ETF 창구 확인」</b>을 눌러 창구가 뭐라고 답하는지 보세요.');
 }
 
 async function autoUniverse(mk){
