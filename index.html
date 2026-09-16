@@ -12270,17 +12270,18 @@ async function mtWhyNotFound(q, box){
       return;
     }
     if (!krEtf){
-      /*  ⚠️ 학회장: «모의투자에는 국내 ETF 검색하면 일단 확인 중이라고만
-          표기해놔». 맞는 판단입니다. 학회원 13명에게 창구 이름이며
-          활용신청이며 늘어놓을 이유가 없습니다 — 그건 임원진이 고칠
-          일이고, 학회원은 <지금 되는지 안 되는지> 만 알면 됩니다.
-          임원진에게만 어디를 봐야 하는지 한 줄 더 붙입니다.          */
-      add('국내 ETF 는 <b>확인 중</b>입니다. 지금은 검색에 안 나옵니다 — '
-        + '국내 <b>주식</b>과 미국·코인은 그대로 됩니다.'
-        + (isOfficer()
-            ? '<br><span style="opacity:.75">(임원진) 국내 ETF 시세 창구를 아직 못 열었습니다. '
-              + '설정 → 「살 수 있는 종목」 → <b>「ETF 창구 확인」</b>.</span>'
-            : ''));
+      /*  ⚠️ 학회장: «직접매매를 실제로 진행할 때만, 그때 검색했을 때만
+          가져오는 거야. 미리 1000개를 가져오는 게 아니라»
+
+          국내 ETF 전 종목 명단을 주던 창구를 아직 못 열었습니다.
+          그래서 <이 사람이 방금 친 코드 하나만> 확인해서 넣습니다.
+          누르기 전에는 아무것도 안 부릅니다 — 검색 비용이 들어서
+          화면 열 때마다 부를 일이 아닙니다.                          */
+      add('국내 ETF 는 <b>확인 중</b>입니다 — 전 종목 명단을 아직 못 받았습니다.'
+        + '<br><button class="btn-sm" onclick="krFindOne(\'' + esc(q) + '\')" '
+        + 'id="krFindBtn">' + esc(q) + ' 찾아보기</button>'
+        + ' <span style="opacity:.75">상장 종목이면 그 자리에서 넣어드립니다.</span>'
+        + '<div id="krFindMsg" style="margin-top:6px"></div>');
       return;
     }
     add('국내 명단은 <b>' + num(kr,0) + '종목(ETF ' + num(krEtf,0) + ')</b>이 들어와 있습니다. '
@@ -12289,6 +12290,39 @@ async function mtWhyNotFound(q, box){
   } catch(e){ /* 진단은 곁가지입니다 — 검색을 막지 않습니다 */ }
 }
 
+
+/*  ── 검색한 그 종목만, 그때 명단에 넣기 ──────────────────────
+
+    ⚠️ 값을 대는 곳도 AI 검색이고 그걸 검사할 기준선(전일 종가)도 AI
+       검색입니다. 서버가 <두 번 따로 물어보고> 두 답이 3% 넘게 어긋나면
+       버립니다. 그래도 거래소 시세는 아니라서, 넣은 뒤에도 화면과 체결
+       기록에 «AI 검색» 이라고 그대로 남깁니다. 숨기면 안 됩니다.     */
+async function krFindOne(q){
+  var b = $('krFindBtn'), m = $('krFindMsg');
+  if (b){ b.disabled = true; b.textContent = '찾는 중…'; }
+  try {
+    var d = await edge({ source: 'kr_symbol_add', symbol: q });
+    if (!d || !d.ok){
+      if (m) m.innerHTML = '<span style="color:var(--dn,#c0392b)">'
+        + esc((d && d.why) || '찾지 못했습니다.') + '</span>';
+      if (b){ b.disabled = false; b.textContent = q + ' 다시 찾아보기'; }
+      return;
+    }
+    if (m) m.innerHTML = '<b>' + esc(d.name) + '</b> 을(를) 넣었습니다'
+      + (d.kind === 'etf' ? ' (ETF)' : '')
+      + (d.via === 'AI 검색'
+          ? ' — <b>AI 검색으로 확인한 종목</b>입니다. 거래소 시세가 아니라 '
+            + '체결가가 실제와 다를 수 있습니다.'
+          : ' (공공데이터포털).')
+      + '<br>이제 위 칸에 다시 쳐보세요.';
+    if (b) b.remove();
+    //  넣었으니 검색을 다시 돌려서 바로 고를 수 있게
+    if ($('tSymbol') && $('tSymbol').value.trim() === String(q)) mtFindSymGo();
+  } catch(e){
+    if (m) m.innerHTML = esc(e.message);
+    if (b){ b.disabled = false; b.textContent = q + ' 다시 찾아보기'; }
+  }
+}
 
 function mtSymKey(ev){
   var box = $('mtSymList'); if (box.classList.contains('hidden')) return;
