@@ -17629,15 +17629,19 @@ async function krEtfProbe(){
         몇 건이 오는지, 어떤 종목이 오는지 보면 바로 갈립니다.       */
     var pk = d['ETF창구 맛보기'] || [];
     if (pk.length){
-      msg += '<br><b>ETF 창구를 그냥 불러보면</b>';
+      msg += '<br><b>ETF 창구를 이것저것 불러보면</b>';
       pk.forEach(function(p){
-        msg += '<br>· ' + esc(String(p['부른주소'] || '').split('/')[1] || '')
-             + ' · ' + esc(p['날짜'] || '') + ' — '
-             + (p['답'] ? esc(p['답'])
-                        : '전체 ' + num(p['건수'], 0) + '건, 받은 줄 '
-                          + num(p['받은줄'], 0)
-                          + (p['종목'] && p['종목'].length
-                              ? '<br>&nbsp;&nbsp;' + esc(p['종목'].join(' · ')) : ''));
+        msg += '<br>· <b>' + esc(p['부른주소'] || '') + '</b> · ' + esc(p['방식'] || '')
+             + ' — ' + (p['답'] ? esc(p['답'])
+                : 'HTTP ' + esc(String(p['HTTP'] || '?'))
+                  + ' · 전체 ' + num(p['건수'], 0) + '건 · 받은 줄 ' + num(p['받은줄'], 0)
+                  + (p['종목'] && p['종목'].length
+                      ? '<br>&nbsp;&nbsp;' + esc(p['종목'].join(' · ')) : '')
+                  /*  ⚠️ 0건일 때 원문을 안 보여주면 <창구가 빈 것> 과
+                      <내가 못 읽는 것> 을 끝내 못 가립니다.          */
+                  + (p['원문']
+                      ? '<br>&nbsp;&nbsp;<code style="font-size:11px;word-break:break-all">'
+                        + esc(p['원문']) + '</code>' : ''));
       });
     }
     /*  ⚠️ 결과만 늘어놓으면 «그래서 뭘 하라고» 가 남습니다. 무엇을
