@@ -3090,6 +3090,13 @@
             <button class="btn-sm btn-solid" id="trKrBtn" onclick="syncTradable('KR')">국내 전 종목·ETF 받기</button>
             <button class="btn-sm" id="trCcBtn" onclick="syncTradable('CRYPTO')"
                     title="학회가 정해둔 코인 후보 중 Alpaca 로 실제 주문이 되는 것만 검색에 올립니다">코인 명단 맞추기</button>
+            <!--  ⚠️ 「명단 받기」 는 2,800종목을 훑느라 오래 걸리고, 실패해도
+                  «ETF 0개» 라는 결과만 남습니다. 그래서 «신청을 안 한 건지,
+                  그날 값이 없는 건지, 코드가 틀린 건지» 를 가릴 수가 없습니다.
+                  이 단추는 <한 종목만> 물어보고 창구가 뭐라 답했는지 그대로
+                  보여줍니다.                                              -->
+            <button class="btn-sm" id="trProbeBtn" onclick="krEtfProbe()"
+                    title="국내 ETF 창구에 한 종목만 물어보고 답을 그대로 보여줍니다">ETF 창구 확인</button>
           </div>
           <div class="msg" id="trMsg"></div>
           <div class="st-hint" id="trEtfWhy" style="margin-top:6px"></div>
@@ -12201,12 +12208,17 @@ async function mtFindSymGo(){
       } catch(e2){ /* 예전 SQL 이면 이 함수가 없습니다 */ }
     }
     if (!rows.length){
+      /*  ⚠️ 예전에는 무조건 «설정에서 전 종목 명단 받기를 누르세요» 였습니다.
+          학회장은 이미 눌렀는데 139270 이 안 나왔고, 화면은 <이미 한 일을
+          또 하라고> 시켰습니다. 못 찾은 이유를 모르면서 아무 지시나 하면
+          안 됩니다. 여섯 자리 코드면 <국내 명단이 실제로 어떤 상태인지>
+          물어보고, 아는 만큼만 말합니다.                                */
       box.innerHTML = '<div class="st-hint" style="padding:10px 13px">'
         + '<b>' + esc(q) + '</b> 로 찾은 종목이 없습니다. '
-        + '티커(AAPL·TQQQ)나 종목코드(005930), 회사명으로 찾아보세요.'
-        + '<br>상장 종목인데 안 나오면 임원진이 설정에서 '
-        + '<b>전 종목 명단 받기</b>를 한 번 눌러야 합니다.</div>';
-      box.classList.remove('hidden'); return;
+        + '티커(AAPL·TQQQ)나 종목코드(005930), 회사명으로 찾아보세요.</div>';
+      box.classList.remove('hidden');
+      if (/^[0-9]{6}$/.test(q)) mtWhyNotFound(q, box);
+      return;
     }
     mtSymHit = -1;
     box.innerHTML = rows.map(function(x, i){
@@ -12229,6 +12241,40 @@ async function mtFindSymGo(){
     box.classList.remove('hidden');
   }
 }
+/*  ── 여섯 자리 코드인데 왜 안 나오나 ──────────────────────────
+
+    ⚠️ 국내 ETF 는 주식과 <다른 창구> 에서 옵니다. 그 창구가 아직
+       안 열렸으면 «명단 받기» 를 백 번 눌러도 ETF 는 0개입니다.
+       그 상태에서 «명단을 받으세요» 라고 적는 건 거짓 안내입니다.   */
+async function mtWhyNotFound(q, box){
+  var add = function(html){
+    box.innerHTML += '<div class="st-hint" style="padding:0 13px 10px">' + html + '</div>';
+  };
+  try {
+    var r = await sb.rpc('tradable_status');
+    var d = (r && r.data) || {};
+    var kr = Number(d.kr || 0), krEtf = Number(d.kr_etf || 0);
+    if (!kr){
+      add('국내 명단이 <b>비어 있습니다</b>. 임원진이 설정에서 '
+        + '<b>「국내 전 종목·ETF 받기」</b>를 한 번 눌러야 합니다.');
+      return;
+    }
+    if (!krEtf){
+      add('국내 주식 <b>' + num(kr,0) + '종목</b>은 받아져 있는데 '
+        + '<b>국내 ETF 는 0개</b>입니다. ' + esc(q) + ' 가 ETF 라면 이것 때문입니다 — '
+        + '국내 ETF 는 주식과 <b>다른 창구</b>(금융위원회_증권상품시세정보)에서 옵니다.'
+        + (isOfficer()
+            ? ' 설정 → <b>「살 수 있는 종목」</b>에서 <b>「ETF 창구 확인」</b>을 눌러 '
+              + '창구가 뭐라고 답하는지 보세요.'
+            : ' 임원진에게 알려주세요.'));
+      return;
+    }
+    add('국내 명단은 <b>' + num(kr,0) + '종목(ETF ' + num(krEtf,0) + ')</b>이 들어와 있습니다. '
+      + esc(q) + ' 는 그 안에 없습니다 — 상장폐지·거래정지이거나 ETN·ELW 일 수 있습니다 '
+      + '(ETN·ELW 는 아직 안 받습니다).');
+  } catch(e){ /* 진단은 곁가지입니다 — 검색을 막지 않습니다 */ }
+}
+
 function mtSymKey(ev){
   var box = $('mtSymList'); if (box.classList.contains('hidden')) return;
   var n = (box._rows || []).length;
@@ -17527,6 +17573,52 @@ async function syncTradable(mk){
            + esc(d.etf_sample.join(' · ')) + '</span>';
     warn('trMsg', msg, 'info');
     await loadTradableStat();
+  } catch(e){
+    warn('trMsg', esc(e.message));
+  }
+  b.disabled = false; b.textContent = label;
+}
+
+/*  ── 국내 ETF 창구에 한 종목만 물어봅니다 ──────────────────────
+
+    ⚠️ «설정에서 받아왔는데 저러네» 를 끝내려는 단추입니다. 명단 받기가
+       실패하면 «ETF 0개» 만 남아서, 활용신청 문제인지 그날 값이 없는
+       건지 코드가 틀린 건지 가릴 수가 없었습니다. 창구가 실제로 뭐라고
+       답하는지 그대로 보여줍니다.                                     */
+async function krEtfProbe(){
+  var b = $('trProbeBtn'), label = b.textContent;
+  var sym = (prompt('어느 종목으로 확인할까요? (6자리 코드)', '139270') || '').trim();
+  if (!sym) return;
+  b.disabled = true; b.textContent = '물어보는 중…';
+  warn('trMsg','');
+  try {
+    var d = await edge({ source: 'kr_etf_probe', symbol: sym });
+    if (!d || !d.build){
+      warn('trMsg', 'Supabase 에 <b>옛 market-data 함수</b>가 떠 있습니다. '
+        + '새 함수를 올려야 이 확인이 됩니다.');
+      b.disabled = false; b.textContent = label; return;
+    }
+    var st = d['주식창구'] || {}, et = d['ETF창구'] || {};
+    var line = function(nm, x){
+      return '<b>' + nm + '</b> — ' + (x['찾음']
+        ? '찾았습니다: ' + esc(x['이름'] || '') + ' · ' + esc(x['날짜'] || '')
+          + ' 종가 ' + num(x['종가'], 0)
+        : esc(x['왜'] || '못 찾았습니다.'));
+    };
+    var msg = '<b>' + esc(d.symbol) + '</b> 확인 결과 (함수 ' + esc(d.build) + ')<br>'
+            + line('주식 창구', st) + '<br>' + line('ETF 창구', et);
+    /*  ⚠️ 결과만 늘어놓으면 «그래서 뭘 하라고» 가 남습니다. 무엇을
+        해야 하는지 한 줄로 붙입니다.                                */
+    if (et['찾음'])
+      msg += '<br>→ 창구는 열려 있습니다. 위 <b>「국내 전 종목·ETF 받기」</b>를 '
+           + '한 번 누르면 검색에 나옵니다.';
+    else if (/활용신청|NOT_REGISTERED/i.test(String(et['왜'] || '')))
+      msg += '<br>→ data.go.kr 에서 <b>금융위원회_증권상품시세정보</b>(15094806) 를 '
+           + '<b>활용신청</b>하세요. 자동승인이고 서비스키는 쓰던 것 그대로입니다.';
+    else if (!st['찾음'] && !et['찾음'])
+      msg += '<br>→ 두 창구 모두 이 코드를 모릅니다. 상장폐지·거래정지이거나 '
+           + 'ETN·ELW 일 수 있습니다 (ETN·ELW 는 아직 안 받습니다).';
+    warn('trMsg', msg, et['찾음'] ? 'info' : '');
   } catch(e){
     warn('trMsg', esc(e.message));
   }
