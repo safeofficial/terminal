@@ -469,6 +469,35 @@
   .trade-foot{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-top:4px}
   .trade-foot .hint{flex:1 1 320px;margin:0}
   .trade-foot button{flex:0 0 210px}
+  /*  ── 학회 일정 (홈 타임라인) ──────────────────────────
+      ⚠️ D-day 는 <제일 먼저 눈에 들어와야> 합니다. 나머지 줄보다
+         확실히 크게 두고, 색은 일정 구분을 따라갑니다.            */
+  .ev-dday{display:flex;align-items:center;gap:16px;padding:12px 14px;margin-bottom:12px;
+    background:linear-gradient(180deg,#fbfcfe 0%,#f4f6fb 100%);border-radius:12px}
+  .ev-dday .n{font-size:1.75rem;font-weight:800;line-height:1;min-width:92px;
+    text-align:center;font-variant-numeric:tabular-nums}
+  .ev-dday .t{font-size:.95rem;line-height:1.4;min-width:0}
+  .ev-dday .t .s{font-size:11.5px;color:var(--text-sub);font-weight:400;margin-top:3px}
+  .ev-row{display:flex;align-items:flex-start;gap:10px;padding:9px 4px;
+    border-bottom:1px solid var(--border)}
+  .ev-row:last-child{border-bottom:none}
+  .ev-row.dim{opacity:.5}
+  .ev-dot{width:9px;height:9px;border-radius:50%;flex:none;margin-top:6px}
+  .ev-when{font-size:12px;color:var(--text-sub);min-width:92px;flex:none;
+    font-variant-numeric:tabular-nums;margin-top:2px}
+  .ev-body{flex:1;min-width:0;font-size:.88rem;line-height:1.45;word-break:break-word}
+  .ev-note{font-size:11.5px;color:var(--text-sub);margin-top:2px}
+  .ev-tag{font-size:10.5px;font-weight:700;border:1px solid;border-radius:999px;
+    padding:1px 7px;white-space:nowrap}
+  .ev-dday-s{font-size:11.5px;color:var(--text-sub);min-width:46px;text-align:right;
+    flex:none;margin-top:2px;font-variant-numeric:tabular-nums}
+  .ev-sep{font-size:11.5px;color:var(--text-sub);margin-top:12px;padding-top:9px;
+    border-top:1px dashed var(--border)}
+  @media(max-width:700px){
+    .ev-when{min-width:66px}
+    .ev-dday .n{font-size:1.4rem;min-width:72px}
+    .ev-dday-s{display:none}
+  }
   .pie-wrap{background:linear-gradient(180deg,#fbfcfe 0%,#f4f6fb 100%);border-radius:12px;padding:6px}
   .pie-center{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
   .pie-center .cv{font-size:1.9rem;font-weight:700;color:var(--primary);line-height:1.1;font-variant-numeric:tabular-nums}
@@ -927,6 +956,59 @@
         <p>오늘 시장에서 무엇이 나오는지 — 환율, 각국 지표 발표, 실시간 뉴스를 한 화면에.</p>
       </div>
       <div id="homeWarn"></div>
+
+      <!--  ── 학회 일정 ──────────────────────────────────────
+            ⚠️ 홈 맨 위입니다. 일정은 <들어오자마자> 보여야 뜻이 있습니다.
+               스크롤 아래에 있으면 아무도 안 봅니다.               -->
+      <div class="card" id="evCard">
+        <h2>학회 일정
+          <span class="tools">
+            <button class="btn-sm admin-only hidden" onclick="evOpen()">+ 일정 추가</button>
+            <button class="btn-sm" onclick="loadEvents(true)">새로 고침</button>
+          </span>
+        </h2>
+        <div id="evWarn"></div>
+        <div id="evDday"></div>
+        <div id="evList"><div class="empty" style="padding:18px">불러오는 중…</div></div>
+        <!--  임원진 편집칸 — 평소엔 접혀 있습니다 -->
+        <div id="evForm" class="hidden" style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
+          <div class="row">
+            <label>제목</label>
+            <input type="text" id="evTitle" class="grow" placeholder="예: 3주차 정기세미나 — 금리와 환율" maxlength="120">
+            <select id="evKind" style="width:130px">
+              <option value="seminar">정기세미나</option>
+              <option value="presentation">발표</option>
+              <option value="contest">대회</option>
+              <option value="deadline">마감</option>
+              <option value="social">친목</option>
+              <option value="etc">기타</option>
+            </select>
+          </div>
+          <div class="row">
+            <label>날짜</label>
+            <input type="date" id="evFrom" style="width:160px">
+            <span class="st-hint">~</span>
+            <input type="date" id="evTo" style="width:160px" title="여러 날에 걸치면 끝 날짜를 적으세요 (하루면 비워두세요)">
+            <input type="text" id="evAt" placeholder="19:00" maxlength="10" style="width:84px">
+            <span class="st-hint">시각 (선택)</span>
+          </div>
+          <div class="row">
+            <label>담당 · 장소</label>
+            <input type="text" id="evOwner" placeholder="담당자" maxlength="40" style="width:150px">
+            <input type="text" id="evPlace" class="grow" placeholder="장소 (예: 다산관 401)" maxlength="80">
+          </div>
+          <div class="row">
+            <label>설명</label>
+            <input type="text" id="evNote" class="grow" placeholder="한 줄 설명 (선택)" maxlength="300">
+          </div>
+          <div class="row" style="margin-top:4px">
+            <button class="btn-sm btn-solid" onclick="evSave()">저장</button>
+            <button class="btn-sm" onclick="evClose()">취소</button>
+            <button class="btn-sm" id="evDel" style="margin-left:auto;color:var(--danger)"
+                    onclick="evRemove()">이 일정 삭제</button>
+          </div>
+        </div>
+      </div>
 
       <!-- 환율 -->
       <div class="card">
@@ -3010,8 +3092,25 @@
                     title="학회가 정해둔 코인 후보 중 Alpaca 로 실제 주문이 되는 것만 검색에 올립니다">코인 명단 맞추기</button>
           </div>
           <div class="msg" id="trMsg"></div>
+          <!--  ⚠️ 국내 ETF 는 <다른 창구> 에서 옵니다.
+
+                공공데이터포털에서 우리가 쓰던 「금융위원회_주식시세정보」는
+                «주권» 만 줍니다. ETF 는 «증권상품» 이라 서비스가 아예 다릅니다
+                (금융위원회_증권상품시세정보 / getETFPriceInfo).
+
+                그래서 화면에는 "국내 … 전 종목과 ETF" 라고 적어두고도 국내
+                ETF 는 <한 번도> 검색에 나온 적이 없었습니다. KODEX 200 을
+                쳐도 «찾은 종목이 없습니다», 코드를 직접 넣으면 «종가를 찾지
+                못했습니다» 였습니다.
+
+                열쇠는 같지만 <활용신청은 따로> 해야 합니다. 신청 전에는
+                버튼이 ETF 0개로 돌아오는데, 그때 «오늘 ETF 가 없네» 로
+                읽히면 안 되니 위 메시지에 이유를 그대로 적습니다.         -->
           <div class="st-hint" style="margin-top:6px">
-            <code>terminal-자동운영.sql</code> 을 돌려두셨으면 <b>국내는 매일 저녁,
+            <b>국내 ETF 가 0개로 나오면</b> 공공데이터포털에서
+            <b>금융위원회_증권상품시세정보</b>(getETFPriceInfo)를 활용신청하세요 —
+            국내 ETF 는 주식과 <b>다른 창구</b>에서 옵니다. 서비스키는 쓰던 것 그대로입니다.
+            <br><code>terminal-자동운영.sql</code> 을 돌려두셨으면 <b>국내는 매일 저녁,
             미국·코인은 매주 일요일</b>에 저절로 갱신됩니다. 위 버튼은 지금 당장 받고 싶을 때만 쓰세요.
           </div>
         </div>
@@ -3471,7 +3570,7 @@ function showTab(name){
   //  숨김이 풀리고 실제 크기가 잡힌 뒤에 맞춥니다 (두 번 그려야 확실합니다)
   requestAnimationFrame(function(){ requestAnimationFrame(resizeAllCharts); });
   setTimeout(resizeAllCharts, 120);
-  if (name==='home')    initHome();
+  if (name==='home'){ initHome(); loadEvents(); }
   if (name==='trading') initTrading();
   if (name==='company') initCompany();
   if (name==='ai')      initAi();
@@ -4747,6 +4846,242 @@ function applyGuidePref(){
   var off = false;
   try { off = localStorage.getItem('safe_guide_off') === '1'; } catch(e){}
   var g = $('homeGuide'); if (g) g.classList.toggle('hidden', off);
+}
+
+/*  ══════════ 학회 일정 (홈 타임라인) ══════════════════════════
+
+    ⚠️ 왜 만들었나. 학회 일정이 카톡 공지에만 있으면 <스크롤에 묻힙니다>.
+       터미널은 어차피 매일 켜는 화면이라, 들어오자마자 «다음이 뭐지» 가
+       보이는 게 낫습니다.
+
+    ⚠️ 학회원은 보기만, 임원진은 넣고·고치고·지웁니다. 화면에서 단추를
+       숨기는 것과 <서버가 막는 것> 은 다릅니다 — RLS 로도 막아둡니다
+       (terminal-일정표.sql). 화면만 숨기면 개발자도구로 뚫립니다.      */
+var EV_KIND = {
+  seminar:      { label:'정기세미나', color:'#2a5aa8' },
+  presentation: { label:'발표',       color:'#1f8a70' },
+  contest:      { label:'대회',       color:'#b26a00' },
+  deadline:     { label:'마감',       color:'#c0392b' },
+  social:       { label:'친목',       color:'#7d3c98' },
+  etc:          { label:'기타',       color:'#5a6278' }
+};
+var evRows = [], evEditId = null, evLoaded = false;
+
+function evKind(k){ return EV_KIND[k] || EV_KIND.etc; }
+//  오늘 자정 기준으로 잽니다 — 시각까지 넣으면 «오늘» 이 몇 시간 뒤로 밀립니다
+function evToday(){
+  var d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function evDays(iso){
+  var p = String(iso || '').split('-');
+  if (p.length !== 3) return null;
+  var t = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+  return Math.round((t - evToday()) / 864e5);
+}
+/*  «끝났나» 는 <끝 날짜> 로 봅니다. 기간 일정은 시작일이 지나도
+    아직 진행 중입니다 — MT 둘째 날에 «지난 일정» 으로 내려가면 안 됩니다. */
+function evLastDay(x){ return x.ends_on || x.starts_on; }
+function evDdayText(n){
+  if (n === 0) return '오늘';
+  if (n === 1) return '내일';
+  if (n > 0)   return 'D-' + n;
+  return 'D+' + (-n);
+}
+
+async function loadEvents(force){
+  var box = $('evList'); if (!box) return;
+  if (evLoaded && !force) { evRender(); return; }
+  try {
+    var r = await sb.from('club_events')
+      .select('id, gen, title, kind, starts_on, ends_on, at_time, place, owner, note')
+      .order('starts_on', { ascending: true })
+      .order('id', { ascending: true });
+    if (r.error) throw new Error(errMsg(r.error));
+    evRows = r.data || [];
+    evLoaded = true;
+    warn('evWarn','');
+    evRender();
+  } catch(e){
+    /*  ⚠️ 표가 아직 없을 수 있습니다(SQL 을 안 돌린 경우). 그때는 «고장» 이
+        아니라 «아직 안 깔았다» 고 말해야 합니다 — 임원진에게만요.     */
+    var m = String(e.message || e);
+    box.innerHTML = '';
+    if (/club_events|does not exist|schema cache/i.test(m))
+      warn('evWarn', isOfficer()
+        ? '일정표가 아직 설치되지 않았습니다. SQL Editor 에서 <b>terminal-일정표.sql</b> 을 한 번 돌려주세요.'
+        : '일정표가 아직 준비 중입니다.', 'info');
+    else warn('evWarn', esc(m));
+  }
+}
+
+function evRender(){
+  var box = $('evList'), dd = $('evDday');
+  if (!box) return;
+  var today = evToday();
+  var up = [], past = [];
+  evRows.forEach(function(x){
+    (evDays(evLastDay(x)) >= 0 ? up : past).push(x);
+  });
+  /*  ⚠️ 여기서 <직접> 정렬합니다. loadEvents 가 starts_on 순으로 불러오지만
+      evRender 는 그것 말고도 여러 곳에서 불립니다(저장 직후, 테스트, 나중에
+      추가될 필터). 순서를 부르는 쪽에 맡기면 진행 중인 MT 대신 사흘 뒤
+      세미나가 D-day 칸에 올라갑니다 — 맨 위 카드는 up[0] 이니까요.        */
+  var evCmp = function(a, b){
+    var x = String(a.starts_on || ''), y = String(b.starts_on || '');
+    if (x !== y) return x < y ? -1 : 1;
+    var xa = String(a.at_time || '99:99'), ya = String(b.at_time || '99:99');
+    if (xa !== ya) return xa < ya ? -1 : 1;
+    return (a.id || 0) - (b.id || 0);
+  };
+  up.sort(evCmp);
+  //  지난 일정은 <최근 것부터> — 옛날 것부터 보여줄 이유가 없습니다
+  past.sort(function(a, b){ return -evCmp(a, b); });
+
+  //  ── D-day ──
+  if (dd){
+    var n0 = up[0];
+    if (!n0) dd.innerHTML = '';
+    else {
+      var d0 = evDays(n0.starts_on), k0 = evKind(n0.kind);
+      //  이미 시작해서 진행 중인 기간 일정
+      var live = d0 < 0 && evDays(evLastDay(n0)) >= 0;
+      dd.innerHTML = '<div class="ev-dday">'
+        + '<div class="n" style="color:' + esc(k0.color) + '">'
+        +   esc(live ? '진행 중' : evDdayText(d0)) + '</div>'
+        + '<div class="t"><b>' + esc(n0.title) + '</b>'
+        +   '<div class="s">' + esc(evWhen(n0))
+        +     (n0.place ? ' · ' + esc(n0.place) : '')
+        +     (n0.owner ? ' · ' + esc(n0.owner) : '') + '</div></div></div>';
+    }
+  }
+
+  if (!evRows.length){
+    box.innerHTML = '<div class="empty" style="padding:18px">'
+      + (isOfficer() ? '아직 일정이 없습니다. <b>+ 일정 추가</b> 로 넣어주세요.'
+                     : '아직 등록된 일정이 없습니다.') + '</div>';
+    return;
+  }
+
+  var row = function(x, dim){
+    var k = evKind(x.kind), n = evDays(x.starts_on);
+    var last = evDays(evLastDay(x));
+    var live = n < 0 && last >= 0;
+    return '<div class="ev-row' + (dim ? ' dim' : '') + '">'
+      + '<div class="ev-dot" style="background:' + esc(k.color) + '"></div>'
+      + '<div class="ev-when">' + esc(evWhen(x)) + '</div>'
+      + '<div class="ev-body">'
+      +   '<span class="ev-tag" style="color:' + esc(k.color)
+      +     ';border-color:' + esc(k.color) + '33">' + esc(k.label) + '</span> '
+      +   '<b>' + esc(x.title) + '</b>'
+      +   (x.note ? '<div class="ev-note">' + esc(x.note) + '</div>' : '')
+      +   ((x.place || x.owner)
+          ? '<div class="ev-note">'
+            + (x.place ? '📍 ' + esc(x.place) : '')
+            + (x.place && x.owner ? ' · ' : '')
+            + (x.owner ? '담당 ' + esc(x.owner) : '') + '</div>'
+          : '')
+      + '</div>'
+      + '<div class="ev-dday-s">' + esc(live ? '진행 중' : (dim ? '' : evDdayText(n))) + '</div>'
+      + (isOfficer()
+          ? '<button class="btn-sm" onclick="evOpen(' + x.id + ')">고치기</button>' : '')
+      + '</div>';
+  };
+
+  box.innerHTML =
+      (up.length ? up.map(function(x){ return row(x, false); }).join('')
+                 : '<div class="empty" style="padding:14px">앞으로의 일정이 없습니다.</div>')
+    + (past.length
+        ? '<div class="ev-sep">지난 일정 ' + past.length + '건 '
+          + '<a href="#" onclick="evTogglePast();return false;" id="evPastA">'
+          + (evShowPast ? '접기' : '펼치기') + '</a></div>'
+          + '<div id="evPast" class="' + (evShowPast ? '' : 'hidden') + '">'
+          + past.map(function(x){ return row(x, true); }).join('') + '</div>'
+        : '');
+}
+var evShowPast = false;
+function evTogglePast(){
+  evShowPast = !evShowPast;
+  var b = $('evPast'); if (b) b.classList.toggle('hidden', !evShowPast);
+  var a = $('evPastA'); if (a) a.textContent = evShowPast ? '접기' : '펼치기';
+}
+
+/*  날짜를 사람 말로. 기간이면 <시작~끝>, 하루면 하루만.            */
+function evWhen(x){
+  var f = function(iso){
+    var p = String(iso || '').split('-');
+    if (p.length !== 3) return String(iso || '');
+    return Number(p[1]) + '/' + Number(p[2]);
+  };
+  var y = String(x.starts_on || '').slice(0, 4);
+  var thisY = String(new Date().getFullYear());
+  var head = (y && y !== thisY) ? (y + '. ') : '';
+  var out = head + f(x.starts_on);
+  if (x.ends_on && x.ends_on !== x.starts_on) out += '~' + f(x.ends_on);
+  if (x.at_time) out += ' ' + x.at_time;
+  return out;
+}
+
+/*  ── 임원진 편집 ─────────────────────────────────────────── */
+function evOpen(id){
+  if (!isOfficer()){ warn('evWarn','임원진만 일정을 고칠 수 있습니다.'); return; }
+  evEditId = id || null;
+  var x = id ? evRows.filter(function(r){ return r.id === id; })[0] : null;
+  $('evTitle').value = x ? (x.title || '') : '';
+  $('evKind').value  = x ? (x.kind || 'etc') : 'seminar';
+  $('evFrom').value  = x ? (x.starts_on || '') : new Date().toISOString().slice(0,10);
+  $('evTo').value    = x ? (x.ends_on || '') : '';
+  $('evAt').value    = x ? (x.at_time || '') : '';
+  $('evOwner').value = x ? (x.owner || '') : '';
+  $('evPlace').value = x ? (x.place || '') : '';
+  $('evNote').value  = x ? (x.note || '') : '';
+  $('evDel').classList.toggle('hidden', !id);
+  $('evForm').classList.remove('hidden');
+  warn('evWarn','');
+  $('evTitle').focus();
+}
+function evClose(){ evEditId = null; $('evForm').classList.add('hidden'); }
+
+async function evSave(){
+  var t = String($('evTitle').value || '').trim();
+  var f = String($('evFrom').value || '').trim();
+  if (!t){ warn('evWarn','제목을 적어주세요.'); return; }
+  if (!f){ warn('evWarn','날짜를 골라주세요.'); return; }
+  var to = String($('evTo').value || '').trim();
+  /*  ⚠️ 끝이 시작보다 앞서면 D-day 도 정렬도 거짓말을 합니다. 서버에도
+      같은 검사가 있지만, 여기서 막아야 <왜 안 저장되지> 가 안 됩니다.  */
+  if (to && to < f){ warn('evWarn','끝 날짜가 시작 날짜보다 앞섭니다.'); return; }
+  var row = {
+    title: t, kind: $('evKind').value || 'etc',
+    starts_on: f, ends_on: to || null,
+    at_time: String($('evAt').value || '').trim() || null,
+    owner:   String($('evOwner').value || '').trim() || null,
+    place:   String($('evPlace').value || '').trim() || null,
+    note:    String($('evNote').value || '').trim() || null
+  };
+  try {
+    var r = evEditId
+      ? await sb.from('club_events').update(row).eq('id', evEditId)
+      : await sb.from('club_events').insert(row);
+    if (r.error) throw new Error(errMsg(r.error));
+    evClose();
+    await loadEvents(true);
+    warn('evWarn','저장했습니다.', 'info');
+    setTimeout(function(){ warn('evWarn',''); }, 2500);
+  } catch(e){ warn('evWarn', esc(e.message || e)); }
+}
+
+async function evRemove(){
+  if (!evEditId) return;
+  var x = evRows.filter(function(r){ return r.id === evEditId; })[0];
+  //  ⚠️ 되돌릴 수 없습니다. 무엇을 지우는지 이름을 보여주고 묻습니다.
+  if (!confirm('«' + ((x && x.title) || '이 일정') + '» 을 지웁니다. 되돌릴 수 없습니다.')) return;
+  try {
+    var r = await sb.from('club_events').delete().eq('id', evEditId);
+    if (r.error) throw new Error(errMsg(r.error));
+    evClose();
+    await loadEvents(true);
+  } catch(e){ warn('evWarn', esc(e.message || e)); }
 }
 
 function initHome(){
