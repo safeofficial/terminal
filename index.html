@@ -788,6 +788,16 @@
   .sym-tag.scan{background:#e6f0ff;color:#2456c9}
 
   /*  현황이 살아 있다는 표시 — 30초마다 스스로 다시 받아옵니다.  */
+  /*  ── 정렬되는 머리칸 ──────────────────────────────────
+      ⚠️ 누를 수 있다는 걸 눈으로 알 수 있어야 합니다. 손가락 커서와
+         화살표가 그 표시입니다. 글자가 드래그로 잡히면 두 번 누를 때
+         파랗게 칠해져서 지저분해집니다 — user-select 로 막습니다.   */
+  th.sortable{cursor:pointer;user-select:none;white-space:nowrap}
+  th.sortable:hover{color:var(--primary)}
+  th.sortable .ar{opacity:.28;margin-left:3px;font-size:10px}
+  th.sortable.on{color:var(--primary)}
+  th.sortable.on .ar{opacity:1}
+
   /*  보유 종목 줄 — 누르면 주가 차트가 열립니다.  */
   .pos-row{cursor:pointer;transition:background .12s}
   .pos-row:hover{background:var(--soft,#f4f7fc)}
@@ -11280,6 +11290,9 @@ function mtResetRoomView(){
   var sb2 = $('mtSymList'); if (sb2) sb2.classList.add('hidden');
   var qb = $('mtQuoteBox'); if (qb) qb.classList.add('hidden');
   mtQuote = null; mtPick = null;
+  //  ⚠️ 정렬도 팀 것입니다 — 옆 팀에서 «수익률 낮은 순» 으로 봐 두고
+  //     들어오면, 새 팀 표가 이유 없이 뒤집혀 보입니다.
+  mtPosSort = { key: null, desc: true };
   mtAcc = null;
 }
 
@@ -11583,6 +11596,71 @@ function mtRenderSummary(){
     + '</div>';
 }
 
+/*  ── 보유 표 정렬 ────────────────────────────────────────────
+
+    ⚠️ 평단가·현재가는 <원래 통화> 로 보여줍니다. 그대로 크기를 비교하면
+       AAPL $250 이 삼성전자 74,200원보다 «작은» 것이 되어, 정렬해 놓고도
+       뜻이 없는 순서가 나옵니다. 그래서 <원화로 환산한 값> 으로 줄을
+       세웁니다. 보이는 숫자와 순서가 어긋나 보일 수 있어서 머리칸에
+       그렇다고 적어둡니다.
+
+    ⚠️ 값이 없는 칸(«—») 은 0 이 아닙니다. 0 으로 치면 시세를 못 받은
+       종목이 «가장 싼 것» 이나 «가장 많이 잃은 것» 으로 올라옵니다.
+       어느 쪽으로 정렬하든 <맨 아래> 로 보냅니다.                    */
+var mtPosSort = { key: null, desc: true };
+
+function mtPosVal(p, key, fxr, total){
+  var rate = p.market === 'KR' ? 1 : fxr;
+  switch (key){
+    case 'name':   return String(p.name || p.symbol || '');
+    case 'market': return String(p.market || '');
+    case 'qty':    return p.qty == null ? null : Number(p.qty);
+    case 'avg':    return p.avg == null ? null : Number(p.avg) * rate;
+    case 'last':   return p.last == null ? null : Number(p.last) * rate;
+    case 'value':  return p.value_krw == null ? null : Number(p.value_krw);
+    case 'wt':     return (total > 0 && p.value_krw != null)
+                          ? Number(p.value_krw) / total : null;
+    case 'pnl':    return p.pnl == null ? null : Number(p.pnl) * rate;
+    case 'pnlpct': return p.pnl_pct == null ? null : Number(p.pnl_pct);
+  }
+  return null;
+}
+
+/*  ⚠️ 원본(mtAcc.positions)을 건드리면 안 됩니다. 원 그래프·매도 목록이
+    같은 배열을 봅니다 — 여기서 뒤집으면 그쪽 순서도 같이 뒤집힙니다.  */
+function mtSortPositions(pos, fxr, total){
+  if (!mtPosSort.key) return pos.slice();
+  var k = mtPosSort.key, sgn = mtPosSort.desc ? -1 : 1;
+  return pos.slice().sort(function(a, b){
+    var x = mtPosVal(a, k, fxr, total), y = mtPosVal(b, k, fxr, total);
+    //  값 없는 것은 방향과 상관없이 맨 아래
+    if (x == null && y == null) return 0;
+    if (x == null) return 1;
+    if (y == null) return -1;
+    if (typeof x === 'string' || typeof y === 'string')
+      return String(x).localeCompare(String(y), 'ko') * (mtPosSort.desc ? -1 : 1);
+    return (x - y) * sgn;
+  });
+}
+
+function mtSetPosSort(key){
+  if (mtPosSort.key === key) mtPosSort.desc = !mtPosSort.desc;
+  else {
+    mtPosSort.key = key;
+    /*  숫자는 «큰 것부터» 가 먼저 보고 싶은 순서입니다 (가장 큰 비중,
+        가장 많이 번 것). 이름·시장은 «ㄱ부터» 가 자연스럽습니다.     */
+    mtPosSort.desc = (key !== 'name' && key !== 'market');
+  }
+  mtRenderPositions();
+}
+
+function mtPosTh(key, label, cls){
+  var on = mtPosSort.key === key;
+  return '<th class="' + (cls || '') + ' sortable' + (on ? ' on' : '') + '"'
+       + ' onclick="mtSetPosSort(\'' + key + '\')">' + label
+       + '<span class="ar">' + (on ? (mtPosSort.desc ? '▼' : '▲') : '⇅') + '</span></th>';
+}
+
 function mtRenderPositions(){
   var t = $('mtPosTable'); if (!t) return;
   var pos = (mtAcc && mtAcc.positions) || [];
@@ -11596,11 +11674,20 @@ function mtRenderPositions(){
   var fxr = fx;
   var total = Number((mtAcc && mtAcc.total) || 0);
   t.innerHTML =
-    '<thead><tr><th>종목</th><th>산 방법</th><th>시장</th><th class="num">수량</th><th class="num">평단가</th>'
-  + '<th class="num">현재가</th><th class="num">평가금액</th><th class="num">비중</th>'
-  + '<th class="num">손익금액</th><th class="num">수익률</th>'
+    '<thead><tr>'
+  + mtPosTh('name', '종목')
+  + '<th>산 방법</th>'
+  + mtPosTh('market', '시장')
+  + mtPosTh('qty',    '수량',   'num')
+  //  ⚠️ 통화가 섞이는 두 칸은 <원화로 환산해서> 줄을 세운다고 적어둡니다
+  + mtPosTh('avg',    '평단가', 'num')
+  + mtPosTh('last',   '현재가', 'num')
+  + mtPosTh('value',  '평가금액', 'num')
+  + mtPosTh('wt',     '비중',   'num')
+  + mtPosTh('pnl',    '손익금액', 'num')
+  + mtPosTh('pnlpct', '수익률', 'num')
   + (mtCanTrade ? '<th class="num">바로 팔기</th>' : '') + '</tr></thead><tbody>'
-  + pos.map(function(p){
+  + mtSortPositions(pos, fxr, total).map(function(p){
       var dp = p.market === 'KR' ? 0 : 2;
       var up = (p.pnl || 0) >= 0;
       var rate = p.market === 'KR' ? 1 : fxr;
