@@ -16843,10 +16843,24 @@ var PF_KIND = { balance: '쏠림·균형', good: '잘한 점', idea: '검토 거
 function pfRender(d){
   var body = $('pfBody'), when = $('pfWhen'), btn = $('pfBtn');
   if (!body) return;
+  /*  ⚠️ 답을 아예 못 받았을 때(SQL 미설치·서버 오류)를 «진단이 없다» 와
+      섞으면 안 됩니다. 실제로 그래서 화면이 «진단 받기를 눌러보세요» 와
+      «오늘은 다 썼습니다» 를 <동시에> 띄웠습니다. 둘이 서로 다른 말을
+      하는데 둘 다 틀렸습니다. 모르면 <모른다> 고 해야 합니다.        */
+  if (!d || typeof d !== 'object' || d.can_refresh === undefined){
+    body.innerHTML = '<div class="st-hint">진단을 불러오지 못했습니다.</div>';
+    if (when) when.textContent = '';
+    if (btn){ btn.classList.toggle('hidden', !mtCanTrade);
+              btn.disabled = true; btn.textContent = '진단 받기'; btn.title = ''; }
+    return;
+  }
   var list = (d && d.bullets) || [];
   if (!list.length){
     body.innerHTML = '<div class="st-hint">아직 진단이 없습니다. '
-      + (mtCanTrade ? '<b>진단 받기</b> 를 눌러보세요.' : '이 팀이 아직 안 받았습니다.') + '</div>';
+      + (mtCanTrade
+          ? (d.can_refresh ? '<b>진단 받기</b> 를 눌러보세요.'
+                           : '오늘 몫은 이미 썼습니다 — 내일 받을 수 있습니다.')
+          : '이 팀이 아직 안 받았습니다.') + '</div>';
   } else {
     body.innerHTML = '<ul class="pf-list">'
       + list.map(function(b){
