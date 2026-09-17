@@ -798,6 +798,20 @@
   th.sortable.on{color:var(--primary)}
   th.sortable.on .ar{opacity:1}
 
+  /*  ── AI 포트폴리오 진단 ──────────────────────────────────  */
+  .pf-card{border-top:1px solid var(--border);margin-top:14px;padding-top:12px}
+  .pf-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .pf-head .tools{margin-left:auto}
+  .pf-when{font-size:11.5px;color:var(--text-sub)}
+  .pf-list{list-style:none;padding:0;margin:0;display:grid;gap:7px}
+  .pf-list li{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.6}
+  .pf-k{flex:none;font-size:11px;font-weight:700;border-radius:5px;padding:2px 6px;
+        margin-top:1px;white-space:nowrap}
+  .pf-k.balance{background:#eef1f6;color:#5a6278}
+  .pf-k.good{background:#e7f4ef;color:#1f8a70}
+  .pf-k.idea{background:#fdf1e3;color:#a56a1b}
+  .pf-foot{font-size:11px;color:var(--text-sub);margin-top:8px}
+
   /*  보유 종목 줄 — 누르면 주가 차트가 열립니다.  */
   .pos-row{cursor:pointer;transition:background .12s}
   .pos-row:hover{background:var(--soft,#f4f7fc)}
@@ -2012,6 +2026,22 @@
           <div class="pie-wrap pie-host">
             <div id="pieBox"></div>
             <div class="pie-center" id="pieCenter"></div>
+          </div>
+
+          <!--  ── AI 포트폴리오 진단 ─────────────────────────────────
+                ⚠️ 이 팀 방의 진단은 <그 팀 것> 입니다. 다른 팀 방에
+                   들어가면 그 팀 진단이 보입니다 (학회장 결정).
+                ⚠️ 새로 받는 건 자기 팀만, 하루 한 번.            -->
+          <div id="pfCard" class="pf-card">
+            <div class="pf-head">
+              <b>AI 포트폴리오 진단</b>
+              <span class="pf-when" id="pfWhen"></span>
+              <span class="tools">
+                <button class="btn-sm" id="pfBtn" onclick="pfRefresh()">진단 받기</button>
+              </span>
+            </div>
+            <div id="pfBody"></div>
+            <div class="msg" id="pfMsg"></div>
           </div>
         </div>
 
@@ -11293,6 +11323,11 @@ function mtResetRoomView(){
   //  ⚠️ 정렬도 팀 것입니다 — 옆 팀에서 «수익률 낮은 순» 으로 봐 두고
   //     들어오면, 새 팀 표가 이유 없이 뒤집혀 보입니다.
   mtPosSort = { key: null, desc: true };
+  /*  ⚠️ 진단도 팀 것입니다. 안 지우면 채권팀 방에 인플레이션팀 진단이
+      잠깐 떠 있고, 그게 그 팀 평가로 읽힙니다.                      */
+  var pb = $('pfBody'); if (pb) pb.innerHTML = '';
+  var pw = $('pfWhen'); if (pw) pw.textContent = '';
+  var pm = $('pfMsg');  if (pm) pm.innerHTML = '';
   mtAcc = null;
 }
 
@@ -12010,8 +12045,16 @@ function mtDrawSymChart(){
     series[0].markLine = {
       silent:true, symbol:'none', animation:false,
       lineStyle:{ type:'dashed', color:'#1f8a70', width:1.5 },
+      /*  ⚠️ 라벨이 봉 위에 <그냥 글자로> 얹혀 있었습니다. 봉 몸통이 진하면
+          글자가 통째로 묻혀서 «평단 $29?.??» 처럼 읽히지도 않습니다.
+          하필 가장 최근 봉들 위에 놓여서, 제일 봐야 할 자리를 가렸습니다.
+
+          그래서 ① 차트 <바깥 오른쪽 여백> 으로 빼고 ② 불투명한 알약을
+          깔았습니다. 뒤에 뭐가 있든 읽힙니다.                        */
       label:{ formatter:'평단 ' + mark + num(avg, dp), fontSize:11,
-              color:'#1f8a70', position:'insideEndTop' },
+              color:'#1f8a70', position:'end', distance: 5,
+              backgroundColor:'#ffffff', borderColor:'#1f8a70',
+              borderWidth:1, borderRadius:4, padding:[2,5,2,5] },
       data:[{ yAxis: avg }],
     };
   }
@@ -12020,7 +12063,10 @@ function mtDrawSymChart(){
                   xAxisIndex:1, yAxisIndex:1, barWidth:'62%' });
   }
 
-  var grids = [{ left:70, right:22, top:16, height: priceH + '%' }];
+  /*  ⚠️ 평단 라벨이 들어갈 자리를 오른쪽에 비워 둡니다. 거래량 격자도
+      <같은 값> 이어야 두 x축이 어긋나지 않습니다.                    */
+  var MT_RIGHT = 76;
+  var grids = [{ left:70, right: MT_RIGHT, top:16, height: priceH + '%' }];
   var xAxes = [{ type:'category', data:days, boundaryGap:true,
                  axisLine:{ lineStyle:{ color:'#e8ecf4' } },
                  axisLabel:{ show: !hasVol, fontSize:11, color:'#5a6278' },
@@ -12063,7 +12109,7 @@ function mtDrawSymChart(){
                  axisLine:{ show:false }, axisTick:{ show:false },
                  splitLine:{ lineStyle:{ color:'#eef1f7' } } }];
   if (hasVol){
-    grids.push({ left:70, right:22, top: (priceH + 13) + '%', height:'16%' });
+    grids.push({ left:70, right: MT_RIGHT, top: (priceH + 13) + '%', height:'16%' });
     xAxes.push({ type:'category', data:days, gridIndex:1, boundaryGap:true,
                  axisLine:{ lineStyle:{ color:'#e8ecf4' } }, axisTick:{ show:false },
                  axisLabel:{ fontSize:11, color:'#5a6278' }, splitLine:{ show:false } });
@@ -13799,6 +13845,41 @@ function avRender(){
   box.innerHTML = head + body;
 }
 
+/*  ── 비용을 <어디서 나갔는지> 로 갈라 보여줍니다 ───────────────
+
+    ⚠️ 학회장: «비용 카테고리화해서 보여주면 더 명확하겠다»
+       지금까지는 «이번 달 $12» 한 덩어리였습니다. 종목 리포트에서
+       나간 건지 포트폴리오 진단인지 알 수가 없어서, 줄여야 할 때
+       어디를 줄일지 판단할 수가 없었습니다.                        */
+async function aiCostByKind(){
+  try {
+    var r = await sb.rpc('ai_cost_summary');
+    var d = (r.data && !r.error) ? r.data : null;
+    if (!d || !d.items || !d.items.length) return '';
+    var tot = Number(d.total_usd) || 0;
+    return '<div style="border-top:1px solid var(--border);margin:6px 0 12px;padding-top:10px">'
+      + '<div style="font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:7px">'
+      +   '이번 달 비용 — 쓰임새별</div>'
+      + '<table style="width:100%;font-size:13px"><tbody>'
+      + d.items.map(function(it){
+          var usd = Number(it.usd) || 0;
+          var share = tot > 0 ? (usd / tot * 100) : 0;
+          return '<tr><td>' + esc(it.label) + '</td>'
+               + '<td class="num">' + num(it.n, 0) + '건</td>'
+               + '<td class="num"><b>$' + num(usd, 4) + '</b></td>'
+               + '<td class="num" style="color:var(--text-sub)">'
+               +   share.toFixed(0) + '%</td></tr>';
+        }).join('')
+      + '<tr><td><b>합계</b></td><td></td>'
+      +   '<td class="num"><b>$' + num(tot, 4) + '</b></td><td></td></tr>'
+      + '</tbody></table></div>';
+  } catch(e){
+    //  ⚠️ SQL 을 아직 안 돌렸을 수 있습니다 — 비용 화면 전체를 막지 않습니다
+    return '<p class="st-hint">쓰임새별 비용을 보려면 '
+         + '<b>terminal-포트폴리오진단.sql</b> 을 한 번 돌려주세요.</p>';
+  }
+}
+
 /*  ── 임원진만 보는 비용 화면 ────────────────────────────────
 
     ⚠️ 학회원 화면에서는 금액을 전부 뺐습니다. 서버(ai_budget)도 학회원에게는
@@ -13829,6 +13910,7 @@ async function loadAiSpend(){
       + tile('캐시로 아낀 토큰', num(Number(d.cached_tok) || 0, 0),
              '값이 1/10 로 계산됩니다')
       + '</div>'
+      + await aiCostByKind()
       + '<div class="ai-bar" style="margin:4px 0 10px"><div class="ai-bar-in" style="width:'
       +   pct.toFixed(0) + '%;background:' + (pct >= 85 ? '#c0392b' : 'var(--primary)')
       +   '"></div></div>'
@@ -16674,7 +16756,7 @@ async function loadTeam(){
   var snap = await sb.rpc('record_snapshot', { p_team_id: team });
   tstate = (snap.data && !snap.error) ? snap.data : st.data;
 
-  renderSummary(); renderPositions(); renderPie();
+  renderSummary(); renderPositions(); renderPie(); pfLoad();
   await loadHistory(); await loadTrades(); loadQuant();
 
   // 팀의 운영 방식(직접 매매 / 전략)에 맞춰 화면 전환
@@ -16747,6 +16829,85 @@ function renderPositions(){
           + '<td class="num">'+(total? (Number(p.market_value)/total*100).toFixed(1):'0.0')+'%</td>'
           + '</tr>';
       }).join('') + '</tbody>';
+}
+
+/*  ══ AI 포트폴리오 진단 ═══════════════════════════════════════
+
+    ⚠️ 모델이 뱉은 글은 <절대 innerHTML 로 넣지 않습니다>. 반드시
+       esc() 를 지납니다. 진단 글에 <img onerror=...> 같은 게 섞여
+       들어오면 그걸 보는 13명 브라우저에서 그대로 실행됩니다.
+       모델이 그럴 리 없다는 건 근거가 아닙니다 — 값이 어디서
+       왔는지로 판단해야 합니다.                                     */
+var PF_KIND = { balance: '쏠림·균형', good: '잘한 점', idea: '검토 거리' };
+
+function pfRender(d){
+  var body = $('pfBody'), when = $('pfWhen'), btn = $('pfBtn');
+  if (!body) return;
+  var list = (d && d.bullets) || [];
+  if (!list.length){
+    body.innerHTML = '<div class="st-hint">아직 진단이 없습니다. '
+      + (mtCanTrade ? '<b>진단 받기</b> 를 눌러보세요.' : '이 팀이 아직 안 받았습니다.') + '</div>';
+  } else {
+    body.innerHTML = '<ul class="pf-list">'
+      + list.map(function(b){
+          var k = String(b && b.kind || 'idea');
+          if (!PF_KIND[k]) k = 'idea';
+          //  ⚠️ esc() — 모델 글이 그대로 화면에 들어가면 안 됩니다
+          return '<li><span class="pf-k ' + k + '">' + esc(PF_KIND[k]) + '</span>'
+               + '<span>' + esc(String(b && b.text || '')) + '</span></li>';
+        }).join('')
+      + '</ul>'
+      /*  ⚠️ «AI 가 만든 글» 이라는 걸 매번 적습니다. 세 줄만 보면
+          사람이 검토한 것처럼 읽힙니다.                            */
+      + '<div class="pf-foot">AI 가 지금 보유 종목·비중·수익률만 보고 쓴 글입니다. '
+      + '투자 조언이 아니라 생각해 볼 거리로 봐주세요.</div>';
+  }
+  if (when)
+    when.textContent = (d && d.at)
+      ? new Date(d.at).toLocaleString('ko-KR', { dateStyle:'short', timeStyle:'short' })
+        + (d.cost_usd != null ? ' · $' + Number(d.cost_usd).toFixed(4) : '')
+      : '';
+  if (btn){
+    /*  ⚠️ 남의 팀 진단을 대신 돌려주면 안 됩니다 — 하루 한 번인데
+        먼저 써버리면 정작 그 팀이 못 받습니다.                    */
+    var mine = mtCanTrade;
+    btn.classList.toggle('hidden', !mine);
+    btn.disabled = !(d && d.can_refresh);
+    btn.textContent = (d && d.can_refresh) ? '진단 받기' : '오늘은 다 썼습니다';
+    btn.title = (d && d.can_refresh) ? '' : '팀당 하루 한 번입니다';
+  }
+}
+
+async function pfLoad(){
+  if (!$('pfCard')) return;
+  warn('pfMsg','');
+  try {
+    var d = await edgeAi({ action:'portfolio_get', team_id: team });
+    pfRender(d);
+  } catch(e){
+    //  ⚠️ SQL 을 아직 안 돌렸을 수 있습니다 — «고장» 이 아닙니다
+    var m = String(e.message || e);
+    if (/pf_latest|ai_portfolio|does not exist|schema cache/i.test(m))
+      warn('pfMsg', isOfficer()
+        ? '진단 기능이 아직 설치되지 않았습니다. SQL Editor 에서 '
+          + '<b>terminal-포트폴리오진단.sql</b> 을 한 번 돌려주세요.'
+        : '진단 기능을 준비 중입니다.', 'info');
+    else warn('pfMsg', esc(m));
+  }
+}
+
+async function pfRefresh(){
+  var btn = $('pfBtn'); if (btn){ btn.disabled = true; btn.textContent = '보는 중…'; }
+  warn('pfMsg','');
+  try {
+    var d = await edgeAi({ action:'portfolio_review', team_id: team });
+    pfRender(d);
+    if (d && d.cost_now != null)
+      warn('pfMsg', '이번 호출 비용 <b>$' + Number(d.cost_now).toFixed(4) + '</b>', 'info');
+  } catch(e){
+    warn('pfMsg', esc(e.message));
+    if (btn){ btn.disabled = false; btn.textContent = '진단 받기'; }
+  }
 }
 
 function renderPie(){
