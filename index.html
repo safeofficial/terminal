@@ -478,25 +478,68 @@
     text-align:center;font-variant-numeric:tabular-nums}
   .ev-dday .t{font-size:.95rem;line-height:1.4;min-width:0}
   .ev-dday .t .s{font-size:11.5px;color:var(--text-sub);font-weight:400;margin-top:3px}
-  .ev-row{display:flex;align-items:flex-start;gap:10px;padding:9px 4px;
-    border-bottom:1px solid var(--border)}
-  .ev-row:last-child{border-bottom:none}
-  .ev-row.dim{opacity:.5}
-  .ev-dot{width:9px;height:9px;border-radius:50%;flex:none;margin-top:6px}
-  .ev-when{font-size:12px;color:var(--text-sub);min-width:92px;flex:none;
-    font-variant-numeric:tabular-nums;margin-top:2px}
-  .ev-body{flex:1;min-width:0;font-size:.88rem;line-height:1.45;word-break:break-word}
-  .ev-note{font-size:11.5px;color:var(--text-sub);margin-top:2px}
-  .ev-tag{font-size:10.5px;font-weight:700;border:1px solid;border-radius:999px;
-    padding:1px 7px;white-space:nowrap}
-  .ev-dday-s{font-size:11.5px;color:var(--text-sub);min-width:46px;text-align:right;
-    flex:none;margin-top:2px;font-variant-numeric:tabular-nums}
-  .ev-sep{font-size:11.5px;color:var(--text-sub);margin-top:12px;padding-top:9px;
-    border-top:1px dashed var(--border)}
-  @media(max-width:700px){
-    .ev-when{min-width:66px}
+  /*  ── 세로 타임라인 ──────────────────────────────────────
+
+      ⚠️ 학회장이 SWOT 도해를 보여주며 «이렇게 미니멀하게, 다만 세로로».
+         그 그림의 결은 셋입니다.
+           ① 가는 척추선 하나가 전부를 꿰고
+           ② 점이 <채워진 것> 과 <빈 것> 으로 상태를 말하고
+           ③ 글은 좌우로 번갈아 붙되 장식이 없습니다.
+
+      ⚠️ 좌우 번갈이는 <넓을 때만> 뜻이 있습니다. 폰에서 반씩 나누면
+         글이 서너 글자마다 접힙니다. 좁아지면 척추를 왼쪽으로 보내고
+         전부 오른쪽에 세웁니다.                                      */
+  .ev-line{position:relative;padding:4px 0 2px}
+  .ev-line::before{content:'';position:absolute;left:50%;top:2px;bottom:2px;
+    width:1px;margin-left:-.5px;background:var(--border)}
+  .ev-row{position:relative;display:flex;align-items:flex-start;
+    padding:0 0 22px;min-height:34px}
+  .ev-row:last-child{padding-bottom:2px}
+  .ev-half{flex:1 1 50%;min-width:0}
+  .ev-card{padding-right:26px;text-align:right}
+  .ev-row.ev-r .ev-card{padding-right:0;padding-left:26px;text-align:left}
+  .ev-row.dim{opacity:.46}
+
+  /*  점 — 채운 것은 앞으로, 빈 것은 지난 일정.
+      ⚠️ 색으로만 가르면 안 됩니다. 흑백으로 뽑거나 색을 못 가리는
+         사람에게는 같은 점이 됩니다. <채움/비움> 이 진짜 구분입니다. */
+  .ev-dot{position:absolute;left:50%;top:5px;width:9px;height:9px;margin-left:-4.5px;
+    border-radius:50%;background:var(--text);border:1px solid var(--text);
+    box-shadow:0 0 0 3px var(--white);z-index:1}
+  .ev-row.dim .ev-dot{background:var(--white);border-style:dashed}
+  .ev-row.live .ev-dot{box-shadow:0 0 0 3px var(--white),0 0 0 5px currentColor}
+
+  /*  점에서 글로 건너가는 짧은 가지 — 어느 쪽 글인지 눈이 따라갑니다  */
+  .ev-card{position:relative}
+  .ev-card::after{content:'';position:absolute;top:9px;width:17px;height:1px;
+    background:var(--border);right:4px}
+  .ev-row.ev-r .ev-card::after{right:auto;left:4px}
+
+  .ev-when{font-size:11.5px;color:var(--text-sub);letter-spacing:.02em;
+    font-variant-numeric:tabular-nums;margin-bottom:2px}
+  .ev-body{font-size:.88rem;line-height:1.5;word-break:break-word}
+  .ev-body b{font-weight:700;letter-spacing:-.01em}
+  .ev-note{font-size:11.5px;color:var(--text-sub);margin-top:3px;line-height:1.5}
+  /*  ⚠️ 구분 딱지는 알약을 벗겼습니다. 알약이 줄마다 있으면 그게 제일
+      먼저 보여서, 정작 <무슨 일정인지> 가 뒤로 밀립니다.            */
+  .ev-tag{font-size:10px;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;white-space:nowrap;margin-right:6px}
+  .ev-row.ev-r .ev-tag{margin-right:6px}
+  .ev-dday-s{font-size:10.5px;font-weight:700;color:var(--text-sub);
+    letter-spacing:.06em;margin-top:4px;font-variant-numeric:tabular-nums}
+  .ev-row .btn-sm{margin-top:7px}
+  .ev-sep{position:relative;font-size:11.5px;color:var(--text-sub);
+    text-align:center;margin:2px 0 14px;z-index:1}
+  .ev-sep span{background:var(--white);padding:0 10px}
+
+  @media(max-width:760px){
+    .ev-line::before{left:5px;margin-left:0}
+    .ev-dot{left:5px;margin-left:-4.5px}
+    .ev-half.ev-pad{display:none}
+    .ev-card,.ev-row.ev-r .ev-card{padding-left:26px;padding-right:0;text-align:left}
+    .ev-card::after{right:auto;left:4px}
+    .ev-sep{text-align:left;padding-left:26px}
     .ev-dday .n{font-size:1.4rem;min-width:72px}
-    .ev-dday-s{display:none}
   }
   .pie-wrap{background:linear-gradient(180deg,#fbfcfe 0%,#f4f6fb 100%);border-radius:12px;padding:6px}
   .pie-center{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
@@ -5022,41 +5065,54 @@ function evRender(){
     return;
   }
 
+  /*  ⚠️ 좌우 번갈이는 <보이는 순서> 로 셉니다. 앞으로의 일정과 지난
+      일정을 따로 세면, 경계에서 같은 쪽이 두 번 나와 선이 한쪽으로
+      쏠려 보입니다.                                                  */
+  var side = 0;
   var row = function(x, dim){
     var k = evKind(x.kind), n = evDays(x.starts_on);
     var last = evDays(evLastDay(x));
     var live = n < 0 && last >= 0;
-    return '<div class="ev-row' + (dim ? ' dim' : '') + '">'
-      + '<div class="ev-dot" style="background:' + esc(k.color) + '"></div>'
-      + '<div class="ev-when">' + esc(evWhen(x)) + '</div>'
-      + '<div class="ev-body">'
-      +   '<span class="ev-tag" style="color:' + esc(k.color)
-      +     ';border-color:' + esc(k.color) + '33">' + esc(k.label) + '</span> '
-      +   '<b>' + esc(x.title) + '</b>'
-      +   (x.note ? '<div class="ev-note">' + esc(x.note) + '</div>' : '')
-      +   ((x.place || x.owner)
-          ? '<div class="ev-note">'
-            + (x.place ? '📍 ' + esc(x.place) : '')
-            + (x.place && x.owner ? ' · ' : '')
-            + (x.owner ? '담당 ' + esc(x.owner) : '') + '</div>'
-          : '')
-      + '</div>'
-      + '<div class="ev-dday-s">' + esc(live ? '진행 중' : (dim ? '' : evDdayText(n))) + '</div>'
-      + (isOfficer()
-          ? '<button class="btn-sm" onclick="evOpen(' + x.id + ')">고치기</button>' : '')
+    var right = (side++ % 2) === 1;
+    var card =
+        '<div class="ev-card">'
+      +   '<div class="ev-when">' + esc(evWhen(x)) + '</div>'
+      +   '<div class="ev-body">'
+      +     '<span class="ev-tag" style="color:' + esc(k.color) + '">'
+      +       esc(k.label) + '</span>'
+      +     '<b>' + esc(x.title) + '</b>'
+      +     (x.note ? '<div class="ev-note">' + esc(x.note) + '</div>' : '')
+      +     ((x.place || x.owner)
+            ? '<div class="ev-note">'
+              + (x.place ? esc(x.place) : '')
+              + (x.place && x.owner ? ' · ' : '')
+              + (x.owner ? esc(x.owner) : '') + '</div>'
+            : '')
+      +   '</div>'
+      +   '<div class="ev-dday-s">' + esc(live ? '진행 중' : (dim ? '' : evDdayText(n))) + '</div>'
+      +   (isOfficer()
+            ? '<button class="btn-sm" onclick="evOpen(' + x.id + ')">고치기</button>' : '')
       + '</div>';
+    var pad = '<div class="ev-half ev-pad"></div>';
+    return '<div class="ev-row' + (dim ? ' dim' : '') + (live ? ' live' : '')
+         + (right ? ' ev-r' : '') + '" style="color:' + esc(k.color) + '">'
+         + (right ? pad + '<div class="ev-half">' + card + '</div>'
+                  : '<div class="ev-half">' + card + '</div>' + pad)
+         + '<div class="ev-dot"></div>'
+         + '</div>';
   };
 
-  box.innerHTML =
-      (up.length ? up.map(function(x){ return row(x, false); }).join('')
+  box.innerHTML = '<div class="ev-line">'
+    + (up.length ? up.map(function(x){ return row(x, false); }).join('')
                  : '<div class="empty" style="padding:14px">앞으로의 일정이 없습니다.</div>')
     + (past.length
-        ? '<div class="ev-sep">지난 일정 ' + past.length + '건 '
+        ? '<div class="ev-sep"><span>지난 일정 ' + past.length + '건 '
           + '<a href="#" onclick="evTogglePast();return false;" id="evPastA">'
-          + (evShowPast ? '접기' : '펼치기') + '</a></div>'
+          + (evShowPast ? '접기' : '펼치기') + '</a></span></div>'
           + '<div id="evPast" class="' + (evShowPast ? '' : 'hidden') + '">'
           + past.map(function(x){ return row(x, true); }).join('') + '</div>'
-        : '');
+        : '')
+    + '</div>';
 }
 var evShowPast = false;
 function evTogglePast(){
@@ -16876,10 +16932,14 @@ function pfRender(d){
       + '<div class="pf-foot">AI 가 지금 보유 종목·비중·수익률만 보고 쓴 글입니다. '
       + '투자 조언이 아니라 생각해 볼 거리로 봐주세요.</div>';
   }
+  /*  ⚠️ 금액은 <여기에 안 적습니다>. 학회장: «가격 공개하지 말고 그냥
+      설정에 더하는 식으로만 임원진만 보게».
+      팀 카드는 13명이 늘 보는 자리라, 한 번에 얼마인지가 매번 눈에
+      들어오면 «이거 눌러도 되나» 를 재게 됩니다. 총액은 설정의
+      <쓰임새별 비용> 에 쌓입니다.                                    */
   if (when)
     when.textContent = (d && d.at)
       ? new Date(d.at).toLocaleString('ko-KR', { dateStyle:'short', timeStyle:'short' })
-        + (d.cost_usd != null ? ' · $' + Number(d.cost_usd).toFixed(4) : '')
       : '';
   if (btn){
     /*  ⚠️ 남의 팀 진단을 대신 돌려주면 안 됩니다 — 하루 한 번인데
@@ -16929,8 +16989,6 @@ async function pfRefresh(){
     pfRender(d);
     //  서버가 준 것을 그대로 그린 뒤, 저장된 값으로 한 번 더 맞춥니다
     pfLoad();
-    if (d && d.cost_now != null)
-      warn('pfMsg', '이번 호출 비용 <b>$' + Number(d.cost_now).toFixed(4) + '</b>', 'info');
   } catch(e){
     warn('pfMsg', esc(e.message));
     if (btn){ btn.disabled = false; btn.textContent = '진단 받기'; }
