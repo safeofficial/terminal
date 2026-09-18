@@ -1624,7 +1624,12 @@
         <div class="card">
           <h2>팀 순위
             <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">수익률 기준</span>
-            <span class="tools"><button class="btn-sm" onclick="mtLoadLeague()">새로고침</button></span>
+            <span class="tools">
+              <!--  ⚠️ «저절로 갱신된다» 는 걸 눈으로 알 수 있어야 손으로
+                    새로고침을 안 누릅니다.                            -->
+              <span id="mtLeagueAsOf" class="st-hint"></span>
+              <button class="btn-sm" onclick="mtLoadLeague()">새로고침</button>
+            </span>
           </h2>
           <div id="mtTeams"><div class="empty" style="padding:22px">불러오는 중…</div></div>
         </div>
@@ -3664,29 +3669,79 @@ async function enterApp(){
   showTab('home');
 }
 
+/*  ── 상단 탭을 누르면 <그 탭의 첫 화면> 으로 ──────────────────
+
+    ⚠️ 학회장: «퀀트지표 보다가 페이지 하단으로 내려가면, 또 올라가서
+       리그로 다시 클릭하기 시간 걸리니까, 그냥 상단 목록 클릭하면
+       그 첫 페이지로 다시 갈 수 있도록».
+
+       탭은 <보여줄 칸> 만 바꾸고 안쪽 상태는 그대로 뒀습니다. 그래서
+       모의투자 탭을 눌러도 아까 보던 팀 방 · 퀀트지표 탭 · 스크롤
+       위치가 그대로였습니다. 돌아갈 길이 화면 맨 위에만 있었고요.
+
+    ⚠️ 다만 <이미 그 탭에 있을 때만> 처음으로 되돌립니다. 다른 탭에서
+       넘어온 것까지 되돌리면, 팀 방을 보다가 잠깐 홈 갔다 온 사람이
+       방을 잃습니다.                                                */
 function showTab(name){
+  var same = document.querySelector('.tab.on');
+  var again = !!same && same.dataset.tab === name;
+
   ['home','research','trading','company','ai','deriv','flow','links','access','admin'].forEach(function(t){
     var p = $('pane-'+t); if (p) p.classList.toggle('hidden', t !== name);
   });
   document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('on', b.dataset.tab === name); });
+
+  /*  ⚠️ 되돌리기와 «맨 위로» 를 <먼저> 합니다.
+
+      처음엔 맨 아래에 뒀는데, 그 위의 init* 중 하나가 터지면 showTab
+      전체가 거기서 멈춰서 <스크롤도 안 올라가고 되돌아가지도 않았습니다>.
+      화면 전환 같은 기본 동작이 한 섹션의 사정에 걸려 있으면 안 됩니다.  */
+  if (again) { try { tabHome(name); } catch(e){ /* 되돌리기 실패가 탭 전환을 막지 않습니다 */ } }
+  /*  ⚠️ 부드럽게 올리면 안 됩니다. 탭을 바꾸면 칸이 숨었다 보이면서
+      높이가 출렁이는데, 그 사이에 부드러운 스크롤이 <끊깁니다> —
+      실제로 900px 에서 2px 만 움직이고 멈췄습니다. 게다가 3,000px 를
+      천천히 올라가는 건 기다리는 쪽에서도 답답합니다.
+      화면이 통째로 바뀌는 자리라 <즉시> 가 맞습니다.                 */
+  window.scrollTo(0, 0);
+
   //  숨김이 풀리고 실제 크기가 잡힌 뒤에 맞춥니다 (두 번 그려야 확실합니다)
   requestAnimationFrame(function(){ requestAnimationFrame(resizeAllCharts); });
   setTimeout(resizeAllCharts, 120);
-  if (name==='home'){ initHome(); loadEvents(); }
-  if (name==='trading') initTrading();
-  if (name==='company') initCompany();
-  if (name==='ai')      initAi();
-  if (name==='deriv')   initDeriv();
-  if (name==='flow')    initFlow();
-  if (name==='links')   loadLinks();
-  if (name==='access')  loadAccess();
-  if (name==='admin')   loadAdmin();
+
+  /*  ⚠️ 섹션 하나가 터져도 <탭 전환은 끝나야> 합니다. 예전에는 초기화가
+      줄줄이 이어져 있어서, 한 곳에서 던지면 뒤의 초기화도 스크롤도
+      전부 안 돌았습니다.                                             */
+  var go = function(fn){ try { fn(); } catch(e){ console.warn('탭 초기화 실패', name, e); } };
+  if (name==='home'){ go(initHome); go(loadEvents); }
+  if (name==='trading') go(initTrading);
+  if (name==='company') go(initCompany);
+  if (name==='ai')      go(initAi);
+  if (name==='deriv')   go(initDeriv);
+  if (name==='flow')    go(initFlow);
+  if (name==='links')   go(loadLinks);
+  if (name==='access')  go(loadAccess);
+  if (name==='admin')   go(loadAdmin);
   //  차트를 한 번도 안 그린 상태면 빈 흰 상자만 보입니다 — 안내 문구라도 띄웁니다.
   if (name==='research') setTimeout(function(){
     if (chart) chart.resize(); else if (typeof echarts !== 'undefined') drawChart(); }, 60);
   if (name==='research') setTimeout(function(){
     if (dtChart) dtChart.resize(); if (dtBar) dtBar.resize(); }, 70);
   if (name==='home' && homeFxChart) setTimeout(function(){ homeFxChart.resize(); }, 60);
+}
+
+/*  그 탭의 «첫 화면» 이 무엇인지 — 탭마다 다릅니다.  */
+function tabHome(name){
+  if (name === 'trading'){
+    //  모의투자의 첫 화면은 <리그(순위표)> 입니다
+    var lg = $('mtLeague');
+    if (lg && lg.classList.contains('hidden')) mtLeave();
+    else { tradeView = 'now'; }
+    return;
+  }
+  //  ⚠️ AI 분석은 «새 리포트 / 보관함» 두 칸입니다 — 첫 화면은 «새 리포트»
+  if (name === 'ai' && typeof aiShow === 'function'){ aiShow('new'); return; }
+  /*  나머지 탭(경제지표·기업분석·파생·자금흐름·자료실·접속기록·설정)은
+      안쪽에 «화면 안의 화면» 이 없어서, 맨 위로 올리는 것이 곧 첫 화면입니다. */
 }
 
 /* ══════════ 데이터 호출 ══════════ */
@@ -11270,12 +11325,63 @@ function mtTick(){
     $('mtRoomClock').textContent = '종료까지 ' + d + '일 ' + h + '시간 ' + m + '분';
 }
 
+/*  ── 순위표 자동 새로고침 ────────────────────────────────────
+
+    ⚠️ 학회장: «모의투자 딱 클릭했을 때 나오는 페이지에 팀별 수익률이
+       새로고침 안 하면 새로고침이 안 되더라».
+
+       팀 <방> 은 30초마다 저절로 받아오는데, 정작 처음 보이는
+       <순위표> 에는 타이머가 아예 없었습니다. 그래서 하루 종일 켜놓으면
+       아침 수익률이 저녁까지 그대로 떠 있었습니다.
+
+    ⚠️ 멈춰야 할 때가 셋 있습니다.
+         · 대회가 끝났을 때 — 끝난 성적을 계속 다시 받을 이유가 없습니다
+         · 다른 화면에 있을 때 — 순위표가 안 보이는데 부를 이유가 없습니다
+         · 탭이 숨었을 때 — 브라우저 뒤에서 조용히 호출만 쌓입니다      */
+var MT_LEAGUE_MS = 5 * 60 * 1000;
+var mtLeagueTimer = null;
+
+function mtContestOver(){
+  var e = contest && contest.ends_at;
+  return !!e && Date.now() >= Date.parse(e);
+}
+
+function mtLeagueStop(){
+  if (mtLeagueTimer){ clearInterval(mtLeagueTimer); mtLeagueTimer = null; }
+}
+
+function mtLeagueAuto(){
+  mtLeagueStop();
+  if (mtContestOver()) return;          //  끝난 대회는 안 돕니다
+  mtLeagueTimer = setInterval(function(){
+    var box = $('mtLeague');
+    //  순위표가 화면에 없거나 탭이 숨었으면 이번 차례는 거릅니다
+    if (!box || box.classList.contains('hidden') || document.hidden) return;
+    if (mtContestOver()){ mtLeagueStop(); mtLeagueNote(); return; }
+    mtLoadLeague();
+  }, MT_LEAGUE_MS);
+}
+
+//  ⚠️ «저절로 갱신된다» 는 걸 눈으로 알 수 있어야 합니다
+function mtLeagueNote(){
+  var el = $('mtLeagueAsOf'); if (!el) return;
+  el.innerHTML = mtContestOver()
+    ? '대회가 끝나 순위가 더 바뀌지 않습니다.'
+    : '<span class="live-dot"></span>'
+      + new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })
+      + ' 기준 <span class="st-hint">· 5분마다 저절로 갱신됩니다</span>';
+}
+
 async function mtLoadLeague(){
   var box = $('mtTeams'); if (!box) return;
+  //  마감 시각을 아직 못 읽었으면 한 번 읽어옵니다 (멈출 때를 알아야 합니다)
+  if (!contest || contest.ends_at === undefined){ try { await loadContest(); } catch(e){} }
   try {
     var r = await sb.rpc('league_board');
     if (r.error) throw new Error(errMsg(r.error));
     mtBoard = r.data || [];
+    mtLeagueNote();
+    mtLeagueAuto();
   } catch(e){
     box.innerHTML = '<div class="empty" style="padding:22px">' + esc(e.message) + '</div>';
     return;
@@ -11390,6 +11496,8 @@ function mtResetRoomView(){
 async function mtEnter(teamId){
   var row = mtBoard.filter(function(t){ return Number(t.team_id) === Number(teamId); })[0];
   mtCanTrade = isOfficer() || (mtMyTeam === Number(teamId));
+  //  ⚠️ 팀 방에 있는 동안은 순위표를 안 받습니다 (안 보이는 화면입니다)
+  mtLeagueStop();
   mtResetRoomView();
 
   $('mtLeague').classList.add('hidden');
@@ -20136,6 +20244,18 @@ async function loadContest(){
     var r = await sb.rpc('contest_settings');
     contest = (r.data && !r.error) ? r.data : {};
   } catch(e){ contest = {}; }
+  /*  ⚠️ contest_settings() 는 마감 시각을 안 줍니다. 순위표를 5분마다
+      저절로 새로 받되 <대회가 끝나면 멈춰야> 하는데, 언제 끝나는지를
+      알 길이 없었습니다. 표는 학회원도 읽을 수 있으니 여기서 같이
+      읽어둡니다 (SQL 을 새로 돌릴 필요가 없습니다).                 */
+  try {
+    var c = await sb.from('contest').select('gen, starts_at, ends_at')
+                    .order('gen', { ascending: false }).limit(1).maybeSingle();
+    if (c.data && !c.error){
+      contest.ends_at = c.data.ends_at;
+      contest.starts_at = contest.starts_at || c.data.starts_at;
+    }
+  } catch(e){ /* 못 읽어도 순위표는 돕니다 — 멈추는 것만 못 합니다 */ }
 
   var u = await sb.from('universe').select('market,symbol,name').order('market').order('symbol');
   universe = (u.data && !u.error) ? u.data : [];
