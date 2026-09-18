@@ -1206,7 +1206,7 @@
             <option value="0">전체</option>
           </select>
         </div>
-        <div id="homeFxBox" style="height:calc(280px * var(--chz,1))"></div>
+        <div id="homeFxBox" style="height:calc(190px * var(--chz,1))"></div>
       </div>
 
       <!-- 팀 성적표 — 모의투자 탭에서 여기로 옮겨왔습니다 -->
@@ -1471,10 +1471,10 @@
             </div>
             <div class="row">
               <label>차트 크기</label>
-              <input type="number" id="wSel" placeholder="자동" min="320" max="3000" step="20"
+              <input type="number" id="wSel" value="880" placeholder="자동" min="320" max="3000" step="20"
                      oninput="applyChartSize()" style="width:72px">
               <span style="color:var(--text-sub);font-size:12px">&times;</span>
-              <input type="number" id="hSel" value="540" min="200" max="2000" step="20"
+              <input type="number" id="hSel" value="400" min="200" max="2000" step="20"
                      oninput="applyChartSize()" style="width:72px">
               <button class="btn-sm" onclick="resetChartSize()">자동</button>
             </div>
@@ -1546,6 +1546,17 @@
               </span>
             </h2>
             <div id="chartBox"></div>
+            <!--  ⚠️ 일드커브가 위 차트를 넘겨받을 때, 아래 카드에 있던
+                  시점 손잡이·표를 <그대로 옮겨> 여기 담습니다.        -->
+            <div id="ycMainPanel" class="hidden" style="margin-top:10px">
+              <div id="ycMainCtl"></div>
+              <div class="row" style="margin-top:6px">
+                <button class="btn-sm" onclick="ycFromMain()">일드커브 끄기</button>
+                <span class="st-hint grow">가로축이 «날짜»가 아니라 «만기»입니다.
+                  올려둔 지표는 그대로 있고, 끄면 돌아옵니다.</span>
+              </div>
+              <div id="ycMainOut"></div>
+            </div>
             <!--  ⚠️ 안 보이는 기능은 없는 기능입니다. 어떻게 쓰는지 적어둡니다. -->
             <div class="st-hint" style="margin-top:6px;display:flex;gap:14px;flex-wrap:wrap">
               <span>🖱 <b>휠</b> — 좌우(기간) 확대·축소</span>
@@ -1702,20 +1713,24 @@
             <button class="btn-sm" onclick="loadYC(true)">새로 받기</button>
           </span>
         </h2>
-        <div class="row" style="margin-bottom:2px;align-items:flex-start">
-          <span class="st-hint" style="flex:none;padding-top:4px">시점</span>
-          <div class="nf-chips grow" id="ycChips"></div>
+        <div id="ycCtl">
+          <div class="row" style="margin-bottom:2px;align-items:flex-start">
+            <span class="st-hint" style="flex:none;padding-top:4px">시점</span>
+            <div class="nf-chips grow" id="ycChips"></div>
+          </div>
+          <div class="row" style="margin-top:2px">
+            <label style="min-width:auto">직접 고르기</label>
+            <input type="date" id="ycDate" style="width:168px">
+            <button class="btn-sm" onclick="ycAddDate()">+ 그날 커브 얹기</button>
+            <span class="st-hint grow" id="ycRange"></span>
+          </div>
+          <div id="ycWarn"></div>
         </div>
-        <div class="row" style="margin-top:2px">
-          <label style="min-width:auto">직접 고르기</label>
-          <input type="date" id="ycDate" style="width:168px">
-          <button class="btn-sm" onclick="ycAddDate()">+ 그날 커브 얹기</button>
-          <span class="st-hint grow" id="ycRange"></span>
-        </div>
-        <div id="ycWarn"></div>
         <div id="ycBox" style="height:calc(320px * var(--chz,1))"></div>
-        <div class="scroll" style="margin-top:8px"><table id="ycTable"></table></div>
-        <p class="st-hint" id="ycNote" style="margin-top:8px"></p>
+        <div id="ycOut">
+          <div class="scroll" style="margin-top:8px"><table id="ycTable"></table></div>
+          <p class="st-hint" id="ycNote" style="margin-top:8px"></p>
+        </div>
       </div>
     </div>
 
@@ -4168,7 +4183,11 @@ function renderCatCats(){
          + ' onclick="setCatCat(this.dataset.k)">' + esc(label)
          + ' <b style="font-weight:600;opacity:.65">' + esc(String(n)) + '</b></span>';
   };
-  box.innerHTML = chip('', '전체', base.length, !catCat)
+  //  ⚠️ 일드커브는 DB 에 없으니 칸 수를 직접 하나 더해 줍니다.
+  //     안 그러면 «금리 3» 인데 목록엔 4개가 보입니다.
+  if (!seen[YC_CAT]){ seen[YC_CAT] = 0; keys.push(YC_CAT); }
+  seen[YC_CAT]++;
+  box.innerHTML = chip('', '전체', base.length + 1, !catCat)
     + keys.map(function(k){ return chip(k, k, seen[k], catCat === k); }).join('');
 }
 
@@ -4181,11 +4200,26 @@ function renderCatalogSel(){
   var byCat = {};
   list.forEach(function(c){ (byCat[c.category] = byCat[c.category] || []).push(c); });
   var html = '<option value="">지표를 고르세요</option>';
+  /*  ⚠️ 학회장: «그냥 지표 추가에서 차트 나오게 할 수 있게 해줘. 다른
+      지표들 나오는 차트에 나오게. 금리 카테고리에 넣으면 될 듯».
+
+      일드커브는 DB 의 지표 목록에 없습니다 — 하나의 계열이 아니라
+      <만기 열한 개를 한 날짜에 세운 것> 이라서요. 그래서 목록에만
+      끼워 넣고, 고르면 위 차트가 <커브 모드> 로 바뀝니다.
+
+      ⚠️ 시계열 지표와 <같은 그림에> 겹칠 수는 없습니다. 가로축이
+      «날짜» 와 «만기» 로 서로 다릅니다. 겹쳐 그리면 둘 다 거짓말이
+      됩니다. 그래서 커브를 고르면 차트를 <넘겨받습니다>. */
+  var ycOpt = '<option value="' + YC_ID + '">★★★  미국 일드커브 (만기별 곡선)</option>';
+  var ycShow = (!catCat || catCat === YC_CAT);
+  var ycPut = false;
   Object.keys(byCat).forEach(function(cat){
     //  ⚠️ 분류 안에서는 <별이 많은 것부터>. 그래야 열자마자 눈에 띕니다.
     var g = byCat[cat].slice().sort(function(a, b){
       return (starOf(b) - starOf(a)) || (Number(a.sort_order) - Number(b.sort_order)); });
     html += '<optgroup label="' + esc(cat) + '">';
+    //  ⚠️ 별이 많은 것부터라 일드커브(★★★)는 맨 위가 자연스럽습니다
+    if (ycShow && cat === YC_CAT){ html += ycOpt; ycPut = true; }
     g.forEach(function(c){
       html += '<option value="' + c.id + '">'
             + starTxt(starOf(c)) + '  ' + esc(c.label)
@@ -4193,6 +4227,9 @@ function renderCatalogSel(){
     });
     html += '</optgroup>';
   });
+  //  «금리» 묶음이 아예 없는 경우에만 새로 만듭니다
+  if (ycShow && !ycPut)
+    html += '<optgroup label="' + esc(YC_CAT) + '">' + ycOpt + '</optgroup>';
   sel.innerHTML = html;
   //  걸러도 고르던 지표가 목록에 남아 있으면 그대로 둡니다
   if (keep && sel.querySelector('option[value="' + keep + '"]')) sel.value = keep;
@@ -4224,9 +4261,14 @@ function onManualSource(){
   $('mEcosRow').style.display = $('mSource').value === 'ecos' ? 'flex' : 'none';
 }
 
+var YC_ID = '__yieldcurve__', YC_CAT = '금리';
+
 function addFromCatalog(){
   var id = $('catalogSel').value;
   if (!id) return;
+  if (id === YC_ID){ ycToMain(); return; }
+  //  다른 지표를 올리면 커브 모드에서 빠져나옵니다
+  if (macroMode === 'curve') ycFromMain();
   var c = catalog.filter(function(x){ return String(x.id) === String(id); })[0];
   if (!c) return;
   addSeries({ source:c.source, code:c.code, item_code:c.item_code||'', cycle:c.cycle||'M',
@@ -5806,13 +5848,17 @@ function fxDp(sym, v){
 function renderHomeFx(){
   var d = homeFx; if (!d) return;
   var live = d.pairs.filter(function(p){ return p.last != null; });
-  /*  ⚠️ «2026-09-18 기준» 만 적혀 있으면 그게 <오늘 종가> 인지 <지금 값>
-      인지 알 수 없습니다. 지금 값이면 몇 분 전 것인지 적습니다.      */
   var liveN = live.filter(function(p){ return p.kind === 'live'; }).length;
-  $('homeFxAsOf').textContent = !live.length ? ''
-    : (liveN && d.live_at
-        ? (nfAgo(d.live_at) + ' 기준 · 30분마다 갱신 · ' + d.source)
-        : (live[0].on + ' 종가 기준 · ' + d.source));
+  /*  ⚠️ 학회장: «우상단에 2026...종가기준...EODHD+FRED 이거 지워줘».
+      지웁니다. 다만 <조건부> 로 지웁니다 —
+
+        · 지금 값이면  : 아무것도 안 적습니다 (깔끔하게)
+        · 지금 값이 아니면 : 그건 <알려줘야 하는 사실> 입니다.
+          숫자만 덩그러니 두면 일주일 묵은 환율을 오늘 값으로 읽습니다.
+          바로 그것 때문에 이 이야기가 나왔습니다.
+
+      그래서 «멀쩡하면 조용하고, 어긋나면 말하는» 쪽으로 둡니다.       */
+  $('homeFxAsOf').textContent = '';
 
   if (!live.length){
     $('homeFxTiles').innerHTML = '<div class="empty" style="padding:22px">'
@@ -5832,7 +5878,29 @@ function renderHomeFx(){
     + '주 · 월 · 1년 변화는 아래 차트에서 기간을 바꿔 보세요.</p>';
   }
 
-  if (d.note) warn('homeWarn', esc(d.note), 'info'); else warn('homeWarn','');
+  /*  ── 왜 값이 묵었는지 짚어줍니다 ────────────────────────────
+
+      ⚠️ 학회장 화면이 «2026-09-11 종가 · EODHD + FRED» 였습니다. 오늘은
+         9월 18일입니다. 일주일 묵은 값인데 화면은 아무 말이 없었습니다.
+
+      ⚠️ 원인이 둘인데 겉보기가 같습니다 —
+           ① 엣지 함수를 아직 안 올림  (이 경우가 실제로 여러 번)
+           ② 올렸는데 시세 창구가 다 막힘
+         구분해서 말해야 손을 어디에 쓸지 알 수 있습니다.
+         ①은 답에 <판 번호(build)> 가 없는 것으로 알아냅니다.          */
+  var oldEdge = !d.build;
+  var stale = !liveN;
+  if (d.note) warn('homeWarn', esc(d.note), 'info');
+  else if (oldEdge)
+    warn('homeWarn', isOfficer()
+      ? '⚠️ <b>옛 엣지 함수가 떠 있습니다.</b> 환율이 일별 종가로만 옵니다 — '
+        + 'Supabase → Edge Functions 에서 <b>edge-market-data.ts</b> 를 올려주세요.'
+      : '환율이 지금 값이 아닙니다 — 임원진이 손보는 중입니다.', 'info');
+  else if (stale)
+    warn('homeWarn', '지금 환율을 받지 못해 <b>'
+      + esc(live.length ? fmtDateKo(live[0].on) : '지난') + ' 종가</b>를 보여주고 있습니다. '
+      + '창구가 막혔을 수 있습니다.', 'info');
+  else warn('homeWarn','');
 
   var sel = $('homeFxSel'), keep = sel.value;
   sel.innerHTML = live.map(function(p){
@@ -10582,9 +10650,12 @@ function applyChartSize(){
     두면 920px 이 되는데, 매크로 차트는 그만큼 길 이유가 없습니다
     (가로로 긴 시계열이라 세로가 늘면 여백만 늘어납니다).
     여기는 고정 기본값을 쓰고, 더 키우고 싶으면 옆 숫자칸에 적습니다.  */
-var MACRO_H = 540;
+/*  ⚠️ 학회장: «매크로 차트 크기는 880x400을 디폴트로 해줘».
+    예전 기본은 <가로 자동 · 세로 540> 이었습니다. 가로를 비워두면
+    화면 폭을 꽉 채우는데, 발표 자료에 넣을 때마다 매번 줄여야 했습니다. */
+var MACRO_W = 880, MACRO_H = 400;
 function resetChartSize(){
-  if ($('wSel')) $('wSel').value = '';
+  if ($('wSel')) $('wSel').value = MACRO_W;
   if ($('hSel')) $('hSel').value = MACRO_H;
   applyChartSize();
 }
@@ -10882,8 +10953,62 @@ function alignAxes(ranges, N, needZero){
   });
 }
 
+/*  ── 위 차트를 일드커브가 넘겨받는 모드 ──────────────────────
+
+    ⚠️ 커브와 시계열은 <가로축이 다릅니다> — 한쪽은 날짜, 한쪽은 만기.
+       한 그림에 겹치면 둘 다 거짓말이 됩니다. 그래서 겹치지 않고
+       <넘겨받습니다>. 올려둔 지표는 지우지 않고 그대로 둡니다 —
+       커브를 끄면 있던 그림이 그대로 돌아옵니다.                     */
+var macroMode = 'series';
+
+/*  ⚠️ 손잡이·표를 <복사> 하지 않고 <옮깁니다>. 복사본을 만들면 둘이
+    서로 다른 시점을 보여주게 되고, 어느 쪽이 진짜인지 알 수 없습니다. */
+function ycMove(toMain){
+  var ctl = $('ycCtl'), out = $('ycOut');
+  var a = toMain ? $('ycMainCtl') : $('ycCard');
+  var bx = $('ycBox');
+  if (!ctl || !out || !a) return;
+  if (toMain){
+    $('ycMainCtl').appendChild(ctl);
+    $('ycMainOut').appendChild(out);
+  } else {
+    //  카드 안 제자리로 — 손잡이는 차트 위, 표는 차트 아래
+    a.insertBefore(ctl, bx);
+    a.appendChild(out);
+  }
+}
+
+function ycToMain(){
+  if (macroMode === 'curve') return;
+  macroMode = 'curve';
+  ycMove(true);
+  var p = $('ycMainPanel'); if (p) p.classList.remove('hidden');
+  //  ⚠️ 같은 그림을 두 군데에 두지 않습니다 — 아래 카드는 접습니다
+  var c = $('ycCard'); if (c) c.classList.add('hidden');
+  warn('researchWarn',
+    '위 차트가 <b>일드커브</b>로 바뀌었습니다 — 가로축이 «날짜»가 아니라 «만기»입니다. '
+    + '올려둔 지표는 지워지지 않았고, <b>「일드커브 끄기」</b>를 누르면 돌아옵니다.', 'info');
+  if (!ycLoaded) loadYC(); else ycDraw();
+}
+function ycFromMain(){
+  if (macroMode !== 'curve') return;
+  macroMode = 'series';
+  var p = $('ycMainPanel'); if (p) p.classList.add('hidden');
+  var c = $('ycCard'); if (c) c.classList.remove('hidden');
+  ycMove(false);
+  warn('researchWarn','');
+  //  ⚠️ 넘겨받는 동안 chartBox 에 커브를 그려놨습니다. 시계열로 돌아갈 때
+  //     그 인스턴스를 버려야 축 설정(오른쪽 눈금 등)이 안 따라옵니다.
+  if (ycChart){ try { ycChart.dispose(); } catch(e){} ycChart = null; }
+  if (chart){ try { chart.dispose(); } catch(e){} chart = null; }
+  drawChart();
+  ycDraw();
+}
+
 function drawChart(){
   if (!chartsReady()) return;
+  //  ⚠️ 커브 모드면 여기서 갈라집니다. 아래 시계열 그리기는 건드리지 않습니다.
+  if (macroMode === 'curve'){ ycDraw(); return; }
   chart = chartOn('chartBox', chart); if (!chart) return;
   bindAxisWheel();
   var norm = $('normSel') && $('normSel').checked;
@@ -17753,7 +17878,13 @@ var YC_PRESETS = [
   ['y1',  '1년 전',    365],
   ['y2',  '2년 전',    730],
   ['y3',  '3년 전',    1095],
-  ['y5',  '5년 전',    1826]
+  ['y5',  '5년 전',    1826],
+  //  ⚠️ 학회장: «5년 이상으로도 더 보고 싶어서». 1개월물은 2001년,
+  //     10년물은 1962년부터 있습니다. 옛 시점은 짧은 만기가 비는데,
+  //     그 자리는 선이 끊기는 대신 이어서 그립니다(connectNulls).
+  ['y10', '10년 전',   3653],
+  ['y15', '15년 전',   5479],
+  ['y20', '20년 전',   7305]
 ];
 //  기본은 «최근 + 1년 전» — 학회장이 말한 «연 단위로 차이» 가 이것입니다
 var ycPick = { now: 1, y1: 1 };
@@ -17781,6 +17912,20 @@ function ycLabelOf(want){
     if (ycPick[YC_PRESETS[i][0]] && ycBack(YC_PRESETS[i][2]) === want)
       return YC_PRESETS[i][1];
   return fmtDateKo(want);
+}
+
+/*  ── 커브 색 ────────────────────────────────────────────────
+
+    ⚠️ 시점끼리는 <종류가 다른 것> 이 아니라 <같은 것의 다른 때> 입니다.
+       그래서 학회 팔레트(종류별 색)를 돌려 쓰면 «빨강 커브가 뭐였지» 를
+       매번 범례에서 찾게 됩니다.
+
+    최근은 진한 파랑, 옛날로 갈수록 옅은 회색 — 눈이 <시간 순서> 를
+    그대로 읽습니다. 사진으로 주신 그림도 같은 결이었습니다.          */
+var YC_GREY = ['#3c4657', '#5a6478', '#7a8496', '#99a2b2', '#b3bac7', '#c9cfd9', '#dde1e8'];
+function ycColor(i, n){
+  if (i === 0) return '#2a5aa8';              //  최근 — 진한 파랑
+  return YC_GREY[Math.min(i - 1, YC_GREY.length - 1)];
 }
 
 function ycChips(){
@@ -17863,28 +18008,41 @@ function ycDraw(){
     $('ycDate').min = d.min_date || ''; $('ycDate').max = d.max_date || '';
   }
 
-  var box = $('ycBox'); if (!box) return;
+  /*  ⚠️ 넘겨받은 동안에는 <위 차트 상자> 에 그립니다. 그래야 학회장이
+      쓰던 «차트 크기 880×400» 손잡이가 그대로 먹습니다 — 이 기능을
+      옮겨달라고 한 이유가 그것입니다.                                */
+  var box = $(macroMode === 'curve' ? 'chartBox' : 'ycBox'); if (!box) return;
   ycChart = chartOn(box, ycChart); if (!ycChart) return;
   var names = d.curves.map(function(c){ return ycLabelOf(c.want); });
   ycChart.setOption({
     backgroundColor: theme ? theme.bg : '#fff', animation:false,
-    grid:{ left:56, right:22, top:34, bottom:38 },
-    legend:{ top:4, type:'plain', textStyle:{ fontSize:11 }, itemWidth:14, itemHeight:3, data:names },
+    //  ⚠️ 눈금이 오른쪽이라 왼쪽 여백은 줄이고 오른쪽을 넓힙니다
+    grid:{ left:16, right:62, top:16, bottom:46, containLabel:true },
+    //  ⚠️ 범례를 아래로. 커브가 여덟 개까지 늘 수 있어 위에 두면
+    //     두 줄로 접히면서 그림을 눌러버립니다.
+    legend:{ bottom:0, type:'scroll', textStyle:{ fontSize:11 },
+             itemWidth:16, itemHeight:3, itemGap:14, data:names },
     tooltip:{ trigger:'axis', textStyle:{ fontSize:11.5 },
-      valueFormatter:function(v){ return v == null ? '—' : num(Number(v), 2) + '%'; } },
+      valueFormatter:function(v){ return v == null ? '—' : num(Number(v), 3) + '%'; } },
     xAxis:{ type:'category', data:labs, boundaryGap:false,
       axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
-      axisLabel:{ color:'#77809a', fontSize:11 } },
-    yAxis:{ type:'value', name:'%', scale:true,
-      nameTextStyle:{ color:'#77809a', fontSize:11 },
+      axisTick:{ show:false },
+      axisLabel:{ color:'#77809a', fontSize:11 },
+      //  만기마다 옅은 세로선 — 어느 만기인지 눈이 바로 찾습니다
+      splitLine:{ show:true, lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } } },
+    /*  ⚠️ 눈금을 <오른쪽> 에 둡니다. 커브는 오른쪽 끝(장기물)에서 값을
+        읽는 일이 많아서, 눈이 왼쪽까지 되돌아가지 않아도 됩니다.     */
+    yAxis:{ type:'value', position:'right', scale:true,
+      axisLine:{ show:false }, axisTick:{ show:false },
       axisLabel:{ color:'#77809a', fontSize:11,
-        formatter:function(v){ return num(v, 2); } },
+        formatter:function(v){ return num(v, 2) + '%'; } },
       splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } } },
     series: d.curves.map(function(c, i){
+      var col = ycColor(i, d.curves.length);
       return { name: names[i], type:'line', smooth:false, connectNulls:true,
-               symbol:'circle', symbolSize:5,
-               lineStyle:{ width: i === 0 ? 2.4 : 1.6, color: pal[i % pal.length] },
-               itemStyle:{ color: pal[i % pal.length] },
+               symbol:'circle', symbolSize: i === 0 ? 6 : 5,
+               lineStyle:{ width: i === 0 ? 2.2 : 1.6, color: col },
+               itemStyle:{ color: col },
                data: c.values };
     })
   }, true);
