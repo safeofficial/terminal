@@ -714,6 +714,16 @@
   }
 
   /* ── 모의투자 ── */
+  /*  ── 평단 띠 ────────────────────────────────────────────
+      ⚠️ 차트 안에 못 그으니 <제목 아래 왼쪽> 에 답니다. 알약을 두르지
+         않습니다 — 딱지처럼 보이면 그게 먼저 읽힙니다. 숫자가 주인공.  */
+  .mt-avg{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;
+    margin:-4px 0 10px;font-size:12.5px;color:var(--text-sub);
+    font-variant-numeric:tabular-nums}
+  .mt-avg b{color:var(--text);font-weight:600}
+  .mt-avg .sep{color:var(--border)}
+  .mt-avg .pct{font-weight:700}
+  .mt-avg .pct.up{color:var(--up)} .mt-avg .pct.dn{color:var(--down)}
   .mt-clock{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
   .mt-clock .u{background:var(--bg);border:1px solid var(--border);border-radius:10px;
     padding:10px 16px;text-align:center;min-width:78px}
@@ -2117,8 +2127,13 @@
               <button class="btn-sm" onclick="mtCloseSymChart()">닫기</button>
             </span>
           </h2>
+          <!--  ⚠️ 학회장: «좌상 종목명 주가 추이 아래에 평단 놔줘».
+                TradingView 차트 위에는 우리 평단선을 못 긋습니다(뜬 뒤에
+                건드릴 통로가 없습니다). 그래서 <제목 바로 아래 왼쪽> 에
+                둡니다 — 차트를 보기 전에 눈이 먼저 지나는 자리입니다.  -->
+          <div id="mtAvgBar" class="mt-avg hidden"></div>
           <div id="mtTvWarn"></div>
-          <div id="mtSymBox" style="height:calc(400px * var(--chz,1))"></div>
+          <div id="mtSymBox" style="height:calc(270px * var(--chz,1))"></div>
           <div class="st-hint" id="mtChartNote" style="margin-top:6px"></div>
         </div>
 
@@ -12470,6 +12485,7 @@ async function mtOpenSymChart(mk, sym){
   $('mtChartName').textContent = (p.name || sym) + ' 주가 추이';
   $('mtChartNote').textContent = '불러오는 중…';
   warn('mtTvWarn', '');
+  mtAvgBar(p, mk);
   mtSymPts = null;
 
   /*  ── TradingView 로 봅니다 ────────────────────────────────
@@ -12482,16 +12498,10 @@ async function mtOpenSymChart(mk, sym){
   if (mtTvOn()){
     mtTvShowOwn(false);
     var okTv = mtTvRender(mk, sym, (p.name || sym));
-    var avg0 = Number(p.avg) || 0;
-    var qty0 = Number(p.qty) || 0;
     $('mtChartNote').innerHTML = !okTv
       ? '이 종목은 TradingView 에서 찾지 못했습니다. '
         + '<button class="btn-sm" onclick="mtTvFallback()">원래 차트로 보기</button>'
-      : (avg0 > 0
-          ? '<b>평단 ' + esc(mtCur(avg0, mk, mk === 'KR' ? 0 : 2)) + '</b>'
-            + (qty0 > 0 ? ' · ' + esc(num(qty0, 0)) + '주 보유' : '') + ' · '
-          : '')
-        + '봉 간격·기간은 <b>차트 위쪽</b>에서 바꾸세요. '
+      : '봉 간격·기간은 <b>차트 위쪽</b>에서 바꾸세요. '
         + '<b>체결은 이 차트 값이 아니라 터미널 시세로 됩니다</b> — '
         + '거래소·지연 시간이 달라 몇 호가 어긋날 수 있습니다. · '
         + marketLabel(mk) + ' · ' + esc(sym);
@@ -12565,6 +12575,34 @@ async function mtReloadSym(){
   mtSymPick = keep;
 }
 
+/*  ── 평단 띠 채우기 ────────────────────────────────────────
+
+    ⚠️ 안 갖고 있는 종목이면 아예 숨깁니다. «평단 —» 은 값이 없다는
+       뜻인지 0원이라는 뜻인지 알 수 없습니다.
+
+    ⚠️ 현재가는 <보유 표에 있는 값> 을 씁니다. 여기서 따로 받아오면
+       표와 띠가 서로 다른 값을 말하게 됩니다.                       */
+function mtAvgBar(p, mk){
+  var bar = $('mtAvgBar'); if (!bar) return;
+  var avg = Number(p && p.avg) || 0;
+  if (!(avg > 0)){ bar.classList.add('hidden'); bar.innerHTML = ''; return; }
+  var dp = mk === 'CRYPTO' ? 4 : (mk === 'KR' ? 0 : 2);
+  var last = Number(p.last) || 0;
+  var qty = Number(p.qty) || 0;
+  var pct = (p.pnl_pct != null) ? Number(p.pnl_pct)
+          : (last > 0 ? (last / avg - 1) * 100 : null);
+  var H = '평단 <b>' + esc(mtCur(avg, mk, dp)) + '</b>';
+  if (last > 0)
+    H += '<span class="sep">·</span>현재 <b>' + esc(mtCur(last, mk, dp)) + '</b>';
+  if (pct != null && isFinite(pct))
+    H += '<span class="sep">·</span><span class="pct '
+       + (pct >= 0 ? 'up' : 'dn') + '">'
+       + esc((pct >= 0 ? '+' : '') + num(pct, 2)) + '%</span>';
+  if (qty > 0) H += '<span class="sep">·</span>' + esc(num(qty, 0)) + '주 보유';
+  bar.innerHTML = H;
+  bar.classList.remove('hidden');
+}
+
 function mtCloseSymChart(){
   mtSymPick = null;
   var c = $('mtChartCard'); if (c) c.classList.add('hidden');
@@ -12573,6 +12611,7 @@ function mtCloseSymChart(){
   if (mtTvTimer){ clearTimeout(mtTvTimer); mtTvTimer = null; }
   if (mtTvOn()){ var b = $('mtSymBox'); if (b) b.innerHTML = ''; }
   warn('mtTvWarn', '');
+  var ab = $('mtAvgBar'); if (ab){ ab.classList.add('hidden'); ab.innerHTML = ''; }
   mtRenderPositions();
 }
 
