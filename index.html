@@ -1680,6 +1680,43 @@
           </div>
         </div>
       </div>
+
+      <!--  ── 미국 일드커브 ────────────────────────────────────
+
+            ⚠️ 학회장: «3개월에서 30년까지, 연 단위로 차이 볼 수 있게
+               과거 일드커브도».
+
+            ⚠️ 커브는 <한 날짜의 만기별 금리 한 줄> 입니다. 그래서 시점을
+               여러 개 골라 겹쳐 봅니다 — 그게 «작년과 뭐가 달라졌나» 를
+               보는 방법입니다.
+
+            ⚠️ 이 값은 <실시간이 아닙니다>. 미 재무부 고시 금리는 영업일
+               저녁에 한 번 올라옵니다. 화면에 그렇게 적습니다.        -->
+      <div class="card" id="ycCard">
+        <h2>미국 일드커브
+          <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+            만기별 국채 금리 — 시점을 겹쳐 봅니다</span>
+          <span class="tools">
+            <span id="ycAsOf" style="font-size:11.5px;color:var(--text-sub);font-weight:400"></span>
+            <button class="btn-sm" onclick="chartJpg(ycChart, '미국 일드커브')">JPG</button>
+            <button class="btn-sm" onclick="loadYC(true)">새로 받기</button>
+          </span>
+        </h2>
+        <div class="row" style="margin-bottom:2px;align-items:flex-start">
+          <span class="st-hint" style="flex:none;padding-top:4px">시점</span>
+          <div class="nf-chips grow" id="ycChips"></div>
+        </div>
+        <div class="row" style="margin-top:2px">
+          <label style="min-width:auto">직접 고르기</label>
+          <input type="date" id="ycDate" style="width:168px">
+          <button class="btn-sm" onclick="ycAddDate()">+ 그날 커브 얹기</button>
+          <span class="st-hint grow" id="ycRange"></span>
+        </div>
+        <div id="ycWarn"></div>
+        <div id="ycBox" style="height:calc(320px * var(--chz,1))"></div>
+        <div class="scroll" style="margin-top:8px"><table id="ycTable"></table></div>
+        <p class="st-hint" id="ycNote" style="margin-top:8px"></p>
+      </div>
     </div>
 
     <!-- ════ 모의투자 ════ -->
@@ -3882,7 +3919,9 @@ function showTab(name){
   if (name==='research') setTimeout(function(){
     if (chart) chart.resize(); else if (typeof echarts !== 'undefined') drawChart(); }, 60);
   if (name==='research') setTimeout(function(){
-    if (dtChart) dtChart.resize(); if (dtBar) dtBar.resize(); }, 70);
+    if (dtChart) dtChart.resize(); if (dtBar) dtBar.resize();
+    //  ⚠️ 한 번만 받습니다. 탭을 오갈 때마다 FRED 를 부를 이유가 없습니다.
+    if (!ycLoaded) loadYC(); else if (ycChart) ycChart.resize(); }, 70);
   if (name==='home' && homeFxChart) setTimeout(function(){ homeFxChart.resize(); }, 60);
 }
 
@@ -17689,6 +17728,209 @@ async function loadCoOwn(){
         + '</tbody>'
       : '<tr><td class="empty">임원·주요주주 공시가 없습니다.</td></tr>';
   } catch(e){ $('coElestTable').innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>'; }
+}
+
+/*  ══════════ 미국 일드커브 ══════════════════════════════════
+
+    ⚠️ 학회장: «미국 일드커브도 우리가 추가할 수 있나? 3개월에서 30년까지
+       실시간 데이터 가져와서, 연 단위로 차이 볼 수 있게 과거 일드커브도».
+
+    ⚠️ 먼저 <실시간이 아닙니다>. 미 재무부 고시 금리(FRED H.15)는 영업일
+       저녁에 하루 한 번 올라옵니다. 이 터미널에서 지연된 값을 «실시간»
+       이라고 부른 적이 없고, 여기서도 안 부릅니다 — 화면에 «일별 종가»
+       라고 적습니다.
+
+    ⚠️ 커브는 <한 날짜의 만기별 금리 한 줄> 입니다. 여러 시점을 겹쳐
+       그리는 게 «작년과 뭐가 달라졌나» 를 보는 방법입니다.
+
+    ⚠️ 가로축은 <등간격 칸> 입니다. 1개월과 30년을 실제 길이로 두면
+       왼쪽 절반이 한 점에 뭉칩니다. 교과서 그림도 등간격으로 그립니다.  */
+var YC_PRESETS = [
+  ['now', '최근',      0],
+  ['m1',  '1개월 전',  30],
+  ['m3',  '3개월 전',  91],
+  ['m6',  '6개월 전',  182],
+  ['y1',  '1년 전',    365],
+  ['y2',  '2년 전',    730],
+  ['y3',  '3년 전',    1095],
+  ['y5',  '5년 전',    1826]
+];
+//  기본은 «최근 + 1년 전» — 학회장이 말한 «연 단위로 차이» 가 이것입니다
+var ycPick = { now: 1, y1: 1 };
+var ycExtra = [], ycData = null, ycChart = null, ycBusy = false, ycLoaded = false;
+
+function ycIso(d){
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0')
+       + '-' + String(d.getDate()).padStart(2,'0');
+}
+function ycBack(days){
+  var d = new Date();
+  d.setDate(d.getDate() - (Number(days) || 0));
+  return ycIso(d);
+}
+//  고른 시점들을 <날짜 목록> 으로. 최근 것이 앞에 오게 정렬합니다.
+function ycDates(){
+  var out = [];
+  YC_PRESETS.forEach(function(p){ if (ycPick[p[0]]) out.push(ycBack(p[2])); });
+  ycExtra.forEach(function(d){ if (out.indexOf(d) < 0) out.push(d); });
+  out.sort(); out.reverse();
+  return out.slice(0, 8);
+}
+function ycLabelOf(want){
+  for (var i = 0; i < YC_PRESETS.length; i++)
+    if (ycPick[YC_PRESETS[i][0]] && ycBack(YC_PRESETS[i][2]) === want)
+      return YC_PRESETS[i][1];
+  return fmtDateKo(want);
+}
+
+function ycChips(){
+  var box = $('ycChips'); if (!box) return;
+  var on = ycDates().length;
+  box.innerHTML = YC_PRESETS.map(function(p){
+    return '<span class="nf-chip' + (ycPick[p[0]] ? ' on' : '') + '"'
+         + ' data-k="' + esc(p[0]) + '" onclick="ycToggle(this.dataset.k)">'
+         + esc(p[1]) + '</span>';
+  }).join('')
+  + ycExtra.map(function(d){
+    return '<span class="nf-chip on" data-k="' + esc(d) + '"'
+         + ' onclick="ycDrop(this.dataset.k)" title="누르면 뺍니다">'
+         + esc(fmtDateKo(d)) + ' ✕</span>';
+  }).join('');
+  /*  ⚠️ 하나도 안 고르면 빈 차트가 남습니다. 마지막 하나는 못 끄게 합니다 —
+      «아무것도 안 나온다» 를 고장으로 오해하게 두지 않습니다.          */
+  if (on <= 1) {
+    var lit = box.querySelector('.nf-chip.on');
+    if (lit) lit.style.opacity = '.7';
+  }
+}
+function ycToggle(k){
+  var n = ycDates().length;
+  if (ycPick[k] && n <= 1){
+    warn('ycWarn', '시점을 적어도 하나는 남겨두세요.', 'info');
+    return;
+  }
+  if (ycPick[k]) delete ycPick[k]; else ycPick[k] = 1;
+  warn('ycWarn','');
+  loadYC();
+}
+function ycDrop(d){
+  ycExtra = ycExtra.filter(function(x){ return x !== d; });
+  loadYC();
+}
+function ycAddDate(){
+  var v = ($('ycDate') || {}).value;
+  if (!v){ warn('ycWarn','날짜를 먼저 고르세요.', 'info'); return; }
+  /*  ⚠️ 가진 범위 밖을 고르면 서버가 빈 커브를 돌려줍니다. 미리 막고
+      «언제부터 언제까지 있는지» 를 알려줍니다.                        */
+  if (ycData && (v < ycData.min_date || v > ycData.max_date)){
+    warn('ycWarn', '가진 자료는 ' + esc(fmtDateKo(ycData.min_date)) + ' ~ '
+       + esc(fmtDateKo(ycData.max_date)) + ' 입니다.', 'info');
+    return;
+  }
+  if (ycExtra.indexOf(v) < 0 && ycDates().indexOf(v) < 0) ycExtra.push(v);
+  if (ycExtra.length > 4) ycExtra.shift();
+  warn('ycWarn','');
+  loadYC();
+}
+
+async function loadYC(force){
+  if (ycBusy) return;
+  ycBusy = true;
+  ycChips();
+  try {
+    ycData = await edge({ source:'us_curve', dates: ycDates() });
+    ycLoaded = true;
+    warn('ycWarn','');
+    if (ycData.failed && ycData.failed.length)
+      warn('ycWarn', '받지 못한 만기: ' + esc(ycData.failed.join(', ')), 'info');
+    ycDraw();
+  } catch(e){
+    warn('ycWarn', esc(e.message || String(e)));
+  }
+  ycBusy = false;
+}
+
+function ycDraw(){
+  var d = ycData; if (!d || !d.curves) return;
+  var pal = (theme && theme.palette) || DEFAULT_THEME.palette;
+  var labs = (d.mats || []).map(function(m){ return m.label; });
+
+  $('ycRange').textContent = d.min_date
+    ? fmtDateKo(d.min_date) + ' ~ ' + fmtDateKo(d.max_date) + ' 안에서 고를 수 있습니다' : '';
+  var newest = (d.curves[0] || {}).on;
+  $('ycAsOf').textContent = newest ? (fmtDateKo(newest) + ' 종가 기준') : '';
+  if ($('ycDate')){
+    $('ycDate').min = d.min_date || ''; $('ycDate').max = d.max_date || '';
+  }
+
+  var box = $('ycBox'); if (!box) return;
+  ycChart = chartOn(box, ycChart); if (!ycChart) return;
+  var names = d.curves.map(function(c){ return ycLabelOf(c.want); });
+  ycChart.setOption({
+    backgroundColor: theme ? theme.bg : '#fff', animation:false,
+    grid:{ left:56, right:22, top:34, bottom:38 },
+    legend:{ top:4, type:'plain', textStyle:{ fontSize:11 }, itemWidth:14, itemHeight:3, data:names },
+    tooltip:{ trigger:'axis', textStyle:{ fontSize:11.5 },
+      valueFormatter:function(v){ return v == null ? '—' : num(Number(v), 2) + '%'; } },
+    xAxis:{ type:'category', data:labs, boundaryGap:false,
+      axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
+      axisLabel:{ color:'#77809a', fontSize:11 } },
+    yAxis:{ type:'value', name:'%', scale:true,
+      nameTextStyle:{ color:'#77809a', fontSize:11 },
+      axisLabel:{ color:'#77809a', fontSize:11,
+        formatter:function(v){ return num(v, 2); } },
+      splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } } },
+    series: d.curves.map(function(c, i){
+      return { name: names[i], type:'line', smooth:false, connectNulls:true,
+               symbol:'circle', symbolSize:5,
+               lineStyle:{ width: i === 0 ? 2.4 : 1.6, color: pal[i % pal.length] },
+               itemStyle:{ color: pal[i % pal.length] },
+               data: c.values };
+    })
+  }, true);
+
+  ycTable(d);
+  /*  ⚠️ «실시간» 이라고 적지 않습니다. 하루 한 번 올라오는 값입니다.     */
+  $('ycNote').innerHTML =
+      '<b>미 재무부 고시 금리(FRED H.15) 일별 종가</b>입니다 — 장중에 움직이는 값이 아니라 '
+    + '영업일 저녁에 하루 한 번 올라옵니다. '
+    + '고른 날짜가 주말·휴일이면 <b>그 직전 영업일</b> 값을 씁니다(표의 «실제 날짜»). '
+    + '가로축은 만기를 <b>등간격</b>으로 놓았습니다 — 실제 길이로 두면 1개월~1년이 한 점에 뭉칩니다.';
+}
+
+/*  표 — 만기별 값과 <장단기 차이>.
+    ⚠️ 10년−2년, 10년−3개월이 음수면 «장단기 금리 역전» 입니다. 커브만
+       보고 눈으로 재게 두지 말고 숫자로 적어줍니다.                   */
+function ycTable(d){
+  var el = $('ycTable'); if (!el) return;
+  var mats = d.mats || [], curves = d.curves || [];
+  var idx = {};
+  mats.forEach(function(m, i){ idx[m.code] = i; });
+  var gap = function(c, a, b){
+    var x = c.values[idx[a]], y = c.values[idx[b]];
+    return (x == null || y == null) ? null : (x - y);
+  };
+  var H = '<thead><tr><th>시점</th><th>실제 날짜</th>'
+        + mats.map(function(m){ return '<th class="num">' + esc(m.label) + '</th>'; }).join('')
+        + '<th class="num">10년−2년</th><th class="num">10년−3개월</th></tr></thead><tbody>';
+  curves.forEach(function(c){
+    var g1 = gap(c, 'DGS10', 'DGS2'), g2 = gap(c, 'DGS10', 'DGS3MO');
+    var cell = function(v){
+      return '<td class="num">' + (v == null ? '—' : num(Number(v), 2)) + '</td>';
+    };
+    var gcell = function(v){
+      if (v == null) return '<td class="num">—</td>';
+      //  ⚠️ 역전은 한국식 색(내림=파랑)으로 칠하고 글자로도 적습니다 —
+      //     색으로만 가르면 흑백 출력·색각 이상에서 사라집니다.
+      return '<td class="num ' + (v < 0 ? 'neg' : '') + '">'
+           + (v > 0 ? '+' : '') + num(Number(v), 2)
+           + (v < 0 ? ' <b>역전</b>' : '') + '</td>';
+    };
+    H += '<tr><td><b>' + esc(ycLabelOf(c.want)) + '</b></td>'
+       + '<td class="st-hint">' + esc(c.on ? fmtDateKo(c.on) : '—') + '</td>'
+       + c.values.map(cell).join('') + gcell(g1) + gcell(g2) + '</tr>';
+  });
+  el.innerHTML = H + '</tbody>';
 }
 
 /* ══════════ 모의투자 ══════════ */
