@@ -4326,6 +4326,40 @@ function dtProgress(d){
     : '';
 }
 
+/*  평평한 목록에서 <고른 계열의 가지> 를 떼어냅니다.
+    level 이 들여쓰기 깊이입니다 — 나보다 깊은 줄이 이어지는 동안이 내 자식.  */
+var dtScope = 'child';
+
+function dtSubtree(items, code){
+  if (!Array.isArray(items) || !items.length) return { rows: items || [], scope:'release' };
+  var lvOf = function(x){ return Number(x && x.level) || 1; };
+  var me = -1;
+  for (var i = 0; i < items.length; i++){
+    if (items[i].code != null && String(items[i].code) === String(code)){ me = i; break; }
+  }
+  //  발표 표에 그 계열이 안 실려 있으면(드묾) 예전처럼 전체를 냅니다
+  if (me < 0) return { rows: items, scope:'release' };
+
+  var lv = lvOf(items[me]), kid = [];
+  for (var j = me + 1; j < items.length; j++){
+    if (lvOf(items[j]) <= lv) break;
+    kid.push(items[j]);
+  }
+  if (kid.length >= 2) return { rows: kid, scope:'child', head: items[me] };
+
+  /*  ⚠️ 형제를 «같은 level» 로만 고르면 <다른 표의 같은 깊이> 까지 딸려
+      옵니다. 부모를 먼저 찾고, 그 부모의 울타리 안에서만 셉니다.      */
+  var par = -1;
+  for (var q = me - 1; q >= 0; q--){ if (lvOf(items[q]) < lv){ par = q; break; } }
+  var sib = [];
+  for (var t = par + 1; t < items.length; t++){
+    if (par >= 0 && lvOf(items[t]) <= lvOf(items[par])) break;
+    if (lvOf(items[t]) === lv) sib.push(items[t]);
+  }
+  if (sib.length >= 2) return { rows: sib, scope:'sibling', head: items[me] };
+  return { rows: items, scope:'release' };
+}
+
 async function dtFredAll(code){
   dtStop = false;
   /*  ① 목록 먼저 — 이것만 오면 표를 그릴 수 있습니다.
@@ -4479,6 +4513,9 @@ async function dtLoadItems(auto, append){
       fresh = (d.items || []).map(function(x){
         return { kind:'fred', code:x.series_id, name:x.name,
                  level:Number(x.level) || 1, head: !x.series_id,
+                 //  ⚠️ 자식을 거느린 줄은 <그 아래를 다 더한 값> 입니다.
+                 //     서버가 알려주는데 여기서 버리고 있었습니다.
+                 kids: !!x.has_children,
                  value:x.value, on:x.on, mom:x.mom, yoy:x.yoy, q3:x.q3,
                  m6:x.m6, m9:x.m9, per:x.per, diff:!!x.diff, unit:'' };
       });
@@ -4496,6 +4533,27 @@ async function dtLoadItems(auto, append){
     }
     dtMeta = d;
     if (d.note) warn('dtWarn', esc(d.note), 'info');
+
+    /*  ── 고른 지표의 <자식> 만 남깁니다 ─────────────────────────
+
+        ⚠️ 학회장: «고른 종목의 세부 항목들을 보는거 아니었어?»
+           그게 의도였는데 그렇지 않았습니다. 서버의 fredTree 는
+           «그 지표가 속한 <발표(release) 전체>» 를 펼칩니다.
+
+           그래서 미국 PCE 물가지수를 고르면 BEA 「개인소득·지출」 발표가
+           통째로 열렸고, 저축액·실업급여 이전수입 같은 <형제> 항목이
+           자식처럼 나왔습니다. 화면은 그걸 «PCE 물가지수 안을 쪼개서» 라고
+           불렀습니다 — 사실과 다른 말이었습니다.
+
+        ⚠️ 목록은 평평하지만 level 이 들여쓰기 깊이입니다. 고른 계열을
+           찾아 그 아래 <더 깊은> 줄만 이어서 담으면 그게 자식입니다.
+
+        ⚠️ 자식이 없는 계열(잎)도 있습니다. 그때는 <형제> 로 물러섭니다 —
+           빈 화면보다는 «같은 표의 다른 항목» 이 쓸모 있습니다.
+           다만 무엇을 보고 있는지 화면에 적습니다.                    */
+    var sub = dtSubtree(fresh, c.code);
+    fresh = sub.rows;
+    dtScope = sub.scope;
 
     /*  ⚠️ 덧붙일 때는 <어디부터 어느 지표인지> 를 표시해야 합니다.
         안 그러면 CPI 항목과 PPI 항목이 구분 없이 한 덩어리로 보입니다. */
@@ -4751,12 +4809,40 @@ function dtTopByChange(){
   if (Object.keys(dtPick).length) dtDraw();
 }
 
+/*  ── 합계 줄 가려내기 ──────────────────────────────────────
+
+    ⚠️ 학회장: «항목들 다 더한 값의 항목은 많이 변한 항목 자동 선택할 때
+       선택되게 하면 안 되는 거지».
+
+       맞습니다. 두 가지 이유입니다 —
+         ① 합계는 <자식들의 합> 이라 거의 언제나 크게 움직입니다.
+            «많이 변한 것» 을 고르면 합계가 윗자리를 다 차지하고, 정작
+            보려던 세부 항목이 밀립니다.
+         ② 합계와 그 자식을 한 차트에 같이 세우면 <같은 것을 두 번>
+            세는 셈이라, 그림이 더한 만큼 부풀어 보입니다.
+
+    ⚠️ 손으로 고르는 것까지 막지는 않습니다. «PCE 합계와 에너지를 같이
+       보고 싶다» 는 정당한 요구입니다. <자동> 선택에서만 뺍니다.
+
+    BEA 표의 «Equals: · Less: · Plus:» 는 산식 줄입니다 (합계·차감).      */
+var DT_SUM_HEAD = /^(equals|less|plus|addenda|memo|total)\b\s*:?/i;
+function dtIsTotal(x){
+  if (!x) return false;
+  if (x.kids) return true;                     //  자식을 거느린 줄 = 그 아래의 합
+  return DT_SUM_HEAD.test(String(x.name || '').trim());
+}
+
 function dtPickTop(){
   if (!dtItems.length){ warn('dtWarn','먼저 보고서를 불러와 주세요.'); return; }
   dtPick = {};
   var k = dtTopKey();
   var pool = dtItems.filter(function(x){
     return !x.head && x.code != null && dtFreqOk(x); });
+  /*  ⚠️ 합계를 뺐더니 셋도 안 남는 표가 있습니다(잎이 거의 없는 표).
+      그때까지 빼버리면 단추를 눌러도 아무 일이 안 일어납니다.
+      고를 것이 모자라면 합계라도 씁니다 — 빈손보다는 낫습니다.      */
+  var leaf = pool.filter(function(x){ return !dtIsTotal(x); });
+  if (leaf.filter(function(x){ return x[k] != null; }).length >= 3) pool = leaf;
   var withY = pool.filter(function(x){ return x[k] != null; });
   /*  ⚠️ 팔레트보다 많이 고르면 색을 돌려 쓰게 되고, 그러면 <같은 색인
       다른 항목> 이 생깁니다. 범례를 봐도 어느 선인지 알 수 없습니다.
@@ -4903,7 +4989,16 @@ async function dtRun(){
 }
 
 //  값 변환 — 전년 대비 / 전월 대비 / 지수화 / 원래 값
-function dtTransform(pts, mode){
+/*  ⚠️ 여기가 «+1,350%» 의 진짜 원인이었습니다.
+
+    값 자체가 이미 <전기 대비 %> 인 표(BEA Table 2.8.6 류)의 계열은
+    0.30 · −0.05 같은 값으로 옵니다. 거기에 또 변화율을 걸면 0.05 로
+    나누게 되어 +1,350% · −700% 가 나옵니다. 계산이 틀린 게 아니라
+    <나눌 수 없는 값을 나눈> 것입니다.
+
+    표(dtPctCell)와 막대는 이미 그런 항목을 «차이(%p)» 로 재고 있었는데,
+    정작 <위쪽 선·막대 차트> 만 그걸 모르고 나눗셈을 했습니다.        */
+function dtTransform(pts, mode, diff){
   if (!pts.length) return [];
   if (mode === 'raw') return pts.map(function(p){ return { d:p.d, v:p.v }; });
   if (mode === 'idx'){
@@ -4920,6 +5015,8 @@ function dtTransform(pts, mode){
   var out = [];
   for (var i = lag; i < pts.length; i++){
     var b0 = pts[i - lag].v;
+    //  차이로 재는 항목은 <빼기> 입니다. 0 이 기준이어도 탈이 없습니다.
+    if (diff){ out.push({ d: pts[i].d, v: pts[i].v - b0 }); continue; }
     if (!b0) continue;
     out.push({ d: pts[i].d, v: (pts[i].v - b0) / Math.abs(b0) * 100 });
   }
@@ -4982,8 +5079,8 @@ function dtDraw(){
   });
   var rows = keys.map(function(k, i){
     var s = dtSeries[k] || { points:[] };
-    var cut = dtCut(dtTransform(s.points, mode), yrs);
-    var x = dtPick[k];
+    var x = dtPick[k] || {};
+    var cut = dtCut(dtTransform(s.points, mode, !!x.diff), yrs);
     return { key:k, name: (dtDup[x.name] > 1) ? dtGroupName(x) : x.name,
              unit:s.unit, err:s.err,
              color: pal[i % pal.length], pts:cut,
@@ -4996,8 +5093,24 @@ function dtDraw(){
   var days = {};
   rows.forEach(function(r){ r.pts.forEach(function(p){ days[p.d] = 1; }); });
   var axis = Object.keys(days).sort();
+  /*  ⚠️ 학회장: «표기 다 % 로 통일». 뜻은 알겠는데 그대로 하면 틀립니다 —
+      저축률이 4.2 → 4.8 인 것을 «+14%» 라고 적게 됩니다. 맞는 말이긴 해도
+      발표에서 그렇게 말하면 «저축률이 14% 올랐다» 로 읽힙니다.
+
+      그래서 <한 차트에 한 단위를 강제로 붙이던 것> 을 없앱니다.
+      대부분(금액·지수)은 % 이고, 값 자체가 이미 비율인 항목만 %p 입니다.
+      섞이면 섞인 대로 적습니다 — 숨기면 둘 중 하나는 반드시 거짓말입니다. */
+  var uOf = function(r){ return r && r.diff ? '%p' : '%'; };
+  var uMix = function(list){
+    var a = list.some(function(r){ return !r.diff; });
+    var b = list.some(function(r){ return r.diff; });
+    return (a && b) ? '%·%p' : (b ? '%p' : '%');
+  };
   var unitTxt = mode === 'raw' ? (rows[0] && rows[0].unit ? rows[0].unit : '')
-              : (mode === 'idx' ? '시작=100' : '%');
+              : (mode === 'idx' ? '시작=100' : uMix(rows));
+  //  풍선말은 <어느 항목인지> 를 알므로 그 항목의 단위로 적습니다
+  var uByName = {};
+  rows.forEach(function(r){ uByName[r.name] = uOf(r); });
   /*  범례가 두 줄로 접히면 그 아래 '%' 축 이름이 가려집니다.
       항목이 몇 개든 글자끼리 겹치지 않게, 범례 줄 수를 재서
       위 여백과 차트 키를 같이 늘립니다.                                */
@@ -5016,11 +5129,20 @@ function dtDraw(){
       axisPointer:{ type: shape === 'bar' ? 'shadow' : 'line' },
       /*  ⚠️ 표와 <같은 자릿수·같은 단위> 로 적습니다. 표에서는 «+1.5%» 인데
           풍선말에서는 «1.50» 이면 같은 값인지 헷갈립니다.               */
-      valueFormatter:function(v){
-        if (v == null) return '—';
+      formatter:function(ps){
+        if (!ps || !ps.length) return '';
         var d = (mode === 'raw') ? 2 : 1;
-        return (mode !== 'raw' && v > 0 ? '+' : '') + num(Number(v), d)
-             + (mode === 'raw' ? '' : (dtItems.some(function(x){ return x.diff; }) ? '%p' : '%')); } },
+        var H = esc(String(ps[0].axisValue || ''));
+        ps.forEach(function(p){
+          if (p.seriesName === '0') return;
+          var v = p.value;
+          var u = mode === 'raw' ? '' : (mode === 'idx' ? '' : (uByName[p.seriesName] || '%'));
+          H += '<br>' + p.marker + esc(p.seriesName) + '  <b>'
+             + (v == null ? '—'
+                : ((mode !== 'raw' && v > 0 ? '+' : '') + num(Number(v), d) + u))
+             + '</b>';
+        });
+        return H; } },
     xAxis:{ type:'category', data:axis,
       axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
       /*  한 달에 막대가 6개씩 서면 옆 달과 이어져 보여서 <어디까지가
@@ -5066,10 +5188,17 @@ function dtDraw(){
   var bb = $('dtBarBox');
   if (bars.length >= 2){
     $('dtBarWrap').classList.remove('hidden');
-    //  고른 항목 중 하나라도 '차이' 로 재는 것이면 단위를 %p 로 적습니다
-    var barDiff = bars.some(function(r){ return r.diff; });
+    /*  ⚠️ 여기가 «+15.4%p» 의 원인이었습니다.
+        예전에는 <하나라도> 차이로 재는 항목이 있으면 막대 <전부> 를 %p 로
+        적었습니다. 순(net) 계열 하나가 섞였다는 이유로, 변화율(%)로 계산된
+        저축률까지 «+15.4%p» 가 됐습니다. 저축률이 한 달에 15%p 오르면
+        4%대에서 20%대라는 뜻입니다 — 있을 수 없는 숫자입니다.
+        막대마다 <제 단위> 로 적습니다.                                */
+    var barMixed = bars.some(function(r){ return !r.diff; })
+                && bars.some(function(r){ return r.diff; });
+    var barAllDiff = bars.every(function(r){ return r.diff; });
     if ($('dtBarTitle')) $('dtBarTitle').textContent =
-      dtTopLabel() + (barDiff ? ' 차이 (%p)' : ' 변화율');
+      dtTopLabel() + (barMixed ? ' (%·%p)' : (barAllDiff ? ' 차이 (%p)' : ' 변화율 (%)'));
     /*  이름을 안 자르고 줄바꿈으로 다 보여주므로, 긴 이름이 있으면
         줄당 높이도 그만큼 있어야 글자가 겹치지 않습니다.            */
     var longest = Math.max.apply(null, bars.map(function(r){ return String(r.name || '').length; }));
@@ -5099,8 +5228,9 @@ function dtDraw(){
         label:{ show:true, position:'right', fontSize:11,
           formatter:function(a){
             //  ⚠️ 표·풍선말과 같은 «소수점 한 자리» 로 맞춥니다
+            var r = bars[a.dataIndex];
             return (a.value >= 0 ? '+' : '') + Number(a.value).toFixed(1)
-                 + (barDiff ? '%p' : '%'); } } }]
+                 + (r && r.diff ? '%p' : '%'); } } }]
     }, true);
   } else {
     bb.style.height = '0'; if (dtBar){ dtBar.dispose(); dtBar = null; }
@@ -5122,19 +5252,42 @@ function dtReadout(rows, mode){
   var parent = dtLoadedLabel() || '이 지표';
   /*  ⚠️ 표·차트와 <같은 단위> 를 씁니다. 표에서는 %p 로 적어놓고 해설에서만
       % 라고 하면, 같은 숫자를 두 가지로 부르는 셈이라 반드시 헷갈립니다.  */
-  var U = ok.some(function(r){ return r.diff; }) ? '%p' : '%';
+  //  ⚠️ 항목마다 제 단위로 적습니다 (막대·표와 같은 규칙)
+  var U = function(r){ return r && r.diff ? '%p' : '%'; };
+  var fmt = function(r){
+    return '<b>' + esc(r.name) + '</b>('
+         + (r.cmp > 0 ? '+' : '') + num(r.cmp, 1) + U(r) + ')';
+  };
 
-  var H = '<b>' + esc(parent) + ' 안을 쪼개서 보면</b><br>';
-  H += '· ' + esc(lab) + '로 견주면 <b>' + esc(top.name) + '</b>('
-     + (top.cmp > 0 ? '+' : '') + num(top.cmp, 1) + U + ')가 가장 많이 올랐고, '
-     + '<b>' + esc(bot.name) + '</b>('
-     + (bot.cmp > 0 ? '+' : '') + num(bot.cmp, 1) + U + ')가 가장 덜 올랐습니다.<br>';
+  /*  ⚠️ 제목이 «PCE 물가지수 안을 쪼개서» 인데 정작 저축액·실업급여가
+      나오던 문제 — 이제 <고른 지표의 자식> 만 봅니다. 다만 자식이 없어
+      형제로 물러섰거나 발표 전체를 보는 경우에는 그렇게 적습니다.
+      무엇을 보고 있는지 말이 틀리면 숫자가 맞아도 오해를 부릅니다.   */
+  var scopeTxt = dtScope === 'child'   ? ' 안을 쪼개서 보면'
+               : dtScope === 'sibling' ? ' 과 같은 표에 있는 항목들을 보면'
+               :                         ' 가 실린 발표 전체를 보면';
+
+  var H = '<b>' + esc(parent) + esc(scopeTxt) + '</b><br>';
+  /*  ⚠️ −2.2 를 «가장 덜 올랐습니다» 라고 적고 있었습니다. 안 오르고
+      내린 겁니다. 방향을 보고 말을 고릅니다.                        */
+  H += '· ' + esc(lab) + '로 견주면 ' + fmt(top)
+     + (top.cmp > 0 ? '가 가장 많이 올랐고, ' : '가 가장 덜 내렸고, ')
+     + fmt(bot)
+     + (bot.cmp < 0 ? '가 가장 많이 내렸습니다.' : '가 가장 덜 올랐습니다.') + '<br>';
   if (ok.length > 1){
+    /*  ⚠️ 단위가 섞이면 <빼기 자체가> 뜻이 없습니다. 저축률 변화율에서
+        내구재 지출 변화율을 빼면 그 숫자는 아무것도 아닙니다.
+        예전에는 그걸 «격차 17.6%p» 라고 적었습니다. 같은 단위일 때만.  */
+    var sameU = ok.every(function(r){ return !!r.diff === !!top.diff; });
     var spread = top.cmp - bot.cmp;
-    H += '· 둘 사이 격차가 <b>' + num(spread, 1) + '%p</b>입니다. '
-       + (spread > 10
-          ? '항목마다 사정이 크게 다르다는 뜻이라, 지표 하나만 보면 놓치는 게 생깁니다.'
-          : '항목들이 대체로 같은 방향으로 움직이고 있습니다.') + '<br>';
+    if (sameU)
+      H += '· 둘 사이 격차가 <b>' + num(spread, 1) + U(top) + '</b>입니다. '
+         + (spread > 10
+            ? '항목마다 사정이 크게 다르다는 뜻이라, 지표 하나만 보면 놓치는 게 생깁니다.'
+            : '항목들이 대체로 같은 방향으로 움직이고 있습니다.') + '<br>';
+    else
+      H += '· 고른 항목들의 <b>단위가 섞여 있습니다</b> — 값 자체가 비율인 항목(%p)과 '
+         + '금액·지수 항목(%)을 함께 골랐습니다. 서로 빼거나 크기를 견주면 안 됩니다.<br>';
     H += '· 고른 ' + ok.length + '개 중 <b>' + upN + '개</b>가 ' + esc(lab) + ' 높습니다.'
        + (upN === ok.length ? ' 전 항목이 상승입니다.' :
           (upN === 0 ? ' 전 항목이 하락입니다.' : '')) + '<br>';
@@ -12413,7 +12566,16 @@ var mtSymPick = null, mtSymChart = null, mtSymPts = null, mtAvgShown = false;
     ⚠️ 광고 차단기가 s3.tradingview.com 을 막는 경우가 많습니다. 그러면
        빈 상자만 남습니다. 7초 안에 안 뜨면 <원래 차트로 보기> 를
        내줍니다 — 예전 코드는 그대로 살려뒀습니다.                     */
-var MT_TV = true;            //  false 로 두면 예전 ECharts 차트로 돌아갑니다
+/*  ⚠️ 학회장: «다시 우리 차트로 돌아가자. 국내는 잘 안 나오네».
+       실제로 KRX 종목이 «TradingView 에서만 제공되는 심볼입니다» 로
+       막혔습니다. 무료 위젯이 국내 종목을 안 열어줍니다.
+
+       우리 차트로 되돌립니다 — 평단선도 같이 돌아옵니다.
+
+    ⚠️ TradingView 쪽 코드는 <지우지 않고> 꺼둡니다. 미국 종목만 따로
+       쓰고 싶어질 때 이 한 줄이면 됩니다. 다만 꺼둔 길도 시험은
+       돌려둡니다 — 안 그러면 조용히 썩습니다.                        */
+var MT_TV = false;           //  true 로 두면 TradingView 위젯을 씁니다
 var mtTvOff = false;         //  이 브라우저에서만 끈 것 (광고 차단 등)
 var mtTvTimer = null;
 
