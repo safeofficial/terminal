@@ -3023,6 +3023,13 @@
       <div class="card" id="autoDocCard">
         <h2>자동매매 진단
           <span class="tools">
+            <!--  ⚠️ «예약은 걸려 있는데 실행 기록이 없다» 에서 멈춰 있었습니다.
+                  그 상태로는 <스캔 자체가 고장인지> <예약이 못 부르는지> 를
+                  가릴 수가 없습니다. 둘은 고칠 데가 완전히 다릅니다.
+                  임원진은 스캔을 직접 부를 수 있으니, 한 번 돌려보면
+                  그 자리에서 갈립니다.                                  -->
+            <button class="btn-sm btn-solid admin-only hidden" id="autoRunBtn"
+                    onclick="autoRunNow()">지금 한 번 돌려보기</button>
             <button class="btn-sm" onclick="autoDoc()">지금 상태 보기</button>
           </span>
         </h2>
@@ -3030,6 +3037,7 @@
           «자동매매를 켰는데 아무것도 안 산다» 싶을 때 여기를 누르세요.
           <b>어디서 막혔는지</b> 한 줄로 알려줍니다. 돈은 안 듭니다.
         </div>
+        <div class="msg" id="autoDocMsg"></div>
         <div id="autoDocBox"><div class="empty" style="padding:14px">
           「지금 상태 보기」를 누르세요.</div></div>
       </div>
@@ -21030,6 +21038,48 @@ function backDate(iso, days){
       · 팀이 안 켰다 / 배정 0 / 전략 없음 → 설정 문제. 화면에서 고침
       · 조건에 맞는 종목이 없었다 → 정상. 전략이 빡센 것
       · 봉을 못 받았다            → 고장. Alpaca 키·요금제                */
+/*  ── 지금 한 번 돌려보기 ─────────────────────────────────────
+
+    ⚠️ 진단이 «예약은 걸려 있는데 실행 기록이 없습니다» 에서 멈춰
+       있었습니다. 그 한 줄로는 둘을 못 가립니다.
+
+         ㄱ. 스캔(Edge Function) 자체가 고장   → 키·배포 문제
+         ㄴ. 스캔은 멀쩡한데 예약이 못 부름     → pg_net·설정 문제
+
+       고칠 데가 완전히 다른데 화면은 똑같이 보였습니다.
+       임원진은 스캔을 직접 부를 수 있으니(mt_scan 은 토큰 또는 임원진),
+       한 번 돌려보면 그 자리에서 갈립니다.
+
+    ⚠️ 돈이 나가는 건 아니지만 <진짜로 매매가 일어날 수 있습니다>.
+       조건에 맞는 종목이 있으면 삽니다. 그래서 먼저 묻습니다.        */
+async function autoRunNow(){
+  if (!confirm('자동매매 스캔을 지금 한 번 돌립니다.\n\n'
+             + '켜져 있는 팀의 조건에 맞는 종목이 있으면 <실제로 체결됩니다>.\n'
+             + '계속할까요?')) return;
+  var b = $('autoRunBtn'), label = b ? b.textContent : '';
+  if (b){ b.disabled = true; b.textContent = '도는 중…'; }
+  var box = $('autoDocBox');
+  if (box) box.innerHTML = '<div class="empty" style="padding:14px">스캔을 돌리는 중…</div>';
+  try {
+    var d = await edge({ source: 'mt_scan' });
+    /*  ⚠️ 결과를 그대로 늘어놓지 않습니다. 알고 싶은 건 «스캔이
+        도느냐» 하나입니다. 돌았으면 그 사실부터 크게 적습니다.      */
+    var ran = Number(d && d.ran) || 0;
+    warn('autoDocMsg',
+      '<b>스캔이 돌았습니다.</b> 훑은 팀 ' + num(ran, 0) + '개'
+      + (d && d.note ? ' · ' + esc(String(d.note)) : '')
+      + '<br>→ 스캔 자체는 멀쩡합니다. 기록이 안 쌓였던 건 '
+      + '<b>예약 작업이 스캔을 못 부르고 있다</b>는 뜻입니다 '
+      + '(pg_net 이나 <code>private_warm_cfg</code> 를 확인하세요).', 'info');
+  } catch(e){
+    warn('autoDocMsg',
+      '<b>스캔이 실패했습니다.</b> ' + esc(e.message)
+      + '<br>→ 예약 작업 문제가 아니라 <b>스캔 자체</b>가 막혀 있습니다.', '');
+  }
+  if (b){ b.disabled = false; b.textContent = label; }
+  autoDoc();
+}
+
 async function autoDoc(){
   var box = $('autoDocBox'); if (!box) return;
   box.innerHTML = '<div class="empty" style="padding:14px">보는 중…</div>';
