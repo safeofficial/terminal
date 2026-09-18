@@ -14266,6 +14266,15 @@ function aiLoadList(){ return aiLibLoad(aiLib.off); }
 
 async function aiOpen(id){
   try {
+    /*  ⚠️ 설정 → AI 리포트 점검의 표에서도 이걸 부릅니다. 그때는 AI 탭이
+        숨어 있어서, 그대로 그리면 <안 보이는 화면> 에 그려놓고 아무 일도
+        안 일어난 것처럼 보입니다. 실제로 «이름을 누르면 열립니다» 라고
+        적어놓고 눌러도 아무 반응이 없었습니다. 탭부터 옮깁니다.        */
+    var pane = $('pane-ai');
+    if (pane && pane.classList.contains('hidden')){
+      showTab('ai');
+      if (typeof aiShow === 'function') aiShow('lib');
+    }
     var r = await sb.rpc('ai_report_get', { p_id: Number(id) });
     if (r.error || !r.data) throw new Error(errMsg(r.error) || '리포트를 찾지 못했습니다.');
     aiRep = r.data;
@@ -14319,7 +14328,7 @@ async function aiAuditAll(){
       var px2 = aiNum(meta.px);
       //  ⚠️ 화면에서 쓰는 <그 검사 그대로> 돌립니다. 둘이 다르면
       //     «점검은 통과했는데 열어보니 빨간 경고» 가 됩니다.
-      var w = aiTargetSanity(sec, px2, cur2);
+      var w = aiTargetSanity(sec, px2, cur2, rep && rep.id);
       if (w) bad.push({ rep: rep, why: w, px: px2, cur: cur2 });
     }
     msg.textContent = '';
@@ -14968,8 +14977,28 @@ function aiByMethod(v){
   return m;
 }
 
-function aiTargetSanity(sec, px, cur){
+function aiTargetSanity(sec, px, cur, repId){
   var out = [];
+
+  /*  ── 서버가 붙인 딱지 ────────────────────────────────────────
+
+      ⚠️ 이 검사는 이제 <서버에서도> 돕니다. 서버는 앞뒤가 안 맞으면
+         6번 단계를 한 번 더 시켜보고, 그래도 안 맞으면 <매매 숫자를
+         빼고> 저장합니다.
+
+      ⚠️ 그러면 화면이 다시 세어봐야 «아무 문제 없는 리포트» 로 보입니다
+         — 숫자가 이미 빠졌으니 어긋날 것도 없으니까요. 그래서 서버가
+         무엇을 잡았는지 여기서 그대로 전합니다. 안 그러면 <조용히
+         사라진 7번 칸> 이 됩니다.                                    */
+  var srv = aiArr(sec.call_flags).map(function(x){ return aiStr(x); })
+              .filter(function(x){ return !!x; });
+  var pulled = aiStr((sec.trader || {}).pulled);
+
+  if (pulled)
+    out.push('<b>매매 숫자를 뺐습니다 (진입가 · 손절 · 목표).</b><br>' + esc(pulled));
+  if (srv.length)
+    out.push('<b>서버가 잡아낸 것</b> — 6번 단계를 다시 시켜보고도 안 맞았습니다.<br>'
+      + srv.map(function(x){ return '· ' + esc(x); }).join('<br>'));
 
   /*  ── 기법별 맞대보기 ──  */
   var mb = aiByMethod(sec.bull), mr = aiByMethod(sec.bear);
@@ -15159,13 +15188,63 @@ function aiTargetSanity(sec, px, cur){
       임원진은 설정 → <AI 리포트 점검> 에서 보관함 전체도 한 번에 훑습니다. */
   if (!isOfficer())
     return '<div class="note warn" style="margin:0 0 12px">'
-         + '⚠️ 이 리포트의 <b>목표가가 현재가와 크게 어긋납니다</b> — '
-         + '숫자를 그대로 믿지 마세요.</div>';
+         + (pulled
+             ? '⚠️ <b>앞뒤가 맞지 않아 매매 숫자(진입가 · 손절 · 목표)를 뺐습니다.</b> '
+               + '논거는 읽되, 숫자는 직접 확인하세요.'
+             : '⚠️ 이 리포트의 <b>목표가가 현재가와 크게 어긋납니다</b> — '
+               + '숫자를 그대로 믿지 마세요.')
+         + '</div>';
 
   return '<div class="note warn" style="margin:0 0 12px">'
        + '⚠️ <b>이 리포트는 앞뒤가 안 맞습니다</b> '
        + '<span class="st-hint">(임원진에게만 보입니다)</span><br>'
-       + out.join('<br><br>') + '</div>';
+       + out.join('<br><br>')
+       + aiRedoBtn(repId)
+       + '</div>';
+}
+
+/*  ── 6번만 다시 만들기 ──────────────────────────────────────────
+
+    ⚠️ 통째로 다시 뽑으면 앞 다섯 단계 값을 <또> 치릅니다. 어긋나는 곳은
+       거의 언제나 마지막 단계(강세·약세·트레이더)라서 거기만 되감습니다.
+       재료가 캐시에 얹혀 있어 입력값은 거의 안 듭니다.                */
+function aiRedoBtn(repId){
+  var id = aiNum(repId);
+  if (id == null || !isOfficer()) return '';
+  return '<div style="margin-top:10px"><button class="btn-sm" '
+       + 'onclick="aiRedoCall(' + Number(id) + ')">6번만 다시 만들기</button>'
+       + ' <span class="st-hint">강세·약세·트레이더만 다시 냅니다</span></div>';
+}
+
+var aiRedoBusy = false;
+async function aiRedoCall(id){
+  if (aiRedoBusy) return;
+  id = Number(id); if (!(id > 0)) return;
+  if (!confirm('이 리포트의 6번(강세·약세·헤드 트레이더)만 다시 만듭니다.\n'
+             + '앞의 1~5번은 그대로 두고, 값도 그만큼만 듭니다.\n계속할까요?')) return;
+  aiRedoBusy = true;
+  var box = $('aiReport');
+  try {
+    var r = await edgeAi({ action:'redo_call', id: id });
+    if (r && r.error) throw new Error(r.error);
+    //  되감아 놨으니 그 단계를 한 번 돌리면 끝납니다
+    var st = await edgeAi({ action:'step', id: id });
+    if (st && st.err) console.warn('AI 단계 경고:', st.err);
+    /*  ⚠️ «다시 만들었다» 만 알려주면 안 됩니다. 또 안 맞았으면
+        그것도 말해야 임원진이 손으로 손볼지 판단합니다.              */
+    var say = st && st.pulled
+      ? '다시 만들었지만 또 앞뒤가 안 맞아 매매 숫자를 뺐습니다.'
+      : (st && st.flags ? '다시 만들었습니다 — 아직 짚이는 곳이 남아 있습니다.'
+                        : '다시 만들었습니다 — 앞뒤가 맞습니다.');
+    await aiOpen(id);
+    warn('aiWarn', esc(say), st && (st.pulled || st.flags) ? 'warn' : 'info');
+  } catch(e){
+    if (box) warn('aiWarn', esc(e.message || String(e)));
+    else alert(e.message || String(e));
+  } finally {
+    aiRedoBusy = false;
+    await aiLoadBudget();
+  }
 }
 
 function aiVsPx(target, px){
@@ -15490,7 +15569,7 @@ function aiRender(rep, boxId){
              || (sec.bear && aiArr(sec.bear.points).length);
   var c6 = '<div class="card"><h2>6. 강세 · 약세 논거와 목표가</h2>'
     //  ⚠️ 경고는 <숫자를 보기 전에> 읽어야 뜻이 있습니다. 맨 위에 둡니다.
-    + (hasSide ? aiTargetSanity(sec, px, cur) : '')
+    + (hasSide ? aiTargetSanity(sec, px, cur, rep && rep.id) : '')
     + (hasSide
         ? '<div class="ai-two">'
           + aiSideCard('BULL · 강세', sec.bull, 'ai-bull', cur, px, 'bull')
@@ -15506,8 +15585,21 @@ function aiRender(rep, boxId){
   var tr = sec.trader || {};
   var act = aiStr(tr.action);
   var wpct = aiNum(tr.weight_pct);
+  var trPulled = aiStr(tr.pulled);
   var c7 = '';
-  if (act || aiNum(tr.entry) != null){
+  /*  ⚠️ 서버가 매매 숫자를 뺀 경우. 빈 칸(—)만 남겨두면 «자료가 없나
+      보다» 로 읽힙니다. 왜 없는지를 적어야 뜻이 통합니다.
+      이 안내는 <학회원에게도> 보입니다 — 정작 숫자를 따라 하는 쪽이
+      학회원이니까요.                                                 */
+  if (trPulled){
+    c7 = '<div class="card"><h2>7. AI 헤드 트레이더 결정</h2>'
+      + '<div class="note warn" style="margin:0 0 12px">'
+      +   '<b>매매 숫자를 뺐습니다 — 진입가 · 손절 · 목표.</b><br>'
+      +   esc(trPulled)
+      + '</div>'
+      + aiSec('논거가 깨지는 조건', aiPara(tr.kill) || '')
+      + '</div>';
+  } else if (act || aiNum(tr.entry) != null){
     var kv = [
       ['진입가', aiMoney(tr.entry, cur)],
       ['손절', aiMoney(tr.stop, cur)],
