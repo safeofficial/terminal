@@ -3007,165 +3007,24 @@
 
     <!-- ════ 설정 ════ -->
     <div id="pane-admin" class="hidden">
+
       <div class="page-head">
         <h1>설정</h1>
         <p>팀 · 학회원 · 활동 기수 · 지표 목록을 관리합니다.</p>
       </div>
 
-      <!--  ── 대회 초기화 ───────────────────────────────────────
-            ⚠️ 되돌릴 수 없습니다. 그래서 <누르기 전에> 무엇이 몇 건
-               지워지는지 숫자로 먼저 보여줍니다.                      -->
-      <!--  ── 자동매매 자가진단 ─────────────────────────────────
-            ⚠️ 채권팀이 2주를 기다렸는데 체결이 하나도 없었습니다.
-               «안 도는 것» 과 «돌았는데 조건이 안 맞은 것» 은 화면에서
-               똑같아 보입니다. 앞은 고장이고 뒤는 정상입니다.
-               구분해서 말해 줘야 합니다.                              -->
-      <div class="card" id="autoDocCard">
-        <h2>자동매매 진단
-          <span class="tools">
-            <!--  ⚠️ «예약은 걸려 있는데 실행 기록이 없다» 에서 멈춰 있었습니다.
-                  그 상태로는 <스캔 자체가 고장인지> <예약이 못 부르는지> 를
-                  가릴 수가 없습니다. 둘은 고칠 데가 완전히 다릅니다.
-                  임원진은 스캔을 직접 부를 수 있으니, 한 번 돌려보면
-                  그 자리에서 갈립니다.                                  -->
-            <button class="btn-sm btn-solid admin-only hidden" id="autoRunBtn"
-                    onclick="autoRunNow()">지금 한 번 돌려보기</button>
-            <button class="btn-sm" onclick="autoDoc()">지금 상태 보기</button>
-          </span>
-        </h2>
-        <div class="note info" style="margin-bottom:12px">
-          «자동매매를 켰는데 아무것도 안 산다» 싶을 때 여기를 누르세요.
-          <b>어디서 막혔는지</b> 한 줄로 알려줍니다. 돈은 안 듭니다.
+        <!--  ⚠️ 설정 한 칸에 카드가 열한 개였습니다. 자동매매 진단을
+              보려고 들어와서 학회원 관리를 스크롤로 지나치게 됩니다.
+              성격이 다른 것끼리 묶어 나눕니다.                        -->
+        <div class="mode-seg" id="adSeg">
+          <button id="adSeg-mt" class="on" onclick="adTab('mt')">모의투자</button>
+          <button id="adSeg-ai" class="" onclick="adTab('ai')">AI</button>
+          <button id="adSeg-who" class="" onclick="adTab('who')">학회원</button>
+          <button id="adSeg-etc" class="" onclick="adTab('etc')">자료</button>
         </div>
-        <div class="msg" id="autoDocMsg"></div>
-        <div id="autoDocBox"><div class="empty" style="padding:14px">
-          「지금 상태 보기」를 누르세요.</div></div>
-      </div>
 
-      <div class="card" id="resetCard">
-        <h2>대회 초기화
-          <span class="tools st-hint">포트폴리오 프로젝트를 새로 시작할 때</span>
-        </h2>
-        <div class="note warn" style="margin:-4px 0 12px">
-          <b>되돌릴 수 없습니다.</b> 매매 기록 · 일별 스냅샷 · 배당 · 자동매매
-          기록 · 저장해둔 전략이 <b>영구히</b> 지워집니다.
-          팀 구성과 학회원 계정은 그대로 남습니다.
-        </div>
-        <div class="row">
-          <label>범위</label>
-          <select id="rsTeam" style="width:230px" onchange="rsPreview()">
-            <option value="">전체 팀 (현재 기수)</option>
-          </select>
-          <label style="min-width:auto">시드머니</label>
-          <input type="number" id="rsSeed" style="width:150px" value="100000000"
-                 min="0" step="1000000">
-          <span class="st-hint" style="flex:none">원</span>
-        </div>
-        <div class="row" id="rsWhenRow">
-          <label>대회 시작</label>
-          <input type="datetime-local" id="rsStart" style="width:210px">
-          <label style="min-width:auto">종료</label>
-          <input type="datetime-local" id="rsEnd" style="width:210px">
-          <span class="st-hint grow">비워두면 지금 기간을 그대로 둡니다</span>
-        </div>
-        <div class="row">
-          <input type="text" id="rsNote" class="grow" maxlength="200"
-                 placeholder="메모 (예: 2학기 포트폴리오 프로젝트 시작) — 기록에 남습니다">
-        </div>
-        <div id="rsPreview" class="st-hint" style="margin:8px 0"></div>
-        <div class="row">
-          <button class="btn-sm" onclick="rsPreview()">무엇이 지워지는지 다시 세기</button>
-          <button class="btn-sm btn-danger" id="rsGo" onclick="rsRun()">초기화 실행</button>
-          <span class="st-hint grow" id="rsMsg"></span>
-        </div>
-        <h3 style="font-size:.9rem;color:var(--primary);margin:16px 0 8px">초기화 기록</h3>
-        <div class="scroll"><table id="rsTable"></table></div>
-      </div>
-
-      <!--  ── 지금 누가 켜놨나 ──────────────────────────────────
-            ⚠️ IP·위치는 안 남깁니다 (접속 기록과 같은 원칙).
-               브라우저·OS 와 «그 브라우저에 저장된 임의의 번호» 만 씁니다.
-            ⚠️ «자리비움» 은 «컴퓨터 앞에 없다» 가 아니라 «이 화면을 안
-               보고 있다» 입니다. 다른 탭을 보면 신호를 멈춥니다.       -->
-      <div class="card" id="presenceCard">
-        <h2>지금 누가 켜놨나
-          <span class="tools">
-            <label class="st-hint" style="min-width:auto">
-              <input type="checkbox" id="presAuto" checked onchange="presTick()"> 자동 새로고침
-            </label>
-            <button class="btn-sm" onclick="loadPresence()">새로고침</button>
-          </span>
-        </h2>
-        <div id="presSum" class="st-hint" style="margin:-6px 0 10px"></div>
-        <div class="scroll"><table id="presTable"></table></div>
-        <p class="st-hint" style="margin:8px 0 0">
-          <b>IP 주소·위치는 남기지 않습니다.</b> 브라우저·OS 와 그 브라우저에 저장된
-          임의의 번호만 씁니다 — 학회원이 브라우저 저장소를 지우면 사라집니다.
-          <b>자리비움</b>은 «자리에 없다»가 아니라 «이 화면을 안 보고 있다»는 뜻입니다
-          (다른 탭을 보면 신호를 멈춥니다).
-        </p>
-      </div>
-
-      <!--  ⚠️ AI 리포트 비용은 <여기에만> 나옵니다.
-            · 학회원 화면에는 금액이 한 군데도 안 뜹니다 (누르기를 망설이니까)
-            · AI 분석 탭에도 안 뜹니다 (발표 중 화면 공유 때 보이면 곤란)
-            설정 탭은 임원진만 들어옵니다.                                 -->
-      <div class="card" id="aiSpendCard">
-        <h2>AI 리포트 비용
-          <span class="tools"><button class="btn-sm" onclick="loadAiSpend()">새로고침</button></span>
-        </h2>
-        <div id="aiSpendBody"><div class="empty">불러오는 중…</div></div>
-      </div>
-
-      <!--  ⚠️ «누가 어떤 회사를 찾아봤나».
-
-            사람이 무엇을 봤는지를 담는 칸입니다. 그래서
-              · 학회원은 이 표를 <아예> 못 읽습니다 (RLS 정책 없음)
-              · 임원진만 함수로 봅니다 (막는 곳은 SQL 안입니다)
-              · IP·기기·위치는 안 남깁니다
-              · 학번 전체도 안 내려갑니다 (이름표 규칙 그대로)          -->
-      <!--  ⚠️ AI 리포트가 앞뒤 안 맞는지 한 번에 훑습니다.
-            AI 를 다시 부르지 않습니다 — 저장된 숫자만 봅니다(돈 안 듭니다). -->
-      <div class="card admin-only hidden" id="aiAuditCard">
-        <h2>AI 리포트 점검
-          <span class="tools"><button class="btn-sm" id="aiAuditBtn" onclick="aiAuditAll()">
-            보관함 전체 점검</button></span>
-        </h2>
-        <div class="note info" style="margin-bottom:10px">
-          목표가가 현재가·서로와 앞뒤가 맞는지 저장된 리포트를 전부 훑습니다.
-          <b>학회원 화면에는 «숫자를 그대로 믿지 마세요» 한 줄만</b> 뜨고,
-          <b>어디가 어떻게 어긋났는지는 임원진에게만</b> 보입니다.
-        </div>
-        <div class="st-hint" id="aiAuditMsg">아직 안 돌렸습니다.</div>
-        <div id="aiAuditBox" style="margin-top:8px"></div>
-      </div>
-
-      <div class="card admin-only hidden" id="aiViewCard">
-        <h2>AI 분석 — 누가 무엇을 찾아봤나
-          <span class="tools">
-            <select id="avDays" onchange="loadAiViews()" style="width:auto;min-width:110px">
-              <option value="7">최근 7일</option>
-              <option value="30" selected>최근 30일</option>
-              <option value="90">최근 90일</option>
-              <option value="365">올해 전체</option>
-            </select>
-            <button class="btn-sm" onclick="loadAiViews()">새로고침</button>
-          </span>
-        </h2>
-        <div class="row" style="margin-bottom:10px">
-          <input type="text" id="avQ" class="grow" placeholder="이름 · 종목코드 · 회사명으로 찾기"
-                 onkeydown="if(event.key==='Enter')loadAiViews()">
-          <button class="btn-sm" onclick="loadAiViews()">찾기</button>
-        </div>
-        <div class="mode-seg" id="avSeg" style="margin-bottom:12px">
-          <button id="avTab-rows"  onclick="avTab('rows')">하나씩 보기</button>
-          <button id="avTab-who"   onclick="avTab('who')">사람별</button>
-          <button id="avTab-code"  onclick="avTab('code')">회사별</button>
-        </div>
-        <div id="aiViewBody"><div class="empty">불러오는 중…</div></div>
-      </div>
-
-      <div class="card admin-only hidden">
+        <div id="adPane-mt">
+<div class="card admin-only hidden">
         <h2>팀 관리 (임원진)</h2>
         <div class="row">
           <input type="text" id="newTeamName" class="grow" placeholder="새 팀 이름 (예: 1팀 알파)">
@@ -3307,19 +3166,146 @@
           </div>
         </div>
       </div>
-      <div class="card">
-        <h2>현재 활동 기수</h2>
-        <div class="row">
-          <input type="number" id="curGen" min="1" style="width:110px">
-          <button class="btn-sm btn-solid" onclick="saveGen()">저장</button>
+
+<!--  ── 자동매매 자가진단 ─────────────────────────────────
+            ⚠️ 채권팀이 2주를 기다렸는데 체결이 하나도 없었습니다.
+               «안 도는 것» 과 «돌았는데 조건이 안 맞은 것» 은 화면에서
+               똑같아 보입니다. 앞은 고장이고 뒤는 정상입니다.
+               구분해서 말해 줘야 합니다.                              -->
+      <div class="card" id="autoDocCard">
+        <h2>자동매매 진단
+          <span class="tools">
+            <!--  ⚠️ «예약은 걸려 있는데 실행 기록이 없다» 에서 멈춰 있었습니다.
+                  그 상태로는 <스캔 자체가 고장인지> <예약이 못 부르는지> 를
+                  가릴 수가 없습니다. 둘은 고칠 데가 완전히 다릅니다.
+                  임원진은 스캔을 직접 부를 수 있으니, 한 번 돌려보면
+                  그 자리에서 갈립니다.                                  -->
+            <button class="btn-sm btn-solid admin-only hidden" id="autoRunBtn"
+                    onclick="autoRunNow()">지금 한 번 돌려보기</button>
+            <button class="btn-sm" onclick="autoDoc()">지금 상태 보기</button>
+          </span>
+        </h2>
+        <div class="note info" style="margin-bottom:12px">
+          «자동매매를 켰는데 아무것도 안 산다» 싶을 때 여기를 누르세요.
+          <b>어디서 막혔는지</b> 한 줄로 알려줍니다. 돈은 안 듭니다.
         </div>
-        <div class="note" style="margin-top:12px">
-          이 숫자를 바꾸면 <b>이전 기수는 즉시 접속이 끊기고</b> 새 기수가 열립니다.
-          학기가 바뀔 때 여기만 고치면 됩니다.
-        </div>
-        <div class="msg" id="genMsg"></div>
+        <div class="msg" id="autoDocMsg"></div>
+        <div id="autoDocBox"><div class="empty" style="padding:14px">
+          「지금 상태 보기」를 누르세요.</div></div>
       </div>
-      <!--  ── 학번 이름표 ───────────────────────────────────────
+
+<div class="card" id="resetCard">
+        <h2>대회 초기화
+          <span class="tools st-hint">포트폴리오 프로젝트를 새로 시작할 때</span>
+        </h2>
+        <div class="note warn" style="margin:-4px 0 12px">
+          <b>되돌릴 수 없습니다.</b> 매매 기록 · 일별 스냅샷 · 배당 · 자동매매
+          기록 · 저장해둔 전략이 <b>영구히</b> 지워집니다.
+          팀 구성과 학회원 계정은 그대로 남습니다.
+        </div>
+        <div class="row">
+          <label>범위</label>
+          <select id="rsTeam" style="width:230px" onchange="rsPreview()">
+            <option value="">전체 팀 (현재 기수)</option>
+          </select>
+          <label style="min-width:auto">시드머니</label>
+          <input type="number" id="rsSeed" style="width:150px" value="100000000"
+                 min="0" step="1000000">
+          <span class="st-hint" style="flex:none">원</span>
+        </div>
+        <div class="row" id="rsWhenRow">
+          <label>대회 시작</label>
+          <input type="datetime-local" id="rsStart" style="width:210px">
+          <label style="min-width:auto">종료</label>
+          <input type="datetime-local" id="rsEnd" style="width:210px">
+          <span class="st-hint grow">비워두면 지금 기간을 그대로 둡니다</span>
+        </div>
+        <div class="row">
+          <input type="text" id="rsNote" class="grow" maxlength="200"
+                 placeholder="메모 (예: 2학기 포트폴리오 프로젝트 시작) — 기록에 남습니다">
+        </div>
+        <div id="rsPreview" class="st-hint" style="margin:8px 0"></div>
+        <div class="row">
+          <button class="btn-sm" onclick="rsPreview()">무엇이 지워지는지 다시 세기</button>
+          <button class="btn-sm btn-danger" id="rsGo" onclick="rsRun()">초기화 실행</button>
+          <span class="st-hint grow" id="rsMsg"></span>
+        </div>
+        <h3 style="font-size:.9rem;color:var(--primary);margin:16px 0 8px">초기화 기록</h3>
+        <div class="scroll"><table id="rsTable"></table></div>
+      </div>
+        </div>
+
+        <div id="adPane-ai" class="hidden">
+<!--  ⚠️ AI 리포트 비용은 <여기에만> 나옵니다.
+            · 학회원 화면에는 금액이 한 군데도 안 뜹니다 (누르기를 망설이니까)
+            · AI 분석 탭에도 안 뜹니다 (발표 중 화면 공유 때 보이면 곤란)
+            설정 탭은 임원진만 들어옵니다.                                 -->
+      <div class="card" id="aiSpendCard">
+        <h2>AI 리포트 비용
+          <span class="tools"><button class="btn-sm" onclick="loadAiSpend()">새로고침</button></span>
+        </h2>
+        <div id="aiSpendBody"><div class="empty">불러오는 중…</div></div>
+      </div>
+
+<!--  ⚠️ AI 리포트가 앞뒤 안 맞는지 한 번에 훑습니다.
+            AI 를 다시 부르지 않습니다 — 저장된 숫자만 봅니다(돈 안 듭니다). -->
+      <div class="card admin-only hidden" id="aiAuditCard">
+        <h2>AI 리포트 점검
+          <span class="tools"><button class="btn-sm" id="aiAuditBtn" onclick="aiAuditAll()">
+            보관함 전체 점검</button></span>
+        </h2>
+        <div class="note info" style="margin-bottom:10px">
+          목표가가 현재가·서로와 앞뒤가 맞는지 저장된 리포트를 전부 훑습니다.
+          <b>학회원 화면에는 «숫자를 그대로 믿지 마세요» 한 줄만</b> 뜨고,
+          <b>어디가 어떻게 어긋났는지는 임원진에게만</b> 보입니다.
+        </div>
+        <div class="st-hint" id="aiAuditMsg">아직 안 돌렸습니다.</div>
+        <div id="aiAuditBox" style="margin-top:8px"></div>
+      </div>
+
+      
+
+<div class="card admin-only hidden" id="aiViewCard">
+        <h2>AI 분석 — 누가 무엇을 찾아봤나
+          <span class="tools">
+            <select id="avDays" onchange="loadAiViews()" style="width:auto;min-width:110px">
+              <option value="7">최근 7일</option>
+              <option value="30" selected>최근 30일</option>
+              <option value="90">최근 90일</option>
+              <option value="365">올해 전체</option>
+            </select>
+            <button class="btn-sm" onclick="loadAiViews()">새로고침</button>
+          </span>
+        </h2>
+        <div class="row" style="margin-bottom:10px">
+          <input type="text" id="avQ" class="grow" placeholder="이름 · 종목코드 · 회사명으로 찾기"
+                 onkeydown="if(event.key==='Enter')loadAiViews()">
+          <button class="btn-sm" onclick="loadAiViews()">찾기</button>
+        </div>
+        <div class="mode-seg" id="avSeg" style="margin-bottom:12px">
+          <button id="avTab-rows"  onclick="avTab('rows')">하나씩 보기</button>
+          <button id="avTab-who"   onclick="avTab('who')">사람별</button>
+          <button id="avTab-code"  onclick="avTab('code')">회사별</button>
+        </div>
+        <div id="aiViewBody"><div class="empty">불러오는 중…</div></div>
+      </div>
+        </div>
+
+        <div id="adPane-who" class="hidden">
+<div class="card">
+        <h2>
+          <span>학회원 관리</span>
+          <span class="tools"><button class="btn-sm" onclick="loadMembers()">새로고침</button></span>
+        </h2>
+        <div class="note info" style="margin-bottom:14px">
+          다음 학기 기수를 <b>미리 등록</b>할 수 있습니다. 계정을 만들 때는 현재 기수가 자동으로 들어가니,
+          4기 신입은 여기서 기수를 <b>4</b>로 바꿔두면 됩니다. 활동 기수가 4기로 바뀌는 순간 자동으로 열립니다.
+        </div>
+        <div class="msg" id="memMsg"></div>
+        <div class="scroll"><table id="memTable"></table></div>
+      </div>
+
+<!--  ── 학번 이름표 ───────────────────────────────────────
             계정은 학번으로 이미 나눠줬습니다. 학번만 뜨면 누가 누군지
             모르니, 학번마다 <부를 이름> 을 붙입니다.                  -->
       <div class="card" id="labelCard">
@@ -3341,20 +3327,46 @@
         <div class="scroll"><table id="nkTable"></table></div>
       </div>
 
-      <div class="card">
-        <h2>
-          <span>학회원 관리</span>
-          <span class="tools"><button class="btn-sm" onclick="loadMembers()">새로고침</button></span>
-        </h2>
-        <div class="note info" style="margin-bottom:14px">
-          다음 학기 기수를 <b>미리 등록</b>할 수 있습니다. 계정을 만들 때는 현재 기수가 자동으로 들어가니,
-          4기 신입은 여기서 기수를 <b>4</b>로 바꿔두면 됩니다. 활동 기수가 4기로 바뀌는 순간 자동으로 열립니다.
+<div class="card">
+        <h2>현재 활동 기수</h2>
+        <div class="row">
+          <input type="number" id="curGen" min="1" style="width:110px">
+          <button class="btn-sm btn-solid" onclick="saveGen()">저장</button>
         </div>
-        <div class="msg" id="memMsg"></div>
-        <div class="scroll"><table id="memTable"></table></div>
+        <div class="note" style="margin-top:12px">
+          이 숫자를 바꾸면 <b>이전 기수는 즉시 접속이 끊기고</b> 새 기수가 열립니다.
+          학기가 바뀔 때 여기만 고치면 됩니다.
+        </div>
+        <div class="msg" id="genMsg"></div>
       </div>
 
-      <div class="card">
+<!--  ── 지금 누가 켜놨나 ──────────────────────────────────
+            ⚠️ IP·위치는 안 남깁니다 (접속 기록과 같은 원칙).
+               브라우저·OS 와 «그 브라우저에 저장된 임의의 번호» 만 씁니다.
+            ⚠️ «자리비움» 은 «컴퓨터 앞에 없다» 가 아니라 «이 화면을 안
+               보고 있다» 입니다. 다른 탭을 보면 신호를 멈춥니다.       -->
+      <div class="card" id="presenceCard">
+        <h2>지금 누가 켜놨나
+          <span class="tools">
+            <label class="st-hint" style="min-width:auto">
+              <input type="checkbox" id="presAuto" checked onchange="presTick()"> 자동 새로고침
+            </label>
+            <button class="btn-sm" onclick="loadPresence()">새로고침</button>
+          </span>
+        </h2>
+        <div id="presSum" class="st-hint" style="margin:-6px 0 10px"></div>
+        <div class="scroll"><table id="presTable"></table></div>
+        <p class="st-hint" style="margin:8px 0 0">
+          <b>IP 주소·위치는 남기지 않습니다.</b> 브라우저·OS 와 그 브라우저에 저장된
+          임의의 번호만 씁니다 — 학회원이 브라우저 저장소를 지우면 사라집니다.
+          <b>자리비움</b>은 «자리에 없다»가 아니라 «이 화면을 안 보고 있다»는 뜻입니다
+          (다른 탭을 보면 신호를 멈춥니다).
+        </p>
+      </div>
+        </div>
+
+        <div id="adPane-etc" class="hidden">
+<div class="card">
         <h2>지표 목록</h2>
         <div class="row">
           <select id="icSource" style="width:120px">
@@ -3375,7 +3387,8 @@
         <div class="msg" id="icMsg"></div>
         <div class="scroll" style="margin-top:8px"><table id="icTable"></table></div>
       </div>
-    </div>
+        </div>
+      </div>
   </main>
 </div>
 
@@ -3728,7 +3741,7 @@ function showTab(name){
   if (name==='flow')    go(initFlow);
   if (name==='links')   go(loadLinks);
   if (name==='access')  go(loadAccess);
-  if (name==='admin')   go(loadAdmin);
+  if (name==='admin'){ go(adTabInit); go(loadAdmin); }
   //  차트를 한 번도 안 그린 상태면 빈 흰 상자만 보입니다 — 안내 문구라도 띄웁니다.
   if (name==='research') setTimeout(function(){
     if (chart) chart.resize(); else if (typeof echarts !== 'undefined') drawChart(); }, 60);
@@ -3748,6 +3761,8 @@ function tabHome(name){
   }
   //  ⚠️ AI 분석은 «새 리포트 / 보관함» 두 칸입니다 — 첫 화면은 «새 리포트»
   if (name === 'ai' && typeof aiShow === 'function'){ aiShow('new'); return; }
+  //  설정의 첫 칸은 <모의투자> 입니다 (adTabInit 이 이걸 보고 따릅니다)
+  if (name === 'admin'){ adForce = 'mt'; return; }
   /*  나머지 탭(경제지표·기업분석·파생·자금흐름·자료실·접속기록·설정)은
       안쪽에 «화면 안의 화면» 이 없어서, 맨 위로 올리는 것이 곧 첫 화면입니다. */
 }
@@ -18595,6 +18610,45 @@ async function loadAccess(){
 }
 
 /* ══════════ 설정 (임원진) ══════════ */
+/*  ── 설정 안쪽 탭 ────────────────────────────────────────────
+
+    ⚠️ 학회장: «설정 내에 내용이 너무 다양하고 많아서 설정 내에서도
+       탭으로 나눠줘». 카드가 열한 개였습니다. 자동매매 진단 하나
+       보려고 들어와서 학회원 관리·지표 목록을 스크롤로 지나쳐야 했습니다.
+
+    ⚠️ 마지막으로 본 칸을 기억합니다. 설정에 들어올 때마다 첫 칸으로
+       돌아가면, 자동매매를 손보는 동안 매번 다시 눌러야 합니다.
+       (다만 상단 «설정» 탭을 <다시> 누르면 첫 칸으로 — 그게 돌아갈
+        길이니까요.)                                                 */
+var AD_KEY = 'safe.adtab.v1';
+var adView = 'mt';
+
+function adTab(which){
+  var keys = ['mt','ai','who','etc'];
+  if (keys.indexOf(which) < 0) which = 'mt';
+  adView = which;
+  keys.forEach(function(k){
+    var p = $('adPane-' + k); if (p) p.classList.toggle('hidden', k !== which);
+    var b = $('adSeg-' + k);  if (b) b.classList.toggle('on', k === which);
+  });
+  try { localStorage.setItem(AD_KEY, which); } catch(e){ /* 사생활 모드 */ }
+  //  숨김이 풀린 뒤에 차트·표가 제 크기를 잡게 합니다
+  setTimeout(resizeAllCharts, 60);
+}
+
+/*  ⚠️ showTab 은 <되돌리기를 먼저> 하고 그다음에 초기화를 부릅니다.
+    그래서 tabHome 이 adTab('mt') 를 해놔도 adTabInit 이 «기억해둔 칸»
+    으로 도로 덮어썼습니다. 상단 탭을 다시 눌러도 첫 칸으로 안 갔습니다.
+    되돌리기 쪽에서 <한 번만 쓰는 지시> 를 남겨둡니다.               */
+var adForce = null;
+
+function adTabInit(){
+  var v = adForce;
+  adForce = null;
+  if (!v){ try { v = localStorage.getItem(AD_KEY) || 'mt'; } catch(e){ v = 'mt'; } }
+  adTab(v);
+}
+
 async function loadAdmin(){
   loadAiSpend();
   loadAiViews();
