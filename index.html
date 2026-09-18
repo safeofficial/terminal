@@ -16896,12 +16896,23 @@ async function pfLoad(){
   if (!$('pfCard')) return;
   warn('pfMsg','');
   try {
-    var d = await edgeAi({ action:'portfolio_get', team_id: team });
-    pfRender(d);
+    /*  ⚠️ 읽기는 <화면이 직접> 합니다. Edge Function 을 거치면 안 됩니다 —
+        pf_latest 안의 can_use_terminal()·is_officer() 는 auth.uid() 로
+        «지금 로그인한 사람» 을 찾는데, 서버는 service_role 이라 그게
+        NULL 입니다. 그래서 늘 «권한 없음» 으로 판정되어 화면에
+        «오늘은 다 썼습니다» 가 계속 떴습니다 — 표는 비어 있었는데요.
+        읽는 데 돈도 안 드니 거쳐갈 이유도 없습니다.                 */
+    var r = await sb.rpc('pf_latest', { p_team_id: team });
+    /*  ⚠️ errMsg() 를 먼저 태우면 안 됩니다. 그 함수는 «function» 이라는
+        낱말만 보고 <어떤 SQL 이 빠졌든> «terminal-점검.sql 을 돌리세요»
+        로 바꿔버립니다. 그러면 여기서 «포트폴리오진단.sql» 이라고
+        짚어줄 수가 없습니다. 원문을 먼저 봅니다.                    */
+    if (r.error) throw new Error(String((r.error && r.error.message) || r.error));
+    pfRender(r.data);
   } catch(e){
     //  ⚠️ SQL 을 아직 안 돌렸을 수 있습니다 — «고장» 이 아닙니다
     var m = String(e.message || e);
-    if (/pf_latest|ai_portfolio|does not exist|schema cache/i.test(m))
+    if (/pf_latest|pf_used_today|ai_portfolio|ai_cost_summary/i.test(m))
       warn('pfMsg', isOfficer()
         ? '진단 기능이 아직 설치되지 않았습니다. SQL Editor 에서 '
           + '<b>terminal-포트폴리오진단.sql</b> 을 한 번 돌려주세요.'
@@ -16916,6 +16927,8 @@ async function pfRefresh(){
   try {
     var d = await edgeAi({ action:'portfolio_review', team_id: team });
     pfRender(d);
+    //  서버가 준 것을 그대로 그린 뒤, 저장된 값으로 한 번 더 맞춥니다
+    pfLoad();
     if (d && d.cost_now != null)
       warn('pfMsg', '이번 호출 비용 <b>$' + Number(d.cost_now).toFixed(4) + '</b>', 'info');
   } catch(e){
