@@ -3341,6 +3341,32 @@
         </div>
 
         <div id="adPane-who" class="hidden">
+        <!--  ⚠️ 학회장: «지금 누가 켜놨나를 제일 윗쪽에 배치해줘».
+              학회원 칸의 <첫 카드> 로 올립니다 — 들여다보는 빈도가
+              가장 높은데 넷 중 맨 아래였습니다.                      -->
+<!--  ── 지금 누가 켜놨나 ──────────────────────────────────
+            ⚠️ IP·위치는 안 남깁니다 (접속 기록과 같은 원칙).
+               브라우저·OS 와 «그 브라우저에 저장된 임의의 번호» 만 씁니다.
+            ⚠️ «자리비움» 은 «컴퓨터 앞에 없다» 가 아니라 «이 화면을 안
+               보고 있다» 입니다. 다른 탭을 보면 신호를 멈춥니다.       -->
+      <div class="card" id="presenceCard">
+        <h2>지금 누가 켜놨나
+          <span class="tools">
+            <label class="st-hint" style="min-width:auto">
+              <input type="checkbox" id="presAuto" checked onchange="presTick()"> 자동 새로고침
+            </label>
+            <button class="btn-sm" onclick="loadPresence()">새로고침</button>
+          </span>
+        </h2>
+        <div id="presSum" class="st-hint" style="margin:-6px 0 10px"></div>
+        <div class="scroll"><table id="presTable"></table></div>
+        <p class="st-hint" style="margin:8px 0 0">
+          <b>IP 주소·위치는 남기지 않습니다.</b> 브라우저·OS 와 그 브라우저에 저장된
+          임의의 번호만 씁니다 — 학회원이 브라우저 저장소를 지우면 사라집니다.
+          <b>자리비움</b>은 «자리에 없다»가 아니라 «이 화면을 안 보고 있다»는 뜻입니다
+          (다른 탭을 보면 신호를 멈춥니다).
+        </p>
+      </div>
 <div class="card">
         <h2>
           <span>학회원 관리</span>
@@ -3389,29 +3415,6 @@
         <div class="msg" id="genMsg"></div>
       </div>
 
-<!--  ── 지금 누가 켜놨나 ──────────────────────────────────
-            ⚠️ IP·위치는 안 남깁니다 (접속 기록과 같은 원칙).
-               브라우저·OS 와 «그 브라우저에 저장된 임의의 번호» 만 씁니다.
-            ⚠️ «자리비움» 은 «컴퓨터 앞에 없다» 가 아니라 «이 화면을 안
-               보고 있다» 입니다. 다른 탭을 보면 신호를 멈춥니다.       -->
-      <div class="card" id="presenceCard">
-        <h2>지금 누가 켜놨나
-          <span class="tools">
-            <label class="st-hint" style="min-width:auto">
-              <input type="checkbox" id="presAuto" checked onchange="presTick()"> 자동 새로고침
-            </label>
-            <button class="btn-sm" onclick="loadPresence()">새로고침</button>
-          </span>
-        </h2>
-        <div id="presSum" class="st-hint" style="margin:-6px 0 10px"></div>
-        <div class="scroll"><table id="presTable"></table></div>
-        <p class="st-hint" style="margin:8px 0 0">
-          <b>IP 주소·위치는 남기지 않습니다.</b> 브라우저·OS 와 그 브라우저에 저장된
-          임의의 번호만 씁니다 — 학회원이 브라우저 저장소를 지우면 사라집니다.
-          <b>자리비움</b>은 «자리에 없다»가 아니라 «이 화면을 안 보고 있다»는 뜻입니다
-          (다른 탭을 보면 신호를 멈춥니다).
-        </p>
-      </div>
         </div>
 
         <div id="adPane-etc" class="hidden">
