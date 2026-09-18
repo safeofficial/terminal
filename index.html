@@ -469,15 +469,34 @@
   .trade-foot{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-top:4px}
   .trade-foot .hint{flex:1 1 320px;margin:0}
   .trade-foot button{flex:0 0 210px}
-  /*  ── 학회 일정 (홈 타임라인) ──────────────────────────
-      ⚠️ D-day 는 <제일 먼저 눈에 들어와야> 합니다. 나머지 줄보다
-         확실히 크게 두고, 색은 일정 구분을 따라갑니다.            */
-  .ev-dday{display:flex;align-items:center;gap:16px;padding:12px 14px;margin-bottom:12px;
-    background:linear-gradient(180deg,#fbfcfe 0%,#f4f6fb 100%);border-radius:12px}
-  .ev-dday .n{font-size:1.75rem;font-weight:800;line-height:1;min-width:92px;
-    text-align:center;font-variant-numeric:tabular-nums}
-  .ev-dday .t{font-size:.95rem;line-height:1.4;min-width:0}
-  .ev-dday .t .s{font-size:11.5px;color:var(--text-sub);font-weight:400;margin-top:3px}
+  /*  ── 학회 일정 맨 위 (다음 일정) ──────────────────────
+
+      ⚠️ 학회장: «일정 상단 좀 밤티나. 미니멀하게 이쁘게».
+         맞는 지적이었습니다. 아래 세로 타임라인은 <가는 선 · 점 ·
+         대문자 딱지> 로 장식을 다 걷어냈는데, 정작 맨 위 칸만
+         회색 그라데이션 상자에 800 굵기 색 숫자였습니다. 화면에서
+         혼자 결이 달랐습니다.
+
+      ⚠️ 상자를 없애고 <글자와 선 하나> 로만 세웁니다. 색은 작은
+         구분 딱지에만 남깁니다 — 큰 숫자까지 색을 입히면 그게
+         먼저 보여서 정작 <무슨 일정인지> 가 뒤로 밀립니다.
+
+      ⚠️ 아래 타임라인은 건드리지 않았습니다 (학회장: «막대형 좌우로
+         보여주는건 완벽해»).                                       */
+  .ev-dday{display:flex;align-items:center;gap:22px;padding:2px 2px 16px;
+    margin-bottom:16px;border-bottom:1px solid var(--border)}
+  .ev-dday .n{font-size:2.15rem;font-weight:300;line-height:1;letter-spacing:-.03em;
+    font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--text);min-width:96px}
+  /*  ⚠️ «진행 중 · 오늘 · 내일» 은 숫자가 아니라 말입니다. 2.15rem 으로
+      같이 키우면 칸을 밀어내서, 가는 세로선이 일정마다 다른 자리에
+      섭니다. 말은 말 크기로 둡니다.                                  */
+  .ev-dday .n.txt{font-size:1.35rem;font-weight:500;letter-spacing:-.01em}
+  .ev-dday .bar{width:1px;align-self:stretch;background:var(--border)}
+  .ev-dday .t{min-width:0}
+  .ev-dday .k{font-size:10px;font-weight:700;letter-spacing:.14em;margin-bottom:3px}
+  .ev-dday .ti{font-size:1rem;font-weight:600;letter-spacing:-.01em;line-height:1.35}
+  .ev-dday .s{font-size:11.5px;color:var(--text-sub);margin-top:4px;
+    font-variant-numeric:tabular-nums}
   /*  ── 세로 타임라인 ──────────────────────────────────────
 
       ⚠️ 학회장이 SWOT 도해를 보여주며 «이렇게 미니멀하게, 다만 세로로».
@@ -539,7 +558,9 @@
     .ev-card,.ev-row.ev-r .ev-card{padding-left:26px;padding-right:0;text-align:left}
     .ev-card::after{right:auto;left:4px}
     .ev-sep{text-align:left;padding-left:26px}
-    .ev-dday .n{font-size:1.4rem;min-width:72px}
+    .ev-dday{gap:14px;padding-bottom:14px;margin-bottom:14px}
+    .ev-dday .n{font-size:1.75rem;min-width:70px}
+    .ev-dday .n.txt{font-size:1.1rem}
   }
   .pie-wrap{background:linear-gradient(180deg,#fbfcfe 0%,#f4f6fb 100%);border-radius:12px;padding:6px}
   .pie-center{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
@@ -625,6 +646,59 @@
   .nf-row a:hover{text-decoration:underline;color:var(--primary)}
   .nf-row.hot .ttl:before{content:'★ ';color:var(--up)}
   .nf-row.hot a{font-weight:600}
+
+  /* ── 라이브 뉴스 서랍 (우하단) ──────────────────────────────
+
+     ⚠️ 탭 바깥에 떠 있는 물건입니다. 모의투자 주문 단추를 가리면
+        안 되니, 접었을 때는 작은 단추 하나만 남깁니다.             */
+  .nf-fab{position:fixed;right:20px;bottom:20px;z-index:60;
+    display:flex;align-items:center;gap:8px;
+    font-size:12.5px;font-weight:600;color:var(--primary);
+    background:var(--white);border:1px solid var(--border);border-radius:22px;
+    padding:9px 16px;cursor:pointer;box-shadow:0 6px 20px rgba(44,62,107,.13)}
+  .nf-fab:hover{border-color:var(--accent)}
+  .nf-fab .dot{width:6px;height:6px;border-radius:50%;background:var(--up);
+    box-shadow:0 0 0 3px rgba(192,57,43,.14)}
+  .nf-dock{position:fixed;right:20px;bottom:20px;z-index:61;
+    width:392px;max-width:calc(100vw - 32px);max-height:min(640px,78vh);
+    display:flex;flex-direction:column;
+    background:var(--white);border:1px solid var(--border);border-radius:14px;
+    box-shadow:0 18px 50px rgba(44,62,107,.18)}
+  .nf-head{display:flex;align-items:center;gap:8px;padding:11px 14px;
+    border-bottom:1px solid var(--border);font-size:13px;color:var(--primary)}
+  .nf-head b{font-weight:700}
+  .nf-head #nfAge{font-size:11px;color:var(--text-sub);font-weight:400}
+  .nf-head-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .nf-head-r label{font-size:11px;color:var(--text-sub);display:flex;
+    align-items:center;gap:4px;cursor:pointer}
+  .nf-head-r input{width:auto;margin:0}
+  .nf-x{width:24px;height:24px;border-radius:7px;border:1px solid var(--border);
+    background:var(--white);color:var(--text-sub);font-size:12px;line-height:1;cursor:pointer}
+  .nf-x:hover{color:var(--primary);border-color:var(--accent)}
+  .nf-body{display:flex;flex-direction:column;min-height:0;padding:10px 14px 12px}
+  .nf-body .mode-seg{margin-bottom:8px}
+  .nf-body .nf-chips{margin-bottom:6px}
+  /*  ⚠️ 목록만 스크롤합니다. 서랍 전체를 스크롤하게 두면 종류 단추가
+      위로 사라져서, 읽다가 «뉴스/공시» 를 바꾸려면 다시 올려야 합니다. */
+  .nf-dock .nf-list{flex:1 1 auto;min-height:120px;max-height:none;overflow-y:auto}
+  /*  ⚠️ 원래 줄은 [시간][출처][분류][제목] 네 칸짜리 가로 격자입니다.
+      392px 안에서는 제목이 서너 글자마다 접힙니다. 두 줄로 세웁니다. */
+  .nf-dock .nf-row{grid-template-columns:auto auto 1fr;
+    grid-template-areas:'t tag src' 'ttl ttl ttl';gap:3px 7px;padding:9px 2px}
+  .nf-dock .nf-row .t{grid-area:t}
+  .nf-dock .nf-row .nf-tag{grid-area:tag}
+  .nf-dock .nf-row .src{grid-area:src;text-align:right}
+  .nf-dock .nf-row .ttl{grid-area:ttl;font-size:12.5px;line-height:1.45}
+  .nf-note{margin-top:8px;border-top:1px solid var(--border);padding-top:7px}
+  .nf-note summary{font-size:11px;color:var(--text-sub);cursor:pointer;list-style:none}
+  .nf-note summary::-webkit-details-marker{display:none}
+  .nf-note summary::before{content:'▸ ';font-size:9px}
+  .nf-note[open] summary::before{content:'▾ '}
+  .nf-note p{margin-top:6px}
+  @media(max-width:760px){
+    .nf-fab{right:12px;bottom:12px;padding:8px 13px;font-size:12px}
+    .nf-dock{right:10px;left:10px;bottom:10px;width:auto;max-width:none;max-height:72vh}
+  }
 
   /* ── 모의투자 ── */
   .mt-clock{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
@@ -1172,31 +1246,6 @@
             </p>
           </div>
         </div>
-      </div>
-
-      <!-- 실시간 피드 -->
-      <div class="card">
-        <h2>실시간 피드
-          <span style="font-size:11.5px;color:var(--text-sub);font-weight:400" id="nfAge"></span>
-          <span class="tools">
-            <label style="font-size:11.5px;color:var(--text-sub);font-weight:400">
-              <input type="checkbox" id="nfAuto" checked onchange="nfTick()"
-                     style="width:auto;vertical-align:-2px"> 자동 갱신
-            </label>
-            <button class="btn-sm" onclick="nfLoad(true)">지금 새로고침</button>
-          </span>
-        </h2>
-        <div class="cal-filters" style="margin-bottom:10px">
-          <div class="mode-seg" id="nfKind">
-            <button class="on" onclick="nfSet('kind','news')">뉴스</button>
-            <button onclick="nfSet('kind','filings')">미국 공시</button>
-            <button onclick="nfSet('kind','dart')">국내 공시</button>
-          </div>
-          <div class="nf-chips" id="nfTags"></div>
-        </div>
-        <div id="nfWarn"></div>
-        <div id="nfList" class="nf-list"></div>
-        <p class="st-hint" style="margin-top:8px" id="nfNote"></p>
       </div>
 
       <!-- ── 회의 자료 (PDF) ──
@@ -3390,6 +3439,51 @@
         </div>
       </div>
   </main>
+
+  <!--  ── 라이브 뉴스 (우하단 서랍) ──────────────────────────
+
+        ⚠️ 학회장: «다들 그 뉴스 피드를 직접 가서 안 봐. 그냥 열고 닫을
+           수 있는 정도로, 각자 할 일 하면서 읽을 수 있게 우 하단에».
+
+           홈 탭 카드였을 때는 <그 탭에 들어가야만> 보였습니다. 그런데
+           뉴스는 «보러 가는» 것이 아니라 «곁에 켜두는» 것입니다.
+           모의투자를 하든 리포트를 읽든 옆에 떠 있어야 뜻이 있습니다.
+
+        ⚠️ 그래서 탭 바깥(main 밖)에 둡니다. 탭을 옮겨도 안 사라지고,
+           스크롤해도 따라옵니다.                                      -->
+  <button id="nfFab" class="nf-fab" onclick="nfDock(true)">
+    <span class="dot"></span>라이브 뉴스
+  </button>
+
+  <div id="nfDock" class="nf-dock hidden">
+    <div class="nf-head">
+      <b>라이브 뉴스</b>
+      <span id="nfAge"></span>
+      <span class="nf-head-r">
+        <label title="1분마다 저절로 받아옵니다">
+          <input type="checkbox" id="nfAuto" checked onchange="nfTick()"> 자동
+        </label>
+        <button class="nf-x" onclick="nfLoad(true)" title="지금 새로고침">↻</button>
+        <button class="nf-x" onclick="nfDock(false)" title="닫기">✕</button>
+      </span>
+    </div>
+    <div class="nf-body">
+      <div class="mode-seg" id="nfKind">
+        <button class="on" onclick="nfSet('kind','news')">뉴스</button>
+        <button onclick="nfSet('kind','filings')">미국 공시</button>
+        <button onclick="nfSet('kind','dart')">국내 공시</button>
+      </div>
+      <div class="nf-chips" id="nfTags"></div>
+      <div id="nfWarn"></div>
+      <div id="nfList" class="nf-list"></div>
+      <!--  ⚠️ 분류가 <제목 단어 매칭> 이라는 고백은 좁은 서랍에서도
+            없애지 않습니다. 대신 접어 둡니다.                        -->
+      <details class="nf-note">
+        <summary>분류는 어떻게 붙나</summary>
+        <p class="st-hint" id="nfNote"></p>
+      </details>
+    </div>
+  </div>
 </div>
 
 <script src="config.js"></script>
@@ -3688,6 +3782,7 @@ async function enterApp(){
   await loadTheme();
   await loadCatalog();
   showTab('home');
+  nfDockInit();          //  지난번에 열어뒀으면 그대로 열어 줍니다
 }
 
 /*  ── 상단 탭을 누르면 <그 탭의 첫 화면> 으로 ──────────────────
@@ -5062,6 +5157,36 @@ function evDays(iso){
 /*  «끝났나» 는 <끝 날짜> 로 봅니다. 기간 일정은 시작일이 지나도
     아직 진행 중입니다 — MT 둘째 날에 «지난 일정» 으로 내려가면 안 됩니다. */
 function evLastDay(x){ return x.ends_on || x.starts_on; }
+/*  요일은 맨 위 칸에만 붙입니다. «9/23» 만 보면 그게 무슨 요일인지
+    머리로 세야 하는데, 다음 일정 하나는 그걸 대신 해줄 만합니다.
+    (아래 타임라인은 줄이 많아서 붙이면 시끄러워집니다)              */
+var EV_DOW = ['일','월','화','수','목','금','토'];
+function evDow(iso){
+  var p = String(iso || '').split('-');
+  if (p.length !== 3) return '';
+  var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+  if (isNaN(d.getTime())) return '';
+  return '(' + EV_DOW[d.getDay()] + ')';
+}
+/*  ⚠️ evWhen 뒤에 요일을 <붙이면> «9/23 19:00 (화)» 가 됩니다. 요일은
+    날짜에 붙는 말이라 시각 뒤로 가면 안 읽힙니다. 날짜 바로 뒤에
+    끼웁니다 — «9/23 (화) 19:00».
+    기간 일정(9/20~9/21)은 요일을 안 붙입니다. 둘 중 어느 쪽 요일인지
+    애매해지고, 어차피 «~» 가 기간이라고 말해줍니다.                 */
+function evWhenTop(x){
+  var md = function(iso){
+    var p = String(iso || '').split('-');
+    return p.length === 3 ? (Number(p[1]) + '/' + Number(p[2])) : String(iso || '');
+  };
+  var y = String(x.starts_on || '').slice(0, 4);
+  var thisY = String(new Date().getFullYear());
+  var out = ((y && y !== thisY) ? (y + '. ') : '') + md(x.starts_on);
+  var range = x.ends_on && x.ends_on !== x.starts_on;
+  if (range) out += '~' + md(x.ends_on);
+  else { var w = evDow(x.starts_on); if (w) out += ' ' + w; }
+  if (x.at_time) out += ' ' + x.at_time;
+  return out;
+}
 function evDdayText(n){
   if (n === 0) return '오늘';
   if (n === 1) return '내일';
@@ -5126,13 +5251,19 @@ function evRender(){
       var d0 = evDays(n0.starts_on), k0 = evKind(n0.kind);
       //  이미 시작해서 진행 중인 기간 일정
       var live = d0 < 0 && evDays(evLastDay(n0)) >= 0;
+      var big = live ? '진행 중' : evDdayText(d0);
+      //  «D-5» 는 숫자, «오늘·내일·진행 중» 은 말 — 크기를 달리 씁니다
+      var isNum = /^D[-+]/.test(big);
       dd.innerHTML = '<div class="ev-dday">'
-        + '<div class="n" style="color:' + esc(k0.color) + '">'
-        +   esc(live ? '진행 중' : evDdayText(d0)) + '</div>'
-        + '<div class="t"><b>' + esc(n0.title) + '</b>'
-        +   '<div class="s">' + esc(evWhen(n0))
+        + '<div class="n' + (isNum ? '' : ' txt') + '">' + esc(big) + '</div>'
+        + '<div class="bar"></div>'
+        + '<div class="t">'
+        +   '<div class="k" style="color:' + esc(k0.color) + '">' + esc(k0.label) + '</div>'
+        +   '<div class="ti">' + esc(n0.title) + '</div>'
+        +   '<div class="s">' + esc(evWhenTop(n0))
         +     (n0.place ? ' · ' + esc(n0.place) : '')
-        +     (n0.owner ? ' · ' + esc(n0.owner) : '') + '</div></div></div>';
+        +     (n0.owner ? ' · ' + esc(n0.owner) : '') + '</div>'
+        + '</div></div>';
     }
   }
 
@@ -5281,7 +5412,7 @@ function initHome(){
   if (homeReady) return;
   homeReady = true;
   applyGuidePref();
-  nfLoad(); nfTick();
+  //  ⚠️ 뉴스는 이제 홈이 아니라 <우하단 서랍> 입니다. 여기서 부르지 않습니다.
   loadHomeFx();
   loadEcon();
   /*  팀 성적표를 모의투자 탭에서 홈으로 옮겼습니다. 예전에는 모의투자에
@@ -5305,19 +5436,54 @@ async function seedFxTable(){
   } catch(e){ /* 조용히 넘어갑니다 */ }
 }
 
-/* ── 통화 · 환율 ── */
-async function loadHomeFx(force){
+/* ── 통화 · 환율 ────────────────────────────────────────────
+
+   ⚠️ 학회장: «환율 차트 제대로 업데이트 안된다. 30분마다 알아서».
+
+      한 번 받으면 <창을 닫을 때까지> 다시 안 받았습니다. 아침에 켜놓고
+      오후에 본 환율은 <어제 것> 이었습니다.
+
+   ⚠️ 저절로 받을 때는 «불러오는 중…» 으로 화면을 비우지 않습니다.
+      30분마다 타일이 사라졌다 나타나면 읽던 사람이 놀랍니다.        */
+var FX_MS = 30 * 60 * 1000;
+var fxTimer = null, fxGotAt = 0;
+
+async function loadHomeFx(force, quiet){
   if (homeFx && !force){ renderHomeFx(); return; }
-  $('homeFxTiles').innerHTML = '<div class="empty" style="padding:22px">불러오는 중…</div>';
+  if (!quiet)
+    $('homeFxTiles').innerHTML = '<div class="empty" style="padding:22px">불러오는 중…</div>';
   try {
     homeFx = await edge({ source:'home_fx', days:400 });
+    fxGotAt = Date.now();
     renderHomeFx();
+    fxAuto();
     seedFxTable();               // 모의투자에서 쓸 환율 보관함도 같이 채워둡니다
   } catch(e){
-    $('homeFxTiles').innerHTML = '';
-    warn('homeWarn', '환율을 받지 못했습니다 — ' + esc(e.message));
+    //  ⚠️ 저절로 받다 실패한 것이면 <이미 있는 값> 을 지우지 않습니다.
+    //     인터넷이 잠깐 끊겼다고 멀쩡한 화면을 비울 이유가 없습니다.
+    if (!quiet){
+      $('homeFxTiles').innerHTML = '';
+      warn('homeWarn', '환율을 받지 못했습니다 — ' + esc(e.message));
+    }
   }
 }
+
+function fxAuto(){
+  if (fxTimer) clearInterval(fxTimer);
+  fxTimer = setInterval(function(){
+    //  창을 내려놨으면 건너뜁니다 — 돌아올 때 아래에서 따라잡습니다
+    if (document.hidden) return;
+    loadHomeFx(true, true);
+  }, FX_MS);
+}
+
+/*  ⚠️ 브라우저는 숨은 탭의 setInterval 을 늦춥니다(1분까지 벌어집니다).
+    노트북을 덮었다 열면 30분이 훌쩍 지나 있기도 합니다. 돌아왔을 때
+    <얼마나 지났는지> 를 직접 보고 따라잡습니다.                      */
+document.addEventListener('visibilitychange', function(){
+  if (document.hidden || !fxGotAt) return;
+  if (Date.now() - fxGotAt > FX_MS) loadHomeFx(true, true);
+});
 
 function fxDp(sym, v){
   if (sym === 'USDJPY' || sym === 'DXY') return 2;
@@ -5328,8 +5494,13 @@ function fxDp(sym, v){
 function renderHomeFx(){
   var d = homeFx; if (!d) return;
   var live = d.pairs.filter(function(p){ return p.last != null; });
-  $('homeFxAsOf').textContent = live.length
-    ? (live[0].on + ' 기준 · ' + d.source) : '';
+  /*  ⚠️ «2026-09-18 기준» 만 적혀 있으면 그게 <오늘 종가> 인지 <지금 값>
+      인지 알 수 없습니다. 지금 값이면 몇 분 전 것인지 적습니다.      */
+  var liveN = live.filter(function(p){ return p.kind === 'live'; }).length;
+  $('homeFxAsOf').textContent = !live.length ? ''
+    : (liveN && d.live_at
+        ? (nfAgo(d.live_at) + ' 기준 · 30분마다 갱신 · ' + d.source)
+        : (live[0].on + ' 종가 기준 · ' + d.source));
 
   if (!live.length){
     $('homeFxTiles').innerHTML = '<div class="empty" style="padding:22px">'
@@ -5519,15 +5690,54 @@ function nfRender(){
         + '눈여겨볼 서류입니다. 기사보다 먼저 나옵니다.');
 }
 
-/*  자동 갱신 — 홈 탭을 보고 있을 때만 돕니다.
-    다른 탭에 있거나 창을 내려놨으면 부르지 않습니다. 서버 캐시가 3분이라
+/*  ── 우하단 서랍 ──────────────────────────────────────────
+
+    ⚠️ 학회장: «다들 그 뉴스 피드를 직접 가서 안 봐». 맞습니다 — 홈 탭
+       카드였으니 <보러 가야> 보였습니다. 뉴스는 보러 가는 게 아니라
+       곁에 켜두는 것입니다.
+
+    ⚠️ 기본은 <닫힘> 입니다. 처음 들어온 사람 화면을 절반 가리고 시작할
+       이유가 없습니다. 한 번 열어두면 다음에도 열린 채로 뜹니다.     */
+var NF_DOCK_KEY = 'safe.nfdock.v1';
+var nfOpen = false;
+
+function nfDock(open){
+  nfOpen = !!open;
+  var d = $('nfDock'), f = $('nfFab');
+  if (d) d.classList.toggle('hidden', !nfOpen);
+  if (f) f.classList.toggle('hidden', nfOpen);
+  try { localStorage.setItem(NF_DOCK_KEY, nfOpen ? '1' : '0'); } catch(e){ /* 사생활 모드 */ }
+  if (nfOpen){
+    if (!nfData[nfKind]) nfLoad(); else nfRender();
+    nfTick();
+  } else if (nfTimer){
+    //  ⚠️ 닫아놓고 1분마다 받아오면 <아무도 안 보는 화면> 때문에 매체
+    //     서버를 두드리는 셈입니다. 타이머도 같이 끕니다.
+    clearInterval(nfTimer); nfTimer = null;
+  }
+}
+
+function nfDockInit(){
+  var v = '0';
+  try { v = localStorage.getItem(NF_DOCK_KEY) || '0'; } catch(e){ v = '0'; }
+  nfDock(v === '1');
+}
+
+//  ⚠️ 서랍은 화면을 가립니다. 닫는 길이 ✕ 하나뿐이면 답답합니다.
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && nfOpen) nfDock(false);
+});
+
+/*  자동 갱신 — 서랍이 열려 있을 때만 돕니다.
+    닫아뒀거나 창을 내려놨으면 부르지 않습니다. 서버 캐시가 3분이라
     그보다 자주 불러도 의미가 없어서 60초로 둡니다.                     */
 function nfTick(){
   if (nfTimer) clearInterval(nfTimer);
+  nfTimer = null;
+  if (!nfOpen) return;
   nfTimer = setInterval(function(){
     var on = $('nfAuto') && $('nfAuto').checked;
-    var home = $('pane-home') && !$('pane-home').classList.contains('hidden');
-    if (on && home && !document.hidden) nfLoad();
+    if (on && nfOpen && !document.hidden) nfLoad();
     else if (nfData[nfKind]) nfRender();      //  '몇 분 전' 만 갱신
   }, 60000);
 }
