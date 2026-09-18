@@ -2095,20 +2095,20 @@
         <div class="card hidden" id="mtChartCard">
           <h2><span id="mtChartName">주가 추이</span>
             <span class="tools">
-              <span class="mode-seg" id="mtKindSeg" style="margin:0">
+              <span class="mode-seg mt-own" id="mtKindSeg" style="margin:0">
                 <button id="mtKind-candle" class="on" onclick="mtSetChartKind('candle')">봉</button>
                 <button id="mtKind-line" onclick="mtSetChartKind('line')">선</button>
               </span>
               <!--  ⚠️ 봉 간격이 없으면 <일봉만> 볼 수 있습니다. 파생상품 쪽에는
                     이미 있는데 여기만 없었습니다.                          -->
-              <select id="mtSymTf" onchange="mtReloadSym()" style="width:106px"
+              <select id="mtSymTf" class="mt-own" onchange="mtReloadSym()" style="width:106px"
                       title="봉 하나가 얼마짜리인지">
                 <option value="15m">15분봉</option>
                 <option value="1h">1시간봉</option>
                 <option value="4h">4시간봉</option>
                 <option value="1d" selected>일봉</option>
               </select>
-              <select id="mtChartRange" onchange="mtDrawSymChart()" style="width:110px">
+              <select id="mtChartRange" class="mt-own" onchange="mtDrawSymChart()" style="width:110px">
                 <option value="60">60개</option>
                 <option value="130" selected>130개</option>
                 <option value="260">260개</option>
@@ -2117,6 +2117,7 @@
               <button class="btn-sm" onclick="mtCloseSymChart()">닫기</button>
             </span>
           </h2>
+          <div id="mtTvWarn"></div>
           <div id="mtSymBox" style="height:calc(400px * var(--chz,1))"></div>
           <div class="st-hint" id="mtChartNote" style="margin-top:6px"></div>
         </div>
@@ -12320,6 +12321,141 @@ function mtMoveHoldings(k){
     아래인지 한눈에 보이게 합니다.                                    */
 var mtSymPick = null, mtSymChart = null, mtSymPts = null, mtAvgShown = false;
 
+/*  ── TradingView 차트 ──────────────────────────────────────────
+
+    ⚠️ 학회장: «모의투자 차트는 그냥 트레이딩뷰로 가져올까? 현재 모의투자에
+       종목 누르면 나오는 차트랑 동일한 사이즈로, 개개인이 클릭한 종목의
+       차트로. 모의투자 탭에서 사용하는 차트만».
+
+    ⚠️ 여기서 <반드시> 짚고 가야 할 것이 있습니다.
+       TradingView 가 그리는 값과 <우리가 체결에 쓰는 값> 은 다릅니다.
+       체결은 여태처럼 터미널 시세(국내는 그날 종가, 미국은 지연 시세)로
+       합니다. 차트는 <보는 용도> 입니다. 화면에 그렇게 적습니다.
+       — 이걸 안 적으면 «차트에 1,400 찍혔는데 왜 1,395 에 체결됐냐» 가 됩니다.
+
+    ⚠️ 종목 바꾸기(allow_symbol_change)는 <껐습니다>. 차트에서 테슬라를
+       띄워놓고 주문창은 애플인 상태가 만들어집니다. 매매 화면에서
+       그건 사고입니다.
+
+    ⚠️ 저작권 줄(tradingview-widget-copyright)은 <지우면 안 됩니다>.
+       무료로 쓰는 대신 출처를 남기는 것이 그쪽 이용약관입니다.
+
+    ⚠️ 광고 차단기가 s3.tradingview.com 을 막는 경우가 많습니다. 그러면
+       빈 상자만 남습니다. 7초 안에 안 뜨면 <원래 차트로 보기> 를
+       내줍니다 — 예전 코드는 그대로 살려뒀습니다.                     */
+var MT_TV = true;            //  false 로 두면 예전 ECharts 차트로 돌아갑니다
+var mtTvOff = false;         //  이 브라우저에서만 끈 것 (광고 차단 등)
+var mtTvTimer = null;
+
+function mtTvOn(){ return MT_TV && !mtTvOff; }
+
+/*  우리 종목 코드를 TradingView 가 아는 이름으로.
+    ⚠️ 국내는 KRX:005930 처럼 거래소를 붙여야 찾습니다. 미국은 안 붙이면
+       TradingView 가 알아서 찾습니다(BRK.B 같은 점도 그대로 둡니다).   */
+function mtTvSym(mk, sym){
+  var t = String(sym || '').toUpperCase().trim();
+  if (!t) return '';
+  if (mk === 'KR')     return 'KRX:' + t.replace(/[^0-9A-Z]/g, '');
+  if (mk === 'CRYPTO'){
+    /*  ⚠️ 코드가 BTC · BTC-USD · ETHUSDT 처럼 제각각으로 들어옵니다.
+        꼬리를 떼서 하나로 모읍니다. 다만 <구분자 없이> 뗄 때는 남는 것이
+        두 글자 이상일 때만 뗍니다 — SUSD 를 S 로 만들면 안 됩니다.     */
+    var c = t.replace(/[^A-Z0-9\-_\/]/g, '');
+    var m1 = c.match(/^(.+?)[-_\/](USDT|USD|KRW)$/);
+    if (m1) c = m1[1];
+    else {
+      var m2 = c.match(/^([A-Z0-9]{2,})(USDT|USD|KRW)$/);
+      if (m2) c = m2[1];
+    }
+    return 'CRYPTO:' + c.replace(/[^A-Z0-9]/g, '') + 'USD';
+  }
+  return t.replace(/[^A-Z0-9.\-]/g, '');
+}
+
+function mtTvShowOwn(on){
+  ['mtKindSeg','mtSymTf','mtChartRange'].forEach(function(id){
+    var e = $(id); if (e) e.classList.toggle('hidden', !on);
+  });
+}
+
+function mtTvRender(mk, sym, label){
+  var box = $('mtSymBox'); if (!box) return false;
+  //  예전 차트가 떠 있었으면 치웁니다 (안 치우면 ECharts 가 메모리에 남습니다)
+  if (mtSymChart){ try { mtSymChart.dispose(); } catch(e){} mtSymChart = null; }
+  if (mtTvTimer){ clearTimeout(mtTvTimer); mtTvTimer = null; }
+  box.innerHTML = '';
+
+  var tv = mtTvSym(mk, sym);
+  if (!tv) return false;
+
+  var wrap = document.createElement('div');
+  wrap.className = 'tradingview-widget-container';
+  wrap.style.height = '100%'; wrap.style.width = '100%';
+
+  var inner = document.createElement('div');
+  inner.className = 'tradingview-widget-container__widget';
+  inner.style.height = 'calc(100% - 30px)'; inner.style.width = '100%';
+
+  //  ⚠️ 이 줄은 지우면 안 됩니다 (이용약관)
+  var cr = document.createElement('div');
+  cr.className = 'tradingview-widget-copyright';
+  var a = document.createElement('a');
+  a.href = 'https://www.tradingview.com/symbols/' + encodeURIComponent(tv.replace(':', '-')) + '/';
+  a.rel = 'noopener nofollow'; a.target = '_blank';
+  a.innerHTML = '<span class="blue-text">' + esc(label || tv) + '</span>';
+  cr.appendChild(a);
+  var tm = document.createElement('span');
+  tm.className = 'trademark'; tm.textContent = ' by TradingView';
+  cr.appendChild(tm);
+
+  var sc = document.createElement('script');
+  sc.type = 'text/javascript';
+  sc.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  sc.async = true;
+  /*  ⚠️ 이 위젯은 <자기 script 태그 안의 글자> 를 설정으로 읽습니다.
+      붙이기 <전에> 넣어야 합니다. 나중에 넣으면 빈 설정으로 뜹니다.  */
+  sc.text = JSON.stringify({
+    allow_symbol_change: false,
+    calendar: false, details: false,
+    hide_side_toolbar: true, hide_top_toolbar: false,
+    hide_legend: false, hide_volume: false, hotlist: false,
+    interval: 'D',
+    locale: 'kr',
+    save_image: true, style: '1',
+    symbol: tv,
+    //  학회장: «테마는 페이지랑 맞게 — 라이트»
+    theme: 'light',
+    timezone: 'Asia/Seoul',
+    backgroundColor: '#ffffff',
+    gridColor: 'rgba(226, 230, 240, 0.8)',
+    watchlist: [], withdateranges: true, compareSymbols: [],
+    support_host: 'https://www.tradingview.com',
+    studies: [], autosize: true
+  });
+
+  wrap.appendChild(inner); wrap.appendChild(cr); wrap.appendChild(sc);
+  box.appendChild(wrap);
+
+  /*  ⚠️ 광고 차단기가 막으면 <아무 일도 안 일어납니다>. 오류도 안 납니다.
+      빈 상자를 보고 «터미널이 고장났다» 고 여기게 둘 수 없습니다.     */
+  mtTvTimer = setTimeout(function(){
+    if (box.querySelector('iframe')) return;
+    warn('mtTvWarn',
+      'TradingView 차트를 불러오지 못했습니다 — 광고 차단기가 막고 있을 수 있습니다. '
+      + '<button class="btn-sm" onclick="mtTvFallback()" style="margin-left:6px">원래 차트로 보기</button>',
+      'info');
+  }, 7000);
+  return true;
+}
+
+async function mtTvFallback(){
+  mtTvOff = true;
+  warn('mtTvWarn', '');
+  var keep = mtSymPick; mtSymPick = null;
+  if (keep){ var q = keep.split('|'); await mtOpenSymChart(q[0], q.slice(1).join('|')); }
+}
+
+
 async function mtOpenSymChart(mk, sym){
   var key = mk + '|' + sym;
   //  같은 종목을 다시 누르면 접습니다
@@ -12333,7 +12469,35 @@ async function mtOpenSymChart(mk, sym){
     return x.market === mk && x.symbol === sym; })[0] || {};
   $('mtChartName').textContent = (p.name || sym) + ' 주가 추이';
   $('mtChartNote').textContent = '불러오는 중…';
+  warn('mtTvWarn', '');
   mtSymPts = null;
+
+  /*  ── TradingView 로 봅니다 ────────────────────────────────
+
+      ⚠️ 평단선을 잃습니다. 예전 차트는 초록 점선으로 «내가 산 값» 을
+         그어줬는데, 남의 차트에는 우리 평단을 못 얹습니다.
+         그래서 <글자로> 라도 남깁니다 — 안 그러면 조용히 사라집니다.
+
+      ⚠️ 그리고 <체결값은 이 차트가 아닙니다>. 반드시 적습니다.       */
+  if (mtTvOn()){
+    mtTvShowOwn(false);
+    var okTv = mtTvRender(mk, sym, (p.name || sym));
+    var avg0 = Number(p.avg) || 0;
+    var qty0 = Number(p.qty) || 0;
+    $('mtChartNote').innerHTML = !okTv
+      ? '이 종목은 TradingView 에서 찾지 못했습니다. '
+        + '<button class="btn-sm" onclick="mtTvFallback()">원래 차트로 보기</button>'
+      : (avg0 > 0
+          ? '<b>평단 ' + esc(mtCur(avg0, mk, mk === 'KR' ? 0 : 2)) + '</b>'
+            + (qty0 > 0 ? ' · ' + esc(num(qty0, 0)) + '주 보유' : '') + ' · '
+          : '')
+        + '봉 간격·기간은 <b>차트 위쪽</b>에서 바꾸세요. '
+        + '<b>체결은 이 차트 값이 아니라 터미널 시세로 됩니다</b> — '
+        + '거래소·지연 시간이 달라 몇 호가 어긋날 수 있습니다. · '
+        + marketLabel(mk) + ' · ' + esc(sym);
+    return;
+  }
+  mtTvShowOwn(true);
 
   try {
     mtSymPts = await mtSymBars(mk, sym);
@@ -12404,6 +12568,11 @@ async function mtReloadSym(){
 function mtCloseSymChart(){
   mtSymPick = null;
   var c = $('mtChartCard'); if (c) c.classList.add('hidden');
+  /*  ⚠️ 상자를 비웁니다. 안 비우면 숨어 있는 TradingView iframe 이 계속
+      살아서 자기대로 값을 받아옵니다 — 안 보이는 화면인데요.          */
+  if (mtTvTimer){ clearTimeout(mtTvTimer); mtTvTimer = null; }
+  if (mtTvOn()){ var b = $('mtSymBox'); if (b) b.innerHTML = ''; }
+  warn('mtTvWarn', '');
   mtRenderPositions();
 }
 
