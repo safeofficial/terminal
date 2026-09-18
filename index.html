@@ -3508,8 +3508,28 @@
         </div>
 
         <div id="adPane-etc" class="hidden">
+      <!--  ⚠️ 학회장: «EUB·BOJ·BOK 2년물 국채금리 추가해줘».
+            FRED 에는 10년물만 있습니다. EODHD 에는 다 있는데 요금제가
+            받쳐주는지는 <불러봐야> 압니다. 짐작으로 SQL 을 만들어
+            돌리게 하는 대신, 눌러서 확인합니다.                      -->
+      <div class="card admin-only hidden">
+        <h2>해외 국채 창구 확인
+          <span class="tools">
+            <button class="btn-sm" id="bpBtn" onclick="bondProbe()">불러보기</button>
+          </span>
+        </h2>
+        <div class="note info" style="margin:0 0 10px">
+          <b>각국 2년물이 왜 없나.</b> FRED(OECD)는 «장기(10년)»와 «단기(3개월)»
+          둘만 냅니다 — 한국·일본·유로존·중국 모두 <b>2년물이 없습니다</b>.
+          EODHD 에는 <code>KR2Y.GBOND</code> 처럼 다 있지만 상위 요금제가 필요할 수 있어,
+          <b>실제로 열리는지</b>만 여기서 확인합니다. (값은 저장하지 않습니다)
+        </div>
+        <div id="bpMsg" class="st-hint"></div>
+        <div class="scroll" style="margin-top:8px"><table id="bpTable"></table></div>
+      </div>
 <div class="card">
         <h2>지표 목록</h2>
+
         <div class="row">
           <select id="icSource" style="width:120px">
             <option value="fred">FRED</option><option value="ecos">ECOS</option>
@@ -5196,8 +5216,9 @@ function dtDraw(){
       항목이 몇 개든 글자끼리 겹치지 않게, 범례 줄 수를 재서
       위 여백과 차트 키를 같이 늘립니다.                                */
   var dtNames = rows.map(function(r){ return r.name; });
-  var dtRows = legendRows(dtNames, boxWidth('dtChartBox') - 20, 11, 14);
-  var dtTop = 8 + dtRows * 18 + 22;
+  //  ⚠️ 위 차트와 같은 문제 — 여기도 같이 넉넉하게 잡습니다
+  var dtRows = legendRows(dtNames, boxWidth('dtChartBox') - 40, 11, 14);
+  var dtTop = 10 + dtRows * 20 + 24;
   //  ⚠️ 여기는 chz() 를 안 곱합니다 — 위 주석 참고
   $('dtChartBox').style.height = (300 + dtRows * 20) + 'px';
   dtChart.resize();
@@ -9855,7 +9876,12 @@ function textPx(t, fs){
   for (var i = 0; i < str.length; i++){
     var c = str.charCodeAt(i);
     //  한글·한자는 폭이 글자크기와 거의 같고, 알파벳은 그 절반쯤입니다
-    w += (c > 0x1100) ? fs : fs * 0.58;
+    /*  ⚠️ 0.58 은 평균이라 대문자·숫자가 많은 이름에서 모자랍니다.
+        «Personal computers and peripheral equipment» 처럼 긴 영문이
+        줄 수를 한 줄 적게 만들어서 범례가 축 이름을 덮었습니다.
+        모자라게 세느니 넉넉하게 셉니다 — 여백이 조금 남는 건 괜찮지만
+        글자가 겹치는 건 안 됩니다.                                    */
+    w += (c > 0x1100) ? fs : fs * 0.62;
   }
   return w;
 }
@@ -11090,8 +11116,17 @@ function drawChart(){
   //  풍선말에서 이름만 보고 그 지표의 단위를 찾을 수 있게 해둡니다
   var musdBy = {};
   norms.forEach(function(x, i){ if (isMusd(unitOf(x.s))) musdBy[lgNames[i]] = true; });
-  var lgRows = legendRows(lgNames, boxWidth('chartBox') - 24, 12);
-  var topPad = 10 + lgRows * 20 + 20;          // 범례 + 축 이름 자리
+  /*  ⚠️ 학회장: «항목이 길어서 두번째 줄로 넘어갈 때 '%' 랑 겹쳐».
+
+      범례 줄 수를 재서 위를 비워두고 있었는데 <자리가 빠듯했습니다>.
+      축 이름(%)은 격자 위 12px 에 그려지는데, 범례 둘째 줄이 딱 그
+      높이까지 내려옵니다.
+
+      ⚠️ 줄 수를 <적게> 세는 쪽이 더 위험합니다 — 두 줄인데 한 줄로
+         세면 범례가 축 이름 위에 그대로 얹힙니다. 폭을 넉넉히 빼서
+         재고(모자라게 세느니 넘치게), 줄 높이와 이름 자리도 키웁니다. */
+  var lgRows = legendRows(lgNames, boxWidth('chartBox') - 44, 12);
+  var topPad = 12 + lgRows * 22 + 26;          // 범례 + 축 이름 자리
 
   var opt = {
     backgroundColor: theme.bg,
@@ -17870,6 +17905,39 @@ async function loadCoOwn(){
 
     ⚠️ 가로축은 <등간격 칸> 입니다. 1개월과 30년을 실제 길이로 두면
        왼쪽 절반이 한 점에 뭉칩니다. 교과서 그림도 등간격으로 그립니다.  */
+/*  ── 해외 국채 창구가 열리나 ────────────────────────────────
+
+    ⚠️ 학회장: «EUB·BOJ·BOK 2년물 국채금리가 없다. 추가해줘».
+
+       FRED(OECD)에는 <10년물만> 있습니다 — 2년물은 한국·일본·유로존·
+       중국 모두 없습니다. EODHD 에는 KR2Y.GBOND 처럼 다 있는데 상위
+       요금제가 필요할 수 있습니다.
+
+    ⚠️ 짐작으로 코드를 넣어 SQL 을 돌리게 하면, 안 열릴 때 <빈 차트> 만
+       남고 왜인지 모릅니다. 먼저 불러보고, 결과를 보고 정합니다.     */
+async function bondProbe(){
+  var btn = $('bpBtn'), msg = $('bpMsg'), tb = $('bpTable');
+  if (!btn) return;
+  btn.disabled = true; msg.textContent = '불러오는 중…'; tb.innerHTML = '';
+  try {
+    var d = await edge({ source:'bond_probe' });
+    msg.innerHTML = '<b>' + esc(d.verdict || '') + '</b>'
+      + (d.build ? ' <span class="st-hint">(함수 판 ' + esc(d.build) + ')</span>' : '');
+    tb.innerHTML = '<thead><tr><th>코드</th><th class="num">응답</th>'
+      + '<th class="num">받은 줄</th><th>본문(앞부분)</th></tr></thead><tbody>'
+      + aiArr(d.rows).map(function(r){
+          var ok = Number(r.rows) > 0;
+          return '<tr><td><b>' + esc(r.ticker) + '</b></td>'
+               + '<td class="num ' + (ok ? 'pos' : 'neg') + '">' + esc(String(r.http)) + '</td>'
+               + '<td class="num">' + esc(String(r.rows)) + '</td>'
+               + '<td class="st-hint">' + esc(String(r.body || '')) + '</td></tr>';
+        }).join('') + '</tbody>';
+  } catch(e){
+    msg.textContent = e.message || String(e);
+  }
+  btn.disabled = false;
+}
+
 var YC_PRESETS = [
   ['now', '최근',      0],
   ['m1',  '1개월 전',  30],
