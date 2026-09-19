@@ -3508,24 +3508,33 @@
         </div>
 
         <div id="adPane-etc" class="hidden">
-      <!--  ⚠️ 학회장: «EUB·BOJ·BOK 2년물 국채금리 추가해줘».
-            FRED 에는 10년물만 있습니다. EODHD 에는 다 있는데 요금제가
-            받쳐주는지는 <불러봐야> 압니다. 짐작으로 SQL 을 만들어
-            돌리게 하는 대신, 눌러서 확인합니다.                      -->
+      <!--  ⚠️ 학회장: «모든 항목 각각 맞는 지표에 해당되고 그 지표에
+            해당되는 수치만 딱 정확하게 나오는지 확인하고, 그 수치들을
+            팩트체크해줘. 이게 너무 중요해. 우리 경제보고서에 쓸 거라서».
+
+            눈으로 훑어서는 못 잡습니다. 카탈로그에 적어둔 이름·단위·주기와
+            <원천이 실제로 말하는 것> 을 한 줄씩 맞춰봅니다.            -->
       <div class="card admin-only hidden">
-        <h2>해외 국채 창구 확인
+        <h2>지표 팩트체크
           <span class="tools">
-            <button class="btn-sm" id="bpBtn" onclick="bondProbe()">불러보기</button>
+            <button class="btn-sm" id="auBtn" onclick="auditRun()">전체 검사</button>
+            <button class="btn-sm" id="auStop" onclick="auditStop()" style="display:none">멈추기</button>
+            <button class="btn-sm" onclick="auditCsv()">CSV</button>
           </span>
         </h2>
         <div class="note info" style="margin:0 0 10px">
-          <b>각국 2년물이 왜 없나.</b> FRED(OECD)는 «장기(10년)»와 «단기(3개월)»
-          둘만 냅니다 — 한국·일본·유로존·중국 모두 <b>2년물이 없습니다</b>.
-          EODHD 에는 <code>KR2Y.GBOND</code> 처럼 다 있지만 상위 요금제가 필요할 수 있어,
-          <b>실제로 열리는지</b>만 여기서 확인합니다. (값은 저장하지 않습니다)
+          <b>무엇을 봅니까.</b> 지표마다 FRED·한국은행에 <b>직접 물어서</b>,
+          우리가 적어둔 <b>이름·단위·주기</b>와 원천이 말하는 것을 맞춰봅니다.
+          보고서를 망치는 사고는 대개 이런 모양입니다 —
+          <b>지수를 «상승률»이라 부르거나</b>(CPIAUCSL은 1982-84=100 지수입니다),
+          <b>«천 명» 배율을 빠뜨리거나</b>, 월간을 일간으로 등록했거나,
+          <b>계절조정 여부를 안 밝혔거나</b>, 원천이 이미 폐기한 계열이거나.
+          <br>⚠️ <b>읽기만 합니다</b> — 아무것도 고치지 않습니다. 고칠지는 사람이 정합니다.
+          한 줄마다 원천을 두 번 부르므로 지표가 많으면 몇 분 걸립니다.
         </div>
-        <div id="bpMsg" class="st-hint"></div>
-        <div class="scroll" style="margin-top:8px"><table id="bpTable"></table></div>
+        <div id="auMsg" class="st-hint"></div>
+        <div id="auSum" style="margin-top:8px"></div>
+        <div class="scroll" style="margin-top:8px"><table id="auTable"></table></div>
       </div>
 <div class="card">
         <h2>지표 목록</h2>
@@ -17935,37 +17944,147 @@ async function loadCoOwn(){
 
     ⚠️ 가로축은 <등간격 칸> 입니다. 1개월과 30년을 실제 길이로 두면
        왼쪽 절반이 한 점에 뭉칩니다. 교과서 그림도 등간격으로 그립니다.  */
-/*  ── 해외 국채 창구가 열리나 ────────────────────────────────
+/*  ── 지표 팩트체크 ──────────────────────────────────────────
 
-    ⚠️ 학회장: «EUB·BOJ·BOK 2년물 국채금리가 없다. 추가해줘».
+    ⚠️ 학회장: «모든 항목 각각 맞는 지표에 해당되고 그 지표에 해당되는
+       수치만 딱 정확하게 나오는지 확인하고, 그 수치들을 팩트체크해줘.
+       이게 너무 중요해. 우리 경제보고서에 쓸 거라서».
 
-       FRED(OECD)에는 <10년물만> 있습니다 — 2년물은 한국·일본·유로존·
-       중국 모두 없습니다. EODHD 에는 KR2Y.GBOND 처럼 다 있는데 상위
-       요금제가 필요할 수 있습니다.
+    ⚠️ 이건 <한 번 봐주는 일> 이 아니라 <계속 도는 검사> 여야 합니다.
+       지표는 계속 늘고, 원천은 말없이 계열을 폐기하고 단위를 바꿉니다.
+       사람이 눈으로 훑는 방식은 다음 달이면 또 낡습니다.
 
-    ⚠️ 짐작으로 코드를 넣어 SQL 을 돌리게 하면, 안 열릴 때 <빈 차트> 만
-       남고 왜인지 모릅니다. 먼저 불러보고, 결과를 보고 정합니다.     */
-async function bondProbe(){
-  var btn = $('bpBtn'), msg = $('bpMsg'), tb = $('bpTable');
-  if (!btn) return;
-  btn.disabled = true; msg.textContent = '불러오는 중…'; tb.innerHTML = '';
+    ⚠️ 한 줄마다 원천을 두 번 부릅니다(메타 + 마지막 값). 백 줄이면
+       이백 번입니다 — 한꺼번에 보내면 FRED 속도 제한에 걸려 매크로 탭
+       전체가 느려집니다. 조각으로 끊어서, 어디까지 했는지 보여줍니다. */
+var auRows = [], auBusy = false, auAbort = false, auTotal = 0, auBuild = '';
+
+function auSev(flags){
+  var s = 0;
+  aiArr(flags).forEach(function(f){ if (f.sev === 1) s = 2; else if (!s) s = 1; });
+  return s;                                  //  2 = 빨강, 1 = 주황, 0 = 없음
+}
+
+function auditStop(){ auAbort = true; }
+
+async function auditRun(){
+  if (auBusy) return;
+  auBusy = true; auAbort = false;
+  auRows = []; auTotal = 0; auBuild = '';
+  var btn = $('auBtn'), stop = $('auStop'), msg = $('auMsg');
+  if (btn) btn.disabled = true;
+  if (stop) stop.style.display = '';
+  if (msg) msg.textContent = '검사를 시작합니다…';
+  /*  ⚠️ 옛 결과를 먼저 지웁니다. 안 지우면 이번 검사가 <첫 줄부터>
+      실패했을 때 지난번 «이상 없음 24건» 이 그대로 남아 있습니다.
+      그게 이 화면이 할 수 있는 가장 나쁜 거짓말입니다.              */
+  auRender(0, '');
   try {
-    var d = await edge({ source:'bond_probe' });
-    msg.innerHTML = '<b>' + esc(d.verdict || '') + '</b>'
-      + (d.build ? ' <span class="st-hint">(함수 판 ' + esc(d.build) + ')</span>' : '');
-    tb.innerHTML = '<thead><tr><th>코드</th><th class="num">응답</th>'
-      + '<th class="num">받은 줄</th><th>본문(앞부분)</th></tr></thead><tbody>'
-      + aiArr(d.rows).map(function(r){
-          var ok = Number(r.rows) > 0;
-          return '<tr><td><b>' + esc(r.ticker) + '</b></td>'
-               + '<td class="num ' + (ok ? 'pos' : 'neg') + '">' + esc(String(r.http)) + '</td>'
-               + '<td class="num">' + esc(String(r.rows)) + '</td>'
-               + '<td class="st-hint">' + esc(String(r.body || '')) + '</td></tr>';
-        }).join('') + '</tbody>';
+    var off = 0, total = 0, build = '';
+    while (true){
+      if (auAbort){ if (msg) msg.textContent = '멈췄습니다 (' + off + '개까지 봤습니다).'; break; }
+      var d = await edge({ source:'audit_catalog', offset: off, limit: 12 });
+      total = auTotal = Number(d.total) || 0;
+      build = auBuild = d.build || build;
+      auRows = auRows.concat(aiArr(d.rows));
+      off = auRows.length;
+      auRender(total, build);
+      if (msg) msg.textContent = total
+        ? (off + ' / ' + total + '개 확인했습니다…') : '확인 중…';
+      if (d.done || !aiArr(d.rows).length) break;
+    }
+    if (!auAbort && msg) msg.textContent = '';
+    auRender(total, build);
   } catch(e){
-    msg.textContent = e.message || String(e);
+    /*  ⚠️ 여기서 조용히 끝내면 «검사했는데 아무 문제 없음» 처럼 보입니다.
+        그게 이 화면이 할 수 있는 가장 나쁜 거짓말입니다.              */
+    if (msg) msg.innerHTML = '<b>검사를 마치지 못했습니다:</b> ' + esc(e.message || String(e))
+      + ' — <b>여기까지 본 것만</b> 아래에 있습니다. 나머지는 확인되지 않았습니다.';
+    auRender(auTotal, auBuild);
   }
-  btn.disabled = false;
+  if (btn) btn.disabled = false;
+  if (stop) stop.style.display = 'none';
+  auBusy = false;
+}
+
+function auRender(total, build){
+  var sum = $('auSum'), tb = $('auTable');
+  if (!tb) return;
+  var bad = auRows.filter(function(r){ return auSev(r.flags) === 2; });
+  var warn = auRows.filter(function(r){ return auSev(r.flags) === 1; });
+  var okN = auRows.length - bad.length - warn.length;
+
+  if (sum){
+    /*  ⚠️ «몇 개 봤는지» 와 «몇 개가 남았는지» 를 같이 적습니다.
+        «문제 3건» 만 적으면, 절반만 돌다 멈춘 것도 «3건» 으로 보입니다. */
+    var seen = auRows.length;
+    var left = Math.max(0, (Number(total) || 0) - seen);
+    /*  ⚠️ 한 줄도 못 봤으면 «이상 없음 0건» 이 아니라 <아무것도 확인 못 했다>
+        고 적어야 합니다. 0건은 «깨끗하다» 로 읽힙니다.
+        ⚠️ 총계도 모를 때가 있습니다(첫 줄부터 실패). 모르는 숫자를 지어
+        내지 않고, 모른다고 적습니다.                                  */
+    sum.innerHTML = seen === 0
+      ? '<div class="note warn" style="margin:0"><b>한 줄도 확인하지 못했습니다.</b> '
+        + (total ? esc(String(total)) + '개 가운데 <b>하나도</b> 검사되지 않았습니다.'
+                 : '아무것도 검사되지 않았습니다.')
+        + ' 이 화면의 초록·빨강은 <b>지금 아무 뜻이 없습니다</b>.</div>'
+      : '<div class="note ' + (bad.length ? 'warn' : 'info') + '" style="margin:0">'
+      + '<b>' + esc(String(seen)) + '개</b>를 원천과 맞춰봤습니다'
+      + (left ? ' (<b>' + esc(String(left)) + '개는 아직 안 봤습니다</b>)' : '')
+      + ' — 고쳐야 할 것 <b>' + esc(String(bad.length)) + '건</b>, '
+      + '확인해볼 것 <b>' + esc(String(warn.length)) + '건</b>, '
+      + '이상 없음 ' + esc(String(okN)) + '건.'
+      + (build ? ' <span class="st-hint">함수 판 ' + esc(build) + '</span>' : '')
+      + '</div>';
+  }
+
+  //  ⚠️ 문제 있는 줄이 위로 옵니다. 백 줄에서 세 줄을 눈으로 찾게 두지 않습니다.
+  var rows = auRows.slice().sort(function(a, b){
+    return (auSev(b.flags) - auSev(a.flags))
+        || String(a.category).localeCompare(String(b.category));
+  });
+
+  tb.innerHTML = '<thead><tr>'
+    + '<th>분류</th><th>우리 이름</th><th>코드</th>'
+    + '<th>우리 단위</th><th>원천 단위</th><th>주기</th>'
+    + '<th>마지막 값</th><th>맞춰본 결과</th></tr></thead><tbody>'
+    + rows.map(function(r){
+        var sev = auSev(r.flags);
+        var mark = sev === 2 ? '🔴' : sev === 1 ? '🟠' : '🟢';
+        var freq = esc(String(r.cycle || '')) + (r.src_freq ? ' / ' + esc(String(r.src_freq)) : '');
+        var val = r.last_d
+          ? (esc(String(r.last_v == null ? '—' : num(Number(r.last_v), 3)))
+             + ' <span class="st-hint">' + esc(String(r.last_d)) + '</span>')
+          : '<span class="neg">값 없음</span>';
+        var why = aiArr(r.flags).map(function(f){
+          return '<div class="' + (f.sev === 1 ? 'neg' : '') + '">'
+               + (f.sev === 1 ? '🔴 ' : '🟠 ') + esc(String(f.msg)) + '</div>';
+        }).join('') || '<span class="st-hint">원천과 같습니다</span>';
+        return '<tr><td class="st-hint">' + esc(String(r.category || '')) + '</td>'
+          + '<td>' + mark + ' <b>' + esc(String(r.label || '')) + '</b>'
+          + (r.src_title ? '<div class="st-hint">' + esc(String(r.src_title)) + '</div>' : '')
+          + '</td>'
+          + '<td class="st-hint">' + esc(srcName(r.source, r.code)) + '<br>' + esc(String(r.code))
+          + (r.item_code ? ' / ' + esc(String(r.item_code)) : '') + '</td>'
+          + '<td>' + esc(String(r.unit || '—')) + '</td>'
+          + '<td class="st-hint">' + esc(String(r.src_unit || '—')) + '</td>'
+          + '<td class="st-hint">' + freq + '</td>'
+          + '<td class="num">' + val + '</td>'
+          + '<td>' + why + '</td></tr>';
+      }).join('') + '</tbody>';
+}
+
+function auditCsv(){
+  if (!auRows.length){ warn('auMsg', '먼저 검사를 돌려주세요.', 'info'); return; }
+  var rows = [['분류','우리 이름','창구','코드','항목코드','우리 단위','원천 단위',
+               '우리 주기','원천 주기','계절조정','원천 이름','마지막 날짜','마지막 값','문제']];
+  auRows.forEach(function(r){
+    rows.push([r.category, r.label, r.source, r.code, r.item_code,
+               r.unit, r.src_unit, r.cycle, r.src_freq, r.src_sa, r.src_title,
+               r.last_d, r.last_v == null ? '' : r.last_v,
+               aiArr(r.flags).map(function(f){ return (f.sev === 1 ? '[고쳐야] ' : '[확인] ') + f.msg; }).join(' / ')]);
+  });
+  saveCsv(rows, '지표_팩트체크');
 }
 
 var YC_PRESETS = [
