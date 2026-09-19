@@ -9600,6 +9600,10 @@ function addSeries(s){
 function renderSeriesList(){
   var box = $('seriesList');
   closePalette();
+  /*  ⚠️ 일드커브를 위 차트로 넘긴 동안에는 <그려져 있는 것> 의 목록을
+      보여줍니다. 지표 목록을 그대로 두면 목록과 그림이 서로 다른 것을
+      가리켜, 색을 고쳐도 아무 일도 안 일어난 것처럼 보였습니다.       */
+  if (macroMode === 'curve'){ ycListSig = ''; ycListRefresh(); return; }
   if (!series.length) { box.innerHTML = '<div class="empty" style="padding:22px">지표를 추가해 주세요.</div>'; return; }
   box.innerHTML = series.map(function(s,i){
     var tf = s.tf || 'raw';
@@ -9724,6 +9728,7 @@ function initPieMode(){
 /* 선 색 고르기 — 저장된 팔레트에서 선택 */
 var palPop = null;
 function seriesArr(which){
+  if (which === 'yc') return ycSeries;
   return which === 'co' ? coSeries : (which === 'cofin' ? coFinSeries : series);
 }
 function openPalette(i, el, which){
@@ -9844,9 +9849,14 @@ function freeColor(list){
 function pickColor(i, v, which){
   which = which || 'main';
   seriesArr(which)[i].color = v;
-  var btn = $((which === 'co' ? 'cosw' : (which === 'cofin' ? 'cfsw' : 'sw')) + i);
+  var btn = $((which === 'co' ? 'cosw'
+             : (which === 'cofin' ? 'cfsw'
+             : (which === 'yc' ? 'ycsw' : 'sw'))) + i);
   if (btn) btn.style.background = v;
-  if (which === 'co') drawCoPrice();
+  /*  ⚠️ 색을 손으로 고른 순간부터 <자동 색 사다리> 를 끕니다. 안 그러면
+      시점을 하나 더 얹는 순서만 바뀌어도 고른 색이 도로 덮입니다.     */
+  if (which === 'yc'){ seriesArr('yc')[i].auto = false; ycDraw(); }
+  else if (which === 'co') drawCoPrice();
   else if (which === 'cofin') renderCoFinChart();
   else drawChart();
   /*  ⚠️ 예전에는 색을 <한 번 누르면 바로 닫혔습니다>. 그래서 여러 색을
@@ -11014,7 +11024,11 @@ function ycToMain(){
   warn('researchWarn',
     '위 차트가 <b>일드커브</b>로 바뀌었습니다 — 가로축이 «날짜»가 아니라 «만기»입니다. '
     + '올려둔 지표는 지워지지 않았고, <b>「일드커브 끄기」</b>를 누르면 돌아옵니다.', 'info');
+  //  ⚠️ 「선 목록」 도 같이 넘어와야 합니다 — 그림만 바뀌고 목록이 그대로면
+  //     지금 그려진 커브의 색·굵기를 고칠 방법이 없습니다.
+  ycListSig = '';
   if (!ycLoaded) loadYC(); else ycDraw();
+  renderSeriesList();
 }
 function ycFromMain(){
   if (macroMode !== 'curve') return;
@@ -11027,8 +11041,10 @@ function ycFromMain(){
   //     그 인스턴스를 버려야 축 설정(오른쪽 눈금 등)이 안 따라옵니다.
   if (ycChart){ try { ycChart.dispose(); } catch(e){} ycChart = null; }
   if (chart){ try { chart.dispose(); } catch(e){} chart = null; }
+  ycListSig = '';
   drawChart();
   ycDraw();
+  renderSeriesList();       //  지표 목록으로 되돌립니다
 }
 
 function drawChart(){
@@ -17958,6 +17974,119 @@ var YC_PRESETS = [
 var ycPick = { now: 1, y1: 1 };
 var ycExtra = [], ycData = null, ycChart = null, ycBusy = false, ycLoaded = false;
 
+/*  ── 커브 한 줄 한 줄의 «선 설정» ────────────────────────────
+
+    ⚠️ 학회장: «얘도 똑같이 눈금선이랑 선 설정 수정할 수 있게 해줘야지
+       다른 지표들처럼». 맞습니다 — 일드커브만 색·굵기가 고정이었습니다.
+
+    ⚠️ 저장 열쇠를 <날짜> 로 잡으면 안 됩니다. «1년 전» 이 가리키는 날짜는
+       내일이면 달라져서, 어제 고른 색이 오늘 사라집니다. 그래서 시점
+       <이름표(now·y1…)> 로 저장하고, 직접 고른 날짜만 날짜로 저장합니다.
+
+    ⚠️ auto 가 켜져 있는 동안에는 «최근=진한 파랑, 옛날=옅은 회색» 사다리를
+       따라갑니다. 손으로 색을 고르면 그 줄만 사다리에서 빠집니다.      */
+var ycSty = {}, ycSeries = [], ycListSig = '';
+var YC_W = { 1:1.6, 2:2.2, 3:3.2 };
+function ycKeyOf(want){
+  for (var i = 0; i < YC_PRESETS.length; i++)
+    if (ycPick[YC_PRESETS[i][0]] && ycBack(YC_PRESETS[i][2]) === want)
+      return YC_PRESETS[i][0];
+  return want;
+}
+function ycStyOf(key, i, n){
+  var t = ycSty[key];
+  if (!t) t = ycSty[key] = { key:key, auto:true, width:0, hidden:false };
+  if (t.auto) t.color = ycColor(i, n);          //  안 건드린 줄은 사다리를 따릅니다
+  if (!t.width) t.width = (i === 0 ? 2 : 1);    //  최근만 조금 굵게
+  return t;
+}
+
+/*  ── 「선 목록」 을 커브용으로 ────────────────────────────────
+
+    ⚠️ 일드커브를 위 차트로 넘기면 그림은 바뀌는데 옆의 「선 목록」 은
+       매크로 지표 목록 그대로였습니다. 지금 그려진 것과 목록이 다른 것을
+       가리키고 있었던 셈입니다 — 그 상태에서는 색도 굵기도 못 고칩니다.
+
+    ⚠️ 커브에는 «변환(YoY)» 도 «좌·우 축» 도 뜻이 없습니다. 같은 단위(%)의
+       단면이라서요. 그래서 뜻이 통하는 것만 둡니다 — 색·굵기·숨기기·빼기.  */
+function ycListRefresh(){
+  var box = $('seriesList'); if (!box) return;
+  if (macroMode !== 'curve') return;
+  /*  ⚠️ 색을 <끌면서> 고르는 동안 목록을 다시 그리면 팔레트가 닫힙니다.
+      줄 구성이 실제로 바뀌었을 때만 다시 그립니다.                     */
+  var sig = ycSeries.map(function(t){ return t.key; }).join('|');
+  if (sig === ycListSig && box.querySelector('.series-item')) return;
+  ycListSig = sig;
+  renderYcList(box);
+}
+/*  ⚠️ 줄 구성이 그대로면 목록을 다시 안 그립니다(팔레트가 닫히니까).
+    그래서 색·굵기가 <목록 밖> 에서 바뀌면 목록만 옛 값을 붙들고 있게
+    됩니다. 다시 그리지 않고 그 두 칸만 맞춰줍니다.                   */
+function ycListSync(){
+  var box = $('seriesList'); if (!box) return;
+  var rows = box.querySelectorAll('.series-item');
+  if (rows.length !== ycSeries.length) return;
+  ycSeries.forEach(function(t, i){
+    var sw = rows[i].querySelector('.sw-btn');
+    if (sw) sw.style.background = t.color;
+    var se = rows[i].querySelector('select');
+    if (se && String(se.value) !== String(t.width)) se.value = String(t.width);
+    rows[i].classList.toggle('off', !!t.hidden);
+  });
+}
+function renderYcList(box){
+  if (!ycSeries.length){
+    box.innerHTML = '<div class="empty" style="padding:22px">시점을 하나 이상 고르세요.</div>';
+    return;
+  }
+  box.innerHTML = ycSeries.map(function(t, i){
+    var off = !!t.hidden;
+    return '<div class="series-item'+(off?' off':'')+'">'
+      + '<div class="series-top">'
+      +   '<button id="ycsw'+i+'" class="sw-btn" style="background:'+esc(t.color)+'" '
+      +     'title="색 고르기" onclick="openPalette('+i+',this,\'yc\')"></button>'
+      +   '<button class="eye-btn" onclick="ycToggleHidden('+i+')" '
+      +     'title="'+(off?'다시 보이기':'차트에서 숨기기 (지우는 게 아닙니다)')+'" '
+      +     'aria-pressed="'+(off?'true':'false')+'">'+eyeSVG(off)+'</button>'
+      +   '<div class="nm">'+esc(t.label)
+      +     (off ? ' <span style="font-size:10.5px;font-weight:600;color:var(--text-sub)">· 숨김</span>' : '')
+      +     '<div class="code">미 국채 커브 · '+esc(t.want ? fmtDateKo(t.want) : '')+'</div></div>'
+      +   '<button class="xbtn" onclick="ycRemove('+i+')" title="이 시점 빼기">&times;</button>'
+      + '</div>'
+      + '<div class="series-ctl">'
+      +   '<select style="flex:1 1 100%" onchange="ycSetWidth('+i+',this.value)">'
+      +     '<option value="1"'+(t.width==1?' selected':'')+'>얇게</option>'
+      +     '<option value="2"'+(t.width==2?' selected':'')+'>보통</option>'
+      +     '<option value="3"'+(t.width==3?' selected':'')+'>굵게</option></select>'
+      + '</div></div>';
+  }).join('');
+}
+function ycSetWidth(i, v){
+  var t = ycSeries[i]; if (!t) return;
+  t.width = Number(v) || 1;
+  ycDraw();
+}
+function ycToggleHidden(i){
+  var t = ycSeries[i]; if (!t) return;
+  /*  ⚠️ 마지막 한 줄까지 숨기면 빈 차트가 남습니다 — «고장났나» 로
+      읽히지 않게 막고 이유를 적어줍니다. 시점 칩과 같은 규칙입니다.   */
+  if (!t.hidden && ycSeries.filter(function(x){ return !x.hidden; }).length <= 1){
+    warn('ycWarn', '적어도 한 시점은 보이게 두세요.', 'info');
+    return;
+  }
+  t.hidden = !t.hidden;
+  warn('ycWarn','');
+  closePalette();
+  ycListSig = '';           //  숨김 표시가 바뀌었으니 목록은 다시 그립니다
+  ycDraw();
+}
+function ycRemove(i){
+  var t = ycSeries[i]; if (!t) return;
+  ycListSig = '';
+  if (ycPick[t.key]) ycToggle(t.key);
+  else ycDrop(t.want);
+}
+
 function ycIso(d){
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0')
        + '-' + String(d.getDate()).padStart(2,'0');
@@ -18081,7 +18210,25 @@ function ycDraw(){
       옮겨달라고 한 이유가 그것입니다.                                */
   var box = $(macroMode === 'curve' ? 'chartBox' : 'ycBox'); if (!box) return;
   ycChart = chartOn(box, ycChart); if (!ycChart) return;
-  var names = d.curves.map(function(c){ return ycLabelOf(c.want); });
+
+  /*  선 설정을 이 줄들에 맞춥니다. 눈을 감은 줄은 <자료는 들고>
+      그리기만 빠집니다 — 다른 지표 차트와 같은 방식입니다.        */
+  var ncv = d.curves.length;
+  ycSeries = d.curves.map(function(c, i){
+    var t = ycStyOf(ycKeyOf(c.want), i, ncv);
+    t.label  = ycLabelOf(c.want);
+    t.want   = c.want;
+    t.values = c.values;
+    return t;
+  });
+  ycListRefresh();
+  ycListSync();
+
+  var vis = ycSeries.filter(function(t){ return !t.hidden; });
+  var names = vis.map(function(t){ return t.label; });
+  /*  ⚠️ x·y 에 <같은 객체> 를 넘기면 ECharts 가 한쪽을 손볼 때 다른 쪽까지
+      같이 바뀝니다. 따로 만들어 넘깁니다.                            */
+  var splitX = macroSplit(), splitY = macroSplit();
   ycChart.setOption({
     backgroundColor: theme ? theme.bg : '#fff', animation:false,
     //  ⚠️ 눈금이 오른쪽이라 왼쪽 여백은 줄이고 오른쪽을 넓힙니다
@@ -18096,22 +18243,25 @@ function ycDraw(){
       axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
       axisTick:{ show:false },
       axisLabel:{ color:'#77809a', fontSize:11 },
-      //  만기마다 옅은 세로선 — 어느 만기인지 눈이 바로 찾습니다
-      splitLine:{ show:true, lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } } },
+      /*  만기마다 세로선 — 어느 만기인지 눈이 바로 찾습니다.
+          ⚠️ 예전엔 이 두 줄이 테마 격자색을 <그대로> 썼습니다. 그래서
+             다른 차트보다 눈금선이 진해 «자료보다 격자가 먼저» 보였습니다.
+             이제 매크로 탭의 「눈금선」 손잡이를 같이 따릅니다 (기본 45%). */
+      splitLine:splitX },
     /*  ⚠️ 눈금을 <오른쪽> 에 둡니다. 커브는 오른쪽 끝(장기물)에서 값을
         읽는 일이 많아서, 눈이 왼쪽까지 되돌아가지 않아도 됩니다.     */
     yAxis:{ type:'value', position:'right', scale:true,
       axisLine:{ show:false }, axisTick:{ show:false },
       axisLabel:{ color:'#77809a', fontSize:11,
         formatter:function(v){ return num(v, 2) + '%'; } },
-      splitLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } } },
-    series: d.curves.map(function(c, i){
-      var col = ycColor(i, d.curves.length);
-      return { name: names[i], type:'line', smooth:false, connectNulls:true,
-               symbol:'circle', symbolSize: i === 0 ? 6 : 5,
-               lineStyle:{ width: i === 0 ? 2.2 : 1.6, color: col },
-               itemStyle:{ color: col },
-               data: c.values };
+      splitLine:splitY },
+    series: vis.map(function(t){
+      var w = YC_W[t.width] || 1.6;
+      return { name: t.label, type:'line', smooth:false, connectNulls:true,
+               symbol:'circle', symbolSize: w >= 3 ? 6.5 : (w >= 2 ? 6 : 5),
+               lineStyle:{ width: w, color: t.color },
+               itemStyle:{ color: t.color },
+               data: t.values };
     })
   }, true);
 
