@@ -3533,6 +3533,7 @@
         <div class="row">
           <select id="icSource" style="width:120px">
             <option value="fred">FRED</option><option value="ecos">ECOS</option>
+            <option value="bond">해외국채</option>
           </select>
           <input type="text" id="icCode" placeholder="코드" style="width:130px">
           <input type="text" id="icItem" placeholder="항목코드(ECOS)" style="width:130px">
@@ -9617,7 +9618,7 @@ function renderSeriesList(){
       +     'aria-pressed="'+(off?'true':'false')+'">'+eyeSVG(off)+'</button>'
       +   '<div class="nm">'+esc(s.label)
       +     (off ? ' <span style="font-size:10.5px;font-weight:600;color:var(--text-sub)">· 숨김</span>' : '')
-      +     '<div class="code">'+esc(s.source.toUpperCase())+' · '+esc(s.code)
+      +     '<div class="code">'+esc(srcName(s.source, s.code))+' · '+esc(s.code)
       +     (s.points ? '' : ' <span class="spin"></span>')+'</div></div>'
       +   '<button class="xbtn" onclick="removeSeries('+i+')" title="삭제">&times;</button>'
       + '</div>'
@@ -9681,6 +9682,19 @@ function toggleSeriesHidden(i){
 /*  화면에 <실제로 그릴> 것만. 숨긴 건 자료는 들고 있되 빠집니다.  */
 function shownSeries(){
   return series.filter(function(s){ return !s.hidden; });
+}
+
+/*  ── 어느 창구에서 온 값인가 ────────────────────────────────
+
+    ⚠️ 선 목록에는 창구 이름을 그대로 대문자로 찍고 있었습니다. FRED·
+       ECOS 는 그래도 알아보지만 «BOND» 는 아무 뜻이 없습니다. 해외
+       국채는 나라마다 <발행 당국이 다른 창구> 라, 어디서 온 숫자인지
+       가 곧 신뢰도입니다 — 이름으로 적어줍니다.                       */
+var BOND_ORIGIN = { JP:'일본 재무성', DE:'분데스방크' };
+function srcName(src, code){
+  if (src !== 'bond') return String(src || '').toUpperCase();
+  var m = /^([A-Z]{2})/.exec(String(code || '').toUpperCase());
+  return (m && BOND_ORIGIN[m[1]]) || '해외국채';
 }
 
 /*  색을 흰색과 섞어 연하게 만듭니다 (0 = 그대로, 1 = 흰색).        */
@@ -17709,7 +17723,7 @@ function renderCoSeriesList(){
       + '<div class="series-top">'
       +   '<button id="cosw'+i+'" class="sw-btn" style="background:'+esc(s.color)+'" '
       +     'title="색 고르기" onclick="openPalette('+i+',this,\'co\')"></button>'
-      +   '<div class="nm">'+esc(s.label)+'<div class="code">'+esc(s.source.toUpperCase())+' · '+esc(s.code)
+      +   '<div class="nm">'+esc(s.label)+'<div class="code">'+esc(srcName(s.source, s.code))+' · '+esc(s.code)
       +     (s.points ? '' : ' <span class="spin"></span>')+'</div></div>'
       +   '<button class="xbtn" onclick="removeCoSeries('+i+')" title="삭제">&times;</button>'
       + '</div>'
@@ -20368,7 +20382,7 @@ function renderIndicatorTable(){
     + '<th style="width:132px">중요도</th><th></th></tr></thead><tbody>'
     + catalog.map(function(c){
         var n = starOf(c);
-        return '<tr><td>'+esc(c.source.toUpperCase())+'</td>'
+        return '<tr><td>'+esc(srcName(c.source, c.code))+'</td>'
           + '<td class="num">'+esc(c.code)+(c.item_code?' / '+esc(c.item_code):'')+'</td>'
           + '<td>'+esc(c.label)+'</td><td>'+esc(c.unit||'—')+'</td><td>'+esc(c.category)+'</td>'
           /*  ⚠️ 임원진이 여기서 바로 바꿉니다. SQL 편집기를 열어야만 바꿀 수
