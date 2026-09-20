@@ -6003,8 +6003,12 @@ function renderHomeFx(){
       var dp = fxDp(p.symbol, p.last);
       var c = p.d_day;
       var arrow = c == null ? '' : (c > 0 ? '▲ ' : (c < 0 ? '▼ ' : '· '));
+      /*  ⚠️ 지금 값이면 «전일», 묵은 값이면 <그 날짜> 를 적습니다.
+          «전일» 이라고만 적힌 숫자가 실은 일주일 전 종가면, 그대로
+          보고서에 실립니다. 경고문이 아니라 이름표라 자리를 안 먹습니다. */
+      var when = (p.kind !== 'live' && p.on) ? (fmtDateKo(p.on) + ' 종가') : '전일';
       var sub = (c == null ? p.hint
-                : arrow + Math.abs(c*100).toFixed(2) + '% · 전일');
+                : arrow + Math.abs(c*100).toFixed(2) + '% · ' + when);
       return tile(p.label, num(p.last, dp), sub,
                   c > 0 ? 'pos' : (c < 0 ? 'neg' : ''));
     }).join('') + '</div>'
@@ -6023,26 +6027,33 @@ function renderHomeFx(){
            ② 올렸는데 시세 창구가 다 막힘
          구분해서 말해야 손을 어디에 쓸지 알 수 있습니다.
          ①은 답에 <판 번호(build)> 가 없는 것으로 알아냅니다.          */
+  /*  ⚠️ 학회장: «이런 문구들은 임원진만 보이게 해줘. 지워줘 그냥».
+
+      학회원 화면에서는 이 설명 상자를 <전부 없앱니다>. 무엇을 해야 하는지
+      학회원이 할 수 있는 일이 없는 이야기였고, 홈 화면 맨 위를 문단이
+      차지하고 있었습니다.
+
+      ⚠️ 다만 <숫자를 속이지는 않습니다>. 묵은 값이면 그 카드 밑줄에
+         날짜를 «9월 11일 종가» 로 적습니다(아래 renderHomeFx 의 sub).
+         설명이 아니라 <이름표> 라서 한 줄도 안 늘어납니다 —
+         «전일» 이라고만 적힌 숫자가 사실은 일주일 전 것이면, 그건
+         보고서에 그대로 옮겨 적힙니다.                                */
   var oldEdge = !d.build;
   var stale = !liveN;
-  if (d.note) warn('homeWarn', esc(d.note), 'info');
+  if (!isOfficer()) warn('homeWarn','');
+  else if (d.note) warn('homeWarn', esc(d.note), 'info');
   else if (oldEdge)
-    warn('homeWarn', isOfficer()
-      ? '⚠️ <b>옛 엣지 함수가 떠 있습니다.</b> 환율이 일별 종가로만 옵니다 — '
-        + 'Supabase → Edge Functions 에서 <b>edge-market-data.ts</b> 를 올려주세요.'
-      : '환율이 지금 값이 아닙니다 — 임원진이 손보는 중입니다.', 'info');
+    warn('homeWarn', '⚠️ <b>옛 엣지 함수가 떠 있습니다.</b> 환율이 일별 종가로만 옵니다 — '
+      + 'Supabase → Edge Functions 에서 <b>edge-market-data.ts</b> 를 올려주세요.', 'info');
   else if (stale)
     warn('homeWarn', '지금 환율을 받지 못해 <b>'
       + esc(live.length ? fmtDateKo(live[0].on) : '지난') + ' 종가</b>를 보여주고 있습니다. '
       + '창구가 막혔을 수 있습니다.', 'info');
-  /*  ⚠️ 일부만 묵은 경우. 여기서 입을 다물면 «달러는 지금 값, 유로는
-      일주일 전 값» 이 똑같이 생긴 카드로 나란히 놓입니다. 어느 쌍이
-      언제 값인지 이름을 대서 적습니다.                                */
   else if (oldPairs.length)
     warn('homeWarn', '<b>' + oldPairs.map(function(p){
         return esc(p.label) + '(' + esc(fmtDateKo(p.on)) + ' 종가)'; }).join(' · ')
       + '</b> 는 지금 값이 아닙니다 — 그 카드의 «전일» 변화도 어제가 아니라 '
-      + '<b>그 종가의 전날</b>과 견준 것입니다. 나머지 쌍은 지금 값입니다.', 'info');
+      + '<b>그 종가의 전날</b>과 견준 것입니다.', 'info');
   else warn('homeWarn','');
 
   var sel = $('homeFxSel'), keep = sel.value;
@@ -10633,6 +10644,36 @@ function removeSeries(i){
 /* ══════════ 지표 변환 (원지수 / YoY / MoM) ══════════ */
 var TF_SUFFIX = { raw:'', yoy:' (YoY)', mom:' (MoM)', yoyd:' (YoY 차)' };
 var TF_UNIT   = { raw:null, yoy:'%', mom:'%', yoyd:'%p' };
+/*  이름표에서 «2003~» 같은 <자료 시작 연도> 주장을 떼어냅니다.
+
+    «일본 보유 (월간, 2003~)»  →  «일본 보유 (월간)»
+    «미국 실업률 (1948~)»      →  «미국 실업률»
+    «S&P 500 (일간, 2015년~)»  →  «S&P 500 (일간)»
+
+    ⚠️ 괄호 안이 통째로 연도 주장이면 괄호까지 지우고, 주기 같은 다른
+       말이 같이 있으면 그 말만 남깁니다.                               */
+/*  «2026-07-15» → «2026년 7월». 제목에 날짜까지 적으면 길어지고,
+    월간 지표는 어차피 그 달의 값이라 달까지가 맞습니다.              */
+function fmtYm(iso){
+  var m = /^(\d{4})-(\d{2})/.exec(String(iso || ''));
+  return m ? (m[1] + '년 ' + Number(m[2]) + '월') : String(iso || '');
+}
+
+function srcSpanOff(label){
+  var t = String(label == null ? '' : label);
+  //  괄호 안을 살펴 «YYYY~» 부분만 걷어냅니다
+  t = t.replace(/\(([^()]*)\)/g, function(all, inner){
+    var kept = inner.split(/[,·]/)
+      .map(function(w){ return w.trim(); })
+      .filter(function(w){
+        //  «2003~» · «2003년~» · «~2020» · «2003~2020» 은 시작·끝 연도 주장입니다
+        return w && !/^~?\s*\d{4}\s*(년)?\s*~?\s*(\d{4}\s*(년)?)?$/.test(w);
+      });
+    return kept.length ? '(' + kept.join(', ') + ')' : '';
+  });
+  return t.replace(/\s{2,}/g, ' ').trim();
+}
+
 function tfSuffix(s){ return TF_SUFFIX[s.tf||'raw'] || ''; }
 function unitOf(s){ return TF_UNIT[s.tf||'raw'] || s.unit || ''; }
 
@@ -11631,14 +11672,43 @@ function annEls(){
           +면 위로, −면 아래로. 그리고 <격자 밖으로는 안 나갑니다>.     */
       var endPx = annToPx(a.x, a.y + (Number(a.len) || 0), a.ax);
       var y2 = endPx ? endPx[1] : p[1];
-      //  ⚠️ 축 안에 가둡니다 (값이 축 범위를 넘어가도 선은 안 삐져나옵니다)
-      y2 = Math.max(g.y, Math.min(g.y + g.h, y2));
-      if (Math.abs(y2 - p[1]) > 1) kids.push(line(0, 0, 0, y2 - p[1], a, true));
+      /*  ⚠️ 축 안에 가둡니다 (값이 축 범위를 넘어가도 선은 안 삐져나옵니다).
+
+          ⚠️ 그냥 격자 끝까지 붙여 자르면, 이름표를 달 자리가 안 남아
+             글자가 도로 그래프 쪽으로 밀려 들어옵니다 — 학회장이
+             «중간선에 있으면 절대 안 돼» 라고 한 바로 그 모양입니다.
+             글자 한 줄 자리를 미리 남겨두고 자릅니다.                 */
+      var room = (Number(a.size) || 13) + 12;
+      y2 = Math.max(g.y + room, Math.min(g.y + g.h - room, y2));
+      //  자르다가 점을 넘어가 방향이 뒤집히지 않게 합니다
+      var want = (Number(a.len) || 0);
+      if (want > 0) y2 = Math.min(y2, p[1]);
+      if (want < 0) y2 = Math.max(y2, p[1]);
+      var dy = y2 - p[1];
+      if (Math.abs(dy) > 1) kids.push(line(0, 0, 0, dy, a, true));
       kids.push({ type:'circle', z:58, shape:{ cx:0, cy:0, r:5 },
         style:{ fill:'#fff', stroke:a.color, lineWidth:2 } });
-      //  이름표는 점선 <반대쪽> 에 답니다 (선과 글자가 겹치지 않게)
-      var lineUp = (y2 < p[1] - 1);
-      var t = mkText(a, 0, lineUp ? 20 : -12, 'center', lineUp ? 'top' : 'bottom');
+
+      /*  ⚠️ 학회장: «글이 점선 끝에 away from the 그래프 있어야 돼.
+          중간선에 있으면 절대 안 돼».
+
+          맞습니다. 점선을 긋는 이유가 <붐비는 그림에서 눈을 끌어내려고>
+          인데, 이름표를 점 바로 옆에 달면 막대·선 위에 얹혀 오히려 더
+          읽기 어렵습니다 (사진에서 «888» 이 막대에 걸쳐 있었습니다).
+
+          이름표는 점선이 <끝나는 쪽> 바깥에 답니다. 위로 그으면 그 위,
+          아래로 그으면 그 아래 — 언제나 그래프에서 멀어지는 방향입니다. */
+      var PAD = 9;
+      var ty, va;
+      if (dy < -1){ ty = dy - PAD; va = 'bottom'; }        //  위로 그었으면 그 위
+      else if (dy > 1){ ty = dy + PAD; va = 'top'; }       //  아래로 그었으면 그 아래
+      else { ty = -12; va = 'bottom'; }                    //  선이 없으면 점 바로 위
+      /*  ⚠️ 격자 밖으로 나가면 잘려서 글자가 반만 보입니다. 안쪽으로
+          밀어 넣되, 점보다 안쪽으로는 안 들어오게 합니다.             */
+      var tyAbs = p[1] + ty;
+      if (tyAbs < g.y + 12) ty = (g.y + 12) - p[1];
+      if (tyAbs > g.y + g.h - 12) ty = (g.y + g.h - 12) - p[1];
+      var t = mkText(a, 0, ty, 'center', va);
       if (t) kids.push(t);
     } else if (a.type === 'text'){
       var t2 = mkText(a, 0, 0, 'left', 'middle');
@@ -11990,6 +12060,8 @@ function drawChart(){
         left:'center', top:'45%',
         textStyle:{ color:theme.text_color, fontSize:14, fontWeight:'normal' } } });
     $('chartMsg').textContent = '';
+    //  ⚠️ 지표를 다 빼면 제목에 남아 있던 옛 구간이 그대로 붙어 있습니다
+    if ($('chartTitle')) $('chartTitle').textContent = '차트';
     return;
   }
 
@@ -12049,7 +12121,18 @@ function drawChart(){
   var zeroLine = !!(axRange && axRange.some(function(r){ return r && r.zero; }));
 
   //  범례가 몇 줄인지 재서 그만큼 위를 비웁니다 (축 이름이 가려지지 않게)
-  var lgNames = norms.map(function(x){ return x.s.label + tfSuffix(x.s); });
+  /*  ⚠️ 학회장: «차트 제목이 기간과 안 맞는데? 2003년~이라고 적혀 있는데
+      사실 기간은 1년».
+
+      카탈로그에 적어둔 이름이 «일본 보유 (월간, 2003~)» 였습니다. 그 «2003~»
+      은 <원자료가 언제부터 있는지> 이지 <지금 그린 구간> 이 아닙니다.
+      그런데 범례는 그림 바로 위에 붙어 있어서, 1년치를 그려놓고 «2003~»
+      이라고 적힌 꼴이 됩니다 — 발표 자료에 그대로 실리면 거짓말입니다.
+
+      ⚠️ 주기(월간·분기)는 남깁니다. 그건 지금 그린 것에도 맞는 사실입니다.
+         빼는 것은 <시작 연도 주장> 뿐입니다. 그리고 <진짜 구간> 은
+         차트 제목에 적습니다 (아래 chartTitle).                       */
+  var lgNames = norms.map(function(x){ return srcSpanOff(x.s.label) + tfSuffix(x.s); });
   //  풍선말에서 이름만 보고 그 지표의 단위를 찾을 수 있게 해둡니다
   var musdBy = {};
   norms.forEach(function(x, i){ if (isMusd(unitOf(x.s))) musdBy[lgNames[i]] = true; });
@@ -12187,7 +12270,10 @@ function drawChart(){
       var base = normOk ? base0 : 1;
       var isBar = s.type === 'bar';
       var o = {
-        name: s.label + tfSuffix(s),
+        /*  ⚠️ 범례 이름과 <똑같아야> 합니다. 다르면 범례를 눌러도 그 선이
+            안 꺼지고, 풍선말이 단위를 못 찾아 «천 달러» 를 그냥 숫자로
+            찍습니다. 한 군데(srcSpanOff)에서 만들어 둘 다 씁니다.      */
+        name: srcSpanOff(s.label) + tfSuffix(s),
         type: isBar ? 'bar' : 'line',
         yAxisIndex: (norm && normOk) ? 0 : (Number(s.axis) || 0),
         showSymbol:false,
@@ -12262,6 +12348,28 @@ function drawChart(){
   norms.forEach(function(x){
     if (x.s.type === 'bar') barCycles[String(x.s.cycle || '?').toUpperCase()] = 1; });
   var thinBars = Object.keys(barCycles).length > 1;
+
+  /*  ── 차트 제목에 <실제로 그린 구간> 을 적습니다 ────────────
+
+      ⚠️ 이게 «2003~» 소동의 진짜 해결입니다. 범례에서 연도 주장을 빼는
+         것만으로는 «그럼 이건 언제부터 언제까지지?» 가 남습니다.
+         <그려진 점들의 처음과 끝> 을 그대로 읽어 제목에 답니다 —
+         설정값(«최근 1년»)이 아니라 실제 자료의 양끝이라, 자료가 짧아서
+         덜 그려졌을 때도 거짓말을 안 합니다.                           */
+  (function(){
+    var el = $('chartTitle'); if (!el) return;
+    var lo = null, hi = null;
+    norms.forEach(function(x){
+      (x.pts || []).forEach(function(p){
+        var d = String(p.d).slice(0, 10);
+        if (!lo || d < lo) lo = d;
+        if (!hi || d > hi) hi = d;
+      });
+    });
+    el.textContent = (lo && hi)
+      ? ('차트 · ' + fmtYm(lo) + ' ~ ' + fmtYm(hi))
+      : '차트';
+  })();
 
   $('chartMsg').innerHTML = esc(norms.length + '개 지표 · ' + rangeLabel()
     + (norm ? ' · 지수화' : (nAxis > 2 ? ' · 축 ' + nAxis + '개'
@@ -15099,7 +15207,11 @@ function downloadCSV(){
   var maps = loaded.map(function(x){
     var m = {}; x.pts.forEach(function(p){ m[p.d] = p.v; }); return m;
   });
-  var rows = [['날짜'].concat(loaded.map(function(x){ return x.s.label + tfSuffix(x.s); }))];
+  /*  ⚠️ CSV 머리글도 차트 범례와 같은 이름이어야 합니다. 여기만 «2003~»
+      이 남아 있으면, 1년치를 내보내 놓고 열 이름이 «(월간, 2003~)» 인
+      파일이 됩니다 — 엑셀로 받아 보고서에 붙이면 그게 그대로 실립니다. */
+  var rows = [['날짜'].concat(loaded.map(function(x){
+    return srcSpanOff(x.s.label) + tfSuffix(x.s); }))];
   keys.forEach(function(d){
     rows.push([d].concat(maps.map(function(m){ return m[d] != null ? m[d] : ''; })));
   });
