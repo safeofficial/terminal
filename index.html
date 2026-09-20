@@ -1837,15 +1837,6 @@
       </div>
 
       <div id="tradingBody" class="hidden">
-        <div class="note info" style="margin-bottom:16px">
-          <b>직접 매매와 자동매매를 함께 쓸 수 있습니다.</b>
-          아래에서 직접 사고팔고, 남은 현금 중 정한 비중만큼을 자동매매에 맡기세요.
-          자동매매를 다시 돌려도 <b>직접 넣은 거래는 지워지지 않습니다.</b>
-          <br><b>직접 매매는 개인이 살 수 있는 종목이면 다 됩니다</b> —
-          미국 전 종목·ETF(TQQQ 같은 레버리지 포함), 국내 코스피·코스닥 전 종목·ETF.
-          자동매매만 학회가 정한 명단 안에서 삽니다.
-        </div>
-
         <div class="mode-seg" id="tradeSeg">
           <button id="tSeg-now"    class="on" onclick="tradeTab('now')">현황</button>
           <button id="tSeg-manual" onclick="tradeTab('manual')">직접 매매</button>
@@ -2842,7 +2833,7 @@
                 <option value="250">최근 1년</option>
               </select>
             </div>
-            <div id="dvCandleBox" style="width:100%;height:calc(300px * var(--chz,1));margin-top:8px"></div>
+            <div id="dvCandleBox" style="width:100%;height:calc(200px * var(--chz,1));margin-top:8px"></div>
             <div id="dvCandleHint" class="st-hint" style="margin-top:6px"></div>
           </div>
         </div>
@@ -2858,7 +2849,7 @@
                 <button class="btn-sm" onclick="dvJpg(dvTermChart,'기간구조')">JPG</button>
               </span>
             </h2>
-            <div id="dvTermBox" class="grow-chart" style="width:100%;min-height:calc(300px * var(--chz,1))"></div>
+            <div id="dvTermBox" class="grow-chart" style="width:100%;min-height:calc(150px * var(--chz,1))"></div>
             <p class="st-hint" id="dvTermHint">만기가 멀수록 변동성이 높은 것이 보통입니다.
               가까운 만기가 더 높으면(<b>역전</b>) 코앞에 무슨 일을 앞두고 있다는 뜻입니다.</p>
           </div>
@@ -2878,7 +2869,7 @@
               <label style="min-width:auto">행사가</label>
               <select id="dvPayK" onchange="dvDrawPayoff()" class="grow"></select>
             </div>
-            <div id="dvPayBox" class="grow-chart" style="width:100%;min-height:calc(250px * var(--chz,1))"></div>
+            <div id="dvPayBox" class="grow-chart" style="width:100%;min-height:calc(125px * var(--chz,1))"></div>
             <p class="st-hint" id="dvPayHint"></p>
           </div>
         </div>
@@ -2890,7 +2881,7 @@
             <h2>변동성 곡선 (스마일)
               <span class="tools"><button class="btn-sm" onclick="dvJpg(dvIvChart,'IV')">JPG</button></span>
             </h2>
-            <div id="dvIvBox" style="width:100%;height:calc(360px * var(--chz,1))"></div>
+            <div id="dvIvBox" style="width:100%;height:calc(180px * var(--chz,1))"></div>
             <p class="st-hint">행사가별 내재변동성. 아래로 처진 U자면 시장이 <b>양쪽 꼬리</b>를,
               왼쪽만 높으면 <b>하락</b>을 더 걱정한다는 뜻입니다.</p>
           </div>
@@ -2898,7 +2889,7 @@
             <h2>미결제약정 분포
               <span class="tools"><button class="btn-sm" onclick="dvJpg(dvOiChart,'OI')">JPG</button></span>
             </h2>
-            <div id="dvOiBox" style="width:100%;height:calc(360px * var(--chz,1))"></div>
+            <div id="dvOiBox" style="width:100%;height:calc(180px * var(--chz,1))"></div>
             <p class="st-hint">행사가별로 살아 있는 계약 수. 많이 몰린 행사가는
               만기 무렵 <b>가격을 끌어당기는 자리</b>로 자주 언급됩니다.</p>
           </div>
@@ -2918,7 +2909,7 @@
             </select>
             <span id="dvGreekHint" class="st-hint"></span>
           </div>
-          <div id="dvGkBox" style="width:100%;height:calc(320px * var(--chz,1))"></div>
+          <div id="dvGkBox" style="width:100%;height:calc(160px * var(--chz,1))"></div>
         </div>
 
         <!-- 쉽게 읽기 — 체인이 길어서 위로 올려둡니다 -->
@@ -8237,18 +8228,44 @@ async function dvRender(){
     Alpaca 는 계약에 따라 널을 줍니다.                                        */
 function okNum(v){ return v != null && Number.isFinite(Number(v)); }
 
-/* ── 옵션 자료 창구 ────────────────────────────
-     무료 · 유료 창구가 섞여 있어서, 지금 무엇을 쓸 수 있는지
-     화면에 그대로 적어둡니다. 키가 없으면 어디서 받는지까지. */
-var DV_PROV = {
-  alpaca: { n:'Alpaca',
-    d:'분당 200회까지 부를 수 있고 내재변동성·그릭스를 함께 줍니다. '
-      + '호가는 지연·보정된 값이고, <b>미결제약정은 하루 늦게</b> 반영되며 거래량은 없습니다. '
-      + '학회원 여럿이 동시에 봐도 넉넉합니다.' },
-  md: { n:'MarketData.app',
-    d:'계약 하나당 1크레딧이 나갑니다. 기본 등급은 하루 100계약 · 24시간 지연이라 '
-      + '체인 한 번이면 거의 다 씁니다. 상위 등급이면 하루 10,000계약 · 15분 지연입니다.' }
-};
+/*  ── 상자가 낮아지면 여백도 같이 줄입니다 ──────────────────
+
+    ⚠️ 학회장: «파생상품 탭에 가격대 지도 빼고 다 height 반으로 줄여줘».
+
+       상자만 반으로 줄이면 안 됩니다. 이 차트들은 위아래 여백(범례·축
+       이름·기울인 눈금 글씨)에 120px 안팎을 잡아 두었습니다. 상자가
+       160px 이 되면 <그릴 자리가 40px> 밖에 안 남아 선이 납작해지거나
+       아예 안 그려집니다.
+
+    ⚠️ 그래서 여백을 <상자 높이에 맞춰> 줄입니다. 그릴 자리를 절반쯤은
+       남기되, 눈금 숫자가 잘리지 않을 만큼의 바닥은 지킵니다.        */
+function dvFit(boxId, g){
+  var el = $(boxId);
+  var h = el ? el.clientHeight : 0;
+  if (!h) return g;
+  var out = { left:g.left, right:g.right, top:g.top, bottom:g.bottom };
+  var need = out.top + out.bottom;
+  var room = Math.max(46, h * 0.55);        //  여백이 가져갈 수 있는 최대
+  if (need > room){
+    var k = room / need;
+    out.top    = Math.max(18, Math.round(out.top * k));
+    out.bottom = Math.max(26, Math.round(out.bottom * k));
+  }
+  return out;
+}
+//  여백이 좁아지면 범례도 같이 올라붙고 작아져야 그림을 안 덮습니다
+function dvLg(boxId, lg){
+  var el = $(boxId);
+  var h = el ? el.clientHeight : 0;
+  if (!h || h > 260) return lg;
+  var out = {};
+  for (var k in lg) out[k] = lg[k];
+  out.top = 2;
+  out.itemHeight = 8; out.itemWidth = 14;
+  out.textStyle = { color: theme.text_color, fontSize: 11 };
+  return out;
+}
+
 
 async function dvLoadStatus(){
   if (dvStatus){ dvProvHint(); return; }
@@ -8290,13 +8307,12 @@ function dvProvHint(){
       + '<br>그 전에도 <b>코인 옵션</b>은 키 없이 바로 볼 수 있습니다.';
     return;
   }
-  var p = DV_PROV[use];
+  /*  ⚠️ 학회장 요청으로 창구 설명을 뺐습니다. 창구가 붙어 있으면
+      학회원이 알아야 할 것이 없습니다 — 화면 위쪽을 문단이 차지하고
+      있었을 뿐입니다. <창구가 없을 때> 의 안내만 남깁니다 (그건
+      임원진이 무엇을 해야 하는지 알려주는 말이라 쓸모가 있습니다).  */
   $('dvProvHint').innerHTML = '';
-  var others = [];
-  if (use !== 'alpaca' && !st.alpaca) others.push('Alpaca 키를 넣으면 훨씬 넉넉하게 쓸 수 있습니다');
-  if (use !== 'md' && !st.marketdata) others.push('MarketData.app 키도 넣어둘 수 있습니다');
-  box.innerHTML = '<b>' + esc(p.n) + '</b> — ' + p.d
-    + (others.length ? '<br><span style="color:var(--text-sub)">' + esc(others.join(' · ')) + '</span>' : '');
+  box.innerHTML = '';
 }
 
 /* ── 회사 이름으로 찾기 ─────────────────────── */
@@ -8933,7 +8949,7 @@ function dvDrawTerm(){
   dvTermChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:66, right:30, top:36, bottom: rot ? 92 : 66 },
+    grid: dvFit('dvTermBox', { left:66, right:30, top:36, bottom: rot ? 92 : 66 }),
     tooltip:{ trigger:'axis', valueFormatter:function(v){ return v == null ? '-' : v + '%'; } },
     xAxis:{ type:'category', data: t.map(function(x){ return x.date; }),
       name:'만기일', nameLocation:'middle', nameGap: gap,
@@ -9065,7 +9081,7 @@ function dvDrawPayoff(){
   dvPayChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:PAY_L, right:PAY_R, top:PAY_TOP, bottom:60 },
+    grid: dvFit('dvPayBox', { left:PAY_L, right:PAY_R, top:PAY_TOP, bottom:60 }),
     tooltip:{ trigger:'axis',
       formatter:function(a){
         return '주가 $' + num(Number(a[0].axisValue), 2) + '<br/>계약당 손익 <b>'
@@ -9257,8 +9273,8 @@ function dvDrawIv(list, spot){
   dvIvChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:66, right:30, top:62, bottom:62 },
-    legend:{ top:8, textStyle:{ color: theme.text_color, fontSize:12 } },
+    grid: dvFit('dvIvBox', { left:66, right:30, top:62, bottom:62 }),
+    legend: dvLg('dvIvBox', { top:8, textStyle:{ color: theme.text_color, fontSize:12 } }),
     tooltip:{ trigger:'axis', valueFormatter:function(v){ return v == null ? '-' : v + '%'; } },
     xAxis: dvAxis('행사가', true),
     yAxis: Object.assign(dvAxis('IV %'), { axisLabel:{ color: theme.text_color, fontSize:11, formatter:'{value}%' } }),
@@ -9279,8 +9295,8 @@ function dvDrawOi(list, spot){
   dvOiChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:72, right:26, top:56, bottom:64 },
-    legend:{ top:8, textStyle:{ color: theme.text_color, fontSize:12 } },
+    grid: dvFit('dvOiBox', { left:72, right:26, top:56, bottom:64 }),
+    legend: dvLg('dvOiBox', { top:8, textStyle:{ color: theme.text_color, fontSize:12 } }),
     tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' } },
     xAxis:{ type:'category', data: list.map(function(x){ return x.strike; }),
             axisLine:{ lineStyle:{ color: theme.grid } },
@@ -9328,8 +9344,8 @@ function dvDrawGreeks(){
   dvGkChart.setOption({
     backgroundColor: theme.bg, animation:false,
     textStyle:{ color: theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
-    grid:{ left:72, right:30, top:56, bottom:64 },
-    legend:{ top:8, textStyle:{ color: theme.text_color, fontSize:12 } },
+    grid: dvFit('dvGkBox', { left:72, right:30, top:56, bottom:64 }),
+    legend: dvLg('dvGkBox', { top:8, textStyle:{ color: theme.text_color, fontSize:12 } }),
     tooltip:{ trigger:'axis' },
     xAxis: dvAxis('행사가', true),
     yAxis: dvAxis(g),
