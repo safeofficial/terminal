@@ -16928,6 +16928,27 @@ async function loadCoFull(){
 /* 기간 구분 열쇠 — 실적 추이 행과 재무제표 열을 같은 이름으로 맞춥니다 */
 function periodKey(r){ return r.q ? (r.year + 'Q' + r.q) : String(r.year); }
 /* 서버가 준 기간 목록. 예전 형식(years)도 받아줍니다. */
+/*  ── 12월 결산이 아닌 회사 ──────────────────────────────────
+
+    ⚠️ 미국 대형주의 상당수가 12월 결산이 아닙니다 — 엔비디아(1월),
+       애플(9월), 월마트(1월), 브로드컴(11월), 오라클(5월)…
+
+       그런 회사는 <회사가 부르는 분기 이름> 과 <달력 분기> 가 다릅니다.
+       엔비디아가 «FY2025 4분기» 라 부르는 기간(2024-10-28 ~ 2025-01-26)을
+       달력으로 세면 2025년 1분기 자리에 놓입니다. 그걸 모르고 보고서에
+       «엔비디아 25년 1분기» 라고 적으면 분기도 기간도 틀립니다.
+
+    ⚠️ 그래서 기간 이름을 <끝난 달> 로 적고, 여기서 한 번 짚어줍니다.    */
+function coFsNote(d, years){
+  var off = (years || []).filter(function(y){ return y && y.fiscal; });
+  if (!off.length){ warn('coFsWarn',''); return; }
+  var ends = off.map(function(y){ return esc(String(y.end)); }).join(' · ');
+  warn('coFsWarn',
+    '<b>12월 결산 회사가 아닙니다.</b> 이 회사의 회계기간은 '
+    + ends + ' 에 끝납니다 — 표의 기간 이름은 <b>기간이 끝난 달</b>로 적었습니다. '
+    + '보고서에 옮길 때 «몇 년 몇 분기» 대신 <b>기간 종료일</b>을 함께 적어주세요.', 'info');
+}
+
 function coFullPeriods(d){
   if (d && Array.isArray(d.periods)) return d.periods;
   return ((d && d.years) || []).map(function(y){
@@ -17013,6 +17034,10 @@ async function renderCoStatement(group){
     var tree = coFsTree(all);
     var u = coUnit();
 
+    /*  ⚠️ 12월 결산이 아니면 한 번 말해줍니다. 이걸 모르고 «25년 1분기»
+        라고 옮겨 적는 것이 기업분석에서 제일 흔한 사고입니다.          */
+    coFsNote(d, years);
+
     function cells(r){
       //  이 줄에 맞는 단위 (표 전체 단위로는 작은 줄이 전부 0.0 이 됩니다)
       var ru = coRowUnit(r, years, u);
@@ -17095,7 +17120,16 @@ async function renderCoStatement(group){
     tb.innerHTML =
       '<thead><tr><th>계정 <span style="font-weight:400;color:var(--text-sub);font-size:11px">'
       + '(클릭 → 차트 · ▸ 하위 항목)</span></th>'
-      + years.map(function(y){ return '<th class="num">' + esc(y.label) + '</th>'; }).join('')
+      /*  ⚠️ 기간 이름 밑에 <진짜 종료일> 을 같이 적습니다.
+
+          회계연도가 12월에 안 끝나는 회사(엔비디아·애플·월마트…)는
+          «25' 1Q» 같은 달력 분기 이름이 회사가 부르는 분기와 다릅니다.
+          숫자를 보고서에 옮길 때 <언제 것인지> 를 여기서 바로 봐야 합니다. */
+      + years.map(function(y){
+          return '<th class="num">' + esc(y.label)
+               + (y.end ? '<div class="st-hint" style="font-weight:400">'
+                        + esc(String(y.end)) + '</div>' : '')
+               + '</th>'; }).join('')
       + '</tr></thead><tbody>' + body + '</tbody>';
 
     $('coFinUnit').textContent = '단위: ' + u.label + (d.basis ? ' · ' + d.basis : '');
