@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAFE Terminal</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<!--  ⚠️ 주석 글꼴용. 발표 자료에 넣을 때 학회 서식과 맞추려고 고를 수 있게 합니다. -->
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -425,6 +427,17 @@
                   color:var(--text-sub);flex-shrink:0}
   .drill-row .tag{font-size:10.5px;color:var(--text-sub);flex-shrink:0}
   /* 재무제표 — 소계는 굵게 + 왼쪽 색 띠, 하위 항목은 들여쓰기 */
+  /*  추세선 & 주석 도구막대 */
+  .ann-tools{display:inline-flex;gap:3px;flex-wrap:wrap}
+  .ann-t{width:30px;height:28px;display:inline-flex;align-items:center;justify-content:center;
+         border:1px solid var(--border);background:var(--bg);border-radius:6px;cursor:pointer;
+         color:var(--text-sub);padding:0}
+  .ann-t svg{width:15px;height:15px}
+  .ann-t:hover{border-color:#2a78d6;color:#2a78d6}
+  .ann-t.on{background:#2a78d6;border-color:#2a78d6;color:#fff}
+  #annBtn.on{background:#2a78d6;border-color:#2a78d6;color:#fff}
+  #annEdit input{border:1px solid var(--border);border-radius:5px;padding:4px 7px;
+                 background:var(--bg);color:var(--text)}
   #coFinTable{border-collapse:separate;border-spacing:0}
   #coFinTable thead th{position:sticky;top:0;background:var(--bg);z-index:2}
   #coFinTable tbody tr:nth-child(even){background:rgba(0,0,0,.015)}
@@ -1541,10 +1554,49 @@
                       길이 없습니다. 확대할 수 있게 만들면 되돌릴 길도
                       같이 만들어야 합니다.                            -->
                 <button class="btn-sm" onclick="chartZoomReset()">원래 크기</button>
+                <button class="btn-sm" id="annBtn" onclick="annToggle()">추세선 &amp; 주석</button>
                 <button class="btn-sm" onclick="downloadJPG()">JPG 저장</button>
                 <button class="btn-sm" onclick="downloadCSV()">CSV 다운로드</button>
               </span>
             </h2>
+
+            <!--  ⚠️ 학회장: «차트 내에서 text 추가하거나 horizontal, vertical,
+                  추세선 그리는 기능». 발표 자료에 그대로 쓰는 그림이라
+                  <차트 안에> 그려야 합니다 — 캡처한 뒤 파워포인트에서
+                  얹으면 축이 바뀔 때마다 다시 그려야 하니까요.
+
+                  ⚠️ 좌표는 <픽셀이 아니라 날짜·값> 으로 붙잡아 둡니다.
+                  그래야 기간을 바꾸거나 창 크기를 줄여도 주석이 제자리에
+                  남습니다.                                             -->
+            <div id="annBar" class="hidden" style="margin:6px 0 10px;padding:9px 10px;
+                 border:1px solid var(--border);border-radius:8px;background:var(--bg-sub)">
+              <div class="row" style="gap:6px;flex-wrap:wrap;align-items:center">
+                <span class="ann-tools" id="annTools"></span>
+                <span style="width:1px;height:22px;background:var(--border);margin:0 4px"></span>
+                <label style="min-width:auto;font-size:12px">글꼴</label>
+                <select id="annFont" style="width:124px" onchange="annRestyle()">
+                  <option value="Pretendard">Pretendard</option>
+                  <option value="Poppins">Poppins</option>
+                  <option value="Arial">Arial</option>
+                </select>
+                <select id="annSize" style="width:78px" onchange="annRestyle()">
+                  <option value="11">11px</option>
+                  <option value="13" selected>13px</option>
+                  <option value="15">15px</option>
+                  <option value="18">18px</option>
+                </select>
+                <input type="color" id="annColor" value="#1a2b4c" onchange="annRestyle()"
+                       title="주석 색">
+                <span style="width:1px;height:22px;background:var(--border);margin:0 4px"></span>
+                <label style="min-width:auto;font-size:12px">핀 꽂을 선</label>
+                <select id="annSeries" style="width:150px"></select>
+                <span class="grow"></span>
+                <button class="btn-sm" onclick="annDelSel()">선택 삭제</button>
+                <button class="btn-sm" onclick="annClear()">전체 지우기</button>
+              </div>
+              <div id="annHint" class="st-hint" style="margin-top:7px"></div>
+            </div>
+
             <div id="chartBox"></div>
             <!--  ⚠️ 일드커브가 위 차트를 넘겨받을 때, 아래 카드에 있던
                   시점 손잡이·표를 <그대로 옮겨> 여기 담습니다.        -->
@@ -3816,7 +3868,17 @@ function hide(i){ $(i).classList.add('hidden'); }
 function isOfficer(){ return me && me.role === 'officer'; }
 function num(n, d){ return Number(n||0).toLocaleString('ko-KR',{minimumFractionDigits:d||0,maximumFractionDigits:d||0}); }
 function pct(n){ return (n>=0?'+':'') + Number(n||0).toFixed(2) + '%'; }
-function today(){ return new Date().toISOString().slice(0,10); }
+/*  ⚠️ toISOString() 은 <UTC> 입니다. 한국은 UTC+9 라, 새벽 0시~오전 9시
+    사이에는 «오늘» 이 하루 전으로 나옵니다.
+
+    증시캘린더는 한국시간(kst_date)으로 만들어져 있어서, 그 아홉 시간
+    동안 달력이 어제를 «오늘» 로 칠하고, 「다가오는 주요 발표」에 이미
+    숫자가 다 나온 어젯밤 지표가 «곧 나올 것» 으로 올라왔습니다.
+    같은 화면의 학회 일정 D-day(현지시각)와도 하루가 어긋났습니다.    */
+function today(){
+  var d = new Date(Date.now() + 9 * 3600 * 1000);
+  return d.toISOString().slice(0, 10);
+}
 function warn(id, html, cls){
   var b = $(id); if (!b) return;
   b.innerHTML = html ? '<div class="note '+(cls||'err')+'">'+html+'</div>' : '';
@@ -4755,7 +4817,7 @@ function dtRenderPicker(){
   var H = '<table class="dt-table"><thead><tr>'
     + '<th style="width:26px"></th><th>항목' + (unit ? ' <span class="st-hint">' + esc(unit) + '</span>' : '') + '</th>'
     + '<th class="num" style="width:96px">최근 값</th>'
-    + '<th class="num" style="width:82px" title="월간 계열에만 있습니다">전월 대비</th>'
+    + '<th class="num" style="width:82px" title="한 달 전과 견준 값입니다 (분기·연간 계열은 빈칸)">전월 대비</th>'
     + '<th class="num" style="width:82px">전년 대비</th>'
     + '<th class="num" style="width:78px">3개월</th>'
     + '<th style="width:86px">기준</th></tr></thead><tbody>';
@@ -5119,9 +5181,23 @@ function dtTransform(pts, mode, diff){
   }
   var lag = 1;
   if (mode === 'yoy'){
+    /*  ⚠️ «1년 전» 이 몇 칸 전인지는 <관측 간격> 이 정합니다. 그런데
+        표가 두 군데 틀려 있었습니다 —
+
+          주간(7일)   : 252 칸 전 → 약 4.8년 전과 비교
+          반기(183일) :   4 칸 전 → 2년 전과 비교
+
+        둘 다 «전년 대비» 라는 이름으로 나왔습니다. 주간 실업수당을
+        4년 전과 견준 숫자가 보고서에 «전년 대비» 로 실립니다.
+
+        ⚠️ 이제 간격에서 <연간 관측 수> 를 구해 그대로 씁니다.         */
     var gap = pts.length > 1
       ? (new Date(pts[1].d) - new Date(pts[0].d)) / 864e5 : 30;
-    lag = gap > 200 ? 1 : (gap > 60 ? 4 : (gap > 20 ? 12 : 252));
+    lag = gap > 200 ? 1          //  연간
+        : gap > 100 ? 2          //  반기
+        : gap > 20  ? (gap > 60 ? 4 : 12)   //  분기 · 월간
+        : gap > 5   ? 52         //  주간
+        : 252;                   //  일간(영업일)
   }
   var out = [];
   for (var i = lag; i < pts.length; i++){
@@ -5432,11 +5508,19 @@ function dtJpg(which){
 //  보고서 표를 그대로 내려받습니다 — 발표 자료에 붙이기 좋게
 function dtCsv(){
   if (!dtItems.length){ warn('dtWarn','먼저 보고서를 불러와 주세요.'); return; }
-  var rows = [['항목', '깊이', '최근 값', '전월 대비(%)', '전년 대비(%)', '3개월(%)', '기준일']];
+  /*  ⚠️ 머리글이 «(%)» 로 박혀 있었습니다. 그런데 이미 비율로 나오는
+      항목(금리차·순수출·«전기대비 %» 표)은 나눗셈이 아니라 <빼기> 라
+      단위가 %p 입니다. 화면은 그걸 구분해 적고 있었는데 CSV 만 전부
+      «%» 로 내보냈습니다 — 0.30 → −0.10 이 «−0.40%» 로 실립니다.
+
+      단위 칸을 따로 둬서, CSV 만 보고도 %인지 %p인지 알게 합니다.    */
+  var rows = [['항목', '깊이', '최근 값', '단위',
+               '전월 대비', '전년 대비', '3개월', '기준일']];
   dtItems.forEach(function(x){
-    if (x.head) { rows.push([x.name, x.level, '', '', '', '', '']); return; }
+    if (x.head) { rows.push([x.name, x.level, '', '', '', '', '', '']); return; }
     rows.push([x.name, x.level,
       x.value == null ? '' : x.value,
+      x.diff ? '%p' : '%',
       x.mom == null ? '' : Number(x.mom.toFixed(2)),
       x.yoy == null ? '' : Number(x.yoy.toFixed(2)),
       x.q3 == null ? '' : Number(x.q3.toFixed(2)),
@@ -5880,6 +5964,11 @@ function renderHomeFx(){
   var d = homeFx; if (!d) return;
   var live = d.pairs.filter(function(p){ return p.last != null; });
   var liveN = live.filter(function(p){ return p.kind === 'live'; }).length;
+  /*  ⚠️ 예전에는 <전부> 종가일 때만 경고했습니다. 그런데 kind 는 쌍마다
+      따로입니다 — 달러는 실시간인데 유로만 FRED 로 떨어져 일주일 묵은
+      값일 수 있습니다. 그때 경고가 안 뜨고, 그 카드가 오늘 환율인 양
+      나란히 놓였습니다. 묵은 쌍이 하나라도 있으면 <그 카드에> 적습니다. */
+  var oldPairs = live.filter(function(p){ return p.kind !== 'live' && p.on; });
   /*  ⚠️ 학회장: «우상단에 2026...종가기준...EODHD+FRED 이거 지워줘».
       지웁니다. 다만 <조건부> 로 지웁니다 —
 
@@ -5931,6 +6020,14 @@ function renderHomeFx(){
     warn('homeWarn', '지금 환율을 받지 못해 <b>'
       + esc(live.length ? fmtDateKo(live[0].on) : '지난') + ' 종가</b>를 보여주고 있습니다. '
       + '창구가 막혔을 수 있습니다.', 'info');
+  /*  ⚠️ 일부만 묵은 경우. 여기서 입을 다물면 «달러는 지금 값, 유로는
+      일주일 전 값» 이 똑같이 생긴 카드로 나란히 놓입니다. 어느 쌍이
+      언제 값인지 이름을 대서 적습니다.                                */
+  else if (oldPairs.length)
+    warn('homeWarn', '<b>' + oldPairs.map(function(p){
+        return esc(p.label) + '(' + esc(fmtDateKo(p.on)) + ' 종가)'; }).join(' · ')
+      + '</b> 는 지금 값이 아닙니다 — 그 카드의 «전일» 변화도 어제가 아니라 '
+      + '<b>그 종가의 전날</b>과 견준 것입니다. 나머지 쌍은 지금 값입니다.', 'info');
   else warn('homeWarn','');
 
   var sel = $('homeFxSel'), keep = sel.value;
@@ -7863,6 +7960,10 @@ function renderProfile(d){
 var dv = null, dvMkt = 'stock', dvIvChart = null, dvOiChart = null, dvGkChart = null;
 var dvMapChart = null, dvTermChart = null, dvPayChart = null;
 var dvHist = null, dvTerm = null, dvLevels = null;
+/*  ⚠️ dvHist 는 <캔들 차트가 고른 봉>, dvDaily 는 <언제나 일봉> 입니다.
+    실현변동성·52주 범위처럼 «하루 단위» 로 뜻이 정해진 값은 dvDaily 만
+    봐야 합니다. 하나로 쓰다가 15분봉일 때 통째로 틀렸습니다.          */
+var dvDaily = null;
 var dvStatus = null;                 // 어떤 옵션 창구를 쓸 수 있나
 var dvProvSel = '';                  // 학회원이 고른 창구
 
@@ -8018,7 +8119,8 @@ function dvMaxPain(list){
 async function dvRender(){
   var list = dvByStrike();
   var spot = Number(dv.spot) || 0;
-  await dvLoadHist();                     // 52주 고저 · 실현변동성용
+  await dvLoadHist();                     // 캔들 차트용 (고른 봉 간격 그대로)
+  await dvLoadDaily();                    // 52주 고저 · 실현변동성용 (항상 일봉)
 
   var callOi = 0, putOi = 0, callVol = 0, putVol = 0;
   var atm = null, atmGap = Infinity;
@@ -8294,6 +8396,22 @@ async function dvLoadHist(){
   return dvHist;
 }
 
+/*  52주 고저·실현변동성 전용 <일봉>. 캔들 차트가 어떤 봉을 보고 있든
+    이 값은 하루 단위로 재야 뜻이 맞습니다.                            */
+async function dvLoadDaily(){
+  var key = dvMkt + '|' + (dv ? dv.symbol : '') + '|1d';
+  if (dvDaily && dvDaily.key === key) return dvDaily;
+  var days = (DV_TF['1d'] || { days: 400 }).days;
+  var start = new Date(Date.now() - days * 864e5).toISOString().slice(0, 10);
+  try {
+    var d = await edge(dvMkt === 'crypto'
+      ? { source:'quote_crypto', code: dv.symbol + '-USD', start: start }
+      : { source:'quote_us',     code: dv.symbol,          start: start });
+    dvDaily = { key: key, points: (d.points || []).filter(function(p){ return p.v > 0; }) };
+  } catch(e){ dvDaily = { key: key, points: [], err: e.message || String(e) }; }
+  return dvDaily;
+}
+
 //  실현변동성 — 로그수익률의 표준편차를 연율로 환산합니다
 function dvRealizedVol(pts, n){
   if (!pts || pts.length < n + 2) return null;
@@ -8334,7 +8452,18 @@ function dvComputeLevels(list, spot){
   var beUp = (atm && atm.call && okNum(atm.call.mid)) ? atm.strike + atm.call.mid : null;
   var beDn = (atm && atm.put  && okNum(atm.put.mid))  ? atm.strike - atm.put.mid  : null;
 
-  var hist = (dvHist && dvHist.points) || [];
+  /*  ⚠️ 여기서 dvHist 를 쓰면 안 됩니다. dvHist 는 <캔들 차트가 고른 봉>
+      입니다. 15분봉을 보고 있으면 —
+
+        실현변동성 : 15분 수익률의 표준편차에 √252 를 곱해
+                     45% 짜리 종목이 «8.8%» 로 찍힙니다 (√26 배 축소).
+                     그러면 IV÷실현 이 5.1 이 되어 «옵션이 비싼 편» 이라고
+                     하고, 쉽게 읽기는 «사는 쪽이 불리» 라고 단언합니다.
+        52주 범위  : 15분봉 252개 = 약 10거래일. 그 열흘 고저를
+                     «지난 1년 동안 이 사이에서 움직였고» 라고 적습니다.
+
+      둘 다 봉 간격과 무관해야 하는 값이라, 따로 받아둔 <일봉> 을 씁니다.  */
+  var hist = (dvDaily && dvDaily.points) || [];
   var yr = hist.slice(-(dvMkt === 'crypto' ? 365 : 252));
   var hi52 = yr.length ? Math.max.apply(null, yr.map(function(p){ return p.v; })) : null;
   var lo52 = yr.length ? Math.min.apply(null, yr.map(function(p){ return p.v; })) : null;
@@ -8597,7 +8726,9 @@ async function dvDrawCandle(){
 
   var names = LINES.map(function(x){ return x.name; });
   $('dvCandleHint').innerHTML =
-    '최근 <b>' + pts.length + '거래일</b>' + (names.length
+    /*  ⚠️ 봉 개수를 «거래일» 이라 불렀습니다. 15분봉 120개는 1.5거래일인데
+        «120거래일» 이라고 적혔습니다. 일봉일 때만 거래일입니다.        */
+    '최근 <b>' + pts.length + (dvTf() === '1d' ? '거래일' : '봉') + '</b>' + (names.length
       ? ' · 겹친 자리 — ' + esc(names.join(' · ')) : '')
     + '<br>봉이 <b>벽 근처에서 자주 멈췄다면</b> 그 자리가 실제로 힘을 쓴다는 뜻입니다. '
     + '<b>지지·저항은 «반드시 막힌다» 가 아니라 «사람이 몰려 있다» 입니다.</b>';
@@ -10489,8 +10620,17 @@ function applyTf(pts, tf, from){
     if (j < 0 || j >= i) continue;
     var base = pts[j].v;
     if (!isFinite(base)) continue;
+    /*  ⚠️ «v / base − 1» 은 밑이 음수면 <부호가 뒤집힙니다>.
+
+        재정수지 −5조 → −10조 (적자가 두 배)  →  +100% (「좋아졌다」)
+        경상수지 −10 → +5  (적자에서 흑자)    →  −150% (「나빠졌다」)
+
+        둘 다 보고서에 그대로 옮겨 적히면 방향이 반대인 문장이 됩니다.
+        밑의 <크기> 로 나눠야 «얼마나 움직였나» 가 부호까지 맞습니다.
+        아래 상세 항목 분석(dtTransform)은 이미 이렇게 하고 있었는데
+        정작 위쪽 매크로 차트만 옛 식을 쓰고 있었습니다.                */
     var v = (tf === 'yoyd') ? (pts[i].v - base)
-          : (base === 0 ? NaN : (pts[i].v / base - 1) * 100);
+          : (base === 0 ? NaN : (pts[i].v - base) / Math.abs(base) * 100);
     if (isFinite(v) && pts[i].d >= from) out.push({ d: pts[i].d, v: v });
   }
   return out;
@@ -11070,6 +11210,483 @@ function ycFromMain(){
   renderSeriesList();       //  지표 목록으로 되돌립니다
 }
 
+
+/* ══════════════════════════════════════════════════════════════
+   추세선 & 주석 — 차트 안에 직접 그립니다
+   ══════════════════════════════════════════════════════════════
+
+   ⚠️ 학회장: «차트에 트렌드라인 & 어노테이션 … text 추가하거나
+      horizontal, vertical, 추세선 … 해당 날짜로 차트가 보여주는 추이선에서
+      핀포인트할 수 있게 … 드래그하면서 설정하고 클릭 한번 더하면 그 위치에서
+      멈춰서 고정한 후 text 추가».
+
+   ⚠️ 좌표를 <픽셀> 로 들고 있으면 안 됩니다. 기간을 바꾸거나 창을 줄이면
+      주석만 제자리에 남아 엉뚱한 날짜를 가리킵니다. 그래서 전부
+      <날짜(ms)와 값> 으로 저장하고, 그릴 때마다 픽셀로 환산합니다.
+      축이 어떻게 바뀌어도 «2월 23일의 65달러» 는 그 점에 붙어 있습니다.
+
+   ⚠️ ECharts 의 graphic 으로 그립니다. 캔버스 안에 들어가므로 JPG 저장에
+      주석이 그대로 따라옵니다 — 따로 합성할 필요가 없습니다.            */
+
+var ANN_TOOLS = [
+  ['sel',   '선택', 'M3 2l9 7-3.6.6L10.6 14 9 14.8 6.7 10.5 4 12.6z'],
+  ['trend', '추세선', 'M2 14L14 2'],
+  ['hline', '수평선', 'M2 8h12'],
+  ['vline', '수직선', 'M8 2v12'],
+  ['ray',   '수평 구간', 'M2 5h12M2 11h12'],
+  ['rect',  '사각형', 'M3 4h10v8H3z'],
+  ['ellipse','원', 'M8 4a4.2 4.2 0 1 0 .01 0z'],
+  ['text',  '글자', 'M3 3h10M8 3v10'],
+  ['pin',   '선 위에 핀', 'M8 3v6M8 12.5a1.6 1.6 0 1 0 .01 0z']
+];
+var ANN_HINT = {
+  sel:  '주석을 눌러 고르고, <b>끌어서</b> 옮기세요. <b>Shift+클릭</b>으로 여러 개를 고릅니다.',
+  trend:'차트에서 <b>한 번 누르고</b>, 끝나는 곳에서 <b>한 번 더</b> 누르세요.',
+  hline:'값을 지날 자리에서 한 번 누르면 <b>가로선</b>이 그어집니다.',
+  vline:'날짜 자리에서 한 번 누르면 <b>세로선</b>이 그어집니다.',
+  ray:  '한 번 누르고 끝나는 곳에서 한 번 더 — 두 값 사이 <b>구간</b>을 칠합니다.',
+  rect: '한 번 누르고 반대쪽 모서리에서 한 번 더 누르세요.',
+  ellipse:'한 번 누르고 반대쪽에서 한 번 더 누르세요.',
+  text: '글자를 놓을 자리를 한 번 누르세요.',
+  pin:  '<b>선 위를 따라 표식이 움직입니다.</b> 원하는 날짜에서 <b>한 번 누르면 고정</b>되고, 바로 글자를 적을 수 있습니다.'
+};
+
+var annOn = false, annTool = 'sel', annItems = [], annSel = {}, annSeq = 1;
+var annDraft = null;      //  두 점짜리 도형을 그리는 중
+var annGhost = null;      //  핀 모드에서 선 위를 따라다니는 표식
+var annBound = null;      //  이벤트를 붙여둔 차트 인스턴스
+
+function annToggle(){
+  annOn = !annOn;
+  var bar = $('annBar'); if (bar) bar.classList.toggle('hidden', !annOn);
+  var btn = $('annBtn'); if (btn) btn.classList.toggle('on', annOn);
+  if (annOn){ annRenderTools(); annFillSeries(); annPick('sel'); }
+  else { annDraft = null; annGhost = null; annPick('sel'); }
+  annApply();
+}
+
+function annRenderTools(){
+  var box = $('annTools'); if (!box) return;
+  box.innerHTML = ANN_TOOLS.map(function(t){
+    return '<button class="ann-t' + (annTool === t[0] ? ' on' : '') + '"'
+      + ' data-k="' + esc(t[0]) + '" title="' + esc(t[1]) + '"'
+      + ' onclick="annPick(this.dataset.k)">'
+      + '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"'
+      + ' stroke-linecap="round" stroke-linejoin="round"><path d="' + t[2] + '"/></svg>'
+      + '</button>';
+  }).join('');
+}
+
+function annPick(k){
+  annTool = k;
+  annDraft = null; annGhost = null;
+  annRenderTools();
+  var h = $('annHint'); if (h) h.innerHTML = ANN_HINT[k] || '';
+  var box = $('chartBox');
+  //  ⚠️ 그리는 중에는 커서로 알려줍니다. 선택 모드와 그리기 모드가
+  //     겉보기에 같으면 «왜 안 그려지지» 가 됩니다.
+  if (box) box.style.cursor = (k === 'sel') ? '' : 'crosshair';
+  /*  ⚠️ 그리는 동안에는 풍선말을 내립니다. 찍으려는 자리를 풍선말이 덮어
+      어디에 찍히는지 안 보이고, 그리다 차트를 다시 그리면 사라진 풍선말
+      크기를 재려다 오류가 납니다.                                      */
+  if (chart){
+    try {
+      chart.dispatchAction({ type:'hideTip' });
+      chart.setOption({ tooltip:{ triggerOn: (annOn && k !== 'sel') ? 'none' : 'mousemove|click' } });
+    } catch(e){}
+  }
+  annApply();
+}
+
+/*  핀을 꽂을 선 고르기 — 지금 보이는 계열만 */
+function annFillSeries(){
+  var sel = $('annSeries'); if (!sel) return;
+  var keep = sel.value;
+  var vis = shownSeries();
+  sel.innerHTML = vis.map(function(s, i){
+    return '<option value="' + i + '">' + esc(s.label) + '</option>'; }).join('')
+    || '<option value="">지표를 먼저 올리세요</option>';
+  if (keep && sel.querySelector('option[value="' + keep + '"]')) sel.value = keep;
+}
+
+/*  ── 좌표 환산 ──────────────────────────────────────────────
+    ⚠️ 저장은 «날짜(ms)·값», 그리기는 픽셀. 이 두 함수 말고 다른 데서
+       픽셀을 만들면 축이 바뀔 때 어긋납니다.                        */
+function annToPx(x, y){
+  if (!chart) return null;
+  try {
+    var p = chart.convertToPixel({ xAxisIndex:0, yAxisIndex:0 }, [x, y]);
+    return (p && isFinite(p[0]) && isFinite(p[1])) ? p : null;
+  } catch(e){ return null; }
+}
+function annToData(px, py){
+  if (!chart) return null;
+  try {
+    var v = chart.convertFromPixel({ xAxisIndex:0, yAxisIndex:0 }, [px, py]);
+    return (v && isFinite(v[0]) && isFinite(v[1])) ? v : null;
+  } catch(e){ return null; }
+}
+//  그려지는 네모(격자) — 선을 끝까지 긋고, 바깥 클릭을 걸러내는 데 씁니다
+function annGrid(){
+  var box = $('chartBox');
+  var w = box ? box.clientWidth : 0, h = box ? box.clientHeight : 0;
+  var m = chart && chart.getModel && chart.getModel().getComponent('grid');
+  var r = m && m.coordinateSystem && m.coordinateSystem.getRect
+        ? m.coordinateSystem.getRect() : null;
+  return r ? { x:r.x, y:r.y, w:r.width, h:r.height }
+           : { x:0, y:0, w:w, h:h };
+}
+
+/*  ── 선 위의 가장 가까운 점 ────────────────────────────────
+    ⚠️ 학회장이 말한 «추이선에서 핀포인트» 가 이것입니다. 아무 데나
+       찍히면 안 되고 <그 선이 실제로 지나는 점> 에 붙어야 합니다.   */
+function annSnap(px){
+  var vis = shownSeries();
+  var i = Number(($('annSeries') || {}).value || 0);
+  var s = vis[i] || vis[0]; if (!s) return null;
+  var pts = viewPoints(s);
+  if (!pts.length) return null;
+  var want = annToData(px, 0);
+  if (!want) return null;
+  var best = null, gap = Infinity;
+  for (var k = 0; k < pts.length; k++){
+    var t = Date.parse(pts[k].d);
+    var g = Math.abs(t - want[0]);
+    if (g < gap){ gap = g; best = { x:t, y:pts[k].v, d:pts[k].d }; }
+  }
+  return best ? { x:best.x, y:best.y, d:best.d, label:s.label } : null;
+}
+
+function annStyle(){
+  return {
+    font: (($('annFont') || {}).value) || 'Pretendard',
+    size: Number(($('annSize') || {}).value) || 13,
+    color: (($('annColor') || {}).value) || '#1a2b4c'
+  };
+}
+//  고른 주석에만 지금 글꼴·크기·색을 입힙니다 (아무것도 안 골랐으면 다음에 그릴 것부터)
+function annRestyle(){
+  var st = annStyle(), n = 0;
+  annItems.forEach(function(a){
+    if (annSel[a.id]){ a.font = st.font; a.size = st.size; a.color = st.color; n++; }
+  });
+  annApply();
+}
+
+function annAdd(a){
+  a.id = 'a' + (annSeq++);
+  var st = annStyle();
+  a.font = st.font; a.size = st.size; a.color = st.color;
+  annItems.push(a);
+  annSel = {}; annSel[a.id] = 1;
+  return a;
+}
+function annClear(){
+  if (!annItems.length) return;
+  annItems = []; annSel = {}; annDraft = null;
+  annApply();
+}
+function annDelSel(){
+  var ids = Object.keys(annSel);
+  if (!ids.length){
+    var h = $('annHint');
+    if (h) h.innerHTML = '지울 주석을 먼저 고르세요 — <b>선택</b> 도구로 누르면 됩니다.';
+    return;
+  }
+  annItems = annItems.filter(function(a){ return !annSel[a.id]; });
+  annSel = {};
+  annApply();
+}
+
+
+/*  ── 그리기 ─────────────────────────────────────────────────
+
+    ⚠️ 주석 하나가 <그룹 하나> 입니다. 그룹의 위치는 «첫 점의 픽셀»,
+       자식 도형은 그 점을 원점으로 한 상대 좌표입니다. 그래야 끌었을 때
+       그룹 위치만 날짜·값으로 되돌리면 되고, 도형마다 따로 셀 필요가
+       없습니다.                                                       */
+function annEls(){
+  if (!annOn || !chart) return [];
+  var g = annGrid(), out = [];
+  var sel = (annTool === 'sel');
+
+  var mkText = function(a, dx, dy, align, vAlign){
+    if (!aiStr2(a.text)) return null;
+    return { type:'text', x:dx, y:dy, z:60,
+      style:{ text:a.text, fill:a.color, fontSize:a.size,
+              fontFamily:a.font + ", 'Noto Sans KR', sans-serif",
+              align:align || 'center', verticalAlign: vAlign || 'bottom' } };
+  };
+  var line = function(x1,y1,x2,y2,a,dash){
+    return { type:'line', z:55, shape:{ x1:x1, y1:y1, x2:x2, y2:y2 },
+             style:{ stroke:a.color, lineWidth:1.6,
+                     lineDash: dash ? [5,4] : null } };
+  };
+
+  annItems.forEach(function(a){
+    var p = annToPx(a.x, a.y); if (!p) return;
+    var kids = [], p2 = null;
+    if (a.x2 != null) p2 = annToPx(a.x2, a.y2);
+
+    if (a.type === 'pin'){
+      //  ⚠️ 사진처럼 — 선 위의 점, 거기서 축까지 내려가는 점선, 그리고 이름표
+      var down = g.y + g.h - p[1];
+      kids.push(line(0, 0, 0, down, a, true));
+      kids.push({ type:'circle', z:58, shape:{ cx:0, cy:0, r:5 },
+        style:{ fill:'#fff', stroke:a.color, lineWidth:2 } });
+      var t = mkText(a, 0, (a.below ? 22 : -12), 'center', a.below ? 'top' : 'bottom');
+      if (t) kids.push(t);
+    } else if (a.type === 'text'){
+      var t2 = mkText(a, 0, 0, 'left', 'middle');
+      kids.push(t2 || { type:'text', x:0, y:0, z:60,
+        style:{ text:'(글자를 적어주세요)', fill:a.color, fontSize:a.size,
+                fontFamily:a.font + ", 'Noto Sans KR', sans-serif",
+                align:'left', verticalAlign:'middle', opacity:.55 } });
+    } else if (a.type === 'hline'){
+      kids.push(line(g.x - p[0], 0, g.x + g.w - p[0], 0, a, true));
+      var th = mkText(a, g.x + g.w - p[0] - 4, -5, 'right', 'bottom');
+      if (th) kids.push(th);
+    } else if (a.type === 'vline'){
+      kids.push(line(0, g.y - p[1], 0, g.y + g.h - p[1], a, true));
+      var tv = mkText(a, 4, g.y - p[1] + 2, 'left', 'top');
+      if (tv) kids.push(tv);
+    } else if (a.type === 'ray' && p2){
+      //  두 값 사이 구간 — 가로 띠
+      var hh = p2[1] - p[1];
+      kids.push({ type:'rect', z:50, shape:{ x:g.x - p[0], y:Math.min(0,hh),
+          width:g.w, height:Math.abs(hh) },
+        style:{ fill:a.color, opacity:.10, stroke:a.color, lineWidth:1 } });
+      var tr = mkText(a, g.x + g.w - p[0] - 4, Math.min(0,hh) - 5, 'right', 'bottom');
+      if (tr) kids.push(tr);
+    } else if (a.type === 'trend' && p2){
+      kids.push(line(0, 0, p2[0]-p[0], p2[1]-p[1], a, false));
+      var tt = mkText(a, (p2[0]-p[0])/2, (p2[1]-p[1])/2 - 7, 'center', 'bottom');
+      if (tt) kids.push(tt);
+    } else if (a.type === 'rect' && p2){
+      kids.push({ type:'rect', z:52,
+        shape:{ x:Math.min(0,p2[0]-p[0]), y:Math.min(0,p2[1]-p[1]),
+                width:Math.abs(p2[0]-p[0]), height:Math.abs(p2[1]-p[1]) },
+        style:{ fill:a.color, opacity:.08, stroke:a.color, lineWidth:1.6 } });
+      var tq = mkText(a, Math.min(0,p2[0]-p[0]) + 4, Math.min(0,p2[1]-p[1]) - 5, 'left', 'bottom');
+      if (tq) kids.push(tq);
+    } else if (a.type === 'ellipse' && p2){
+      kids.push({ type:'ellipse', z:52,
+        shape:{ cx:(p2[0]-p[0])/2, cy:(p2[1]-p[1])/2,
+                rx:Math.abs(p2[0]-p[0])/2, ry:Math.abs(p2[1]-p[1])/2 },
+        style:{ fill:a.color, opacity:.08, stroke:a.color, lineWidth:1.6 } });
+      var te = mkText(a, (p2[0]-p[0])/2, Math.min(0,p2[1]-p[1]) - 5, 'center', 'bottom');
+      if (te) kids.push(te);
+    } else if (!p2 && a.x2 != null){
+      return;   //  두 번째 점이 화면 밖이면 이번엔 건너뜁니다
+    }
+    if (!kids.length) return;
+
+    //  고른 것에는 테를 둘러 <지금 뭘 고쳤는지> 보이게 합니다
+    if (annSel[a.id])
+      kids.unshift({ type:'circle', z:49, shape:{ cx:0, cy:0, r:9 },
+        style:{ fill:'none', stroke:'#2a78d6', lineWidth:1.4, lineDash:[3,3] } });
+
+    out.push({
+      type:'group', id:a.id, x:p[0], y:p[1], z:50,
+      draggable: sel, cursor: sel ? 'move' : 'default',
+      children: kids,
+      onclick: (function(id){ return function(ev){ annHit(id, ev); }; })(a.id),
+      ondragend: (function(id){ return function(){ annDropped(id, this); }; })(a.id)
+    });
+  });
+
+  //  그리는 중인 미리보기 · 핀 표식
+  if (annDraft && annDraft.x2 != null){
+    var q = annToPx(annDraft.x, annDraft.y), q2 = annToPx(annDraft.x2, annDraft.y2);
+    if (q && q2) out.push({ type:'group', x:q[0], y:q[1], z:70, silent:true,
+      children:[ line(0, 0, q2[0]-q[0], q2[1]-q[1], { color:'#2a78d6' }, true) ] });
+  }
+  if (annGhost){
+    var gp = annToPx(annGhost.x, annGhost.y);
+    if (gp) out.push({ type:'group', x:gp[0], y:gp[1], z:70, silent:true, children:[
+      { type:'line', shape:{ x1:0, y1:0, x2:0, y2:g.y + g.h - gp[1] },
+        style:{ stroke:'#2a78d6', lineWidth:1, lineDash:[4,4] } },
+      { type:'circle', shape:{ cx:0, cy:0, r:5 },
+        style:{ fill:'#fff', stroke:'#2a78d6', lineWidth:2 } },
+      { type:'text', x:0, y:-11,
+        style:{ text: fmtDateKo(annGhost.d), fill:'#2a78d6', fontSize:11,
+                align:'center', verticalAlign:'bottom' } }
+    ] });
+  }
+  return out;
+}
+
+//  빈 문자열·공백만 있는 것은 «없음» 으로 봅니다
+function aiStr2(v){ return (typeof v === 'string' && v.trim()) ? v.trim() : ''; }
+
+function annApply(){
+  if (!chart) return;
+  try {
+    /*  ⚠️ replaceMerge 가 없으면 ECharts 는 graphic 을 <합칩니다>.
+        그래서 «전체 지우기» 로 빈 목록을 넘겨도 옛 주석이 캔버스에 그대로
+        남았습니다 — 지운 줄 알고 JPG 로 저장하면 지운 것이 같이 찍힙니다.
+        통째로 갈아끼우게 명시합니다.                                   */
+    chart.setOption({ graphic: { elements: annOn ? annEls() : [] } },
+                    { replaceMerge: ['graphic'] });
+  } catch(e){ /* 차트가 아직 안 그려졌으면 다음 그리기에서 붙습니다 */ }
+}
+
+/*  ── 누르기 · 끌기 ──────────────────────────────────────── */
+function annHit(id, ev){
+  if (annTool !== 'sel') return;
+  var shift = !!(ev && ev.event && ev.event.shiftKey);
+  if (!shift) annSel = {};
+  if (annSel[id]) delete annSel[id]; else annSel[id] = 1;
+  //  ⚠️ 고른 주석의 글꼴·크기·색을 손잡이에 올려둡니다. 안 그러면
+  //     «색을 바꾸려고 눌렀는데 다른 색이 들어가» 있습니다.
+  var a = annItems.filter(function(x){ return x.id === id; })[0];
+  if (a && annSel[id]){
+    if ($('annFont'))  $('annFont').value = a.font;
+    if ($('annSize'))  $('annSize').value = String(a.size);
+    if ($('annColor')) $('annColor').value = a.color;
+  }
+  annApply();
+}
+function annDropped(id, el){
+  var a = annItems.filter(function(x){ return x.id === id; })[0];
+  if (!a || !el) return;
+  var v = annToData(el.x, el.y); if (!v) { annApply(); return; }
+  //  두 점짜리는 <통째로> 옮깁니다 (모양이 안 일그러지게)
+  if (a.x2 != null){ a.x2 += v[0] - a.x; a.y2 += v[1] - a.y; }
+  a.x = v[0]; a.y = v[1];
+  annApply();
+}
+
+
+/*  ── 차트 위에서 무슨 일이 일어나는가 ──────────────────────
+
+    ⚠️ ECharts 의 zr(렌더러)에 직접 붙입니다. 차트를 다시 만들면 zr 도
+       새로 생기므로, <어느 인스턴스에 붙였는지> 를 기억해 두고 바뀔 때만
+       다시 붙입니다. 안 그러면 누를 때마다 주석이 두 개씩 생깁니다.    */
+function annBind(){
+  if (!chart || annBound === chart) return;
+  annBound = chart;
+  var zr = chart.getZr();
+
+  zr.on('click', function(e){
+    if (!annOn || annTool === 'sel') return;
+    var g = annGrid();
+    //  격자 밖(축·범례 자리)은 무시합니다
+    if (e.offsetX < g.x || e.offsetX > g.x + g.w ||
+        e.offsetY < g.y || e.offsetY > g.y + g.h) return;
+
+    if (annTool === 'pin'){
+      /*  ⚠️ 학회장: «드래그하면서 설정하고 클릭 한번 더하면 그 위치에서
+          멈춰서 고정». 표식은 선을 따라 계속 움직이다가, 누르는 순간
+          그 점에 <붙박이> 가 되고 바로 글자를 받습니다.               */
+      var sn = annSnap(e.offsetX);
+      if (!sn) return;
+      var a = annAdd({ type:'pin', x:sn.x, y:sn.y, text:'', below:false });
+      annGhost = null;
+      annApply();
+      annEdit(a.id, e.offsetX, e.offsetY);
+      return;
+    }
+    var v = annToData(e.offsetX, e.offsetY); if (!v) return;
+
+    if (annTool === 'text'){
+      var t = annAdd({ type:'text', x:v[0], y:v[1], text:'' });
+      annApply(); annEdit(t.id, e.offsetX, e.offsetY); return;
+    }
+    if (annTool === 'hline' || annTool === 'vline'){
+      var h = annAdd({ type:annTool, x:v[0], y:v[1], text:'' });
+      annApply(); annEdit(h.id, e.offsetX, e.offsetY); return;
+    }
+    //  두 점짜리 — 첫 번째 누름은 시작, 두 번째 누름이 끝입니다
+    if (!annDraft){ annDraft = { type:annTool, x:v[0], y:v[1] }; annApply(); return; }
+    annDraft.x2 = v[0]; annDraft.y2 = v[1];
+    var d = annAdd({ type:annDraft.type, x:annDraft.x, y:annDraft.y,
+                     x2:annDraft.x2, y2:annDraft.y2, text:'' });
+    annDraft = null;
+    annApply(); annEdit(d.id, e.offsetX, e.offsetY);
+  });
+
+  zr.on('mousemove', function(e){
+    if (!annOn) return;
+    if (annTool === 'pin'){
+      var sn = annSnap(e.offsetX);
+      //  같은 점이면 다시 그리지 않습니다 (선이 많으면 버벅입니다)
+      if (sn && (!annGhost || annGhost.x !== sn.x)){ annGhost = sn; annApply(); }
+      return;
+    }
+    if (annDraft){
+      var v = annToData(e.offsetX, e.offsetY); if (!v) return;
+      annDraft.x2 = v[0]; annDraft.y2 = v[1];
+      annApply();
+    }
+  });
+
+  //  ⚠️ 차트 밖으로 나가면 표식을 치웁니다 — 안 그러면 마지막 자리에
+  //     유령이 남아 «이미 찍은 것» 처럼 보입니다.
+  zr.on('globalout', function(){
+    if (annGhost){ annGhost = null; annApply(); }
+  });
+}
+
+/*  ── 글자 적기 ──────────────────────────────────────────────
+
+    ⚠️ prompt() 를 쓰지 않습니다. 창이 화면을 덮어 <어디에 찍히는지> 를
+       못 보고 적게 됩니다. 찍은 자리 옆에 작은 칸을 띄웁니다.          */
+function annEdit(id, px, py){
+  var a = annItems.filter(function(x){ return x.id === id; })[0];
+  if (!a) return;
+  var box = $('chartBox'); if (!box) return;
+  annCloseEdit();
+
+  var wrap = document.createElement('div');
+  wrap.id = 'annEdit';
+  wrap.style.cssText = 'position:absolute;z-index:40;display:flex;gap:5px;'
+    + 'background:var(--bg);border:1px solid var(--border);border-radius:7px;'
+    + 'padding:5px 6px;box-shadow:0 6px 18px rgba(0,0,0,.12)';
+  wrap.innerHTML = '<input type="text" id="annEditIn" placeholder="글자를 적고 Enter"'
+    + ' style="width:190px;font-size:12.5px">'
+    + '<button class="btn-sm" id="annEditOk">확인</button>';
+
+  //  차트 상자 안의 상대 위치로 띄웁니다 (스크롤해도 따라오게)
+  if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+  box.appendChild(wrap);
+  if (!wrap.parentNode) return;            //  상자가 사라졌으면 그냥 둡니다
+  var w = wrap.offsetWidth || 260, h = wrap.offsetHeight || 34;
+  var left = Math.max(4, Math.min(px + 10, box.clientWidth - w - 4));
+  var top  = Math.max(4, Math.min(py - h - 10, box.clientHeight - h - 4));
+  wrap.style.left = left + 'px'; wrap.style.top = top + 'px';
+
+  var inp = $('annEditIn');
+  inp.value = a.text || '';
+  inp.focus();
+  var done = function(){
+    a.text = inp.value;
+    annCloseEdit(); annApply();
+  };
+  $('annEditOk').onclick = done;
+  inp.onkeydown = function(ev){
+    if (ev.key === 'Enter'){ ev.preventDefault(); done(); }
+    //  ⚠️ Esc 는 <글자만> 취소입니다. 방금 그린 도형까지 지우면
+    //     «오타 고치려다 다시 그려야» 합니다.
+    if (ev.key === 'Escape'){ ev.preventDefault(); annCloseEdit(); }
+  };
+}
+function annCloseEdit(){
+  var e = $('annEdit'); if (e) e.remove();
+}
+
+/*  고른 주석을 글쇠로 지우기 — 표를 누르고 Delete 가 몸에 익은 손을 위해 */
+document.addEventListener('keydown', function(e){
+  if (!annOn) return;
+  if ($('annEdit')) return;                       //  글자 적는 중이면 건드리지 않습니다
+  var t = e.target && e.target.tagName;
+  if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+  if (e.key === 'Delete' || e.key === 'Backspace'){
+    if (Object.keys(annSel).length){ e.preventDefault(); annDelSel(); }
+  }
+  if (e.key === 'Escape'){ annDraft = null; annGhost = null; annPick('sel'); }
+});
+
 function drawChart(){
   if (!chartsReady()) return;
   //  ⚠️ 커브 모드면 여기서 갈라집니다. 아래 시계열 그리기는 건드리지 않습니다.
@@ -11267,19 +11884,26 @@ function drawChart(){
     })()),
     series: norms.map(function(x, i){
       var s = x.s, pts = x.pts;
-      var base = norm ? pts[0].v : 1;
+      /*  ⚠️ 지수화(시작=100)도 같은 자리입니다. 첫 값이 음수면 선이
+          <위아래로 뒤집혀> 그려집니다 — 회복이 붕괴처럼 보입니다.
+          첫 값이 0 이면 모든 점이 0 이 되어 «평평한 0 선» 이 남고,
+          그건 «자료가 없다» 로 읽힙니다. 둘 다 지수화를 할 수 없는
+          계열이므로, 억지로 100 을 만들지 않고 원래 값을 그립니다.    */
+      var base0 = norm ? pts[0].v : 1;
+      var normOk = !norm || (isFinite(base0) && base0 > 0);
+      var base = normOk ? base0 : 1;
       var isBar = s.type === 'bar';
       var o = {
         name: s.label + tfSuffix(s),
         type: isBar ? 'bar' : 'line',
-        yAxisIndex: norm ? 0 : (Number(s.axis) || 0),
+        yAxisIndex: (norm && normOk) ? 0 : (Number(s.axis) || 0),
         showSymbol:false,
         /*  ⚠️ 폭은 여기서 안 정합니다 — applyBarProps 가 <막대가 몇 개인지>
             세어보고 한 번에 붙입니다. 여기서 계열마다 60% 를 주면
             3개일 때 180% 가 되어 옆 칸을 침범합니다.                    */
         lineStyle:{ color:s.color, width:s.width },
         itemStyle:{ color:s.color },
-        data: pts.map(function(p){ return [p.d, norm ? (base ? p.v/base*100 : 0) : p.v]; })
+        data: pts.map(function(p){ return [p.d, (norm && normOk) ? p.v/base*100 : p.v]; })
       };
       //  침체 띠는 맨 앞 계열에 한 번만 붙입니다 (계열마다 붙이면 겹쳐서 진해집니다)
       if (i === 0 && bands.length) o.markArea = recMarkArea(bands);
@@ -11301,7 +11925,17 @@ function drawChart(){
   //  ⚠️ 막대가 여럿이면 칸을 나눠 쓰게 합니다 (barProps 주석 참고).
   //     예전에는 계열마다 60% 를 줘서 3개만 얹어도 옆 칸을 침범했습니다.
   applyBarProps(opt.series);
+  /*  ⚠️ 풍선말이 떠 있는 채로 차트를 새로 그리면, ECharts 가 이미 사라진
+      풍선말의 크기를 재려다 오류를 냅니다 (getSize → offsetWidth of null).
+      마우스를 차트에 올려둔 채 설정을 바꾸면 실제로 납니다. 먼저 내립니다. */
+  try { chart.dispatchAction({ type:'hideTip' }); } catch(e){}
   chart.setOption(opt, true);
+  /*  ⚠️ 주석은 <다시 그릴 때마다> 새로 얹습니다. 기간을 바꾸거나 지표를
+      더해도 «2월 23일의 65달러» 자리에 그대로 남게 하려는 것입니다.
+      setOption(opt, true) 가 graphic 을 지우므로 순서가 중요합니다.   */
+  annBind();
+  annFillSeries();
+  annApply();
 
   var anyTf = series.some(function(s){ return (s.tf||'raw') !== 'raw'; });
 
@@ -13641,7 +14275,11 @@ function mtCalc(){
   var H = '<div><span class="px">' + mtCur(mtQuote.price, mtPick.market, dp) + '</span> '
         + '<span class="st-hint">' + esc(mtQuote.basis) + '</span></div>';
   if (qty > 0){
-    H += '<div>' + num(qty, 0) + '주 × ' + mtCur(mtQuote.price, mtPick.market, dp)
+    /*  ⚠️ 코인은 0.05개처럼 소수로 삽니다. 그걸 소수점 0자리로 찍어서
+        «0주 × $109,000 = 7,630,000원» 이라고 보여주고 있었습니다.
+        금액은 맞는데 수량이 0 이라, 주문을 넣어도 되는지 알 수 없습니다.
+        보유 목록·빠른 매도는 이미 코인을 4자리로 찍고 있었습니다.      */
+    H += '<div>' + num(qty, mtQty(mtPick.market)) + '주 × ' + mtCur(mtQuote.price, mtPick.market, dp)
        + ' = <b>' + mtMoney(gross * rate) + '원</b>'
        + (mtPick.market !== 'KR' ? ' <span class="st-hint">(환율 ' + num(fx,0) + '원 고정)</span>' : '')
        + '</div>';
@@ -13692,10 +14330,14 @@ function mtAllIn(){
   if ($('tSide').value === 'sell'){
     var held = (mtAcc.positions || []).filter(function(p){
       return p.market === mtPick.market && p.symbol === mtPick.symbol; })[0];
-    $('tQty').value = held ? Math.floor(held.qty) : 0;
+    //  ⚠️ 코인은 소수로 보유합니다. 버리면 0.65개를 0 으로 만듭니다.
+    $('tQty').value = held ? mtFloorQty(held.qty, mtPick.market) : 0;
   } else {
     //  수수료만큼 여유를 둡니다
-    $('tQty').value = Math.floor(mtAcc.cash * 0.995 / (mtQuote.price * rate));
+    /*  ⚠️ 여기서도 버림이었습니다. 한 개 값이 현금보다 비싼 코인은
+        «가능한 최대» 가 늘 0 으로 채워져, 살 수 있는데도 주문 단추가
+        꺼졌습니다 (BTC 한 개 1.5억, 현금 1억 → 0.652 가 맞습니다).    */
+    $('tQty').value = mtFloorQty(mtAcc.cash * 0.995 / (mtQuote.price * rate), mtPick.market);
   }
   mtCalc();
 }
@@ -13712,7 +14354,7 @@ async function submitTrade(){
                          name: mtPick.name, side: $('tSide').value, qty: qty });
     var dp = d.currency === 'KRW' ? 0 : 2;
     warn('tradeMsg',
-      '<b>' + esc(d.name) + '</b> ' + num(d.qty, 0) + '주를 '
+      '<b>' + esc(d.name) + '</b> ' + num(d.qty, mtQty(mtPick && mtPick.market)) + '주를 '
       + mtCur(d.price, d.market, dp) + ' 에 ' + (d.side === 'buy' ? '샀습니다' : '팔았습니다')
       + ' <span class="st-hint">(' + esc(d.fill_basis) + ' · 수수료 '
       + mtMoney(d.fee) + ')</span>', 'ok');
@@ -14215,6 +14857,10 @@ function resizeAllCharts(){
       if (c && shownNow(c.getDom && c.getDom())) c.resize(); });
   //  가격대 지도 이름표는 점선 자리에 맞춰 세워둔 것이라 같이 다시 잡습니다
   if (typeof dvMapPlaceChips === 'function') setTimeout(dvMapPlaceChips, 40);
+  /*  ⚠️ 주석은 픽셀이 아니라 날짜·값으로 들고 있으므로, 창 크기가 바뀌면
+      새 픽셀로 다시 환산해 줘야 제자리에 남습니다. 안 하면 창을 줄인
+      순간 주석만 옛 자리에 떠 있습니다.                              */
+  if (typeof annApply === 'function') setTimeout(annApply, 60);
 }
 
 /*  ── 차트가 찌그러져 나오는 문제 ──
@@ -14430,6 +15076,56 @@ function aiSetPicked(){
 
     ⚠️ 대신 <추려서> 보냅니다. 토큰이 곧 돈입니다. 5년치 재무제표 전체를
        그대로 보내면 한 번에 몇 달러가 나갑니다.                        */
+/*  ── 옵션월·풋콜을 <미리 세어서> 모델에 넘깁니다 ──────────────
+
+    숫자를 세는 일은 코드가 훨씬 잘합니다. 그래서 세어서 주고, 모델에는
+    «이미 세어 놓았으니 그대로 쓰세요» 라고 말합니다.
+
+    ⚠️ 그래서 여기가 틀리면 <리포트 문장이 통째로 거짓> 이 됩니다.
+       모델은 이 숫자를 의심하지 않습니다. 실제로 틀려 있었습니다 —
+
+       행사가 목록은 오름차순인데 slice(0, 60) 으로 잘랐습니다. 그건
+       «등가격에서 가까운 60개» 가 아니라 «가장 싼 60개» 입니다.
+       SPY 660달러·1달러 간격이면 495~554달러 구간만 남습니다 — 전부
+       현재가보다 16~25% 낮은 깊은 외가격 풋입니다. 그 구간으로 세면
+
+         콜월(저항)  → 현재가보다 110달러 <아래>
+         풋/콜 비율  → 실제 1.3 인데 6~10
+
+       이 나오고, 리포트는 그걸 사실로 적습니다.                       */
+function aiOptionWalls(byK, op, exs){
+  var ks = Object.keys(byK).map(Number).sort(function(a, b){ return a - b; });
+  //  등가격에서 먼 행사가는 미결제약정이 거의 없어 버립니다 (토큰 아낌)
+  var spot = Number(op && op.spot) || 0;
+  if (spot > 0) ks = ks.filter(function(k){ return Math.abs(k / spot - 1) <= 0.25; });
+  if (!ks.length) return null;
+
+  //  ⚠️ <가까운 순> 으로 고른 뒤, 표·차트를 위해 다시 행사가 순으로 되돌립니다
+  var near = ks.slice();
+  if (spot > 0)
+    near.sort(function(a, b){ return Math.abs(a - spot) - Math.abs(b - spot); });
+  near = near.slice(0, 60).sort(function(a, b){ return a - b; });
+  var rows = near.map(function(k){ return byK[k]; });
+
+  var top = function(key){
+    return rows.slice().filter(function(r){ return Number(r[key]) > 0; })
+      .sort(function(a, b){ return Number(b[key]) - Number(a[key]); })
+      .slice(0, 3).map(function(r){ return { k: r.k, oi: Number(r[key]) }; });
+  };
+  var sum = function(key){
+    return rows.reduce(function(a, r){ return a + (Number(r[key]) || 0); }, 0); };
+  var cOi = sum('c_oi'), pOi = sum('p_oi');
+  return {
+    spot: op.spot || null, expiry: op.expiration || null, dte: op.dte || null,
+    other_expiries: (exs || []).slice(0, 8).map(function(x){
+      return { date: x.date, dte: x.dte }; }),
+    call_wall: top('c_oi'), put_wall: top('p_oi'),
+    call_oi_total: cOi, put_oi_total: pOi,
+    put_call_oi: cOi > 0 ? +(pOi / cOi).toFixed(2) : null,
+    rows: rows
+  };
+}
+
 async function aiBuildDossier(){
   var d = { as_of: today(), market: aiPick.market, code: aiPick.code,
             name: aiPick.name, sub: aiPick.sub };
@@ -14600,31 +15296,8 @@ async function aiBuildDossier(){
         if (x.side === 'call'){ e.c_oi = x.oi; e.c_iv = x.iv; e.c_vol = x.volume; }
         else               { e.p_oi = x.oi; e.p_iv = x.iv; e.p_vol = x.volume; }
       });
-      var ks = Object.keys(byK).map(Number).sort(function(a,b){ return a-b; });
-      //  등가격에서 먼 행사가는 미결제약정이 거의 없어 버립니다 (토큰 아낌)
-      var spot = Number(op.spot) || 0;
-      if (spot > 0) ks = ks.filter(function(k){ return Math.abs(k/spot - 1) <= 0.25; });
-      if (ks.length){
-        //  콜월·풋월을 모델이 직접 세지 않아도 되게 <미리 계산해서> 줍니다.
-        //  숫자를 세는 일은 코드가 훨씬 잘합니다.
-        var rows = ks.slice(0, 60).map(function(k){ return byK[k]; });
-        var top = function(key){
-          return rows.slice().filter(function(r){ return Number(r[key]) > 0; })
-            .sort(function(a,b){ return Number(b[key]) - Number(a[key]); })
-            .slice(0, 3).map(function(r){ return { k:r.k, oi:Number(r[key]) }; });
-        };
-        var sum = function(key){ return rows.reduce(function(a,r){
-          return a + (Number(r[key]) || 0); }, 0); };
-        var cOi = sum('c_oi'), pOi = sum('p_oi');
-        d.options = {
-          spot: op.spot || null, expiry: op.expiration || null, dte: op.dte || null,
-          other_expiries: exs.slice(0, 8).map(function(x){
-            return { date:x.date, dte:x.dte }; }),
-          call_wall: top('c_oi'), put_wall: top('p_oi'),
-          call_oi_total: cOi, put_oi_total: pOi,
-          put_call_oi: cOi > 0 ? +(pOi / cOi).toFixed(2) : null,
-          rows: rows };
-      }
+      var walls = aiOptionWalls(byK, op, exs);
+      if (walls) d.options = walls;
     } catch(e){ d.options_err = String(e.message || e); }
   }
 
@@ -15735,13 +16408,14 @@ function aiDrawTargets(box, sec){
   }
   var entry = aiNum(sec.trader && sec.trader.entry);
   var cons  = aiNum(sec.meta && sec.meta.cons_target);
+  var meta  = sec.meta || {};
   var c = chartOn(box);
   if (!c) return;
   aiChartIns.push(c);
   var ml = [];
   if (px  != null && px  > 0) ml.push({ xAxis: px,
     lineStyle:{ color:'#2c3e6b', width:2 },
-    label:{ formatter:'현재가 ' + aiMoney(px, cur), color:'#2c3e6b',
+    label:{ formatter:(meta && meta.px_live ? '오늘 주가 ' : '현재가 ') + aiMoney(px, cur), color:'#2c3e6b',
             rotate:0, position:'insideEndTop' } });
   //  ⚠️ 시장이 얼마로 보는지 나란히 — 목표가가 터무니없으면 바로 드러납니다
   if (cons != null && cons > 0) ml.push({ xAxis: cons,
@@ -16311,7 +16985,18 @@ function aiRender(rep, boxId){
     head += '<p style="font-size:1.05rem;font-weight:600;margin:2px 0 0;line-height:1.6">'
           + esc(sec.headline) + '</p>';
   var chips = [];
-  if (px != null && px > 0) chips.push('현재가 ' + aiMoney(px, cur));
+  /*  ⚠️ 옛 리포트를 열면 그 리포트를 만든 날의 주가가 아니라 <오늘 값> 을
+      받아 채웁니다(aiFillPx). 그런데 화면에는 그냥 «현재가» 라고 적었습니다.
+
+      2026년 3월에 쓴 리포트를 9월에 열면, 3월의 목표가를 <9월 주가> 와
+      견주게 됩니다. 그때 +20% 였던 강세 목표가가 «−7%» 로 찍히고,
+      «가장 좋게 본 시나리오의 적정가도 현재가에 못 미칩니다» 라는
+      고평가 경고까지 뜹니다 — 리포트는 아무 잘못이 없는데요.
+
+      ⚠️ 숫자를 숨기지는 않습니다. <언제 값인지> 를 같이 적습니다.     */
+  if (px != null && px > 0)
+    chips.push((meta.px_live ? '오늘 주가 ' : '현재가 ') + aiMoney(px, cur)
+      + (meta.px_live ? ' <span class="st-hint">(리포트 작성일 값이 아닙니다)</span>' : ''));
   /*  ⚠️ 애널리스트 컨센서스를 <머리 딱지> 에 같이 답니다. 모델 목표가가
       시장 기대와 얼마나 다른지 한 줄에서 보이게 하려는 것입니다.
       (마이크론: 모델 $175 vs 컨센서스 $1,513 — 나란히 놓으면 바로 보입니다) */
@@ -16706,9 +17391,28 @@ function refillCoFinSeries(){
   });
 }
 /* 화면에 그릴 구간만 잘라냅니다 */
+/*  ── 수량의 소수점 ──────────────────────────────────────────
+
+    ⚠️ 주식은 1주 단위, 코인은 0.0001 단위입니다. 한 자리로 뭉뚱그리면
+       코인 수량이 «0주» 로 찍히거나 «가능한 최대» 가 0 이 됩니다.      */
+function mtQty(market){ return market === 'CRYPTO' ? 4 : 0; }
+function mtFloorQty(v, market){
+  var n = Number(v);
+  if (!isFinite(n) || n <= 0) return 0;
+  if (market !== 'CRYPTO') return Math.floor(n);
+  //  0.0001 단위로 내림 (부동소수점 오차로 한 칸 넘치지 않게 반올림 먼저)
+  return Math.floor(Number(n.toFixed(8)) * 1e4) / 1e4;
+}
+
 function coRows(){
   if (!coFin) return [];
   return coView.range > 0 ? coFin.slice(-coView.range) : coFin;
+}
+/*  지금 보고 있는 표가 <분기> 인가. 분기면 ROE·ROA 를 네 분기 합으로
+    내야 합니다 (석 달 이익을 자본으로 나누면 네 배쯤 작게 나옵니다).   */
+function coFinQ(){
+  var rs = coRows();
+  return !!(rs.length && rs[rs.length - 1] && rs[rs.length - 1].q);
 }
 
 /* 회사 규모에 맞춰 표시 단위를 자동으로 고릅니다.
@@ -17200,23 +17904,69 @@ async function loadCoFin(){
   }
 }
 
+/*  ── 분기 화면의 ROE·ROA ────────────────────────────────────
+
+    ⚠️ ROE 는 <1년 동안 번 돈> ÷ <그 시점의 자본> 입니다. 그런데 분기
+       화면에서는 위가 <석 달치> 인데 아래는 그대로 자본총계라, 숫자가
+       네 배쯤 작게 나왔습니다 —
+
+         삼성전자 4분기 순이익 19.6조 ÷ 자본 436조 = «ROE 4.5%»
+         (실제 연간 ROE 는 45.2조 ÷ 436조 ≈ 10.4%)
+
+       그걸 아무 표시 없이 «ROE» 라고 적고 있었습니다. 보고서에 «삼성전자
+       ROE 4.5%» 라고 실리면 그냥 틀린 문장입니다.
+
+    ⚠️ 분기에 4를 곱하는 건 계절성이 있는 회사에서 또 틀립니다.
+       <최근 네 분기를 더해서> 씁니다 (TTM). 네 분기가 안 모였으면
+       억지로 만들지 않고 빈칸으로 둡니다 — 틀린 숫자보다 낫습니다.   */
+function coTtm(rs, k){
+  if (rs.length < 4) return null;
+  var v = 0;
+  for (var i = rs.length - 4; i < rs.length; i++){
+    var x = rs[i] ? rs[i][k] : null;
+    if (x == null || !isFinite(Number(x))) return null;
+    v += Number(x);
+  }
+  return v;
+}
+
 function renderCoTiles(){
   var rs = coRows();
   if (!rs.length) return;
-  var last = rs[rs.length - 1], prev = rs[rs.length - 2];
+  var last = rs[rs.length - 1];
   var u = coUnit();
+  var isQ = !!last.q;
+
+  /*  ⚠️ 이름표가 «YoY» 로 박혀 있었는데, 분기 화면에서는 <직전 분기> 와
+      견주고 있었습니다. 계절성이 있는 회사는 4분기→1분기가 늘 급감이라
+      «−67% YoY» 같은 문장이 나옵니다. 분기면 <1년 전 같은 분기> 와
+      견주고, 네 분기가 안 모였으면 «전분기» 라고 정직하게 적습니다.   */
+  var backN = isQ ? 4 : 1;
+  var base = rs[rs.length - 1 - backN];
+  var cmpLab = isQ ? (base ? ' YoY' : ' 전분기') : ' YoY';
+  if (isQ && !base) base = rs[rs.length - 2];
+
   function grow(k){
-    if (!prev || prev[k] == null || last[k] == null || !prev[k]) return '';
-    return pct((last[k] / prev[k] - 1) * 100) + ' YoY';
+    if (!base || base[k] == null || last[k] == null || !base[k]) return '';
+    //  ⚠️ 밑이 적자(음수)면 «v/base−1» 은 부호가 뒤집힙니다. 크기로 나눕니다.
+    return pct((last[k] - base[k]) / Math.abs(base[k]) * 100) + cmpLab;
   }
-  var opm  = coRatio(last.op,  last.revenue);
-  var roe  = coRatio(last.net, last.equity);
+
+  var opm  = coRatio(last.op,  last.revenue);   //  분기끼리 나눠도 뜻이 같습니다
+  //  ROE 는 <기간 이익 ÷ 시점 자본> 이라 분기면 네 분기를 더해 씁니다
+  var roeNet = isQ ? coTtm(rs, 'net') : last.net;
+  var roe  = coRatio(roeNet, last.equity);
+  var roeSub = isQ
+    ? (roeNet == null ? '네 분기가 모이면 나옵니다' : '최근 4분기 순이익 ÷ 자본총계')
+    : '순이익 ÷ 자본총계';
+
   $('coTiles').innerHTML = '<div class="tiles">'
     + tile('매출액',   coAmt(last.revenue), coLabel(last) + ' · ' + u.label, '')
     + tile('영업이익', coAmt(last.op),      grow('op'), Number(last.op) < 0 ? 'neg' : '')
     + tile('당기순이익', coAmt(last.net),   grow('net'), Number(last.net) < 0 ? 'neg' : '')
     + tile('영업이익률', opm == null ? '—' : opm.toFixed(1) + '%', '영업이익 ÷ 매출액', '')
-    + tile('ROE',      roe == null ? '—' : roe.toFixed(1) + '%', '순이익 ÷ 자본총계', '')
+    + tile(isQ ? 'ROE (최근 4분기)' : 'ROE',
+           roe == null ? '—' : roe.toFixed(1) + '%', roeSub, '')
     + '</div>';
 }
 
@@ -17635,15 +18385,25 @@ function renderCoFinTable(){
     ['부채총계',   function(r){ return coAmt(r.liab); }],
     ['자본총계',   function(r){ return coAmt(r.equity); }],
     ['부채비율',   function(r){ var v = coRatio(r.liab, r.equity); return v == null ? '—' : v.toFixed(1) + '%'; }],
-    ['ROE',        function(r){ var v = coRatio(r.net,  r.equity); return v == null ? '—' : v.toFixed(1) + '%'; }],
-    ['ROA',        function(r){ var v = coRatio(r.net,  r.assets); return v == null ? '—' : v.toFixed(1) + '%'; }]
+    /*  ⚠️ ROE·ROA 는 <기간 이익 ÷ 시점 잔액> 입니다. 분기 표에서 석 달치
+        이익을 그대로 나누면 네 배쯤 작게 나옵니다. 그 칸까지 네 분기를
+        더해 쓰고, 안 모이면 빈칸으로 둡니다.                           */
+    [coFinQ() ? 'ROE (최근 4분기)' : 'ROE',
+      function(r, i, all){ var n = coFinQ() ? coTtm(all.slice(0, i + 1), 'net') : r.net;
+        var v = coRatio(n, r.equity); return v == null ? '—' : v.toFixed(1) + '%'; }],
+    [coFinQ() ? 'ROA (최근 4분기)' : 'ROA',
+      function(r, i, all){ var n = coFinQ() ? coTtm(all.slice(0, i + 1), 'net') : r.net;
+        var v = coRatio(n, r.assets); return v == null ? '—' : v.toFixed(1) + '%'; }]
   ];
   if (isUS){
     rows.push(['EPS (희석)', function(r){ return r.eps == null ? '—' : '$' + num(r.eps, 2); }]);
     rows.push(['주당배당금', function(r){ return r.dps == null ? '—' : '$' + num(r.dps, 2); }]);
   }
   /* 비율 항목은 %p, 금액 항목은 % 로 비교합니다 */
-  var PP = { '영업이익률':1, '순이익률':1, '부채비율':1, 'ROE':1, 'ROA':1 };
+  //  ⚠️ 분기 화면에서는 줄 이름이 «ROE (최근 4분기)» 로 바뀝니다.
+  //     여기 목록에 없으면 그 줄의 증감이 %p 가 아니라 % 로 찍힙니다.
+  var PP = { '영업이익률':1, '순이익률':1, '부채비율':1, 'ROE':1, 'ROA':1,
+             'ROE (최근 4분기)':1, 'ROA (최근 4분기)':1 };
   var RAW = {
     '매출액':'revenue', '영업이익':'op', '당기순이익':'net',
     '자산총계':'assets', '부채총계':'liab', '자본총계':'equity',
@@ -17653,8 +18413,14 @@ function renderCoFinTable(){
     '영업이익률': function(r){ return coRatio(r.op,  r.revenue); },
     '순이익률':   function(r){ return coRatio(r.net, r.revenue); },
     '부채비율':   function(r){ return coRatio(r.liab, r.equity); },
-    'ROE':        function(r){ return coRatio(r.net,  r.equity); },
-    'ROA':        function(r){ return coRatio(r.net,  r.assets); }
+    'ROE':        function(r, i, all){ return coRatio(
+                     coFinQ() ? coTtm((all||[]).slice(0, i + 1), 'net') : r.net, r.equity); },
+    'ROA':        function(r, i, all){ return coRatio(
+                     coFinQ() ? coTtm((all||[]).slice(0, i + 1), 'net') : r.net, r.assets); },
+    'ROE (최근 4분기)': function(r, i, all){ return coRatio(
+                     coTtm((all||[]).slice(0, i + 1), 'net'), r.equity); },
+    'ROA (최근 4분기)': function(r, i, all){ return coRatio(
+                     coTtm((all||[]).slice(0, i + 1), 'net'), r.assets); }
   };
   var rs = coRows();
 
@@ -17669,10 +18435,10 @@ function renderCoFinTable(){
               var prev = i > 0 ? rs[i-1] : null;
               var d = '';
               if (prev){
-                if (isPP)          d = dlt(RATIO[nm](r),  RATIO[nm](prev),  'pp');
+                if (isPP)          d = dlt(RATIO[nm](r, i, rs), RATIO[nm](prev, i - 1, rs), 'pp');
                 else if (RAW[nm])  d = dlt(Number(r[RAW[nm]]), Number(prev[RAW[nm]]), 'pct');
               }
-              return '<td class="num"><span class="co-num">' + x[1](r) + d + '</span></td>';
+              return '<td class="num"><span class="co-num">' + x[1](r, i, rs) + d + '</span></td>';
             }).join('')
           + '</tr>';
       }).join('')
