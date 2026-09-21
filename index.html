@@ -108,7 +108,7 @@
   .eq-h .grow-chart{flex:1 1 auto}
   .grid-half.smile-oi{grid-template-columns:0.86fr 1.14fr}
   @media(max-width:940px){.grid2,.grid-half,.grid-half.smile-oi{grid-template-columns:1fr}}
-  @media(max-width:760px){#pieBox{height:calc(420px * var(--chz,1))} .trade-foot button{flex:1 1 100%}}
+  @media(max-width:760px){#pieBox{height:420px} .trade-foot button{flex:1 1 100%}}
 
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
   .row > label{font-size:.79rem;font-weight:600;color:var(--text-sub);min-width:52px}
@@ -155,8 +155,8 @@
     border-top:1px solid var(--border);padding-top:8px;margin-top:2px}
   .pal-row{display:flex;align-items:center;gap:7px;margin-bottom:6px}
   .pal-row input[type=text]{flex:1;font-size:11.5px;text-transform:uppercase;padding:5px 8px;border-radius:7px}
-  #coFinBox{width:100%;height:calc(420px * var(--chz,1))} #coPriceBox{width:100%;height:calc(400px * var(--chz,1))}
-  @media(max-width:760px){#coFinBox{height:calc(340px * var(--chz,1))} #coPriceBox{height:calc(300px * var(--chz,1))}}
+  #coFinBox{width:100%;height:420px} #coPriceBox{width:100%;height:400px}
+  @media(max-width:760px){#coFinBox{height:340px} #coPriceBox{height:300px}}
   .co-hits{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .co-hit{display:flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--border);
     border-radius:9px;background:var(--white);cursor:pointer;font-size:.86rem;text-align:left}
@@ -391,7 +391,7 @@
   .alloc-bar{height:7px;border-radius:4px;background:var(--border);overflow:hidden;margin:6px 0 4px}
   .alloc-bar i{display:block;height:100%;background:var(--primary);transition:width .2s}
   .alloc-bar.over i{background:var(--danger)}
-  #stratPrevBox{width:100%;height:calc(260px * var(--chz,1))}
+  #stratPrevBox{width:100%;height:260px}
   .lb-h{cursor:pointer;user-select:none;white-space:nowrap}
   .lb-h:hover{color:var(--primary)}
   .lb-h.on{color:var(--primary);font-weight:700}
@@ -399,7 +399,7 @@
   .q-title{display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:700;
     color:var(--primary);margin-bottom:9px}
   .q-title span{font-weight:400;color:var(--text-sub);font-size:11.5px}
-  #distBox{width:100%;height:calc(230px * var(--chz,1))}
+  #distBox{width:100%;height:230px}
   .auto-uni{background:var(--accent-soft);border:1px solid var(--border);
             border-radius:10px;padding:12px 14px;margin-bottom:14px}
   .f13-quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -477,14 +477,14 @@
   .xbtn:hover{background:var(--danger-soft)}
 
   #chartBox,#pieBox,#pnlBox,#benchBox{width:100%;border-radius:11px;overflow:hidden}
-  .chz-wrap{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-sub);white-space:nowrap}
-  .chz-wrap select{padding:4px 7px;font-size:11.5px;border-radius:7px;width:auto;min-width:76px}
-  @media(max-width:760px){ .chz-wrap span{display:none} }
-  /*  ⚠️ 이 차트만 «차트 높이» 손잡이를 안 따릅니다. 옆에 <세로 숫자칸>
-      이 따로 있어서 두 개가 싸웁니다. 두 배로 두면 920px 이 되는데
-      학회장이 «900 이상은 너무 크다» 고 했습니다. 기본 540 입니다.  */
-  #chartBox{height:540px} #pieBox{height:calc(620px * var(--chz,1))}
-  #pnlBox,#benchBox{height:calc(320px * var(--chz,1))}
+  /*  ⚠️ 학회장: «차트 높이 옵션 지우고 내가 말했던 차트 세팅 그대로 가게 해».
+      전체 배율 손잡이(--chz)를 <없앴습니다>. 예전에는 기본이 2배라
+      여기 적어둔 높이가 화면에서는 두 배로 나왔고, 「반으로 줄여줘」
+      같은 주문이 그대로 되돌려졌습니다. 이제 여기 적힌 px 가 곧
+      화면 높이입니다 — 고치려면 이 숫자만 고치면 됩니다.
+      매크로 차트(#chartBox)만 옆 <세로 숫자칸>(hSel)이 따로 정합니다.  */
+  #chartBox{height:360px} #pieBox{height:620px}
+  #pnlBox,#benchBox{height:320px}
   .trade-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:0 20px}
   .trade-foot{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-top:4px}
   .trade-foot .hint{flex:1 1 320px;margin:0}
@@ -1110,18 +1110,6 @@
         </div>
       </div>
       <div class="who">
-        <!--  ⚠️ 차트 높이는 <사람마다> 다릅니다. 큰 모니터에서는 시원한
-              크기가 노트북에서는 화면을 다 잡아먹습니다. 설정 탭은
-              임원진만 보이므로, 학회원도 닿는 머리말에 둡니다.        -->
-        <label class="chz-wrap" title="모든 차트의 높이를 한 번에 바꿉니다 (이 기기에만 저장됩니다)">
-          <span>차트 높이</span>
-          <select id="chZoom" onchange="setChartZoom(this.value)">
-            <option value="1">보통</option>
-            <option value="1.5">크게</option>
-            <option value="2">두 배</option>
-            <option value="2.5">아주 크게</option>
-          </select>
-        </label>
         <div class="who-chip"><span class="badge" id="whoBadge">임원진</span><span class="nm" id="whoName">—</span></div>
         <button class="btn-ghost" onclick="doLogout()">로그아웃</button>
       </div>
@@ -1226,7 +1214,7 @@
             <option value="0">전체</option>
           </select>
         </div>
-        <div id="homeFxBox" style="height:calc(190px * var(--chz,1))"></div>
+        <div id="homeFxBox" style="height:190px"></div>
       </div>
 
       <!-- 팀 성적표 — 모의투자 탭에서 여기로 옮겨왔습니다 -->
@@ -1745,9 +1733,9 @@
                 <button class="btn-sm" onclick="dtJpg('chart')">JPG 저장</button>
                 <span class="st-hint" id="dtStatus"></span>
               </div>
-              <!--  ⚠️ 이 두 차트만 «차트 높이» 손잡이를 안 따릅니다. 항목이 여섯 개면
-      세로가 곧 막대 개수라, 두 배로 늘리면 <빈 칸만 두 배> 가 됩니다.
-      학회장이 원래 크기로 돌려달라고 한 자리입니다.              -->
+              <!--  ⚠️ 이 두 차트는 세로가 곧 <막대 개수> 입니다. 항목이 여섯 개면
+      키를 늘려봐야 빈 칸만 늘어납니다. 아래 dtDraw 가 줄 수에 맞춰
+      직접 높이를 냅니다.                                          -->
               <div id="dtChartBox" style="height:360px;margin-top:6px"></div>
               <div id="dtBarWrap" class="hidden">
                 <div class="dt-sub">
@@ -1802,7 +1790,7 @@
           </div>
           <div id="ycWarn"></div>
         </div>
-        <div id="ycBox" style="height:calc(320px * var(--chz,1))"></div>
+        <div id="ycBox" style="height:320px"></div>
         <div id="ycOut">
           <div class="scroll" style="margin-top:8px"><table id="ycTable"></table></div>
           <p class="st-hint" id="ycNote" style="margin-top:8px"></p>
@@ -2261,7 +2249,7 @@
                 둡니다 — 차트를 보기 전에 눈이 먼저 지나는 자리입니다.  -->
           <div id="mtAvgBar" class="mt-avg hidden"></div>
           <div id="mtTvWarn"></div>
-          <div id="mtSymBox" style="height:calc(270px * var(--chz,1))"></div>
+          <div id="mtSymBox" style="height:270px"></div>
           <div class="st-hint" id="mtChartNote" style="margin-top:6px"></div>
         </div>
 
@@ -2601,7 +2589,7 @@
                   발표 자료를 만들 때 "우리는 DCF 와 EV/EBITDA 만 본다" 를
                   그대로 보여줄 수 있어야 합니다.                          -->
             <div class="row" id="valPick" style="flex-wrap:wrap;gap:10px;margin-bottom:8px"></div>
-            <div id="valBox" style="height:calc(300px * var(--chz,1))"></div>
+            <div id="valBox" style="height:300px"></div>
             <p class="st-hint" id="valPickHint" style="margin:6px 0 0"></p>
           </div>
 
@@ -2857,7 +2845,7 @@
                 <option value="250">최근 1년</option>
               </select>
             </div>
-            <div id="dvCandleBox" style="width:100%;height:calc(200px * var(--chz,1));margin-top:8px"></div>
+            <div id="dvCandleBox" style="width:100%;height:200px;margin-top:8px"></div>
             <div id="dvCandleHint" class="st-hint" style="margin-top:6px"></div>
           </div>
         </div>
@@ -2873,7 +2861,7 @@
                 <button class="btn-sm" onclick="dvJpg(dvTermChart,'기간구조')">JPG</button>
               </span>
             </h2>
-            <div id="dvTermBox" class="grow-chart" style="width:100%;min-height:calc(150px * var(--chz,1))"></div>
+            <div id="dvTermBox" class="grow-chart" style="width:100%;min-height:150px"></div>
             <p class="st-hint" id="dvTermHint">만기가 멀수록 변동성이 높은 것이 보통입니다.
               가까운 만기가 더 높으면(<b>역전</b>) 코앞에 무슨 일을 앞두고 있다는 뜻입니다.</p>
           </div>
@@ -2893,7 +2881,7 @@
               <label style="min-width:auto">행사가</label>
               <select id="dvPayK" onchange="dvDrawPayoff()" class="grow"></select>
             </div>
-            <div id="dvPayBox" class="grow-chart" style="width:100%;min-height:calc(125px * var(--chz,1))"></div>
+            <div id="dvPayBox" class="grow-chart" style="width:100%;min-height:125px"></div>
             <p class="st-hint" id="dvPayHint"></p>
           </div>
         </div>
@@ -2905,7 +2893,7 @@
             <h2>변동성 곡선 (스마일)
               <span class="tools"><button class="btn-sm" onclick="dvJpg(dvIvChart,'IV')">JPG</button></span>
             </h2>
-            <div id="dvIvBox" style="width:100%;height:calc(180px * var(--chz,1))"></div>
+            <div id="dvIvBox" style="width:100%;height:180px"></div>
             <p class="st-hint">행사가별 내재변동성. 아래로 처진 U자면 시장이 <b>양쪽 꼬리</b>를,
               왼쪽만 높으면 <b>하락</b>을 더 걱정한다는 뜻입니다.</p>
           </div>
@@ -2913,7 +2901,7 @@
             <h2>미결제약정 분포
               <span class="tools"><button class="btn-sm" onclick="dvJpg(dvOiChart,'OI')">JPG</button></span>
             </h2>
-            <div id="dvOiBox" style="width:100%;height:calc(180px * var(--chz,1))"></div>
+            <div id="dvOiBox" style="width:100%;height:180px"></div>
             <p class="st-hint">행사가별로 살아 있는 계약 수. 많이 몰린 행사가는
               만기 무렵 <b>가격을 끌어당기는 자리</b>로 자주 언급됩니다.</p>
           </div>
@@ -2933,7 +2921,7 @@
             </select>
             <span id="dvGreekHint" class="st-hint"></span>
           </div>
-          <div id="dvGkBox" style="width:100%;height:calc(160px * var(--chz,1))"></div>
+          <div id="dvGkBox" style="width:100%;height:160px"></div>
         </div>
 
         <!-- 쉽게 읽기 — 체인이 길어서 위로 올려둡니다 -->
@@ -2995,7 +2983,7 @@
               <h2 style="margin:0;flex:1">주별 추이</h2>
               <span class="tools"><button class="btn-sm" onclick="chartJpg(dkChart,'다크풀')">JPG</button></span>
             </div>
-            <div id="dkBox" style="width:100%;height:calc(300px * var(--chz,1))"></div>
+            <div id="dkBox" style="width:100%;height:300px"></div>
             <div class="st-hint" id="dkHint"></div>
 
             <h2 style="margin-top:20px">어느 다크풀이 받았나</h2>
@@ -5320,7 +5308,7 @@ function dtDraw(){
   //  ⚠️ 위 차트와 같은 문제 — 여기도 같이 넉넉하게 잡습니다
   var dtRows = legendRows(dtNames, boxWidth('dtChartBox') - 40, 11, 14);
   var dtTop = 10 + dtRows * 20 + 24;
-  //  ⚠️ 여기는 chz() 를 안 곱합니다 — 위 주석 참고
+  //  ⚠️ 여기는 <줄 수> 가 높이를 정합니다 — 위 주석 참고
   $('dtChartBox').style.height = (300 + dtRows * 20) + 'px';
   dtChart.resize();
   dtChart.setOption({
@@ -10869,56 +10857,21 @@ function fmtDateKo(v){
   return t.getFullYear()+'년 '+(t.getMonth()+1)+'월 '+t.getDate()+'일';
 }
 
-/*  ── 차트 높이 (모든 차트 공통) ────────────────────────────────
+/*  ── 차트 높이 ────────────────────────────────────────────────
 
-    ⚠️ 학회장: «화면이 너무 작아서 잘 안보이고 불편해. 두배는 늘려줘».
-       기본을 두 배로 둡니다.
+    ⚠️ 학회장: «차트 높이 옵션 지우고 내가 말했던 차트 세팅 그대로 가게 해».
 
-    ⚠️ 차트가 열아홉 군데입니다. 상자마다 숫자를 손으로 고치면 <새로
-       만드는 차트에서 또> 빠집니다. CSS 손잡이(--chz) 하나에 전부
-       걸어두고 여기서 그 손잡이만 돌립니다.
+       예전에는 머리말에 <모든 차트 높이 × 배율> 손잡이(--chz)가 있었고
+       기본이 «두 배» 였습니다. 그래서 「파생상품 차트 높이 반으로」
+       「매크로는 360」 처럼 <숫자로 정해준 주문이 화면에서는 두 배로>
+       나왔습니다. 손잡이와 주문이 서로 싸운 셈입니다.
 
-    ⚠️ <이 기기에만> 저장합니다. 학회 공통이 아닙니다 — 큰 모니터에서
-       시원한 크기가 노트북에서는 화면을 다 잡아먹습니다.
+       손잡이를 없앴습니다. 이제 상자에 적힌 px 가 곧 화면 높이입니다.
+       예전에 저장해 둔 배율(safe.chz.v1)이 남아 있어도 --chz 를 아무도
+       안 걸므로 그냥 무시됩니다.
 
-    ⚠️ 파이(비중)도 같이 커집니다. 처음에는 «원만 커진다» 고 보고 1.3배에서
-       멈춰 뒀는데, 종목이 열댓 개면 이름표가 서로 겹쳐서 <높이가 곧
-       읽을 수 있느냐> 가 됩니다. 멈출 이유가 없었습니다.               */
-var CHZ_KEY = 'safe.chz.v1', CHZ_DEF = 2;
-function chz(){
-  var v = Number(document.documentElement.style.getPropertyValue('--chz'));
-  return (isFinite(v) && v > 0) ? v : CHZ_DEF;
-}
-function setChartZoom(v, quiet){
-  v = Number(v); if (!isFinite(v) || v <= 0) v = CHZ_DEF;
-  v = Math.max(0.5, Math.min(3, v));
-  var r = document.documentElement.style;
-  r.setProperty('--chz', String(v));
-  var sel = $('chZoom'); if (sel) sel.value = String(v);
-  if (!quiet){ try { localStorage.setItem(CHZ_KEY, String(v)); } catch(e){} }
-  /*  ⚠️ 상자만 키우면 <그림은 옛 크기 그대로> 남습니다. ECharts 는
-      만들어질 때의 크기를 캔버스에 박아둡니다. 다시 재게 합니다.
-      JS 로 높이를 박아둔 차트(매크로·기업·상세)는 그 숫자도 다시 냅니다. */
-  try { if (typeof resetChartSize === 'function' && $('hSel')) resetChartSize(); } catch(e){}
-  try { if (typeof coView === 'object' && coView) coView.h = Math.round(420 * v); } catch(e){}
-  try { if (typeof dtDraw === 'function' && $('dtChartBox')
-           && $('dtChartBox').offsetHeight > 0) dtDraw(); } catch(e){}
-  try { if (typeof watchChartBoxes === 'function') watchChartBoxes(); } catch(e){}
-  try {
-    if (typeof echarts !== 'undefined')
-      document.querySelectorAll('div').forEach(function(el){
-        var c = echarts.getInstanceByDom(el); if (c) c.resize();
-      });
-  } catch(e){}
-}
-function initChartZoom(){
-  var v = CHZ_DEF;
-  try { var q = Number(localStorage.getItem(CHZ_KEY)); if (isFinite(q) && q > 0) v = q; } catch(e){}
-  setChartZoom(v, true);
-}
-//  ⚠️ 첫 그림이 그려지기 <전에> 걸어야 합니다. 나중에 걸면 캔버스가
-//     옛 크기로 박힌 채 남아 한 박자 늦게 커집니다.
-initChartZoom();
+    ⚠️ 매크로 차트만 예외입니다 — 「차트 크기」 칸(wSel × hSel)이 따로
+       있고, 기본은 880 × 360 입니다(MACRO_W / MACRO_H).               */
 //  ⚠️ 저장해 둔 표시 방식을 화면에 먼저 반영합니다 (첫 그림부터 맞게)
 try { initPieMode(); } catch(e){}
 
@@ -13117,7 +13070,18 @@ function mtTick(){
          · 대회가 끝났을 때 — 끝난 성적을 계속 다시 받을 이유가 없습니다
          · 다른 화면에 있을 때 — 순위표가 안 보이는데 부를 이유가 없습니다
          · 탭이 숨었을 때 — 브라우저 뒤에서 조용히 호출만 쌓입니다      */
-var MT_LEAGUE_MS = 5 * 60 * 1000;
+/*  ⚠️ 학회장: «모의투자 탭 모든 데이터, 주가, 팀별 수익률 다 1분
+       리프레시로. 5분은 너무 긴 듯».
+
+    ⚠️ 화면만 1분으로 당기면 <빨라 보이기만> 합니다. 순위표는 live 시세를
+       안 보고 price_cache 에 저장된 값으로 셉니다. 그 표를 채우는 예약
+       작업이 5분마다 돌면, 1분마다 불러도 같은 숫자를 다섯 번 봅니다.
+       그래서 저장 쪽(safe-mt-reprice)도 1분으로 같이 당겼습니다.
+       둘 중 하나만 바꾸면 소용이 없습니다.
+
+    ⚠️ 이 호출은 Edge 함수가 아니라 DB 함수(league_board)라 호출 한도를
+       안 씁니다. 1분으로 줄여도 비용이 늘지 않습니다.                  */
+var MT_LEAGUE_MS = 60 * 1000;
 var mtLeagueTimer = null;
 
 function mtContestOver(){
@@ -13148,7 +13112,7 @@ function mtLeagueNote(){
     ? '대회가 끝나 순위가 더 바뀌지 않습니다.'
     : '<span class="live-dot"></span>'
       + new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })
-      + ' 기준 <span class="st-hint">· 5분마다 저절로 갱신됩니다</span>';
+      + ' 기준 <span class="st-hint">· 1분마다 저절로 갱신됩니다</span>';
 }
 
 async function mtLoadLeague(){
@@ -13494,11 +13458,19 @@ var mtLiveTimer = null, mtLiveAt = 0, mtLiveFills = null, mtLiveBusy = false;
 
     그래서 <보고 있을 때만 자주> 받습니다.
       · 방금 만진 사람   30초 — 주문하고 결과를 기다리는 중일 테니까
-      · 켜두고 안 만짐   2분  — 켜놓고 딴 일 하는 경우가 대부분입니다
+      · 켜두고 안 만짐   1분  — 켜놓고 딴 일 하는 경우가 대부분입니다
       · 다른 탭·창 최소화 아예 안 받음 (이건 원래도 그랬습니다)
-    이렇게만 해도 월 12만 회 안쪽으로 떨어집니다.                     */
+
+    ⚠️ 학회장: «모의투자 탭 모든 데이터 다 1분». 가만히 있을 때를 2분에서
+       1분으로 당겼습니다 — 이 탭에서 <1분보다 느린 것은 없습니다>.
+       만지고 있을 때의 30초는 그대로 둡니다. 주문하고 체결을 기다리는
+       중인데 1분으로 <늦추면> 그건 부탁하신 것과 반대입니다.
+
+       다시 재 봤습니다. 15명 × 하루 6시간 × 1분 = 월 16만 회,
+       여기에 1분 예약 작업 4.3만 회를 더해 월 21만 회입니다.
+       무료 한도 50만 회의 42% 입니다.                                */
 var MT_LIVE_MS = 30000;          //  방금 만졌을 때
-var MT_IDLE_MS = 120000;         //  켜두고 가만히 있을 때
+var MT_IDLE_MS = 60000;          //  켜두고 가만히 있을 때
 var MT_IDLE_AFTER = 90000;       //  마지막으로 만진 뒤 이만큼 지나면 '가만히'
 var mtTouchAt = Date.now();
 //  누르거나 입력하면 '보고 있다' 고 봅니다
@@ -13539,7 +13511,7 @@ function mtStampAsOf(){
     + '<span class="live-dot"></span>'
     + (sec < 5 ? '방금 갱신' : sec + '초 전')
     + ' <span class="st-hint">· '
-    + (mtLiveEvery() === MT_LIVE_MS ? '30초' : '2분') + '마다 저절로 갱신됩니다'
+    + (mtLiveEvery() === MT_LIVE_MS ? '30초' : '1분') + '마다 저절로 갱신됩니다'
     + (mtLiveEvery() === MT_LIVE_MS ? '' : ' (화면을 만지면 30초로)') + '</span>';
 }
 
@@ -16580,7 +16552,7 @@ function aiChartBox(spec, h){
   var id = 'aiCh' + (aiChartN++);
   aiChartQ.push({ id: id, spec: spec });
   return '<div id="' + id + '" style="height:'
-       + Math.round((h || 300) * (typeof chz === 'function' ? chz() : 1))
+       + Math.round(h || 300)
        + 'px;margin-top:10px"></div>';
 }
 
@@ -17716,7 +17688,7 @@ var co = null, coHits = [], coFin = null, coFinChart = null, coPriceChart = null
 var coSeries = [], coPricePts = [];
 //  눈금선은 기본으로 켭니다 — 값을 눈으로 읽으려면 가로줄이 있는 편이 낫습니다
 var coView = { period:'annual', range:8, grid:true, gridColor:'#c8d0e0', gridAlpha:45,
-               h: Math.round(420 * (typeof chz === 'function' ? chz() : 1)), w:null };
+               h: 420, w:null };
 
 /* 눈금선 — 기본은 켜져 있습니다 */
 function coSplit(){
@@ -23752,7 +23724,7 @@ function renderPreview(st, snaps, seed, m, trades, backDays, cov, tfKey, manual)
       ? quantHTML(m, '<b>지난 ' + (backDays||90) + '일</b>을 그대로 재생한 결과입니다.')
         + attributionHTML(attribution(trades || [], []))
         + '<div class="q-group" style="margin-bottom:0"><div class="q-title">일간 수익률 분포</div>'
-        + '<div id="prevDistBox" style="width:100%;height:calc(230px * var(--chz,1))"></div></div>'
+        + '<div id="prevDistBox" style="width:100%;height:230px"></div></div>'
       : '';
     if (m) setTimeout(function(){ drawDist('prevDistBox', m.rets); }, 30);
   }
