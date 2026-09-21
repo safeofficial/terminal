@@ -2161,8 +2161,18 @@
               <select id="tSide" onchange="mtSideChanged()">
                 <option value="buy">매수</option><option value="sell">매도</option>
               </select>
-              <input type="number" id="tQty" class="grow" placeholder="수량" min="1" step="1"
+              <!--  ⚠️ 학회장: «수량 말고 금액으로도 직접매매 가능하게».
+                    금액을 고르면 <서버가> 체결가로 수량을 계산합니다 —
+                    화면에서 나누면 화면 시세와 체결 시세가 달라서
+                    «100만원어치» 가 97만원이 됩니다.                  -->
+              <select id="tMode" onchange="mtModeChanged()" style="width:96px">
+                <option value="qty">수량</option>
+                <option value="amt">금액</option>
+              </select>
+              <input type="number" id="tQty" class="grow" placeholder="수량" min="0" step="0.01"
                      oninput="mtCalc()">
+              <input type="number" id="tAmt" class="grow hidden" placeholder="금액 (원)"
+                     min="0" step="10000" oninput="mtCalc()">
               <button class="btn-sm" onclick="mtAllIn()">가능한 최대</button>
             </div>
           </div>
@@ -2175,6 +2185,9 @@
           <div class="trade-foot">
             <button class="btn-sm btn-solid" id="tradeBtn" onclick="submitTrade()" disabled>주문</button>
             <div class="hint" style="font-size:11.5px;color:var(--text-sub);line-height:1.7">
+              <b>수량</b> 대신 <b>금액</b>으로도 주문할 수 있습니다 — 금액을 고르면
+              «100만원어치» 처럼 적으면 됩니다. 수량은 <b>서버가 체결가로</b> 계산하고,
+              최소 단위(주식 0.01주 · 코인 0.0001개)로 끊고 남는 금액은 안 씁니다.<br>
               <b>미국·코인</b>은 누르는 순간의 시세로 체결됩니다.
               <b>국내</b>는 <b>언제든 주문할 수 있고</b>, 체결가 옆에 그 값이
               <b>실시간</b>인지 <b>며칠자 종가</b>인지 적힙니다 — 그대로 체결됩니다.
@@ -14101,7 +14114,6 @@ function mtRenderPositions(){
           원래 통화 금액은 아래에 작게 같이 답니다.                     */
       var pnlKrw = p.pnl == null ? null : p.pnl * rate;
       var wt = (total > 0 && p.value_krw != null) ? (p.value_krw / total * 100) : null;
-      var d  = p.market === 'CRYPTO' ? 4 : 0;
       var sym = esc(p.market) + '|' + esc(p.symbol);
       /*  종목 이름을 누르면 아래에 주가 추이가 펼쳐집니다.
           (팔기 칸은 눌러도 차트가 안 열리게 따로 막습니다)              */
@@ -14111,7 +14123,7 @@ function mtRenderPositions(){
            + '<div class="st-hint">' + esc(p.symbol) + '</div></td>'
            + '<td>' + mtByBadge(p) + '</td>'
            + '<td>' + esc(p.market) + '</td>'
-           + '<td class="num">' + num(p.qty, d) + '</td>'
+           + '<td class="num">' + mtQtyText(p.qty, p.market) + '</td>'
            + '<td class="num">' + mtCur(p.avg, p.market, dp) + '</td>'
            + '<td class="num">' + mtCur(p.last, p.market, dp) + '</td>'
            + '<td class="num">' + (p.value_krw == null ? '—' : mtMoney(p.value_krw) + '원') + '</td>'
@@ -14126,8 +14138,8 @@ function mtRenderPositions(){
               ? '<td class="num" onclick="event.stopPropagation()">'
                 + '<div class="sell-cell">'
                 + '<input type="number" class="sell-q" id="sq_' + esc(p.market) + '_' + esc(p.symbol)
-                +   '" min="0" step="' + (d ? '0.0001' : '1')
-                +   '" placeholder="' + num(p.qty, d) + '">'
+                +   '" min="0" step="' + (1 / mtStepQty(p.market))
+                +   '" placeholder="' + mtQtyText(p.qty, p.market) + '">'
                 + '<button class="btn-sm" onclick="mtQuickAll(\'' + esc(p.market) + '\',\''
                 +   esc(p.symbol) + '\',' + p.qty + ')">전량</button>'
                 + '<button class="btn-sm btn-solid" onclick="mtQuickSell(\'' + esc(p.market)
@@ -14515,7 +14527,8 @@ function mtAvgBar(p, mk){
     H += '<span class="sep">·</span><span class="pct '
        + (pct >= 0 ? 'up' : 'dn') + '">'
        + esc((pct >= 0 ? '+' : '') + num(pct, 2)) + '%</span>';
-  if (qty > 0) H += '<span class="sep">·</span>' + esc(num(qty, 0)) + '주 보유';
+  if (qty > 0) H += '<span class="sep">·</span>' + esc(mtQtyText(qty, mk))
+    + (mk === 'CRYPTO' ? '개' : '주') + ' 보유';
   bar.innerHTML = H;
   bar.classList.remove('hidden');
 }
@@ -14768,21 +14781,25 @@ function mtSetChartKind(k){
     예전에는 팔려면 직접매매로 가서 티커를 다시 치고 수량을 넣어야
     했습니다. 들고 있는 걸 파는 데 종목을 다시 찾는 건 이상합니다.   */
 function mtQuickAll(mk, sym, qty){
+  //  ⚠️ 보유 수량을 그대로 넣으면 최소 단위보다 잔 자릿수가 남습니다
+  //     (0.123456789 주). 서버가 끊어내므로 <조금 남는 채로> 팔립니다.
   var el = $('sq_' + mk + '_' + sym);
-  if (el) el.value = qty;
+  if (el) el.value = mtFloorQty(qty, mk);
 }
 async function mtQuickSell(mk, sym, name){
   var el = $('sq_' + mk + '_' + sym);
   var q = Number(el && el.value);
   if (!(q > 0)){ warn('mtLiveNoteMsg', ''); alert('팔 수량을 넣어주세요.'); return; }
-  if (!confirm(name + ' ' + num(q, mk === 'CRYPTO' ? 4 : 0) + '주를 팝니다. 진행할까요?')) return;
+  if (!confirm(name + ' ' + mtQtyText(q, mk) + (mk === 'CRYPTO' ? '개' : '주')
+      + '를 팝니다. 진행할까요?')) return;
   var btn = event && event.target; if (btn) btn.disabled = true;
   try {
     var d = await edge({ source:'mt_order', team_id: team, market: mk, symbol: sym,
                          name: name, side:'sell', qty: q });
     var box = $('mtLiveNote');
     if (box){
-      box.innerHTML = '<b>' + esc(name) + ' ' + num(d.qty, mk==='CRYPTO'?4:0) + '주</b>를 '
+      box.innerHTML = '<b>' + esc(name) + ' ' + mtQtyText(d.qty, mk)
+        + (mk === 'CRYPTO' ? '개' : '주') + '</b>를 '
         + mtCur(d.price, mk, mk === 'KR' ? 0 : 2) + '에 팔았습니다. ('
         + esc(d.fill_basis || '') + ')';
       box.classList.remove('hidden');
@@ -14812,7 +14829,6 @@ function mtRenderClosed(){
   + '<th class="num">실현손익</th></tr></thead><tbody>'
   + rows.map(function(p){
       var up = (p.realized_krw || 0) >= 0;
-      var d = p.market === 'CRYPTO' ? 4 : 0;
       var qty = (p.bought_manual || 0) + (p.bought_auto || 0);
       var left = Number(p.qty_left || 0);
       return '<tr><td><b>' + esc(p.name || p.symbol) + '</b>'
@@ -14820,11 +14836,11 @@ function mtRenderClosed(){
            + '<td>' + mtByBadge({ by: p.by, q_manual: p.bought_manual,
                                   q_auto: p.bought_auto, market: p.market }) + '</td>'
            + '<td>' + esc(p.market) + '</td>'
-           + '<td class="num">' + num(qty, d) + '</td>'
-           + '<td class="num">' + num(p.sold, d) + '</td>'
+           + '<td class="num">' + mtQtyText(qty, p.market) + '</td>'
+           + '<td class="num">' + mtQtyText(p.sold, p.market) + '</td>'
            //  반만 판 종목은 아직 들고 있습니다 — 그 사실을 같이 보여줍니다
            + '<td class="num">' + (left > 1e-9
-               ? num(left, d) + '<div class="st-hint">아직 보유</div>'
+               ? mtQtyText(left, p.market) + '<div class="st-hint">아직 보유</div>'
                : '<span class="st-hint">없음</span>') + '</td>'
            + '<td class="num ' + (up ? 'up' : 'dn') + '">'
            + (up ? '+' : '') + mtMoney(p.realized_krw) + '원'
@@ -14840,10 +14856,11 @@ function mtRenderClosed(){
 /*  '산 방법' 딱지. 한 종목을 직접도 사고 자동도 샀으면 둘 다 보여주고
     수량까지 적어줍니다 — 자동매매가 뭘 건드렸는지 한눈에 보이라고.  */
 function mtByBadge(p){
-  var d = p.market === 'CRYPTO' ? 4 : 0;
   if (p.by === 'auto')   return '<span class="by-tag auto">자동</span>';
-  if (p.by === 'both')   return '<span class="by-tag manual">직접 ' + num(p.q_manual, d) + '</span>'
-                              + '<span class="by-tag auto">자동 ' + num(p.q_auto, d) + '</span>';
+  if (p.by === 'both')   return '<span class="by-tag manual">직접 '
+                              + mtQtyText(p.q_manual, p.market) + '</span>'
+                              + '<span class="by-tag auto">자동 '
+                              + mtQtyText(p.q_auto, p.market) + '</span>';
   return '<span class="by-tag manual">직접</span>';
 }
 
@@ -14856,6 +14873,10 @@ function mtFindSym(){
 /*  매수 ↔ 매도를 바꾸면 종목 목록도 그에 맞게 바뀝니다.  */
 function mtSideChanged(){
   var sell = $('tSide') && $('tSide').value === 'sell';
+  //  ⚠️ 매수↔매도를 바꾸면 적어둔 수량·금액을 비웁니다. «10주 매수» 를
+  //     적어두고 매도로 바꾸면 <가진 적도 없는 10주> 를 팔게 됩니다.
+  if ($('tQty')) $('tQty').value = '';
+  if ($('tAmt')) $('tAmt').value = '';
   var el = $('tSymbol');
   if (el) el.placeholder = sell
     ? '팔 종목 — 칸을 누르면 보유 종목이 나옵니다'
@@ -14884,8 +14905,8 @@ function mtHoldList(){
         return '<div data-i="' + i + '" onclick="mtPickSym(' + i + ')">'
              + '<span class="c">' + esc(x.symbol) + '</span>'
              + '<span>' + esc(x.name)
-             + '<span class="sym-tag etf">' + num(x.qty, x.market === 'CRYPTO' ? 4 : 0)
-             + '주 보유</span></span>'
+             + '<span class="sym-tag etf">' + mtQtyText(x.qty, x.market)
+             + (x.market === 'CRYPTO' ? '개' : '주') + ' 보유</span></span>'
              + '<span class="m">' + esc(x.market) + '</span></div>';
       }).join('');
   box._rows = rows;
@@ -15066,6 +15087,10 @@ function mtClearPick(){
   warn('tradeMsg', '');
   $('mtPicked').style.display = 'none';
   $('mtQuoteBox').classList.add('hidden');
+  //  ⚠️ 종목을 바꾸면 적어둔 수량·금액도 비웁니다 — 삼성전자에 적은
+  //     「10주」가 엔비디아로 옮겨 붙으면 안 됩니다
+  if ($('tQty')) $('tQty').value = '';
+  if ($('tAmt')) $('tAmt').value = '';
   $('tradeBtn').disabled = true;
   $('tSymbol').focus();
 }
@@ -15089,14 +15114,74 @@ async function mtQuoteRefresh(){
   mtCalc();
 }
 
+/*  ⚠️ 수수료율은 서버(MT_FEE)와 <같은 값> 이어야 합니다. 화면이 낮게
+    잡으면 «가능한 최대» 가 늘 거절당하고, 높게 잡으면 금액을 덜 씁니다.
+    숫자를 옮겨 적는 것이라 어긋나기 쉬운 자리입니다 — 바뀌면 여기도
+    같이 고쳐야 합니다 (mt229.py 가 두 값을 맞춰 봅니다).            */
+var MT_FEE_UI = {
+  KR:     { buy: 0.00015, sell: 0.00015 + 0.0018 },
+  US:     { buy: 0.0025,  sell: 0.0025 },
+  CRYPTO: { buy: 0.0005,  sell: 0.0005 }
+};
+function mtFeeRate(market, side){
+  var f = MT_FEE_UI[market] || MT_FEE_UI.US;
+  return side === 'buy' ? f.buy : f.sell;
+}
+
+/*  ── 금액 → 어림 수량 ────────────────────────────────────────
+
+    ⚠️ 서버(mtOrder)와 <같은 방식> 이어야 합니다. 화면이 다르게 세면
+       «약 9.97주» 라고 보여주고 9.98주가 체결됩니다 — 작아 보여도
+       학회원은 «화면이 틀렸다» 고 받아들입니다.
+
+    ⚠️ 수량이 늘면 비용도 늘기만 하므로 최소 단위 칸 위에서 이분 탐색.
+       비율로 어림하면 수수료 반올림 때문에 한 칸씩 덜 나옵니다.      */
+function mtQtyForAmt(amount, price, market, side, rate){
+  if (!(amount > 0) || !(price > 0)) return 0;
+  var native = amount / rate, st = mtStepQty(market);
+  var feeR = mtFeeRate(market, side);
+  function cost(u){
+    var g = (u / st) * price;
+    return g + Math.round(g * feeR);
+  }
+  if (side !== 'buy') return mtFloorQty(native / price, market);
+  var lo = 0, hi = Math.floor((native / price) * st) + 1;
+  if (cost(hi) <= native) lo = hi;
+  else {
+    while (lo + 1 < hi){
+      var mid = Math.floor((lo + hi) / 2);
+      if (cost(mid) <= native) lo = mid; else hi = mid;
+    }
+  }
+  return lo / st;
+}
+
+//  지금 «금액» 으로 주문하는 중인가
+function mtByAmt(){ return ($('tMode') || {}).value === 'amt'; }
+function mtModeChanged(){
+  var amt = mtByAmt();
+  $('tQty').classList.toggle('hidden', amt);
+  $('tAmt').classList.toggle('hidden', !amt);
+  //  ⚠️ 모드를 바꾸면 <반대쪽 칸을 비웁니다>. 안 비우면 «수량 10» 이
+  //     남아 있는 채로 금액을 넣게 되어, 어느 쪽으로 나갈지 헷갈립니다.
+  if (amt) $('tQty').value = ''; else $('tAmt').value = '';
+  mtCalc();
+}
+
 function mtCalc(){
   var box = $('mtQuoteBox');
   if (!mtQuote || !mtPick) return;
   var dp = mtQuote.currency === 'KRW' ? 0 : 2;
-  var qty = Number($('tQty').value) || 0;
   var side = $('tSide').value;
   var fx = mtQuote.fx || 1400;
   var rate = mtPick.market === 'KR' ? 1 : fx;
+  var byAmt = mtByAmt();
+  var amt = Number($('tAmt').value) || 0;
+  /*  ⚠️ 금액 모드에서 화면이 보여주는 수량은 <어림값> 입니다. 실제
+      수량은 서버가 체결가로 다시 셉니다. 그래서 «약» 을 붙입니다 —
+      화면 숫자를 그대로 믿고 주문한 뒤 다르면 그게 더 나쁩니다.     */
+  var qty = byAmt ? mtQtyForAmt(amt, mtQuote.price, mtPick.market, side, rate)
+                  : (Number($('tQty').value) || 0);
   var gross = qty * mtQuote.price;
   var blocked = mtQuote.window && mtQuote.window.ok === false;
 
@@ -15107,13 +15192,26 @@ function mtCalc(){
         «0주 × $109,000 = 7,630,000원» 이라고 보여주고 있었습니다.
         금액은 맞는데 수량이 0 이라, 주문을 넣어도 되는지 알 수 없습니다.
         보유 목록·빠른 매도는 이미 코인을 4자리로 찍고 있었습니다.      */
-    H += '<div>' + num(qty, mtQty(mtPick.market)) + '주 × ' + mtCur(mtQuote.price, mtPick.market, dp)
+    var feeEst = Math.round(gross * mtFeeRate(mtPick.market, side));
+    H += '<div>' + (byAmt ? '약 ' : '') + mtQtyText(qty, mtPick.market)
+       + (mtPick.market === 'CRYPTO' ? '개' : '주')
+       + ' × ' + mtCur(mtQuote.price, mtPick.market, dp)
        + ' = <b>' + mtMoney(gross * rate) + '원</b>'
        + (mtPick.market !== 'KR' ? ' <span class="st-hint">(환율 ' + num(fx,0) + '원 고정)</span>' : '')
        + '</div>';
+    /*  ⚠️ 금액 모드에서는 «내가 적은 금액» 과 «실제로 나갈 돈» 이 다를 수
+        있습니다 — 최소 단위로 끊기고 수수료가 붙어서요. 그 둘을 나란히
+        보여줍니다. 안 보여주면 «100만원 적었는데 왜 98만원?» 이 됩니다. */
+    if (byAmt && amt > 0)
+      H += '<div class="st-hint">적은 금액 ' + mtMoney(amt) + '원 · '
+         + '실제 ' + (side === 'buy' ? '나갈' : '들어올') + ' 돈 약 '
+         + mtMoney((gross + (side === 'buy' ? feeEst : -feeEst)) * rate) + '원'
+         + ' <span class="st-hint">(수수료 ' + mtMoney(feeEst * rate) + '원 포함)</span>'
+         + '<br>최소 단위 ' + (mtPick.market === 'CRYPTO' ? '0.0001개' : '0.01주')
+         + ' 로 끊어서 남는 금액은 안 씁니다. 수량은 <b>서버가 체결가로 다시</b> 셉니다.</div>';
     if (mtAcc && side === 'buy')
       H += '<div class="st-hint">주문 뒤 남는 현금 약 '
-         + mtMoney(mtAcc.cash - gross * rate) + '원</div>';
+         + mtMoney(mtAcc.cash - (gross + feeEst) * rate) + '원</div>';
   }
   /*  ⚠️ AI 검색으로 받아온 참고가면 <눈에 띄게> 알려야 합니다.
       학회원이 "거래소 시세인 줄 알았다" 고 나중에 말하면 안 됩니다.
@@ -15142,12 +15240,16 @@ function mtCalc(){
   /*  주문을 누를 수 있는 조건을 <한 군데> 에서 다 봅니다.
       종목·시세가 없으면 눌러도 어차피 거절이라 아예 못 누르게 합니다.  */
   var btn = $('tradeBtn');
-  btn.disabled = !mtCanTrade || !mtPick || !mtQuote || !(qty > 0) || blocked;
+  var filled = byAmt ? (amt > 0) : (qty > 0);
+  //  ⚠️ 금액을 적었는데 최소 단위에 못 미치면, 버튼을 살려두고 서버가
+  //     «얼마가 더 필요한지» 숫자로 알려주게 합니다. 여기서 꺼버리면
+  //     사용자는 왜 안 되는지 모릅니다.
+  btn.disabled = !mtCanTrade || !mtPick || !mtQuote || !filled || blocked;
   //  왜 못 누르는지 버튼 위에 올리면 보이게 합니다
   btn.title = !mtCanTrade ? '자기 팀에서만 매매할 수 있습니다'
             : !mtPick    ? '종목을 먼저 골라주세요'
             : !mtQuote   ? '시세를 받는 중입니다'
-            : !(qty > 0) ? '수량을 넣어주세요'
+            : !filled    ? (byAmt ? '금액을 넣어주세요' : '수량을 넣어주세요')
             : blocked    ? ((mtQuote.window && mtQuote.window.why) || '지금은 주문할 수 없습니다')
             : '';
 }
@@ -15155,6 +15257,19 @@ function mtCalc(){
 function mtAllIn(){
   if (!mtQuote || !mtPick || !mtAcc) return;
   var rate = mtPick.market === 'KR' ? 1 : (mtQuote.fx || 1400);
+  /*  ⚠️ 금액 모드면 <금액 칸> 을 채웁니다. 수량 칸을 채우면 모드가
+      금액인데 값은 수량에 들어가 있어서 주문이 안 나갑니다.        */
+  if (mtByAmt()){
+    if ($('tSide').value === 'sell'){
+      var h0 = (mtAcc.positions || []).filter(function(p){
+        return p.market === mtPick.market && p.symbol === mtPick.symbol; })[0];
+      $('tAmt').value = h0 ? Math.floor(h0.qty * mtQuote.price * rate) : 0;
+    } else {
+      //  ⚠️ 수수료는 서버가 금액 안에서 빼므로 현금 전부를 적어도 됩니다
+      $('tAmt').value = Math.floor(mtAcc.cash);
+    }
+    mtCalc(); return;
+  }
   if ($('tSide').value === 'sell'){
     var held = (mtAcc.positions || []).filter(function(p){
       return p.market === mtPick.market && p.symbol === mtPick.symbol; })[0];
@@ -15172,21 +15287,36 @@ function mtAllIn(){
 
 async function submitTrade(){
   if (!mtPick){ warn('tradeMsg','종목을 먼저 골라주세요.'); return; }
+  var byAmt = mtByAmt();
   var qty = Number($('tQty').value) || 0;
-  if (!(qty > 0)){ warn('tradeMsg','수량을 넣어주세요.'); return; }
+  var amt = Number($('tAmt').value) || 0;
+  if (byAmt){
+    if (!(amt > 0)){ warn('tradeMsg','금액을 넣어주세요.'); return; }
+  } else if (!(qty > 0)){ warn('tradeMsg','수량을 넣어주세요.'); return; }
   var btn = $('tradeBtn'); btn.disabled = true; btn.textContent = '주문 중…';
   warn('tradeMsg','');
   try {
-    var d = await edge({ source:'mt_order', team_id: team,
-                         market: mtPick.market, symbol: mtPick.symbol,
-                         name: mtPick.name, side: $('tSide').value, qty: qty });
+    /*  ⚠️ 금액 모드는 <금액만> 보냅니다. 수량을 같이 보내면 서버가
+        수량을 우선해서, 화면이 어림으로 낸 수량으로 체결됩니다 —
+        금액으로 사는 뜻이 없어집니다.                              */
+    var req = { source:'mt_order', team_id: team,
+                market: mtPick.market, symbol: mtPick.symbol,
+                name: mtPick.name, side: $('tSide').value };
+    if (byAmt) req.amount = amt; else req.qty = qty;
+    var d = await edge(req);
     var dp = d.currency === 'KRW' ? 0 : 2;
+    var unit = (mtPick && mtPick.market === 'CRYPTO') ? '개' : '주';
     warn('tradeMsg',
-      '<b>' + esc(d.name) + '</b> ' + num(d.qty, mtQty(mtPick && mtPick.market)) + '주를 '
+      '<b>' + esc(d.name) + '</b> ' + mtQtyText(d.qty, mtPick && mtPick.market) + unit + '를 '
       + mtCur(d.price, d.market, dp) + ' 에 ' + (d.side === 'buy' ? '샀습니다' : '팔았습니다')
       + ' <span class="st-hint">(' + esc(d.fill_basis) + ' · 수수료 '
-      + mtMoney(d.fee) + ')</span>', 'ok');
-    $('tQty').value = '';
+      + mtMoney(d.fee) + ')</span>'
+      //  ⚠️ 금액으로 주문했으면 «실제로 얼마 나갔는지» 를 같이 적습니다
+      + (byAmt && d.total != null
+          ? '<div class="st-hint">적은 금액 ' + mtMoney(amt) + '원 → 실제 '
+            + (d.side === 'buy' ? '나간' : '들어온') + ' 돈 '
+            + mtMoney(Math.abs(d.total)) + '원 (수수료 포함)</div>' : ''), 'ok');
+    $('tQty').value = ''; $('tAmt').value = '';
     await mtRefresh();
   } catch(e){
     warn('tradeMsg', esc(e.message));
@@ -18469,15 +18599,36 @@ function refillCoFinSeries(){
 /* 화면에 그릴 구간만 잘라냅니다 */
 /*  ── 수량의 소수점 ──────────────────────────────────────────
 
-    ⚠️ 주식은 1주 단위, 코인은 0.0001 단위입니다. 한 자리로 뭉뚱그리면
-       코인 수량이 «0주» 로 찍히거나 «가능한 최대» 가 0 이 됩니다.      */
-function mtQty(market){ return market === 'CRYPTO' ? 4 : 0; }
+    ⚠️ 학회장: «금액으로도 직접매매 가능하게 / 주식 소수점은 2자릿수만».
+
+       금액으로 사면 «100만원어치» 가 정수 주수로 안 떨어집니다.
+       그래서 주식도 소수 수량을 허용하되 <둘째 자리까지> 로 끊습니다.
+       코인은 원래대로 넷째 자리입니다 (0.0001 BTC 정도가 최소 단위).
+
+    ⚠️ 서버도 <같은 단위> 로 끊습니다(mtFloorQty in edge-market-data).
+       화면만 고치면 0.123456789 주 주문이 그대로 들어가서, 보유
+       목록에 <화면에 안 보이는 자릿수> 가 쌓입니다.                   */
+function mtQty(market){ return market === 'CRYPTO' ? 4 : 2; }
+function mtStepQty(market){ return market === 'CRYPTO' ? 1e4 : 100; }
 function mtFloorQty(v, market){
   var n = Number(v);
   if (!isFinite(n) || n <= 0) return 0;
-  if (market !== 'CRYPTO') return Math.floor(n);
-  //  0.0001 단위로 내림 (부동소수점 오차로 한 칸 넘치지 않게 반올림 먼저)
-  return Math.floor(Number(n.toFixed(8)) * 1e4) / 1e4;
+  var st = mtStepQty(market);
+  //  부동소수점 오차로 한 칸 넘치지 않게 먼저 다듬습니다
+  return Math.floor(Number(n.toFixed(10)) * st) / st;
+}
+/*  ⚠️ «10.00주» 는 «10주» 보다 읽기 나쁩니다. 최대 자릿수는 지키되
+    뒤에 붙는 0 은 떼고 찍습니다 — 10주 · 10.5주 · 0.65주 · 0.0065개.  */
+function mtQtyText(v, market){
+  var n = Number(v);
+  if (!isFinite(n)) return '—';
+  var dp = mtQty(market);
+  var t = n.toFixed(dp);
+  if (t.indexOf('.') >= 0) t = t.replace(/0+$/, '').replace(/\.$/, '');
+  //  천 단위 쉼표는 정수 쪽에만
+  var pp = t.split('.');
+  pp[0] = Number(pp[0]).toLocaleString('ko-KR');
+  return pp.join('.');
 }
 
 function coRows(){
@@ -21434,7 +21585,7 @@ async function loadTrades(){
                     ? '<span class="by-tag auto">자동</span>'
                     : '<span class="by-tag manual">직접</span>')+'</td>'
           + '<td class="'+(isBuy?'pos':'neg')+'">'+(isBuy?'매수':'매도')+'</td>'
-          + '<td class="num">'+num(x.qty, mk === 'CRYPTO' ? 4 : 0)+'</td>'
+          + '<td class="num">'+mtQtyText(x.qty, mk)+'</td>'
           + '<td class="num">'+mtCur(x.price, mk, dp)+'</td>'
           + '<td class="num">'+mtMoney(gross * rate)+'원</td>'
           + '<td class="num '+(g == null ? '' : (up ? 'up' : 'dn'))+'">'
