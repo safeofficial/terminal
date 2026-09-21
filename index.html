@@ -2552,13 +2552,41 @@
                   <label style="min-width:auto">목표 EV/매출</label>
                   <input type="number" id="vEvRev" step="0.1" oninput="valDraw()" style="width:90px">
                 </div>
+                <!--  ⚠️ 감가상각·설비투자는 여태 <가장 최근 한 해> 비율을
+                      영원히 밀고 있었습니다. 설비투자 사이클 한복판인 회사는
+                      그 해 25% 를 영구히 쓰게 되어 잔여가치까지 눌립니다.
+                      기본은 여러 해 중앙값으로 바꾸고, 직접 넣을 수도 있게
+                      칸을 둡니다 (비우면 중앙값).                        -->
+                <div class="row">
+                  <label>감가상각률</label>
+                  <input type="number" id="vDep" step="0.5" min="0" max="40"
+                         oninput="valDraw()" style="width:90px" placeholder="자동">
+                  <span style="color:var(--text-sub);font-size:12px">%</span>
+                  <label style="min-width:auto">설비투자율</label>
+                  <input type="number" id="vCapex" step="0.5" min="0" max="50"
+                         oninput="valDraw()" style="width:90px" placeholder="자동">
+                  <span style="color:var(--text-sub);font-size:12px">%</span>
+                </div>
+                <div class="row">
+                  <!--  ⚠️ 현금은 한 해 내내 들어옵니다. 기말에 한 번에
+                        들어온다고 보면 <너무 많이> 할인합니다 (9% 에서 4.4%).
+                        다만 위 «결산이 오래됨» 보정과 같은 방향이라, 켜고
+                        끌 수 있게 두고 무엇을 썼는지 화면에 적습니다.   -->
+                  <label style="min-width:auto">
+                    <input type="checkbox" id="vMid" checked onchange="valDraw()"
+                           style="width:auto;vertical-align:-2px">
+                    중간연도 할인
+                  </label>
+                  <span class="st-hint" style="font-size:11px">현금이 연중에 들어온다고 봅니다</span>
+                </div>
                 <div class="row">
                   <button class="btn-sm" onclick="valReset()">회사 자기 값으로</button>
                   <button class="btn-sm" onclick="valWaccApply()">WACC 다시 계산</button>
                 </div>
                 <p class="st-hint" style="margin:4px 0 0">
                   목표 배수를 비우면 <b>이 회사의 최근 평균</b>을 씁니다.
-                  동종업계 배수를 넣으면 상대가치가 됩니다.</p>
+                  동종업계 배수를 넣으면 상대가치가 됩니다.
+                  감가상각·설비투자를 비우면 <b>여러 해 중앙값</b>을 씁니다.</p>
               </div>
             </div>
             <div class="st-hint" id="valSrc"
@@ -6517,6 +6545,9 @@ function valPull(d){
     return null;
   }
   var per = (d.periods || []).map(function(p){ return p.key; });
+  //  ⚠️ 기간 종료일 — CAGR 을 «몇 해 떨어져 있나» 로 재는 데 씁니다.
+  //     미국 대형주는 12월 결산이 아닌 곳이 많아 자리 개수로 세면 틀립니다.
+  var ends0 = (d.periods || []).map(function(p){ return p.end; });
   function series(r){
     if (!r) return [];
     return per.map(function(k){ return r.values[k] == null ? null : Number(r.values[k]); });
@@ -6528,6 +6559,19 @@ function valPull(d){
   //  부호는 자료마다 제각각입니다 (감가상각비를 −로 싣는 곳, +로 싣는 곳).
   //  '얼마인가' 만 쓰는 항목은 크기만 가져옵니다.
   function mag(v){ return v == null ? null : Math.abs(v); }
+  /*  두 줄을 해마다 나눠 <비율의 중앙값> 을 냅니다 (%).
+      한 해만 보면 그 해의 일회성 투자가 그대로 영구 가정이 됩니다.    */
+  function ratioMed(num0, den0){
+    var a = [];
+    for (var i = 0; i < den0.length; i++){
+      if (den0[i] == null || !(den0[i] > 0) || num0[i] == null) continue;
+      a.push(Math.abs(num0[i]) / den0[i] * 100);
+    }
+    if (!a.length) return null;
+    a.sort(function(x, y){ return x - y; });
+    return a.length % 2 ? a[(a.length-1)/2]
+                        : (a[a.length/2 - 1] + a[a.length/2]) / 2;
+  }
   var rev = series(row('손익계산서', ['매출액']));
   var op  = series(row('손익계산서', ['영업이익']));
   var net = series(row('손익계산서', ['당기순이익']));
@@ -6538,17 +6582,73 @@ function valPull(d){
   var dep = series(row('현금흐름표', ['감가상각비']));
   var cfo = series(row('현금흐름표', ['영업활동 현금흐름', '영업활동현금흐름']));
   var cpx = series(row('현금흐름표', ['설비투자 (CAPEX)', '유형자산 취득']));
-  var dbt = series(row('재무상태표', ['장기차입금']));
+  /*  ⚠️ 여기가 <장기차입금만> 이었습니다. 표에는 단기차입금 줄도 이미
+      들어와 있는데(서버가 ifrs-full_ShorttermBorrowings · ShortTermBorrowings ·
+      LongTermDebtCurrent 를 그 줄로 넣어줍니다) 읽지를 않았습니다.
+
+      그래서 순차입금 = 장기차입금 − 현금 이 되어, 단기차입·유동성장기부채가
+      큰 회사(항공·유통·건설)가 <실질 무차입> 으로 보였습니다. 이 한 줄이
+      EV · EV/EBITDA · EV/매출 · DCF 주주가치 · WACC 의 부채비중 ·
+      타인자본비용(이자비용÷차입금) 을 전부 같은 방향으로 틀리게 합니다.
+
+      ⚠️ 이자비용은 <모든 차입금> 에 붙습니다. 분모만 장기로 두면 kd 가
+         부풀어 WACC 가 같이 올라갑니다 — 그쪽도 이 수정으로 맞습니다.   */
+  var dbtL = series(row('재무상태표', ['장기차입금']));
+  var dbtS = series(row('재무상태표', ['단기차입금']));
+  var dbt  = dbtL.map(function(v, i){
+    var a = dbtL[i], b = dbtS[i];
+    if (a == null && b == null) return null;
+    return Math.abs(a || 0) + Math.abs(b || 0);
+  });
   //  WACC 의 타인자본비용을 내려면 이자비용이 필요합니다
   var itr = series(row('손익계산서', ['이자비용', '금융비용']));
+  /*  ⚠️ 운전자본 — DCF 에서 빠져 있던 항목입니다.
+      매출채권 + 재고자산 − 매입채무. 매출이 매년 g% 씩 자라는 모형이라
+      이 셋도 같이 자랍니다. 그만큼은 <현금으로 안 남고 묶입니다>.     */
+  var arc = series(row('재무상태표', ['매출채권']));
+  var inv = series(row('재무상태표', ['재고자산']));
+  var apy = series(row('재무상태표', ['매입채무']));
+  /*  ⚠️ 지분가치 다리 — EV 에서 순차입금만 빼고 있었습니다.
+      비지배지분(소수주주)과 우선주는 <보통주 주주 몫이 아닙니다>.
+      지주회사처럼 비지배지분이 큰 회사는 그만큼 과대평가됐습니다.    */
+  /*  ⚠️ 이름을 mi 로 뒀다가 아래 영업이익률 중앙값 반복문의
+      «for (var mi = 0; …)» 와 <같은 함수 스코프에서 부딪혔습니다>.
+      var 는 블록이 아니라 함수 단위라, 나중에 도는 for 문이 이 배열을
+      숫자로 덮어써서 비지배지분이 <늘 null> 이 됐습니다. 오류도 안
+      나고 그냥 «비지배지분 없는 회사» 가 됩니다. 이름을 떼어 둡니다.  */
+  var mnri = series(row('재무상태표', ['비지배지분']));
+  var pfd = series(row('재무상태표', ['우선주']));
   //  실효세율을 내려면 법인세비용이 필요합니다 (가정을 회사 실적에 맞추려고)
   var txp = series(row('손익계산서', ['법인세비용', '법인세']));
   var pbt = series(row('손익계산서', ['법인세차감전이익', '법인세비용차감전순이익']));
 
-  //  매출 성장률 — 있는 값들로만 연평균을 냅니다
-  var rs = rev.filter(function(x){ return x != null && x > 0; });
-  var cagr = (rs.length >= 2)
-    ? (Math.pow(rs[rs.length-1] / rs[0], 1 / (rs.length - 1)) - 1) * 100 : null;
+  /*  ── 매출 성장률(CAGR) ──────────────────────────────────
+
+      ⚠️ 예전에는 <빈 해를 걸러낸 뒤> 남은 개수로 나눴습니다.
+
+          rs = rev.filter(있는 것만);  n = rs.length - 1
+
+         2019·2020·(2021 없음)·2022·2023·2024 이면 실제로는 5년인데
+         n 이 4 가 되어, 진짜 15.0% 성장이 19.1% 로 찍혔습니다.
+         그 값이 PEG(= PER ÷ CAGR) 와 리포트의 성장 서술로 그대로 갑니다.
+
+      ⚠️ 이제 <첫 값과 끝 값이 몇 해 떨어져 있는지> 로 나눕니다.
+         기간 종료일(ends)이 있으면 날짜로 재고, 없으면 자리 간격으로
+         셉니다 — 어느 쪽이든 «걸러낸 개수» 보다는 맞습니다.            */
+  var rIdx = [];
+  rev.forEach(function(x, i){ if (x != null && x > 0) rIdx.push(i); });
+  var cagr = null;
+  if (rIdx.length >= 2){
+    var i0 = rIdx[0], i1 = rIdx[rIdx.length - 1];
+    var yrs = i1 - i0;
+    var e0 = ends0[i0], e1 = ends0[i1];
+    if (e0 && e1){
+      var dy = (Date.parse(e1) - Date.parse(e0)) / 3.15576e10;   //  365.25일
+      if (isFinite(dy) && dy > 0.5) yrs = dy;
+    }
+    if (yrs > 0)
+      cagr = (Math.pow(rev[i1] / rev[i0], 1 / yrs) - 1) * 100;
+  }
   var lrev = last(rev), lop = last(op);
 
   /*  영업이익률은 '가장 최근 한 해' 보다 '여러 해의 가운데값' 이 낫습니다.
@@ -6563,49 +6663,108 @@ function valPull(d){
             : ((lrev && lop != null) ? lop / lrev * 100 : null);
 
   var eps = series(row('손익계산서', ['EPS (희석)', 'EPS', '주당순이익']));
-  var ends = (d.periods || []).map(function(p){ return p.end; });
+  var ends = ends0;
 
   return {
     periods: per, ends: ends,
     epsSeries: eps, netSeries: net, eqSeries: eq, revSeries2: rev,
     opSeries: op, depSeries: dep, debtSeries: dbt, cashSeries: cash,
+    debtLong: mag(last(dbtL)), debtShort: mag(last(dbtS)),
     unit: d.unit || '',
     rev: lrev, op: lop, net: last(net), eq: last(eq),
     assets: last(ast), liab: last(lia), cash: mag(last(cash)),
     dep: mag(last(dep)), cfo: last(cfo), capex: mag(last(cpx)), debt: mag(last(dbt)),
     interest: mag(last(itr)),
     taxSeries: txp, pretaxSeries: pbt,
+    /*  운전자본 = 매출채권 + 재고자산 − 매입채무.
+        셋 다 없으면 null 로 둡니다 — 0 으로 두면 «운전자본이 0 인
+        회사» 가 되어, 못 구한 것과 진짜 0 이 구분이 안 됩니다.        */
+    nwc: (function(){
+      var a = last(arc), b = last(inv), c = last(apy);
+      if (a == null && b == null && c == null) return null;
+      return (a || 0) + (b || 0) - (c || 0);
+    })(),
+    ar: last(arc), inv: last(inv), ap: last(apy),
+    minority: mag(last(mnri)), preferred: mag(last(pfd)),
     cagr: cagr, margin: margin, marginLast: (lrev && lop != null) ? lop / lrev * 100 : null,
+    /*  ── 감가상각률 · 설비투자율의 <여러 해 중앙값> ──────────
+
+        ⚠️ 예전에는 DCF 안에서 «가장 최근 한 해» 의 비율을 뽑아 N년 내내,
+           그리고 잔여가치까지 그대로 밀었습니다. 설비투자 사이클 한복판인
+           회사(그 해 매출의 25%, 정상 수준 8%)는 25% 가 영구히 박혀서
+           현금흐름이 통째로 눌립니다. 반대로 투자를 쉰 해에 걸리면
+           반대로 부풀고요.
+
+        ⚠️ 영업이익률에 이미 쓰고 있는 방법과 <같은 방법> 으로 바꿉니다 —
+           여러 해의 가운데값. 한 해 튄 값이 미래 가정이 되지 않습니다.  */
+    depRatio: ratioMed(dep, rev), capexRatio: ratioMed(cpx, rev),
+    depRatioLast: (lrev && last(dep) != null) ? Math.abs(last(dep)) / lrev * 100 : null,
+    capexRatioLast: (lrev && last(cpx) != null) ? Math.abs(last(cpx)) / lrev * 100 : null,
     revSeries: rev,
   };
 }
 
-var valRf = null;   //  무위험수익률 (%) — FRED 10년물
+/*  ── 무위험수익률 ────────────────────────────────────────────
+
+    ⚠️ 예전에는 <시장을 안 가리고> 미국 10년물(DGS10) 하나만 썼습니다.
+       주석에는 «국내는 국고채 10년» 이라고 적혀 있었는데 코드가 안
+       그랬습니다. 그래서 원화 현금흐름을 달러 무위험수익률로 할인하고,
+       베타는 KODEX 200 에 회귀해서 재고 있었습니다 — 통화도 시장도
+       뒤섞인 세 갈래였습니다.
+
+    ⚠️ 국내는 한국은행 ECOS 국고채 10년(817Y002 / 010210000)을 씁니다.
+       해외금리 탭이 이미 쓰는 것과 <같은 창구·같은 코드> 입니다.       */
+var valRf = null;     //  미국 10년물 (%)
+var valRfKr = null;   //  한국 국고채 10년 (%)
+function valRfNow(){
+  return (co && co.market === 'KR') ? valRfKr : valRf;
+}
+/*  ── 시장위험프리미엄 ────────────────────────────────────────
+
+    ⚠️ 5.5% 하나로 두 시장을 다 덮고 있었습니다. 한국은 미국보다
+       ERP 가 높게 잡히는 게 통례입니다(국가위험 프리미엄). 같은 회사를
+       미국 기준으로 재면 자기자본비용이 낮게 나와 <적정주가가 높게>
+       나옵니다. 시장별로 나눕니다.
+
+    ⚠️ 둘 다 <가정값> 입니다. 회사에서 나온 숫자가 아니므로 화면에
+       그렇게 적습니다. 바꾸고 싶으면 이 두 줄만 고치면 됩니다.        */
+var WACC_ERP_US = 5.5;   //  미국 — 장기 평균값 근처
+var WACC_ERP_KR = 7.0;   //  한국 — 미국 + 국가위험 프리미엄
+function waccErp(){ return (co && co.market === 'KR') ? WACC_ERP_KR : WACC_ERP_US; }
 
 /*  무위험수익률과 베타를 받아옵니다.
     둘 다 공짜 재료입니다 — 국채금리는 FRED, 베타는 주가끼리 회귀.      */
 async function valMarketInputs(){
-  //  ① 무위험수익률 — 미국은 10년물, 국내는 국고채 10년
-  if (valRf == null){
+  //  ① 무위험수익률 — 미국은 국채 10년물(FRED), 국내는 국고채 10년(ECOS)
+  var kr = (co && co.market === 'KR');
+  if (kr ? (valRfKr == null) : (valRf == null)){
     try {
-      var r = await edge({ source:'fred', code:'DGS10',
-                           start: shiftIso(today(), 0, -3) });
+      var r = kr
+        ? await edge({ source:'ecos', code:'817Y002', item_code:'010210000',
+                       cycle:'D', start: shiftIso(today(), 0, -3) })
+        : await edge({ source:'fred', code:'DGS10',
+                       start: shiftIso(today(), 0, -3) });
       var pts = (r.points || []).filter(function(p){ return p.v != null; });
       var v = pts.length ? Number(pts[pts.length-1].v) : null;
       //  국채금리가 128% 로 올 리는 없습니다. 상식 밖이면 안 씁니다 —
       //  이상한 Rf 하나가 WACC 를 통째로 망가뜨립니다.
-      if (v != null && v > 0.1 && v < 20) valRf = v;
+      if (v != null && v > 0.1 && v < 20){ if (kr) valRfKr = v; else valRf = v; }
     } catch(e){ /* 못 받으면 슬라이더 값으로 갑니다 */ }
   }
-  //  ② 베타 — 종목 수익률 vs 지수 수익률
+  /*  ② 베타 — 종목 수익률 vs 지수 수익률
+
+      ⚠️ 예전에는 «주가 탭을 열어봤으면 3년, 아니면 2년» 이었습니다.
+         그러면 <같은 종목을 같은 날 봐도 사람마다 베타가 다릅니다> —
+         탭을 눌렀느냐로 WACC 와 적정주가가 갈립니다. 관측창을 2년으로
+         못 박고, 이미 받아둔 주가가 있어도 <그 2년만> 잘라 씁니다.   */
   valBeta = null;
   try {
     var idx = co.market === 'KR' ? { source:'quote_kr', code:'069500' }
                                  : { source:'quote_us', code:'SPY' };
     var from = shiftIso(today(), -2, 0);
     var ix = await edge({ source: idx.source, code: idx.code, start: from });
-    var stock = (coPricePts && coPricePts.length >= 60)
-      ? coPricePts
+    var have = (coPricePts || []).filter(function(p){ return p.d >= from; });
+    var stock = (have.length >= 200) ? have
       : ((await edge({ source: quoteSource(co.market), code: co.code,
                        start: from })).points || []);
     valBeta = calcBeta(stock, ix.points || []);
@@ -6774,10 +6933,22 @@ function valReset(quiet){
   } else src.push('매출 성장률 <b>8%</b> = 계산할 매출 자료가 모자라 <b>기본값</b>');
 
   //  ② 영업이익률 — 여러 해의 가운데값 (한 해만 보면 일회성 손익이 미래가 됩니다)
-  var m = 20;
+  /*  ⚠️ 슬라이더 바닥이 1% 라서, 중앙 영업이익률이 −10% 인 적자 회사도
+      +1% 로 눌러 담겼습니다. 그런데 설명문은 «1% = 중앙값» 이라고
+      적었습니다. 사실이 아닙니다. 게다가 그 1% 하나로 기업가치 부호가
+      뒤집힙니다 — 실제로는 마이너스인 DCF 가 플러스 적정주가로 나옵니다.
+      눌러 담은 건 그대로 두되(슬라이더 한계입니다) <반드시 적습니다>.  */
+  var m = 20, mNeg = false;
   if (f.margin != null){
     m = Math.max(1, Math.min(60, Math.round(f.margin)));
+    mNeg = (f.margin < 0);
     src.push('영업이익률 <b>' + m + '%</b> = 최근 회계연도들의 <b>중앙값</b>'
+           + (mNeg
+               ? ' <b>(실제로는 ' + num(f.margin,1) + '% 적자입니다 — 슬라이더가 1% 아래로'
+               + ' 못 내려가 눌러 담았습니다. 적자 기업의 DCF 는 뜻이 없으니'
+               + ' EV/매출 쪽을 보세요.)</b>'
+               : (Math.abs(f.margin - m) > 1.5
+                   ? ' (실제 ' + num(f.margin,1) + '%, 범위로 눌러 담음)' : ''))
            + (f.marginLast != null ? ' (가장 최근 해는 ' + num(f.marginLast,1) + '%)' : ''));
   } else src.push('영업이익률 <b>20%</b> = 계산할 자료가 모자라 <b>기본값</b>');
 
@@ -6786,35 +6957,71 @@ function valReset(quiet){
   var tx = (valData.cur === '원') ? 22 : 21, taxSrc = null;
   var ts = f.taxSeries || [], ps = f.pretaxSeries || [], ns = f.netSeries || [];
   var effs = [];
+  /*  ⚠️ 예전에는 법인세비용에 Math.abs 를 씌웠습니다. 세금이 <환급>
+      으로 잡힌 해(이연법인세 환입·연구개발세액공제·평가충당금 환입)는
+      실효세율이 −12% 인데 +12% 로 기록돼 중앙값을 끌어올렸습니다.
+      부호를 살립니다.
+
+      ⚠️ 그리고 «1% 초과 45% 미만» 만 받아서, 이월결손금이 큰 회사의
+      진짜 0.5% 실효세율이 통째로 버려지고 법정세율 21% 가 쓰였습니다.
+      화면에는 «미국 연방세율 기본값» 이라고 적히니 사람은 눈치채지
+      못합니다. 0% 이상은 받아들이고, 상식 밖(60% 초과)만 거릅니다.   */
   for (var ti = 0; ti < ts.length; ti++){
-    var tv = ts[ti] == null ? null : Math.abs(ts[ti]);
+    var tv = ts[ti] == null ? null : Number(ts[ti]);
     var pv = (ps[ti] != null && ps[ti] !== 0) ? ps[ti]
            : ((ns[ti] != null && tv != null) ? ns[ti] + tv : null);
     if (tv != null && pv != null && pv > 0){
       var e = tv / pv * 100;
-      if (e > 1 && e < 45) effs.push(e);
+      if (e >= 0 && e <= 60) effs.push(e);
     }
   }
   if (effs.length){
     effs.sort(function(a,b){ return a - b; });
     var med = effs.length % 2 ? effs[(effs.length-1)/2]
             : (effs[effs.length/2 - 1] + effs[effs.length/2]) / 2;
-    tx = Math.round(med);
+    /*  ⚠️ vTax 슬라이더는 max="40" 입니다. 중앙값이 44 면 브라우저가
+        40 으로 눌러버리는데 설명문에는 44% 라고 적혀서, <화면이 말하는
+        값과 계산에 쓰인 값이 달랐습니다>. 눌렀으면 눌렀다고 적습니다. */
+    var txRaw = Math.round(med);
+    tx = Math.max(0, Math.min(40, txRaw));
     taxSrc = '법인세율 <b>' + tx + '%</b> = 이 회사 <b>실효세율</b> (법인세비용 ÷ 세전이익, '
-           + effs.length + '개 연도 중앙값)';
+           + effs.length + '개 연도 중앙값)'
+           + (txRaw !== tx ? ' <b>(실제 ' + txRaw + '%, 슬라이더 범위로 눌러 담음)</b>' : '');
   } else {
     taxSrc = '법인세율 <b>' + tx + '%</b> = '
            + (valData.cur === '원' ? '한국 법정세율' : '미국 연방세율') + ' <b>기본값</b>';
   }
   src.push(taxSrc);
 
-  //  ④ 영구성장률은 회사 숫자가 아닙니다 — 장기 물가상승률 정도로 두는 관행값입니다
+  /*  ④ 감가상각률·설비투자율 — 여러 해 중앙값.
+      ⚠️ 예전에는 <가장 최근 한 해> 비율을 영구히 밀었습니다. 설비투자
+         사이클 한복판인 회사는 그 해 값이 잔여가치까지 지배합니다.    */
+  if (f.capexRatio != null)
+    src.push('설비투자율 <b>' + num(f.capexRatio, 1) + '%</b> = 최근 회계연도들의 '
+      + '<b>중앙값</b> (매출 대비)'
+      + (f.capexRatioLast != null
+          ? ' (가장 최근 해는 ' + num(f.capexRatioLast, 1) + '%)' : ''));
+  if (f.depRatio != null)
+    src.push('감가상각률 <b>' + num(f.depRatio, 1) + '%</b> = 최근 회계연도들의 '
+      + '<b>중앙값</b> (매출 대비)');
+
+  //  ⑤ 영구성장률은 회사 숫자가 아닙니다 — 장기 물가상승률 정도로 두는 관행값입니다
   src.push('영구성장률 <b>2%</b> = 회사와 무관한 <b>관행값</b> (장기 물가상승률 수준). '
          + '직접 바꾸셔도 됩니다');
 
+  /*  ⚠️ valReset 이 vWacc 을 안 건드려서, 회사를 바꿔도 <직전 회사의
+      할인율> 이 슬라이더에 남아 있었습니다. 베타 2.1 짜리 바이오를 보다
+      베타 회귀가 실패하는 종목으로 넘어가면, 그 종목이 18.5% 로 할인된
+      채 DCF·민감도표·역산 성장률이 전부 계산됐습니다. 화면 어디에도
+      «이 값은 다른 회사 것» 이라는 말이 없었습니다.
+      기본값으로 되돌려 놓고, 이 회사 WACC 이 계산되면 그때 덮어씁니다. */
+  if ($('vWacc')) $('vWacc').value = 9;
   $('vGrow').value = g; $('vMargin').value = m; $('vTax').value = tx;
   $('vPer').value = ''; $('vPbr').value = ''; $('vEv').value = '';
   if ($('vEvRev')) $('vEvRev').value = '';
+  //  ⚠️ 직접 넣은 감가상각·설비투자가 <다음 회사> 로 넘어가면 안 됩니다
+  if ($('vDep')) $('vDep').value = '';
+  if ($('vCapex')) $('vCapex').value = '';
 
   if ($('valSrc')) $('valSrc').innerHTML =
       '<b>이 값들이 어디서 나왔나</b><br>' + src.join('<br>')
@@ -6893,7 +7100,19 @@ function valMultiples(){
   var netDebt = debt - cash;
   var ev = mcap + netDebt;
   var ebitda = (f.op != null ? f.op : 0) + (f.dep || 0);
-  var fcf = (f.cfo != null && f.capex != null) ? f.cfo - Math.abs(f.capex) : null;
+  /*  ⚠️ EV/FCF 가 <무차입 분자 ÷ 차입 후 분모> 였습니다.
+      영업활동현금흐름(CFO)은 이자를 <내고 난> 값입니다. 기업가치(EV)는
+      채권자 몫까지 포함한 값이고요. 그대로 나누면 레버리지가 높을수록
+      배수가 부풀어서, 정작 EV 배수를 쓰는 이유(자본구조 중립)가
+      사라집니다. 세후 이자비용을 더해 무차입 기준으로 맞춥니다.
+
+      FCFF = CFO + 이자비용×(1−t) − 설비투자                          */
+  var taxR = valNum('vTax') / 100;
+  var itrAdj = (f.interest != null && isFinite(taxR))
+             ? Math.abs(f.interest) * (1 - taxR) : 0;
+  //  주주 몫 잉여현금흐름(FCFE)도 따로 둡니다 — 배당 여력을 볼 때 씁니다
+  var fcfe = (f.cfo != null && f.capex != null) ? f.cfo - Math.abs(f.capex) : null;
+  var fcf = (fcfe != null) ? fcfe + itrAdj : null;
 
   function ratio(a, b){ return (a != null && b != null && b > 0) ? a / b : null; }
 
@@ -6901,7 +7120,8 @@ function valMultiples(){
   out.ev = ev;
   out.netDebt = netDebt;
   out.ebitda = ebitda > 0 ? ebitda : null;
-  out.fcf = fcf;
+  out.fcf = fcf;            //  무차입 (FCFF) — EV 와 짝이 맞습니다
+  out.fcfe = fcfe;          //  주주 몫 (FCFE) — 시가총액과 짝이 맞습니다
 
   out.per   = ratio(mcap, f.net);          //  주가수익비율
   out.pbr   = ratio(mcap, f.eq);           //  주가순자산비율
@@ -6936,7 +7156,7 @@ function valMultiples(){
     방식입니다 — "지금 68배인데 5년 평균은 45배다, 비싸다".
     과거 각 결산 시점의 주가와 그때 실적으로 배수를 내고 평균합니다.      */
 function valHistMultiples(){
-  var out = { per:null, pbr:null, ev:null, evRev:null, n:0, from:'', to:'' };
+  var out = { per:null, pbr:null, ev:null, evRev:null, n:0, approx:0, from:'', to:'' };
   if (!valData) return out;
   var f = valData.f, sh = valData.shares;
   var pts = coPricePts || [];
@@ -6959,8 +7179,26 @@ function valHistMultiples(){
     var eps = f.epsSeries ? f.epsSeries[i] : null;
     if (eps != null && eps > 0) pers.push(px / eps);
 
-    if (sh > 0){
-      var mcap = px * sh;
+    /*  ⚠️ 예전에는 모든 과거 연도에 <오늘의 주식 수> 를 곱했습니다.
+        5년 전 1억 주가 오늘 1.5억 주면, 그때 시가총액이 1.5배로
+        부풀려져 과거 PBR 중앙값이 50% 높게 나옵니다. 그 값이 목표
+        배수 기본값으로 쓰이므로 PBR 적정주가가 그대로 50% 높아집니다.
+        (PER 은 주가÷EPS 라 이 영향을 안 받습니다 — 그래서 PER 만
+         맞고 나머지가 틀리는 이상한 모양이었습니다.)
+
+        그해 주식 수는 <당기순이익 ÷ EPS> 로 되살릴 수 있습니다.
+        둘 다 그 해 보고서에 있는 값이라 추정이 아닙니다. 못 구하면
+        오늘 주식 수로 물러서되, 그런 해가 있었는지 세어 둡니다.      */
+    var shY = null;
+    var netY = f.netSeries ? f.netSeries[i] : null;
+    if (netY != null && eps != null && eps !== 0){
+      var q = netY / eps;
+      if (isFinite(q) && q > 0) shY = q;
+    }
+    if (shY == null && sh > 0){ shY = sh; out.approx = (out.approx || 0) + 1; }
+
+    if (shY > 0){
+      var mcap = px * shY;
       var eq = f.eqSeries ? f.eqSeries[i] : null;
       if (eq != null && eq > 0) pbrs.push(mcap / eq);
 
@@ -6981,7 +7219,10 @@ function valHistMultiples(){
     return b.length % 2 ? b[(b.length-1)/2] : (b[b.length/2-1] + b[b.length/2]) / 2;
   }
   out.per = med(pers); out.pbr = med(pbrs); out.ev = med(evs); out.evRev = med(evrs);
-  out.n = Math.max(pers.length, pbrs.length, evs.length);
+  //  ⚠️ evrs 가 빠져 있었습니다. 적자 기업은 EPS·EBITDA 가 없어 EV/매출만
+  //     남는데, 그때 n 이 0 이 되어 «과거 주가가 모자라 못 냈습니다» 라는
+  //     <사실이 아닌> 안내가 떴습니다.
+  out.n = Math.max(pers.length, pbrs.length, evs.length, evrs.length);
   out.from = first.slice(0, 4); out.to = last.slice(0, 4);
   return out;
 }
@@ -7095,6 +7336,83 @@ function valDraw(){
 /*  실제 계산.
     회계는 회사마다 다르므로, 값이 없으면 그 방법만 건너뜁니다 —
     없는 값을 0 으로 두고 계산하면 그럴듯한 거짓말이 나옵니다.          */
+/*  ── DCF 가정 한 군데서 풀기 ─────────────────────────────────
+
+    ⚠️ valCompute 와 valDcfAt(역산)이 <같은 수식> 이어야 합니다. 예전에
+       한쪽만 고쳐서 «적정주가 12만원» 과 «지금 주가가 맞으려면 연 8%
+       성장» 이 서로 안 맞은 적이 있습니다. 가정을 만드는 곳을 하나로
+       둡니다 — 여기만 고치면 둘 다 따라옵니다.                       */
+function valAssume(f){
+  //  감가상각률 · 설비투자율 — 직접 넣었으면 그 값, 비었으면 여러 해 중앙값
+  function pick(id, med, fallback){
+    var v = Number(($(id) || {}).value);
+    if (isFinite(v) && v > 0) return v / 100;
+    if (med != null && isFinite(med) && med >= 0) return med / 100;
+    return fallback;
+  }
+  var depR = pick('vDep', f.depRatio,
+    Math.min(0.40, Math.max(0, f.rev ? Math.abs(f.dep || 0) / f.rev : 0)));
+  var cpxR = pick('vCapex', f.capexRatio,
+    Math.min(0.50, Math.max(0, f.rev ? Math.abs(f.capex || 0) / f.rev : 0)));
+  //  자료가 이상하면 비율이 300% 같은 값이 됩니다 — 현실 범위로 자릅니다
+  depR = Math.min(0.40, Math.max(0, depR));
+  cpxR = Math.min(0.50, Math.max(0, cpxR));
+
+  //  운전자본 — 매출 대비 비율. 말이 안 되면 안 씁니다.
+  var nwcR = null;
+  if (f.nwc != null && f.rev > 0){
+    var r0 = f.nwc / f.rev;
+    if (r0 > 0 && r0 < 0.60) nwcR = r0;
+  }
+
+  /*  마지막 결산일로부터 지난 햇수 — 그만큼 <가까운 현금흐름> 입니다.
+      과거로 할증하지는 않게 아래에서 0 으로 막습니다.                */
+  var off = 0;
+  var lastEnd = (f.ends && f.ends.length) ? f.ends[f.ends.length - 1] : null;
+  if (lastEnd){
+    var aged = (Date.now() - Date.parse(lastEnd)) / 3.15576e10;   //  365.25일
+    if (isFinite(aged) && aged > 0) off = Math.min(3, aged);
+  }
+
+  /*  ── 중간연도 할인 ────────────────────────────────────────
+
+      ⚠️ 현금은 한 해 내내 들어옵니다. 기말에 한 번에 들어온다고 보면
+         반년치를 더 할인하는 셈이라 값이 낮게 나옵니다 (할인율 9% 면
+         약 4.4%). 실무 표준은 (1+w)^(i−0.5) 입니다.
+
+      ⚠️ 잔여가치는 <연 N 말 기준 값> 이라 그대로 N 으로 할인합니다.
+         여기까지 0.5 를 빼면 영구현금흐름을 한 번 더 앞당기게 됩니다.
+
+      ⚠️ 끄고 켤 수 있게 둡니다. 발표에서 "기말 기준으로 할인했다" 고
+         밝히고 싶을 수도 있어서입니다. 무엇을 썼는지는 화면에 적습니다. */
+  var mid = !$('vMid') || $('vMid').checked;
+
+  return { depR: depR, cpxR: cpxR, nwcR: nwcR, off: off, mid: mid,
+           //  i 번째 해 현금흐름을 몇 년치 할인할 것인가
+           expOf: function(i){ return Math.max(0, i - off - (mid ? 0.5 : 0)); },
+           expTv: function(N){ return Math.max(0, N - off); } };
+}
+
+/*  ── 기업가치 → 주주가치 다리 ────────────────────────────────
+
+    ⚠️ 예전에는 <순차입금만> 뺐습니다. 그런데 기업가치는 <사업 전체> 의
+       값이고, 그중 보통주 주주 몫이 아닌 것이 더 있습니다 —
+
+         · 비지배지분(소수주주) : 연결에 잡히지만 남의 몫입니다.
+           지주회사·합작법인이 많은 회사는 이게 큽니다.
+         · 우선주               : 보통주보다 앞선 청구권입니다.
+
+       둘을 안 빼면 <보통주 적정주가가 그만큼 높게> 나옵니다. 비지배지분이
+       30% 인 지주회사면 그 금액만큼 통째로 과대평가됩니다.
+
+    ⚠️ 못 구한 값은 0 으로 둡니다(있는데 0 인 회사가 대부분입니다).
+       다만 «못 구해서 0» 인지 «진짜 0» 인지는 화면에 적어 둡니다.     */
+function valBridge(f){
+  if (!f) return 0;
+  return (f.debt || 0) - (f.cash || 0)
+       + (f.minority || 0) + (f.preferred || 0);
+}
+
 function valCompute(){
   var f = valData.f, shares = valData.shares;
   var g = valNum('vGrow') / 100, mg = valNum('vMargin') / 100;
@@ -7109,27 +7427,29 @@ function valCompute(){
 
   // ── ① DCF ──
   if (f.rev && w > tg){
-    var rev = f.rev, dep = f.dep || 0, capex = Math.abs(f.capex || 0);
-    //  감가상각과 설비투자를 매출에 비례해 같이 키웁니다.
-    //  자료가 이상하면 비율이 300% 같은 값이 되어 현금흐름이 통째로 뒤집힙니다 —
-    //  그래서 현실에서 볼 수 있는 범위로 잘라 씁니다.
-    var depR = Math.min(0.40, Math.max(0, f.rev ? dep / f.rev : 0));
-    var cpxR = Math.min(0.50, Math.max(0, f.rev ? capex / f.rev : 0));
-    var pvSum = 0;
+    var A = valAssume(f);
+    var rev = f.rev;
+    res.nwcRatio = A.nwcR; res.stubYears = A.off;
+    res.depRatio = A.depR; res.capexRatio = A.cpxR; res.midYear = A.mid;
+
+    var pvSum = 0, prevRev = f.rev;
     for (var i = 1; i <= N; i++){
       rev = rev * (1 + g);
       var ebit = rev * mg;
       var nopat = ebit * (1 - tax);
-      var fcf = nopat + rev * depR - rev * cpxR;
-      var pv = fcf / Math.pow(1 + w, i);
+      //  운전자본은 <늘어난 매출만큼> 늘어납니다
+      var dNwc = (A.nwcR != null) ? (rev - prevRev) * A.nwcR : 0;
+      var fcf = nopat + rev * A.depR - rev * A.cpxR - dNwc;
+      var pv = fcf / Math.pow(1 + w, A.expOf(i));
       res.fcf.push(fcf); res.pv.push(pv); pvSum += pv;
+      prevRev = rev;
     }
     var lastFcf = res.fcf[res.fcf.length - 1];
     res.tv = lastFcf * (1 + tg) / (w - tg);
-    var pvTv = res.tv / Math.pow(1 + w, N);
+    var pvTv = res.tv / Math.pow(1 + w, A.expTv(N));
     res.ev_total = pvSum + pvTv;
-    var netDebt = (f.debt || 0) - (f.cash || 0);
-    var equity = res.ev_total - netDebt;
+    res.tvShare = res.ev_total > 0 ? pvTv / res.ev_total : null;
+    var equity = res.ev_total - valBridge(f);
     if (shares && shares > 0 && equity > 0) res.dcf = equity / shares;
   }
 
@@ -7146,7 +7466,7 @@ function valCompute(){
   var ebitda = (f.op != null ? f.op : 0) + (f.dep || 0);
   if (evm > 0 && ebitda > 0 && shares && shares > 0){
     var ev = ebitda * evm;
-    var eq2 = ev - ((f.debt || 0) - (f.cash || 0));
+    var eq2 = ev - valBridge(f);
     if (eq2 > 0) res.ev = eq2 / shares;
   }
   // ── ⑤ EV/매출 기준 ──
@@ -7155,7 +7475,7 @@ function valCompute(){
   var evr = Number($('vEvRev').value) || own.evRev;
   if (evr > 0 && f.rev && shares && shares > 0){
     var ev3 = f.rev * evr;
-    var eq3 = ev3 - ((f.debt || 0) - (f.cash || 0));
+    var eq3 = ev3 - valBridge(f);
     if (eq3 > 0) res.evrev = eq3 / shares;
   }
 
@@ -7176,7 +7496,14 @@ function valCompute(){
       벗어난 값은 결과로 쓰지 않고 '확인 필요' 로 따로 빼둡니다.               */
   var pxr = valData.px;
   res.odd = {};
-  ['dcf','per','pbr','ev','cons'].forEach(function(k){
+  /*  ⚠️ 여기에 'evrev' 가 빠져 있었습니다. VAL_KEYS 에는 들어 있어서
+      타일·중앙값·차트·해설에는 다 쓰이는데, <검사만> 안 받았습니다.
+      그래서 재무제표 단위와 주식 수가 어긋난 바로 그 상황에서
+      DCF·PER·PBR·EV/EBITDA 는 «확인 필요» 로 빠지고 EV/매출 하나만
+      1000배짜리 값으로 남아, 그게 «N개 방법의 가운데값» 이 됐습니다.
+      경고문은 네 방법을 의심하라고 적는데 정작 화면에 남은 숫자가
+      오염된 것이었습니다.                                            */
+  ['dcf','per','pbr','ev','evrev','cons'].forEach(function(k){
     var v = res[k];
     if (v == null) return;
     if (!isFinite(v) || v <= 0){ res[k] = null; return; }
@@ -7246,46 +7573,81 @@ function valRenderPick(out){
     이제 구성요소에서 쌓아 올립니다. 재료는 전부 공짜입니다 —
     무위험수익률은 FRED 국채금리, 베타는 주가로 직접 회귀, 나머지는 재무제표.
     슬라이더는 그대로 두되 계산값을 기본으로 채웁니다.                     */
-var WACC_ERP = 5.5;          //  시장위험프리미엄 (미국 장기 평균값 근처)
+
 var valBeta = null;          //  { beta, n, from }
 
 //  종목 수익률을 지수 수익률에 회귀해서 베타를 냅니다
+/*  ── 베타 ────────────────────────────────────────────────────
+
+    ⚠️ 고친 것 셋.
+
+    ① 표본 하한이 30 이었습니다. 일별 수익률 30개면 <6주> 입니다.
+       교과서 기준(2년 주간 104개 · 5년 월간 60개)의 3분의 1도 안 되는
+       표본으로 낸 베타가 그대로 WACC 에 박혔습니다. 120개(약 6개월)로
+       올리고, 그래도 <표본이 적다> 는 건 화면에 적습니다.
+
+    ② 이상치를 그대로 넣었습니다. 실적 발표일·거래정지 해제일의 40%
+       갭 하루가 표본 30~250개짜리 회귀에서 베타를 몇 십분의 일씩
+       움직입니다. 위아래 1%를 윈저라이즈합니다(버리지 않고 <끝값으로
+       눌러> 담습니다 — 버리면 그날의 시장 움직임까지 같이 사라집니다).
+
+    ③ 지수에 값이 없는 날은 건너뛰면서 <며칠치 수익률> 이 한 관측으로
+       들어왔습니다. 둘 다 같은 구간이라 짝은 맞지만, 1일짜리와 5일짜리가
+       한 회귀에 섞이면 변동성 큰 관측 쪽으로 기울어집니다. 7일 넘게
+       벌어진 구간은 버립니다.                                         */
 function calcBeta(stock, index){
   if (!stock || !index) return null;
   var byD = {};
   index.forEach(function(p){ byD[p.d] = p.v; });
-  var xs = [], ys = [], prevS = null, prevI = null;
+  var xs = [], ys = [], prevS = null, prevI = null, prevD = null, skipped = 0;
   stock.forEach(function(p){
     var iv = byD[p.d];
     if (iv == null){ return; }
     if (prevS != null && prevI != null && prevS > 0 && prevI > 0){
-      xs.push(iv / prevI - 1);
-      ys.push(p.v / prevS - 1);
+      var gap = (Date.parse(p.d) - Date.parse(prevD)) / 864e5;
+      if (isFinite(gap) && gap > 7){ skipped++; }
+      else {
+        xs.push(iv / prevI - 1);
+        ys.push(p.v / prevS - 1);
+      }
     }
-    prevS = p.v; prevI = iv;
+    prevS = p.v; prevI = iv; prevD = p.d;
   });
-  if (xs.length < 30) return null;
+  //  ⚠️ 120개 = 약 6개월. 이보다 적으면 베타를 <내지 않습니다>
+  if (xs.length < 120) return null;
+
+  //  위아래 1% 윈저라이즈 (끝값으로 눌러 담기)
+  function winsor(a){
+    var b = a.slice().sort(function(u, v){ return u - v; });
+    var k = Math.floor(b.length * 0.01);
+    if (k < 1) return a.slice();
+    var lo = b[k], hi = b[b.length - 1 - k];
+    return a.map(function(v){ return v < lo ? lo : (v > hi ? hi : v); });
+  }
+  var wx = winsor(xs), wy = winsor(ys);
+
   var mx = 0, my = 0;
-  for (var i = 0; i < xs.length; i++){ mx += xs[i]; my += ys[i]; }
-  mx /= xs.length; my /= ys.length;
+  for (var i = 0; i < wx.length; i++){ mx += wx[i]; my += wy[i]; }
+  mx /= wx.length; my /= wy.length;
   var cov = 0, varx = 0;
-  for (var j = 0; j < xs.length; j++){
-    cov += (xs[j] - mx) * (ys[j] - my);
-    varx += (xs[j] - mx) * (xs[j] - mx);
+  for (var j = 0; j < wx.length; j++){
+    cov += (wx[j] - mx) * (wy[j] - my);
+    varx += (wx[j] - mx) * (wx[j] - mx);
   }
   if (!(varx > 0)) return null;
-  return { beta: cov / varx, n: xs.length };
+  return { beta: cov / varx, n: wx.length, skipped: skipped };
 }
 
 //  WACC 구성요소를 모읍니다. 못 구한 값은 null 로 두고 화면에 그렇게 적습니다.
 function valWacc(){
   var f = valData ? valData.f : null;
   var m = valMultiples();
-  var rf = (valRf != null) ? valRf : null;                   //  무위험수익률 (%)
+  var rf = valRfNow();                                       //  무위험수익률 (%)
   var beta = valBeta ? valBeta.beta : null;
   var tax = valNum('vTax') / 100;
 
-  var ke = (rf != null && beta != null) ? rf + beta * WACC_ERP : null;
+  var erp = waccErp();
+  var ke = (rf != null && beta != null) ? rf + beta * erp : null;
   //  타인자본비용 = 이자비용 ÷ 총차입금
   var kd = (f && f.interest != null && f.debt > 0)
          ? f.interest / f.debt * 100 : null;
@@ -7314,27 +7676,32 @@ function valWacc(){
   if (beta == null) missing.push('베타 (주가 회귀 — 주가 자료가 짧으면 못 냅니다)');
   if (!(E > 0))     missing.push('시가총액 (주가 × 주식 수)');
 
-  return { rf: rf, beta: beta, erp: WACC_ERP, ke: ke, kd: kd,
+  return { rf: rf, beta: beta, erp: erp, ke: ke, kd: kd,
            E: E, D: D, tax: tax * 100, wacc: wacc, missing: missing,
            betaN: valBeta ? valBeta.n : null };
 }
 
 /*  현재 주가를 정당화하는 매출 성장률을 이분법으로 찾습니다.
     DCF 를 성장률만 바꿔가며 반복해서 풀고, 주가와 만나는 지점을 잡습니다. */
+/*  ⚠️ 이 함수는 위 valCompute 의 DCF 와 <글자 하나까지 같은 수식> 이어야
+    합니다. 한쪽만 고치면 «적정주가 12만원» 과 «지금 주가가 맞으려면 연
+    8% 성장» 이 서로 앞뒤가 안 맞게 됩니다. 운전자본·stub 기간·지분가치
+    다리를 여기에도 그대로 넣습니다.                                   */
 function valDcfAt(f, g, mg, w, tg, tax, N, shares){
   if (!f.rev || !(w > tg) || !(shares > 0)) return null;
-  var rev = f.rev, dep = f.dep || 0, capex = Math.abs(f.capex || 0);
-  var depR = Math.min(0.40, Math.max(0, f.rev ? dep / f.rev : 0));
-  var cpxR = Math.min(0.50, Math.max(0, f.rev ? capex / f.rev : 0));
-  var pv = 0, fcf = 0;
+  //  ⚠️ 가정은 valAssume 하나에서만 만듭니다 — 위 DCF 와 어긋날 수 없게
+  var A = valAssume(f);
+  var rev = f.rev, pv = 0, fcf = 0, prevRev = f.rev;
   for (var i = 1; i <= N; i++){
     rev = rev * (1 + g);
-    fcf = rev * mg * (1 - tax) + rev * depR - rev * cpxR;
-    pv += fcf / Math.pow(1 + w, i);
+    var dNwc = (A.nwcR != null) ? (rev - prevRev) * A.nwcR : 0;
+    fcf = rev * mg * (1 - tax) + rev * A.depR - rev * A.cpxR - dNwc;
+    pv += fcf / Math.pow(1 + w, A.expOf(i));
+    prevRev = rev;
   }
   var tv = fcf * (1 + tg) / (w - tg);
-  var evTot = pv + tv / Math.pow(1 + w, N);
-  var eq = evTot - ((f.debt || 0) - (f.cash || 0));
+  var evTot = pv + tv / Math.pow(1 + w, A.expTv(N));
+  var eq = evTot - valBridge(f);
   return eq > 0 ? eq / shares : null;
 }
 
@@ -7443,7 +7810,7 @@ function valMultBox(){
     ['EV/EBIT', x(m.evEbit), '', '감가상각까지 반영한 영업이익 기준'],
     ['EV/매출', x(m.evRev, 2), x(h.evRev, 2) + ' ' + gap(m.evRev, h.evRev),
       '적자 회사도 잴 수 있습니다'],
-    ['EV/FCF', x(m.evFcf), '', '실제로 남는 현금 기준'],
+    ['EV/FCF', x(m.evFcf), '', '무차입 기준 (영업현금 + 세후이자 − 설비투자)'],
     ['PEG', x(m.peg, 2), '', 'PER ÷ 매출성장률 — 성장 대비 비싼가'],
     ['ROIC', m.roic == null ? '—' : num(m.roic, 1) + '%', '',
       '세후영업이익 ÷ (자기자본 + 순차입금)'],
@@ -7482,12 +7849,19 @@ function valWaccBox(){
   var w = valWacc(), box = $('valWaccBox'); if (!box) return;
   function pc(v, dp){ return v == null ? '—' : num(v, dp == null ? 2 : dp) + '%'; }
   var rows = [
-    ['무위험수익률 (Rf)', pc(w.rf), '미국 국채 10년물 · FRED'],
+    ['무위험수익률 (Rf)', pc(w.rf),
+      (co && co.market === 'KR') ? '한국 국고채 10년 · 한국은행 ECOS'
+                                 : '미국 국채 10년물 · FRED'],
     ['베타 (β)', w.beta == null ? '—' : num(w.beta, 2),
-      w.betaN ? '최근 ' + w.betaN + '일 수익률을 지수에 회귀' : '지수 자료를 못 받았습니다'],
-    ['시장위험프리미엄 (ERP)', pc(w.erp, 1), '가정값'],
+      w.betaN ? ('최근 2년 일간수익률 ' + w.betaN + '개를 '
+                 + ((co && co.market === 'KR') ? 'KODEX 200' : 'SPY')
+                 + ' 에 회귀 (위아래 1% 윈저라이즈)')
+              : '표본이 120개(약 6개월)에 못 미치거나 지수 자료를 못 받았습니다'],
+    ['시장위험프리미엄 (ERP)', pc(w.erp, 1),
+      '<b>가정값</b> — ' + ((co && co.market === 'KR')
+        ? '한국 (미국 5.5% + 국가위험)' : '미국 장기 평균 근처')],
     ['자기자본비용 (Ke)', pc(w.ke), 'Rf + β × ERP'],
-    ['타인자본비용 (Kd)', pc(w.kd), '이자비용 ÷ 총차입금'],
+    ['타인자본비용 (Kd)', pc(w.kd), '이자비용 ÷ 총차입금(장기+단기)'],
     ['법인세율', pc(w.tax, 0), '위 슬라이더 값'],
     ['자본구조', (w.E ? 'E ' + num(w.E / (w.E + w.D) * 100, 0) + '% / D '
        + num(w.D / (w.E + w.D) * 100, 0) + '%' : '—'), '시가총액 대 차입금'],
@@ -7503,8 +7877,22 @@ function valWaccBox(){
     + (w.wacc == null
         ? '계산하지 못했습니다 — 없는 것: <b>' + esc((w.missing || []).join(', ') || '알 수 없음')
           + '</b>. 위 슬라이더 값을 그대로 씁니다.'
-        : '계산값 <b>' + pc(w.wacc) + '</b> 을 슬라이더 기본값으로 넣었습니다. '
-          + '가정을 바꿔보고 싶으면 슬라이더를 움직이세요.')
+        : (function(){
+            /*  ⚠️ vWacc 는 min="4" max="20" 입니다. 계산값이 25.5% 여도
+                슬라이더는 20 으로 눌러 담고, 그런데 이 줄은 «계산값
+                25.5% 를 넣었습니다» 라고 적었습니다. DCF·민감도표·역산
+                성장률은 전부 20% 로 돌아가는데 화면은 25.5% 라고 말한
+                셈입니다 (기업가치가 32% 차이 납니다).
+                지금 슬라이더에 실제로 들어 있는 값을 같이 적습니다.    */
+            var now = valNum('vWacc');
+            var same = (now != null && Math.abs(now - w.wacc) < 0.26);
+            return '계산값 <b>' + pc(w.wacc) + '</b>'
+              + (same ? ' 을 슬라이더에 넣었습니다. '
+                      : ' 이 슬라이더 범위(4~20%)를 벗어나 <b>' + pc(now, 1)
+                        + '</b> 로 눌러 담았습니다 — 아래 DCF·민감도표는 <b>'
+                        + pc(now, 1) + '</b> 로 계산된 값입니다. ')
+              + '가정을 바꿔보고 싶으면 슬라이더를 움직이세요.';
+          })())
     + ' 발표에서 "할인율 왜 그 값이냐"는 질문이 제일 먼저 들어옵니다 — 이 표가 답입니다.</p>';
 }
 
@@ -7518,6 +7906,7 @@ function valWaccApply(){
     return;
   }
   $('vWacc').value = (Math.round(w.wacc * 2) / 2).toFixed(1);
+  //  ⚠️ 슬라이더가 눌러 담았으면 valWaccBox 가 그 사실을 적습니다
   valDraw();
 }
 
@@ -7525,10 +7914,33 @@ function valGrid(){
   if (!valData || !valData.shares){ $('valGrid').innerHTML =
     '<div class="empty" style="padding:16px">주식 수가 있어야 그릴 수 있습니다.</div>'; return; }
   var w0 = valNum('vWacc'), t0 = valNum('vTerm'), px = valData.px;
-  var ws = [-2,-1,0,1,2].map(function(d){ return +(w0 + d).toFixed(1); })
-                        .filter(function(x){ return x > 0; });
-  var ts = [-1,-0.5,0,0.5,1].map(function(d){ return +(t0 + d).toFixed(1); })
-                            .filter(function(x){ return x >= 0; });
+  /*  ⚠️ 축을 만들 때 <슬라이더가 받아주는 범위> 를 봐야 합니다.
+
+      예전에는 x > 0 만 걸렀습니다. 그런데 vWacc 는 min="4" 라서,
+      «3.0%» 줄을 그리려고 값을 넣으면 브라우저가 조용히 4.0 으로
+      눌러버립니다. 그래서 «3.0%» 칸에 4.0% 의 값이 찍혔습니다 —
+      바로 옆 «4.0%» 칸과 <글자 하나 안 틀리고 같은 숫자> 였습니다.
+      불확실성을 보여주려고 만든 표가 거짓말을 한 셈입니다.
+      (WACC 5%·영구성장 2% 이면 3.0% 칸의 진짜 값은 두 배입니다.)
+
+      이제 min·max 를 읽어 그 안에서만 축을 만들고, 같은 값이 겹치면
+      한 번만 그립니다. 칸이 줄어드는 건 «그 바깥은 못 본다» 는
+      사실 그대로입니다.                                             */
+  function axis(id, deltas, base){
+    var el = $(id);
+    var lo = el && el.min !== '' ? Number(el.min) : -Infinity;
+    var hi = el && el.max !== '' ? Number(el.max) :  Infinity;
+    var seen = {}, out = [];
+    deltas.forEach(function(d){
+      var v = +(base + d).toFixed(1);
+      if (v < lo || v > hi) return;
+      if (seen[v]) return;
+      seen[v] = 1; out.push(v);
+    });
+    return out;
+  }
+  var ws = axis('vWacc', [-2,-1,0,1,2], w0);
+  var ts = axis('vTerm', [-1,-0.5,0,0.5,1], t0);
   var keepW = $('vWacc').value, keepT = $('vTerm').value;
   var H = '<table class="vgrid"><thead><tr><th>WACC \\ 영구성장</th>'
         + ts.map(function(t){ return '<th>' + t.toFixed(1) + '%</th>'; }).join('')
@@ -7537,7 +7949,10 @@ function valGrid(){
     H += '<tr><th>' + w.toFixed(1) + '%</th>';
     ts.forEach(function(t){
       $('vWacc').value = w; $('vTerm').value = t;
-      var v = (w > t) ? valCompute().dcf : null;
+      //  ⚠️ 판정도 <넣힌 값> 으로 합니다. 라벨로 판정하면 눌린 경우에
+      //     «w > t» 는 맞는데 실제 계산은 아닌 상황이 생깁니다.
+      var wReal = Number($('vWacc').value), tReal = Number($('vTerm').value);
+      var v = (wReal > tReal) ? valCompute().dcf : null;
       var c = (v == null || !px) ? '' : (v > px ? 'up' : 'dn');
       H += '<td class="' + c + '">' + (v == null || !isFinite(v) ? '—'
          : (valData.cur === '원' ? num(v, 0) : '$' + num(v, 2))) + '</td>';
@@ -7557,12 +7972,39 @@ function valSteps(out){
     '최근 매출 <code>' + m(f.rev) + '</code> 에서 시작해 해마다 <b>'
     + valNum('vGrow') + '%</b> 씩 키우고, 영업이익률 <b>' + valNum('vMargin')
     + '%</b> 로 영업이익을 냅니다. 거기서 세금 <b>' + valNum('vTax')
-    + '%</b> 를 빼고 감가상각을 더한 뒤 설비투자를 빼면 그 해 <b>잉여현금</b>입니다.'
+    + '%</b> 를 빼고 감가상각을 더한 뒤 설비투자와 <b>운전자본 증가분</b>을 '
+    + '빼면 그 해 <b>잉여현금</b>입니다.'
     + '<br>' + u.N + '년치를 <b>' + valNum('vWacc').toFixed(1)
     + '%</b> 로 할인해 더하고, 그 뒤로는 영구히 <b>' + valNum('vTerm').toFixed(1)
     + '%</b> 씩 큰다고 보고 잔여가치 <code>' + m(out.tv) + '</code> 를 붙입니다.'
-    + '<br>합이 기업가치 <code>' + m(out.ev_total) + '</code>, 여기서 순차입금을 빼고 '
-    + '주식 수로 나눈 것이 DCF 값입니다.']);
+    + '<br>합이 기업가치 <code>' + m(out.ev_total) + '</code>, 여기서 <b>순차입금'
+    + ((f.minority || f.preferred) ? ' · 비지배지분 · 우선주' : '')
+    + '</b>을 빼고 주식 수로 나눈 것이 DCF 값입니다.'
+    //  ⚠️ 가정이 아니라 <자료가 있고 없고> 의 문제라 따로 적습니다
+    + (out.nwcRatio != null
+        ? '<br>운전자본은 매출의 <b>' + num(out.nwcRatio * 100, 1)
+          + '%</b> 로 보고, 매출이 늘어난 만큼 같이 묶인다고 뺐습니다.'
+        : '<br><b>운전자본 변동은 반영하지 못했습니다</b> — 매출채권·재고·매입채무를 '
+          + '재무제표에서 못 구했습니다. 매출이 빠르게 크는 회사라면 이 값은 '
+          + '<b>실제보다 높게</b> 나옵니다.')
+    + (out.stubYears > 0.15
+        ? '<br>마지막 결산이 <b>' + num(out.stubYears, 1) + '년</b> 전이라 그만큼 '
+          + '앞당겨 할인했습니다 (1년차는 이미 상당 부분 지나간 기간입니다).' : '')
+    //  ⚠️ 무엇을 썼는지 적어둬야 발표에서 «왜 그 값이냐» 에 답할 수 있습니다
+    + '<br>감가상각은 매출의 <b>' + num((out.depRatio || 0) * 100, 1)
+    + '%</b>, 설비투자는 <b>' + num((out.capexRatio || 0) * 100, 1) + '%</b> '
+    + ($('vDep') && $('vDep').value ? '(직접 넣은 값)' : '(여러 해 중앙값)')
+    + ' 로 보고 매출과 같이 키웠습니다.'
+    + '<br>' + (out.midYear
+        ? '현금이 한 해 내내 들어온다고 보고 <b>중간연도 기준</b>으로 할인했습니다 '
+          + '(기말 기준보다 반년치 덜 할인 — 할인율 ' + valNum('vWacc').toFixed(1)
+          + '% 에서 약 ' + num((Math.pow(1 + valNum('vWacc')/100, 0.5) - 1) * 100, 1)
+          + '% 높게 나옵니다).'
+        : '현금이 <b>기말에 한 번에</b> 들어온다고 보고 할인했습니다 '
+          + '(중간연도 기준보다 보수적입니다).')
+    + (out.tvShare != null
+        ? '<br>이 값의 <b>' + num(out.tvShare * 100, 0) + '%</b> 가 잔여가치입니다 — '
+          + '비중이 높으면 영구성장률 가정 하나가 결과를 좌우합니다.' : '')]);
   st.push(['PER 기준',
     '당기순이익 <code>' + m(f.net) + '</code> × 목표 PER <b>'
     + (u.per > 0 ? num(u.per, 1) : '—') + '</b> ÷ 주식 수.'
@@ -7651,13 +8093,22 @@ function valCsv(){
   rows.push(['PBR 기준', out.pbr == null ? '' : out.pbr]);
   rows.push(['EV/EBITDA 기준', out.ev == null ? '' : out.ev]);
   rows.push(['EV/매출 기준', out.evrev == null ? '' : out.evrev]);
+  /*  ⚠️ imply.g 는 <답> 이 아니라 <탐색 구간의 끝> 일 수 있습니다.
+      edge 가 'low' 면 «−30% 성장을 가정해도 여전히 싸다», 'high' 면
+      «연 100% 성장을 가정해도 여전히 비싸다» 는 뜻입니다. 화면은 이걸
+      말로 풀어 쓰는데 CSV 는 숫자만 내보내서, 100 이 <풀린 값> 인지
+      <한계값> 인지 구분이 안 됐습니다. 그 숫자가 보고서 표로 갑니다.  */
   rows.push(['역산 DCF 함의 성장률(%)', out.imply == null ? '' : out.imply.g]);
+  rows.push(['  위 값이 한계값인가', out.imply == null ? ''
+    : (out.imply.edge === 'low'  ? '예 — 이보다 낮게는 안 재봤습니다 (성장 없어도 쌈)'
+     : out.imply.edge === 'high' ? '예 — 이보다 높게는 안 재봤습니다 (어떤 성장에도 비쌈)'
+     : '아니오 (풀어서 나온 값)')]);
   var mm = valMultiples(), ww = valWacc();
   rows.push([]);
   rows.push(['현재 배수', '']);
   [['시가총액',mm.mcap],['EV',mm.ev],['순차입금',mm.netDebt],['PER',mm.per],
    ['PBR',mm.pbr],['PSR',mm.psr],['EV/EBITDA',mm.evEbitda],['EV/EBIT',mm.evEbit],
-   ['EV/매출',mm.evRev],['EV/FCF',mm.evFcf],['PEG',mm.peg],['ROIC(%)',mm.roic]]
+   ['EV/매출',mm.evRev],['EV/FCF (무차입)',mm.evFcf],['PEG',mm.peg],['ROIC(%)',mm.roic]]
     .forEach(function(r){ rows.push([r[0], r[1] == null ? '' : r[1]]); });
   rows.push([]);
   rows.push(['WACC 구성', '']);
@@ -7678,7 +8129,11 @@ function valCsv(){
   rows.push(['매출액', f.rev]); rows.push(['영업이익', f.op]);
   rows.push(['당기순이익', f.net]); rows.push(['자본총계', f.eq]);
   rows.push(['감가상각비', f.dep]); rows.push(['설비투자', f.capex]);
-  rows.push(['현금성자산', f.cash]); rows.push(['장기차입금', f.debt]);
+  rows.push(['현금성자산', f.cash]);
+  //  ⚠️ f.debt 는 이제 장기+단기 합계입니다. 라벨이 «장기차입금» 이면
+  //     이 줄을 그대로 보고서에 옮겨 적을 때 틀립니다.
+  rows.push(['총차입금 (장기+단기)', f.debt]);
+  rows.push(['  장기차입금', f.debtLong]); rows.push(['  단기차입금', f.debtShort]);
   saveCsv(rows, (co ? co.name : '밸류에이션') + '_밸류에이션');
 }
 
@@ -15470,17 +15925,84 @@ function aiSetPicked(){
          풋/콜 비율  → 실제 1.3 인데 6~10
 
        이 나오고, 리포트는 그걸 사실로 적습니다.                       */
+/*  ── 시장 뉴스 피드에서 <이 회사 기사만> 골라냅니다 ──────────
+
+    ⚠️ news_feed 는 시장 전체 피드입니다. 종목별 피드가 아닙니다.
+       안 나누면 모델이 남의 회사 기사를 이 회사 뉴스인 양 씁니다.
+
+    ⚠️ 예전에는 <두 글자 이상 토막을 substring 으로> 맞췄습니다.
+         · ON 반도체(티커 ON) → 'on' 이 Monday·bond·London·economy 에
+           다 걸려서 <시장 전체 기사> 가 이 회사 뉴스가 됐습니다.
+         · Arm Holdings → 'arm' 이 farm·warm·alarm 에 걸립니다.
+         · Bank of America → 'of' 가 거의 모든 제목에 걸립니다.
+       게다가 하나라도 걸리면 note 가 null 이라, <오탐 20건> 이
+       «이 회사 기사가 맞다» 는 신호로 모델에게 갔습니다.
+
+    ⚠️ 규칙 셋 —
+         ① 낱말 경계로 맞춥니다 (farm 안의 arm 은 안 걸립니다)
+         ② 이름에서 쪼갠 토막은 3글자 이상만 씁니다
+         ③ 티커는 <제목에 대문자 그대로> 있을 때만 인정합니다
+            (ON·CAT·ALL 같은 흔한 영어 단어 티커 때문입니다)
+
+    ⚠️ 함수로 빼둔 이유 — aiBuildDossier 안에 박아두면 시험이 같은
+       규칙을 <베껴서> 확인하게 됩니다. 그러면 진짜 코드를 망가뜨려도
+       시험은 초록입니다. 실제로 그렇게 한 번 놓쳤습니다.            */
+function aiNewsMatch(items, name, code){
+  function esr(t){ return String(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  var nm = String(name || '')
+    .replace(/\b(corp(oration)?|inc|ltd|limited|plc|co|holdings?|group|s\.a\.|n\.v\.)\b\.?/gi, ' ')
+    .replace(/주식회사|㈜/g, ' ');
+  var code0 = String(code || '').trim();
+  var words = [String(name || '')].concat(nm.split(/[\s·,()]+/))
+    .map(function(t){ return t.trim(); })
+    .filter(function(t){ return t.length >= 3; });
+  words = words.filter(function(t, i){
+    return words.map(function(x){ return x.toLowerCase(); })
+                .indexOf(t.toLowerCase()) === i; });
+  var wRe = words.map(function(t){
+    //  한글에는 \b 가 안 붙습니다 — 영문 낱말일 때만 경계를 겁니다
+    return /^[\x20-\x7e]+$/.test(t)
+      ? new RegExp('(^|[^a-z0-9])' + esr(t.toLowerCase()) + '($|[^a-z0-9])', 'i')
+      : new RegExp(esr(t), 'i');
+  });
+  //  티커는 대소문자를 가립니다 (ON Semiconductor 의 'ON')
+  var cRe = (code0 && /^[A-Za-z.\-]{1,6}$/.test(code0))
+    ? new RegExp('(^|[^A-Za-z0-9])' + esr(code0.toUpperCase()) + '($|[^A-Za-z0-9])')
+    : (code0 ? new RegExp(esr(code0)) : null);
+  var hit = (items || []).filter(function(x){
+    var t = String((x && x.title != null) ? x.title : x);
+    if (cRe && cRe.test(t)) return true;
+    return wRe.some(function(r){ return r.test(t); });
+  });
+  //  ⚠️ 이름 토막이 하나도 안 남는 회사가 있습니다 (두 글자 이름 등).
+  //     그때는 «못 찾았다» 가 아니라 «못 찾아봤다» 고 적어야 합니다
+  return { hit: hit, weak: !cRe && !wRe.length,
+           cRe: cRe, words: words, code0: code0 };
+}
+
 function aiOptionWalls(byK, op, exs){
   var ks = Object.keys(byK).map(Number).sort(function(a, b){ return a - b; });
-  //  등가격에서 먼 행사가는 미결제약정이 거의 없어 버립니다 (토큰 아낌)
   var spot = Number(op && op.spot) || 0;
-  if (spot > 0) ks = ks.filter(function(k){ return Math.abs(k / spot - 1) <= 0.25; });
+  /*  ⚠️ 현재가가 없으면 <아무것도 보내지 않습니다>.
+
+      예전에는 spot 이 없을 때 ±25% 거르기도, «가까운 순» 정렬도 건너뛰고
+      ks.slice(0, 60) 만 남았습니다 — 오름차순 배열의 앞 60개, 즉
+      <가장 싼 행사가 60개> 입니다. SPY 660 달러에 1달러 간격이면
+      495~554 구간만 남아서 콜벽이 현재가보다 110달러 아래로 잡히고
+      풋콜비율이 6~10 으로 나왔습니다. 그 숫자가 «수급» 근거로 리포트에
+      실렸습니다.
+
+      현재가를 모르면 매물대는 읽을 수가 없습니다. 빈 값을 보내느니
+      <없다고> 보냅니다.                                               */
+  if (!(spot > 0)) return null;
+  //  등가격에서 먼 행사가는 미결제약정이 거의 없어 버립니다 (토큰 아낌)
+  var all = ks.length;
+  ks = ks.filter(function(k){ return Math.abs(k / spot - 1) <= 0.25; });
   if (!ks.length) return null;
 
   //  ⚠️ <가까운 순> 으로 고른 뒤, 표·차트를 위해 다시 행사가 순으로 되돌립니다
   var near = ks.slice();
-  if (spot > 0)
-    near.sort(function(a, b){ return Math.abs(a - spot) - Math.abs(b - spot); });
+  near.sort(function(a, b){ return Math.abs(a - spot) - Math.abs(b - spot); });
   near = near.slice(0, 60).sort(function(a, b){ return a - b; });
   var rows = near.map(function(k){ return byK[k]; });
 
@@ -15497,8 +16019,17 @@ function aiOptionWalls(byK, op, exs){
     other_expiries: (exs || []).slice(0, 8).map(function(x){
       return { date: x.date, dte: x.dte }; }),
     call_wall: top('c_oi'), put_wall: top('p_oi'),
-    call_oi_total: cOi, put_oi_total: pOi,
-    put_call_oi: cOi > 0 ? +(pOi / cOi).toFixed(2) : null,
+    /*  ⚠️ 예전 이름이 call_oi_total / put_oi_total 이었습니다. «total» 이
+        아닙니다 — 등가격 ±25% 안에서 가까운 60개만 더한 값입니다.
+        파생상품 탭은 <전체 체인> 으로 풋콜비율을 내므로 같은 종목·같은
+        만기인데 화면과 리포트가 다른 숫자를 말하게 됩니다. 이름과 범위를
+        정직하게 적고, 모델이 «전체» 라고 쓰지 않게 단서를 답니다.      */
+    window: { band_pct: 25, strikes_used: rows.length, strikes_all: all,
+              note: '등가격 ±25% 안에서 현재가에 가까운 행사가 '
+                  + rows.length + '개만 집계한 값입니다 (체인 전체 ' + all + '개). '
+                  + '«전체 미결제약정» 이라고 쓰지 마세요. 단위는 계약 수입니다.' },
+    call_oi_window: cOi, put_oi_window: pOi,
+    put_call_oi_window: cOi > 0 ? +(pOi / cOi).toFixed(2) : null,
     rows: rows
   };
 }
@@ -15527,9 +16058,42 @@ async function aiBuildDossier(){
     return (out.rev != null || out.eps != null) ? out : null;
   }
 
+  /*  ── 모델이 읽을 단위 범례 ──────────────────────────────
+
+      ⚠️ 한 덩어리 JSON 안에 <배수로 적힌 값> 과 <소수로 적힌 값> 이
+         섞여 있었습니다. profit_margin 0.243 과 cagr 23.1 과 roic 18.4 가
+         나란히 있는데 어디에도 단위가 없었습니다. 모델이 «순이익률 0.24%»
+         라고 적으면 100배 틀린 값이 그대로 리포트에 실립니다.
+
+      ⚠️ 숫자를 고치지 않고 <읽는 법> 을 같이 보냅니다. 값을 손대면
+         화면·CSV 와 어긋나서 더 나쁩니다.                              */
+  d.units = {
+    '_': '아래 적힌 대로 읽으세요. 여기 없는 값은 fin.unit·fin.cur 를 따릅니다.',
+    'fin.*': '금액. 단위는 fin.unit, 통화는 fin.cur 입니다.',
+    'fin.capex': '절댓값입니다(부호 뗐음). FCF 는 multiples.fcf 를 쓰세요 — 더하지 마세요.',
+    'fin.debt': '총차입금(장기+단기)입니다. debt_long·debt_short 로 나뉘어 있습니다.',
+    'fin.cagr': '퍼센트 (23.1 = 23.1%)',
+    'fin.ttm.profit_margin': '소수 (0.243 = 24.3%)',
+    'fin.ttm.op_margin': '소수 (0.152 = 15.2%)',
+    'multiples.roic': '퍼센트 (18.4 = 18.4%)',
+    'multiples.mcap|ev|netDebt': '금액. 시가총액·EV 는 <주가 기준> 이라 fin.cur 통화의 원단위입니다(fin.unit 아님).',
+    'multiples.ebitda|fcf': '금액. 이쪽은 fin.unit 단위입니다.',
+    'wacc.*': '퍼센트 (9.5 = 9.5%)',
+    'options.rows[].c_iv|p_iv': '소수 (0.42 = 42%)',
+    'consensus.rating_score': '1=강한 매도 · 2=매도 · 3=중립 · 4=매수 · 5=강한 매수 (숫자가 클수록 긍정)',
+  };
+
   //  ① 재무제표 (연간) — 밸류에이션 탭이 쓰는 것과 같은 자료
   try {
     await valLoad(true);
+    /*  ⚠️ valLoad 는 <예외를 안 던지고> 조용히 돌아오는 길이 셋 있습니다
+        (이미 불러오는 중 · 매출·순이익을 못 찾음 · 자기 catch).
+        그러면 valData 가 null 인 채로 여기 오는데, 예전에는 아래
+        if (valData) 가 false 라서 catch 도 안 타고 fin_err 도 안 남았습니다.
+        재무 섹션만 통째로 빠진 «재무제표가 없는 회사» 처럼 보였습니다. */
+    if (!valData)
+      d.fin_err = '재무제표를 불러오지 못했습니다 (밸류에이션 탭이 값을 못 만들었습니다). '
+                + '이 리포트에서 재무·배수·밸류에이션은 «자료 없음» 입니다.';
     if (valData){
       var f = valData.f || {};
       /*  ⚠️ 현재가가 비면 리포트의 안전장치가 <전부> 꺼집니다
@@ -15552,9 +16116,20 @@ async function aiBuildDossier(){
             말이 나옵니다. 그래서 <최근 4분기 합계(TTM)> 를 같이 보냅니다 —
             모델이 마지막 점을 «TTM» 으로 붙일 수 있게.                */
         ttm: ttmOf(),
+        debt_long: f.debtLong, debt_short: f.debtShort,
         cfo: f.cfo, capex: f.capex, dep: f.dep, interest: f.interest, cagr: f.cagr,
         revSeries: f.revSeries, opSeries: f.opSeries, netSeries: f.netSeries,
-        epsSeries: f.epsSeries, years: f.years,
+        epsSeries: f.epsSeries,
+        /*  ⚠️ 여기가 years: f.years 였습니다. valPull 은 <years 라는 이름을
+            만든 적이 없습니다> — 늘 undefined 였고, JSON.stringify 는
+            undefined 인 칸을 아예 지웁니다. 그래서 모델은 매출·영업이익·
+            순이익·EPS 네 줄을 <이름표 하나 없이> 받았습니다.
+
+            엔비디아(1월 결산)·애플(9월 결산)처럼 12월 결산이 아닌 회사는
+            모델이 마지막 점을 «2025년» 으로 읽고 한 해씩 밀어 적습니다.
+            기간 종료일이 f.ends 에 이미 있었는데 안 보내고 있었습니다.   */
+        periods: f.periods || null,
+        period_ends: f.ends || null,
       };
       var m = (typeof valMultiples === 'function') ? valMultiples() : {};
       d.multiples = { per:m.per, pbr:m.pbr, psr:m.psr, evEbitda:m.evEbitda,
@@ -15565,18 +16140,70 @@ async function aiBuildDossier(){
           삼성전자(500조)가 엔비디아(4.4조 달러)보다 커 보입니다.
           달러로 환산한 값을 따로 보내 그걸로 정렬합니다.               */
       if (m.mcap > 0){
+        /*  ⚠️ getFx() 는 모의투자 대회의 <고정 환율> 을 먼저 돌려줍니다
+            (없으면 1400). 시장 환율이 아닙니다. 이 값은 보관함 정렬용
+            이지 «달러 시가총액» 이라는 사실이 아닙니다 — 모델이 본문에
+            옮겨 적지 않게 무엇으로 나눴는지 같이 적습니다.             */
         var fxr = 0;
         try { fxr = await getFx(); } catch(e){ fxr = 0; }
         d.mcap_usd = (valData.cur === '원')
           ? (fxr > 0 ? m.mcap / fxr : null)
           : m.mcap;
+        if (valData.cur === '원')
+          d.mcap_usd_note = '보관함 정렬용입니다. 고정환율 ' + num(fxr, 0)
+            + '원으로 나눈 값이라 시장 환율과 다릅니다 — 본문에 쓰지 마세요.';
       }
+      /*  ── 할인율을 <기다렸다가> 씁니다 ────────────────────────
+
+          ⚠️ valLoad 는 국채금리·베타를 기다리지 않고 돌아옵니다
+             (화면은 먼저 그리고 WACC 는 나중에 채우는 게 맞습니다).
+             그런데 여기서는 그 «나중» 을 안 기다리고 바로 읽었습니다.
+
+             결과가 둘 다 나빴습니다 —
+               · valWacc() 의 beta 가 아직 null 이라 d.wacc.wacc 는
+                 거의 항상 null («할인율을 못 냈다») 로 나갔고,
+               · 정작 DCF 는 슬라이더 값 vWacc 로 계산되는데 그 칸은
+                 <직전 회사의 WACC> 나 HTML 기본값 9% 가 남아 있었습니다.
+             그래서 «할인율 없음» 과 «DCF 적정주가» 가 한 리포트에
+             같이 실렸고, 베타 2.0 짜리 종목이 9% 로 할인돼 적정주가가
+             두세 배로 나왔습니다. 화면은 1초 뒤 제값으로 다시 그리는데
+             <저장되는 리포트에는 틀린 값이 박혔습니다>.
+
+          ⚠️ 여기서는 기다립니다. 리포트는 한 번 만들면 학회 전체가
+             그 숫자를 인용합니다 — 1~2초가 아깝지 않습니다.           */
+      try {
+        if (typeof valMarketInputs === 'function') await valMarketInputs();
+        var w0 = (typeof valWacc === 'function') ? valWacc() : null;
+        if (w0 && w0.wacc != null && w0.wacc > 3 && w0.wacc < 25 && $('vWacc'))
+          $('vWacc').value = (Math.round(w0.wacc * 2) / 2).toFixed(1);
+      } catch(e){ /* 못 받으면 슬라이더 값 그대로 갑니다 */ }
+
       var w = (typeof valWacc === 'function') ? valWacc() : null;
       if (w) d.wacc = { rf:w.rf, beta:w.beta, erp:w.erp, ke:w.ke, kd:w.kd,
-                        wacc:w.wacc, missing:w.missing };
+                        wacc:w.wacc, missing:w.missing,
+                        //  ⚠️ DCF 가 실제로 쓴 값 — w.wacc 와 다를 수 있습니다
+                        used_in_dcf: valNum('vWacc') };
       var vc = (typeof valCompute === 'function') ? valCompute() : null;
-      if (vc) d.our_valuation = { dcf:vc.dcf, per:vc.per, pbr:vc.pbr,
-                                  ev:vc.ev, evrev:vc.evrev, implied_growth:vc.imply };
+      /*  ⚠️ 값만 보내면 모델이 «어떤 가정으로 나온 값인지» 를 모릅니다.
+          그러면 리포트 본문에서 다른 가정을 전제로 이 숫자를 인용합니다.
+          DCF 가 실제로 무엇을 썼는지 같이 보냅니다.                  */
+      if (vc) d.our_valuation = {
+        dcf:vc.dcf, per:vc.per, pbr:vc.pbr,
+        ev:vc.ev, evrev:vc.evrev, implied_growth:vc.imply,
+        dcf_assumptions: (vc.dcf == null) ? null : {
+          wacc_pct: valNum('vWacc'), growth_pct: valNum('vGrow'),
+          margin_pct: valNum('vMargin'), tax_pct: valNum('vTax'),
+          terminal_g_pct: valNum('vTerm'), years: Number($('vYears').value) || 5,
+          dep_pct_of_rev: vc.depRatio != null ? +(vc.depRatio * 100).toFixed(1) : null,
+          capex_pct_of_rev: vc.capexRatio != null ? +(vc.capexRatio * 100).toFixed(1) : null,
+          nwc_pct_of_rev: vc.nwcRatio != null ? +(vc.nwcRatio * 100).toFixed(1) : null,
+          mid_year: !!vc.midYear,
+          stub_years: vc.stubYears != null ? +vc.stubYears.toFixed(2) : null,
+          terminal_value_share: vc.tvShare != null ? +vc.tvShare.toFixed(3) : null,
+          note: '운전자본 비율이 null 이면 매출채권·재고·매입채무를 못 구해 '
+              + '운전자본 변동을 <반영하지 못한> 값입니다 — 실제보다 높습니다.'
+        }
+      };
     }
   } catch(e){ d.fin_err = String(e.message || e); }
 
@@ -15689,25 +16316,20 @@ async function aiBuildDossier(){
       return { at: x.at ? String(x.at).slice(0,10) : null, title: x.title || '',
                src: x.source || null, tag: x.tag || null };
     });
-    /*  이름 전체로만 맞추면 "NVIDIA Corp" 가 "Nvidia earnings beat" 를
-        못 잡습니다. 회사 형태 표기를 떼고 낱말로도 맞춥니다.          */
-    var nm = String(co.name || '')
-      .replace(/\b(corp(oration)?|inc|ltd|limited|plc|co|holdings?|group|s\.a\.|n\.v\.)\b\.?/gi, ' ')
-      .replace(/주식회사|㈜/g, ' ');
-    var needle = [String(co.code || ''), String(co.name || '')]
-      .concat(nm.split(/[\s·,()]+/))
-      .map(function(t){ return t.trim().toLowerCase(); })
-      .filter(function(t){ return t.length >= 2; });
-    needle = needle.filter(function(t, i){ return needle.indexOf(t) === i; });
-    var hit = items.filter(function(x){
-      var t = x.title.toLowerCase();
-      return needle.some(function(n){ return t.indexOf(n) >= 0; });
-    });
-    d.news = { company: hit.slice(0, 20), market: items.slice(0, 12),
-               note: hit.length ? null
-                 : '시장 뉴스 피드에서 이 종목을 언급한 기사를 찾지 못했습니다. '
-                 + 'company 가 비어 있으면 종목 뉴스는 «자료 없음» 으로 쓰세요.' };
-  } catch(e){ /* 뉴스도 없으면 없는 대로 */ }
+    var mm = aiNewsMatch(items, co.name, co.code);
+    var hit = mm.hit, weak = mm.weak, cRe = mm.cRe, words = mm.words, code0 = mm.code0;
+    d.news = {
+      company: hit.slice(0, 20), company_total: hit.length,
+      market: items.slice(0, 12), market_total: items.length,
+      matched_on: (cRe ? [code0] : []).concat(words),
+      note: weak
+        ? '회사 이름이 짧아 제목에서 걸러낼 말이 없었습니다 — 종목 뉴스는 «자료 없음» 으로 쓰세요.'
+        : (hit.length
+            ? '제목에 회사 이름·티커가 들어간 기사만 골랐습니다. 본문은 안 읽었으니 '
+            + '«이 회사 기사» 라고 단정하지 말고 제목에 적힌 사실만 쓰세요.'
+            : '시장 뉴스 피드에서 이 종목을 언급한 기사를 찾지 못했습니다. '
+            + 'company 가 비어 있으면 종목 뉴스는 «자료 없음» 으로 쓰세요.') };
+  } catch(e){ d.news_err = String(e.message || e); }
 
   /*  ④-2 컨센서스 — 애널리스트가 이 종목을 어떻게 보는가.
       ⚠️ 「우리 계산 목표가 vs 시장 기대」 비교가 리포트의 알맹이인데,
@@ -15721,20 +16343,48 @@ async function aiBuildDossier(){
                               market: co.market, name: co.name });
       if (cp && cp.found) coProf = cp;
     }
-    if (coProf && coProf.found){
+    /*  ⚠️ 화면(valCons)은 «제공처가 추정치 없음이라고 했으면 안 쓴다» 는
+        가드를 이미 갖고 있습니다 — 국내 종목에서 통화가 다른 잔재가
+        남아 «적정주가 250원» 이 나오기 때문입니다. 리포트 쪽에는 그
+        가드가 없어서, 화면은 «컨센서스 없음» 인데 리포트는 target_mean
+        1.85 를 78,000원짜리 종목의 목표가로 받아 적고 있었습니다.
+        같은 가드를 답니다 — 두 화면이 다른 말을 하면 안 됩니다.        */
+    var cov = (coProf && coProf.coverage) || null;
+    if (coProf && coProf.found && !(cov && cov.has_estimates === false)){
       var rt = coProf.ratings || {}, hl = coProf.highlights || {};
       d.consensus = {
-        source: coProf.source || 'eodhd',
+        source: coProf.source || null,
+        //  ⚠️ 예전에는 || 'eodhd' 였습니다. 출처를 모르는 값이 «EODHD 확인
+        //     수치» 로 둔갑했습니다. 모르면 모른다고 적습니다.
+        source_note: coProf.source ? null
+          : '출처 표시가 없습니다 — 검증된 수치로 인용하지 마세요.',
         is_search: coProf.source === 'pplx',
         sources: coProf.sources || null,
         as_of: coProf.as_of || null,
         target_mean: rt.target, target_high: rt.target_high, target_low: rt.target_low,
-        analysts: rt.analysts, rating_score: rt.score, rating_text: rt.text,
+        //  ⚠️ 몇 명의 평균인지 모르면 «평균» 이라고 부르면 안 됩니다
+        analysts: (rt.analysts == null ? null : rt.analysts),
+        target_note: (rt.analysts == null && rt.target != null)
+          ? '애널리스트 수가 없습니다 — 평균인지 한 곳 값인지 모릅니다. «컨센서스 평균» 으로 쓰지 마세요.'
+          : null,
+        //  ⚠️ 이 터미널의 등급 눈금은 1=강한 매도 … 5=강한 매수 입니다.
+        //     증권사 관행은 반대(1=Strong Buy)가 많아, 눈금을 안 적으면
+        //     1.8 이 «매수 우위» 로 뒤집혀 읽힙니다.
+        rating_score: rt.score, rating_text: rt.text,
+        rating_scale: (rt.score == null) ? null
+          : '1=강한 매도 · 3=중립 · 5=강한 매수 (클수록 긍정)',
         pe: hl.pe, eps_ttm: hl.eps, eps_est_cy: hl.eps_est_cy, eps_est_ny: hl.eps_est_ny,
         sector: (coProf.general || {}).sector, industry: (coProf.general || {}).industry,
       };
     }
-  } catch(e){ /* 컨센서스는 없으면 없는 대로 갑니다 */ }
+  } catch(e){
+    //  ⚠️ 조용히 넘기면 «커버리지 없는 종목» 과 «서버가 죽은 것» 이
+    //     구분이 안 됩니다. 모델은 전자로 읽고 그렇게 씁니다.
+    d.consensus_err = String(e.message || e);
+  }
+  if (!d.consensus && !d.consensus_err)
+    d.consensus_err = '제공처가 이 종목의 추정치를 갖고 있지 않습니다 '
+                    + '(있는 숫자는 통화가 다른 잔재일 수 있어 쓰지 않았습니다).';
 
   //  ⑤ 거시 — 지금 금리·환율 정도만 (리포트의 거시 섹션 재료)
   try {
@@ -17373,7 +18023,15 @@ function aiRender(rep, boxId){
       ⚠️ 숫자를 숨기지는 않습니다. <언제 값인지> 를 같이 적습니다.     */
   if (px != null && px > 0)
     chips.push((meta.px_live ? '오늘 주가 ' : '현재가 ') + aiMoney(px, cur)
-      + (meta.px_live ? ' <span class="st-hint">(리포트 작성일 값이 아닙니다)</span>' : ''));
+      + (meta.px_live ? ' <span class="st-hint">(리포트 작성일 값이 아닙니다)</span>' : '')
+      /*  ⚠️ 이 값이 <서버가 직접 읽은 것> 인지 <화면이 적어 보낸 것> 인지
+          구분해 둡니다. 화면 값이면 목표가 검사들이 그 기준으로 돌기
+          때문에, 어디서 온 값인지가 곧 검사의 신뢰도입니다.          */
+      + (meta.px_src === 'client'
+          ? ' <span class="st-hint">(서버 시세 보관함에 없어 화면이 보낸 값입니다)</span>' : '')
+      + (aiNum(meta.px_gap) != null
+          ? ' <span class="st-hint" style="color:var(--danger)">(화면이 보낸 값과 '
+            + num(Math.abs(meta.px_gap) * 100, 1) + '% 달라 서버 값을 씁니다)</span>' : ''));
   /*  ⚠️ 애널리스트 컨센서스를 <머리 딱지> 에 같이 답니다. 모델 목표가가
       시장 기대와 얼마나 다른지 한 줄에서 보이게 하려는 것입니다.
       (마이크론: 모델 $175 vs 컨센서스 $1,513 — 나란히 놓으면 바로 보입니다) */
@@ -17457,6 +18115,27 @@ function aiRender(rep, boxId){
         + vcUp.map(function(x){ return vcStep(x, 'vc-box'); }).join('')
         + '</div></div>';
     }
+    /*  ── 이 그림이 <무엇인지> 밝힙니다 ────────────────────────
+
+        ⚠️ 밸류체인은 이 터미널이 어디서 받아온 자료가 아닙니다.
+           단계 이름도, 각 단계의 회사 이름도, 교섭력도 <전부 모델이
+           적은 것> 입니다. 그림이 깔끔하게 그려지니까 데이터처럼
+           보이는데, 검증된 적이 없습니다. 특히 \`who\` 의 회사 이름은
+           모델이 지어낼 수 있는 대표적인 자리입니다.
+
+        ⚠️ 그리고 어느 단계에도 «이 회사» 가 안 붙는 경우가 있습니다.
+           그러면 학회원은 <이 회사가 밸류체인 밖에 있다> 고 읽습니다.
+           사실은 모델이 표시를 빠뜨린 것입니다. 구분해서 적습니다.   */
+    var placed = chain.some(function(x){
+      return x.here === true || /여기|해당/.test(aiStr(x.here)); });
+    chainHtml += '<div class="vc-note" style="border-top:1px dashed var(--border);padding-top:8px">'
+      + '※ 이 그림은 <b>모델이 적은 것</b>입니다 — 단계 구분·회사 이름·교섭력 모두 '
+      + '터미널이 받아온 자료가 아닙니다. 보고서에 옮기기 전에 회사 이름은 '
+      + '반드시 직접 확인해 주세요.'
+      + (placed ? '' : '<br><b style="color:var(--danger)">모델이 이 회사의 단계를 '
+        + '표시하지 않았습니다</b> — 밸류체인 밖에 있다는 뜻이 아니라, 표시가 빠진 것입니다.')
+      + '</div>';
+
     //  단계별 설명은 그림 아래에 한 줄씩 (그림 안에 넣으면 칸이 터집니다)
     var vcNotes = chain.filter(function(x){ return !aiBlank(x.note); });
     if (vcNotes.length){
@@ -17499,6 +18178,19 @@ function aiRender(rep, boxId){
       return Object.assign({}, sr, {
         data: aiArr(sr && sr.data).map(function(v){ return aiNum(v); }) });
     });
+    /*  ⚠️ 이름표 개수와 값 개수가 <다를 수> 있습니다. 모델이 잘못 적거나,
+        답이 max_tokens 에 닿아 마지막 값이 떨어져 나간 경우입니다.
+        그대로 그리면 값이 왼쪽부터 채워져서 <한 해씩 밀린 그림> 이
+        됩니다 — 2024년 매출이 2023년 자리에 그려집니다. 오류가 안 나서
+        더 안 보입니다. 짧은 쪽에 맞추고, 어긋났다는 사실을 적습니다.   */
+    var mis = 0;
+    ser.forEach(function(sr){ if (sr.data.length !== labels.length) mis++; });
+    if (mis){
+      var n = labels.length;
+      ser.forEach(function(sr){ n = Math.min(n, sr.data.length); });
+      labels = labels.slice(0, n);
+      ser.forEach(function(sr){ sr.data = sr.data.slice(0, n); });
+    }
     var dropped = [];
     while (labels.length){
       var i = labels.length - 1;
@@ -17511,7 +18203,7 @@ function aiRender(rep, boxId){
       labels.pop();
       ser.forEach(function(sr){ sr.data = sr.data.slice(0, i); });
     }
-    return { labels: labels, series: ser, dropped: dropped,
+    return { labels: labels, series: ser, dropped: dropped, misaligned: mis,
              title: x.title, kind: x.kind, unit: x.unit, note: x.note };
   }
 
@@ -17536,6 +18228,10 @@ function aiRender(rep, boxId){
             + '※ <b>' + esc(x.dropped.map(function(v){ return aiStr(v); }).join(' · '))
             + '</b> 은(는) 아직 실적이 나오지 않아 뺐습니다 — '
             + '0 으로 그리면 «급감» 처럼 보입니다.</p>' : '')
+      + (x.misaligned
+          ? '<p class="st-hint" style="margin:6px 0 0;color:var(--danger)">'
+            + '※ 이름표 개수와 값 개수가 맞지 않아 <b>짧은 쪽에 맞춰</b> 그렸습니다 — '
+            + '값이 한 칸씩 밀렸을 수 있습니다. 숫자는 재무제표 탭에서 확인해 주세요.</p>' : '')
       + (aiStr(x.note) ? '<p class="st-hint" style="margin:6px 0 0">'
                          + esc(x.note) + '</p>' : '')
       + '</div>';
@@ -17545,8 +18241,11 @@ function aiRender(rep, boxId){
     + (chartsHtml ? aiSec('시각자료', chartsHtml) : '');
   var c3 = aiCard('3. 재무제표 기회 · 회계 리스크',
       finBody + (finBody
-        ? '<p class="st-hint" style="margin:12px 0 0">숫자는 재무제표·밸류에이션 '
-          + '탭이 쓰는 것과 같은 자료에서 왔습니다.</p>' : ''),
+        ? '<p class="st-hint" style="margin:12px 0 0">'
+          + '재료는 재무제표·밸류에이션 탭과 같은 자료입니다. 다만 위 '
+          + '<b>시각자료는 모델이 그 자료를 보고 옮겨 적은 것</b>이라 '
+          + '원본과 다를 수 있습니다 — 숫자를 인용할 때는 재무제표 탭에서 '
+          + '확인해 주세요.</p>' : ''),
       aiErrNote(sec, 'fin'));
 
   //  ④ 공시
