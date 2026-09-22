@@ -1140,60 +1140,10 @@
       </div>
       <div id="homeWarn"></div>
 
-      <!--  ── 학회 일정 ──────────────────────────────────────
-            ⚠️ 홈 맨 위입니다. 일정은 <들어오자마자> 보여야 뜻이 있습니다.
-               스크롤 아래에 있으면 아무도 안 봅니다.               -->
-      <div class="card" id="evCard">
-        <h2>학회 일정
-          <span class="tools">
-            <button class="btn-sm admin-only hidden" onclick="evOpen()">+ 일정 추가</button>
-            <button class="btn-sm" onclick="loadEvents(true)">새로 고침</button>
-          </span>
-        </h2>
-        <div id="evWarn"></div>
-        <div id="evDday"></div>
-        <div id="evList"><div class="empty" style="padding:18px">불러오는 중…</div></div>
-        <!--  임원진 편집칸 — 평소엔 접혀 있습니다 -->
-        <div id="evForm" class="hidden" style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
-          <div class="row">
-            <label>제목</label>
-            <input type="text" id="evTitle" class="grow" placeholder="예: 3주차 정기세미나 — 금리와 환율" maxlength="120">
-            <select id="evKind" style="width:130px">
-              <option value="seminar">정기세미나</option>
-              <option value="presentation">발표</option>
-              <option value="contest">대회</option>
-              <option value="deadline">마감</option>
-              <option value="social">친목</option>
-              <option value="etc">기타</option>
-            </select>
-          </div>
-          <div class="row">
-            <label>날짜</label>
-            <input type="date" id="evFrom" style="width:160px">
-            <span class="st-hint">~</span>
-            <input type="date" id="evTo" style="width:160px" title="여러 날에 걸치면 끝 날짜를 적으세요 (하루면 비워두세요)">
-            <input type="text" id="evAt" placeholder="19:00" maxlength="10" style="width:84px">
-            <span class="st-hint">시각 (선택)</span>
-          </div>
-          <div class="row">
-            <label>담당 · 장소</label>
-            <input type="text" id="evOwner" placeholder="담당자" maxlength="40" style="width:150px">
-            <input type="text" id="evPlace" class="grow" placeholder="장소 (예: 다산관 401)" maxlength="80">
-          </div>
-          <div class="row">
-            <label>설명</label>
-            <input type="text" id="evNote" class="grow" placeholder="한 줄 설명 (선택)" maxlength="300">
-          </div>
-          <div class="row" style="margin-top:4px">
-            <button class="btn-sm btn-solid" onclick="evSave()">저장</button>
-            <button class="btn-sm" onclick="evClose()">취소</button>
-            <button class="btn-sm" id="evDel" style="margin-left:auto;color:var(--danger)"
-                    onclick="evRemove()">이 일정 삭제</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 환율 -->
+      <!--  ── ① 환율 ────────────────────────────────────────
+            ⚠️ 학회장: «환율 제일 위에, 그 다음 경제지표, 그 다음 우리
+               학회 일정, 그다음에 회의 자료». 홈에 들어오면 제일 먼저
+               보는 것이 환율이라는 뜻입니다.                     -->
       <div class="card">
         <h2>통화 · 환율
           <span class="tools">
@@ -1214,21 +1164,15 @@
             <option value="0">전체</option>
           </select>
         </div>
-        <div id="homeFxBox" style="height:190px"></div>
+        <!--  ⚠️ 학회장: «환율 차트 사이즈는 오리지널 사이즈로».
+              한때 «차트 height 1/3 줄여줘» 로 280 → 190 으로 줄였는데,
+              그건 모든 차트가 <배율 2배> 로 그려지던 때 이야기였습니다.
+              배율 손잡이를 없앤 뒤로는 190 이 그냥 작습니다. 되돌립니다. -->
+        <div id="homeFxBox" style="height:280px"></div>
       </div>
 
-      <!-- 팀 성적표 — 모의투자 탭에서 여기로 옮겨왔습니다 -->
-      <div class="card" id="homeBoardCard">
-        <h2>팀 성적표
-          <span style="font-size:11.5px;font-weight:400;color:var(--text-sub)">— 항목을 눌러 정렬</span>
-          <span class="tools"><button class="btn-sm" onclick="showTab('trading')">모의투자 열기</button></span>
-        </h2>
-        <div class="scroll"><table id="lbTable">
-          <tr><td class="empty">불러오는 중…</td></tr>
-        </table></div>
-      </div>
-
-      <!-- 증시캘린더 -->
+      <!--  ── ② 경제지표 (증시캘린더) ─────────────────────────
+            ⚠️ 오늘·이번 주에 무엇이 발표되는지. 환율 다음입니다. -->
       <div class="card cal-card">
         <div class="cal-wrap">
           <aside class="cal-side">
@@ -1279,9 +1223,60 @@
         </div>
       </div>
 
-      <!-- ── 회의 자료 (PDF) ──
-           카톡방은 나가거나 시간이 지나면 파일을 못 받습니다.
-           여기 두면 기수가 바뀌어도 남습니다.                    -->
+      <!--  ── ③ 학회 일정 ────────────────────────────────────
+            ⚠️ 예전에는 홈 맨 위였습니다. 학회장이 순서를 바꿨습니다 —
+               시장부터 보고 학회 일을 본다는 순서입니다.        -->
+      <div class="card" id="evCard">
+        <h2>학회 일정
+          <span class="tools">
+            <button class="btn-sm admin-only hidden" onclick="evOpen()">+ 일정 추가</button>
+            <button class="btn-sm" onclick="loadEvents(true)">새로 고침</button>
+          </span>
+        </h2>
+        <div id="evWarn"></div>
+        <div id="evDday"></div>
+        <div id="evList"><div class="empty" style="padding:18px">불러오는 중…</div></div>
+        <!--  임원진 편집칸 — 평소엔 접혀 있습니다 -->
+        <div id="evForm" class="hidden" style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
+          <div class="row">
+            <label>제목</label>
+            <input type="text" id="evTitle" class="grow" placeholder="예: 3주차 정기세미나 — 금리와 환율" maxlength="120">
+            <select id="evKind" style="width:130px">
+              <option value="seminar">정기세미나</option>
+              <option value="presentation">발표</option>
+              <option value="contest">대회</option>
+              <option value="deadline">마감</option>
+              <option value="social">친목</option>
+              <option value="etc">기타</option>
+            </select>
+          </div>
+          <div class="row">
+            <label>날짜</label>
+            <input type="date" id="evFrom" style="width:160px">
+            <span class="st-hint">~</span>
+            <input type="date" id="evTo" style="width:160px" title="여러 날에 걸치면 끝 날짜를 적으세요 (하루면 비워두세요)">
+            <input type="text" id="evAt" placeholder="19:00" maxlength="10" style="width:84px">
+            <span class="st-hint">시각 (선택)</span>
+          </div>
+          <div class="row">
+            <label>담당 · 장소</label>
+            <input type="text" id="evOwner" placeholder="담당자" maxlength="40" style="width:150px">
+            <input type="text" id="evPlace" class="grow" placeholder="장소 (예: 다산관 401)" maxlength="80">
+          </div>
+          <div class="row">
+            <label>설명</label>
+            <input type="text" id="evNote" class="grow" placeholder="한 줄 설명 (선택)" maxlength="300">
+          </div>
+          <div class="row" style="margin-top:4px">
+            <button class="btn-sm btn-solid" onclick="evSave()">저장</button>
+            <button class="btn-sm" onclick="evClose()">취소</button>
+            <button class="btn-sm" id="evDel" style="margin-left:auto;color:var(--danger)"
+                    onclick="evRemove()">이 일정 삭제</button>
+          </div>
+        </div>
+      </div>
+
+      <!--  ── ④ 회의 자료 ──────────────────────────────────── -->
       <div class="card" id="homeDocsCard">
         <h2>회의 자료
           <span class="tools" style="font-weight:400;font-size:11.5px;color:var(--text-sub)">
@@ -1310,33 +1305,6 @@
         </div>
 
         <div id="mdBody"><div class="empty">불러오는 중…</div></div>
-      </div>
-
-      <!-- 처음 온 학회원용 안내 -->
-      <div class="card" id="homeGuide">
-        <h2>어디에 무엇이 있나
-          <span class="tools"><button class="btn-sm" onclick="hideGuide()">다음부터 안 보기</button></span>
-        </h2>
-        <div class="guide-grid">
-          <button class="guide-item" onclick="showTab('research')">
-            <b>매크로 경제</b>
-            <span>여러 지표를 한 차트에 겹쳐 보고 JPG·CSV 로 내보냅니다.
-              차트 아래 <em>상세 항목 분석</em>에서 지표 안을 쪼개 볼 수 있습니다.</span>
-          </button>
-          <button class="guide-item" onclick="showTab('trading')">
-            <b>모의투자</b>
-            <span>팀별 1억 시드. 직접 사고팔거나, 조건을 정해 자동매매에 맡깁니다.</span>
-          </button>
-          <button class="guide-item" onclick="showTab('company')">
-            <b>기업 분석</b>
-            <span>재무제표 · 공시 · 지분, 그리고 개요 · 컨센서스.
-              재무 계정을 클릭하면 <em>실적 추이</em> 차트에 쌓입니다.</span>
-          </button>
-          <button class="guide-item" onclick="showTab('deriv')">
-            <b>파생상품</b>
-            <span>옵션으로 시장이 보는 가격대를 읽습니다. 코인 옵션은 공짜입니다.</span>
-          </button>
-        </div>
       </div>
 
     </div>
@@ -5593,15 +5561,11 @@ var econData = null;
 
 //  한 번 닫으면 그 컴퓨터에서는 다시 안 띄웁니다.
 //  저장이 막힌 브라우저도 있어서 실패해도 그냥 넘어갑니다.
-function hideGuide(){
-  var g = $('homeGuide'); if (g) g.classList.add('hidden');
-  try { localStorage.setItem('safe_guide_off', '1'); } catch(e){}
-}
-function applyGuidePref(){
-  var off = false;
-  try { off = localStorage.getItem('safe_guide_off') === '1'; } catch(e){}
-  var g = $('homeGuide'); if (g) g.classList.toggle('hidden', off);
-}
+/*  ⚠️ 학회장: «어디에 무엇이 있나 빼줘». 홈에서 그 카드를 뺐습니다.
+    함수는 <지우지 않고> 빈 껍데기로 둡니다 — 다른 데서 부르고 있으면
+    지우는 순간 그쪽이 터지는데, 그건 이 요청과 상관없는 고장입니다.  */
+function hideGuide(){ /* 안내 카드를 없앴습니다 */ }
+function applyGuidePref(){ /* 안내 카드를 없앴습니다 */ }
 
 /*  ══════════ 학회 일정 (홈 타임라인) ══════════════════════════
 
@@ -11993,7 +11957,11 @@ function annAdd(a){
   a.font = st.font; a.size = st.size; a.color = st.color;
   if (a.sid == null) a.sid = annOwnerKey();
   annItems.push(a);
-  annSel = {}; annSel[a.id] = 1;
+  /*  ⚠️ 예전에는 여기서 방금 만든 것을 <고른 상태> 로 뒀습니다. 그래서
+      핀을 꽂자마자 표시가 붙었고, 사용자는 고른 적이 없으니 «왜 자국이
+      남지» 가 됐습니다. 만든 뒤에는 아무것도 안 고릅니다 — 고르고 싶으면
+      고르기 도구로 누르면 됩니다.                                    */
+  annSel = {};
   return a;
 }
 //  지워진 지표의 주석은 같이 지우고, 가려진 지표의 주석은 같이 숨깁니다
@@ -12176,10 +12144,24 @@ function annEls(){
     }
     if (!kids.length) return;
 
-    //  고른 것에는 테를 둘러 <지금 뭘 고쳤는지> 보이게 합니다
-    if (annSel[a.id])
-      kids.unshift({ type:'circle', z:49, shape:{ cx:0, cy:0, r:9 },
-        style:{ fill:'none', stroke:'#2a78d6', lineWidth:1.4, lineDash:[3,3] } });
+    /*  ⚠️ 학회장: «원 주위에 파랑색 점선이 가장 최근에 추가된 핀 주위에
+        있잖아? 이거 없애줘».
+
+        고른 주석에 파란 점선 동그라미를 둘렀습니다. 그런데 annAdd 가
+        만들자마자 그 주석을 <고른 상태로> 두기 때문에, 핀을 꽂으면
+        바로 동그라미가 생겼습니다. 고르지도 않았는데 표시가 뜨니
+        차트에 정체불명의 자국이 남은 것처럼 보입니다.
+
+        동그라미는 없앱니다. 대신 <고르기 도구를 쓸 때만> 그 주석을
+        살짝 굵고 진하게 그려 «이게 골라져 있다» 를 알립니다 —
+        Del 로 지울 때 무엇이 지워지는지는 알아야 합니다.            */
+    var picked = (annTool === 'sel') && !!annSel[a.id];
+    if (picked) kids.forEach(function(k){
+      if (!k || !k.style) return;
+      if (k.style.stroke && k.style.lineWidth != null)
+        k.style.lineWidth = k.style.lineWidth + 1.2;
+      if (k.type === 'text') k.style.fontWeight = 'bold';
+    });
 
     /*  ⚠️ 이미 그려둔 주석이 <새로 그리는 것> 을 가로막으면 안 됩니다.
 
@@ -21610,7 +21592,16 @@ async function delTrade(id){
 }
 
 async function loadLeaderboard(){
+  /*  ⚠️ 학회장: «팀 성적표 홈탭에서 빼도 될 거 같음 방해된다».
+      홈에서 표를 뺐습니다. 그런데 이 함수는 여섯 군데에서 부릅니다
+      (로그인 직후·거래 후·팀 전환 등). 상자가 없는데 innerHTML 을
+      건드리면 그 자리에서 터지고, <뒤에 있던 다른 로딩까지> 같이
+      멈춥니다. 상자가 없으면 조용히 돌아갑니다.
+
+      ⚠️ 함수를 지우지는 않습니다 — 순위는 모의투자 탭에서 그대로
+         씁니다(mtLoadLeague). 여기는 홈 전용 표였습니다.            */
   var t = $('lbTable');
+  if (!t) return;
   var r = await sb.rpc('scoreboard');
 
   if (r.error){
