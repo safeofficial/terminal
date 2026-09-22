@@ -1553,6 +1553,10 @@
             </div>
 
             <div id="chartBox"></div>
+            <!--  ⚠️ 환산값을 그리는 중이면 <가정을 화면에> 적어야 합니다.
+                  안 적으면 학회원이 «받아온 채권 가격» 으로 읽고 그대로
+                  보고서에 옮깁니다.                                   -->
+            <div id="priceNote" class="note info hidden" style="margin-top:10px"></div>
             <!--  ⚠️ 일드커브가 위 차트를 넘겨받을 때, 아래 카드에 있던
                   시점 손잡이·표를 <그대로 옮겨> 여기 담습니다.        -->
             <div id="ycMainPanel" class="hidden" style="margin-top:10px">
@@ -10238,7 +10242,20 @@ function renderSeriesList(){
       +     '<option value="raw"' +(tf==='raw' ?' selected':'')+'>원지수 그대로</option>'
       +     '<option value="yoy"' +(tf==='yoy' ?' selected':'')+'>전년동기비 (YoY, %)</option>'
       +     '<option value="mom"' +(tf==='mom' ?' selected':'')+'>전기비 (MoM, %)</option>'
-      +     '<option value="yoyd"'+(tf==='yoyd'?' selected':'')+'>전년동기 차이 (%p)</option></select>'
+      +     '<option value="yoyd"'+(tf==='yoyd'?' selected':'')+'>전년동기 차이 (%p)</option>'
+      /*  ⚠️ 금리 지표에만 뜻이 있습니다 (canPriceTf 참고).
+          걸 수 없는 지표에는 목록에서 아예 안 보여줍니다.             */
+      +     (canPriceTf(s)
+              ? '<option value="price"'+(tf==='price'?' selected':'')+'>채권 가격 환산 (100 기준)</option>'
+              : '')
+      +     '</select>'
+      //  ⚠️ 가격 환산일 때만 만기를 고릅니다 (평소엔 자리만 차지합니다)
+      +   (tf === 'price'
+          ? '<label style="min-width:auto;font-size:11.5px;color:var(--text-sub)">만기</label>'
+            + '<input type="number" min="1" max="50" step="1" style="width:66px"'
+            + ' value="' + (Number(s.mat) || 10) + '"'
+            + ' onchange="setMat('+i+',this.value)" title="몇 년짜리 채권으로 볼지">'
+          : '')
       +   '<select onchange="setType('+i+',this.value)">'
       +     '<option value="line"'+(s.type!=='bar'?' selected':'')+'>선</option>'
       +     '<option value="bar"' +(s.type==='bar'?' selected':'')+'>막대</option></select>'
@@ -11052,7 +11069,41 @@ function setAxis(i,v){
 }
 function setWidth(i,v){ series[i].width = Number(v); drawChart(); }
 function setType(i,v){ series[i].type = v; drawChart(); }
-function setTf(i,v){ series[i].tf = v; drawChart(); }
+function setTf(i,v){
+  var s = series[i], was = s.tf || 'raw';
+  s.tf = v;
+  /*  ⚠️ 가격 환산은 단위가 «%» 에서 «가격» 으로 통째로 바뀝니다.
+      금리 선이 쓰던 축에 그대로 두면 100 옆에 4.2 가 붙어 금리 쪽이
+      바닥에 눌려 평평해 보입니다 — 축을 다시 고릅니다.
+      (켤 때만이 아니라 <끌 때도> 입니다. 되돌렸는데 축이 남아 있으면
+       같은 이유로 반대쪽이 눌립니다.)                                */
+  if ((was === 'price') !== (v === 'price'))
+    s.axis = pickAxisFor(series.filter(function(x){ return x.points && x.points.length; }), s, 4);
+  //  ⚠️ 가격 환산으로 바꾸면 만기 칸이 새로 생깁니다 — 목록을 다시 그립니다
+  renderSeriesList();
+  drawChart();
+}
+/*  ⚠️ 만기는 «몇 년짜리 채권으로 볼 것인가» 입니다. 1~50년으로 막습니다 —
+       100년짜리를 넣으면 가격이 몇 배로 튀어 다른 선이 눌립니다.
+
+    ⚠️ «Number(v) || 10» 으로 쓰면 안 됩니다. 0 이 falsy 라서 <0 을 넣으면
+       10년> 이 됩니다. 칸에는 0, 그림은 10년 — 화면과 그림이 서로 다른
+       말을 합니다. 0 은 «너무 작은 값» 이니 최소값 1 로 막는 게 맞습니다.
+
+    ⚠️ 막은 값은 칸에도 돌려줍니다 (목록을 다시 그립니다). 안 그러면
+       칸엔 «999», 그림은 50년짜리가 됩니다.                            */
+function setMat(i,v){
+  /*  ⚠️ Number('') 는 <0> 입니다 (NaN 이 아닙니다). 그래서 칸을 비우면
+      «0 → 최소값 1년» 이 되어 그림이 통째로 평평해집니다. 비운 것은
+      «지웠다» 지 «1년» 이 아니니 기본값으로 봅니다.                   */
+  var t = String(v == null ? '' : v).trim();
+  var n = (t === '') ? 10 : Number(t);
+  if (!isFinite(n)) n = 10;                 //  글자를 넣었을 때
+  n = Math.max(1, Math.min(50, Math.round(n)));
+  series[i].mat = n;
+  renderSeriesList();
+  drawChart();
+}
 function removeSeries(i){
   series.splice(i,1);
   //  ⚠️ 지표를 지우면 그 지표에 단 주석도 같이 나갑니다 (남으면 다른 선을
@@ -11062,8 +11113,51 @@ function removeSeries(i){
 }
 
 /* ══════════ 지표 변환 (원지수 / YoY / MoM) ══════════ */
-var TF_SUFFIX = { raw:'', yoy:' (YoY)', mom:' (MoM)', yoyd:' (YoY 차)' };
-var TF_UNIT   = { raw:null, yoy:'%', mom:'%', yoyd:'%p' };
+var TF_SUFFIX = { raw:'', yoy:' (YoY)', mom:' (MoM)', yoyd:' (YoY 차)',
+                  price:' (가격 환산)' };
+/*  ⚠️ 여기서 '' 를 쓰면 안 됩니다. unitOf 가 «||» 로 이어받기 때문에
+       빈 문자열은 <단위를 안 적은 것> 으로 읽혀 원래 단위(%)로
+       흘러내립니다. 그러면 가격 환산 선이 <금리와 같은 축> 에
+       붙습니다 — 100 옆에 4.2 가 붙어 금리 쪽이 바닥에 눌립니다.  */
+var TF_UNIT   = { raw:null, yoy:'%', mom:'%', yoyd:'%p', price:'가격(100)' };
+
+/*  ── 금리를 <채권 가격> 으로 환산합니다 ──────────────────────
+
+    ⚠️ 학회장: «매크로 탭에 채권 가격 추이도 추가해 줬으면».
+
+       그런데 우리가 받아오는 건 전부 <금리> 입니다 (FRED·ECOS·재무성·
+       분데스방크 모두 수익률만 줍니다). 가격은 <파는 곳이 없습니다> —
+       무료로 국채 체결가를 주는 창구가 없어요.
+
+       그래서 금리에서 가격을 <계산> 합니다. 채권 가격은 결국
+       «앞으로 받을 돈을 시장금리로 할인한 값» 이니까요.
+
+         가격 = Σ 쿠폰/(1+y)^t  +  액면/(1+y)^n
+
+    ⚠️ 이건 <받아온 값이 아니라 환산값> 입니다. 실제 채권 시세와는
+       다릅니다 — 표면금리·경과이자·액면·호가 단위를 다 뭉갠 값이라서요.
+       그래서 이름표에 «가격 환산» 을 붙이고, 아래 설명에도 가정을
+       적어둡니다. 보고서에 «채권 가격» 으로 그냥 옮겨 적으면 안 됩니다.
+
+    ⚠️ 가정 — 여기서 고정합니다.
+         · 액면 100, 연 1회 이표
+         · 표면금리 = <그 구간 첫 금리> (그래서 시작값이 정확히 100)
+         · 만기 n = 선 설정에서 고릅니다 (기본 10년)
+       표면금리를 첫 금리로 잡으면 «그때 새로 발행된 채권을 사서
+       들고 있으면 값이 어떻게 움직였나» 가 됩니다. 학회에서 보여주려는
+       그림이 정확히 이것입니다.                                      */
+function bondPrice(yPct, cPct, n){
+  var y = Number(yPct) / 100, c = Number(cPct) / 100;
+  if (!isFinite(y) || !isFinite(n) || n <= 0) return null;
+  //  ⚠️ 금리가 0 이면 할인이 없습니다 — 나누기가 터지므로 따로 셉니다
+  if (Math.abs(y) < 1e-12) return 100 * (c * n + 1);
+  //  ⚠️ 금리가 음수여도(유럽·일본에 실제로 있었습니다) 식은 성립합니다.
+  //     다만 (1+y) 가 0 이하면 성립하지 않으니 그때는 안 냅니다.
+  if (1 + y <= 0) return null;
+  var d = Math.pow(1 + y, -n);
+  var annuity = (1 - d) / y;                 //  Σ 1/(1+y)^t, t=1..n
+  return 100 * (c * annuity + d);
+}
 /*  이름표에서 «2003~» 같은 <자료 시작 연도> 주장을 떼어냅니다.
 
     «일본 보유 (월간, 2003~)»  →  «일본 보유 (월간)»
@@ -11094,8 +11188,29 @@ function srcSpanOff(label){
   return t.replace(/\s{2,}/g, ' ').trim();
 }
 
+/*  ── 이 선에 «가격 환산» 을 걸 수 있나 ───────────────────────
+
+    ⚠️ 뜻이 있는 건 <금리> 뿐입니다. 소매판매를 채권 가격으로 환산하면
+       아무 뜻이 없는 숫자가 나옵니다.
+
+    ⚠️ 그런데 <이미 가격인 선> 에 걸어도 똑같이 말이 안 됩니다. 채권 ETF
+       («국고채 10년 ETF», 단위 원)가 정확히 그 경우라, 이름만 보면
+       «국고채» 가 걸려 버립니다. 그래서 단위를 먼저 봅니다 —
+       단위가 적혀 있으면 이름은 아예 안 봅니다.                        */
+function canPriceTf(s){
+  var u = String((s && s.unit) || '').trim();
+  if (/(%|퍼센트)/.test(u)) return true;      //  단위가 % 면 금리입니다
+  if (u) return false;                        //  «원»·«$» 면 이미 가격입니다
+  //  단위가 비어 있을 때만 이름으로 봅니다
+  return /금리|수익률|국채|국고채|이자율|yield/i.test(String((s && s.label) || ''));
+}
+
 function tfSuffix(s){ return TF_SUFFIX[s.tf||'raw'] || ''; }
-function unitOf(s){ return TF_UNIT[s.tf||'raw'] || s.unit || ''; }
+//  ⚠️ «||» 가 아니라 «null 인가» 로 봅니다 (위 주석 참고)
+function unitOf(s){
+  var u = TF_UNIT[s.tf || 'raw'];
+  return (u == null) ? (s.unit || '') : u;
+}
 
 function shiftIso(iso, years, months){
   var p = iso.slice(0,10).split('-');
@@ -11113,11 +11228,27 @@ function idxAtOrBefore(dates, target){
 /* 화면·CSV 에 쓸 값. 원본 s.points 는 건드리지 않습니다. */
 /* 원지수 → 전년동기비 / 전기비 / 차이 로 바꿉니다.
    경제지표 탭과 기업 분석 탭이 같은 함수를 씁니다. */
-function applyTf(pts, tf, from){
+function applyTf(pts, tf, from, opt){
   pts = pts || [];
   from = from || '0000-01-01';
   if (!pts.length) return pts;
   if (!tf || tf === 'raw') return pts.filter(function(p){ return p.d >= from; });
+
+  /*  ── 금리 → 가격 환산 ──────────────────────────────────────
+      ⚠️ 표면금리는 <보이는 구간의 첫 값> 으로 잡습니다. 기간을 바꾸면
+         기준도 같이 바뀌어서 늘 «그때 산 채권» 이 됩니다.            */
+  if (tf === 'price'){
+    var win = pts.filter(function(p){ return p.d >= from && isFinite(p.v); });
+    if (!win.length) return [];
+    var cpn = win[0].v;
+    var n = Number(opt && opt.mat) || 10;
+    var res = [];
+    for (var k = 0; k < win.length; k++){
+      var pv = bondPrice(win[k].v, cpn, n);
+      if (pv != null && isFinite(pv)) res.push({ d: win[k].d, v: pv });
+    }
+    return res;
+  }
 
   var dates = pts.map(function(p){ return p.d; });
   var out = [];
@@ -11144,7 +11275,7 @@ function applyTf(pts, tf, from){
 }
 
 function viewPoints(s){
-  return applyTf(s.points, s.tf || 'raw', startDate());
+  return applyTf(s.points, s.tf || 'raw', startDate(), { mat: s.mat });
 }
 
 /*  ── 금액 축 라벨 ────────────────────────────────────────────
@@ -12436,12 +12567,35 @@ document.addEventListener('keydown', function(e){
   }
 });
 
+/*  ── 「가격 환산」을 쓰는 중이면 가정을 적습니다 ─────────────
+
+    ⚠️ 이 숫자는 <받아온 채권 시세가 아닙니다>. 금리에서 계산한 값입니다.
+       화면에 안 적으면 학회원이 그대로 «채권 가격» 으로 보고서에
+       옮겨 적습니다 — 이 터미널에서 여러 번 났던 사고입니다.        */
+function priceNote(){
+  var box = $('priceNote'); if (!box) return;
+  var on = shownSeries().filter(function(s){ return s.tf === 'price'; });
+  if (!on.length){ box.classList.add('hidden'); box.innerHTML = ''; return; }
+  var mats = on.map(function(s){ return (Number(s.mat) || 10) + '년'; });
+  var uniq = mats.filter(function(t, i){ return mats.indexOf(t) === i; });
+  box.classList.remove('hidden');
+  box.innerHTML =
+      '<b>이 선은 「가격 환산」입니다 — 받아온 채권 시세가 아닙니다.</b><br>'
+    + '금리에서 <code>가격 = Σ 쿠폰/(1+y)<sup>t</sup> + 액면/(1+y)<sup>n</sup></code> 로 계산했습니다. '
+    + '가정: 액면 100 · 연 1회 이표 · 만기 <b>' + esc(uniq.join(' · ')) + '</b> · '
+    + '표면금리는 <b>보이는 구간의 첫 금리</b>(그래서 시작이 정확히 100).<br>'
+    + '<span class="st-hint">즉 «그 시점에 새로 발행된 채권을 사서 들고 있었다면 '
+    + '값이 어떻게 움직였나» 입니다. 실제 시세는 표면금리·경과이자·호가 단위가 '
+    + '달라 다릅니다. 보고서에는 <b>«환산값»</b>이라고 밝혀 주세요.</span>';
+}
+
 function drawChart(){
   if (!chartsReady()) return;
   //  ⚠️ 커브 모드면 여기서 갈라집니다. 아래 시계열 그리기는 건드리지 않습니다.
   if (macroMode === 'curve'){ ycDraw(); return; }
   chart = chartOn('chartBox', chart); if (!chart) return;
   bindAxisWheel();
+  priceNote();
   var norm = $('normSel') && $('normSel').checked;
 
   var loaded = [];
