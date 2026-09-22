@@ -823,7 +823,11 @@
   .cal-filters .mode-seg{margin:0}
   .cal-wk{font-size:14px;font-weight:700;color:var(--primary);
     padding:16px 0 7px;border-bottom:1px solid var(--border)}
-  .cal-row{display:grid;grid-template-columns:88px 1fr 104px 92px 92px;gap:10px;
+  /*  ⚠️ 학회장: «증시 캘린더에 예측은 빼야 되는 거 아니니? 예측치 어차피
+      없는데». 맞습니다 — 예측치가 붙는 지표는 GDP 하나뿐이고(연준
+      나우캐스트), 나머지는 전부 «—» 였습니다. 칸 하나가 통째로 빈
+      셈이라 뺐습니다. 다섯 칸 → 네 칸.                               */
+  .cal-row{display:grid;grid-template-columns:88px 1fr 116px 116px;gap:10px;
     align-items:center;padding:11px 5px;border-bottom:1px solid var(--border);font-size:14px}
   .cal-row.head{font-size:13px;color:var(--text-sub);font-weight:600;padding:8px 5px}
   .cal-row .dt{color:var(--text-sub)}
@@ -1239,11 +1243,14 @@
             <div id="ecWarn"></div>
             <div id="ecBody"></div>
             <p class="st-hint" style="margin-top:10px">
-              <span class="cal-key up">예상 상회</span>
-              <span class="cal-key dn">예상 하회</span>
+              <!--  ⚠️ 예측 칸을 뺐으니 «예상 상회» 도 말이 안 됩니다.
+                    색은 이제 <이전치 대비> 입니다.                    -->
+              <span class="cal-key up">이전치 상회</span>
+              <span class="cal-key dn">이전치 하회</span>
               <span class="cal-key soon">발표 전</span>
               <span style="margin-left:8px">★ 는 시장이 크게 반응하는 지표입니다.
-              예측치는 시장 컨센서스가 아니라 <b>연준 나우캐스트</b>입니다.</span>
+              시장 컨센서스(예측치)는 아직 안 붙입니다 — 받아올 창구가 없어서
+              거의 모든 줄이 비었습니다.</span>
             </p>
           </div>
         </div>
@@ -6258,7 +6265,12 @@ function nfTick(){
 
    자료는 FRED 발표 일정에 우리 매핑 표를 씌워 만듭니다 — 유료 캘린더가
    없어도 '언제·무엇이·몇 시에(한국시간)·발표치·이전치' 가 채워집니다.
-   예측치만은 시장 컨센서스가 아니라 연준 나우캐스트라, 화면에 그렇게 적습니다. */
+
+   ⚠️ 예측치(컨센서스) 칸은 <화면에서 뺐습니다>. 서버가 붙일 수 있는
+      예측은 연준 나우캐스트 하나뿐이고 그건 GDP 에만 붙습니다 —
+      나머지 줄은 전부 «—» 라 칸 하나가 통째로 비어 있었습니다.
+      서버는 forecast 를 그대로 내려보내므로, 나중에 컨센서스 창구가
+      생기면 표 머리 한 줄과 칸 한 줄만 되돌리면 됩니다.             */
 var ecCursor = null;      // 보고 있는 달의 1일
 var ecDay = null;         // 눌러둔 날짜
 var ecView = { kind:'all', scope:'all', view:'week' };
@@ -6423,16 +6435,20 @@ function ecList(evs){
       wk = w;
       H += '<div class="cal-wk">' + esc(w) + '</div>'
          + '<div class="cal-row head"><div>날짜</div><div>일정</div>'
-         + '<div class="num">발표</div><div class="num">예측</div><div class="num">이전</div></div>';
+         + '<div class="num">발표</div><div class="num">이전</div></div>';
       lastDate = '';
     }
     var showDate = e.kst_date !== lastDate;
     lastDate = e.kst_date;
     var dnum = Number(e.kst_date.slice(8, 10));
 
+    /*  ⚠️ 예전에는 <예측치가 있으면 그것과, 없으면 이전치와> 견줘
+        색을 칠했습니다. 그런데 예측 칸을 화면에서 뺐으니, 예측 기준으로
+        칠하면 <보이지 않는 숫자> 를 기준 삼는 셈입니다. GDP 한 줄만
+        다른 잣대로 칠해지는 것도 이상합니다. 이전치 대비로 통일합니다.
+        범례 글자도 «이전치 상회/하회» 로 같이 고쳤습니다.            */
     var cls = '';
     if (e.actual == null) cls = 'soon';
-    else if (e.forecast != null) cls = e.actual >= e.forecast ? 'up' : 'dn';
     else if (e.previous != null) cls = e.actual >= e.previous ? 'up' : 'dn';
 
     H += '<div class="cal-row' + (e.kst_date === t ? ' on' : '') + '">'
@@ -6443,8 +6459,9 @@ function ecList(evs){
     if (e.actual == null){
       H += '<div class="soon">' + esc(ecKoTime(e.kst_time)) + ' 발표 예정</div>';
     } else {
+      /*  ⚠️ 예측 칸은 뺐습니다. 서버는 forecast 를 그대로 내려보내니
+          나중에 컨센서스 창구가 생기면 이 두 줄만 되돌리면 됩니다.    */
       H += '<div class="num ' + cls + '">' + ecoNum(e.actual) + '</div>'
-         + '<div class="num">' + (e.forecast == null ? '—' : ecoNum(e.forecast)) + '</div>'
          + '<div class="num">' + ecoNum(e.previous) + '</div>';
     }
     H += '</div>';
