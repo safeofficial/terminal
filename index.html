@@ -1136,96 +1136,17 @@
     <div id="pane-home">
       <div class="page-head">
         <h1>SAFE Terminal</h1>
-        <p>오늘 시장에서 무엇이 나오는지 — 환율, 각국 지표 발표, 실시간 뉴스를 한 화면에.</p>
+        <!--  ⚠️ 환율 카드를 뺐으니 여기서도 환율을 안 적습니다.
+              화면에 없는 것을 «한 화면에» 라고 적으면 그게 거짓말입니다. -->
+        <p>학회 일정 · 각국 지표 발표 일정 · 회의 자료를 한 화면에.</p>
       </div>
       <div id="homeWarn"></div>
 
-      <!--  ── ① 환율 ────────────────────────────────────────
-            ⚠️ 학회장: «환율 제일 위에, 그 다음 경제지표, 그 다음 우리
-               학회 일정, 그다음에 회의 자료». 홈에 들어오면 제일 먼저
-               보는 것이 환율이라는 뜻입니다.                     -->
-      <div class="card">
-        <h2>통화 · 환율
-          <span class="tools">
-            <span id="homeFxAsOf" style="font-size:11.5px;color:var(--text-sub);font-weight:400"></span>
-            <button class="btn-sm" onclick="chartJpg(homeFxChart, '환율')">JPG</button>
-            <button class="btn-sm" onclick="loadHomeFx(true)">새로 받기</button>
-          </span>
-        </h2>
-        <div id="homeFxTiles"><div class="empty" style="padding:22px">불러오는 중…</div></div>
-        <div class="row" style="margin-top:12px">
-          <label>차트</label>
-          <select id="homeFxSel" onchange="drawHomeFx()" style="width:170px"></select>
-          <label style="min-width:auto">기간</label>
-          <select id="homeFxRange" onchange="drawHomeFx()" style="width:120px">
-            <option value="60">3개월</option>
-            <option value="130">6개월</option>
-            <option value="260" selected>1년</option>
-            <option value="0">전체</option>
-          </select>
-        </div>
-        <!--  ⚠️ 학회장: «환율 차트 사이즈는 오리지널 사이즈로».
-              한때 «차트 height 1/3 줄여줘» 로 280 → 190 으로 줄였는데,
-              그건 모든 차트가 <배율 2배> 로 그려지던 때 이야기였습니다.
-              배율 손잡이를 없앤 뒤로는 190 이 그냥 작습니다. 되돌립니다. -->
-        <div id="homeFxBox" style="height:280px"></div>
-      </div>
 
-      <!--  ── ② 경제지표 (증시캘린더) ─────────────────────────
-            ⚠️ 오늘·이번 주에 무엇이 발표되는지. 환율 다음입니다. -->
-      <div class="card cal-card">
-        <div class="cal-wrap">
-          <aside class="cal-side">
-            <div class="cal-mhead">
-              <b id="ecTitle">—</b>
-              <span>
-                <button class="cal-nav" onclick="ecMonth(-1)" title="지난달">‹</button>
-                <button class="cal-nav" onclick="ecMonth(1)" title="다음달">›</button>
-              </span>
-            </div>
-            <div id="ecCal"></div>
-            <div class="cal-brief" id="ecBrief"></div>
-          </aside>
-
-          <div class="cal-main">
-            <h2 style="margin-bottom:10px">증시캘린더
-              <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
-                발표시각은 한국시간입니다</span>
-              <span class="tools">
-                <button class="btn-sm" onclick="ecMonth(0)">오늘로</button>
-              </span>
-            </h2>
-            <div class="cal-filters">
-              <div class="mode-seg" id="ecKind">
-                <button class="on" onclick="ecSet('kind','all')">전체</button>
-                <button onclick="ecSet('kind','macro')">경제지표</button>
-              </div>
-              <div class="mode-seg" id="ecScope">
-                <button class="on" onclick="ecSet('scope','all')">전체</button>
-                <button onclick="ecSet('scope','KR')">국내</button>
-                <button onclick="ecSet('scope','US')">해외</button>
-              </div>
-              <div class="mode-seg" id="ecView" style="margin-left:auto">
-                <button class="on" onclick="ecSet('view','week')">주별</button>
-                <button onclick="ecSet('view','month')">월별</button>
-              </div>
-            </div>
-            <div id="ecWarn"></div>
-            <div id="ecBody"></div>
-            <p class="st-hint" style="margin-top:10px">
-              <span class="cal-key up">예상 상회</span>
-              <span class="cal-key dn">예상 하회</span>
-              <span class="cal-key soon">발표 전</span>
-              <span style="margin-left:8px">★ 는 시장이 크게 반응하는 지표입니다.
-              예측치는 시장 컨센서스가 아니라 <b>연준 나우캐스트</b>입니다.</span>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!--  ── ③ 학회 일정 ────────────────────────────────────
-            ⚠️ 예전에는 홈 맨 위였습니다. 학회장이 순서를 바꿨습니다 —
-               시장부터 보고 학회 일을 본다는 순서입니다.        -->
+      <!--  ── ① 학회 일정 ────────────────────────────────────
+            ⚠️ 학회장: «홈탭 그냥 학회 일정 / 경제지표 캘린더 /
+               파일들·자료들로 하자. 환율 빼. 어차피 필요없을 듯».
+               환율 카드는 통째로 뺐습니다.                     -->
       <div class="card" id="evCard">
         <h2>학회 일정
           <span class="tools">
@@ -1276,7 +1197,60 @@
         </div>
       </div>
 
-      <!--  ── ④ 회의 자료 ──────────────────────────────────── -->
+
+      <!--  ── ② 경제지표 캘린더 ─────────────────────────────── -->
+      <div class="card cal-card">
+        <div class="cal-wrap">
+          <aside class="cal-side">
+            <div class="cal-mhead">
+              <b id="ecTitle">—</b>
+              <span>
+                <button class="cal-nav" onclick="ecMonth(-1)" title="지난달">‹</button>
+                <button class="cal-nav" onclick="ecMonth(1)" title="다음달">›</button>
+              </span>
+            </div>
+            <div id="ecCal"></div>
+            <div class="cal-brief" id="ecBrief"></div>
+          </aside>
+
+          <div class="cal-main">
+            <h2 style="margin-bottom:10px">증시캘린더
+              <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+                발표시각은 한국시간입니다</span>
+              <span class="tools">
+                <button class="btn-sm" onclick="ecMonth(0)">오늘로</button>
+              </span>
+            </h2>
+            <div class="cal-filters">
+              <div class="mode-seg" id="ecKind">
+                <button class="on" onclick="ecSet('kind','all')">전체</button>
+                <button onclick="ecSet('kind','macro')">경제지표</button>
+              </div>
+              <div class="mode-seg" id="ecScope">
+                <button class="on" onclick="ecSet('scope','all')">전체</button>
+                <button onclick="ecSet('scope','KR')">국내</button>
+                <button onclick="ecSet('scope','US')">해외</button>
+              </div>
+              <div class="mode-seg" id="ecView" style="margin-left:auto">
+                <button class="on" onclick="ecSet('view','week')">주별</button>
+                <button onclick="ecSet('view','month')">월별</button>
+              </div>
+            </div>
+            <div id="ecWarn"></div>
+            <div id="ecBody"></div>
+            <p class="st-hint" style="margin-top:10px">
+              <span class="cal-key up">예상 상회</span>
+              <span class="cal-key dn">예상 하회</span>
+              <span class="cal-key soon">발표 전</span>
+              <span style="margin-left:8px">★ 는 시장이 크게 반응하는 지표입니다.
+              예측치는 시장 컨센서스가 아니라 <b>연준 나우캐스트</b>입니다.</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+
+      <!--  ── ③ 파일 · 자료 ──────────────────────────────────── -->
       <div class="card" id="homeDocsCard">
         <h2>회의 자료
           <span class="tools" style="font-weight:400;font-size:11.5px;color:var(--text-sub)">
@@ -5890,12 +5864,12 @@ function initHome(){
   homeReady = true;
   applyGuidePref();
   //  ⚠️ 뉴스는 이제 홈이 아니라 <우하단 서랍> 입니다. 여기서 부르지 않습니다.
-  loadHomeFx();
+  /*  ⚠️ 환율 카드를 뺐습니다. 그런데 환율을 <아예 안 부르면> 엉뚱한 데가
+      고장납니다 — 모의투자의 미국·코인 평가액은 서버의 원/달러 보관함을
+      쓰는데, 그 보관함을 채우던 게 loadHomeFx 안의 seedFxTable 이었습니다.
+      화면에 안 그려도 보관함은 채워야 합니다. 그것만 직접 부릅니다.   */
+  seedFxTable();
   loadEcon();
-  /*  팀 성적표를 모의투자 탭에서 홈으로 옮겼습니다. 예전에는 모의투자에
-      들어가야 순위가 채워졌기 때문에, 홈에서는 제목만 있고 표가 비어
-      있었습니다. 홈에 있는 이상 홈이 직접 불러와야 합니다.            */
-  loadLeaderboard();
   loadMeetingDocs();
 }
 
@@ -5926,6 +5900,10 @@ var FX_MS = 30 * 60 * 1000;
 var fxTimer = null, fxGotAt = 0;
 
 async function loadHomeFx(force, quiet){
+  /*  ⚠️ 홈에서 환율 카드를 뺐습니다. 함수는 <지우지 않습니다> — 나중에
+      다시 붙일 수도 있고, 지우면 이 함수를 부르던 자리들이 터집니다.
+      그릴 상자가 없으면 아무 일도 안 하고 돌아갑니다.                */
+  if (!$('homeFxTiles')) return;
   if (homeFx && !force){ renderHomeFx(); return; }
   if (!quiet)
     $('homeFxTiles').innerHTML = '<div class="empty" style="padding:22px">불러오는 중…</div>';
@@ -5947,6 +5925,8 @@ async function loadHomeFx(force, quiet){
 
 function fxAuto(){
   if (fxTimer) clearInterval(fxTimer);
+  //  ⚠️ 그릴 카드가 없으면 30분마다 부를 이유가 없습니다
+  if (!$('homeFxTiles')) return;
   fxTimer = setInterval(function(){
     //  창을 내려놨으면 건너뜁니다 — 돌아올 때 아래에서 따라잡습니다
     if (document.hidden) return;
@@ -5958,7 +5938,7 @@ function fxAuto(){
     노트북을 덮었다 열면 30분이 훌쩍 지나 있기도 합니다. 돌아왔을 때
     <얼마나 지났는지> 를 직접 보고 따라잡습니다.                      */
 document.addEventListener('visibilitychange', function(){
-  if (document.hidden || !fxGotAt) return;
+  if (document.hidden || !fxGotAt || !$('homeFxTiles')) return;
   if (Date.now() - fxGotAt > FX_MS) loadHomeFx(true, true);
 });
 
@@ -5969,6 +5949,7 @@ function fxDp(sym, v){
 }
 
 function renderHomeFx(){
+  if (!$('homeFxTiles')) return;
   var d = homeFx; if (!d) return;
   var live = d.pairs.filter(function(p){ return p.last != null; });
   var liveN = live.filter(function(p){ return p.kind === 'live'; }).length;
@@ -6057,6 +6038,8 @@ function renderHomeFx(){
 }
 
 function drawHomeFx(){
+  //  ⚠️ 환율 카드를 뺀 뒤로는 그릴 상자가 없습니다 (함수는 남겨둡니다)
+  if (!$('homeFxBox')) return;
   if (!homeFx) return;
   var box = $('homeFxBox'); if (!box) return;
   var sym = $('homeFxSel').value;
@@ -15762,7 +15745,7 @@ function downloadCSV(){
 
 /*  차트를 새로 만들 때마다 이 목록에 손으로 더하는 걸 잊기 쉬워서,
     화면에 있는 차트 상자를 훑어 전부 다시 맞춥니다. */
-var CHART_BOXES = ['chartBox','dtChartBox','dtBarBox','homeFxBox',
+var CHART_BOXES = ['chartBox','dtChartBox','dtBarBox',
   'pieBox','pnlBox','benchBox','stratPrevBox',
   'coFinBox','coPriceBox',
   'dvMapBox','dvTermBox','dvPayBox','dvIvBox','dvOiBox','dvGkBox',
