@@ -11997,18 +11997,64 @@ function annFillSeries(){
 /*  ⚠️ 축 번호를 받습니다. 오른쪽 축(1번)에 붙은 지표에 핀을 꽂았는데
     왼쪽 축 기준으로 픽셀을 계산하면, 점이 선에서 한참 떨어진 곳에
     찍힙니다. 어느 축의 값인지까지 같이 들고 있어야 합니다.          */
-function annToPx(x, y, ax){
+/*  ── 「100 기준」(지수화) 을 켜면 <그려지는 값> 이 달라집니다 ──
+
+    ⚠️ 학회장: «선 위에 핀 안 나오잖아 … 아예 원도 안 나오고 차트 선도
+       안 따라다니고».
+
+       원인이 여기였습니다. 주석은 <받아온 값 그대로> (예: CPI 3.97) 를
+       저장합니다. 그런데 「100 기준」을 켜면 차트는 그 자리에 3.97 이
+       아니라 «첫 값 대비 몇» (예: 103.2) 을 그립니다. 축도 그 눈금이고요.
+
+       그래서 3.97 을 그 축에 대고 픽셀로 바꾸면 <격자 한참 아래> 가
+       나옵니다. 격자 밖은 안 그리게 돼 있으니 —
+         · 따라다니던 표식이 사라지고 (annSnap 자리가 격자 밖)
+         · 꽂은 핀의 동그라미도 안 보였습니다.
+       고장 난 게 아니라 <엉뚱한 자에 대고 재고> 있었습니다.
+
+    ⚠️ 고치는 방법은 «같은 자로 재기» 입니다. 그릴 때 차트가 쓰는 바로 그
+       환산(값 ÷ 구간 첫 값 × 100)을 여기서도 씁니다. 저장은 계속 원래
+       값으로 합니다 — 기간을 바꾸면 기준값도 바뀌는데, 환산된 값을
+       저장해 두면 그때부터 주석이 선에서 떨어져 나갑니다.
+
+    ⚠️ 기준값은 <그 주석이 매인 지표> 의 것이어야 합니다. 지표마다 첫 값이
+       다르니까요. 그래서 sid 를 같이 받습니다.
+
+    ⚠️ 지수화일 때 축은 <하나뿐> 입니다 (yAxis 만드는 곳 참고). 저장해 둔
+       축 번호(1번 = 오른쪽)를 그대로 쓰면 없는 축을 가리킵니다.       */
+function annNormBase(sid){
+  if (!($('normSel') && $('normSel').checked)) return null;
+  var s = null;
+  if (sid) s = series.filter(function(x){ return x.key === sid; })[0];
+  if (!s || s.hidden) s = shownSeries()[0];
+  if (!s) return null;
+  var pts = viewPoints(s);
+  if (!pts.length) return null;
+  var b = pts[0].v;
+  /*  ⚠️ drawChart 와 <같은 조건> 이어야 합니다. 첫 값이 0 이하면 차트도
+      지수화를 안 하고 원래 값을 그립니다 (normOk). 여기서만 환산하면
+      또 어긋납니다.                                                   */
+  return (isFinite(b) && b > 0) ? b : null;
+}
+function annToPx(x, y, ax, sid){
   if (!chart) return null;
+  var b = annNormBase(sid);
   try {
-    var p = chart.convertToPixel({ xAxisIndex:0, yAxisIndex: Number(ax) || 0 }, [x, y]);
+    var p = chart.convertToPixel(
+      { xAxisIndex:0, yAxisIndex: b ? 0 : (Number(ax) || 0) },
+      [x, b ? (y / b * 100) : y]);
     return (p && isFinite(p[0]) && isFinite(p[1])) ? p : null;
   } catch(e){ return null; }
 }
-function annToData(px, py, ax){
+function annToData(px, py, ax, sid){
   if (!chart) return null;
+  var b = annNormBase(sid);
   try {
-    var v = chart.convertFromPixel({ xAxisIndex:0, yAxisIndex: Number(ax) || 0 }, [px, py]);
-    return (v && isFinite(v[0]) && isFinite(v[1])) ? v : null;
+    var v = chart.convertFromPixel(
+      { xAxisIndex:0, yAxisIndex: b ? 0 : (Number(ax) || 0) }, [px, py]);
+    if (!(v && isFinite(v[0]) && isFinite(v[1]))) return null;
+    //  ⚠️ 저장은 <원래 값> 으로 되돌려 놓습니다
+    return [v[0], b ? (v[1] / 100 * b) : v[1]];
   } catch(e){ return null; }
 }
 //  그려지는 네모(격자) — 선을 끝까지 긋고, 바깥 클릭을 걸러내는 데 씁니다
@@ -12031,7 +12077,7 @@ function annSnap(px){
   var s = vis[i] || vis[0]; if (!s) return null;
   var pts = viewPoints(s);
   if (!pts.length) return null;
-  var want = annToData(px, 0);
+  var want = annToData(px, 0, Number(s.axis) || 0, s.key);
   if (!want) return null;
   var best = null, gap = Infinity;
   for (var k = 0; k < pts.length; k++){
@@ -12076,11 +12122,19 @@ function annRestyle(){
          핀     : 자석으로 붙은 그 선
          나머지 : 도구막대에서 고른 <기준 지표>
        그 지표의 y 값 위에 그린 것이니 그게 맞습니다.                  */
-function annOwnerKey(){
+/*  ⚠️ 핀이 아닌 주석(글자·가로선·추세선…)은 도구막대에서 고른 «기준 지표»
+    의 자 위에 놓입니다. <지표 자체> 를 돌려줘야 축 번호와 지수화 기준값을
+    같이 가져올 수 있습니다 — 셋이 따로 놀면 주석이 선에서 떨어집니다.  */
+function annOwner(){
   var vis = shownSeries();
   var i = Number(($('annSeries') || {}).value || 0);
-  var s = vis[i] || vis[0];
-  return s ? s.key : null;
+  return vis[i] || vis[0] || null;
+}
+function annOwnerKey(){ var s = annOwner(); return s ? s.key : null; }
+//  기준 지표의 «축 번호 · 지표 이름표» 를 한 번에
+function annOwnerRef(){
+  var s = annOwner();
+  return { ax: s ? (Number(s.axis) || 0) : 0, sid: s ? s.key : null };
 }
 function annAdd(a){
   a.id = 'a' + (annSeq++);
@@ -12159,7 +12213,7 @@ function annEls(){
   annItems.forEach(function(a){
     //  ⚠️ 가려진 지표의 주석은 그리지 않습니다 (지우는 게 아니라 숨김입니다)
     if (!annLive(a)) return;
-    var p = annToPx(a.x, a.y, a.ax); if (!p) return;
+    var p = annToPx(a.x, a.y, a.ax, a.sid); if (!p) return;
     /*  ⚠️ 잘라내기만으로는 모자랍니다. 날짜가 화면 밖으로 나간 핀도
         <가장자리에 걸친 조각> 으로 남아, 엉뚱한 날짜를 가리키는 것처럼
         보입니다. 기준점이 격자를 벗어나면 그 주석은 통째로 쉽니다.
@@ -12171,14 +12225,14 @@ function annEls(){
     else if (a.type === 'ray'){ if (!inY(p[1])) return; }
     else if (a.x2 != null){
       //  두 점짜리는 <두 끝이 다 밖이고 같은 쪽> 일 때만 쉽니다
-      var q2 = annToPx(a.x2, a.y2, a.ax);
+      var q2 = annToPx(a.x2, a.y2, a.ax, a.sid);
       if (q2){
         if ((p[0] < g.x && q2[0] < g.x) || (p[0] > g.x + g.w && q2[0] > g.x + g.w)) return;
       }
     }
     else if (!inX(p[0]) || !inY(p[1])) return;
     var kids = [], p2 = null;
-    if (a.x2 != null) p2 = annToPx(a.x2, a.y2, a.ax);
+    if (a.x2 != null) p2 = annToPx(a.x2, a.y2, a.ax, a.sid);
 
     if (a.type === 'pin'){
       /*  ⚠️ 학회장: «위아래로 full extend 하는 게 아니라 차트 내에 있어야
@@ -12190,7 +12244,7 @@ function annEls(){
 
           이제 길이(len)를 값 단위로 들고 있습니다. 부호가 방향입니다 —
           +면 위로, −면 아래로. 그리고 <격자 밖으로는 안 나갑니다>.     */
-      var endPx = annToPx(a.x, a.y + (Number(a.len) || 0), a.ax);
+      var endPx = annToPx(a.x, a.y + (Number(a.len) || 0), a.ax, a.sid);
       var y2 = endPx ? endPx[1] : p[1];
       /*  ⚠️ 축 안에 가둡니다 (값이 축 범위를 넘어가도 선은 안 삐져나옵니다).
 
@@ -12320,7 +12374,8 @@ function annEls(){
 
   //  그리는 중인 미리보기 · 핀 표식
   if (annDraft && annDraft.x2 != null){
-    var q = annToPx(annDraft.x, annDraft.y), q2 = annToPx(annDraft.x2, annDraft.y2);
+    var q = annToPx(annDraft.x, annDraft.y, annDraft.ax, annDraft.sid),
+        q2 = annToPx(annDraft.x2, annDraft.y2, annDraft.ax, annDraft.sid);
     if (q && q2) out.push({ type:'group', x:q[0], y:q[1], z:70, silent:true,
       clipPath:{ type:'rect', shape:{ x:g.x-q[0], y:g.y-q[1], width:g.w, height:g.h } },
       children:[ line(0, 0, q2[0]-q[0], q2[1]-q[1], { color:'#2a78d6' }, true) ] });
@@ -12328,7 +12383,7 @@ function annEls(){
   if (annGhost){
     /*  ⚠️ 꽂기 <전> 표식입니다. 이때는 점선을 길게 긋지 않습니다 —
         어디에 꽂히는지만 보이면 됩니다 (짧은 눈금 + 날짜).          */
-    var gp = annToPx(annGhost.x, annGhost.y, annGhost.ax);
+    var gp = annToPx(annGhost.x, annGhost.y, annGhost.ax, annGhost.sid);
     if (gp && inX(gp[0]) && inY(gp[1]))
       out.push({ type:'group', x:gp[0], y:gp[1], z:70, silent:true,
         clipPath:{ type:'rect', shape:{ x:g.x-gp[0], y:g.y-gp[1], width:g.w, height:g.h } },
@@ -12380,7 +12435,7 @@ function annDropped(id, el){
   var a = annItems.filter(function(x){ return x.id === id; })[0];
   if (!a || !el) return;
   annPush();
-  var v = annToData(el.x, el.y, a.ax); if (!v) { annApply(); return; }
+  var v = annToData(el.x, el.y, a.ax, a.sid); if (!v) { annApply(); return; }
   //  두 점짜리는 <통째로> 옮깁니다 (모양이 안 일그러지게)
   if (a.x2 != null){ a.x2 += v[0] - a.x; a.y2 += v[1] - a.y; }
   a.x = v[0]; a.y = v[1];
@@ -12418,7 +12473,7 @@ function annBind(){
              그거는 사람이 조절할 수 있게». 손잡이를 따로 두지 않고
              <끄는 방향> 이 곧 방향입니다 — 한 번에 둘 다 정합니다.  */
       if (annPend){
-        var ve = annToData(e.offsetX, e.offsetY, annPend.ax);
+        var ve = annToData(e.offsetX, e.offsetY, annPend.ax, annPend.sid);
         annPend.len = ve ? (ve[1] - annPend.y) : 0;
         var done = annPend; annPend = null;
         annApply();
@@ -12434,24 +12489,32 @@ function annBind(){
       annHintPhase('len');
       return;
     }
-    var v = annToData(e.offsetX, e.offsetY); if (!v) return;
+    /*  ⚠️ 핀이 아닌 주석도 <기준 지표의 자> 로 읽어야 합니다. 기준 지표가
+        오른쪽 축이거나 「100 기준」이 켜져 있으면, 왼쪽 축으로 읽은 값은
+        엉뚱한 숫자가 되어 주석이 선에서 떨어집니다.                    */
+    var own = annOwnerRef();
+    var v = annToData(e.offsetX, e.offsetY, own.ax, own.sid); if (!v) return;
 
     if (annTool === 'text'){
       annPush();
-      var t = annAdd({ type:'text', x:v[0], y:v[1], text:'' });
+      var t = annAdd({ type:'text', x:v[0], y:v[1], ax:own.ax, text:'' });
       annApply(); annEdit(t.id, e.offsetX, e.offsetY, true); return;
     }
     if (annTool === 'hline' || annTool === 'vline'){
       annPush();
-      var h = annAdd({ type:annTool, x:v[0], y:v[1], text:'' });
+      var h = annAdd({ type:annTool, x:v[0], y:v[1], ax:own.ax, text:'' });
       annApply(); annEdit(h.id, e.offsetX, e.offsetY, true); return;
     }
     //  두 점짜리 — 첫 번째 누름은 시작, 두 번째 누름이 끝입니다
-    if (!annDraft){ annDraft = { type:annTool, x:v[0], y:v[1] }; annApply(); return; }
+    if (!annDraft){
+      annDraft = { type:annTool, x:v[0], y:v[1], ax:own.ax, sid:own.sid };
+      annApply(); return;
+    }
     annDraft.x2 = v[0]; annDraft.y2 = v[1];
     annPush();
     var d = annAdd({ type:annDraft.type, x:annDraft.x, y:annDraft.y,
-                     x2:annDraft.x2, y2:annDraft.y2, text:'' });
+                     x2:annDraft.x2, y2:annDraft.y2, ax:annDraft.ax,
+                     sid:annDraft.sid, text:'' });
     annDraft = null;
     annApply(); annEdit(d.id, e.offsetX, e.offsetY, true);
   });
@@ -12461,7 +12524,7 @@ function annBind(){
     if (annTool === 'pin'){
       //  ② 자리를 고정한 뒤 — 끄는 대로 점선 길이·방향이 따라옵니다
       if (annPend){
-        var ve = annToData(e.offsetX, e.offsetY, annPend.ax);
+        var ve = annToData(e.offsetX, e.offsetY, annPend.ax, annPend.sid);
         if (ve){ annPend.len = ve[1] - annPend.y; annApply(); }
         return;
       }
@@ -12471,7 +12534,8 @@ function annBind(){
       return;
     }
     if (annDraft){
-      var v = annToData(e.offsetX, e.offsetY); if (!v) return;
+      var v = annToData(e.offsetX, e.offsetY, annDraft.ax, annDraft.sid);
+      if (!v) return;
       annDraft.x2 = v[0]; annDraft.y2 = v[1];
       annApply();
     }
