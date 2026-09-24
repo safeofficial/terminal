@@ -1632,8 +1632,8 @@
                 <option value="raw">원지수 그대로</option>
               </select>
               <label style="min-width:auto">구간</label>
-              <input type="number" id="corrWin" value="60" min="10" max="600" step="10"
-                     onchange="corrRun()" style="width:76px"
+              <input type="number" id="corrWin" value="60" min="5" max="600" step="5"
+                     onchange="corrWinChanged()" style="width:76px"
                      title="아래 「구간별 상관계수」를 낼 때 한 번에 볼 표본 수">
               <span class="st-hint grow">구간별 상관계수를 낼 때 한 번에 몇 개씩 볼지</span>
             </div>
@@ -11325,11 +11325,30 @@ function applyTf(pts, tf, from, opt){
   }
 
   var dates = pts.map(function(p){ return p.d; });
+  //  «이 계열은 얼마나 자주 나오나» — 위 주석의 허용치
+  var tfTol = Math.max(4, corrGap(pts) * 0.9);
   var out = [];
   for (var i = 0; i < pts.length; i++){
     var target = (tf === 'mom') ? shiftIso(pts[i].d, 0, -1) : shiftIso(pts[i].d, -1, 0);
     var j = idxAtOrBefore(dates, target);
     if (j < 0 || j >= i) continue;
+    /*  ⚠️ <발표가 빠진 달> 을 건너뛰면 안 됩니다.
+
+        idxAtOrBefore 는 «그 날짜 이하의 마지막 점» 을 줍니다. 그래서
+        2025년 10월 미국 CPI 처럼 한 달이 통째로 비면, 11월의 «전월비»
+        가 조용히 <9월 대비 두 달치> 로 계산됩니다. 막대 하나만 두 배로
+        길어지는데 이름표는 그대로 «전월비» 라, 화면만 보고는 알 길이
+        없습니다. 상관관계를 잴 때도 그 칸만 두 달치가 섞입니다.
+
+        찾은 점이 목표 날짜에서 <한 주기 이상> 떨어져 있으면 그 점은
+        내지 않습니다. 막대 하나가 비는 편이 틀린 막대보다 낫습니다.
+
+        ⚠️ 허용치는 <그 계열이 얼마나 자주 나오는가> 로 잡습니다. 일간
+           지표는 주말·공휴일 때문에 목표 날짜에 점이 없는 게 정상이라
+           며칠은 봐줘야 하고, 월간 지표는 한 달이 비면 바로 걸러야
+           합니다. 최소 4일은 봐줍니다 (주말 + 연휴).                 */
+    var gapMs = (Date.parse(target) - Date.parse(pts[j].d)) / 864e5;
+    if (isFinite(gapMs) && gapMs > tfTol) continue;
     var base = pts[j].v;
     if (!isFinite(base)) continue;
     /*  ⚠️ «v / base − 1» 은 밑이 음수면 <부호가 뒤집힙니다>.
@@ -11901,13 +11920,25 @@ function corrChange(pts, unit){
   var rate = /(%|％|퍼센트|%p|%P)/.test(String(unit == null ? '' : unit));
   var nonPos = pts.some(function(p){ return !(p.v > 0); });
   var how = (rate || nonPos) ? 'diff' : 'pct';
-  var out = [];
+  /*  ⚠️ <발표가 빠진 달> 을 건너뛰고 빼면 안 됩니다.
+
+      2025년 10월 미국 CPI 가 실제로 비어 있었습니다. 그 상태로 앞뒤를
+      그냥 빼면 11월 값이 «9월 대비 두 달치» 인데, 그걸 다른 지표의
+      «한 달치» 옆에 나란히 놓고 상관을 쟀습니다 — 한 칸은 두 달, 한
+      칸은 한 달인 자료로 잰 셈입니다.
+
+      바로 앞 관측이 <한 주기 안> 일 때만 값을 냅니다. 아니면 그 점은
+      건너뜁니다. 표본이 하나 줄지언정 섞이지는 않습니다.            */
+  var gap = corrGap(pts), tol = gap > 0 ? gap * 1.5 : Infinity;
+  var out = [], skipped = 0;
   for (var i = 1; i < pts.length; i++){
     var a = pts[i-1].v, b = pts[i].v;
     if (!isFinite(a) || !isFinite(b)) continue;
+    var dt = (Date.parse(pts[i].d) - Date.parse(pts[i-1].d)) / 864e5;
+    if (isFinite(dt) && dt > tol){ skipped++; continue; }
     out.push({ d: pts[i].d, v: (how === 'diff') ? (b - a) : (b / a - 1) });
   }
-  return { pts: out, how: how };
+  return { pts: out, how: how, skipped: skipped };
 }
 //  전년동기비 — 이미 있는 applyTf 를 씁니다 (한 군데서만 셉니다)
 function corrYoy(pts){
@@ -11917,9 +11948,21 @@ function corrYoy(pts){
     ⚠️ 선 설정에서 이미 변환(YoY·가격 환산)을 건 지표는 그 위에 한 번 더
        걸립니다. 그건 학회원이 일부러 고른 것이니 존중하되, 화면에
        «이미 변환이 걸린 지표» 라고 적어둡니다.                        */
+/*  ⚠️ 선 설정에서 이미 «전기비(MoM)·전년동기비(YoY)·차이» 를 걸어 둔
+    선은 <그 자체가 변화 계열> 입니다. 거기에 «변화» 를 또 걸면 2차
+    차분 — «변화가 얼마나 변했나» — 이 되어, 묻고 싶었던 «CPI 와 PPI 가
+    얼마나 같이 움직이나» 와 <다른 질문> 의 답이 나옵니다.
+
+    실제로 CPI·PPI 를 MoM 으로 올려두고 쟀더니 0.61 이 나왔는데,
+    MoM 끼리 제대로 재면 0.70 이었습니다. 숫자만 보면 둘 다 그럴듯해
+    보여서 <틀린 줄도 모릅니다>. 이미 변화인 선은 그대로 씁니다.      */
+function corrAlready(s){
+  return ['mom','yoy','yoyd'].indexOf((s && s.tf) || 'raw') >= 0;
+}
 function corrVals(s, basis){
   var pts = viewPoints(s).filter(function(p){ return isFinite(p.v); });
   if (basis === 'raw') return { pts:pts, how:'raw' };
+  if (corrAlready(s)) return { pts:pts, how:'asis' };
   if (basis === 'yoy') return { pts: corrYoy(pts), how:'yoy' };
   return corrChange(pts, unitOf(s));
 }
@@ -11986,9 +12029,24 @@ var corrPair = null;      //  표에서 고른 쌍 [i, j]
 var corrLast = null;      //  CSV 로 내보낼 마지막 결과
 
 function corrBasis(){ return (($('corrBasis') || {}).value) || 'chg'; }
+/*  ⚠️ 기본 60 은 <일간 지표 기준> 입니다. 월간 지표를 올리면 표본이
+    서른 몇 개뿐이라, 60 으로는 구간별 차트가 <아예 안 그려집니다> —
+    이 카드에서 제일 쓸모 있는 그림이 기본 상태에서 안 보였습니다.
+    표본 수를 보고 정합니다 (1/3, 12~60).                            */
+function corrWinAuto(n){
+  if (!(n > 0)) return 60;
+  return Math.max(12, Math.min(60, Math.round(n / 3)));
+}
+var corrWinTouched = false;
+function corrWinChanged(){ corrWinTouched = true; corrRun(); }
+function corrWinSet(v){
+  corrWinTouched = true;
+  if ($('corrWin')) $('corrWin').value = String(v);
+  corrRun();
+}
 function corrWin(){
   var v = Number(($('corrWin') || {}).value);
-  return (isFinite(v) && v >= 10) ? Math.min(600, Math.round(v)) : 60;
+  return (isFinite(v) && v >= 5) ? Math.min(600, Math.round(v)) : 60;
 }
 function corrPick(i, j){ corrPair = [i, j]; corrRun(); }
 
@@ -12030,7 +12088,12 @@ function corrRun(){
   if (!corrPair || corrPair[0] >= n || corrPair[1] >= n || corrPair[0] === corrPair[1])
     corrPair = [0, 1];
 
-  var h = '<table><tr><th class="rowh"></th>';
+  /*  ⚠️ 지표가 둘뿐이면 행렬은 <네 칸 중 둘이 같은 값, 둘은 «—»> 입니다.
+      읽을 것이 없는데 자리만 차지하고, 아래 요약과 같은 말을 두 번 합니다.
+      셋부터 그립니다.                                                 */
+  var h = '';
+  if (n >= 3){
+  h += '<table><tr><th class="rowh"></th>';
   for (i = 0; i < n; i++) h += '<th title="' + esc(list[i].label) + '">' + esc(corrShort(list[i].label)) + '</th>';
   h += '</tr>';
   for (i = 0; i < n; i++){
@@ -12051,6 +12114,7 @@ function corrRun(){
     h += '</tr>';
   }
   h += '</table>';
+  }
 
   //  ── 고른 쌍 자세히
   var A = corrPair[0], B = corrPair[1];
@@ -12094,18 +12158,29 @@ function corrRun(){
   if (hows.diff && hows.pct)
     msgs.push('금리·비율은 <b>차분(%p)</b>, 가격·지수는 <b>변화율</b>로 쟀습니다 '
             + '— 금리 2%→3%를 «50% 올랐다»로 셀 수는 없어서입니다.');
-  else if (hows.diff) msgs.push('전부 금리·비율이라 <b>차분(%p)</b>으로 쟀습니다.');
-  else if (hows.pct)  msgs.push('전부 가격·지수라 <b>변화율</b>로 쟀습니다.');
+  else if (hows.diff) msgs.push('금리·비율이라 <b>차분(%p)</b>으로 쟀습니다.');
+  else if (hows.pct)  msgs.push('가격·지수라 <b>변화율</b>로 쟀습니다.');
 
-  var pre = list.filter(function(s){ return (s.tf || 'raw') !== 'raw'; })
-                .map(function(s){ return s.label; });
-  if (pre.length)
-    msgs.push('<b>' + esc(pre.join(' · ')) + '</b>는 선 설정에서 이미 변환이 걸려 있어, '
-            + '그 위에 한 번 더 걸렸습니다.');
+  //  ⚠️ 이미 변화인 선은 그대로 썼다는 것을 <분명히> 적습니다. 회색 잔글씨로
+  //     묻어두면 «왜 내가 아는 값이랑 다르지» 를 못 풀게 됩니다.
+  var asis = list.filter(function(s, i){ return V[i].how === 'asis'; })
+                 .map(function(s){ return s.label; });
+  if (asis.length && basis !== 'raw')
+    msgs.push('<b>' + esc(asis.join(' · ')) + '</b>는 선 설정에서 이미 '
+            + '<b>변화(MoM·YoY·차이)</b>라, 그 위에 또 걸지 않고 그대로 썼습니다 '
+            + '— 또 걸면 «변화가 얼마나 변했나»가 되어 다른 질문의 답이 됩니다.');
+  //  ⚠️ 발표가 빠진 달을 건너뛰었으면 몇 개인지 적습니다
+  var skip = 0;
+  V.forEach(function(v){ skip += (v.skipped || 0); });
+  if (skip)
+    msgs.push('발표가 <b>빠진 구간 ' + skip + '군데</b>는 건너뛰었습니다 '
+            + '(건너뛰고 빼면 «두 달치»를 «한 달치» 옆에 놓게 됩니다).');
   if (noise != null && basis !== 'raw')
     msgs.push('표본 ' + nn + '개에서는 <b>|r| ' + noise.toFixed(2) + '</b> 정도까지는 '
             + '아무 관계가 없어도 나옵니다 (어림 2/√n).');
-  if (rp != null && rs != null && Math.abs(rp - rs) >= 0.2)
+  //  ⚠️ 0.2 로 뒀더니 «0.612 대 0.426» (차이 0.186) 이 안 걸렸습니다.
+  //     이 경우 실제로 몇 개의 큰 값이 숫자를 끌고 있었습니다. 0.15 로.
+  if (rp != null && rs != null && Math.abs(rp - rs) >= 0.15)
     msgs.push('<b>상관계수와 순위 상관이 많이 다릅니다</b> — 몇 개의 큰 값이 '
             + '숫자를 끌고 있거나, 관계가 직선이 아닐 수 있습니다.');
   msgs.push('주기가 다르면 <b>굵은 쪽 날짜에 맞춰</b> 「그 날 이하의 마지막 값」을 씁니다 '
@@ -12129,6 +12204,13 @@ function corrShort(label){
 function corrDraw(al, sa, sb){
   var box = $('corrBox'); if (!box) return;
   if (typeof echarts === 'undefined') return;
+  /*  ⚠️ 손으로 안 건드렸으면 <표본 수에 맞춰> 정합니다. 월간 지표를
+      올렸는데 기본 60 으로 두면, 이 카드에서 제일 쓸모 있는 그림이
+      «표본이 모자랍니다» 한 줄로 끝납니다.                          */
+  if (!corrWinTouched && $('corrWin')){
+    var auto = corrWinAuto(al.x.length);
+    if (String(auto) !== String($('corrWin').value)) $('corrWin').value = String(auto);
+  }
   var win = corrWin();
   var roll = corrRolling(al.x, al.y, al.d, win);
   if (!roll.length){
@@ -12136,11 +12218,22 @@ function corrDraw(al, sa, sb){
         비우면서 방금 적은 안내문까지 지웁니다 — 화면에는 아무것도 없는
         빈 칸만 남습니다. 실제로 그렇게 비어 있었습니다.              */
     if (corrChart){ try { corrChart.dispose(); } catch(e){} corrChart = null; }
-    box.innerHTML = '<div class="empty" style="padding:26px">'
-      + '구간별로 보려면 표본이 <b>' + win + '개보다 많아야</b> 합니다 '
-      + '(지금 ' + al.x.length + '개). 위의 <b>구간</b>을 줄여보세요.</div>';
+    /*  ⚠️ «줄여보세요» 라고만 하면 <얼마로> 를 학회원이 정해야 합니다.
+        맞는 값을 눌러서 넣을 수 있게 합니다. 상자 높이도 줄입니다 —
+        빈 칸이 반 화면을 차지하면 고장 난 것처럼 보입니다.          */
+    var fit = corrWinAuto(al.x.length);
+    box.style.height = 'auto';
+    box.innerHTML = '<div class="empty" style="padding:16px">'
+      + '구간별로 보려면 표본이 <b>' + win + '개보다 많아야</b> 합니다 (지금 '
+      + al.x.length + '개).'
+      + (al.x.length > 12
+          ? ' <button class="btn-sm" onclick="corrWinSet(' + fit + ')">구간을 '
+            + fit + '로 줄이기</button>'
+          : ' 기간을 늘리거나 주기가 잦은 지표로 보세요.')
+      + '</div>';
     return;
   }
+  box.style.height = '220px';
   corrChart = chartOn('corrBox', corrChart); if (!corrChart) return;
   var th = macroTheme();
   corrChart.setOption({
@@ -12204,7 +12297,9 @@ function corrCsv(){
   rows.push(['날짜', a.label, b.label]);
   for (var i = 0; i < L.al.d.length; i++)
     rows.push([L.al.d[i], L.al.x[i], L.al.y[i]]);
-  saveCsv(rows, 'SAFE_상관관계');
+  //  ⚠️ saveCsv 가 이미 «SAFE_» 를 붙입니다 — 여기서 또 붙이면
+  //     «SAFE_SAFE_상관관계_….csv» 가 됩니다.
+  saveCsv(rows, '상관관계');
 }
 
 function setMacroGrid(){
