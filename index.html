@@ -176,6 +176,21 @@
     font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
   .st-sub{font-weight:400;color:var(--text-sub);font-size:.8rem}
   .st-hint{font-size:11.5px;color:var(--text-sub);line-height:1.6}
+  /*  ⚠️ «안 보인다» 는 경고는 흐린 회색으로 적으면 그것부터 안 읽힙니다  */
+  .st-hint.warn-ink{color:var(--warn-text,#8a5a00);font-weight:600}
+  /*  상관행렬 — 칸 색으로 세기를 보여줍니다 (숫자도 같이 적습니다:
+      색만으로는 색각이 다른 사람이 못 읽습니다)                     */
+  #corrOut table{border-collapse:collapse;font-size:12px;width:100%}
+  #corrOut th,#corrOut td{border:1px solid var(--border);padding:5px 7px;text-align:center;
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+  #corrOut th{background:var(--bg);font-weight:600;font-size:11.5px}
+  #corrOut th.rowh{text-align:left;max-width:190px;overflow:hidden;text-overflow:ellipsis}
+  #corrOut td.cell{cursor:pointer}
+  #corrOut td.cell:hover{outline:2px solid var(--primary);outline-offset:-2px}
+  #corrOut td.on{outline:2px solid var(--primary);outline-offset:-2px;font-weight:700}
+  #corrOut td.self{color:var(--text-sub);background:var(--bg)}
+  .corr-kv{display:flex;flex-wrap:wrap;gap:6px 18px;margin:10px 0 2px}
+  .corr-kv b{font-variant-numeric:tabular-nums}
   .st-big{font-size:1.15rem;font-weight:700;color:var(--primary);min-width:56px;text-align:right;
     font-variant-numeric:tabular-nums}
   .exit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
@@ -1426,6 +1441,22 @@
                      oninput="setMacroGrid()" style="width:120px">
               <span id="mgGridAlphaV" style="font-size:11.5px;color:var(--text-sub);min-width:38px">45%</span>
             </div>
+            <!--  ⚠️ 학회장: «매크로 탭에 차트에만 원하는 배경색 넣을 수 있는
+                  기능 있었으면 좋겠어».
+
+                  <나만 보는 설정> 입니다. 임원진 화면의 «학회 표준 색» 과는
+                  다른 것입니다 — 그건 누르면 학회원 전부의 차트가 바뀝니다.
+                  여기서 고른 색은 이 화면에서만, 새로고침하면 사라집니다.  -->
+            <div class="row">
+              <label style="min-width:auto">
+                <input type="checkbox" id="mgBg" onchange="setMacroBg()" style="width:auto;vertical-align:-2px">
+                배경색
+              </label>
+              <input type="color" id="mgBgColor" value="#ffffff" oninput="pickMacroBg()">
+              <button class="btn-sm" onclick="resetMacroBg()">기본으로</button>
+              <span class="st-hint grow" id="mgBgNote">나만 보입니다 · 어두운 색을 고르면
+                축 글씨·눈금선을 밝게 바꿉니다</span>
+            </div>
             <div class="row">
               <label>차트 크기</label>
               <input type="number" id="wSel" value="880" placeholder="자동" min="320" max="3000" step="20"
@@ -1576,6 +1607,40 @@
               <span>✋ <b>끌기</b> — 보는 자리 옮기기</span>
             </div>
             <div id="chartMsg" style="font-size:12px;color:var(--text-sub);margin-top:10px"></div>
+          </div>
+
+          <!-- ── 상관관계 ──────────────────────────────────────
+               ⚠️ 학회장: «두 지표나 비교 자산군 두 지수나 가격 지표 등에
+                  대해서 상관관계를 알 수 있는 수치» · «매크로 탭에서만».
+
+               ⚠️ 여기 숫자는 <잘못 쓰기 쉬운> 종류입니다. 원지수끼리 재면
+                  둘 다 오르기만 해도 0.9 가 넘습니다 — 그래서 기본값을
+                  «변화» 로 두고, 원지수를 고르면 경고를 띄웁니다.      -->
+          <div class="card" id="corrCard">
+            <h2>상관관계
+              <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+                위 차트에 올린 지표끼리 — 얼마나 같이 움직였나</span>
+              <span class="tools">
+                <button class="btn-sm" onclick="corrCsv()">CSV</button>
+              </span>
+            </h2>
+            <div class="row">
+              <label>기준</label>
+              <select id="corrBasis" onchange="corrRun()" style="width:210px">
+                <option value="chg" selected>변화 (기본)</option>
+                <option value="yoy">전년동기비</option>
+                <option value="raw">원지수 그대로</option>
+              </select>
+              <label style="min-width:auto">구간</label>
+              <input type="number" id="corrWin" value="60" min="10" max="600" step="10"
+                     onchange="corrRun()" style="width:76px"
+                     title="아래 「구간별 상관계수」를 낼 때 한 번에 볼 표본 수">
+              <span class="st-hint grow">구간별 상관계수를 낼 때 한 번에 몇 개씩 볼지</span>
+            </div>
+            <div id="corrWarn"></div>
+            <div id="corrOut"></div>
+            <div id="corrBox" style="height:220px;margin-top:10px"></div>
+            <div id="corrNote" class="st-hint" style="margin-top:8px"></div>
           </div>
 
           <!-- ── 미리 받아두기 (임원진) ── -->
@@ -3660,7 +3725,12 @@
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<!--  ⚠️ 5.6.0 으로 올립니다. 회귀시험 상자에 받아둔 것이 5.6.0 이라,
+      여태 <시험은 5.6.0 · 화면은 5.5.1> 로 서로 달랐습니다. 시험을
+      통과한 것과 학회원이 쓰는 것이 같은 판이어야 합니다.
+      (가로축 customValues 는 5.5.0 부터라 둘 다 됩니다 — 판을 맞추는
+       것이 목적입니다.)                                              -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
 <script>
 /*  ══════════ 모든 차트에 공통으로 먹이는 밑바탕 ══════════
 
@@ -4099,6 +4169,10 @@ async function loadTheme(){
     renderPalette();
     markThemeDirty(false);
   }
+  /*  ⚠️ 매크로 탭의 «배경색» 칸은 <끈 상태의 색> 을 보여줘야 합니다.
+      학회 표준 배경이 흰색이 아닐 수도 있는데 칸만 흰색이면, 켜는
+      순간 색이 튑니다.                                              */
+  if ($('mgBgColor') && !macroBg.on) $('mgBgColor').value = theme.bg || '#ffffff';
 }
 
 /*  ── 아직 저장 안 된 색이 있는가 ──────────────────────────────
@@ -11477,6 +11551,662 @@ function macroSplit(){
                                opacity: macroGrid.alpha / 100 } }
     : { show:false };
 }
+/*  ── 차트 배경색 (나만 보는 설정) ───────────────────────────
+
+    ⚠️ 학회장: «매크로 탭에 차트에만 원하는 배경색 넣을 수 있는 기능».
+
+    ⚠️ 임원진 화면의 «학회 표준 색 → 배경» 과 <다른 것> 입니다. 그쪽은
+       누르면 학회원 전부의 차트가 바뀝니다. 여기 것은 이 화면에서만
+       살아 있고 새로고침하면 사라집니다 — 발표 자료 한 장 뽑으려고
+       학회 전체 색을 건드리는 일이 없게요.
+
+    ⚠️ 매크로 탭 차트 <하나만> 입니다. 다른 탭 차트는 그대로입니다.    */
+var macroBg = { on:false, color:'#ffffff' };
+
+/*  ⚠️ 색이 밝은지 어두운지는 <눈대중> 으로 정하면 안 됩니다. 순한 노랑
+    (#ffff00) 은 «진한 색» 처럼 보여도 실제로는 흰색만큼 밝아서, 흰 글씨를
+    얹으면 안 보입니다. WCAG 상대휘도로 잽니다.                        */
+function lumOf(hex){
+  var m = /^#?([0-9a-fA-F]{6})$/.exec(String(hex == null ? '' : hex).trim());
+  if (!m) return 1;
+  var n = parseInt(m[1], 16);
+  var c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(function(v){
+    v = v / 255;
+    return (v <= 0.03928) ? (v / 12.92) : Math.pow((v + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+//  두 색의 대비 (1 = 같은 색, 21 = 흰검). WCAG 본문 기준이 4.5 입니다.
+function contrastOf(a, b){
+  var l1 = lumOf(a), l2 = lumOf(b);
+  var hi = Math.max(l1, l2), lo = Math.min(l1, l2);
+  return (hi + 0.05) / (lo + 0.05);
+}
+function macroBgColor(){
+  return macroBg.on ? macroBg.color : ((theme && theme.bg) || '#ffffff');
+}
+/*  ── 배경을 바꾸면 글씨도 따라가야 합니다 ────────────────────
+
+    ⚠️ 배경만 어둡게 하면 축 글씨(#1a1f36)가 배경에 묻혀 <숫자가 안
+       보이는 차트> 가 됩니다. 발표 자료로 뽑고 나서야 알게 되고요.
+
+    ⚠️ 그렇다고 늘 바꾸면 안 됩니다 — 학회 표준 글자색을 쓸 수 있으면
+       그대로 두는 게 맞습니다. <읽히는지> 를 재서, 안 읽힐 때만
+       바꿉니다. 바꿀 때도 밝은 한 벌·어두운 한 벌 중 <그 배경에서 더
+       잘 읽히는> 쪽을 고릅니다.                                       */
+var MACRO_INK_LIGHT = { text_color:'#e7ecf7', grid:'#3a4560',
+                        axis_left:'#9fc0ff', axis_right:'#ffcf7a' };
+var MACRO_INK_DARK  = { text_color:'#1a1f36', grid:'#c9d2e6',
+                        axis_left:'#2c3e6b', axis_right:'#b26a00' };
+function macroTheme(){
+  var t = theme || DEFAULT_THEME;
+  if (!macroBg.on) return t;
+  var bg = macroBgColor();
+  if (contrastOf(bg, t.text_color) >= 4.5) return t;     //  그대로 읽힙니다
+  var use = (contrastOf(bg, MACRO_INK_LIGHT.text_color)
+             >= contrastOf(bg, MACRO_INK_DARK.text_color))
+          ? MACRO_INK_LIGHT : MACRO_INK_DARK;
+  var out = {};
+  for (var k in t) if (Object.prototype.hasOwnProperty.call(t, k)) out[k] = t[k];
+  for (var j in use) out[j] = use[j];
+  return out;
+}
+function setMacroBg(){
+  if ($('mgBg'))      macroBg.on    = $('mgBg').checked;
+  if ($('mgBgColor')) macroBg.color = $('mgBgColor').value;
+  macroBgNote();
+  drawChart();
+}
+/*  ── 고른 배경에서 무엇이 안 보이는지 그 자리에서 말합니다 ──
+
+    ⚠️ 축 글씨는 우리가 바꿔주지만 <주석 색> 은 학회원이 직접 고른
+       것이라 건드리지 않습니다. 그런데 남색 배경에 남색 주석을 달면
+       글자가 통째로 사라집니다 — 발표 직전에 JPG 를 뽑고 나서야
+       알게 되는 종류의 사고입니다. 미리 적어둡니다.                 */
+function macroBgNote(){
+  var box = $('mgBgNote'); if (!box) return;
+  if (!macroBg.on){
+    box.textContent = '나만 보입니다 · 어두운 색을 고르면 축 글씨·눈금선을 밝게 바꿉니다';
+    box.classList.remove('warn-ink');
+    return;
+  }
+  var bg = macroBgColor(), msg = [];
+  if (macroTheme().text_color !== ((theme || DEFAULT_THEME).text_color))
+    msg.push('축 글씨·눈금선을 밝게 바꿨습니다');
+  var ac = ($('annColor') || {}).value;
+  var bad = ac && contrastOf(bg, ac) < 3;
+  if (bad) msg.push('<b>주석 색(' + esc(ac) + ')이 이 배경에서 잘 안 보입니다</b> — 주석 도구에서 색을 바꾸세요');
+  box.innerHTML = msg.length ? msg.join(' · ')
+    : '나만 보입니다 (새로고침하면 사라집니다)';
+  box.classList.toggle('warn-ink', bad);
+}
+/*  ⚠️ 색을 고른 것은 <쓰겠다> 는 뜻입니다. 체크를 따로 누르게 해두면
+    «색을 골랐는데 왜 안 바뀌지» 가 됩니다 — 임원진 화면의 «미리보기»
+    버튼에서 이미 겪은 일입니다.                                       */
+function pickMacroBg(){
+  if ($('mgBgColor')) macroBg.color = $('mgBgColor').value;
+  macroBg.on = true;
+  if ($('mgBg')) $('mgBg').checked = true;
+  macroBgNote();
+  drawChart();
+}
+function resetMacroBg(){
+  macroBg.on = false;
+  if ($('mgBg')) $('mgBg').checked = false;
+  //  ⚠️ 칸에는 <되돌아간 그 색> 을 보여줍니다. 고른 색이 남아 있으면
+  //     «껐는데 왜 그 색이 그대로지» 가 됩니다.
+  if ($('mgBgColor')) $('mgBgColor').value = (theme && theme.bg) || '#ffffff';
+  macroBgNote();
+  drawChart();
+}
+
+/*  ══════════ 가로축 날짜 눈금 ══════════════════════════════
+
+    ⚠️ 학회장: «Xaxis 관리 좀 해줘. 날짜가 너무 엉망진창이야» — 보내준
+       그림이 원하는 모양입니다: «1/22 · 2월 · 2/8 · 2/15 · 3월 · 3/8 ·
+       3/15 · 3/29». 달이 바뀌는 자리는 «N월», 나머지는 «M/D», 간격은
+       고르게.
+
+    ⚠️ 그동안은 ECharts 가 알아서 찍게 뒀습니다. 그게 엉망이 된 이유가
+       셋입니다.
+         ① <아무 날짜에나> 찍습니다. 1/22 · 2/11 · 3/3 처럼 달과 아무
+            상관없는 자리에 떨어져서, 눈이 «몇 월이지» 를 매번 셉니다.
+         ② 한 줄에 <단위가 섞입니다>. «2024-01-01 · 3월 · 3/15» 가 같이
+            놓여 어떤 게 큰 눈금인지 안 보입니다.
+         ③ hideOverlap 이 <겹치는 것만> 지웁니다. 그래서 남는 라벨의
+            간격이 들쭉날쭉해집니다 — 「1월 … 4월 … 5월」.
+
+    ⚠️ 그래서 눈금을 <우리가 정해서> 넘깁니다. 규칙은 셋뿐입니다.
+         · 눈금은 늘 <달 첫날 기준> 으로 떨어집니다 (1·8·15·22·29일).
+         · 달 첫날은 «N월», 1월 1일은 «YYYY년», 나머지는 «M/D».
+         · 너무 붙은 눈금은 지우되, <달 첫날을 남깁니다> — «2/29» 보다
+           «3월» 이 쓸모 있습니다.
+
+    ⚠️ 폭이 좁으면 라벨이 겹칩니다. 개수는 <칸 폭> 이 정합니다.        */
+
+//  작은 것부터 — 개수가 맞는 첫 간격을 씁니다
+var XT_STEPS = [
+  { u:'d', n:1 }, { u:'d', n:2 }, { u:'d', n:7 }, { u:'d', n:14 },
+  { u:'m', n:1 }, { u:'m', n:2 }, { u:'m', n:3 }, { u:'m', n:6 },
+  { u:'y', n:1 }, { u:'y', n:2 }, { u:'y', n:5 }, { u:'y', n:10 },
+  { u:'y', n:20 }, { u:'y', n:50 }, { u:'y', n:100 }
+];
+//  간격 하나가 대략 몇 ms 인가 (개수를 <미리> 어림해 두려고 씁니다 —
+//  100년 치에 하루 간격을 실제로 만들어보면 36,500개가 나옵니다)
+function xtMs(st){
+  return st.u === 'd' ? st.n * 864e5
+       : st.u === 'm' ? st.n * 30.44 * 864e5
+       :                st.n * 365.25 * 864e5;
+}
+function xtAddMonths(t, n){
+  var d = new Date(t);
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1);
+}
+//  달 첫날부터 n 일 간격 — 달이 바뀌면 <다시 1일부터> 셉니다
+function xtDays(t0, t1, n){
+  var out = [];
+  var cur = Date.UTC(new Date(t0).getUTCFullYear(), new Date(t0).getUTCMonth(), 1);
+  var guard = 0;
+  while (cur <= t1 && guard++ < 4000){
+    var d = new Date(cur), Y = d.getUTCFullYear(), M = d.getUTCMonth();
+    var last = new Date(Date.UTC(Y, M + 1, 0)).getUTCDate();
+    for (var day = 1; day <= last; day += n){
+      var t = Date.UTC(Y, M, day);
+      if (t >= t0 && t <= t1) out.push(t);
+    }
+    cur = Date.UTC(Y, M + 1, 1);
+  }
+  return out;
+}
+//  ⚠️ 1월에 눈금이 오게 맞춥니다. 그래야 «1·4·7·10월» 처럼 떨어집니다 —
+//     아무 달에서 시작하면 «2·5·8·11월» 이 되어 해가 바뀌는 자리를 놓칩니다.
+function xtMonths(t0, t1, n){
+  var out = [], cur = Date.UTC(new Date(t0).getUTCFullYear(), 0, 1), guard = 0;
+  while (cur < t0 && guard++ < 4000) cur = xtAddMonths(cur, n);
+  guard = 0;
+  while (cur <= t1 && guard++ < 4000){ out.push(cur); cur = xtAddMonths(cur, n); }
+  return out;
+}
+//  ⚠️ 해도 n 의 배수에 맞춥니다 (10년 간격이면 2020·2030·…)
+function xtYears(t0, t1, n){
+  var out = [], y = Math.ceil(new Date(t0).getUTCFullYear() / n) * n, guard = 0;
+  while (guard++ < 4000){
+    var t = Date.UTC(y, 0, 1);
+    if (t > t1) break;
+    if (t >= t0) out.push(t);
+    y += n;
+  }
+  return out;
+}
+function xtGen(t0, t1, st){
+  return st.u === 'd' ? xtDays(t0, t1, st.n)
+       : st.u === 'm' ? xtMonths(t0, t1, st.n)
+       :                xtYears(t0, t1, st.n);
+}
+function xtIsMonthFirst(t){ return new Date(t).getUTCDate() === 1; }
+/*  ⚠️ 너무 붙은 눈금을 솎아냅니다. 달 첫날은 <남깁니다> — 달이 바뀌는
+    자리를 지우면 «몇 월인지» 를 다시 셀 수 없게 됩니다.              */
+function xtThin(ts, minGap){
+  var out = [];
+  for (var i = 0; i < ts.length; i++){
+    var t = ts[i];
+    if (!out.length){ out.push(t); continue; }
+    var prev = out[out.length - 1];
+    if (t - prev >= minGap){ out.push(t); continue; }
+    if (xtIsMonthFirst(t) && !xtIsMonthFirst(prev)) out[out.length - 1] = t;
+  }
+  return out;
+}
+/*  ⚠️ 라벨은 <눈금 간격> 이 정합니다. 해 간격인데 «3/15» 를 찍거나
+    날짜 간격인데 전부 «2024년» 이면 한 줄에 단위가 섞입니다.        */
+function xtLabel(t, st){
+  var d = new Date(t), Y = d.getUTCFullYear(), M = d.getUTCMonth() + 1, D = d.getUTCDate();
+  if (!st || st.u === 'y') return Y + '년';
+  if (st.u === 'm') return (M === 1) ? (Y + '년') : (M + '월');
+  if (M === 1 && D === 1) return Y + '년';
+  if (D === 1) return M + '월';
+  return M + '/' + D;
+}
+var xtStep = null;        //  지금 쓰는 간격 (라벨을 붙일 때 씁니다)
+/*  칸 폭에 맞는 눈금 목록을 냅니다.
+    ⚠️ 라벨 하나에 88px 을 잡습니다 — «2024년» 이 제일 긴 라벨이고,
+       11px 글씨로 대략 44px 입니다. 두 배를 띄워야 붙어 보이지 않습니다. */
+/*  ⚠️ 라벨 하나가 차지하는 폭은 <간격마다 다릅니다>. 날짜 눈금은 «2/15»
+    (네 글자), 달 눈금은 «3월» 과 «2024년» 이 섞이고, 해 눈금은 전부
+    «2024년» 입니다. 한 값으로 잡으면 날짜 쪽이 지나치게 성기거나
+    해 쪽이 붙어버립니다. 글자 폭의 두 배쯤을 잡아 숨통을 틔웁니다.   */
+function xtLabelPx(st){
+  return !st ? 62 : (st.u === 'y' ? 76 : (st.u === 'm' ? 68 : 62));
+}
+function xtSpec(t0, t1, px){
+  if (!(isFinite(t0) && isFinite(t1)) || t1 <= t0) return { step:null, ticks:[] };
+  var w = Number(px) || 600;
+  var fit = function(st){ return Math.max(3, Math.min(12, Math.floor(w / xtLabelPx(st)))); };
+  var span = t1 - t0, st = XT_STEPS[XT_STEPS.length - 1], ticks = [];
+  for (var i = 0; i < XT_STEPS.length; i++){
+    if (span / xtMs(XT_STEPS[i]) <= fit(XT_STEPS[i]) + 0.5){ st = XT_STEPS[i]; break; }
+  }
+  ticks = xtThin(xtGen(t0, t1, st), xtMs(st) * 0.6);
+  /*  ⚠️ 어림셈이 빗나가 라벨이 넘치면 한 칸 크게 갑니다 (달 길이가
+      28~31일로 들쭉날쭉해서 실제 개수가 어림보다 많을 수 있습니다). */
+  var at = XT_STEPS.indexOf(st), guard = 0;
+  while (ticks.length > fit(st) && at + 1 < XT_STEPS.length && guard++ < 20){
+    var nx = XT_STEPS[at + 1];
+    var nt = xtThin(xtGen(t0, t1, nx), xtMs(nx) * 0.6);
+    /*  ⚠️ 줄이다 보면 <두 개만> 남을 때가 있습니다 (6년 반을 좁은 칸에
+        그리면 «2020년 · 2025년»). 그건 축이 아니라 양끝 표시입니다 —
+        조금 빽빽해도 앞 단계를 씁니다.                                */
+    if (nt.length < 3) break;
+    at++; st = nx; ticks = nt;
+  }
+  return { step:st, ticks:ticks };
+}
+/*  ⚠️ 확대·축소하면 <보이는 구간> 이 달라집니다. 눈금을 그때 다시 정하지
+    않으면, 3개월만 남겨놨는데 라벨은 «2020년 · 2022년» 두 개만 남습니다. */
+var xtBound = null;
+function xtBind(){
+  if (!chart || xtBound === chart) return;
+  xtBound = chart;
+  chart.on('dataZoom', function(){ xtRefresh(); });
+}
+function xtRefresh(){
+  if (!chart || macroMode === 'curve') return;
+  try {
+    var g = annGrid();
+    if (!(g.w > 0)) return;
+    /*  ⚠️ «[x, y]» 로 부르면 <NaN 이 조용히> 돌아옵니다 (던지지 않아서
+        try/catch 에도 안 걸립니다). 축 하나만 물을 때는 <숫자 하나> 를
+        넘겨야 합니다. 이것 때문에 확대해도 눈금이 그대로였습니다.    */
+    var a = chart.convertFromPixel({ xAxisIndex:0 }, g.x);
+    var b = chart.convertFromPixel({ xAxisIndex:0 }, g.x + g.w);
+    if (!(isFinite(a) && isFinite(b))) return;
+    var sp = xtSpec(a, b, g.w);
+    if (!sp.ticks.length) return;
+    xtStep = sp.step;
+    chart.setOption({ xAxis:{
+      axisLabel:{ customValues: sp.ticks },
+      axisTick:{ customValues: sp.ticks } } });
+  } catch(e){ /* 아직 안 그려졌으면 다음 그리기에서 붙습니다 */ }
+}
+
+/*  ══════════ 상관관계 ══════════════════════════════════════
+
+    ⚠️ 학회장: «두 지표나 비교 자산군 두 지수나 가격 지표 등에 대해서
+       상관관계를 알 수 있는 수치» · «매크로 탭에서만».
+
+    ⚠️ 이 숫자는 <잘못 쓰기 제일 쉬운> 종류입니다. 학회 보고서에서 실제로
+       자주 나오는 사고가 셋입니다.
+
+       ① <원지수끼리 재기>. 2010~2020년 S&P 500 과 「서울 아파트값」을
+          원지수로 재면 0.95 가 나옵니다. 둘 다 <올랐기> 때문이지 서로
+          무슨 관계가 있어서가 아닙니다. 추세가 있는 두 계열은 내용과
+          무관하게 1에 가깝게 나옵니다. 그래서 기본을 «변화» 로 둡니다.
+
+       ② <금리를 변화율로 재기>. 금리 2% → 3% 를 «50% 올랐다» 로 세면
+          말이 안 됩니다. 금리·비율은 <차분(%p)>, 가격·지수는 <변화율>
+          입니다. 여기서 단위를 보고 알아서 갈라 씁니다.
+
+       ③ <표본 수를 안 보기>. 열 달 치로 잰 0.7 은 우연히도 잘 나옵니다.
+          겹치는 표본 수를 같이 적고, 어림 잡음선(2/√n)도 적어둡니다.
+
+    ⚠️ 그리고 <상관은 인과가 아닙니다>. 화면에도 적어둡니다.        */
+
+//  중앙값 간격(일) — 주기가 다른 지표를 맞출 때 «어느 쪽이 굵은가» 를 봅니다
+function corrGap(pts){
+  if (!pts || pts.length < 2) return 0;
+  var g = [];
+  for (var i = 1; i < pts.length; i++)
+    g.push((Date.parse(pts[i].d) - Date.parse(pts[i-1].d)) / 864e5);
+  g.sort(function(a, b){ return a - b; });
+  return g[Math.floor(g.length / 2)] || 0;
+}
+/*  ⚠️ «그 날짜 이하의 마지막 값» 입니다 — 사이를 <이어 그리지> 않습니다.
+    월간 지표를 일간으로 늘리려고 직선으로 메우면, 있지도 않은 값을
+    만들어 넣는 것이라 상관계수가 부풀려집니다.                       */
+function corrAsOf(pts, dates, t, tolDays){
+  var lo = 0, hi = dates.length - 1, at = -1;
+  while (lo <= hi){ var m = (lo + hi) >> 1;
+    if (dates[m] <= t){ at = m; lo = m + 1; } else hi = m - 1; }
+  if (at < 0) return null;
+  var age = (t - dates[at]) / 864e5;
+  return (age <= tolDays) ? pts[at].v : null;
+}
+/*  두 계열을 <같은 날짜> 로 맞춥니다.
+    ⚠️ 굵은 쪽(간격이 넓은 쪽)의 날짜를 기준으로 삼습니다. 잔 쪽에
+       맞추면 월간 지표가 한 달 내내 같은 값으로 스무 번 들어가,
+       표본 수만 부풀고 상관계수가 실제보다 세게 나옵니다.            */
+function corrAlign(a, b){
+  if (!a || !b || !a.length || !b.length) return { x:[], y:[], d:[] };
+  var ga = corrGap(a), gb = corrGap(b);
+  var aFirst = ga >= gb;
+  var base  = aFirst ? a : b, other = aFirst ? b : a;
+  var tol = Math.max(ga, gb, 1) * 1.6;
+  var od = other.map(function(p){ return Date.parse(p.d); });
+  var X = [], Y = [], D = [];
+  for (var i = 0; i < base.length; i++){
+    var t = Date.parse(base[i].d);
+    if (!isFinite(t) || !isFinite(base[i].v)) continue;
+    var v2 = corrAsOf(other, od, t, tol);
+    if (v2 == null || !isFinite(v2)) continue;
+    D.push(base[i].d);
+    X.push(aFirst ? base[i].v : v2);
+    Y.push(aFirst ? v2 : base[i].v);
+  }
+  return { x:X, y:Y, d:D };
+}
+/*  ── 무엇의 변화를 재는가 ────────────────────────────────
+    ⚠️ 금리·비율은 <차분(%p)>, 가격·지수는 <변화율> 입니다.
+    ⚠️ 값이 0 이하를 오가면 변화율은 <부호가 뒤집힙니다> — 그때도 차분.  */
+function corrChange(pts, unit){
+  var rate = /(%|％|퍼센트|%p|%P)/.test(String(unit == null ? '' : unit));
+  var nonPos = pts.some(function(p){ return !(p.v > 0); });
+  var how = (rate || nonPos) ? 'diff' : 'pct';
+  var out = [];
+  for (var i = 1; i < pts.length; i++){
+    var a = pts[i-1].v, b = pts[i].v;
+    if (!isFinite(a) || !isFinite(b)) continue;
+    out.push({ d: pts[i].d, v: (how === 'diff') ? (b - a) : (b / a - 1) });
+  }
+  return { pts: out, how: how };
+}
+//  전년동기비 — 이미 있는 applyTf 를 씁니다 (한 군데서만 셉니다)
+function corrYoy(pts){
+  return applyTf(pts, 'yoy', '0000-01-01');
+}
+/*  기준에 맞춘 값. 바탕은 <화면에 보이는 선> 입니다 —
+    ⚠️ 선 설정에서 이미 변환(YoY·가격 환산)을 건 지표는 그 위에 한 번 더
+       걸립니다. 그건 학회원이 일부러 고른 것이니 존중하되, 화면에
+       «이미 변환이 걸린 지표» 라고 적어둡니다.                        */
+function corrVals(s, basis){
+  var pts = viewPoints(s).filter(function(p){ return isFinite(p.v); });
+  if (basis === 'raw') return { pts:pts, how:'raw' };
+  if (basis === 'yoy') return { pts: corrYoy(pts), how:'yoy' };
+  return corrChange(pts, unitOf(s));
+}
+
+/*  ── 상관계수 ─────────────────────────────────────────── */
+function corrPearson(x, y){
+  var n = Math.min(x.length, y.length);
+  if (n < 3) return null;
+  var mx = 0, my = 0, i;
+  for (i = 0; i < n; i++){ mx += x[i]; my += y[i]; }
+  mx /= n; my /= n;
+  var sxy = 0, sxx = 0, syy = 0;
+  for (i = 0; i < n; i++){
+    var a = x[i] - mx, b = y[i] - my;
+    sxy += a * b; sxx += a * a; syy += b * b;
+  }
+  //  ⚠️ 한쪽이 <내내 같은 값> 이면 나눌 수가 없습니다 (0/0). 값을 안 냅니다.
+  if (!(sxx > 0) || !(syy > 0)) return null;
+  var r = sxy / Math.sqrt(sxx * syy);
+  return Math.max(-1, Math.min(1, r));
+}
+/*  ⚠️ 같은 값이 여럿이면 <평균 순위> 를 줘야 합니다. 그냥 나온 순서대로
+    1·2·3 을 매기면, 자료를 어떻게 정렬했느냐에 따라 값이 달라집니다.  */
+function corrRanks(v){
+  var idx = v.map(function(x, i){ return [x, i]; });
+  idx.sort(function(a, b){ return a[0] - b[0]; });
+  var r = new Array(v.length), i = 0;
+  while (i < idx.length){
+    var j = i;
+    while (j + 1 < idx.length && idx[j+1][0] === idx[i][0]) j++;
+    var avg = (i + j) / 2 + 1;
+    for (var k = i; k <= j; k++) r[idx[k][1]] = avg;
+    i = j + 1;
+  }
+  return r;
+}
+function corrSpearman(x, y){ return corrPearson(corrRanks(x), corrRanks(y)); }
+//  구간별 — «언제부터 같이 움직이기 시작했나»
+function corrRolling(x, y, d, win){
+  var out = [];
+  if (!(win > 2) || x.length < win) return out;
+  for (var i = win - 1; i < x.length; i++){
+    var r = corrPearson(x.slice(i - win + 1, i + 1), y.slice(i - win + 1, i + 1));
+    if (r != null) out.push({ d: d[i], v: r });
+  }
+  return out;
+}
+//  세기를 말로 (색만으로는 색각이 다른 사람이 못 읽습니다)
+function corrWord(r){
+  var a = Math.abs(r);
+  var s = a >= 0.8 ? '매우 강함' : a >= 0.6 ? '강함'
+        : a >= 0.4 ? '뚜렷함'   : a >= 0.2 ? '약함' : '거의 없음';
+  if (a < 0.2) return s;
+  return (r > 0 ? '같은 방향으로 ' : '반대 방향으로 ') + s;
+}
+function corrColor(r){
+  //  ⚠️ 빨강=양, 파랑=음. 세기는 진하기로. 숫자도 같이 적습니다.
+  var a = Math.min(1, Math.abs(Number(r) || 0)) * 0.55;
+  return (r >= 0) ? ('rgba(192,57,43,' + a.toFixed(3) + ')')
+                  : ('rgba(42,90,168,' + a.toFixed(3) + ')');
+}
+
+var corrPair = null;      //  표에서 고른 쌍 [i, j]
+var corrLast = null;      //  CSV 로 내보낼 마지막 결과
+
+function corrBasis(){ return (($('corrBasis') || {}).value) || 'chg'; }
+function corrWin(){
+  var v = Number(($('corrWin') || {}).value);
+  return (isFinite(v) && v >= 10) ? Math.min(600, Math.round(v)) : 60;
+}
+function corrPick(i, j){ corrPair = [i, j]; corrRun(); }
+
+/*  ── 한 번에 다 셉니다 (표 + 고른 쌍 + 구간별 차트) ──────────── */
+function corrRun(){
+  var out = $('corrOut'); if (!out) return;
+  var box = $('corrBox'), note = $('corrNote');
+  var basis = corrBasis();
+
+  //  ⚠️ 눈으로 숨긴 지표는 뺍니다 — 화면에 없는 선의 숫자를 내면
+  //     «이게 어느 선 얘기지» 가 됩니다.
+  var list = shownSeries().filter(function(s){ return s.points && s.points.length; });
+  warn('corrWarn', '');
+  corrLast = null;
+  if (list.length < 2){
+    out.innerHTML = '<div class="empty" style="padding:18px">'
+      + '지표를 <b>두 개 이상</b> 올리면 여기서 상관관계를 잽니다.</div>';
+    if (box) box.innerHTML = '';
+    if (note) note.innerHTML = '';
+    return;
+  }
+
+  //  기준에 맞춘 값을 한 번씩만 만듭니다
+  var V = list.map(function(s){ return corrVals(s, basis); });
+  var hows = {}; V.forEach(function(v){ hows[v.how] = 1; });
+
+  //  ── 상관행렬
+  var n = list.length, R = [], N = [];
+  for (var i = 0; i < n; i++){ R.push([]); N.push([]); }
+  for (i = 0; i < n; i++){
+    R[i][i] = 1; N[i][i] = V[i].pts.length;
+    for (var j = i + 1; j < n; j++){
+      var al = corrAlign(V[i].pts, V[j].pts);
+      var r = corrPearson(al.x, al.y);
+      R[i][j] = R[j][i] = r;
+      N[i][j] = N[j][i] = al.x.length;
+    }
+  }
+  if (!corrPair || corrPair[0] >= n || corrPair[1] >= n || corrPair[0] === corrPair[1])
+    corrPair = [0, 1];
+
+  var h = '<table><tr><th class="rowh"></th>';
+  for (i = 0; i < n; i++) h += '<th title="' + esc(list[i].label) + '">' + esc(corrShort(list[i].label)) + '</th>';
+  h += '</tr>';
+  for (i = 0; i < n; i++){
+    h += '<tr><th class="rowh" title="' + esc(list[i].label) + '">'
+       + '<span style="display:inline-block;width:9px;height:9px;border-radius:2px;'
+       + 'background:' + esc(list[i].color) + ';margin-right:5px"></span>'
+       + esc(corrShort(list[i].label)) + '</th>';
+    for (j = 0; j < n; j++){
+      if (i === j){ h += '<td class="self">—</td>'; continue; }
+      var v = R[i][j];
+      var on = (corrPair[0] === i && corrPair[1] === j) || (corrPair[0] === j && corrPair[1] === i);
+      h += '<td class="cell' + (on ? ' on' : '') + '"'
+         + ' style="background:' + corrColor(v == null ? 0 : v) + '"'
+         + ' onclick="corrPick(' + i + ',' + j + ')"'
+         + ' title="표본 ' + N[i][j] + '개 · 눌러서 아래에 자세히">'
+         + (v == null ? '—' : v.toFixed(2)) + '</td>';
+    }
+    h += '</tr>';
+  }
+  h += '</table>';
+
+  //  ── 고른 쌍 자세히
+  var A = corrPair[0], B = corrPair[1];
+  var al2 = corrAlign(V[A].pts, V[B].pts);
+  var nn = al2.x.length;
+  var rp = corrPearson(al2.x, al2.y);
+  var rs = corrSpearman(al2.x, al2.y);
+  var noise = nn > 0 ? 2 / Math.sqrt(nn) : null;
+
+  h += '<div class="corr-kv" style="margin-top:12px">'
+     + '<span><b style="color:' + esc(list[A].color) + '">' + esc(corrShort(list[A].label)) + '</b>'
+     + ' ↔ <b style="color:' + esc(list[B].color) + '">' + esc(corrShort(list[B].label)) + '</b></span>'
+     + '<span>겹치는 표본 <b>' + nn + '</b>개</span>'
+     + (al2.d.length ? '<span>' + esc(al2.d[0]) + ' ~ ' + esc(al2.d[al2.d.length-1]) + '</span>' : '')
+     + '</div>';
+  if (rp == null){
+    h += '<div class="st-hint">겹치는 구간이 모자라 계산하지 못했습니다 '
+       + '(기간을 늘리거나 주기가 비슷한 지표끼리 보세요).</div>';
+  } else {
+    h += '<div class="corr-kv">'
+       + '<span>상관계수 <b style="font-size:1.25rem">' + rp.toFixed(3) + '</b>'
+       + ' <span class="st-hint">(' + esc(corrWord(rp)) + ')</span></span>'
+       + '<span>설명력 R² <b>' + (rp * rp).toFixed(3) + '</b></span>'
+       + (rs == null ? '' : '<span>순위 상관 <b>' + rs.toFixed(3) + '</b></span>')
+       + '</div>';
+  }
+  out.innerHTML = h;
+
+  //  ── 경고·설명
+  var msgs = [];
+  if (basis === 'raw')
+    warn('corrWarn',
+      '<b>원지수끼리 재고 있습니다.</b> 추세가 있는 두 계열은 <b>내용과 상관없이</b> '
+      + '0.9 를 넘습니다 — 2010~2020년 S&amp;P 500 과 서울 아파트값도 0.95 가 나옵니다. '
+      + '보고서에 쓸 숫자라면 <b>「변화」</b>로 재세요.');
+  else if (nn > 0 && nn < 30)
+    warn('corrWarn',
+      '겹치는 표본이 <b>' + nn + '개</b>뿐입니다. 이 정도면 상관계수가 '
+      + '<b>우연히도 크게</b> 나옵니다 — 기간을 늘려 보세요.', 'info');
+
+  if (hows.diff && hows.pct)
+    msgs.push('금리·비율은 <b>차분(%p)</b>, 가격·지수는 <b>변화율</b>로 쟀습니다 '
+            + '— 금리 2%→3%를 «50% 올랐다»로 셀 수는 없어서입니다.');
+  else if (hows.diff) msgs.push('전부 금리·비율이라 <b>차분(%p)</b>으로 쟀습니다.');
+  else if (hows.pct)  msgs.push('전부 가격·지수라 <b>변화율</b>로 쟀습니다.');
+
+  var pre = list.filter(function(s){ return (s.tf || 'raw') !== 'raw'; })
+                .map(function(s){ return s.label; });
+  if (pre.length)
+    msgs.push('<b>' + esc(pre.join(' · ')) + '</b>는 선 설정에서 이미 변환이 걸려 있어, '
+            + '그 위에 한 번 더 걸렸습니다.');
+  if (noise != null && basis !== 'raw')
+    msgs.push('표본 ' + nn + '개에서는 <b>|r| ' + noise.toFixed(2) + '</b> 정도까지는 '
+            + '아무 관계가 없어도 나옵니다 (어림 2/√n).');
+  if (rp != null && rs != null && Math.abs(rp - rs) >= 0.2)
+    msgs.push('<b>상관계수와 순위 상관이 많이 다릅니다</b> — 몇 개의 큰 값이 '
+            + '숫자를 끌고 있거나, 관계가 직선이 아닐 수 있습니다.');
+  msgs.push('주기가 다르면 <b>굵은 쪽 날짜에 맞춰</b> 「그 날 이하의 마지막 값」을 씁니다 '
+          + '(사이를 이어 그리지 않습니다).');
+  msgs.push('<b>같이 움직였다는 것이지 한쪽이 다른 쪽을 움직였다는 뜻은 아닙니다.</b>');
+  if (note) note.innerHTML = msgs.join('<br>');
+
+  corrLast = { list:list, R:R, N:N, basis:basis, pair:[A, B], al:al2, rp:rp, rs:rs };
+  corrDraw(al2, list[A], list[B]);
+}
+//  이름이 길면 표가 옆으로 늘어납니다 — 자료 시작 연도 주장부터 떼어냅니다
+function corrShort(label){
+  var t = srcSpanOff(String(label == null ? '' : label));
+  return (t.length > 18) ? (t.slice(0, 17) + '…') : t;
+}
+
+/*  ── 구간별 상관계수 ──────────────────────────────────────
+    ⚠️ 하나의 숫자는 <평균> 입니다. 「2020년까지는 같이 갔는데 그 뒤로
+       갈라졌다」 같은 이야기가 통째로 지워집니다. 그래서 구간을 굴려
+       가며 다시 잽니다 — 발표에서 쓸 만한 그림이 대개 여기 있습니다. */
+function corrDraw(al, sa, sb){
+  var box = $('corrBox'); if (!box) return;
+  if (typeof echarts === 'undefined') return;
+  var win = corrWin();
+  var roll = corrRolling(al.x, al.y, al.d, win);
+  if (!roll.length){
+    /*  ⚠️ <먼저 치우고> 적습니다. 순서를 바꾸면 dispose 가 상자를 통째로
+        비우면서 방금 적은 안내문까지 지웁니다 — 화면에는 아무것도 없는
+        빈 칸만 남습니다. 실제로 그렇게 비어 있었습니다.              */
+    if (corrChart){ try { corrChart.dispose(); } catch(e){} corrChart = null; }
+    box.innerHTML = '<div class="empty" style="padding:26px">'
+      + '구간별로 보려면 표본이 <b>' + win + '개보다 많아야</b> 합니다 '
+      + '(지금 ' + al.x.length + '개). 위의 <b>구간</b>을 줄여보세요.</div>';
+    return;
+  }
+  corrChart = chartOn('corrBox', corrChart); if (!corrChart) return;
+  var th = macroTheme();
+  corrChart.setOption({
+    backgroundColor: macroBgColor(), animation:false,
+    grid:{ left:46, right:16, top:24, bottom:30 },
+    tooltip:{ trigger:'axis',
+      formatter: function(ps){
+        if (!ps || !ps.length) return '';
+        return fmtDateKo(String(ps[0].axisValueLabel || ps[0].axisValue).slice(0,10))
+             + '<br><b>' + Number(ps[0].data[1]).toFixed(3) + '</b>';
+      } },
+    xAxis:{ type:'time', axisLine:{ lineStyle:{ color:th.grid } },
+      axisLabel:{ color:th.text_color, fontSize:10, hideOverlap:true,
+        formatter: function(v){ return xtLabel(v, xtStep); } },
+      splitLine:{ show:false } },
+    //  ⚠️ 축을 −1~1 로 <고정합니다>. 자동으로 두면 0.6~0.8 구간이 화면
+    //     가득 차서, 실제로는 다 «강한 양» 인데 널뛰는 것처럼 보입니다.
+    yAxis:{ type:'value', min:-1, max:1, interval:0.5,
+      axisLine:{ lineStyle:{ color:th.axis_left } },
+      axisLabel:{ color:th.axis_left, fontSize:10 },
+      splitLine:{ lineStyle:{ color:th.grid } } },
+    series:[{
+      type:'line', showSymbol:false, smooth:false,
+      lineStyle:{ color: sa ? sa.color : '#2a5aa8', width:2 },
+      itemStyle:{ color: sa ? sa.color : '#2a5aa8' },
+      areaStyle:{ opacity:.08 },
+      data: roll.map(function(p){ return [p.d, p.v]; }),
+      markLine:{ silent:true, symbol:'none',
+        lineStyle:{ color:th.grid, type:'solid' },
+        label:{ show:false }, data:[{ yAxis: 0 }] }
+    }]
+  }, true);
+  var nm = $('corrBox');
+  if (nm) nm.setAttribute('aria-label',
+    '구간별 상관계수 — ' + (sa ? sa.label : '') + ' 와 ' + (sb ? sb.label : ''));
+}
+var corrChart = null;
+
+/*  ⚠️ 학회 보고서에 붙이려면 숫자가 손에 잡혀야 합니다. 행렬과 고른 쌍의
+    구간별 값을 같이 냅니다 — 화면에서 본 것과 <같은 기준> 으로요.     */
+function corrCsv(){
+  if (!corrLast){ warn('corrWarn','먼저 지표를 두 개 이상 올려주세요.'); return; }
+  var L = corrLast, rows = [];
+  var basisName = { chg:'변화', yoy:'전년동기비', raw:'원지수 그대로' }[L.basis] || L.basis;
+  rows.push(['기준', basisName]);
+  rows.push(['주의', '상관은 인과가 아닙니다. 원지수 기준은 추세만으로도 1에 가깝게 나옵니다.']);
+  rows.push([]);
+  rows.push(['상관행렬'].concat(L.list.map(function(s){ return s.label; })));
+  L.list.forEach(function(s, i){
+    rows.push([s.label].concat(L.R[i].map(function(v){ return v == null ? '' : v.toFixed(4); })));
+  });
+  rows.push([]);
+  rows.push(['겹치는 표본 수'].concat(L.list.map(function(s){ return s.label; })));
+  L.list.forEach(function(s, i){ rows.push([s.label].concat(L.N[i])); });
+  rows.push([]);
+  var a = L.list[L.pair[0]], b = L.list[L.pair[1]];
+  rows.push(['고른 쌍', a.label, b.label]);
+  rows.push(['상관계수', L.rp == null ? '' : L.rp.toFixed(4)]);
+  rows.push(['순위 상관', L.rs == null ? '' : L.rs.toFixed(4)]);
+  rows.push([]);
+  rows.push(['날짜', a.label, b.label]);
+  for (var i = 0; i < L.al.d.length; i++)
+    rows.push([L.al.d[i], L.al.x[i], L.al.y[i]]);
+  saveCsv(rows, 'SAFE_상관관계');
+}
+
 function setMacroGrid(){
   if ($('mgGrid'))      macroGrid.on    = $('mgGrid').checked;
   if ($('mgGridColor')) macroGrid.color = $('mgGridColor').value;
@@ -12099,6 +12829,8 @@ function annStyle(){
 }
 //  고른 주석에만 지금 글꼴·크기·색을 입힙니다 (아무것도 안 골랐으면 다음에 그릴 것부터)
 function annRestyle(){
+  //  ⚠️ 주석 색을 바꿨으면 «배경에서 안 보인다» 안내도 다시 셉니다
+  if (typeof macroBgNote === 'function') macroBgNote();
   var st = annStyle(), n = 0;
   if (Object.keys(annSel).length) annPush();
   annItems.forEach(function(a){
@@ -12657,6 +13389,11 @@ function drawChart(){
   if (!chartsReady()) return;
   //  ⚠️ 커브 모드면 여기서 갈라집니다. 아래 시계열 그리기는 건드리지 않습니다.
   if (macroMode === 'curve'){ ycDraw(); return; }
+  /*  ⚠️ 이 아래에서는 theme 대신 <th> 를 씁니다. 배경색을 손으로 고른
+      경우 글씨·축·눈금선이 그 배경에서 읽히는 색이어야 하는데, 그걸
+      macroTheme() 한 군데서 정합니다. 여기서 theme 을 직접 쓰면 그 한
+      군데를 비껴가서, 어두운 배경에 어두운 글씨가 찍힙니다.          */
+  var th = macroTheme();
   chart = chartOn('chartBox', chart); if (!chart) return;
   bindAxisWheel();
   priceNote();
@@ -12675,14 +13412,18 @@ function drawChart(){
     //     같은 말을 띄우면 지워진 줄 알고 다시 추가하게 됩니다.
     var allHid = series.length > 0 && series.every(function(s){ return s.hidden; });
     chart.clear();
-    chart.setOption({ backgroundColor: theme.bg,
+    chart.setOption({ backgroundColor: macroBgColor(),
       title:{ text: allHid ? '선 목록에서 눈 그림을 눌러 다시 보이게 하세요'
                            : '지표를 추가하면 차트가 그려집니다',
         left:'center', top:'45%',
-        textStyle:{ color:theme.text_color, fontSize:14, fontWeight:'normal' } } });
+        textStyle:{ color:th.text_color, fontSize:14, fontWeight:'normal' } } });
     $('chartMsg').textContent = '';
     //  ⚠️ 지표를 다 빼면 제목에 남아 있던 옛 구간이 그대로 붙어 있습니다
     if ($('chartTitle')) $('chartTitle').textContent = '차트';
+    /*  ⚠️ 여기서도 상관관계를 다시 셉니다. 안 그러면 <그릴 게 없는데>
+        아래에는 방금 전 숫자가 그대로 남아, 화면과 숫자가 서로 다른
+        말을 합니다 — 기간을 자료 밖으로 옮겼을 때 실제로 그랬습니다. */
+    if (typeof corrRun === 'function') corrRun();
     return;
   }
 
@@ -12741,6 +13482,26 @@ function drawChart(){
   }
   var zeroLine = !!(axRange && axRange.some(function(r){ return r && r.zero; }));
 
+  /*  ── 가로축에 찍을 날짜를 먼저 정합니다 ────────────────────
+      ⚠️ 그려질 자료의 <맨 앞·맨 뒤> 가 구간입니다. 설정한 기간이 아니라
+         실제로 받은 자료를 봐야 합니다 — «전체» 로 놔도 FRED 에 10년치
+         밖에 없는 지표가 있습니다.                                    */
+  var xtLo = Infinity, xtHi = -Infinity;
+  norms.forEach(function(x){
+    (x.pts || []).forEach(function(p){
+      var t = Date.parse(p.d);
+      if (!isFinite(t)) return;
+      if (t < xtLo) xtLo = t;
+      if (t > xtHi) xtHi = t;
+    });
+  });
+  //  ⚠️ 칸 폭은 <차트 상자 − 축 자리> 입니다. 축을 세 개 달면 그만큼
+  //     좁아지는데, 그걸 안 빼면 라벨이 축 위로 삐져나옵니다.
+  var xtW = Math.max(120, (($('chartBox') || {}).clientWidth || 700)
+                          - (norm ? 84 : (pad.left + pad.right)));
+  var xtInit = xtSpec(xtLo, xtHi, xtW);
+  xtStep = xtInit.step;
+
   //  범례가 몇 줄인지 재서 그만큼 위를 비웁니다 (축 이름이 가려지지 않게)
   /*  ⚠️ 학회장: «차트 제목이 기간과 안 맞는데? 2003년~이라고 적혀 있는데
       사실 기간은 1년».
@@ -12770,12 +13531,12 @@ function drawChart(){
   var topPad = 12 + lgRows * 22 + 26;          // 범례 + 축 이름 자리
 
   var opt = {
-    backgroundColor: theme.bg,
+    backgroundColor: macroBgColor(),
     animation:false,
-    textStyle:{ color:theme.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
+    textStyle:{ color:th.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
     grid:{ left: norm ? 58 : pad.left, right: norm ? 26 : pad.right,
            top: topPad, bottom:64 },
-    legend:{ top:8, textStyle:{ color:theme.text_color, fontSize:12 },
+    legend:{ top:8, textStyle:{ color:th.text_color, fontSize:12 },
       itemWidth:18, itemHeight:3, data: lgNames },
     tooltip:{ trigger:'axis',
       axisPointer:{ type:'line', label:{ formatter:function(p){ return fmtDateKo(p.value); } } },
@@ -12792,18 +13553,22 @@ function drawChart(){
                + '</b>';
         }).join('<br>');
       } },
-    xAxis:{ type:'time', axisLine:{ lineStyle:{ color:theme.grid } },
-      axisLabel:{ color:theme.text_color, fontSize:11, hideOverlap:true,
-        formatter:{ year:'{yyyy}년', month:'{M}월', day:'{M}/{d}',
-                    hour:'{HH}:{mm}', minute:'{HH}:{mm}', second:'{HH}:{mm}:{ss}',
-                    millisecond:'{HH}:{mm}:{ss}', none:'{yyyy}-{MM}-{dd}' } },
+    /*  ⚠️ 가로축 눈금은 <우리가 정해서> 넘깁니다 (xtSpec 주석 참고).
+        customValues 를 못 알아듣는 ECharts 를 만나도, formatter 가
+        함수라서 라벨 모양(«3월» / «3/15» / «2024년»)은 그대로입니다 —
+        자리만 자동으로 돌아갑니다.                                    */
+    xAxis:{ type:'time', axisLine:{ lineStyle:{ color:th.grid } },
+      axisLabel:{ color:th.text_color, fontSize:11, hideOverlap:true,
+        customValues: xtInit.ticks,
+        formatter: function(v){ return xtLabel(v, xtStep); } },
+      axisTick:{ customValues: xtInit.ticks },
       splitLine:{ show:false } },
     yAxis: (function(){
       if (norm) return [{ type:'value', scale:true, name:'지수',
-        nameTextStyle:{ color:theme.axis_left, fontSize:11 }, nameGap:12,
-        position:'left', axisLine:{ show:true, lineStyle:{ color:theme.axis_left } },
-        axisLabel:{ color:theme.axis_left, fontSize:11 },
-        splitLine:{ lineStyle:{ color:theme.grid } } }];
+        nameTextStyle:{ color:th.axis_left, fontSize:11 }, nameGap:12,
+        position:'left', axisLine:{ show:true, lineStyle:{ color:th.axis_left } },
+        axisLabel:{ color:th.axis_left, fontSize:11 },
+        splitLine:{ lineStyle:{ color:th.grid } } }];
       var out = [];
       /*  ⚠️ 눈금선을 그릴 축을 하나 정합니다. 보통 왼쪽(0번)이지만, 0번
           축에 올린 지표가 없으면 그 축은 숨겨져 있으므로 <실제로 쓰는>
@@ -12815,7 +13580,7 @@ function drawChart(){
       for (var j = 0; j < nAxis; j++){
         var sl = axisSlot(j);
         var on = norms.some(function(x){ return (Number(x.s.axis) || 0) === j; });
-        var col = (j === 0) ? theme.axis_left : theme.axis_right;
+        var col = (j === 0) ? th.axis_left : th.axis_right;
         var rg = axRange && axRange[j];
         var ax = { type:'value', scale:true, name: axLabel[j] || '',
           nameTextStyle:{ color: col, fontSize:11 }, nameGap:12,
@@ -12866,9 +13631,9 @@ function drawChart(){
       { type:'inside', zoomOnMouseWheel:true, moveOnMouseMove:true,
         moveOnMouseWheel:false },
       { type:'slider', show:true, height:18, bottom:16,
-        borderColor:theme.grid, fillerColor:'rgba(107,140,218,.15)',
-        handleStyle:{ color:theme.axis_left },
-        textStyle:{ color:theme.text_color, fontSize:10 } }
+        borderColor:th.grid, fillerColor:'rgba(107,140,218,.15)',
+        handleStyle:{ color:th.axis_left },
+        textStyle:{ color:th.text_color, fontSize:10 } }
     ].concat((function(){
       //  Y 축 개수만큼 세로 확대·축소를 답니다
       var nY = norm ? 1 : Math.max(1, nAxis);
@@ -12915,7 +13680,7 @@ function drawChart(){
             겹쳐 읽히기만 하고 알려주는 게 없었습니다 — 막대 위에 회색 0 이
             얹혀 보이던 게 이것입니다.                                     */
         o.markLine = { symbol:'none', silent:true, animation:false,
-          lineStyle:{ color: theme.text_color, width:1, opacity:.4, type:'solid' },
+          lineStyle:{ color: th.text_color, width:1, opacity:.4, type:'solid' },
           label:{ show:false },
           data:[{ yAxis: norm ? 100 : 0 }] };
       }
@@ -12933,9 +13698,18 @@ function drawChart(){
   /*  ⚠️ 주석은 <다시 그릴 때마다> 새로 얹습니다. 기간을 바꾸거나 지표를
       더해도 «2월 23일의 65달러» 자리에 그대로 남게 하려는 것입니다.
       setOption(opt, true) 가 graphic 을 지우므로 순서가 중요합니다.   */
+  /*  ⚠️ 여기서 한 번 더 맞춥니다. 위에서는 칸 폭을 <어림> 했는데,
+      그려보고 나면 진짜 폭과 (확대해 뒀다면) 진짜 구간을 알 수 있습니다. */
+  xtBind();
+  xtRefresh();
   annBind();
   annFillSeries();
   annApply();
+  /*  ⚠️ 상관관계도 같이 다시 셉니다. 기간을 바꾸거나 지표를 더했는데
+      아래 숫자가 옛것이면, 화면과 숫자가 서로 다른 말을 합니다.
+      («구간별 상관계수» 차트가 위 차트를 다시 그리게 하지는 않으므로
+        여기서 한 방향으로만 부릅니다 — 서로 부르면 무한히 돕니다.)  */
+  if (typeof corrRun === 'function') corrRun();
 
   var anyTf = series.some(function(s){ return (s.tf||'raw') !== 'raw'; });
 
@@ -15815,14 +16589,40 @@ async function mtEditEnd(){
   } catch(e){ warn('tradingWarn', esc(e.message)); }
 }
 
+/*  ── 화면에 보이는 그대로 내려받기 ─────────────────────────
+
+    ⚠️ 학회장: «jpg 저장하면 핀하고 글 쓰는 기능 있잖아? 갑자기 그 핀이
+       붕 떠버려. 저장했을 때 그대로 보이는 것도 신경써줘».
+
+       맞습니다. 여기서 <격자를 움직이고> 있습니다 — 아래 타임라인 막대를
+       숨기고 bottom 을 64 에서 36 으로 줄입니다. 그러면 격자가 아래로
+       늘어나면서 «2월 1일의 3.97%» 이 있던 <픽셀 자리> 가 달라집니다.
+
+       그런데 주석은 «날짜·값» 이 아니라 <픽셀 자리> 로 그려져 있습니다
+       (ECharts graphic 이 그렇습니다). 다시 안 맞추면 옛 자리에 그대로
+       남습니다 — 선은 내려갔는데 핀만 위에 떠 있는 그림이 됩니다.
+
+    ⚠️ 그래서 격자를 옮긴 <직후> 에 주석과 가로축 눈금을 다시 맞춥니다.
+       되돌릴 때도 마찬가지입니다 — 안 하면 저장한 뒤 화면에 남은 핀이
+       이번엔 반대로 떠 있습니다.                                      */
 function downloadJPG(){
   if (!chart){ warn('researchWarn','먼저 지표를 추가해 차트를 그려주세요.'); return; }
   // 아래 타임라인 막대를 잠시 숨기고 차트·축만 저장합니다
   chart.setOption({ dataZoom:[{ type:'inside' }, { type:'slider', show:false }], grid:{ bottom:36 } });
+  jpgReflow();
   setTimeout(function(){
-    saveChartJpg(chart, 'SAFE_chart_' + today() + '.jpg');
+    //  ⚠️ 한 번 더 맞춥니다. 위에서 맞춘 뒤에도 ECharts 가 그리면서
+    //     격자를 다시 잴 수 있어서, <찍기 직전> 이 가장 안전합니다.
+    jpgReflow();
+    saveChartJpg(chart, 'SAFE_chart_' + today() + '.jpg', macroBgColor());
     chart.setOption({ dataZoom:[{ type:'inside' }, { type:'slider', show:true }], grid:{ bottom:64 } });
+    jpgReflow();
   }, 90);
+}
+//  격자가 움직였을 때 <픽셀로 그려둔 것> 을 다시 맞춥니다
+function jpgReflow(){
+  try { if (typeof xtRefresh === 'function') xtRefresh(); } catch(e){}
+  try { if (typeof annApply === 'function') annApply(); } catch(e){}
 }
 
 /* 발표 자료를 만드는 게 학회 활동의 절반입니다.
@@ -15915,8 +16715,11 @@ function hexRgb(c){
 /*  차트 하나를 <여백을 잘라> 내려받습니다. JPG 를 내는 자리는 전부
     이 함수를 지납니다 — 한 군데서만 자르면 새로 만드는 화면에서도
     저절로 잘립니다.                                                  */
-function saveChartJpg(chart, filename){
-  var bgc = (theme && theme.bg) || '#ffffff';
+/*  ⚠️ bg 를 따로 받습니다. 매크로 탭에서 배경색을 손으로 골랐으면
+    <화면과 같은 색> 으로 뽑혀야 합니다. 안 그러면 화면은 남색인데
+    내려받은 JPG 만 흰 바탕으로 나옵니다 — 발표 직전에 알게 됩니다.  */
+function saveChartJpg(chart, filename, bg){
+  var bgc = bg || (theme && theme.bg) || '#ffffff';
   var url = chart.getDataURL({ type:'png', pixelRatio:2, backgroundColor: bgc });
   var img = new Image();
   img.onload = function(){
@@ -15980,7 +16783,7 @@ function downloadCSV(){
 
 /*  차트를 새로 만들 때마다 이 목록에 손으로 더하는 걸 잊기 쉬워서,
     화면에 있는 차트 상자를 훑어 전부 다시 맞춥니다. */
-var CHART_BOXES = ['chartBox','dtChartBox','dtBarBox',
+var CHART_BOXES = ['chartBox','corrBox','dtChartBox','dtBarBox',
   'pieBox','pnlBox','benchBox','stratPrevBox',
   'coFinBox','coPriceBox',
   'dvMapBox','dvTermBox','dvPayBox','dvIvBox','dvOiBox','dvGkBox',
@@ -20593,7 +21396,7 @@ function ycDraw(){
       같이 바뀝니다. 따로 만들어 넘깁니다.                            */
   var splitX = macroSplit(), splitY = macroSplit();
   ycChart.setOption({
-    backgroundColor: theme ? theme.bg : '#fff', animation:false,
+    backgroundColor: macroBgColor(), animation:false,
     //  ⚠️ 눈금이 오른쪽이라 왼쪽 여백은 줄이고 오른쪽을 넓힙니다
     grid:{ left:16, right:62, top:16, bottom:46, containLabel:true },
     //  ⚠️ 범례를 아래로. 커브가 여덟 개까지 늘 수 있어 위에 두면
@@ -20603,7 +21406,7 @@ function ycDraw(){
     tooltip:{ trigger:'axis', textStyle:{ fontSize:11.5 },
       valueFormatter:function(v){ return v == null ? '—' : num(Number(v), 3) + '%'; } },
     xAxis:{ type:'category', data:labs, boundaryGap:false,
-      axisLine:{ lineStyle:{ color: theme ? theme.grid : '#e8ecf4' } },
+      axisLine:{ lineStyle:{ color: macroTheme().grid } },
       axisTick:{ show:false },
       axisLabel:{ color:'#77809a', fontSize:11 },
       /*  만기마다 세로선 — 어느 만기인지 눈이 바로 찾습니다.
