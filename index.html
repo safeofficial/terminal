@@ -11929,7 +11929,16 @@ function corrChange(pts, unit){
 
       바로 앞 관측이 <한 주기 안> 일 때만 값을 냅니다. 아니면 그 점은
       건너뜁니다. 표본이 하나 줄지언정 섞이지는 않습니다.            */
-  var gap = corrGap(pts), tol = gap > 0 ? gap * 1.5 : Infinity;
+  /*  ⚠️ <주말·공휴일은 빠진 게 아닙니다>. 일간 자료는 간격이 대개 하루라
+      중앙값이 1 인데, 금요일 다음은 월요일이라 사흘입니다. 중앙값의
+      1.5배(=1.5일)로 «빠진 구간» 을 가렸더니 <월요일이 전부 버려졌습니다>
+      — 5년치 1,043개 중 260개가 조용히 빠졌습니다 (학회장 화면 548개).
+
+      최소 나흘은 봐줍니다. 사흘짜리 주말과 월요일 휴장(나흘)은 통과하고,
+      닷새 넘게 빈 자리만 건너뜁니다. 월간 자료는 중앙값이 30일쯤이라
+      tol 이 45일이 되어, 한 달이 통째로 빈 61일짜리는 그대로 걸립니다. */
+  var gap = corrGap(pts);
+  var tol = gap > 0 ? Math.max(4, gap * 1.5) : Infinity;
   var out = [], skipped = 0;
   for (var i = 1; i < pts.length; i++){
     var a = pts[i-1].v, b = pts[i].v;
@@ -12064,7 +12073,7 @@ function corrRun(){
   if (list.length < 2){
     out.innerHTML = '<div class="empty" style="padding:18px">'
       + '지표를 <b>두 개 이상</b> 올리면 여기서 상관관계를 잽니다.</div>';
-    if (box) box.innerHTML = '';
+    corrClearBox();
     if (note) note.innerHTML = '';
     return;
   }
@@ -12088,11 +12097,13 @@ function corrRun(){
   if (!corrPair || corrPair[0] >= n || corrPair[1] >= n || corrPair[0] === corrPair[1])
     corrPair = [0, 1];
 
-  /*  ⚠️ 지표가 둘뿐이면 행렬은 <네 칸 중 둘이 같은 값, 둘은 «—»> 입니다.
-      읽을 것이 없는데 자리만 차지하고, 아래 요약과 같은 말을 두 번 합니다.
-      셋부터 그립니다.                                                 */
+  /*  ⚠️ 한 번은 «둘뿐이면 네 칸 중 둘이 같은 값이라 읽을 게 없다» 며
+      셋부터 그리게 해뒀는데, 학회장이 «테이블도 없어» 라고 했습니다.
+      맞는 말입니다 — 표가 있어야 <이 기능이 돌고 있다> 가 보이고, 지표를
+      더 얹었을 때 어느 칸을 누르면 되는지도 표에서 배웁니다. 둘부터
+      그립니다.                                                        */
   var h = '';
-  if (n >= 3){
+  if (n >= 2){
   h += '<table><tr><th class="rowh"></th>';
   for (i = 0; i < n; i++) h += '<th title="' + esc(list[i].label) + '">' + esc(corrShort(list[i].label)) + '</th>';
   h += '</tr>';
@@ -12197,6 +12208,33 @@ function corrShort(label){
   return (t.length > 18) ? (t.slice(0, 17) + '…') : t;
 }
 
+/*  ── 구간별 상자를 비울 때 ────────────────────────────────
+
+    ⚠️ innerHTML 만 비우면 <차트가 고아가 됩니다>. ECharts 는 «이 상자에
+       차트가 하나 붙어 있다» 를 <상자 자체에> 적어 두는데, 안을 지워도
+       그 표시는 남습니다. 그래서 다음에 그릴 때 getInstanceByDom 이
+       <캔버스가 이미 없어진 옛 차트> 를 돌려주고, 거기에 그림을 그려
+       넣게 됩니다 — 화면에는 <아무것도 안 보입니다>.
+
+    ⚠️ 학회장이 겪은 게 이것입니다: «처음에 딱 차트 나왔을 때 상관관계
+       차트가 보였는데 기간 좀 조절하니까 사라져버려». 기간을 바꾸면
+       지표를 <다시 받는 동안> 잠깐 자료가 빕니다. 그 순간 여기를 지나며
+       상자가 비워지고, 자료가 돌아와도 차트는 영영 안 돌아왔습니다.
+
+    ⚠️ 그러니 <버리고 나서> 비웁니다. 순서가 전부입니다.              */
+function corrClearBox(html){
+  var box = $('corrBox'); if (!box) return null;
+  if (corrChart){ try { corrChart.dispose(); } catch(e){} corrChart = null; }
+  //  ⚠️ dispose 로도 안 지워지는 경우가 있어 한 번 더 확인합니다
+  try {
+    var st = (typeof echarts !== 'undefined') && echarts.getInstanceByDom(box);
+    if (st) st.dispose();
+  } catch(e){}
+  box.style.height = 'auto';
+  box.innerHTML = html || '';
+  return box;
+}
+
 /*  ── 구간별 상관계수 ──────────────────────────────────────
     ⚠️ 하나의 숫자는 <평균> 입니다. 「2020년까지는 같이 갔는데 그 뒤로
        갈라졌다」 같은 이야기가 통째로 지워집니다. 그래서 구간을 굴려
@@ -12214,25 +12252,25 @@ function corrDraw(al, sa, sb){
   var win = corrWin();
   var roll = corrRolling(al.x, al.y, al.d, win);
   if (!roll.length){
-    /*  ⚠️ <먼저 치우고> 적습니다. 순서를 바꾸면 dispose 가 상자를 통째로
-        비우면서 방금 적은 안내문까지 지웁니다 — 화면에는 아무것도 없는
-        빈 칸만 남습니다. 실제로 그렇게 비어 있었습니다.              */
-    if (corrChart){ try { corrChart.dispose(); } catch(e){} corrChart = null; }
     /*  ⚠️ «줄여보세요» 라고만 하면 <얼마로> 를 학회원이 정해야 합니다.
         맞는 값을 눌러서 넣을 수 있게 합니다. 상자 높이도 줄입니다 —
-        빈 칸이 반 화면을 차지하면 고장 난 것처럼 보입니다.          */
+        빈 칸이 반 화면을 차지하면 고장 난 것처럼 보입니다.
+
+        ⚠️ <버리고 나서> 적습니다 (corrClearBox 주석 참고).          */
     var fit = corrWinAuto(al.x.length);
-    box.style.height = 'auto';
-    box.innerHTML = '<div class="empty" style="padding:16px">'
+    corrClearBox('<div class="empty" style="padding:16px">'
       + '구간별로 보려면 표본이 <b>' + win + '개보다 많아야</b> 합니다 (지금 '
       + al.x.length + '개).'
       + (al.x.length > 12
           ? ' <button class="btn-sm" onclick="corrWinSet(' + fit + ')">구간을 '
             + fit + '로 줄이기</button>'
           : ' 기간을 늘리거나 주기가 잦은 지표로 보세요.')
-      + '</div>';
+      + '</div>');
     return;
   }
+  /*  ⚠️ 남아 있던 안내문은 <따로 안 지웁니다> — echarts.init 이 상자를
+      비우고 시작합니다 (재어 봤습니다). 고아 차트 걱정도 없습니다:
+      상자를 비우는 길은 전부 corrClearBox 하나뿐이고, 거기서 버립니다. */
   box.style.height = '220px';
   corrChart = chartOn('corrBox', corrChart); if (!corrChart) return;
   var th = macroTheme();
