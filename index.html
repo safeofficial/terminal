@@ -10220,7 +10220,22 @@ var MACRO_BUNDLES = [
   { n:'미국채 — 나라별 보유', d:'외국인 전체 · 일본 · 중국 · 영국 · 한국 (월간, 2003~)',
     keepRaw:true,
     c:['FORTREASPOS99996','FORTREASPOS42609','FORTREASPOS41408',
-       'FORTREASPOS13005','FORTREASPOS43001'] }
+       'FORTREASPOS13005','FORTREASPOS43001'] },
+  /*  ⚠️ 학회장: «SRF·SOFR·IORB·EFFR·ON RRP — 레포랑 단기자금시장도».
+      다섯 금리는 <회랑> 으로 같이 봐야 뜻이 납니다 — 천장(SRF)에서
+      바닥(ON RRP) 순서로 올려서 목록 순서도 위아래와 맞춥니다.
+      (terminal-단기자금.sql 을 돌려야 단추가 보입니다)              */
+  { n:'단기금리 회랑 — SRF · IORB · SOFR · EFFR · ON RRP',
+    d:'연준 단기금리 다섯 개 — 천장(SRF)부터 바닥(ON RRP)까지 (%, 일간, 2021-07~)',
+    keepRaw:true,
+    c:['SRFTSYD','IORB','SOFR','EFFR','RRPONTSYAWARD'] },
+  /*  ⚠️ 금액은 <단위가 같은 것끼리만> 묶습니다. 대차대조표 셋은 주간 ·
+      백만 달러이고, 레포 창구 둘(ON RRP 잔액 · SRF 이용액)은 일간 · 십억
+      달러라 여기 안 넣습니다 — 섞으면 한쪽이 천 배로 부풀어 보입니다. */
+  { n:'연준 유동성 — 총자산 · 지급준비금 · TGA',
+    d:'연준 총자산 · 은행 지급준비금 · 재무부 계좌 (주간, 백만 달러, 2002~)',
+    keepRaw:true,
+    c:['WALCL','WRESBAL','WTREGEN'] }
 ];
 
 function renderBundles(){
@@ -11071,7 +11086,8 @@ function recMarkArea(bands){
                 borderColor:'rgba(104,118,146,.55)', borderWidth:1 },
     label:{ show:false },
     emphasis:{ disabled:true },
-    data: bands.map(function(b){ return [{ xAxis:b[0] }, { xAxis:b[1] }]; })
+    //  ⚠️ 침체 띠도 자료와 같은 시계로 (tsOf 주석 참고)
+    data: bands.map(function(b){ return [{ xAxis:tsOf(b[0]) }, { xAxis:tsOf(b[1]) }]; })
   };
 }
 
@@ -11503,6 +11519,41 @@ function wonAxis(v){
 }
 
 /* 날짜 한글 표기 */
+/*  ══════════ 매크로 차트는 <세계시 자정> 한 시계로 갑니다 ══════════
+
+    ⚠️ 이 상자(시험 돌리는 곳)는 세계시(UTC)로 돕니다. 학회원 컴퓨터는
+       한국 시각(UTC+9)입니다. 그 차이가 <아무 시험에도 안 걸린 채>
+       숨어 있었습니다.
+
+       ECharts 는 «2024-01-01» 같은 글자를 <그 컴퓨터의 시각> 자정으로
+       읽습니다. 한국이면 한국 자정, 곧 세계시 전날 15시입니다.
+       그런데 핀·가로축 눈금은 Date.parse / Date.UTC — <세계시 자정> 을
+       씁니다. 한 차트 안에 시계가 둘이었습니다.
+
+       그 결과 한국에서는
+         · 핀이 자료점보다 <9시간 오른쪽> 에 꽂혔고 (40일 화면에서 6.6px,
+           일주일로 확대하면 35px — 선 위가 아니라 옆에 뜹니다)
+         · ECharts 가 고른 눈금이 <세계시 전날> 로 읽혀 «2022년 1월 1일»
+           이 «12월» 로 찍혔습니다 (상관관계 차트의 «12월 ×5»).
+
+    ⚠️ 그래서 매크로 차트에는 날짜를 <숫자(세계시 자정)> 로 넘기고,
+       useUTC 로 ECharts 도 세계시로 읽게 합니다. 핀·눈금·자료가 전부
+       같은 시계를 봅니다.
+
+    ⚠️ fmtDateKo 는 <건드리지 않습니다>. 다른 탭 차트들은 아직 글자로
+       넘기고 있어서 (= 그 컴퓨터 자정), 거기를 세계시로 바꾸면 이번엔
+       그쪽이 하루씩 밀립니다. 매크로 전용으로 따로 둡니다.            */
+function tsOf(d){
+  var t = Date.parse(String(d == null ? '' : d).slice(0, 10));
+  return isFinite(t) ? t : null;
+}
+function fmtDateKoU(v){
+  if (typeof v === 'string') return fmtDateKo(v);
+  var t = new Date(v);
+  if (isNaN(t.getTime())) return String(v);
+  return t.getUTCFullYear() + '년 ' + (t.getUTCMonth() + 1) + '월 ' + t.getUTCDate() + '일';
+}
+
 function fmtDateKo(v){
   if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)){
     var p = v.slice(0,10).split('-');
@@ -12019,12 +12070,22 @@ function corrRolling(x, y, d, win){
   }
   return out;
 }
-//  세기를 말로 (색만으로는 색각이 다른 사람이 못 읽습니다)
-function corrWord(r){
+/*  세기를 말로 (색만으로는 색각이 다른 사람이 못 읽습니다)
+
+    ⚠️ 한 번은 0.2 아래를 전부 «거의 없음» 이라 불렀습니다. 그런데 표본이
+       1,220개면 잡음선이 0.06 이라, −0.18 은 <잡음의 세 배> 입니다.
+       약하지만 <분명히 있는> 관계를 «없다» 고 적으면, 보고서에 «국채와
+       유가는 무관하다» 가 들어갑니다. 틀린 문장입니다.
+
+    ⚠️ 그래서 표본 수를 같이 봅니다. 잡음선 안쪽이면 «잡음과 구분 안 됨»,
+       바깥이면 세기를 말합니다. 세기 기준은 흔히 쓰는 0.1·0.3·0.5·0.7. */
+function corrWord(r, n){
   var a = Math.abs(r);
-  var s = a >= 0.8 ? '매우 강함' : a >= 0.6 ? '강함'
-        : a >= 0.4 ? '뚜렷함'   : a >= 0.2 ? '약함' : '거의 없음';
-  if (a < 0.2) return s;
+  var noise = (n > 0) ? 2 / Math.sqrt(n) : 0;
+  if (a < noise) return '잡음과 구분 안 됨';
+  var s = a >= 0.7 ? '매우 강함' : a >= 0.5 ? '강함'
+        : a >= 0.3 ? '뚜렷함'   : a >= 0.1 ? '약함' : '거의 없음';
+  if (a < 0.1) return s;
   return (r > 0 ? '같은 방향으로 ' : '반대 방향으로 ') + s;
 }
 function corrColor(r){
@@ -12053,9 +12114,17 @@ function corrWinSet(v){
   if ($('corrWin')) $('corrWin').value = String(v);
   corrRun();
 }
+/*  ⚠️ 칸에 적힌 값과 <실제로 쓰는 값> 이 같아야 합니다.
+
+    칸에 «1» 을 넣으면 예전엔 조용히 60 을 썼습니다. 화면엔 «구간 1»,
+    차트는 60개씩 — 보는 사람은 1개씩 잰 줄 압니다. 범위(5~600) 안으로
+    당겨서 <칸에도 그 값을 돌려 적습니다>.                           */
 function corrWin(){
-  var v = Number(($('corrWin') || {}).value);
-  return (isFinite(v) && v >= 5) ? Math.min(600, Math.round(v)) : 60;
+  var el = $('corrWin');
+  var v = Number((el || {}).value);
+  var w = isFinite(v) ? Math.max(5, Math.min(600, Math.round(v))) : 60;
+  if (el && String(el.value) !== String(w)) el.value = String(w);
+  return w;
 }
 function corrPick(i, j){ corrPair = [i, j]; corrRun(); }
 
@@ -12147,7 +12216,7 @@ function corrRun(){
   } else {
     h += '<div class="corr-kv">'
        + '<span>상관계수 <b style="font-size:1.25rem">' + rp.toFixed(3) + '</b>'
-       + ' <span class="st-hint">(' + esc(corrWord(rp)) + ')</span></span>'
+       + ' <span class="st-hint">(' + esc(corrWord(rp, nn)) + ')</span></span>'
        + '<span>설명력 R² <b>' + (rp * rp).toFixed(3) + '</b></span>'
        + (rs == null ? '' : '<span>순위 상관 <b>' + rs.toFixed(3) + '</b></span>')
        + '</div>';
@@ -12274,18 +12343,37 @@ function corrDraw(al, sa, sb){
   box.style.height = '220px';
   corrChart = chartOn('corrBox', corrChart); if (!corrChart) return;
   var th = macroTheme();
+  /*  ⚠️ 가로축 눈금은 <이 차트 몫으로> 따로 정합니다.
+
+      학회장: «저기 아래에 12월이 5개 있는 게 맞나». 안 맞습니다 —
+      2022·2023·2024·2025·2026년 이어야 합니다. 원인이 둘 겹쳤습니다.
+
+        ① 위 차트의 간격(xtStep)을 <빌려> 썼습니다. 위 차트를 몇 달만
+           확대해 두면 간격이 «달» 이 되고, 여기 5년치 눈금에도 «달»
+           라벨이 붙습니다.
+        ② 눈금 자리를 ECharts 에게 맡겼더니 <한국 시각 자정> 에 찍었습니다.
+           한국 1월 1일 0시는 세계시로 <12월 31일 15시> 입니다. 라벨은
+           세계시로 읽으니 «12월» 이 됩니다. 해마다 한 번씩, 다섯 번.
+
+      이 상자는 세계시 기준으로 테스트가 돌아서 ②가 한 번도 안 보였습니다.
+      눈금을 우리가 <세계시 자정> 으로 정해서 넘기면 둘 다 풀립니다.     */
+  var cx0 = Date.parse(roll[0].d), cx1 = Date.parse(roll[roll.length - 1].d);
+  var cxw = Math.max(120, (box.clientWidth || 700) - 62);
+  var cxs = xtSpec(cx0, cx1, cxw);
   corrChart.setOption({
-    backgroundColor: macroBgColor(), animation:false,
+    backgroundColor: macroBgColor(), animation:false, useUTC: true,
     grid:{ left:46, right:16, top:24, bottom:30 },
     tooltip:{ trigger:'axis',
       formatter: function(ps){
         if (!ps || !ps.length) return '';
-        return fmtDateKo(String(ps[0].axisValueLabel || ps[0].axisValue).slice(0,10))
+        return fmtDateKoU(ps[0].axisValue)
              + '<br><b>' + Number(ps[0].data[1]).toFixed(3) + '</b>';
       } },
     xAxis:{ type:'time', axisLine:{ lineStyle:{ color:th.grid } },
       axisLabel:{ color:th.text_color, fontSize:10, hideOverlap:true,
-        formatter: function(v){ return xtLabel(v, xtStep); } },
+        customValues: cxs.ticks,
+        formatter: function(v){ return xtLabel(v, cxs.step); } },
+      axisTick:{ customValues: cxs.ticks },
       splitLine:{ show:false } },
     //  ⚠️ 축을 −1~1 로 <고정합니다>. 자동으로 두면 0.6~0.8 구간이 화면
     //     가득 차서, 실제로는 다 «강한 양» 인데 널뛰는 것처럼 보입니다.
@@ -12298,7 +12386,7 @@ function corrDraw(al, sa, sb){
       lineStyle:{ color: sa ? sa.color : '#2a5aa8', width:2 },
       itemStyle:{ color: sa ? sa.color : '#2a5aa8' },
       areaStyle:{ opacity:.08 },
-      data: roll.map(function(p){ return [p.d, p.v]; }),
+      data: roll.map(function(p){ return [tsOf(p.d), p.v]; }),
       markLine:{ silent:true, symbol:'none',
         lineStyle:{ color:th.grid, type:'solid' },
         label:{ show:false }, data:[{ yAxis: 0 }] }
@@ -13869,17 +13957,19 @@ function drawChart(){
   var opt = {
     backgroundColor: macroBgColor(),
     animation:false,
+    //  ⚠️ 세계시 한 시계로 (tsOf 주석 참고)
+    useUTC: true,
     textStyle:{ color:th.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
     grid:{ left: norm ? 58 : pad.left, right: norm ? 26 : pad.right,
            top: topPad, bottom:64 },
     legend:{ top:8, textStyle:{ color:th.text_color, fontSize:12 },
       itemWidth:18, itemHeight:3, data: lgNames },
     tooltip:{ trigger:'axis',
-      axisPointer:{ type:'line', label:{ formatter:function(p){ return fmtDateKo(p.value); } } },
+      axisPointer:{ type:'line', label:{ formatter:function(p){ return fmtDateKoU(p.value); } } },
       formatter:function(ps){
         if (!ps || !ps.length) return '';
         var head = '<div style="font-size:11px;opacity:.7;margin-bottom:4px">'
-                 + fmtDateKo(ps[0].value[0]) + '</div>';
+                 + fmtDateKoU(ps[0].value[0]) + '</div>';
         return head + ps.map(function(p){
           var v = p.value[1];
           return p.marker + ' ' + p.seriesName + ' &nbsp;<b>'
@@ -14004,7 +14094,8 @@ function drawChart(){
             3개일 때 180% 가 되어 옆 칸을 침범합니다.                    */
         lineStyle:{ color:s.color, width:s.width },
         itemStyle:{ color:s.color },
-        data: pts.map(function(p){ return [p.d, (norm && normOk) ? p.v/base*100 : p.v]; })
+        //  ⚠️ 날짜는 <세계시 자정 숫자> 로 넘깁니다 (tsOf 주석 참고)
+        data: pts.map(function(p){ return [tsOf(p.d), (norm && normOk) ? p.v/base*100 : p.v]; })
       };
       //  침체 띠는 맨 앞 계열에 한 번만 붙입니다 (계열마다 붙이면 겹쳐서 진해집니다)
       if (i === 0 && bands.length) o.markArea = recMarkArea(bands);
