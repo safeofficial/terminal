@@ -301,6 +301,11 @@
             border:1px solid var(--border);border-radius:999px;color:var(--text-sub)}
   .pres-off{font-size:10px;padding:1px 5px;border-radius:4px;
             background:rgba(107,140,218,.14);color:var(--primary);font-weight:600}
+  /*  동시접속 — «PC 둘» · «휴대폰 둘» 은 눈에 띄게, «PC + 휴대폰» 은 보통 본인  */
+  .ovl-kind{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;white-space:nowrap;
+            font-weight:600;background:var(--bg);color:var(--text-sub);border:1px solid var(--border)}
+  .ovl-kind.hot{background:rgba(192,57,43,.10);color:#c0392b;border-color:rgba(192,57,43,.35)}
+  .ovl-n{font-weight:700;color:#c0392b}
   .ic-desc td{padding-top:0;border-top:0}
   .cat-desc{border:1px solid var(--border);border-left:3px solid var(--primary);
             border-radius:6px;background:var(--bg-sub);padding:9px 12px;margin:2px 0 4px}
@@ -670,6 +675,13 @@
   /*  아직 기업을 안 고른 탭은 눌러도 볼 게 없으니 흐리게 둡니다  */
   .mode-seg button:disabled{opacity:.38;cursor:not-allowed}
   .mode-seg button:disabled:hover{background:transparent}
+  /*  ⚠️ 마지막 점검에서 찾음: 기업 분석의 하위 탭(7개)이 휴대폰 폭(390px)에서
+      «기관 보유 (13F)» «지분 · 배당» 두 개가 화면 밖으로 나가 <페이지 전체를 옆으로
+      밀었습니다>. 좁은 화면에서는 두 줄로 접습니다 (눌러야 하는 단추라 옆으로 숨기지 않음). */
+  @media(max-width:640px){
+    .mode-seg{flex-wrap:wrap}
+    .mode-seg button{flex:1 1 auto;padding:8px 10px;font-size:12.5px;white-space:nowrap}
+  }
   .strat-hist{font-size:12px;color:var(--text-sub);line-height:1.7}
   .strat-hist b{color:var(--primary)}
   .badge-auto{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;
@@ -3594,11 +3606,26 @@
         </h2>
         <div id="presSum" class="st-hint" style="margin:-6px 0 10px"></div>
         <div class="scroll"><table id="presTable"></table></div>
+        <!--  ⚠️ 학회장: «두 기기 동시접속을 탐지할 수 있나» → 위치·IP 없이 기록만.
+              같은 계정이 다른 기기에서 동시에 켜져 있던 구간을 남깁니다.   -->
+        <h3 style="margin:18px 0 6px;font-size:14px">동시접속 기록
+          <span class="st-hint" style="font-weight:400">— 같은 계정이 두 기기에서 동시에 켜져 있던 때 (최근 14일)</span>
+        </h3>
+        <div class="row" style="margin:0 0 6px">
+          <label class="st-hint" style="min-width:auto">
+            <input type="checkbox" id="ovlShort" onchange="loadOverlaps()"> 3분 안 된 겹침도 보기
+          </label>
+          <span id="ovlSum" class="st-hint grow"></span>
+        </div>
+        <div class="scroll"><table id="ovlTable"></table></div>
         <p class="st-hint" style="margin:8px 0 0">
           <b>IP 주소·위치는 남기지 않습니다.</b> 브라우저·OS 와 그 브라우저에 저장된
           임의의 번호만 씁니다 — 학회원이 브라우저 저장소를 지우면 사라집니다.
           <b>자리비움</b>은 «자리에 없다»가 아니라 «이 화면을 안 보고 있다»는 뜻입니다
-          (다른 탭을 보면 신호를 멈춥니다).
+          (다른 탭을 보면 신호를 멈춥니다).<br>
+          <b>동시접속</b>은 본인이 노트북·휴대폰을 같이 켜 둔 것도 잡힙니다. <b>PC 둘</b>·<b>휴대폰 둘</b>이
+          겹친 경우가 계정 공유를 의심해 볼 만한 경우인데, 한 기기에서 브라우저 두 개나 시크릿 창을 켜도 둘로 잡힙니다.
+          <b>OS 가 서로 다를 때</b>(예: Windows 와 Mac)만 기기 두 대가 확실합니다 — 이 기록만으로 판단하지 말고 본인에게 먼저 물어보세요.
         </p>
       </div>
 <div class="card">
@@ -24557,10 +24584,16 @@ async function rsPreview(){
   try {
     var r = await sb.rpc('contest_reset_preview', { p_team_id: one });
     if (r.error) throw new Error(errMsg(r.error));
-    var d = r.data || {};
+    /*  ⚠️ 마지막 점검에서 찾음: 서버가 빈 답을 주면 «전체 NaN팀 에서 지워질 것 —
+        매매 0건» 이 찍혔습니다. <지울 게 0건> 이라는 거짓말이 됩니다 — 초기화
+        단추 바로 위 문구라 특히 위험합니다. 못 셌으면 못 셌다고 적습니다.   */
+    if (!r.data || typeof r.data !== 'object')
+      throw new Error('지워질 양을 세지 못했습니다 (서버가 빈 답을 줬습니다)');
+    var d = r.data;
     var names = aiArr(d.team_names);
     box.innerHTML =
-        '<b>' + (one ? esc(String(d.scope || '')) : '전체 ' + Number(d.teams) + '팀')
+        '<b>' + (one ? esc(String(d.scope || ''))
+                     : '전체 ' + (isFinite(Number(d.teams)) && d.teams != null ? Number(d.teams) + '팀' : '팀'))
       + '</b> 에서 지워질 것 — '
       + '매매 <b>' + num(d.trades, 0) + '건</b>'
       + ' · 스냅샷 <b>' + num(d.snapshots, 0) + '일치</b>'
@@ -24742,8 +24775,10 @@ async function loadPresence(){
     t.innerHTML = '<thead><tr><th>이름</th><th style="width:104px">상태</th>'
       + '<th class="num" style="width:78px">지금 기기</th>'
       + '<th class="num" style="width:92px">최근 7일</th>'
+      + '<th class="num" style="width:86px" title="최근 7일, 3분 넘게 두 기기가 동시에 켜져 있던 횟수">동시접속</th>'
       + '<th style="width:96px">마지막 활동</th><th>기기</th></tr></thead><tbody>'
       + rows.map(function(x){
+          var ovN = Number(x.overlap_7d) || 0;
           var devs = aiArr(x.devices).slice(0, 4).map(function(v){
             return '<span class="pres-dev">' + esc(aiStr(v.device) || '기타') + '</span>'; }).join('');
           return '<tr>'
@@ -24753,12 +24788,108 @@ async function loadPresence(){
             + '<td>' + presDot(x.status) + '</td>'
             + '<td class="num">' + (Number(x.devices_now) || 0) + '</td>'
             + '<td class="num st-hint">' + (Number(x.devices_7d) || 0) + '</td>'
+            + '<td class="num">' + (ovN ? '<span class="ovl-n">' + ovN + '회</span>' : '<span class="st-hint">—</span>') + '</td>'
             + '<td class="st-hint">' + esc(presAgo(x.last_seen)) + '</td>'
             + '<td>' + (devs || '<span class="st-hint">—</span>') + '</td></tr>';
         }).join('') + '</tbody>';
   } catch(e){
     t.innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>';
     $('presSum').textContent = '';
+  }
+  loadOverlaps();
+}
+
+/*  ── 동시접속 기록 ──────────────────────────────────────────────
+    ⚠️ 학회장: «두 기기 동시접속을 탐지할 수 있나» → 위치·IP 없이 기록만.
+       서버(presence_ping)가 신호를 받을 때 같은 계정의 다른 기기가 150초 안에
+       신호를 보냈으면 한 줄을 남기고, 계속 겹치면 그 줄을 늘려 갑니다.
+    ⚠️ 본인이 노트북·휴대폰을 같이 켜 둔 것도 잡힙니다. 그래서 <기기 조합> 을
+       앞에 세웁니다 — PC 둘 · 휴대폰 둘만 붉게 칠합니다.
+    ⚠️ 3분이 안 된 겹침은 기본으로 숨깁니다. 노트북을 덮고 휴대폰을 켜면
+       신호가 잠깐(최대 150초) 겹쳐 보이는데, 그건 동시접속이 아니라 <기기 전환> 입니다.
+    ⚠️ 서버가 아는 건 «브라우저 저장소가 다른 둘» 입니다. 한 PC 에서 크롬과 엣지를
+       같이 켜거나 시크릿 창을 열어도 둘로 잡힙니다. 그래서 «PC 두 대» 라고 단정하지
+       않고 «PC 둘» 이라 쓰고, <OS 가 서로 다를 때만> «기기 두 대 확실» 이라고 적습니다
+       (Windows 와 Mac 은 한 기기일 수 없으니까요).                                  */
+var OVL_KIND = { pc2:['PC 둘', true], mobile2:['휴대폰 둘', true], mix:['PC + 휴대폰', false] };
+//  이름표 «브라우저 · OS» 에서 OS 만 (모르면 '')
+function ovlOs(lab){
+  var p = String(lab == null ? '' : lab).split(' · ');
+  var o = p.length > 1 ? p[p.length - 1].trim() : '';
+  return o === '기타' ? '' : o;
+}
+//  두 기기가 <확실히> 다른 기기인가 = OS 를 둘 다 알고, 서로 다르다
+function ovlSure(x){
+  var a = ovlOs(x && x.dev_a), b = ovlOs(x && x.dev_b);
+  return !!(a && b && a !== b);
+}
+//  ⚠️ 날짜와 시각을 <둘 다 한국 시간> 으로 뽑습니다. 날짜만 UTC 로 자르면
+//     밤 9시 넘은 기록이 «하루 전 날짜 + 한국 시각» 으로 찍힙니다.
+function ovlStamp(t){
+  var d = new Date(t);
+  if (isNaN(d.getTime())) return ['', ''];
+  var ps = new Intl.DateTimeFormat('ko-KR', { timeZone:'Asia/Seoul', month:'numeric', day:'numeric',
+    hour:'2-digit', minute:'2-digit', hourCycle:'h23' }).formatToParts(d);
+  var g = function(k){ var x = ps.filter(function(p){ return p.type === k; })[0]; return x ? x.value : ''; };
+  return [g('month') + '월 ' + g('day') + '일', g('hour') + ':' + g('minute')];
+}
+function ovlWhen(a, b){
+  var A = ovlStamp(a), B = ovlStamp(b);
+  return A[0] + ' ' + A[1] + ' ~ ' + (A[0] === B[0] ? '' : B[0] + ' ') + B[1];
+}
+async function loadOverlaps(){
+  var t = $('ovlTable'); if (!t) return;
+  var showShort = $('ovlShort') && $('ovlShort').checked;
+  try {
+    var r = await sb.rpc('presence_overlaps', { p_days: 14 });
+    if (r.error){
+      //  ⚠️ terminal-동시접속.sql 을 아직 안 돌렸으면 함수가 없습니다 — errMsg 는 이걸
+      //     «terminal-점검.sql 을 돌려 보라» 로 바꾸므로, <원래 말> 로 먼저 가립니다.
+      var raw = String(r.error.message || '') + ' ' + String(r.error.code || '');
+      if (/presence_overlaps|schema cache|PGRST202|42883/i.test(raw))
+        throw new Error('동시접속 기록을 켜려면 SQL Editor 에서 terminal-동시접속.sql 을 돌려 주세요.');
+      throw new Error(errMsg(r.error));
+    }
+    var d = r.data || {};
+    var all = aiArr(d.rows);
+    var rows = all.filter(function(x){ return showShort || Number(x.mins) >= 3; });
+    var hot = rows.filter(function(x){ return (OVL_KIND[x.kind] || [])[1]; });
+    var hotSure = hot.filter(ovlSure).length;
+    var dayAgo = Date.now() - 864e5;
+    var hot24 = hot.filter(function(x){ return Date.parse(x.last_at) > dayAgo; }).length;
+    $('ovlSum').innerHTML = rows.length
+      ? rows.length + '건' + (hot.length ? ' · 그중 <b style="color:#c0392b">PC 둘·휴대폰 둘 ' + hot.length + '건</b>'
+          + (hotSure ? ' (OS 가 달라 기기 두 대가 확실한 것 ' + hotSure + '건)' : '')
+          + (hot24 ? ' · 최근 24시간 ' + hot24 + '건' : '') : '')
+        + (!showShort && all.length > rows.length ? ' · 3분 안 된 겹침 ' + (all.length - rows.length) + '건 숨김' : '')
+      : '';
+    if (!rows.length){
+      t.innerHTML = '<tr><td class="empty">최근 14일 동안 ' + (showShort ? '' : '3분 넘게 ')
+        + '두 기기에서 동시에 켜진 계정이 없습니다.</td></tr>';
+      return;
+    }
+    t.innerHTML = '<thead><tr><th>이름</th><th style="width:110px">기기 조합</th>'
+      + '<th>언제</th><th class="num" style="width:70px">얼마나</th><th>두 기기</th></tr></thead><tbody>'
+      + rows.slice(0, 80).map(function(x){
+          var k = OVL_KIND[x.kind] || ['기타', false];
+          var m = Number(x.mins) || 0;
+          return '<tr>'
+            + '<td><b>' + esc(x.name || '—') + '</b>'
+            +   (x.role === 'officer' ? ' <span class="pres-off">임원</span>' : '')
+            +   '<div class="st-hint">' + esc(x.gen || '') + '기</div></td>'
+            + '<td><span class="ovl-kind' + (k[1] ? ' hot' : '') + '">' + esc(k[0]) + '</span>'
+            +   (k[1] ? '<div class="st-hint" style="font-size:11px;margin-top:2px">'
+                  + (ovlSure(x) ? 'OS 가 달라 기기 두 대 확실' : '한 기기의 다른 브라우저·시크릿 창일 수도')
+                  + '</div>' : '')
+            + '</td>'
+            + '<td class="st-hint">' + esc(ovlWhen(x.first_at, x.last_at)) + '</td>'
+            + '<td class="num">' + (m < 1 ? '1분 미만' : esc(num(m, 0)) + '분') + '</td>'
+            + '<td><span class="pres-dev">' + esc(aiStr(x.dev_a) || '기타') + '</span>'
+            +   '<span class="pres-dev">' + esc(aiStr(x.dev_b) || '기타') + '</span></td></tr>';
+        }).join('') + '</tbody>';
+  } catch(e){
+    t.innerHTML = '<tr><td class="empty">' + esc(String((e && e.message) || e)) + '</td></tr>';
+    $('ovlSum').textContent = '';
   }
 }
 
