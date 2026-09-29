@@ -10418,6 +10418,8 @@ function renderSeriesList(){
       +     (dyOf(s) ? ' <button class="dy-chip" onclick="dyResetIdx('+i+')" '
               + 'title="위아래로 옮긴 것을 되돌립니다 (차트에서 그 선을 더블클릭해도 됩니다)">↕ 원위치</button>' : '')
       +     '<div class="code">'+esc(srcName(s.source, s.code))+' · '+esc(s.code)
+      //  ⚠️ 같은 코드를 뒤집어 쓰는 줄(위안/달러 = 1 ÷ 달러/위안)은 목록에서도 표시합니다
+      +     (s.item_code === 'inv' ? ' · <b>1 ÷ 값</b>' : '')
       +     (s.points ? '' : ' <span class="spin"></span>')+'</div></div>'
       +   '<button class="xbtn" onclick="removeSeries('+i+')" title="삭제">&times;</button>'
       + '</div>'
