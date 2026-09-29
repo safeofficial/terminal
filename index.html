@@ -2918,7 +2918,7 @@
               옵션 시장이 보는 만기일 가격 범위와, 사람들이 몰려 있는 자리</span>
             <span class="tools"><button class="btn-sm" onclick="dvJpg(dvMapChart,'가격대')">JPG</button></span>
           </h2>
-          <div id="dvMapBox" style="width:100%;height:250px"></div>
+          <div id="dvMapBox" style="width:100%;height:300px"></div>
           <div id="dvMapChips"></div>
           <div id="dvMapLegend" class="st-hint" style="margin-top:8px"></div>
 
@@ -2946,12 +2946,16 @@
                 <option value="250">최근 1년</option>
               </select>
             </div>
-            <div id="dvCandleBox" style="width:100%;height:200px;margin-top:8px"></div>
+            <div id="dvCandleBox" style="width:100%;height:360px;margin-top:8px"></div>
             <div id="dvCandleHint" class="st-hint" style="margin-top:6px"></div>
           </div>
         </div>
 
-        <!--  두 카드의 키를 맞춥니다. 예전에는 만기별 변동성 카드가 짧아서
+        <!--  ⚠️ 학회장: «파생상품 차트들 다 너무 작다. height 키워야돼».
+              예전 «반으로» 주문은 차트 배율(×2)이 살아 있던 때의 값이라, 배율을
+              없앤 뒤로는 실제로 절반(160~200px)만 남아 선·숫자가 눌려 붙었습니다.
+              배율 시절에 보던 크기(340px 안팎)로 되돌립니다.
+              두 카드의 키를 맞춥니다. 예전에는 만기별 변동성 카드가 짧아서
               아래가 허옇게 비었습니다. 카드를 세로로 늘리고 차트가 남는
               자리를 먹게 하면, 안에 든 것이 달라도 키가 같아집니다.      -->
         <div class="grid2 eq-h">
@@ -2962,7 +2966,7 @@
                 <button class="btn-sm" onclick="dvJpg(dvTermChart,'기간구조')">JPG</button>
               </span>
             </h2>
-            <div id="dvTermBox" class="grow-chart" style="width:100%;min-height:150px"></div>
+            <div id="dvTermBox" class="grow-chart" style="width:100%;min-height:340px"></div>
             <p class="st-hint" id="dvTermHint">만기가 멀수록 변동성이 높은 것이 보통입니다.
               가까운 만기가 더 높으면(<b>역전</b>) 코앞에 무슨 일을 앞두고 있다는 뜻입니다.</p>
           </div>
@@ -2982,7 +2986,7 @@
               <label style="min-width:auto">행사가</label>
               <select id="dvPayK" onchange="dvDrawPayoff()" class="grow"></select>
             </div>
-            <div id="dvPayBox" class="grow-chart" style="width:100%;min-height:125px"></div>
+            <div id="dvPayBox" class="grow-chart" style="width:100%;min-height:315px"></div>
             <p class="st-hint" id="dvPayHint"></p>
           </div>
         </div>
@@ -2994,7 +2998,7 @@
             <h2>변동성 곡선 (스마일)
               <span class="tools"><button class="btn-sm" onclick="dvJpg(dvIvChart,'IV')">JPG</button></span>
             </h2>
-            <div id="dvIvBox" style="width:100%;height:180px"></div>
+            <div id="dvIvBox" style="width:100%;height:340px"></div>
             <p class="st-hint">행사가별 내재변동성. 아래로 처진 U자면 시장이 <b>양쪽 꼬리</b>를,
               왼쪽만 높으면 <b>하락</b>을 더 걱정한다는 뜻입니다.</p>
           </div>
@@ -3002,7 +3006,7 @@
             <h2>미결제약정 분포
               <span class="tools"><button class="btn-sm" onclick="dvJpg(dvOiChart,'OI')">JPG</button></span>
             </h2>
-            <div id="dvOiBox" style="width:100%;height:180px"></div>
+            <div id="dvOiBox" style="width:100%;height:340px"></div>
             <p class="st-hint">행사가별로 살아 있는 계약 수. 많이 몰린 행사가는
               만기 무렵 <b>가격을 끌어당기는 자리</b>로 자주 언급됩니다.</p>
           </div>
@@ -3022,7 +3026,7 @@
             </select>
             <span id="dvGreekHint" class="st-hint"></span>
           </div>
-          <div id="dvGkBox" style="width:100%;height:160px"></div>
+          <div id="dvGkBox" style="width:100%;height:340px"></div>
         </div>
 
         <!-- 쉽게 읽기 — 체인이 길어서 위로 올려둡니다 -->
@@ -3084,7 +3088,7 @@
               <h2 style="margin:0;flex:1">주별 추이</h2>
               <span class="tools"><button class="btn-sm" onclick="chartJpg(dkChart,'다크풀')">JPG</button></span>
             </div>
-            <div id="dkBox" style="width:100%;height:300px"></div>
+            <div id="dkBox" style="width:100%;height:340px"></div>
             <div class="st-hint" id="dkHint"></div>
 
             <h2 style="margin-top:20px">어느 다크풀이 받았나</h2>
@@ -18574,6 +18578,13 @@ async function aiBuildDossier(){
         sector: (coProf.general || {}).sector, industry: (coProf.general || {}).industry,
       };
     }
+    /*  ⚠️ 서버가 SEC·DART 주식 수로 센 시가총액이 맞는지 <대조만> 합니다 (값으로는 안 씁니다).
+        ADR(1주 = 보통주 여러 주)·액면분할 직후에 시가총액이 몇 배로 틀리는 걸 서버가 알아채게.
+        검색으로 받은 값(pplx)은 대조 기준으로도 안 씁니다.                              */
+    if (coProf && coProf.found && coProf.source !== 'pplx'){
+      var hlc = coProf.highlights || {};
+      d.px_check = { mcap: aiNum(hlc.market_cap), eps_ttm: aiNum(hlc.eps) };
+    }
   } catch(e){
     //  ⚠️ 조용히 넘기면 «커버리지 없는 종목» 과 «서버가 죽은 것» 이
     //     구분이 안 됩니다. 모델은 전자로 읽고 그렇게 씁니다.
@@ -20233,6 +20244,8 @@ function aiFxFmt(f, cur){
     case 'pct':
       var t = a.toFixed(1) + '%';
       return f.sg ? ((v >= 0 || Number(a.toFixed(1)) === 0 ? '+' : '-') + t) : sg(t);
+    //  이익률 변화 (%p) — 서버 fxFmt 와 같은 모양
+    case 'pp': return (v >= 0 || Number(a.toFixed(1)) === 0 ? '+' : '-') + a.toFixed(1) + '%p';
     case 'x': return sg((a < 10 ? a.toFixed(2) : a.toFixed(1)) + '배');
     case 'sh': return krw ? (a >= 1e8 ? aiFxSep(a / 1e8, 2) + '억주' : aiFxSep(a, 0) + '주')
                           : aiFxSep(a / 1e6, 1) + 'M주';
@@ -20241,8 +20254,8 @@ function aiFxFmt(f, cur){
 }
 var AI_FX_SHOW = ['rev_TTM', 'rev_g_TTM', 'rev_@', 'rev_g_@', 'opm_TTM', 'net_TTM', 'tax_benefit_TTM',
   'net_norm_TTM', 'eps_TTM', 'eps_norm_TTM', 'fcf_TTM', 'fcfm_TTM', 'sbc_TTM', 'sbc_rev_TTM',
-  'owner_fcf_TTM', 'net_loss_sum', 'rev_cagr', 'cash_total', 'debt', 'net_cash', 'shares', 'px',
-  'mcap', 'ev', 'ev_sales_TTM', 'pe_TTM', 'pe_norm_TTM', 'ev_ebitda_TTM', 'ev_fcf_TTM', 'p_fcf_TTM',
+  'owner_fcf_TTM', 'net_loss_sum', 'rev_cagr', 'cash_total', 'debt', 'net_cash', 'shares', 'shares_pref', 'px',
+  'mcap', 'mcap_common', 'ev', 'ev_sales_TTM', 'pe_TTM', 'pe_norm_TTM', 'ev_ebitda_TTM', 'ev_fcf_TTM', 'p_fcf_TTM',
   'cons_target', 'bull_target', 'bear_target'];
 function aiFactsCard(sec, cur){
   var fx = sec.meta && sec.meta.facts;
@@ -20263,6 +20276,12 @@ function aiFactsCard(sec, cur){
   if (pr.B && pr.B.end) head.push('잔액 기준일 ' + pr.B.end);
   var warn = Object.keys(info.oneoff || {}).map(function(T){
     return '⚠️ ' + T + ' 순이익·EPS 에는 일회성 세금 환급이 들어 있습니다 — 정상화 EPS 를 보세요.'; });
+  /*  ⚠️ 서버가 <일부러 안 만든> 숫자도 읽는 사람이 알아야 합니다 — 빈칸이 «0» 이나
+         «원래 없는 것» 으로 읽히지 않게. (주식 수 대조 실패 · 차입금 미확정)          */
+  if (info.share_check) warn.push('⚠️ 주식 수 기준이 시세와 맞지 않아 시가총액·EV·주당 값·배수를 만들지 않았습니다 — '
+    + aiStr(info.share_check) + ' (액면분할 직후 · ADR · 주식 종류가 여럿인 회사).');
+  if (info.debt_unknown) warn.push('⚠️ 차입금을 확정하지 못해 차입금·순현금·EV·EV 배수를 만들지 않았습니다.');
+  var notes = aiArr(info.notes).map(aiStr).filter(function(n){ return n && !/^주식 수 기준이 시세와|^차입금을 확정하지 못해/.test(n); });
   if (!info.ok) warn.unshift('재무 사실표를 만들지 못했습니다' + (fx.note ? ' (' + fx.note + ')' : '')
     + ' — 이 리포트의 재무 숫자는 서버가 검증할 수 없어 뺐습니다.');
   if (!rows.length && !warn.length) return '';
@@ -20275,6 +20294,8 @@ function aiFactsCard(sec, cur){
     + (rows.length ? '<div class="scroll" style="margin-top:8px"><table><thead><tr><th>항목</th>'
       + '<th class="num">값</th><th>어떻게 셌나</th></tr></thead><tbody>' + rows.join('')
       + '</tbody></table></div>' : '')
+    + (notes.length ? '<div class="st-hint ai-fx-notes" style="margin:8px 0 0;line-height:1.7"><b>참고</b><br>'
+      + notes.slice(0, 14).map(function(n){ return '· ' + esc(n); }).join('<br>') + '</div>' : '')
     + '</details></div>';
 }
 /*  서버가 원문과 대조해 <뺀 것> — 조용히 빼면 그것대로 속이는 셈입니다  */
