@@ -807,6 +807,14 @@
     font-variant-numeric:tabular-nums;line-height:1.15}
   .mt-clock .u span{font-size:11.5px;color:var(--text-sub)}
   .mt-clock.over{color:var(--danger)}
+  /* ── 개인 대회 ── */
+  .so-join{margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .so-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;
+    background:var(--bg);border:1px solid var(--border);color:var(--text-sub)}
+  .so-badge.on{background:var(--accent-soft);color:var(--primary);border-color:transparent}
+  #pane-solo td.up{color:var(--up);font-weight:700} #pane-solo td.dn{color:var(--down);font-weight:700}
+  .so-board tr.me td{background:var(--accent-soft)}
+  .mt-clock .u.so-live b{color:var(--up)}
   .mt-teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
   .mt-team{background:var(--bg);border:1px solid var(--border);border-radius:12px;
     padding:16px 18px;cursor:pointer;transition:border-color .15s,transform .1s;text-align:left;
@@ -1181,6 +1189,7 @@
       <button class="tab on" data-tab="home" onclick="showTab('home')">홈</button>
       <button class="tab" data-tab="research" onclick="showTab('research')">매크로 경제</button>
       <button class="tab" data-tab="trading" onclick="showTab('trading')">모의투자</button>
+      <button class="tab" data-tab="solo" onclick="showTab('solo')">개인 대회</button>
       <button class="tab" data-tab="company" onclick="showTab('company')">기업 분석</button>
       <button class="tab" data-tab="ai" onclick="showTab('ai')">AI 분석</button>
       <button class="tab" data-tab="deriv" onclick="showTab('deriv')">파생상품</button>
@@ -2418,6 +2427,134 @@
 
     <!-- ════ 자료실 ════ -->
     <!-- ════ 기업 분석 ════ -->
+    <!-- ══════════ 개인 대회 ══════════
+         ⚠️ 학회장: «개인 단타 대회를 오늘만 열라고 하는데 탭 새로 만들어 줄 수
+            있어? 각자 1,000만원씩 지급. 직접매매 — 자동매매 없이».
+         팀 대회와 표·함수가 따로입니다 (terminal-개인단타.sql · solo_*).   -->
+    <div id="pane-solo" class="hidden">
+      <div class="page-head">
+        <h1 id="soTitle">개인 대회</h1>
+        <p id="soSub">각자 같은 금액으로 시작하는 개인전입니다. 직접매매만 (자동매매 없음) · 체결가는 서버가 정합니다.</p>
+      </div>
+      <div id="soWarn"></div>
+
+      <div class="card">
+        <h2><span id="soClockLabel">대회 시간</span>
+          <span class="tools"><span id="soWhen" class="st-hint"></span></span>
+        </h2>
+        <div id="soClock" class="mt-clock"><span class="empty">불러오는 중…</span></div>
+        <div id="soJoinBox" class="so-join"></div>
+      </div>
+
+      <div class="card hidden" id="soAccCard">
+        <h2>내 계좌
+          <span class="tools">
+            <span id="soAccAsOf" class="st-hint"></span>
+            <button class="btn-sm" onclick="soRefresh()">새로고침</button>
+          </span>
+        </h2>
+        <div id="soTiles" class="tiles" style="margin-bottom:0"></div>
+      </div>
+
+      <div class="card hidden" id="soOrderCard">
+        <h2>주문
+          <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
+            체결가는 서버가 정합니다 — <b>지금 체결된 값(실시간)</b>일 때만 받습니다</span>
+        </h2>
+        <div class="trade-form">
+          <div class="row">
+            <label>종목</label>
+            <div class="grow" style="position:relative">
+              <input type="text" id="soSymbol" class="grow" autocomplete="off"
+                     placeholder="NVDA · TSLA · BTC · 삼성전자 — 이름도 코드도 됩니다"
+                     oninput="soFindSym()" onkeydown="soSymKey(event)" onfocus="soSymFocus()">
+              <div id="soSymList" class="mt-ac hidden"></div>
+            </div>
+          </div>
+          <div class="row" id="soPicked" style="display:none">
+            <label>고른 종목</label>
+            <div class="grow mt-picked">
+              <b id="soPickName">—</b>
+              <span id="soPickCode" class="st-hint"></span>
+              <button class="btn-sm" onclick="soClearPick()">바꾸기</button>
+            </div>
+          </div>
+          <div class="row">
+            <label>구분</label>
+            <select id="soSide" onchange="soSideChanged()">
+              <option value="buy">매수</option><option value="sell">매도</option>
+            </select>
+            <select id="soMode" onchange="soModeChanged()" style="width:96px">
+              <option value="qty">수량</option>
+              <option value="amt">금액</option>
+            </select>
+            <input type="number" id="soQty" class="grow" placeholder="수량" min="0" step="0.01"
+                   oninput="soCalc()">
+            <input type="number" id="soAmt" class="grow hidden" placeholder="금액 (원)"
+                   min="0" step="10000" oninput="soCalc()">
+            <button class="btn-sm" onclick="soAllIn()">가능한 최대</button>
+          </div>
+        </div>
+        <div id="soQuoteBox" class="mt-quote hidden"></div>
+        <div class="msg" id="soMsg"></div>
+        <div class="trade-foot">
+          <button class="btn-sm btn-solid" id="soBtn" onclick="soSubmit()" disabled>주문</button>
+          <div class="hint" style="font-size:11.5px;color:var(--text-sub);line-height:1.7">
+            시장·종목 명단·수수료·고정환율은 <b>팀 대회와 같습니다</b>.
+            <b>미국·코인</b>은 누르는 순간의 시세로 체결됩니다.
+            단타 대회라 <b>멈춘 값으로는 체결하지 않습니다</b> — 미국은 마지막 체결이 15분 안,
+            <b>국내는 장중(평일 09:00~15:30) 실시간일 때만</b> 받습니다 (밤에는 국내 주문이 안 됩니다).
+            금액으로 주문하면 수량은 <b>서버가 체결가로</b> 셉니다.
+          </div>
+        </div>
+      </div>
+
+      <div class="card hidden" id="soPosCard">
+        <h2>보유 종목</h2>
+        <div class="scroll"><table id="soPosTable"></table></div>
+        <h2 style="margin-top:18px">체결 기록
+          <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">최근 순</span></h2>
+        <div class="scroll"><table id="soTrTable"></table></div>
+      </div>
+
+      <div class="card">
+        <h2>순위
+          <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">총자산 기준 · 대회 중에는 남의 종목은 안 보입니다</span>
+          <span class="tools">
+            <span id="soBoardAsOf" class="st-hint"></span>
+            <button class="btn-sm" onclick="soLoadBoard()">새로고침</button>
+          </span>
+        </h2>
+        <div id="soBoard"><div class="empty" style="padding:22px">불러오는 중…</div></div>
+      </div>
+
+      <div class="card admin-only hidden" id="soAdminCard">
+        <h2>대회 설정 <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">임원진만 보입니다</span></h2>
+        <div class="trade-form">
+          <div class="row"><label>이름</label>
+            <input type="text" id="soEvName" class="grow" maxlength="60" placeholder="개인 단타 대회"></div>
+          <div class="row"><label>시작 (한국 시간)</label>
+            <input type="datetime-local" id="soEvStart" class="grow"></div>
+          <div class="row"><label>끝 (한국 시간)</label>
+            <input type="datetime-local" id="soEvEnd" class="grow"></div>
+          <div class="row"><label>지급 금액 (원)</label>
+            <input type="number" id="soEvSeed" class="grow" min="1" step="1000000" value="10000000"></div>
+        </div>
+        <div class="msg" id="soEvMsg"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button class="btn-sm btn-solid" id="soEvNewBtn" onclick="soSaveEvent(true)">새 대회 열기</button>
+          <button class="btn-sm" id="soEvEditBtn" onclick="soSaveEvent(false)">지금 대회 고치기</button>
+          <button class="btn-sm" onclick="soEvDefaults()">오늘 미국장 (22:30 ~ 05:00)</button>
+        </div>
+        <div class="hint" style="font-size:11.5px;color:var(--text-sub);line-height:1.7;margin-top:8px">
+          <b>새 대회 열기</b>를 누르면 그 대회가 이 탭의 대회가 됩니다 (참가·계좌는 대회마다 따로).
+          매매가 한 번이라도 들어오면 <b>지급 금액과 시작 시각은 못 바꿉니다</b> — 끝나는 시각과 이름만 바꿀 수 있습니다.
+          끝난 뒤 순위는 <b>처음 센 값으로 굳힙니다</b> (새벽 5시 뒤 애프터마켓으로 값이 움직여도 순위가 안 바뀌게).
+          끝날 때 이 탭을 켜 두면 끝나자마자 굳습니다.
+        </div>
+      </div>
+    </div>
+
     <div id="pane-company" class="hidden">
       <div class="page-head">
         <h1>기업 분석</h1>
@@ -4115,7 +4252,7 @@ function showTab(name){
   var same = document.querySelector('.tab.on');
   var again = !!same && same.dataset.tab === name;
 
-  ['home','research','trading','company','ai','deriv','flow','links','access','admin'].forEach(function(t){
+  ['home','research','trading','solo','company','ai','deriv','flow','links','access','admin'].forEach(function(t){
     var p = $('pane-'+t); if (p) p.classList.toggle('hidden', t !== name);
   });
   document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('on', b.dataset.tab === name); });
@@ -4143,6 +4280,7 @@ function showTab(name){
   var go = function(fn){ try { fn(); } catch(e){ console.warn('탭 초기화 실패', name, e); } };
   if (name==='home'){ go(initHome); go(loadEvents); }
   if (name==='trading') go(initTrading);
+  if (name==='solo')    go(initSolo);
   if (name==='company') go(initCompany);
   if (name==='ai')      go(initAi);
   if (name==='deriv')   go(initDeriv);
@@ -17356,6 +17494,569 @@ async function submitTrade(){
   }
   btn.textContent = '주문';
   mtCalc();
+}
+
+/* ══════════ 개인 대회 ══════════════════════════════════════════
+
+   ⚠️ 학회장: «개인 단타 대회를 오늘만 열라고 하는데 탭 새로 만들어 줄 수
+      있어? 각자 1,000만원씩 지급. 시스템은 똑같이 직접매매 — 자동매매 없이».
+
+   ⚠️ 화면은 안내일 뿐입니다. 진짜 자물쇠는 서버(solo_order)와 DB 함수
+      (solo_place_trade) 입니다 — 시간·참가·현금·수량·체결가 전부 거기서
+      다시 봅니다. 여기서 버튼을 잠그는 건 «왜 안 되는지» 를 먼저 알려주려고.
+   ⚠️ 서버가 준 글자(이름·종목명·체결 기준)는 전부 esc() 로 넣습니다.
+   ══════════════════════════════════════════════════════════════ */
+var soSt = null, soBd = null, soPick = null, soQuote = null, soSymHit = -1;
+var soTimer = null, soAutoT = null, soSkew = 0, soPhaseSeen = null, soSymT = null;
+var soBusy = false, soQSeq = 0, soAdminFilled = null;
+
+function initSolo(){
+  soRefresh(); soLoadBoard();
+  if (!soTimer) soTimer = setInterval(soTick, 1000);
+  //  순위표는 30초마다 저절로 (탭이 보일 때만 — 숨은 탭에서 서버를 부르지 않습니다)
+  if (!soAutoT) soAutoT = setInterval(soAuto, 30000);
+}
+function soVisible(){
+  var p = $('pane-solo');
+  return !!p && !p.classList.contains('hidden') && !document.hidden;
+}
+function soAuto(){ if (!soVisible()) return; soLoadBoard(); soRefresh(true); }
+
+//  ⚠️ 시계는 <서버 시각> 기준입니다. 휴대폰 시계가 몇 분 틀려도
+//     «시작까지» 가 서버와 어긋나지 않게 차이를 재 둡니다.
+function soNow(){ return Date.now() + soSkew; }
+function soKst(iso){
+  var t = Date.parse(iso); if (!isFinite(t)) return '—';
+  var d = new Date(t + 9 * 3600e3).toISOString();
+  return d.slice(5, 7) + '/' + d.slice(8, 10) + ' ' + d.slice(11, 16);
+}
+function soPhaseNow(){
+  if (!soSt || !soSt.event) return 'none';
+  var n = soNow();
+  if (n < Date.parse(soSt.event.starts_at)) return 'before';
+  if (n < Date.parse(soSt.event.ends_at)) return 'live';
+  return 'after';
+}
+
+async function soRefresh(quiet){
+  try {
+    var d = await edge({ source: 'solo_state' });
+    soSt = d;
+    if (d && d.server_now) soSkew = Date.parse(d.server_now) - Date.now();
+    warn('soWarn', '');
+  } catch(e){
+    if (!quiet) warn('soWarn', esc(e.message));
+    return;
+  }
+  soPhaseSeen = soPhaseNow();
+  soRender();
+}
+
+function soRender(){
+  var st = soSt || {}, ev = st.event, ph = soPhaseNow();
+  $('soTitle').textContent = ev ? ev.name : '개인 대회';
+  $('soSub').textContent = ev
+    ? ('각자 ' + mtMoney(ev.seed) + '원으로 시작하는 개인전입니다. 직접매매만 (자동매매 없음) · 체결가는 서버가 정합니다.')
+    : '각자 같은 금액으로 시작하는 개인전입니다. 직접매매만 (자동매매 없음) · 체결가는 서버가 정합니다.';
+  $('soWhen').textContent = ev ? (soKst(ev.starts_at) + ' ~ ' + soKst(ev.ends_at) + ' (한국 시간)') : '';
+
+  var jb = $('soJoinBox');
+  if (!ev){
+    jb.innerHTML = '<span class="empty">아직 열린 개인 대회가 없습니다.'
+      + (st.is_officer ? ' 아래 «대회 설정» 에서 여세요.' : ' 임원진이 열면 여기 나옵니다.') + '</span>';
+  } else if (st.joined){
+    jb.innerHTML = '<span class="so-badge on">참가 중</span> <span class="st-hint">'
+      + soKst(st.joined_at) + ' 참가 · 참가자 ' + num(st.players || 0, 0) + '명</span>';
+  } else if (ph === 'after'){
+    jb.innerHTML = '<span class="st-hint">대회가 끝났습니다 · 참가자 ' + num(st.players || 0, 0) + '명</span>';
+  } else {
+    jb.innerHTML = '<button class="btn-sm btn-solid" id="soJoinBtn" onclick="soJoin()">참가하기 — '
+      + mtMoney(ev.seed) + '원 받기</button> <span class="st-hint">참가자 ' + num(st.players || 0, 0)
+      + '명 · 누른 사람만 순위에 오릅니다' + (ph === 'live' ? ' · 지금 들어와도 됩니다' : '') + '</span>';
+  }
+
+  var joined = !!(ev && st.joined);
+  $('soAccCard').classList.toggle('hidden', !joined);
+  $('soOrderCard').classList.toggle('hidden', !joined);
+  $('soPosCard').classList.toggle('hidden', !joined);
+  if (joined){ soRenderAcc(); soRenderPos(); soRenderTrades(); }
+  soCalc();
+  soAdminFill();
+  soTick();
+}
+
+function soTile(k, v, d, cls){
+  return '<div class="tile"><div class="k">' + k + '</div><div class="v' + (cls ? ' ' + cls : '') + '">'
+       + v + '</div>' + (d ? '<div class="d">' + d + '</div>' : '') + '</div>';
+}
+function soSigned(v){ var n = Number(v) || 0; return (n > 0.5 ? '+' : '') + mtMoney(n) + '원'; }
+function soCls(v){ var n = Number(v) || 0; return Math.abs(n) < 0.5 ? '' : (n > 0 ? 'pos' : 'neg'); }
+
+function soRenderAcc(){
+  var a = soSt && soSt.account;
+  if (!a){ $('soTiles').innerHTML = ''; return; }
+  var pp = Number(a.pnl_pct) || 0;
+  $('soTiles').innerHTML =
+      soTile('총자산', mtMoney(a.total) + '원', '시작 ' + mtMoney(a.seed) + '원')
+    + soTile('수익률', (a.pnl > 0.5 ? '+' : '') + num(pp, 2) + '%', soSigned(a.pnl), soCls(a.pnl))
+    + soTile('현금', mtMoney(a.cash) + '원')
+    + soTile('평가금액', mtMoney(a.holdings) + '원',
+             num((a.positions || []).length, 0) + '종목'
+             + (a.stale ? ' · 시세 못 받은 ' + a.stale + '개는 산 값' : ''))
+    + soTile('실현손익', soSigned(a.realized), '판 것에서 (수수료 포함)', soCls(a.realized))
+    + soTile('평가손익', soSigned(a.unrealized), '들고 있는 것', soCls(a.unrealized));
+  $('soAccAsOf').textContent = (soPhaseNow() === 'after' && soSt.event && soSt.event.final_at)
+    ? soKst(soSt.event.final_at) + ' 확정 값' : (soSt.server_now ? soKst(soSt.server_now) + ' 기준' : '');
+}
+
+function soRenderPos(){
+  var t = $('soPosTable'), pos = (soSt && soSt.account && soSt.account.positions) || [];
+  if (!pos.length){ t.innerHTML = '<tr><td class="empty">아직 보유 종목이 없습니다.</td></tr>'; return; }
+  var live = soPhaseNow() === 'live';
+  t.innerHTML = '<thead><tr><th>종목</th><th>시장</th><th class="num">수량</th><th class="num">평단가</th>'
+    + '<th class="num">현재가</th><th class="num">평가금액</th><th class="num">손익</th><th class="num">수익률</th>'
+    + (live ? '<th class="num"></th>' : '') + '</tr></thead><tbody>'
+    + pos.map(function(p, i){
+        var dp = p.market === 'KR' ? 0 : 2, up = (Number(p.pnl) || 0) >= 0;
+        var c = Math.abs(Number(p.pnl_krw) || 0) < 0.5 ? '' : (up ? 'up' : 'dn');
+        return '<tr><td><b>' + esc(p.name || p.symbol) + '</b><div class="st-hint">' + esc(p.symbol) + '</div></td>'
+          + '<td>' + esc(p.market) + '</td>'
+          + '<td class="num">' + mtQtyText(p.qty, p.market) + '</td>'
+          + '<td class="num">' + mtCur(p.avg, p.market, dp) + '</td>'
+          + '<td class="num">' + mtCur(p.last, p.market, dp)
+          + (p.missing ? '<div class="st-hint">시세 못 받음 · 산 값</div>' : '') + '</td>'
+          + '<td class="num">' + mtMoney(p.value_krw) + '원</td>'
+          + '<td class="num ' + c + '">' + soSigned(p.pnl_krw) + '</td>'
+          + '<td class="num ' + c + '">' + (p.pnl_pct == null ? '—' : (up && c ? '+' : '') + num(p.pnl_pct, 2) + '%') + '</td>'
+          + (live ? '<td class="num"><button class="btn-sm" onclick="soSellAll(' + i + ')">전부 팔기</button></td>' : '')
+          + '</tr>';
+      }).join('') + '</tbody>';
+}
+
+//  «전부 팔기» 는 주문 칸을 <채우기만> 합니다. 누르는 건 사람이 합니다.
+function soSellAll(i){
+  var p = ((soSt && soSt.account && soSt.account.positions) || [])[i]; if (!p) return;
+  soPickSet({ market: p.market, symbol: p.symbol, name: p.name || p.symbol });
+  $('soSide').value = 'sell'; $('soMode').value = 'qty';
+  $('soQty').classList.remove('hidden'); $('soAmt').classList.add('hidden'); $('soAmt').value = '';
+  $('soQty').value = mtFloorQty(p.qty, p.market);
+  soCalc();
+  var c = $('soOrderCard'); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'start' });
+}
+
+function soRenderTrades(){
+  var t = $('soTrTable'), tr = (soSt && soSt.trades) || [];
+  if (!tr.length){ t.innerHTML = '<tr><td class="empty">아직 체결이 없습니다.</td></tr>'; return; }
+  t.innerHTML = '<thead><tr><th>시각</th><th>종목</th><th>구분</th><th class="num">수량</th><th class="num">체결가</th>'
+    + '<th class="num">금액</th><th class="num">수수료</th><th class="num">실현손익</th><th>체결 기준</th></tr></thead><tbody>'
+    + tr.map(function(x){
+        var dp = x.market === 'KR' ? 0 : 2, rate = x.market === 'KR' ? 1 : (Number(x.fx) || 1);
+        var r = x.realized_krw, rc = r == null || Math.abs(r) < 0.5 ? '' : (r > 0 ? 'up' : 'dn');
+        return '<tr><td>' + soKst(x.traded_at) + '</td>'
+          + '<td><b>' + esc(x.name || x.symbol) + '</b> <span class="st-hint">' + esc(x.symbol) + '</span></td>'
+          + '<td class="' + (x.side === 'buy' ? 'up' : 'dn') + '">' + (x.side === 'buy' ? '매수' : '매도') + '</td>'
+          + '<td class="num">' + mtQtyText(x.qty, x.market) + '</td>'
+          + '<td class="num">' + mtCur(x.price, x.market, dp) + '</td>'
+          + '<td class="num">' + mtMoney(x.qty * x.price * rate) + '원</td>'
+          + '<td class="num">' + mtCur(x.fee, x.market, dp) + '</td>'
+          + '<td class="num ' + rc + '">' + (r == null ? '' : soSigned(r)) + '</td>'
+          + '<td class="st-hint">' + esc(x.fill_basis || '') + '</td></tr>';
+      }).join('') + '</tbody>';
+}
+
+function soTick(){
+  var box = $('soClock'); if (!box) return;
+  var ev = soSt && soSt.event;
+  if (!ev){
+    box.className = 'mt-clock';
+    box.innerHTML = '<span class="empty">' + (soSt ? '열린 대회가 없습니다.' : '불러오는 중…') + '</span>';
+    return;
+  }
+  var ph = soPhaseNow();
+  //  시작·끝을 넘는 순간 화면을 다시 받습니다 (주문 단추가 저절로 풀리고 잠기게,
+  //  끝나는 순간 순위가 바로 굳게)
+  if (soPhaseSeen && ph !== soPhaseSeen){ soPhaseSeen = ph; soRefresh(true); soLoadBoard(); }
+  if (ph === 'after'){
+    $('soClockLabel').textContent = '대회 종료';
+    box.className = 'mt-clock over';
+    box.innerHTML = '<div class="u"><b>종료</b><span>' + soKst(ev.ends_at) + ' 에 끝났습니다</span></div>';
+    return;
+  }
+  var target = ph === 'before' ? ev.starts_at : ev.ends_at;
+  $('soClockLabel').textContent = ph === 'before' ? '시작까지' : '끝까지';
+  var ms = Math.max(0, Date.parse(target) - soNow());
+  var h = Math.floor(ms / 36e5), m = Math.floor(ms / 6e4) % 60, s = Math.floor(ms / 1000) % 60;
+  box.className = 'mt-clock';
+  box.innerHTML = (ph === 'live' ? '<div class="u so-live"><b>진행 중</b><span>지금 매매할 수 있습니다</span></div>' : '')
+    + '<div class="u"><b>' + h + '</b><span>시간</span></div>'
+    + '<div class="u"><b>' + ('0' + m).slice(-2) + '</b><span>분</span></div>'
+    + '<div class="u"><b>' + ('0' + s).slice(-2) + '</b><span>초</span></div>';
+}
+
+async function soJoin(){
+  if (!soSt || !soSt.event) return;
+  var b = $('soJoinBtn'); if (b){ b.disabled = true; b.textContent = '참가하는 중…'; }
+  try {
+    var r = await sb.rpc('solo_join', { p_event: soSt.event.id });
+    if (r.error) throw new Error(errMsg(r.error));
+    warn('soWarn', '');
+    await soRefresh(); soLoadBoard();
+  } catch(e){
+    var m = String(e.message || e);
+    if (/solo_join|schema cache|does not exist/i.test(m))
+      m = 'terminal-개인단타.sql 을 아직 실행하지 않았습니다 (임원진에게 알려 주세요).';
+    warn('soWarn', esc(m));
+    if (b){ b.disabled = false; b.textContent = '참가하기'; }
+  }
+}
+
+async function soLoadBoard(){
+  var box = $('soBoard'); if (!box) return;
+  try { soBd = await edge({ source: 'solo_board' }); }
+  catch(e){ box.innerHTML = '<div class="empty" style="padding:22px">' + esc(e.message) + '</div>'; return; }
+  var rows = (soBd && soBd.rows) || [];
+  $('soBoardAsOf').textContent = soBd.frozen
+    ? ('최종 확정 · ' + soKst(soBd.final_at) + ' 값')
+    : (soBd.at ? soKst(soBd.at) + ' 기준 · 30초마다 갱신' : '');
+  if (!rows.length){ box.innerHTML = '<div class="empty" style="padding:22px">아직 참가자가 없습니다.</div>'; return; }
+  box.innerHTML = '<div class="scroll"><table class="so-board"><thead><tr><th class="num">순위</th><th>이름</th>'
+    + '<th class="num">총자산</th><th class="num">수익률</th><th class="num">손익</th><th class="num">거래</th></tr></thead><tbody>'
+    + rows.map(function(r){
+        var c = Math.abs(Number(r.pnl) || 0) < 0.5 ? '' : (r.pnl > 0 ? 'up' : 'dn');
+        return '<tr' + (r.me ? ' class="me"' : '') + '>'
+          + '<td class="num"><b>' + num(r.rank, 0) + '</b></td>'
+          + '<td>' + esc(r.name) + (r.me ? ' <span class="so-badge on">나</span>' : '')
+          + (r.stale ? ' <span class="st-hint" title="시세를 못 받은 종목은 산 값으로 셉니다">· 시세 '
+              + num(r.stale, 0) + '개 못 받음</span>' : '') + '</td>'
+          + '<td class="num">' + mtMoney(r.total) + '원</td>'
+          + '<td class="num ' + c + '">' + (c === 'up' ? '+' : '') + num(Number(r.pnl_pct) || 0, 2) + '%</td>'
+          + '<td class="num ' + c + '">' + soSigned(r.pnl) + '</td>'
+          + '<td class="num">' + num(r.n || 0, 0) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+}
+
+/* ── 종목 찾기 (모의투자와 같은 창구, 칸만 따로) ── */
+function soFindSym(){
+  if (soSymT) clearTimeout(soSymT);
+  soSymT = setTimeout(soFindSymGo, 180);
+}
+function soSymFocus(){
+  if ($('soSymbol').value.trim()) return;
+  if ($('soSide').value === 'sell') soHoldList();
+}
+function soHoldList(){
+  var box = $('soSymList'); if (!box) return;
+  var pos = (soSt && soSt.account && soSt.account.positions) || [];
+  if (!pos.length){
+    box.innerHTML = '<div class="ac-note">지금 들고 있는 종목이 없습니다.</div>';
+    box._rows = []; box.classList.remove('hidden'); return;
+  }
+  soSymHit = -1;
+  var rows = pos.map(function(p){ return { market: p.market, symbol: p.symbol, name: p.name || p.symbol, qty: p.qty }; });
+  box.innerHTML = '<div class="ac-note" style="padding-bottom:3px">지금 들고 있는 종목</div>'
+    + rows.map(function(x, i){
+        return '<div data-i="' + i + '" onclick="soPickSym(' + i + ')">'
+             + '<span class="c">' + esc(x.symbol) + '</span>'
+             + '<span>' + esc(x.name) + '<span class="sym-tag etf">' + mtQtyText(x.qty, x.market)
+             + (x.market === 'CRYPTO' ? '개' : '주') + ' 보유</span></span>'
+             + '<span class="m">' + esc(x.market) + '</span></div>';
+      }).join('');
+  box._rows = rows;
+  box.classList.remove('hidden');
+}
+async function soFindSymGo(){
+  var q = $('soSymbol').value.trim(), box = $('soSymList');
+  if (q.length < 1){
+    if ($('soSide').value === 'sell') soHoldList(); else box.classList.add('hidden');
+    return;
+  }
+  try {
+    var r = await sb.rpc('symbol_find', { q: q, lim: 12 });
+    if (r.error) throw new Error(errMsg(r.error));
+    var rows = r.data || [];
+    if (!rows.length){
+      try { var r2 = await sb.rpc('symbol_find_uni', { q: q, lim: 12 }); if (!r2.error) rows = r2.data || []; }
+      catch(e2){ /* 예전 SQL 이면 없습니다 */ }
+    }
+    if ($('soSymbol').value.trim() !== q) return;      //  그새 더 쳤으면 버립니다
+    if (!rows.length){
+      box.innerHTML = '<div class="ac-note"><b>' + esc(q) + '</b> 로 찾은 종목이 없습니다. '
+        + '티커(NVDA·TSLA)나 종목코드(005930), 회사명으로 찾아보세요.</div>';
+      box._rows = []; box.classList.remove('hidden');
+      return;
+    }
+    soSymHit = -1;
+    box.innerHTML = rows.map(function(x, i){
+      var tag = x.leveraged ? '<span class="sym-tag lev">레버리지</span>'
+              : (x.kind === 'etf' ? '<span class="sym-tag etf">ETF</span>' : '');
+      return '<div data-i="' + i + '" onclick="soPickSym(' + i + ')">'
+           + '<span class="c">' + esc(x.symbol) + '</span>'
+           + '<span>' + esc(x.name || '') + tag + '</span>'
+           + '<span class="m">' + esc(x.market) + '</span></div>';
+    }).join('');
+    box._rows = rows;
+    box.classList.remove('hidden');
+  } catch(e){
+    box.innerHTML = '<div class="ac-note">' + esc(e.message) + '</div>';
+    box._rows = []; box.classList.remove('hidden');
+  }
+}
+function soSymKey(ev){
+  var box = $('soSymList'); if (box.classList.contains('hidden')) return;
+  var n = (box._rows || []).length;
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp'){
+    ev.preventDefault();
+    soSymHit = (soSymHit + (ev.key === 'ArrowDown' ? 1 : -1) + n) % Math.max(1, n);
+    var items = box.querySelectorAll('[data-i]');
+    [].forEach.call(items, function(c, i){ c.classList.toggle('on', i === soSymHit); });
+  } else if (ev.key === 'Enter'){
+    ev.preventDefault();
+    soPickSym(soSymHit >= 0 ? soSymHit : 0);
+  } else if (ev.key === 'Escape'){ box.classList.add('hidden'); }
+}
+function soPickSym(i){
+  var box = $('soSymList'), x = (box._rows || [])[i];
+  if (!x) return;
+  box.classList.add('hidden');
+  soPickSet(x);
+}
+function soPickSet(x){
+  soPick = { market: x.market, symbol: x.symbol, name: x.name || x.symbol };
+  soQuote = null;
+  warn('soMsg', '');
+  $('soSymbol').value = '';
+  $('soPicked').style.display = '';
+  $('soPickName').textContent = soPick.name;
+  $('soPickCode').textContent = soPick.symbol + ' · ' + soPick.market;
+  soQuoteRefresh();
+}
+function soClearPick(){
+  soPick = null; soQuote = null; soQSeq++;
+  warn('soMsg', '');
+  $('soPicked').style.display = 'none';
+  $('soQuoteBox').classList.add('hidden');
+  $('soQty').value = ''; $('soAmt').value = '';
+  $('soBtn').disabled = true;
+  $('soSymbol').focus();
+}
+function soSideChanged(){
+  var sell = $('soSide').value === 'sell';
+  //  ⚠️ 매수↔매도를 바꾸면 적어둔 수량·금액을 비웁니다 (모의투자와 같음)
+  $('soQty').value = ''; $('soAmt').value = '';
+  $('soSymbol').placeholder = sell ? '팔 종목 — 칸을 누르면 보유 종목이 나옵니다'
+                                   : 'NVDA · TSLA · BTC · 삼성전자 — 이름도 코드도 됩니다';
+  if (sell && !$('soSymbol').value.trim() && !soPick) soHoldList();
+  else if (!sell) $('soSymList').classList.add('hidden');
+  soCalc();
+}
+function soByAmt(){ return ($('soMode') || {}).value === 'amt'; }
+function soModeChanged(){
+  var amt = soByAmt();
+  $('soQty').classList.toggle('hidden', amt);
+  $('soAmt').classList.toggle('hidden', !amt);
+  if (amt) $('soQty').value = ''; else $('soAmt').value = '';
+  soCalc();
+}
+
+async function soQuoteRefresh(){
+  if (!soPick) return;
+  var box = $('soQuoteBox');
+  box.classList.remove('hidden');
+  box.innerHTML = '<span class="st-hint">시세를 받는 중…</span>';
+  var my = ++soQSeq, pk = soPick;
+  try {
+    var q = await edge({ source: 'mt_quote', market: pk.market, symbol: pk.symbol, name: pk.name });
+    if (my !== soQSeq) return;                //  그새 다른 종목을 골랐으면 버립니다
+    soQuote = q;
+  } catch(e){
+    if (my !== soQSeq) return;
+    soQuote = null;
+    box.innerHTML = '<span class="dn">' + esc(e.message) + '</span>';
+    $('soBtn').disabled = true;
+    return;
+  }
+  soCalc();
+}
+
+function soKrOpen(){
+  var d = new Date(soNow() + 9 * 3600e3), dow = d.getUTCDay(), hm = d.toISOString().slice(11, 16);
+  return dow > 0 && dow < 6 && hm >= '09:00' && hm <= '15:30';
+}
+//  주문을 못 넣는 이유 — 없으면 빈 글자 (서버 규칙과 같은 순서)
+function soWhyBlocked(){
+  var ph = soPhaseNow();
+  if (!soSt || !soSt.event) return '열린 대회가 없습니다';
+  if (!soSt.joined) return '«참가» 를 먼저 눌러 주세요';
+  if (ph === 'before') return '대회는 ' + soKst(soSt.event.starts_at) + ' (한국 시간) 에 시작합니다';
+  if (ph === 'after') return '대회가 끝났습니다';
+  if (!soPick) return '종목을 먼저 골라주세요';
+  if (!soQuote) return '시세를 받는 중입니다';
+  if (soPick.market === 'KR' && !soKrOpen())
+    return '국내 주식은 장이 열려 있을 때(평일 09:00~15:30)만 주문할 수 있습니다';
+  if (soPick.market === 'KR' && !soSt.kr_live)
+    return '국내 실시간 시세 창구가 연결되어 있지 않아 개인 대회에서는 국내 주문을 받지 않습니다';
+  if (soQuote.live !== true)
+    return '지금 체결된 값(실시간)이 아니라 주문을 받지 않습니다 — 거래가 뜸한 종목이거나 장이 닫혀 있습니다';
+  return '';
+}
+
+function soCalc(){
+  var btn = $('soBtn'); if (!btn) return;
+  var why = soWhyBlocked();
+  var box = $('soQuoteBox');
+  var byAmt = soByAmt(), amt = Number($('soAmt').value) || 0, qIn = Number($('soQty').value) || 0;
+  if (soQuote && soPick && box){
+    var dp = soQuote.currency === 'KRW' ? 0 : 2, side = $('soSide').value;
+    var fx = soQuote.fx || (soSt && soSt.fx) || 1400;
+    var rate = soPick.market === 'KR' ? 1 : fx;
+    var qty = byAmt ? mtQtyForAmt(amt, soQuote.price, soPick.market, side, rate) : qIn;
+    var gross = qty * soQuote.price;
+    var H = '<div><span class="px">' + mtCur(soQuote.price, soPick.market, dp) + '</span> '
+          + '<span class="st-hint">' + esc(soQuote.basis || '') + '</span></div>';
+    if (qty > 0){
+      var feeEst = Math.round(gross * mtFeeRate(soPick.market, side));
+      H += '<div>' + (byAmt ? '약 ' : '') + mtQtyText(qty, soPick.market)
+         + (soPick.market === 'CRYPTO' ? '개' : '주') + ' × ' + mtCur(soQuote.price, soPick.market, dp)
+         + ' = <b>' + mtMoney(gross * rate) + '원</b>'
+         + (soPick.market !== 'KR' ? ' <span class="st-hint">(환율 ' + num(fx, 0) + '원 고정)</span>' : '')
+         + '</div>';
+      H += '<div class="st-hint">수수료 약 ' + mtMoney(feeEst * rate) + '원'
+         + (side === 'buy' && soSt && soSt.account
+             ? ' · 주문 뒤 남는 현금 약 ' + mtMoney(soSt.account.cash - (gross + feeEst) * rate) + '원' : '')
+         + (byAmt ? ' · 수량은 <b>서버가 체결가로 다시</b> 셉니다' : '') + '</div>';
+    }
+    if (soQuote.note)
+      H += '<div class="st-hint">' + esc(String(soQuote.note).replace(/<[^>]*>/g, '')) + '</div>';
+    if (why) H += '<div class="dn" style="margin-top:6px">' + esc(why) + '</div>';
+    box.innerHTML = H;
+  }
+  var filled = byAmt ? (amt > 0) : (qIn > 0);
+  btn.disabled = !!why || !filled || soBusy;
+  btn.title = why || (!filled ? (byAmt ? '금액을 넣어주세요' : '수량을 넣어주세요') : '');
+}
+
+function soAllIn(){
+  if (!soQuote || !soPick || !soSt || !soSt.account) return;
+  var a = soSt.account, rate = soPick.market === 'KR' ? 1 : (soQuote.fx || soSt.fx || 1400);
+  var held = (a.positions || []).filter(function(p){
+    return p.market === soPick.market && p.symbol === soPick.symbol; })[0];
+  var sell = $('soSide').value === 'sell';
+  if (soByAmt()){
+    //  ⚠️ 매수 금액은 수수료까지 서버가 그 안에서 맞춥니다 — 현금 전부를 적어도 됩니다
+    $('soAmt').value = sell ? (held ? Math.floor(held.qty * soQuote.price * rate) : 0) : Math.floor(a.cash);
+  } else {
+    //  수량으로는 값이 조금 오르면 현금이 모자라니 0.5% 여유를 둡니다
+    $('soQty').value = sell ? (held ? mtFloorQty(held.qty, soPick.market) : 0)
+      : mtQtyForAmt(Math.floor(a.cash * 0.995), soQuote.price, soPick.market, 'buy', rate);
+  }
+  soCalc();
+}
+
+async function soSubmit(){
+  var why = soWhyBlocked();
+  if (why){ warn('soMsg', esc(why) + '.'); return; }
+  var byAmt = soByAmt(), qty = Number($('soQty').value) || 0, amt = Number($('soAmt').value) || 0;
+  if (byAmt ? !(amt > 0) : !(qty > 0)){ warn('soMsg', byAmt ? '금액을 넣어주세요.' : '수량을 넣어주세요.'); return; }
+  var btn = $('soBtn');
+  soBusy = true; btn.disabled = true; btn.textContent = '주문 중…';
+  warn('soMsg', '');
+  try {
+    //  ⚠️ 가격은 보내지 않습니다 — 서버가 정합니다. 금액 모드는 금액만 보냅니다.
+    var req = { source: 'solo_order', event_id: soSt.event.id,
+                market: soPick.market, symbol: soPick.symbol, name: soPick.name,
+                side: $('soSide').value };
+    if (byAmt) req.amount = amt; else req.qty = qty;
+    var d = await edge(req);
+    var dp = d.currency === 'KRW' ? 0 : 2, unit = d.market === 'CRYPTO' ? '개' : '주';
+    warn('soMsg', '<b>' + esc(d.name) + '</b> ' + mtQtyText(d.qty, d.market) + unit + '를 '
+      + mtCur(d.price, d.market, dp) + ' 에 ' + (d.side === 'buy' ? '샀습니다' : '팔았습니다')
+      + ' <span class="st-hint">(' + esc(d.basis || '') + ' · 수수료 ' + mtCur(d.fee, d.market, dp) + ')</span>'
+      + (d.cash_left != null ? '<div class="st-hint">남은 현금 ' + mtMoney(d.cash_left) + '원</div>' : ''), 'ok');
+    $('soQty').value = ''; $('soAmt').value = '';
+    await soRefresh(true);
+    soLoadBoard();
+  } catch(e){
+    warn('soMsg', esc(e.message));
+  }
+  soBusy = false; btn.textContent = '주문';
+  soCalc();
+}
+
+/* ── 대회 설정 (임원진) ──
+   ⚠️ 시각은 <한국 시간> 으로 적고 읽습니다. 브라우저 시간대에 맡기면
+      해외에 있는 임원이 연 대회가 몇 시간 어긋납니다.                  */
+function soToLocal(iso){ return new Date(Date.parse(iso) + 9 * 3600e3).toISOString().slice(0, 16); }
+function soFromLocal(v){
+  if (!v) return null;
+  var t = Date.parse(String(v).slice(0, 16) + ':00+09:00');
+  return isFinite(t) ? new Date(t).toISOString() : null;
+}
+//  뉴욕이 UTC 보다 몇 분 늦은가 (서머타임이면 -240, 아니면 -300)
+function soNyOffsetMin(ms){
+  try {
+    var o = {};
+    new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hourCycle: 'h23',
+      year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+      .formatToParts(new Date(ms)).forEach(function(x){ o[x.type] = x.value; });
+    var asUtc = Date.UTC(+o.year, +o.month - 1, +o.day, (+o.hour) % 24, +o.minute);
+    return Math.round((asUtc - ms) / 60000);
+  } catch(e){ return -240; }
+}
+//  «오늘 밤 미국 정규장» — 뉴욕 09:30~16:00. 서머타임이면 한국 22:30~05:00, 아니면 23:30~06:00
+function soEvDefaults(){
+  var k = new Date(soNow() + 9 * 3600e3).toISOString().slice(0, 10);
+  var base = Date.parse(k + 'T09:30:00Z');
+  var open = base - soNyOffsetMin(base) * 60000;
+  $('soEvStart').value = soToLocal(new Date(open).toISOString());
+  $('soEvEnd').value = soToLocal(new Date(open + 6.5 * 3600e3).toISOString());
+  if (!$('soEvName').value.trim()) $('soEvName').value = '개인 단타 대회';
+  if (!(Number($('soEvSeed').value) > 0)) $('soEvSeed').value = 10000000;
+}
+function soAdminFill(){
+  if (!soSt || !soSt.is_officer || !$('soEvStart')) return;
+  var ev = soSt.event;
+  $('soEvEditBtn').disabled = !ev;
+  var key = ev ? [ev.id, ev.starts_at, ev.ends_at, ev.name, ev.seed].join('|') : 'none';
+  if (soAdminFilled === key) return;          //  고치는 중인 칸을 30초마다 덮어쓰지 않습니다
+  soAdminFilled = key;
+  if (ev && soPhaseNow() !== 'after'){
+    $('soEvName').value = ev.name; $('soEvStart').value = soToLocal(ev.starts_at);
+    $('soEvEnd').value = soToLocal(ev.ends_at); $('soEvSeed').value = Number(ev.seed);
+  } else {
+    //  열린 대회가 없거나 끝났으면 «오늘 밤 미국장» 을 미리 채워 둡니다
+    $('soEvName').value = '개인 단타 대회'; $('soEvSeed').value = 10000000;
+    soEvDefaults();
+  }
+}
+async function soSaveEvent(isNew){
+  var s = soFromLocal($('soEvStart').value), e = soFromLocal($('soEvEnd').value);
+  var seed = Number($('soEvSeed').value), nm = $('soEvName').value.trim();
+  if (!s || !e){ warn('soEvMsg', '시작·끝 시각을 넣어 주세요.'); return; }
+  if (Date.parse(e) <= Date.parse(s)){ warn('soEvMsg', '끝나는 시각이 시작 시각보다 뒤여야 합니다.'); return; }
+  if (!(seed > 0)){ warn('soEvMsg', '지급 금액을 넣어 주세요.'); return; }
+  var ev = soSt && soSt.event;
+  if (!isNew && !ev){ warn('soEvMsg', '고칠 대회가 없습니다. «새 대회 열기» 를 눌러 주세요.'); return; }
+  //  ⚠️ 진행 중인 대회가 있는데 새로 열면 이 탭이 새 대회로 넘어갑니다
+  if (isNew && ev && soPhaseNow() === 'live'
+      && !confirm('지금 진행 중인 «' + ev.name + '» 가 있습니다. 새 대회를 열면 이 탭은 새 대회로 넘어갑니다. 열까요?'))
+    return;
+  try {
+    var r = await sb.rpc('solo_event_save', { p_id: isNew ? null : ev.id, p_name: nm,
+                                               p_starts: s, p_ends: e, p_seed: seed });
+    if (r.error) throw new Error(errMsg(r.error));
+    var d = r.data || {};
+    warn('soEvMsg', (isNew ? '새 대회를 열었습니다' : '고쳤습니다') + ' — '
+      + esc(soKst(d.starts_at)) + ' ~ ' + esc(soKst(d.ends_at)) + ' (한국 시간) · '
+      + mtMoney(d.seed) + '원', 'ok');
+    soAdminFilled = null;
+    await soRefresh();
+    soLoadBoard();
+  } catch(e2){
+    var m = String(e2.message || e2);
+    if (/solo_event_save|schema cache|does not exist/i.test(m))
+      m = 'terminal-개인단타.sql 을 아직 실행하지 않았습니다. Supabase SQL Editor 에서 한 번 돌려주세요.';
+    warn('soEvMsg', esc(m));
+  }
 }
 
 /* ── 자동매매 ────────────────────────────────── */
