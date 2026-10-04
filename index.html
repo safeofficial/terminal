@@ -11347,22 +11347,79 @@ var MACRO_BUNDLES = [
     keepRaw:true,
     c:['WALCL','WRESBAL','WTREGEN'] }
 ];
+/*  ── 팀마다 다른 묶음 (10/4) ──────────────────────────────────────────────
+    학회장: «채권과 금리 탭에는 저 콤비 그대로 두고 다른 매크로 탭들에는 그 섹션에 맞는 콤보들».
+    위 MACRO_BUNDLES 넷은 채권·금리 팀 것입니다. 아래는 인플레이션·고용·제조업 팀 것 —
+    각 팀이 발표 자료에 가장 자주 그리는 조합입니다.
+
+    묶음마다 <변환(tf)> 과 <축(ax)> 을 정해 둡니다.
+      · tf 'yoy'  — 물가·임금·생산처럼 수준보다 «얼마나 올랐나» 가 뜻인 것 (전부 % 한 축)
+      · tf 'momd' — 고용 증감처럼 «이달에 몇 명» 이 뉴스인 것 (같은 단위의 전기 차)
+      · ax [0,1]  — 단위는 같아도 크기가 열 배 다르면(신규 22만 · 계속 180만) 축을 나눕니다
+    주기는 한 묶음 안에서 같게 둡니다 (주간·월간 섞지 않음 — 위 주석 참고).
+    코드는 terminal-팀지표.sql 이 목록에 넣은 것들이라, 그 SQL 을 안 돌렸으면 조용히 빠집니다.  */
+var TEAM_BUNDLES = {
+  rates: MACRO_BUNDLES,
+  infl: [
+    { n:'물가 4종 — CPI · 근원 CPI · PCE · 근원 PCE', d:'연준이 보는 네 가지 물가 (월간, 전년비 %)', tf:'yoy',
+      c:['CPIAUCSL','CPILFESL','PCEPI','PCEPILFE'] },
+    { n:'CPI 속 — 주거비 · 서비스(에너지 제외) · 에너지 · 식품', d:'헤드라인을 가르는 네 항목 (월간, 전년비 %)', tf:'yoy',
+      c:['CUSR0000SAH1','CUSR0000SASLE','CPIENGSL','CPIUFDSL'] },
+    { n:'파이프라인 — 제조업 PPI · PPI 최종수요 · CPI', d:'투입 비용 → 생산자 → 소비자 순서 (월간, 전년비 %)', tf:'yoy',
+      c:['PCUOMFGOMFG','PPIFIS','CPIAUCSL'] },
+    { n:'기대인플레이션 — 5년 BEI · 10년 BEI', d:'국채 − 물가연동채 (일간, %)', keepRaw:true,
+      c:['T5YIE','T10YIE'] },
+    { n:'한·미 물가 — 미국 CPI · 한국 CPI', d:'두 나라 소비자물가 (월간, 전년비 %)', tf:'yoy',
+      c:['CPIAUCSL','901Y009'] }
+  ],
+  jobs: [
+    { n:'실업률 — U3 · U6', d:'공식 실업률과 불완전 취업 포함 광의 실업률 (월간, %)', keepRaw:true,
+      c:['UNRATE','U6RATE'] },
+    { n:'고용 체온 — 경제활동참가율 · 25~54세 고용률', d:'인구구조 영향을 뺀 고용 수준 (월간, %)', keepRaw:true,
+      c:['CIVPART','LNS12300060'] },
+    { n:'고용 증감 — 비농업 · 제조업', d:'이달에 몇 천 명 늘었나 (월간, 전기 증감, 천명)', tf:'momd', type:'bar',
+      c:['PAYEMS','MANEMP'] },
+    { n:'실질임금 — 평균 시급 · CPI', d:'시급 상승률이 물가를 이기는가 (월간, 전년비 %)', tf:'yoy',
+      c:['CES0500000003','CPIAUCSL'] },
+    { n:'주간 청구 — 신규(좌) · 계속(우)', d:'가장 빠른 고용 지표 둘 (주간, 건) — 크기가 달라 축을 나눕니다', keepRaw:true, ax:[0,1],
+      c:['ICSA','CCSA'] },
+    { n:'JOLTS — 구인건수(좌) · 자발적 퇴직률(우)', d:'빈 일자리와 노동자의 자신감 (월간)', keepRaw:true, ax:[0,1],
+      c:['JTSJOL','JTSQUR'] }
+  ],
+  mfg: [
+    { n:'생산 — 산업생산 · 제조업 생산', d:'전체 산업과 제조업만 (월간, 전년비 %)', tf:'yoy',
+      c:['INDPRO','IPMAN'] },
+    { n:'가동률 — 전체 · 제조업', d:'80% 근처면 빠듯 (월간, %)', keepRaw:true,
+      c:['TCU','MCUMFN'] },
+    { n:'주문 — 핵심 자본재 · 내구재', d:'설비투자 선행 (월간, 전년비 %)', tf:'yoy',
+      c:['NEWORDER','DGORDER'] },
+    { n:'병목 — 수주잔고 · 재고/판매 비율(우)', d:'쌓이는 주문과 재고 (월간) — 단위가 달라 축을 나눕니다', keepRaw:true, ax:[0,1],
+      c:['AMTMUO','MNFCTRIRSA'] },
+    { n:'지역 연은 조사 — 뉴욕(Empire) · 필라델피아', d:'0 위면 확장 · ISM 보다 먼저 (월간, 확산지수)', keepRaw:true,
+      c:['GACDISA066MSFRBNY','GACDFSA066MSFRBPHI'] },
+    { n:'비용 — 제조업 PPI · 제조업 고용 증감(우)', d:'투입 비용과 고용 (월간) — 비용은 전년비, 고용은 전기 증감', keepRaw:true, ax:[0,1], tfEach:['yoy','momd'],
+      c:['PCUOMFGOMFG','MANEMP'] }
+  ]
+};
+function teamBundles(){ return TEAM_BUNDLES[typeof macroTeam !== 'undefined' ? macroTeam : 'rates'] || MACRO_BUNDLES; }
 
 function renderBundles(){
   var box = $('macroBundles'); if (!box) return;
-  var html = MACRO_BUNDLES.map(function(b, i){
+  var list = teamBundles();
+  var t = (typeof MACRO_TEAMS !== 'undefined' && MACRO_TEAMS[macroTeam]) || null;
+  var html = list.map(function(b, i){
     var have = b.c.filter(function(code){
       return catalog.some(function(x){ return x.code === code; }); }).length;
     if (!have) return '';                //  SQL 을 안 돌렸으면 단추를 아예 안 보여줍니다
     return '<button class="btn-sm" onclick="macroBundle(' + i + ')" '
          + 'title="' + esc(b.d) + '">' + esc(b.n) + ' (' + have + ')</button>';
   }).join('');
-  box.innerHTML = html;
+  box.innerHTML = html ? '<span class="st-hint" style="flex:none;align-self:center">' + esc(t ? t.n + ' 팀 묶음' : '묶음') + '</span>' + html : '';
   box.style.display = html ? 'flex' : 'none';
 }
 
 async function macroBundle(i, replace){
-  var b = MACRO_BUNDLES[i]; if (!b) return;
+  var b = teamBundles()[i]; if (!b) return;
   var want = b.c.map(function(code){
     return catalog.filter(function(x){ return x.code === code; })[0];
   }).filter(Boolean);
@@ -11380,9 +11437,17 @@ async function macroBundle(i, replace){
     return;
   }
   warn('researchWarn','');
-  want.forEach(function(c){
+  want.forEach(function(c, k){
+    var idx = b.c.indexOf(c.code);
+    var tf = (b.tfEach && b.tfEach[idx]) || b.tf || null;
     addSeries({ source:c.source, code:c.code, item_code:c.item_code||'',
-                cycle:c.cycle||'M', label:c.label, unit:c.unit||'', keepRaw:!!b.keepRaw });
+                cycle:c.cycle||'M', label:c.label, unit:c.unit||'', keepRaw:!!b.keepRaw || !!tf });
+    //  묶음이 정한 변환·축 — 자료가 오기 전에 박아 두면 applyDefaultTf 가 안 건드립니다
+    var key = c.source + '|' + c.code + '|' + (c.item_code || '');
+    var sObj = series.filter(function(x){ return x.key === key; })[0];
+    if (!sObj) return;
+    if (tf){ sObj.tf = tf; sObj.type = (b.type && tf !== 'yoy') ? b.type : 'line'; sObj.autoTf = false; }
+    if (b.ax && b.ax[idx] != null){ sObj.axis = b.ax[idx]; sObj.autoAxis = false; }
   });
 }
 
@@ -11510,6 +11575,7 @@ function setMacroTeam(k, quiet){
     if (pick !== catCat){ catCat = pick; renderCatalogSel(); }
   }
   renderMacroTeam();
+  if (typeof renderBundles === 'function') renderBundles();      //  묶음 단추도 그 팀 것으로
   if (typeof mbOpen !== 'undefined' && mbOpen) mbOpenPanel();
 }
 
@@ -12539,6 +12605,7 @@ function renderSeriesList(){
       +     '<option value="yoy"' +(tf==='yoy' ?' selected':'')+'>전년동기비 (YoY, %)</option>'
       +     '<option value="mom"' +(tf==='mom' ?' selected':'')+'>전기비 (MoM, %)</option>'
       +     '<option value="yoyd"'+(tf==='yoyd'?' selected':'')+'>전년동기 차이 (%p)</option>'
+      +     '<option value="momd"'+(tf==='momd'?' selected':'')+'>전기 증감 (같은 단위)</option>'
       /*  ⚠️ 금리 지표에만 뜻이 있습니다 (canPriceTf 참고).
           걸 수 없는 지표에는 목록에서 아예 안 보여줍니다.             */
       +     (canPriceTf(s)
@@ -13420,13 +13487,13 @@ function removeSeries(i){
 }
 
 /* ══════════ 지표 변환 (원지수 / YoY / MoM) ══════════ */
-var TF_SUFFIX = { raw:'', yoy:' (YoY)', mom:' (MoM)', yoyd:' (YoY 차)',
+var TF_SUFFIX = { raw:'', yoy:' (YoY)', mom:' (MoM)', yoyd:' (YoY 차)', momd:' (전기 증감)',
                   price:' (가격 환산)' };
 /*  ⚠️ 여기서 '' 를 쓰면 안 됩니다. unitOf 가 «||» 로 이어받기 때문에
        빈 문자열은 <단위를 안 적은 것> 으로 읽혀 원래 단위(%)로
        흘러내립니다. 그러면 가격 환산 선이 <금리와 같은 축> 에
        붙습니다 — 100 옆에 4.2 가 붙어 금리 쪽이 바닥에 눌립니다.  */
-var TF_UNIT   = { raw:null, yoy:'%', mom:'%', yoyd:'%p', price:'가격(100)' };
+var TF_UNIT   = { raw:null, yoy:'%', mom:'%', yoyd:'%p', momd:null, price:'가격(100)' };
 
 /*  ── 금리를 <채권 가격> 으로 환산합니다 ──────────────────────
 
@@ -13513,7 +13580,7 @@ function canPriceTf(s){
   return /금리|수익률|국채|국고채|이자율|yield/i.test(String((s && s.label) || ''));
 }
 
-var TF_SUFFIX_EN = { raw:'', yoy:' (YoY)', mom:' (MoM)', yoyd:' (YoY diff)', price:' (price)' };
+var TF_SUFFIX_EN = { raw:'', yoy:' (YoY)', mom:' (MoM)', yoyd:' (YoY diff)', momd:' (MoM change)', price:' (price)' };
 function tfSuffix(s){ return (isEn() ? TF_SUFFIX_EN : TF_SUFFIX)[s.tf||'raw'] || ''; }
 //  ⚠️ «||» 가 아니라 «null 인가» 로 봅니다 (위 주석 참고)
 function unitOf(s){
@@ -13564,7 +13631,7 @@ function applyTf(pts, tf, from, opt){
   var tfTol = Math.max(4, corrGap(pts) * 0.9);
   var out = [];
   for (var i = 0; i < pts.length; i++){
-    var target = (tf === 'mom') ? shiftIso(pts[i].d, 0, -1) : shiftIso(pts[i].d, -1, 0);
+    var target = (tf === 'mom' || tf === 'momd') ? shiftIso(pts[i].d, 0, -1) : shiftIso(pts[i].d, -1, 0);
     var j = idxAtOrBefore(dates, target);
     if (j < 0 || j >= i) continue;
     /*  ⚠️ <발표가 빠진 달> 을 건너뛰면 안 됩니다.
@@ -13595,7 +13662,7 @@ function applyTf(pts, tf, from, opt){
         밑의 <크기> 로 나눠야 «얼마나 움직였나» 가 부호까지 맞습니다.
         아래 상세 항목 분석(dtTransform)은 이미 이렇게 하고 있었는데
         정작 위쪽 매크로 차트만 옛 식을 쓰고 있었습니다.                */
-    var v = (tf === 'yoyd') ? (pts[i].v - base)
+    var v = (tf === 'yoyd' || tf === 'momd') ? (pts[i].v - base)
           : (base === 0 ? NaN : (pts[i].v - base) / Math.abs(base) * 100);
     if (isFinite(v) && pts[i].d >= from) out.push({ d: pts[i].d, v: v });
   }
@@ -14275,7 +14342,7 @@ function corrYoy(pts){
     MoM 끼리 제대로 재면 0.70 이었습니다. 숫자만 보면 둘 다 그럴듯해
     보여서 <틀린 줄도 모릅니다>. 이미 변화인 선은 그대로 씁니다.      */
 function corrAlready(s){
-  return ['mom','yoy','yoyd'].indexOf((s && s.tf) || 'raw') >= 0;
+  return ['mom','yoy','yoyd','momd'].indexOf((s && s.tf) || 'raw') >= 0;
 }
 function corrVals(s, basis){
   var pts = viewPoints(s).filter(function(p){ return isFinite(p.v); });
@@ -20428,8 +20495,12 @@ function saveCsv(rows, name){
 
     ⚠️ 여백을 0 으로 깎지 않습니다. 글자가 가장자리에 딱 붙으면 슬라이드에
        올렸을 때 답답합니다. 조금 남깁니다.                             */
-var JPG_PAD = 14;          //  잘라낸 뒤 남기는 여백 (그림 픽셀 기준)
-var JPG_TOL = 14;          //  이 정도 차이는 «같은 흰색» 으로 봅니다
+/*  ⚠️ 학회장 (10/4): «정말 글에서 딱 멈출 때까지 jpg 를 칼같이 저장시킬 수 있나?»
+    예전엔 14px(화면 7px) 을 남겼습니다 — 보고서에 붙이면 그만큼 다른 그림과 안 맞았습니다.
+    이제 글자·선이 끝나는 바로 그 픽셀에서 자릅니다. 허용 오차도 낮춰서 글자 가장자리의
+    옅은(안티앨리어싱) 픽셀을 «흰색» 으로 잘못 보고 깎지 않게 합니다.                 */
+var JPG_PAD = 0;           //  잘라낸 뒤 남기는 여백 (그림 픽셀 기준) — 0 = 칼같이
+var JPG_TOL = 6;           //  이 정도 차이는 «같은 바탕색» 으로 봅니다
 function jpgTrim(img, bg){
   var w = img.width, h = img.height;
   var cv = document.createElement('canvas');
