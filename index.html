@@ -411,6 +411,34 @@
   .ai-vs{display:inline-block;margin-left:7px;font-size:11px;font-weight:600;
          padding:1px 6px;border-radius:999px;vertical-align:middle;
          background:rgba(31,138,112,.13);color:#1f8a70}
+  .ai-g{display:inline-block;font-size:10.5px;font-weight:700;padding:0 5px;border-radius:4px;background:var(--bg-sub);color:var(--text-sub);vertical-align:middle}
+  .ai-g.up{background:rgba(31,138,112,.14);color:#1f8a70} .ai-g.dn{background:rgba(192,57,43,.12);color:#c0392b}
+  :root[data-theme="dark"] .ai-g.up{background:rgba(92,192,138,.18);color:#6fd49a} :root[data-theme="dark"] .ai-g.dn{background:rgba(239,107,94,.18);color:#f29084}
+  .ai-vtab td{vertical-align:top} .ai-vtab .ai-calc{margin-top:5px}
+  .ai-cmp th,.ai-cmp td{padding:8px 10px} .ai-cmp th.ai-cb,.ai-cmp th.ai-cu{text-align:center}
+  .ai-cmp .ai-cb{background:rgba(192,57,43,.045)} .ai-cmp .ai-cu{background:rgba(31,138,112,.05)}
+  .ai-cmp thead .ai-cb{color:#c0392b} .ai-cmp thead .ai-cu{color:#1f8a70}
+  :root[data-theme="dark"] .ai-cmp .ai-cb{background:rgba(239,107,94,.07)} :root[data-theme="dark"] .ai-cmp .ai-cu{background:rgba(92,192,138,.07)}
+  :root[data-theme="dark"] .ai-cmp thead .ai-cb{color:#f29084} :root[data-theme="dark"] .ai-cmp thead .ai-cu{color:#5fd0aa}
+  .ai-cmp tr.ai-det td{padding-top:0;border-top:0} .ai-cmp tr.ai-det .ai-calc{margin:0 0 4px}
+  .ai-cmp tr.ai-sum-row td{border-top:2px solid var(--border);font-size:14px}
+  .ai-dl{display:inline-block;font-size:10px;font-weight:800;padding:0 5px;border-radius:4px;margin-right:4px;vertical-align:1px}
+  .ai-dl.bull{background:rgba(31,138,112,.14);color:#1f8a70} .ai-dl.bear{background:rgba(192,57,43,.12);color:#c0392b}
+  :root[data-theme="dark"] .ai-dl.bull{background:rgba(92,192,138,.18);color:#6fd49a} :root[data-theme="dark"] .ai-dl.bear{background:rgba(239,107,94,.18);color:#f29084}
+  .ai-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+  .ai-sum-t{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--bg)}
+  .ai-sum-t .k{font-size:11px;font-weight:700;color:var(--text-sub);letter-spacing:.02em}
+  .ai-sum-t .v{font-size:19px;font-weight:800;margin-top:3px;letter-spacing:-.3px;font-variant-numeric:tabular-nums;color:var(--text)}
+  .ai-sum-t .s{font-size:11.5px;color:var(--text-sub);margin-top:3px;line-height:1.45}
+  .ai-sum-t.bull{border-left:3px solid #1f8a70} .ai-sum-t.bear{border-left:3px solid #c0392b}
+  .ai-sum-t.pos .v{color:#1f8a70} .ai-sum-t.neg .v{color:#c0392b}
+  :root[data-theme="dark"] .ai-sum-t.bull{border-left-color:#5fd0aa} :root[data-theme="dark"] .ai-sum-t.bear{border-left-color:#f29084}
+  :root[data-theme="dark"] .ai-sum-t.pos .v{color:#5fd0aa} :root[data-theme="dark"] .ai-sum-t.neg .v{color:#f29084}
+  .ai-band{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:11.5px;flex-wrap:wrap}
+  .ai-band .lo{color:#c0392b;font-weight:700;white-space:nowrap} .ai-band .hi{color:#1f8a70;font-weight:700;white-space:nowrap}
+  :root[data-theme="dark"] .ai-band .lo{color:#f29084} :root[data-theme="dark"] .ai-band .hi{color:#5fd0aa}
+  .ai-band .bar{flex:1 1 160px;height:8px;border-radius:999px;position:relative;background:linear-gradient(90deg,rgba(192,57,43,.45),rgba(31,138,112,.45))}
+  .ai-band .dot{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--white);border:3px solid var(--primary);transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.25)}
   .ai-now{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;
           background:var(--bg-sub);color:var(--text-sub);border:1px solid var(--border);vertical-align:middle;white-space:nowrap}
   .ai-vs.neg{background:rgba(192,57,43,.13);color:#c0392b}
@@ -21616,6 +21644,24 @@ function aiAxis(unit){
 }
 
 //  모델이 준 차트 — kind/labels/series 만 읽고 나머지는 버립니다
+/*  ── 시각자료 (10/4 개편) ───────────────────────────────────────────────
+    학회장: «숫자가 겹치면 안 된다 · 색도 개선». 실제로 틀렸던 것 —
+      · 계열마다 모든 점에 값을 찍어서 가까운 선끼리 숫자가 포개졌습니다 (2,579 / 2,307)
+      · 선을 둥글게(smooth) 그려 연간 자료가 <사이에 값이 있는 것처럼> 보였습니다
+      · 소수 자리가 들쭉날쭉 (39.3 · 20 · 17.6 · 9.86)
+      · 음수가 있는데 0 선이 안 보였습니다
+    고친 것 —
+      · 선은 직선. 값은 <한 차트 안에서 같은 자릿수>. 겹치면 ECharts 가 세로로 밀어냅니다(moveOverlap).
+        그래도 많으면(점×계열 > 16) 마지막 점에만 적습니다.
+      · 선 끝에 계열 이름을 붙여 범례 없이도 읽힙니다.
+      · 금액 계열이 하나는 크고(매출) 나머지는 작으면(이익) 큰 것은 막대, 작은 것은 선 (복합).
+      · 음수가 있으면 0 선을 긋습니다. 색은 학회 팔레트.                                   */
+var AI_PAL2 = ['#2c3e6b', '#1f8a70', '#d9962b', '#6b8cda', '#7d3c98', '#b5485d', '#0f7b6c', '#5a6278'];
+//  한 차트 안의 값 크기로 소수 자릿수를 <하나로> 정합니다
+function aiDecFor(vals){
+  var mx = 0; vals.forEach(function(v){ if (v != null && isFinite(v)) mx = Math.max(mx, Math.abs(v)); });
+  return mx >= 100 ? 0 : mx >= 10 ? 1 : 2;
+}
 function aiDrawSpec(box, spec){
   if (typeof echarts === 'undefined') return;
   var labels = aiArr(spec.labels).map(function(x){ return aiStr(x); });
@@ -21630,51 +21676,99 @@ function aiDrawSpec(box, spec){
   //  이름표 개수가 다르면 짧은 쪽에 맞춥니다 (모델이 종종 어긋나게 줍니다)
   var n = Math.min.apply(null, [labels.length].concat(ss.map(function(sr){ return sr.data.length; })));
   labels = labels.slice(0, n);
+  ss.forEach(function(sr){ sr.data = sr.data.slice(0, n); });
   var line = /line|선/i.test(aiStr(spec.kind));
   var c = chartOn(box);
   if (!c) return;
   aiChartIns.push(c);
   var unit = aiStr(spec.unit);
-  //  ⚠️ 값을 막대·점에 직접 적습니다. 계열이 많으면 겹치니 그때만 뺍니다.
-  var showLab = (n * ss.length) <= 14;
+  var allV = [].concat.apply([], ss.map(function(sr){ return sr.data; }));
+  var dec = aiDecFor(allV);
+  var fmtV = function(v){ return v == null ? '' : num(v, dec); };
+  var hasNeg = allV.some(function(v){ return v != null && v < 0; });
+  //  복합: 금액 차트에서 첫 계열이 나머지보다 3배 넘게 크면 (매출 vs 이익) 막대 + 선
+  var mxOf = function(sr){ return Math.max.apply(null, sr.data.map(function(v){ return v == null ? 0 : Math.abs(v); })); };
+  var combo = line && ss.length >= 2 && unit !== '%' && unit !== '%p' && unit !== '배'
+           && mxOf(ss[0]) >= 3 * Math.max.apply(null, ss.slice(1).map(mxOf))
+           && ss[0].data.every(function(v){ return v == null || v >= 0; });
+  var manyLab = (n * ss.length) > 16;
+  var endPad = line ? 76 : 16;          //  선 끝 이름표 자리
+  if (!combo && line && ss.length >= 2 && unit !== '%' && unit !== '%p' && unit !== '배'
+      && /매출|revenue|sales/i.test(ss[0].name) && ss[0].data.every(function(v){ return v == null || v >= 0; })) combo = true;
+
+  /*  ── 점 위 숫자가 서로 겹치지 않게 ──────────────────────────────────────
+      같은 x 자리에서 계열 값이 가까우면(축 범위의 7% 안) 위·아래로 갈라 놓고, 셋째부터
+      그래도 겹치면 숫자를 접습니다 (툴팁에는 남습니다). ECharts 의 moveOverlap 은 한 계열
+      안에서만 밀어내서 계열끼리 포개지는 건 못 막았습니다 (2,579 / 2,307).            */
+  var lineIdx = ss.map(function(sr, i){ return (line && !(combo && i === 0)) ? i : -1; }).filter(function(i){ return i >= 0; });
+  var vmin = Infinity, vmax = -Infinity;
+  allV.forEach(function(v){ if (v != null && isFinite(v)){ vmin = Math.min(vmin, v); vmax = Math.max(vmax, v); } });
+  var near = (vmax - vmin || 1) * 0.09;
+  var labPos = {};                      //  'i,j' → 'top' | 'bottom' | null(접음)
+  for (var j = 0; j < n; j++){
+    var col = lineIdx.map(function(i){ return { i: i, v: ss[i].data[j] }; }).filter(function(x){ return x.v != null; })
+                     .sort(function(a, b){ return b.v - a.v; });
+    var prevV = null, prevPos = null;
+    col.forEach(function(x){
+      var pos;
+      if (prevV == null || (prevV - x.v) > near){ pos = x.v < 0 ? 'bottom' : 'top'; }
+      else if (prevPos !== 'bottom'){ pos = 'bottom'; }
+      else { pos = null; }
+      labPos[x.i + ',' + j] = pos;
+      prevV = x.v; prevPos = pos;
+    });
+  }
+
+  var series = ss.map(function(sr, i){
+    var col = AI_PAL2[i % AI_PAL2.length];
+    var d = sr.data.map(function(v){ return v; });
+    var isBar = !line || (combo && i === 0);
+    if (isBar){
+      return { name: sr.name, type: 'bar', data: d, z: 1,
+        itemStyle: { color: combo ? 'rgba(107,140,218,.30)' : col, borderRadius: [4, 4, 0, 0] },
+        label: { show: !manyLab, fontSize: 10.5, fontWeight: 600, color: combo ? '#2c3e6b' : '#5a6278',
+                 position: 'top', formatter: function(p){ return p.value == null ? '' : (p.value < 0 ? '' : '') + fmtV(p.value); } },
+        labelLayout: { hideOverlap: true } };
+    }
+    //  선: 직선 · 끝 이름표(계열명 + 값) · 나머지 점은 값만 (겹치면 세로로 밀어냄)
+    var last = d.length - 1;
+    while (last >= 0 && d[last] == null) last--;
+    var pts = d.map(function(v, j){
+      if (v == null) return v;
+      var isEnd = j === last;
+      var pos = labPos[i + ',' + j];
+      return { value: v, label: {
+        show: isEnd || (!manyLab && pos != null),
+        position: isEnd ? 'right' : (pos || 'top'),
+        formatter: isEnd ? (sr.name + '  ' + fmtV(v)) : fmtV(v),
+        fontSize: isEnd ? 11 : 10.5, fontWeight: isEnd ? 700 : 500,
+        color: isEnd ? col : '#5a6278',
+        backgroundColor: isEnd ? 'rgba(255,255,255,.85)' : 'transparent', padding: isEnd ? [2, 4] : 0, borderRadius: 3 } };
+    });
+    return { name: sr.name, type: 'line', data: pts, z: 3, smooth: false, symbol: 'circle', symbolSize: 6,
+      lineStyle: { width: 2.4, color: col }, itemStyle: { color: col, borderColor: '#fff', borderWidth: 1.5 },
+      connectNulls: true, labelLayout: { moveOverlap: 'shiftY' } };
+  });
 
   c.setOption({
-    color: AI_PAL,
-    backgroundColor: theme ? theme.bg : '#fff', animation:false,
-    grid:{ left:8, right:16, top: ss.length > 1 ? 36 : 20, bottom:6, containLabel:true },
+    color: AI_PAL2,
+    backgroundColor: theme ? theme.bg : '#fff', animation: false,
+    grid: { left: 8, right: endPad, top: ss.length > 1 ? 34 : 22, bottom: 6, containLabel: true },
     legend: ss.length > 1
-      ? { top:0, itemWidth:12, itemHeight:8, itemGap:14,
-          textStyle:{ fontSize:11, color:'#5a6278' } } : undefined,
-    tooltip:{ trigger:'axis', axisPointer:{ type: line ? 'line' : 'shadow' },
-      backgroundColor:'rgba(255,255,255,.96)', borderColor:'#e8ecf4',
-      textStyle:{ color:'#2c3e6b', fontSize:12 },
-      valueFormatter:function(v){ return v == null ? '—'
-        : aiShort(v) + (unit ? ' ' + unit : ''); } },
-    xAxis: Object.assign(aiAxis(''), { type:'category', data: labels,
-      axisLabel:{ color:'#77809a', fontSize:11, interval: n > 12 ? 'auto' : 0 },
-      splitLine:{ show:false } }),
-    yAxis: Object.assign(aiAxis(unit), { type:'value',
-      axisLabel:{ color:'#8a93a8', fontSize:10.5,
-                  formatter:function(v){ return aiShort(v); } } }),
-    series: applyBarProps(ss.map(function(sr, i){
-      var col = AI_PAL[i % AI_PAL.length];
-      var d = sr.data.slice(0, n);
-      return line
-        ? { name:sr.name, type:'line', data:d, smooth:0.35, symbol:'circle',
-            symbolSize:6, lineStyle:{ width:2.4 }, connectNulls:true,
-            //  ⚠️ 선 하나면 옅은 면을 깔아 허전함을 없앱니다
-            areaStyle: ss.length === 1 ? {
-              color:{ type:'linear', x:0, y:0, x2:0, y2:1, colorStops:[
-                { offset:0, color: col + '33' }, { offset:1, color: col + '05' }] } } : undefined,
-            label: showLab ? { show:true, position:'top', fontSize:10.5,
-              color:'#5a6278', formatter:function(p){ return aiShort(p.value); } } : undefined }
-        //  ⚠️ 폭은 아래 applyBarProps 가 <계열 수를 세어> 붙입니다.
-        //     여기서 계열마다 주면 여럿일 때 칸을 넘칩니다.
-        : { name:sr.name, type:'bar', data:d,
-            itemStyle:{ borderRadius:[4,4,0,0] },
-            label: showLab ? { show:true, position:'top', fontSize:10.5,
-              color:'#5a6278', formatter:function(p){ return aiShort(p.value); } } : undefined };
-    }))
+      ? { top: 0, right: 0, icon: 'roundRect', itemWidth: 10, itemHeight: 10, itemGap: 14,
+          textStyle: { fontSize: 11, color: '#5a6278' } } : undefined,
+    tooltip: { trigger: 'axis', axisPointer: { type: line ? 'line' : 'shadow' },
+      backgroundColor: 'rgba(255,255,255,.96)', borderColor: '#e8ecf4',
+      textStyle: { color: '#2c3e6b', fontSize: 12 },
+      valueFormatter: function(v){ return v == null ? '—' : fmtV(v) + (unit ? ' ' + unit : ''); } },
+    xAxis: Object.assign(aiAxis(''), { type: 'category', data: labels, boundaryGap: true,
+      axisLabel: { color: '#77809a', fontSize: 11, interval: n > 12 ? 'auto' : 0 },
+      //  음수가 있으면 0 선이 가로축이 됩니다 — 어디가 0 인지 보여야 합니다
+      axisLine: { show: hasNeg, onZero: true, lineStyle: { color: '#8a93a8', width: 1 } },
+      splitLine: { show: false } }),
+    yAxis: Object.assign(aiAxis(unit), { type: 'value', scale: false,
+      axisLabel: { color: '#8a93a8', fontSize: 10.5, formatter: function(v){ return aiShort(v); } } }),
+    series: applyBarProps(series)
   }, true);
 }
 
@@ -21777,82 +21871,90 @@ function aiDrawWalls(box, rows, spot, cur){
     "지금 사면 어디쯤인가" 가 표 없이 보입니다.                        */
 function aiDrawTargets(box, sec){
   if (typeof echarts === 'undefined') return;
+  /*  ── 풋볼 필드 (10/4 개편) ────────────────────────────────────────────────
+      증권사 리포트의 표준 그림입니다. 기법마다 <약세 목표가 ~ 강세 목표가> 를 한 띠로 놓고,
+      현재가·컨센서스를 세로 점선으로 얹습니다. 막대 두 줄(강세·약세)로 따로 그리면
+      «지금이 범위의 어디쯤인가» 가 안 보였습니다.                                  */
   var cur = (sec.meta && sec.meta.cur) || '원';
   var px  = aiNum(sec.meta && sec.meta.px);
-  var rows = [];
-  function take(side, v, color){
-    aiArr(v && v.valuation).forEach(function(x){
-      var t = aiNum(x && x.target); if (t == null || t <= 0) return;
-      rows.push({ name: side + ' · ' + (aiStr(x.method) || '기법'), v: t, c: color });
+  var byM = function(side){
+    var o = {};
+    aiArr(side && side.valuation).forEach(function(x){
+      var tt = aiNum(x && x.target), m = aiStr(x && x.method);
+      if (tt != null && tt > 0 && m && !o[m]) o[m] = tt;
     });
-    var t = aiNum(v && v.target);
-    if (t != null && t > 0) rows.push({ name: side + ' 종합', v: t, c: color });
-  }
-  take('강세', sec.bull, '#1f8a70');
-  take('약세', sec.bear, '#c0392b');
+    return o;
+  };
+  var bm = byM(sec.bull), rm = byM(sec.bear);
+  var rows = [];
+  var keys = Object.keys(bm).concat(Object.keys(rm).filter(function(k){ return !bm[k]; }));
+  keys.forEach(function(k){ rows.push({ name: k, lo: rm[k] != null ? rm[k] : null, hi: bm[k] != null ? bm[k] : null }); });
+  var bt = aiNum(sec.bull && sec.bull.target), rt = aiNum(sec.bear && sec.bear.target);
+  if ((bt != null && bt > 0) || (rt != null && rt > 0)) rows.push({ name: '종합', lo: rt, hi: bt, sum: true });
   if (!rows.length){
     box.innerHTML = '<div class="empty" style="padding:20px">목표가 숫자가 없습니다.</div>';
     return;
   }
+  var cons = aiNum(sec.meta && sec.meta.cons_target);
   var entry = aiNum(sec.trader && sec.trader.entry);
-  var cons  = aiNum(sec.meta && sec.meta.cons_target);
-  var meta  = sec.meta || {};
   var c = chartOn(box);
   if (!c) return;
   aiChartIns.push(c);
+  var all = [];
+  rows.forEach(function(r){ if (r.lo != null) all.push(r.lo); if (r.hi != null) all.push(r.hi); });
+  if (px != null && px > 0) all.push(px);
+  if (cons != null && cons > 0) all.push(cons);
+  var vmin = Math.min.apply(null, all), vmax = Math.max.apply(null, all);
+  var pad = Math.max((vmax - vmin) * 0.18, vmax * 0.04);
+  var xmin = Math.max(0, vmin - pad), xmax = vmax + pad;
+  var fmt = function(v){ return aiMoney(v, cur); };
+  //  띠 = 투명 바닥(lo) + 색 띠(hi − lo). 한쪽만 있으면 점으로.
+  var base = rows.map(function(r){
+    var lo = r.lo != null ? r.lo : r.hi, hi = r.hi != null ? r.hi : r.lo;
+    var l = Math.min(lo, hi);
+    return { value: l, r: r };
+  });
+  var span = rows.map(function(r){
+    var lo = r.lo != null ? r.lo : r.hi, hi = r.hi != null ? r.hi : r.lo;
+    var w = Math.abs(hi - lo);
+    return { value: w > 0 ? w : (xmax - xmin) * 0.004, r: r,
+             itemStyle: { color: r.sum ? '#2c3e6b' : 'rgba(107,140,218,.72)', borderRadius: 4 } };
+  });
   var ml = [];
-  if (px  != null && px  > 0) ml.push({ xAxis: px,
-    lineStyle:{ color:'#2c3e6b', width:2 },
-    label:{ formatter:(meta && meta.px_live ? '오늘 주가 ' : '현재가 ') + aiMoney(px, cur), color:'#2c3e6b',
-            rotate:0, position:'insideEndTop' } });
-  //  ⚠️ 시장이 얼마로 보는지 나란히 — 목표가가 터무니없으면 바로 드러납니다
-  if (cons != null && cons > 0) ml.push({ xAxis: cons,
-    lineStyle:{ color:'#7d3c98' },
-    label:{ formatter:'컨센서스 ' + aiMoney(cons, cur), color:'#7d3c98',
-            rotate:0, position:'insideMiddleTop' } });
-  if (entry != null && entry > 0 && entry !== px) ml.push({ xAxis: entry,
-    lineStyle:{ color:'#b8860b' },
-    label:{ formatter:'진입 ' + aiMoney(entry, cur), color:'#b8860b',
-            rotate:0, position:'insideMiddleBottom' } });
-
-  /*  ⚠️ 막대가 $292 까지인데 현재가가 $425 면, 축을 막대에만 맞추면
-      <현재가 점선이 화면 밖으로 나갑니다>. 제일 봐야 할 선이 안 보이는
-      셈입니다. 점선까지 품도록 축 최대·최소를 우리가 정합니다.        */
-  var span = rows.map(function(r){ return r.v; })
-    .concat(ml.map(function(m){ return m.xAxis; }));
-  var vmax = Math.max.apply(null, span), vmin = Math.min.apply(null, span);
-  var pad = Math.max((vmax - vmin) * 0.12, vmax * 0.06);
+  //  세로 점선의 이름표는 <위쪽 여백> 에 — 띠 위에 얹히면 숫자가 가립니다
+  if (px != null && px > 0) ml.push({ xAxis: px, lineStyle: { color: '#1a1f36', width: 2, type: 'dashed' },
+    label: { formatter: (sec.meta && sec.meta.px_live ? '오늘 주가 ' : '현재가 ') + fmt(px), color: '#1a1f36', position: 'start', distance: 4, rotate: 0 } });
+  if (cons != null && cons > 0) ml.push({ xAxis: cons, lineStyle: { color: '#7d3c98', width: 1.5, type: 'dotted' },
+    label: { formatter: '컨센서스 ' + fmt(cons), color: '#7d3c98', position: 'start', distance: 4, rotate: 0 } });
+  if (entry != null && entry > 0 && entry !== px) ml.push({ xAxis: entry, lineStyle: { color: '#b8860b', width: 1.5, type: 'dotted' },
+    label: { formatter: '진입 ' + fmt(entry), color: '#b8860b', position: 'end', distance: 4, rotate: 0 } });
   c.setOption({
-    backgroundColor: theme ? theme.bg : '#fff', animation:false,
-    grid:{ left:10, right:96, top:16, bottom:10, containLabel:true },
-    tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' },
-      backgroundColor:'rgba(255,255,255,.96)', borderColor:'#e8ecf4',
-      textStyle:{ color:'#2c3e6b', fontSize:12 },
-      valueFormatter:function(v){ return aiMoney(v, cur); } },
-    xAxis:{ type:'value', min:0, max: Math.ceil((vmax + pad)),
-      axisLabel:{ color:'#8a93a8', fontSize:10.5,
-        formatter:function(v){ return aiShort(v); } },
-      axisLine:{ show:false }, axisTick:{ show:false },
-      splitLine:{ lineStyle:{ color:'#eef1f6' } } },
-    yAxis:{ type:'category', inverse:true,
-      data: rows.map(function(r){ return r.name; }),
-      axisLabel:{ color:'#5a6278', fontSize:11.5 },
-      axisLine:{ show:false }, axisTick:{ show:false },
-      splitLine:{ show:false } },
-    series:[{ type:'bar', barWidth: aiBarW(rows.length), barMaxWidth: 26,
-      itemStyle:{ borderRadius:[0,4,4,0] },
-      data: rows.map(function(r){ return { value:+r.v.toFixed(4), itemStyle:{ color:r.c } }; }),
-      label:{ show:true, position:'right', fontSize:11,
-        formatter:function(a){ return aiMoney(a.value, cur); } },
-      /*  ⚠️ 세로선 위의 글씨는 ECharts 가 <기본으로 90도 돌려> 놓습니다.
-          «컨센서스 $478.17» 이 세로로 서서 못 읽습니다 (옵션 매물대에서
-          똑같이 당했습니다). rotate:0 을 반드시 줍니다.
-          ⚠️ 선이 셋이면 글씨가 겹칩니다 — 위·가운데·아래로 어긋나게 둡니다. */
-      markLine: ml.length ? { symbol:'none', silent:true,
-        lineStyle:{ width:1.5, type:'dashed' },
-        label:{ fontSize:10.5, fontWeight:700, rotate:0, position:'insideEndTop',
-                backgroundColor:'rgba(255,255,255,.92)', padding:[2,5], borderRadius:3 },
-        data: ml } : undefined }]
+    backgroundColor: theme ? theme.bg : '#fff', animation: false,
+    grid: { left: 10, right: 24, top: 30, bottom: 10, containLabel: true },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(255,255,255,.96)', borderColor: '#e8ecf4', textStyle: { color: '#2c3e6b', fontSize: 12 },
+      formatter: function(ps){
+        var r = ps && ps[0] && ps[0].data && ps[0].data.r; if (!r) return '';
+        return '<b>' + esc(r.name) + '</b><br>약세 ' + (r.lo != null ? fmt(r.lo) : '—') + ' · 강세 ' + (r.hi != null ? fmt(r.hi) : '—')
+             + (px != null && r.lo != null && r.hi != null && r.hi > r.lo ? '<br>현재가는 범위의 ' + Math.round((px - r.lo) / (r.hi - r.lo) * 100) + '% 지점' : '');
+      } },
+    xAxis: { type: 'value', min: xmin, max: xmax,
+      axisLabel: { color: '#8a93a8', fontSize: 10.5, showMinLabel: false, showMaxLabel: false, formatter: function(v){ return aiShort(v); } },
+      axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: '#eef1f6' } } },
+    yAxis: { type: 'category', inverse: true, data: rows.map(function(r){ return r.name; }),
+      axisLabel: { color: '#5a6278', fontSize: 11.5, fontWeight: 600 }, axisLine: { show: false }, axisTick: { show: false }, splitLine: { show: false } },
+    series: [
+      { type: 'bar', stack: 'ff', data: base, barWidth: 16, itemStyle: { color: 'transparent' },
+        //  투명 바닥의 오른쪽 끝 = 약세 값 — 그 자리에 «약세 $x» 를 적습니다
+        label: { show: true, position: 'insideRight', fontSize: 10.5, fontWeight: 700, color: '#c0392b', distance: 6,
+                 formatter: function(p){ var r = p.data.r; return r.lo != null && r.hi != null ? fmt(Math.min(r.lo, r.hi)) : ''; } },
+        emphasis: { disabled: true }, tooltip: { show: false } },
+      { type: 'bar', stack: 'ff', data: span, barWidth: 16,
+        label: { show: true, position: 'right', fontSize: 10.5, fontWeight: 700, color: '#1f8a70', distance: 6,
+                 formatter: function(p){ var r = p.data.r; return r.lo != null && r.hi != null ? fmt(Math.max(r.lo, r.hi)) : fmt(r.hi != null ? r.hi : r.lo); } },
+        markLine: ml.length ? { symbol: 'none', silent: true, label: { fontSize: 10.5, fontWeight: 700, rotate: 0,
+                  backgroundColor: 'rgba(255,255,255,.92)', padding: [2, 5], borderRadius: 3 }, data: ml } : undefined }
+    ]
   }, true);
 }
 
@@ -22241,6 +22343,37 @@ function aiVsPx(target, px){
   if (t == null || p == null || !(p > 0) || !(t > 0)) return null;
   return { pct: (t / p - 1) * 100 };
 }
+/*  ── 한눈에 (10/4) ─────────────────────────────────────────────
+    읽는 사람은 결론부터 봅니다 — 판정 · 강세/중간/약세 목표가 · 트레이더 결정 ·
+    현재가가 약세~강세 범위 어디쯤인지. 전부 아래 본문에 있는 숫자를 모은 것입니다.  */
+function aiExecSummary(sec, px, cur){
+  var bt = aiNum(sec.bull && sec.bull.target), rt = aiNum(sec.bear && sec.bear.target);
+  var vd = sec.verdict || {}, tr = sec.trader || {};
+  var view = aiStr(vd.view), act = aiStr(tr.action);
+  if (bt == null && rt == null && !view && !act) return '';
+  var tile = function(k, v, sub, cls){
+    return '<div class="ai-sum-t' + (cls ? ' ' + cls : '') + '"><div class="k">' + esc(k) + '</div><div class="v">' + v + '</div>'
+         + (sub ? '<div class="s">' + sub + '</div>' : '') + '</div>';
+  };
+  var out = '';
+  if (view) out += tile('판정', esc(view), aiStr(vd.view_how) ? esc(aiStr(vd.view_how).replace(/ \(±15% 안이면 적정\)/, '')) : '',
+                        /고평가/.test(view) ? 'neg' : /저평가/.test(view) ? 'pos' : '');
+  if (bt != null && bt > 0) out += tile('강세 목표가', esc(aiMoney(bt, cur)), aiVsChip(bt, px, 'bull'), 'bull');
+  if (bt != null && rt != null && bt > 0 && rt > 0) out += tile('중간', esc(aiMoney((bt + rt) / 2, cur)), aiVsChip((bt + rt) / 2, px, ''), '');
+  if (rt != null && rt > 0) out += tile('약세 목표가', esc(aiMoney(rt, cur)), aiVsChip(rt, px, 'bear'), 'bear');
+  if (act) out += tile('헤드 트레이더', esc(act) + (aiNum(tr.weight_pct) != null && aiNum(tr.weight_pct) > 0 ? ' · ' + esc(aiTrim(num(aiNum(tr.weight_pct), 1))) + '%' : ''),
+                       aiStr(tr.horizon) ? esc(aiStr(tr.horizon)) : '', '');
+  //  현재가의 자리 — 약세(0%) ~ 강세(100%) 띠 위에 점
+  var band = '';
+  if (bt != null && rt != null && px != null && bt > rt){
+    var pos = Math.max(-0.15, Math.min(1.15, (px - rt) / (bt - rt)));
+    band = '<div class="ai-band"><span class="lo">약세 ' + esc(aiMoney(rt, cur)) + '</span>'
+         + '<div class="bar"><div class="dot" style="left:' + (Math.max(0, Math.min(1, pos)) * 100).toFixed(1) + '%" title="현재가 ' + esc(aiMoney(px, cur)) + '"></div></div>'
+         + '<span class="hi">강세 ' + esc(aiMoney(bt, cur)) + '</span>'
+         + '<span class="st-hint">현재가 ' + esc(aiMoney(px, cur)) + (pos < 0 ? ' — 약세 목표가보다 아래' : pos > 1 ? ' — 강세 목표가보다 위' : ' — 범위의 ' + Math.round(pos * 100) + '% 지점') + '</span></div>';
+  }
+  return '<div class="ai-sum">' + out + '</div>' + band;
+}
 function aiVsChip(target, px, side){
   var r = aiVsPx(target, px);
   if (!r) return '';
@@ -22316,35 +22449,104 @@ function aiValTable(v, curDefault, px, side){
     return x && typeof x === 'object' && !aiBlank(x.method); });
   if (!a.length) return '';
   var srv = a.some(function(x){ return !!aiStr(x.calc); });
-  return '<div class="scroll"><table>'
-    + '<thead><tr><th>기법</th><th>' + (srv ? '배수 × 기준 · 서버 계산식' : '배수·가정')
-    + '</th><th>배수 근거</th><th class="num">목표가</th>'
-    + '<th class="num">현재가 대비</th></tr></thead><tbody>'
+  /*  ⚠️ 시나리오 = 성장 가정 × 배수 (10/4 개편). 표가 그 둘을 <따로> 보여줍니다 —
+      «12개월 뒤 기준값이 얼마가 되고(성장) · 그때 시장이 몇 배를 주나(배수, 지금 N배와 견줘)».
+      강세는 지금 배수 이상, 약세는 이하 — 서버가 맞춘 것은 «모델 N배 → 지금 배수» 로 남깁니다.  */
+  return '<div class="scroll"><table class="ai-vtab">'
+    + '<thead><tr><th>기법</th>'
+    + (srv ? '<th>12개월 뒤 기준값 <span class="st-hint">(성장 가정)</span></th><th>배수 <span class="st-hint">(지금)</span></th>'
+           : '<th>배수·가정</th>')
+    + '<th style="min-width:150px">근거</th><th class="num">목표가 <span class="st-hint">(현재가 대비)</span></th></tr></thead><tbody>'
     + a.map(function(x){
         var cur = aiStr(x.cur) || curDefault;
-        var mcell;
+        var cells;
         if (aiStr(x.calc)){
-          var mm = aiNum(x.multiple), nowM = aiNum(x.now_multiple);
-          /*  ⚠️ 학회장: «bull 이랑 bear 잘 계산되고 있는지». 모델이 고른 배수 옆에 <지금 시장이 주는
-              배수> (같은 기준) 를 서버가 세어 붙입니다. 강세가 지금보다 낮은 배수면 «디레이팅 가정» 표시.  */
-          mcell = (aiStr(x.method) === 'DCF' || mm == null ? ''
-                    : '<b>' + esc(aiTrim(num(mm, 2))) + '배</b> × ')
-            + esc(aiStr(x.basis_lab)) + (aiStr(x.basis_val) ? ' <b>' + esc(aiStr(x.basis_val)) + '</b>' : '')
-            + (nowM != null ? ' <span class="ai-now" title="같은 기준값에 현재가(시가총액·EV)를 나눈 것 — 지금 시장이 주는 배수">지금 ' + esc(aiTrim(num(nowM, 2))) + '배</span>' : '')
-            + (x.derate ? ' <span class="ai-vs odd" title="강세인데 지금 배수보다 낮은 배수를 가정했습니다 — 목표가가 현재가 밑으로 나오는 이유">디레이팅 가정</span>' : '')
-            + (x.rerate ? ' <span class="ai-vs" title="약세인데 지금 배수보다 높은 배수를 가정했습니다">지금보다 높은 배수</span>' : '')
-            + '<div class="ai-calc">' + esc(aiStr(x.calc)) + '</div>';
-        } else mcell = aiBlank(x.multiple) ? '—' : aiRich(x.multiple);
+          var mm = aiNum(x.multiple), nowM = aiNum(x.now_multiple), g = aiNum(x.growth), cf = aiNum(x.clamped_from);
+          var isDcf = aiStr(x.method) === 'DCF';
+          var baseCell = isDcf
+            ? '<span class="st-hint">' + esc(aiStr(x.basis_lab)) + '</span>'
+            : '<div>' + esc(aiStr(x.basis_lab)) + ' <b>' + esc(aiStr(x.basis_val)) + '</b>'
+              + (g != null && g !== 0
+                  ? ' <span class="ai-g ' + (g > 0 ? 'up' : 'dn') + '">' + (g > 0 ? '+' : '') + esc(aiTrim(num(g, 1))) + '%</span> → <b>' + esc(aiStr(x.basis_fwd) || '') + '</b>'
+                  : ' <span class="st-hint">(성장 0% · 그대로)</span>')
+              + '</div>';
+          var mulCell = isDcf || mm == null ? '<span class="st-hint">—</span>'
+            : '<b>' + esc(aiTrim(num(mm, 2))) + '배</b>'
+              + (nowM != null ? '<div class="st-hint" style="white-space:nowrap">지금 ' + esc(aiTrim(num(nowM, 2))) + '배'
+                  + (mm > nowM * 1.005 ? ' <span class="ai-g up">확장</span>' : mm < nowM * 0.995 ? ' <span class="ai-g dn">축소</span>' : ' <span class="ai-g">유지</span>') + '</div>' : '')
+              + (cf != null ? '<div class="ai-vs odd" style="margin:4px 0 0" title="모델이 ' + esc(aiTrim(num(cf, 2))) + '배를 적었지만 '
+                  + (side === 'bull' ? '강세가 지금 배수보다 낮을 수 없어' : '약세가 지금 배수보다 높을 수 없어') + ' 서버가 지금 배수로 맞췄습니다">모델 '
+                  + esc(aiTrim(num(cf, 2))) + '배 → 지금 배수</div>' : '');
+          cells = '<td>' + baseCell + '<div class="ai-calc">' + esc(aiStr(x.calc)) + '</div></td><td>' + mulCell + '</td>';
+        } else cells = '<td>' + (aiBlank(x.multiple) ? '—' : aiRich(x.multiple)) + '</td>';
         return '<tr><td><b>' + esc(aiStr(x.method) || '—') + '</b></td>'
-          + '<td>' + mcell + '</td>'
+          + cells
           + '<td class="st-hint">' + (aiBlank(x.why) ? '—' : aiRich(x.why)) + '</td>'
-          + '<td class="num">' + esc(aiMoney(x.target, cur)) + '</td>'
-          //  ⚠️ 이 칸은 <터미널이 계산> 합니다. 모델 글이 아닙니다.
-          + '<td class="num">' + (aiVsChip(x.target, px, side) || '—') + '</td></tr>';
+          //  ⚠️ 현재가 대비 % 는 <터미널이 계산> 합니다. 모델 글이 아닙니다.
+          + '<td class="num" style="white-space:nowrap"><b>' + esc(aiMoney(x.target, cur)) + '</b>'
+          + '<div style="margin-top:4px">' + (aiVsChip(x.target, px, side) || '') + '</div></td></tr>';
       }).join('')
     + '</tbody></table></div>';
 }
 
+/*  ── 밸류에이션 한 표 (10/4) ────────────────────────────────────────────
+    강세·약세를 <같은 줄> 에 놓습니다 — 같은 기법 · 같은 기준값에서 성장 가정과 배수만
+    어떻게 달리 봤는지가 한눈에 비교됩니다. 카드마다 표를 두면 폭이 모자라 잘렸습니다.  */
+function aiValCompare(sec, cur, px){
+  var bull = sec.bull || {}, bear = sec.bear || {};
+  var by = function(v){ var o = {}; aiArr(v && v.valuation).forEach(function(x){ var m = aiStr(x && x.method); if (m && !o[m]) o[m] = x; }); return o; };
+  var bm = by(bull), rm = by(bear);
+  var keys = Object.keys(bm).concat(Object.keys(rm).filter(function(k){ return !bm[k]; }));
+  if (!keys.length) return '';
+  var srv = keys.some(function(k){ return aiStr((bm[k] || rm[k] || {}).calc); });
+  var gTxt = function(x){
+    var g = aiNum(x && x.growth);
+    if (!aiStr(x && x.calc)) return '—';
+    if (g == null || g === 0) return '<span class="st-hint">0%</span>' + (aiStr(x.basis_fwd) ? '' : '');
+    return '<span class="ai-g ' + (g > 0 ? 'up' : 'dn') + '">' + (g > 0 ? '+' : '') + esc(aiTrim(num(g, 1))) + '%</span>'
+         + (aiStr(x.basis_fwd) ? ' <span class="st-hint">→ ' + esc(aiStr(x.basis_fwd)) + '</span>' : '');
+  };
+  var mTxt = function(x, side){
+    if (!x) return '—';
+    var mm = aiNum(x.multiple), nowM = aiNum(x.now_multiple), cf = aiNum(x.clamped_from);
+    if (aiStr(x.method) === 'DCF') return '<span class="st-hint">DCF</span>';
+    if (mm == null) return aiBlank(x.multiple) ? '—' : aiRich(x.multiple);
+    return '<b>' + esc(aiTrim(num(mm, 2))) + '배</b>'
+      + (nowM != null ? (mm > nowM * 1.005 ? ' <span class="ai-g up">확장</span>' : mm < nowM * 0.995 ? ' <span class="ai-g dn">축소</span>' : ' <span class="ai-g">유지</span>') : '')
+      + (cf != null ? '<div class="ai-vs odd" style="margin-top:3px" title="모델이 ' + esc(aiTrim(num(cf, 2))) + '배를 적었지만 '
+          + (side === 'bull' ? '강세가 지금 배수보다 낮을 수 없어' : '약세가 지금 배수보다 높을 수 없어') + ' 서버가 지금 배수로 맞췄습니다">모델 '
+          + esc(aiTrim(num(cf, 2))) + '배 → 지금</div>' : '');
+  };
+  var tTxt = function(x, side){
+    var tt = aiNum(x && x.target);
+    if (tt == null || tt <= 0) return '<span class="st-hint">—</span>';
+    return '<b>' + esc(aiMoney(tt, aiStr(x.cur) || cur)) + '</b> ' + (aiVsChip(tt, px, side) || '');
+  };
+  var rows = keys.map(function(k){
+    var b = bm[k], r = rm[k], any = b || r;
+    var base = aiStr(any.basis_lab) ? esc(aiStr(any.basis_lab)) + (aiStr(any.basis_val) ? ' <b>' + esc(aiStr(any.basis_val)) + '</b>' : '') : '<span class="st-hint">—</span>';
+    var nowM = aiNum(any.now_multiple);
+    var det = [];
+    if (r && (aiStr(r.calc) || aiStr(r.why))) det.push('<span class="ai-dl bear">약세</span> ' + (aiStr(r.calc) ? esc(aiStr(r.calc)) + ' ' : '') + (aiStr(r.why) ? '<span class="st-hint">· 근거: ' + aiRich(r.why) + '</span>' : ''));
+    if (b && (aiStr(b.calc) || aiStr(b.why))) det.push('<span class="ai-dl bull">강세</span> ' + (aiStr(b.calc) ? esc(aiStr(b.calc)) + ' ' : '') + (aiStr(b.why) ? '<span class="st-hint">· 근거: ' + aiRich(b.why) + '</span>' : ''));
+    return '<tr><td rowspan="' + (det.length ? 2 : 1) + '"><b>' + esc(k) + '</b></td>'
+      + '<td>' + base + (nowM != null ? '<div class="st-hint" style="white-space:nowrap">지금 ' + esc(aiTrim(num(nowM, 2))) + '배</div>' : '') + '</td>'
+      + '<td class="ai-cb">' + gTxt(r) + '</td><td class="ai-cb">' + mTxt(r, 'bear') + '</td><td class="ai-cb num">' + tTxt(r, 'bear') + '</td>'
+      + '<td class="ai-cu">' + gTxt(b) + '</td><td class="ai-cu">' + mTxt(b, 'bull') + '</td><td class="ai-cu num">' + tTxt(b, 'bull') + '</td></tr>'
+      + (det.length ? '<tr class="ai-det"><td colspan="7"><div class="ai-calc">' + det.join('<br>') + '</div></td></tr>' : '');
+  }).join('');
+  var sum = '<tr class="ai-sum-row"><td><b>종합</b></td><td class="st-hint">' + esc(aiStr(bull.target_how) || aiStr(bear.target_how) || '기법별 목표가의 단순 평균') + '</td>'
+    + '<td class="ai-cb" colspan="2"></td><td class="ai-cb num">' + tTxt(bear, 'bear') + '</td>'
+    + '<td class="ai-cu" colspan="2"></td><td class="ai-cu num">' + tTxt(bull, 'bull') + '</td></tr>';
+  return '<div class="scroll" style="margin-top:4px"><table class="ai-vtab ai-cmp">'
+    + '<thead><tr><th rowspan="2">기법</th><th rowspan="2">기준값 <span class="st-hint">(지금 배수)</span></th>'
+    + '<th colspan="3" class="ai-cb">약세 BEAR</th><th colspan="3" class="ai-cu">강세 BULL</th></tr>'
+    + '<tr><th class="ai-cb">12개월 성장</th><th class="ai-cb">배수</th><th class="ai-cb num">목표가</th>'
+    + '<th class="ai-cu">12개월 성장</th><th class="ai-cu">배수</th><th class="ai-cu num">목표가</th></tr></thead>'
+    + '<tbody>' + rows + sum + '</tbody></table></div>'
+    + (srv ? '<p class="st-hint" style="margin:8px 0 0;line-height:1.6">목표가 = 배수 × (기준값 × (1 + 12개월 성장 가정)) · EV 기법은 순현금을 더해 주식 수로 나눔 · 곱셈은 서버가 했습니다. '
+          + '«지금 배수» 는 같은 기준값에 현재가(시가총액·EV)를 나눈 값 — 강세는 그 이상, 약세는 그 이하만 받습니다.</p>' : '');
+}
 function aiSideCard(side, v, cls, curDefault, px, which){
   var t = aiNum(v && v.target);
   return '<div class="ai-side ' + cls + '">'
@@ -22355,7 +22557,6 @@ function aiSideCard(side, v, cls, curDefault, px, which){
     + (aiStr(v && v.target_how)
         ? '<p class="st-hint" style="margin:6px 0 0">목표가 = ' + esc(aiStr(v.target_how))
           + ' · 곱셈은 서버가 했습니다</p>' : '')
-    + aiSec('밸류에이션 (기법 · 배수 근거 · 목표가)', aiValTable(v, curDefault, px, which))
     + (v && v.pair_mismatch
         ? '<div class="note warn" style="margin-top:8px">강세·약세가 <b>서로 다른 기법</b>으로 계산됐습니다 — 두 목표가의 차이를 '
           + '전망 차이로 읽지 마세요 (기법 차이일 수 있습니다). 서버가 같은 기법 묶음을 두 번 요구했지만 모델이 못 맞췄습니다. '
@@ -22546,6 +22747,7 @@ function aiRender(rep, boxId){
   if (aiStr(meta.as_of)) chips.push('자료 기준 ' + aiStr(meta.as_of));
   if (chips.length)
     head += '<p class="st-hint" style="margin:8px 0 0">' + esc(chips.join('  ·  ')) + '</p>';
+  head += aiExecSummary(sec, px, cur);
   head += aiFactFlags(sec);
   if (rep.status === 'running')
     head += '<div class="note warn" style="margin:12px 0 0">아직 만드는 중입니다 ('
@@ -22802,7 +23004,10 @@ function aiRender(rep, boxId){
   var vdView = aiStr(vd && vd.view);
   var vdHtml = vdView
     ? '<div class="ai-verdict ' + (/고평가/.test(vdView) ? 'neg' : /저평가/.test(vdView) ? 'pos' : '')
-      + '"><b>판정 · ' + esc(vdView) + '</b>' + (aiStr(vd.why) ? ' — ' + aiRich(vd.why) : '') + '</div>'
+      + '"><b>판정 · ' + esc(vdView) + '</b>' + (aiStr(vd.why) ? ' — ' + aiRich(vd.why) : '')
+      + (aiStr(vd.view_how) ? '<div class="st-hint" style="margin-top:4px">' + esc(aiStr(vd.view_how))
+          + (vd.view_fixed ? ' · 모델이 다르게 적어 서버 값으로 바로잡았습니다' : '') + '</div>' : '')
+      + '</div>'
     : '';
   var c6 = '<div class="card"><h2>6. 강세 · 약세 논거와 목표가</h2>'
     //  ⚠️ 경고는 <숫자를 보기 전에> 읽어야 뜻이 있습니다. 맨 위에 둡니다.
@@ -22813,9 +23018,10 @@ function aiRender(rep, boxId){
           + aiSideCard('BULL · 강세', sec.bull, 'ai-bull', cur, px, 'bull')
           + aiSideCard('BEAR · 약세', sec.bear, 'ai-bear', cur, px, 'bear')
           + '</div>'
-          + aiSec('목표가 한눈에', aiChartBox({ __targets: true }, Math.max(220,
-              120 + 26 * (aiArr(sec.bull && sec.bull.valuation).length
-                        + aiArr(sec.bear && sec.bear.valuation).length + 2))))
+          + aiSec('밸류에이션 — 기법별 약세 · 강세 (서버 계산)', aiValCompare(sec, cur, px))
+          + aiSec('목표가 범위 (약세 ~ 강세)', aiChartBox({ __targets: true }, Math.max(180,
+              90 + 34 * (Object.keys(aiArr(sec.bull && sec.bull.valuation).concat(aiArr(sec.bear && sec.bear.valuation))
+                .reduce(function(o, x){ if (x && x.method) o[x.method] = 1; return o; }, {})).length + 1))))
         : '<div class="empty" style="padding:16px">논거가 아직 없습니다.</div>')
     + aiErrNote(sec, 'call') + '</div>';
 
@@ -22838,24 +23044,21 @@ function aiRender(rep, boxId){
       + aiSec('논거가 깨지는 조건', aiPara(tr.kill) || '')
       + '</div>';
   } else if (act || aiNum(tr.entry) != null){
-    var kv = [
-      ['진입가', aiMoney(tr.entry, cur)],
-      ['손절', aiMoney(tr.stop, cur)],
-      ['목표', aiMoney(tr.take, cur)],
-      ['포트폴리오 비중', wpct == null ? '—' : num(wpct, 1) + '%'],
-      ['보유 기간', aiStr(tr.horizon) || '—'],
-    ];
+    //  ⚠️ 관망이면 진입가·손절·목표가 0 으로 옵니다. «$0.00» 타일은 틀린 숫자처럼 보이니 뺍니다.
+    var pxTile = function(lab, v){ var n = aiNum(v); return (n != null && n > 0) ? [[lab, aiMoney(n, cur)]] : []; };
+    var kv = [].concat(pxTile('진입가', tr.entry), pxTile('손절', tr.stop), pxTile('목표', tr.take),
+      [['포트폴리오 비중', wpct == null ? '—' : num(wpct, 1) + '%'], ['보유 기간', aiStr(tr.horizon) || '—']]);
     c7 = '<div class="card"><h2>7. AI 헤드 트레이더 결정</h2>'
       + '<div class="ai-call">'
       +   '<div class="act">' + esc(act || '—')
-      +     (wpct != null ? ' · 비중 ' + num(wpct, 1) + '%' : '') + '</div>'
+      +     (wpct != null && wpct > 0 ? ' · 비중 ' + num(wpct, 1) + '%' : '') + '</div>'
       +   '<div class="tiles" style="margin:12px 0 0">'
       +     kv.map(function(r){
               return '<div class="tile"><div class="k">' + esc(r[0]) + '</div>'
                 + '<div class="v">' + esc(r[1]) + '</div></div>'; }).join('')
       +   '</div>'
       + '</div>'
-      + aiSec('이 가격에 사는 이유', aiPara(tr.entry_why) || '')
+      + aiSec(/매수|buy/i.test(act) ? '이 가격에 사는 이유' : '지금 사지 않는 이유', aiPara(tr.entry_why) || '')
       + aiSec('비중을 이렇게 잡은 이유', aiPara(tr.weight_why) || '')
       + aiSec('논거가 깨지는 조건', aiPara(tr.kill) || '')
       + '</div>';
