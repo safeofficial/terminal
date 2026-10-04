@@ -39,7 +39,7 @@
   :root[data-theme="dark"]{
     --bg:#0f121a; --white:#171b25;
     --primary:#7f9ae6; --primary-light:#9db2ee; --accent:#7f9be6; --accent-soft:#1f2740;
-    --text:#e4e8f1; --text-sub:#9aa3b8; --border:#2a3144;
+    --text:#eef1f7; --text-sub:#aeb7ca; --border:#2e364a;
     --up:#ef6b5e; --down:#5b9cf0;
     --ok:#5cc08a; --ok-soft:#14301f;
     --warn:#f5a623; --warn-soft:#352a12;
@@ -61,6 +61,16 @@
   :root[data-theme="dark"] .ai-card.risk{background:rgba(192,57,43,.10)}
   :root[data-theme="dark"] .ai-card.risk.lo{background:rgba(217,164,65,.10)}
   :root[data-theme="dark"] .ann-t.on,:root[data-theme="dark"] #annBtn.on{background:#3d7fd6;border-color:#3d7fd6}
+  :root[data-theme="dark"] .pie-wrap{background:linear-gradient(180deg,#1c2130 0%,#171b25 100%)}
+  :root[data-theme="dark"] .pill.US{background:rgba(91,156,240,.16);color:#8fbcf6}
+  :root[data-theme="dark"] .by-who{background:rgba(160,130,220,.18);color:#c9b3f0}
+  :root[data-theme="dark"] .pf-k.good{background:rgba(92,192,138,.16);color:#6fd49a}
+  :root[data-theme="dark"] .pf-k.idea{background:rgba(245,166,35,.16);color:#f0c27a}
+  :root[data-theme="dark"] .pos-row.on{background:#1f2740}
+  :root[data-theme="dark"] .st-hint,:root[data-theme="dark"] .hint{color:var(--text-sub)}
+  /*  일정 종류 색 — 종류마다 밝은 바탕용·어두운 바탕용 둘 (ev-row 의 --ev/--evd 로 넘어옵니다)  */
+  .ev-row,.ev-kcol{color:var(--ev,inherit)}
+  :root[data-theme="dark"] .ev-row,:root[data-theme="dark"] .ev-kcol{color:var(--evd,var(--ev,inherit))}
   /*  헤더의 밝기 단추  */
   .theme-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--white);cursor:pointer;
     font-size:16px;line-height:1;display:inline-flex;align-items:center;justify-content:center;color:var(--text);transition:all .15s}
@@ -1609,7 +1619,7 @@
 
                   <나만 보는 설정> 입니다. 임원진 화면의 «학회 표준 색» 과는
                   다른 것입니다 — 그건 누르면 학회원 전부의 차트가 바뀝니다.
-                  여기서 고른 색은 이 화면에서만, 새로고침하면 사라집니다.  -->
+                  여기서 고른 색은 나한테만 보이고, 이 브라우저에 남습니다 (10/4).  -->
             <div class="row">
               <label style="min-width:auto">
                 <input type="checkbox" id="mgBg" onchange="setMacroBg()" style="width:auto;vertical-align:-2px">
@@ -1617,7 +1627,7 @@
               </label>
               <input type="color" id="mgBgColor" value="#ffffff" oninput="pickMacroBg()">
               <button class="btn-sm" onclick="resetMacroBg()">기본으로</button>
-              <span class="st-hint grow" id="mgBgNote">나만 보입니다 · 어두운 색을 고르면
+              <span class="st-hint grow" id="mgBgNote">나만 보입니다 (이 브라우저에 기억) · 어두운 색을 고르면
                 축 글씨·눈금선을 밝게 바꿉니다</span>
             </div>
             <div class="row">
@@ -3992,7 +4002,6 @@
     <div id="pane-industry" class="hidden">
       <div class="page-head">
         <h1>산업분석</h1>
-        <p>섹터 모니터 · 병목 모니터 — 어느 산업에 돈이 몰리고, 어디서 공급이 수요를 못 따라가는지.</p>
       </div>
       <div id="indWarn"></div>
 
@@ -4018,6 +4027,7 @@
           <span class="st-hint grow" id="secNote"></span>
         </div>
         <div id="secChart" style="height:250px;margin-top:6px"></div>
+        <div id="secBench" class="st-hint" style="text-align:right;margin-top:-2px"></div>
         <div class="scroll" style="margin-top:8px"><table id="secTable"></table></div>
         <p class="st-hint" style="margin:8px 0 0;line-height:1.6">
           수익률은 <b>종가 기준</b> (배당 제외) · «벤치 대비» 는 그 기간 수익률에서 벤치마크 수익률을 뺀 것(%p) ·
@@ -4568,6 +4578,7 @@ async function enterApp(){
   $('tabAdmin').classList.toggle('hidden', !off);
   $('tDate').value = today();
   await loadTheme();
+  macroBgRestore();      //  나만의 차트 배경 (이 브라우저에 남긴 것)
   await loadCatalog();
   showTab('home');
   nfDockInit();          //  지난번에 열어뒀으면 그대로 열어 줍니다
@@ -6216,14 +6227,18 @@ function applyGuidePref(){ /* 안내 카드를 없앴습니다 */ }
     ⚠️ 학회원은 보기만, 임원진은 넣고·고치고·지웁니다. 화면에서 단추를
        숨기는 것과 <서버가 막는 것> 은 다릅니다 — RLS 로도 막아둡니다
        (terminal-일정표.sql). 화면만 숨기면 개발자도구로 뚫립니다.      */
+/*  ⚠️ 색을 글자에 그대로 칠하면 다크 모드에서 남색 글씨가 남색 바탕에 묻힙니다
+    (실제로 그랬습니다). 종류마다 <어두운 바탕용> 색을 하나 더 두고, CSS 변수
+    (--ev/--evd)로 넘겨서 모드가 바뀌면 글자색도 따라 바뀌게 합니다.             */
 var EV_KIND = {
-  seminar:      { label:'정기세미나', color:'#2a5aa8' },
-  presentation: { label:'발표',       color:'#1f8a70' },
-  contest:      { label:'대회',       color:'#b26a00' },
-  deadline:     { label:'마감',       color:'#c0392b' },
-  social:       { label:'친목',       color:'#7d3c98' },
-  etc:          { label:'기타',       color:'#5a6278' }
+  seminar:      { label:'정기세미나', color:'#2a5aa8', dark:'#8fb3f2' },
+  presentation: { label:'발표',       color:'#187a63', dark:'#5fd0aa' },   //  흰 바탕 대비 5.3 (예전 #1f8a70 은 4.3)
+  contest:      { label:'대회',       color:'#9e5e00', dark:'#f2b85c' },   //  흰 바탕 대비 5.1 (예전 #b26a00 은 4.2)
+  deadline:     { label:'마감',       color:'#c0392b', dark:'#f29084' },
+  social:       { label:'친목',       color:'#7d3c98', dark:'#cfa0ee' },
+  etc:          { label:'기타',       color:'#5a6278', dark:'#aeb7ca' }
 };
+function evKindStyle(k){ return '--ev:' + k.color + ';--evd:' + (k.dark || k.color); }
 var evRows = [], evEditId = null, evLoaded = false;
 
 function evKind(k){ return EV_KIND[k] || EV_KIND.etc; }
@@ -6342,7 +6357,7 @@ function evRender(){
         + '<div class="n' + (isNum ? '' : ' txt') + '">' + esc(big) + '</div>'
         + '<div class="bar"></div>'
         + '<div class="t">'
-        +   '<div class="k" style="color:' + esc(k0.color) + '">' + esc(k0.label) + '</div>'
+        +   '<div class="k ev-kcol" style="' + esc(evKindStyle(k0)) + '">' + esc(k0.label) + '</div>'
         +   '<div class="ti">' + esc(n0.title) + '</div>'
         +   '<div class="s">' + esc(evWhenTop(n0))
         +     (n0.place ? ' · ' + esc(n0.place) : '')
@@ -6371,7 +6386,7 @@ function evRender(){
         '<div class="ev-card">'
       +   '<div class="ev-when">' + esc(evWhen(x)) + '</div>'
       +   '<div class="ev-body">'
-      +     '<span class="ev-tag" style="color:' + esc(k.color) + '">'
+      +     '<span class="ev-tag">'
       +       esc(k.label) + '</span>'
       +     '<b>' + esc(x.title) + '</b>'
       +     (x.note ? '<div class="ev-note">' + esc(x.note) + '</div>' : '')
@@ -6388,7 +6403,7 @@ function evRender(){
       + '</div>';
     var pad = '<div class="ev-half ev-pad"></div>';
     return '<div class="ev-row' + (dim ? ' dim' : '') + (live ? ' live' : '')
-         + (right ? ' ev-r' : '') + '" style="color:' + esc(k.color) + '">'
+         + (right ? ' ev-r' : '') + '" style="' + esc(evKindStyle(k)) + '">'
          + (right ? pad + '<div class="ev-half">' + card + '</div>'
                   : '<div class="ev-half">' + card + '</div>' + pad)
          + '<div class="ev-dot"></div>'
@@ -9757,8 +9772,11 @@ async function dvDrawCandle(){
     LINES.push({ yAxis: v, name: name,
       lineStyle:{ color: color, width: dash ? 1.5 : 2,
                   type: dash ? 'dashed' : 'solid' },
+      /*  ⚠️ 학회장: «글들 오른쪽 여백에 배치해서 차트 다 보이게». 이름표는 선의 <끝 바깥>
+          (오른쪽 여백) 에 세웁니다 — 봉을 가리지 않습니다. 여백은 grid.right 로 비워 둡니다.  */
       label:{ formatter: name + ' ' + f(v), color: color, rotate: 0,
-              position: 'insideEndTop', fontSize: 10.5, fontWeight: 700,
+              position: 'end', align: 'left', verticalAlign: 'middle', distance: 6,
+              fontSize: 10.5, fontWeight: 700,
               backgroundColor:'rgba(255,255,255,.92)', padding:[2,5], borderRadius:3 } });
   }
   if (L){
@@ -9803,16 +9821,15 @@ async function dvDrawCandle(){
   var axLo = lo - pad, axHi = hi + pad;
   var plotH = Math.max(40, (box.clientHeight || 300) - 18 - 26);
   var pxOf = function(v){ return (axHi - v) / Math.max(1e-9, axHi - axLo) * plotH; };
+  /*  이름표가 오른쪽 여백에 세로로 서니, 겹치는 것은 <아래로 한 칸씩> 밀어냅니다
+      (위에서부터 18px 간격). 선 자체는 제자리입니다.                              */
   var sorted = LINES.slice().sort(function(a,b){ return b.yAxis - a.yAxis; });
-  var lane = 0, prevPx = null;
+  var prevPx = null;
   sorted.forEach(function(x){
     var px = pxOf(x.__far === 'up' ? axHi : (x.__far === 'dn' ? axLo : x.yAxis));
-    //  14px 안이면 «겹친다» 고 봅니다 (글자 높이가 그쯤입니다)
-    lane = (prevPx != null && Math.abs(px - prevPx) < 14) ? lane + 1 : 0;
-    prevPx = px;
-    x.label.position = (lane % 2 === 0) ? 'insideEndTop' : 'insideEndBottom';
-    var step = Math.floor(lane / 2);
-    if (step > 0) x.label.offset = [-step * 104, 0];
+    var want = (prevPx != null && px - prevPx < 18) ? prevPx + 18 : px;
+    if (want !== px) x.label.offset = [0, want - px];
+    prevPx = want;
   });
   //  멀리 있는 벽은 가장자리로 옮기고 <원래 값> 을 화살표와 함께 적습니다
   LINES.forEach(function(x){
@@ -9824,7 +9841,8 @@ async function dvDrawCandle(){
 
   dvCandleChart.setOption({
     backgroundColor: theme.bg, animation: false,
-    grid:{ left: 8, right: 96, top: 18, bottom: 26, containLabel: true },
+    //  오른쪽 여백 = 이름표 자리 («↑ 콜벽 (저항) $400.00 (화면 밖)» 까지 들어갑니다)
+    grid:{ left: 8, right: 176, top: 18, bottom: 26, containLabel: true },
     tooltip:{ trigger:'axis', axisPointer:{ type:'cross' },
       backgroundColor:'rgba(255,255,255,.96)', borderColor:'#e8ecf4',
       textStyle:{ color:'#2c3e6b', fontSize:12 },
@@ -10587,6 +10605,33 @@ function f13Kind(k){
 async function f13Search(){
   var q = $('f13Q').value.trim();
   if (!q){ warn('f13Warn','운용사 이름을 입력해주세요. (영문)'); return; }
+  /*  ⚠️ 단추를 눌러 «ARK 인베스트» 가 칸에 들어간 뒤 «기관 찾기» 를 누르면,
+      그 한글로 SEC 를 뒤져 «찾지 못했습니다» 가 떴습니다 — 표는 멀쩡히 떠 있는데요.
+      칸의 글이 단추 이름(한글)이나 그 영문 정식 명칭과 같으면 단추와 똑같이 엽니다.  */
+  var norm = function(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9가-힣]/g, ''); };
+  var ql = norm(q);
+  var fam = -1;
+  F13_FAMOUS.forEach(function(x, i){
+    if (fam >= 0) return;
+    if (norm(x.n) === ql || norm(x.name) === ql) fam = i;
+  });
+  //  «Berkshire Hathaway» 처럼 정식 명칭의 앞부분만 적어도 (5자 이상 · 하나로 좁혀지면)
+  if (fam < 0 && ql.length >= 5){
+    var en = [];
+    F13_FAMOUS.forEach(function(x, i){ if (norm(x.name).indexOf(ql) === 0) en.push(i); });
+    if (en.length === 1) fam = en[0];
+  }
+  if (fam < 0 && /[가-힣]/.test(q)){
+    var cand = [];
+    F13_FAMOUS.forEach(function(x, i){ if (x.n.indexOf(q) >= 0 || (x.w && x.w.indexOf(q) >= 0)) cand.push(i); });
+    if (cand.length === 1) fam = cand[0];
+  }
+  if (fam >= 0){ await f13Famous(fam); return; }
+  if (/[가-힣]/.test(q)){
+    $('f13Hits').innerHTML = '';
+    warn('f13Warn', '한글 이름은 위 단추에 있는 운용사만 됩니다. 다른 운용사는 <b>영문 정식 명칭</b>으로 넣어 주세요 (예: Berkshire Hathaway).', 'info');
+    return;
+  }
   warn('f13Warn','');
   $('f13Hits').innerHTML = '<div class="empty" style="padding:14px">찾는 중…</div>';
   try {
@@ -11515,10 +11560,13 @@ function renderSectors(){
       data: data.map(function(r){ var v = Math.round(r.s.r[per] * 100) / 100;
         return { value: v, itemStyle: { color: r.bench ? '#8a94ad' : (v >= 0 ? '#c0392b' : '#1b5fa8'), borderRadius: v >= 0 ? [4,4,0,0] : [0,0,4,4] } }; }),
       label: { show: true, position: 'top', fontSize: 10, formatter: function(p){ return (p.value > 0 ? '+' : '') + Number(p.value).toFixed(1); } },
+      //  ⚠️ 점선 위에 글을 얹으면 맨 오른쪽 막대 숫자와 겹쳐 둘 다 안 읽힙니다. 글은 아래 한 줄로.
       markLine: bv == null ? undefined : { silent: true, symbol: 'none', lineStyle: { type: 'dashed', color: '#8a94ad' },
-        label: { formatter: '벤치마크 ' + (bv > 0 ? '+' : '') + bv.toFixed(1) + '%', position: 'insideEndTop', fontSize: 10 }, data: [{ yAxis: bv }] }
+        label: { show: false }, data: [{ yAxis: bv }] }
     }]
   }, true);
+  var bn = $('secBench');
+  if (bn) bn.textContent = bv == null ? '' : '점선 = 벤치마크 ' + set.bench[1] + ' ' + perName + ' ' + (bv > 0 ? '+' : '') + bv.toFixed(1) + '%';
 }
 
 function secCsv(){
@@ -13150,6 +13198,22 @@ function macroSplit(){
 
     ⚠️ 매크로 탭 차트 <하나만> 입니다. 다른 탭 차트는 그대로입니다.    */
 var macroBg = { on:false, color:'#ffffff' };
+/*  ⚠️ 학회장: «매크로 경제 탭 차트만 배경을 #F8F9FB 로 하고 싶은데».
+    «학회 표준 색» 은 모두에게 적용되지만, 여기 «배경색» 은 <나만> 입니다.
+    예전엔 새로고침하면 사라져서 매번 다시 골라야 했습니다 — 이 브라우저에 남깁니다.  */
+var MBG_KEY = 'safe_macro_bg_v1';
+function macroBgSave(){ try { localStorage.setItem(MBG_KEY, JSON.stringify(macroBg)); } catch(e){} }
+function macroBgRestore(){
+  try {
+    var m = JSON.parse(localStorage.getItem(MBG_KEY) || 'null');
+    if (m && typeof m.on === 'boolean' && /^#[0-9a-fA-F]{6}$/.test(String(m.color || ''))){
+      macroBg.on = m.on; macroBg.color = m.color;
+      if ($('mgBg')) $('mgBg').checked = m.on;
+      if ($('mgBgColor')) $('mgBgColor').value = m.on ? m.color : ((theme && theme.bg) || '#ffffff');
+      if (typeof macroBgNote === 'function') macroBgNote();
+    }
+  } catch(e){}
+}
 
 /*  ⚠️ 색이 밝은지 어두운지는 <눈대중> 으로 정하면 안 됩니다. 순한 노랑
     (#ffff00) 은 «진한 색» 처럼 보여도 실제로는 흰색만큼 밝아서, 흰 글씨를
@@ -13202,7 +13266,7 @@ function macroTheme(){
 function setMacroBg(){
   if ($('mgBg'))      macroBg.on    = $('mgBg').checked;
   if ($('mgBgColor')) macroBg.color = $('mgBgColor').value;
-  macroBgNote();
+  macroBgNote(); macroBgSave();
   drawChart();
 }
 /*  ── 고른 배경에서 무엇이 안 보이는지 그 자리에서 말합니다 ──
@@ -13225,7 +13289,7 @@ function macroBgNote(){
   var bad = ac && contrastOf(bg, ac) < 3;
   if (bad) msg.push('<b>주석 색(' + esc(ac) + ')이 이 배경에서 잘 안 보입니다</b> — 주석 도구에서 색을 바꾸세요');
   box.innerHTML = msg.length ? msg.join(' · ')
-    : '나만 보입니다 (새로고침하면 사라집니다)';
+    : '나만 보입니다 (이 브라우저에 기억합니다 · 학회 표준 색은 안 바뀝니다)';
   box.classList.toggle('warn-ink', bad);
 }
 /*  ⚠️ 색을 고른 것은 <쓰겠다> 는 뜻입니다. 체크를 따로 누르게 해두면
@@ -13235,7 +13299,7 @@ function pickMacroBg(){
   if ($('mgBgColor')) macroBg.color = $('mgBgColor').value;
   macroBg.on = true;
   if ($('mgBg')) $('mgBg').checked = true;
-  macroBgNote();
+  macroBgNote(); macroBgSave();
   drawChart();
 }
 function resetMacroBg(){
@@ -13244,7 +13308,7 @@ function resetMacroBg(){
   //  ⚠️ 칸에는 <되돌아간 그 색> 을 보여줍니다. 고른 색이 남아 있으면
   //     «껐는데 왜 그 색이 그대로지» 가 됩니다.
   if ($('mgBgColor')) $('mgBgColor').value = (theme && theme.bg) || '#ffffff';
-  macroBgNote();
+  macroBgNote(); macroBgSave();
   drawChart();
 }
 
