@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAFE Terminal</title>
-<meta name="color-scheme" content="light dark">
+<meta name="color-scheme" content="light">
 <!--  밝기 모드 — 화면이 그려지기 <전에> 정합니다. 안 그러면 다크로 저장해 둔 사람에게
       새로고침마다 흰 화면이 한 번 번쩍입니다. 기본은 «기기 설정 따라감».       -->
 <script>
@@ -30,7 +30,16 @@
     --danger:#c62828; --danger-soft:#fce8e6;
   }
   /*  변수 몇 개는 뒤쪽 규칙이 var(--x, 기본값) 으로 쓰고 있어 여기서도 정해 둡니다  */
-  :root{ --bg-sub:#f1f3f8; --bg-soft:#f6f7fa; --card:#fff; --warn-text:#8a5a00; --warn-line:#f0d9ab; --accent-dark:#b26a00 }
+  /*  ⚠️ color-scheme 을 «light dark» 로 두면 OS 가 다크일 때 <화이트 화면인데 스크롤바·입력칸만 검게>
+      나옵니다 (실제로 그랬습니다). 화면 모드가 정하는 대로만 따라가게 합니다.                       */
+  :root{ --bg-sub:#f1f3f8; --bg-soft:#f6f7fa; --card:#fff; --warn-text:#8a5a00; --warn-line:#f0d9ab; --accent-dark:#b26a00; color-scheme:light }
+  /*  스크롤바 — 바탕에 묻히게 (가늘고, 손잡이만 테두리 색)  */
+  *{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+  ::-webkit-scrollbar-thumb:hover{background:var(--text-sub);background-clip:padding-box}
+  ::-webkit-scrollbar-corner{background:transparent}
   /*  ── 다크 모드 (10/4) ──────────────────────────────────────
       학회장: «밝기 모드도 화이트/다크 전환 가능했으면» · «기기 설정 따라감».
       색은 전부 변수라 여기 한 번만 바꾸면 화면 전체가 따라옵니다.
@@ -62,6 +71,26 @@
   :root[data-theme="dark"] .ai-card.risk.lo{background:rgba(217,164,65,.10)}
   :root[data-theme="dark"] .ann-t.on,:root[data-theme="dark"] #annBtn.on{background:#3d7fd6;border-color:#3d7fd6}
   :root[data-theme="dark"] .pie-wrap{background:linear-gradient(180deg,#1c2130 0%,#171b25 100%)}
+  /*  AI 보고서 — 다크 한 벌. 강세 = 민트(#5fd0aa) · 약세 = 연한 빨강(#f29084) · 주의 = 호박(#e3b95f) ·
+      강조 = 연한 남색(#b4c2ea). 밝은 바탕에서 쓰던 진한 색을 그대로 두면 바탕에 묻힙니다.          */
+  :root[data-theme="dark"] .ai-bull{border-left-color:#5fd0aa}
+  :root[data-theme="dark"] .ai-bear{border-left-color:#f29084}
+  :root[data-theme="dark"] .ai-card.ok{border-left-color:#5fd0aa}
+  :root[data-theme="dark"] .ai-card.risk{border-left-color:#f29084}
+  :root[data-theme="dark"] .ai-card.risk.lo{border-left-color:#e3b95f}
+  :root[data-theme="dark"] .ai-card p .ai-num,:root[data-theme="dark"] .ai-li span .ai-num{color:#b4c2ea}
+  :root[data-theme="dark"] .ai-hl{background:linear-gradient(transparent 58%, rgba(127,155,230,.38) 58%)}
+  :root[data-theme="dark"] .ai-vs.neg{background:rgba(239,107,94,.18);color:#f29084}
+  :root[data-theme="dark"] .ai-vs.odd{outline-color:#f29084}
+  :root[data-theme="dark"] .ai-verdict.neg{border-color:rgba(242,144,132,.55)}
+  :root[data-theme="dark"] .ai-verdict.pos{border-color:rgba(95,208,170,.55)}
+  :root[data-theme="dark"] .ai-sector{color:var(--scd,var(--sc,inherit))}
+  :root[data-theme="dark"] .vc-step.here,:root[data-theme="dark"] .vc-box.here{background:#26365f;border-color:#5b78c8;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+  :root[data-theme="dark"] .vc-step.here .pw,:root[data-theme="dark"] .vc-here{background:rgba(255,255,255,.14)}
+  :root[data-theme="dark"] .vc-up{border-color:#7a6230;background:rgba(227,185,95,.07)}
+  :root[data-theme="dark"] .vc-up-h{color:#e3b95f}
+  :root[data-theme="dark"] .ai-side{background:#1c2130}
+  :root[data-theme="dark"] .ai-call{background:#1f2740;border-color:#5b78c8}
   :root[data-theme="dark"] .pill.US{background:rgba(91,156,240,.16);color:#8fbcf6}
   :root[data-theme="dark"] .by-who{background:rgba(160,130,220,.18);color:#c9b3f0}
   :root[data-theme="dark"] .pf-k.good{background:rgba(92,192,138,.16);color:#6fd49a}
@@ -321,13 +350,13 @@
   .ai-bar{height:6px;background:var(--border);border-radius:999px;overflow:hidden}
   .ai-bar-in{height:100%;width:0;background:var(--primary);transition:width .3s}
   .ai-sec{margin-top:16px}
-  .ai-sec h3{font-size:.95rem;color:var(--primary);margin:0 0 10px;
+  .ai-sec h3{font-size:1.02rem;color:var(--primary);margin:0 0 10px;
              padding-bottom:6px;border-bottom:1px solid var(--border)}
   .ai-li{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
   .ai-li:last-child{border-bottom:0}
-  .ai-li b{flex:0 0 32%;font-size:12.5px;color:var(--text)}
-  .ai-li span{flex:1;font-size:12.5px;color:var(--text-sub);line-height:1.65}
-  .ai-n{display:block;font-size:11px;color:var(--primary);margin-top:2px}
+  .ai-li b{flex:0 0 32%;font-size:14px;color:var(--text)}
+  .ai-li span{flex:1;font-size:14px;color:var(--text-sub);line-height:1.7}
+  .ai-n{display:block;font-size:12px;color:var(--primary);margin-top:2px}
   .ai-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   /*  그리드 칸의 기본 min-width 는 auto 라, 안에 든 표 폭만큼 칸이 버팁니다.
       0 으로 풀어야 좁은 화면에서 화면 전체가 옆으로 밀리지 않습니다.  */
@@ -339,7 +368,7 @@
   .ai-side h4{font-size:.92rem;font-weight:700;color:var(--primary);margin:0 0 2px;
               display:flex;align-items:baseline;justify-content:space-between;gap:10px}
   .ai-side h4 b{font-size:1.05rem;font-variant-numeric:tabular-nums}
-  .ai-side table{min-width:0;font-size:12px}
+  .ai-side table{min-width:0;font-size:13px}
   .ai-side th,.ai-side td{padding:7px 9px}
   .ai-bull{border-left:3px solid #1f8a70}
   .ai-bear{border-left:3px solid #c0392b}
@@ -356,8 +385,8 @@
   .ai-card.risk.hi {border-left-width:4px}
   .ai-card.risk.lo {border-left-color:#d9a441;background:#fffdf6}
   .ai-card-h{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
-  .ai-card-h b{font-size:12.5px;color:var(--text);line-height:1.5}
-  .ai-card p{margin:5px 0 0;font-size:12.5px;color:var(--text-sub);line-height:1.7}
+  .ai-card-h b{font-size:14px;color:var(--text);line-height:1.5}
+  .ai-card p{margin:5px 0 0;font-size:14px;color:var(--text-sub);line-height:1.75}
   /*  ⚠️ 줄글 안에서 <핵심 구절> 과 <숫자> 를 다르게 보이게 합니다.
       회색 글씨가 죽 이어지면 눈이 잡을 데가 없습니다. 다만 너무 알록달록하면
       전부 강조라 아무것도 강조가 아니게 되므로, 굵기·색만 살짝 씁니다.
@@ -382,6 +411,8 @@
   .ai-vs{display:inline-block;margin-left:7px;font-size:11px;font-weight:600;
          padding:1px 6px;border-radius:999px;vertical-align:middle;
          background:rgba(31,138,112,.13);color:#1f8a70}
+  .ai-now{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;
+          background:var(--bg-sub);color:var(--text-sub);border:1px solid var(--border);vertical-align:middle;white-space:nowrap}
   .ai-vs.neg{background:rgba(192,57,43,.13);color:#c0392b}
   /*  앞뒤가 안 맞는 것(강세인데 아래·약세인데 위)은 테두리로 눈에 띄게  */
   .ai-vs.odd{outline:1.5px solid #c0392b;outline-offset:1px}
@@ -418,16 +449,16 @@
   .ai-ev{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
   /*  원문 인용 · 서버 계산식 · 판정 · 사실표 (AI 리포트)  */
   .ai-q{margin-top:6px;padding:5px 9px;border-left:3px solid var(--border);
-        font-size:11.5px;line-height:1.6;color:var(--text-sub);background:var(--bg);
+        font-size:12.5px;line-height:1.6;color:var(--text-sub);background:var(--bg);
         border-radius:0 5px 5px 0;overflow-wrap:anywhere}
-  .ai-calc{margin-top:4px;font-size:11px;line-height:1.55;color:var(--text-sub);
+  .ai-calc{margin-top:4px;font-size:12px;line-height:1.55;color:var(--text-sub);
            font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-  .ai-verdict{margin:0 0 12px;padding:9px 12px;border-radius:8px;font-size:13px;line-height:1.65;
+  .ai-verdict{margin:0 0 12px;padding:10px 13px;border-radius:8px;font-size:14px;line-height:1.7;
               background:var(--bg);border:1px solid var(--border)}
   .ai-verdict.neg{border-color:rgba(192,57,43,.35)}
   .ai-verdict.pos{border-color:rgba(31,138,112,.35)}
   .ai-fx summary{cursor:pointer;font-weight:600;font-size:13px}
-  .ai-fx td,.ai-fx th{font-size:12px}
+  .ai-fx td,.ai-fx th{font-size:13px}
   .ai-fx td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
   .ai-ev code{font-size:11px;font-variant-numeric:tabular-nums;
               background:var(--bg);border:1px solid var(--border);border-radius:5px;
@@ -441,11 +472,11 @@
   .ai-doc-d{flex:0 0 62px;font-size:11.5px;font-weight:700;color:var(--primary);
             font-variant-numeric:tabular-nums;padding-top:1px}
   .ai-doc-b{flex:1;min-width:0}
-  .ai-doc-b b{font-size:12.5px;color:var(--text)}
-  .ai-doc-b p{margin:3px 0 0;font-size:12.5px;color:var(--text-sub);line-height:1.7}
+  .ai-doc-b b{font-size:13.5px;color:var(--text)}
+  .ai-doc-b p{margin:3px 0 0;font-size:13.5px;color:var(--text-sub);line-height:1.7}
 
   /*  섹터 딱지 · 보관함 필터  */
-  .ai-sector{display:inline-block;font-size:10.5px;font-weight:700;
+  .ai-sector{display:inline-block;font-size:11.5px;font-weight:700;color:var(--sc,inherit);
              padding:2px 8px;border-radius:20px;white-space:nowrap}
   .ai-chips{display:flex;flex-wrap:wrap;gap:6px}
   .ai-chip{font-size:11.5px;padding:5px 11px;border-radius:20px;cursor:pointer;
@@ -468,9 +499,9 @@
   .vc-step{flex:1 1 0;min-width:132px;background:var(--white);
            border:1px solid var(--border);border-radius:10px;padding:10px 12px;
            position:relative;min-height:0;overflow:hidden}
-  .vc-step b{display:block;font-size:12.5px;font-weight:700;color:var(--text);
+  .vc-step b{display:block;font-size:13.5px;font-weight:700;color:var(--text);
              line-height:1.4;overflow-wrap:anywhere}
-  .vc-step .who{display:block;font-size:11px;color:var(--text-sub);margin-top:4px;
+  .vc-step .who{display:block;font-size:12px;color:var(--text-sub);margin-top:4px;
                 line-height:1.5;white-space:normal;overflow-wrap:anywhere;
                 word-break:break-word}
   .vc-step .pw{display:inline-block;font-size:10px;font-weight:700;margin-top:6px;
@@ -499,14 +530,14 @@
   .vc-up-list{display:flex;flex-wrap:wrap;gap:8px}
   .vc-box{flex:1 1 150px;min-width:0;background:var(--white);border:1px solid var(--border);
           border-radius:9px;padding:8px 11px;position:relative;overflow:hidden}
-  .vc-box b{display:block;font-size:12px;font-weight:700;color:var(--text);
+  .vc-box b{display:block;font-size:13px;font-weight:700;color:var(--text);
             overflow-wrap:anywhere}
-  .vc-box .who{display:block;font-size:10.5px;color:var(--text-sub);margin-top:3px;
+  .vc-box .who{display:block;font-size:11.5px;color:var(--text-sub);margin-top:3px;
                line-height:1.5;white-space:normal;overflow-wrap:anywhere;
                word-break:break-word}
   .vc-box.here{background:var(--primary);border-color:var(--primary)}
   .vc-box.here b, .vc-box.here .who{color:#fff;background:transparent}
-  .vc-note{font-size:11.5px;color:var(--text-sub);margin-top:10px;line-height:1.6}
+  .vc-note{font-size:12.5px;color:var(--text-sub);margin-top:10px;line-height:1.65}
   @media (max-width:1100px){
     /*  칸이 좁아지면 이름이 세 줄 네 줄이 됩니다. 억지로 한 줄에
         네 칸을 밀어넣지 말고 두 줄로 접습니다.                        */
@@ -4229,15 +4260,63 @@ function themeResolve(pref){ return pref === 'dark' || (pref !== 'light' && them
 function isDark(){ return document.documentElement.getAttribute('data-theme') === 'dark'; }
 
 /*  옵션을 훑으며 틀 색만 바꿉니다. data 는 건너뜁니다 (수천 점짜리 배열 — 틀 색이 없습니다).  */
-function themeMapColor(key, v, dark){
+/*  색의 밝기 (0~1). 못 읽는 모양이면 null.  */
+function themeLum(lc){
+  var m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/.exec(lc), r, g, b;
+  if (m){
+    var h = m[1].length === 3 ? m[1].replace(/(.)/g, '$1$1') : m[1];
+    r = parseInt(h.slice(0, 2), 16); g = parseInt(h.slice(2, 4), 16); b = parseInt(h.slice(4, 6), 16);
+  } else {
+    var n = /^rgba?\((\d+),(\d+),(\d+)/.exec(lc); if (!n) return null;
+    r = +n[1]; g = +n[2]; b = +n[3];
+  }
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
+function themeMapColor(key, v, dark, pkey){
   var lc = String(v).toLowerCase().replace(/\s+/g, '');
-  if (key === 'backgroundColor'){ var b = dark ? THEME_BG_D[lc] : THEME_BG_L[lc]; return b || v; }
+  if (key === 'backgroundColor'){
+    var b = dark ? THEME_BG_D[lc] : THEME_BG_L[lc];
+    if (b) return b;
+    //  표에 없는 밝은 배경(rgba(255,255,255,0.95) 같은 변형)도 밝기로 잡습니다
+    if (dark){ var L = themeLum(lc); if (L != null && L > 0.8) return lc.indexOf('rgba') === 0 ? 'rgba(30,35,48,.96)' : '#171b25'; }
+    return v;
+  }
   if (key === 'color' || key === 'borderColor' || key === 'textBorderColor'){
     var m = dark ? (THEME_TEXT_D[lc] || THEME_GRID_D[lc] || (key !== 'color' && THEME_BG_D[lc]))
                  : (THEME_TEXT_L[lc] || THEME_GRID_L[lc] || (key !== 'color' && THEME_BG_L[lc]));
-    return m || v;
+    if (m) return m;
+    /*  ⚠️ 이름표·제목 글자에 쓴 <진한 색> (빨강 #c0392b · 남색 #2c3e6b 같은 것) 은 어두운
+        바탕에서 안 읽힙니다. 글자 자리(label · textStyle)에 한해 밝게 띄웁니다 — 색상은
+        그대로 두고 밝기만 올립니다. 되돌릴 수 있게 원래 색을 기억해 둡니다.             */
+    if (key === 'color' && themeIsTextCtx(pkey)){
+      if (dark){ var br = themeBright(lc); if (br) return br; }
+      else if (THEME_BRIGHT_BACK[lc]) return THEME_BRIGHT_BACK[lc];
+    }
+    return v;
   }
   return v;
+}
+var THEME_TEXT_CTX = { label:1, textStyle:1, axisLabel:1, nameTextStyle:1, subtextStyle:1, pageTextStyle:1, rich:1, a:1, b:1 };
+function themeIsTextCtx(pkey){ return !!(pkey && THEME_TEXT_CTX[pkey]); }
+var THEME_BRIGHT_BACK = {};
+function themeBright(lc){
+  var m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/.exec(lc); if (!m) return null;
+  var h6 = m[1].length === 3 ? m[1].replace(/(.)/g, '$1$1') : m[1];
+  var r = parseInt(h6.slice(0, 2), 16) / 255, g = parseInt(h6.slice(2, 4), 16) / 255, b = parseInt(h6.slice(4, 6), 16) / 255;
+  var mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+  if (l >= 0.6) return null;                       //  이미 밝으면 그대로
+  var d = mx - mn, s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1)), hh = 0;
+  if (d !== 0){
+    if (mx === r) hh = ((g - b) / d) % 6; else if (mx === g) hh = (b - r) / d + 2; else hh = (r - g) / d + 4;
+    hh *= 60; if (hh < 0) hh += 360;
+  }
+  var L = 0.7, S = Math.min(s, 0.75);
+  var C = (1 - Math.abs(2 * L - 1)) * S, X = C * (1 - Math.abs((hh / 60) % 2 - 1)), mm = L - C / 2, rr, gg, bb;
+  if (hh < 60){ rr = C; gg = X; bb = 0; } else if (hh < 120){ rr = X; gg = C; bb = 0; } else if (hh < 180){ rr = 0; gg = C; bb = X; }
+  else if (hh < 240){ rr = 0; gg = X; bb = C; } else if (hh < 300){ rr = X; gg = 0; bb = C; } else { rr = C; gg = 0; bb = X; }
+  var hex = '#' + [rr, gg, bb].map(function(v){ var n = Math.round((v + mm) * 255); return (n < 16 ? '0' : '') + n.toString(16); }).join('');
+  if (!THEME_BRIGHT_BACK[hex]) THEME_BRIGHT_BACK[hex] = '#' + h6;
+  return hex;
 }
 /*  ⚠️ 옵션에 색을 <안 적은> 자리도 있습니다 — 그러면 ECharts 기본값(밝은 눈금선 #E0E6F1 ·
     회색 글씨 #6E7079 · 흰 툴팁)이 나와 어두운 바탕에서 안 보입니다. 다크일 때는 빈 자리에
@@ -4275,18 +4354,28 @@ function themeInject(out, key){
   }
   return out;
 }
-function themeWalk(o, key, dark){
+/*  data 배열은 보통 <자료> (수천 점) 라 건너뜁니다. 다만 markLine · markPoint · markArea 의
+    data 는 자료가 아니라 <선·이름표 설정> 이라 들어가야 합니다 — 봉차트의 «콜벽 $600» 이름표
+    배경이 다크에서도 흰색으로 남던 이유가 이것이었습니다. 자료 배열이라도 짧고(≤64)
+    원소가 설정 객체(label·itemStyle·lineStyle)면 들어갑니다.                              */
+function themeDataWalkable(arr, pkey){
+  if (pkey === 'markLine' || pkey === 'markPoint' || pkey === 'markArea') return true;
+  if (arr.length > 64) return false;
+  var f = arr[0];
+  return !!(f && typeof f === 'object' && !Array.isArray(f) && (f.label || f.itemStyle || f.lineStyle));
+}
+function themeWalk(o, key, dark, pkey){
   if (Array.isArray(o)){
-    if (key === 'data') return o;
-    return o.map(function(x){ return themeWalk(x, key, dark); });
+    if (key === 'data' && !themeDataWalkable(o, pkey)) return o;
+    return o.map(function(x){ return themeWalk(x, key, dark, pkey); });
   }
   if (o && typeof o === 'object'){
-    if (key === 'data') return o;
+    if (key === 'data' && pkey !== 'markLine' && pkey !== 'markPoint' && pkey !== 'markArea' && !(o.label || o.itemStyle || o.lineStyle)) return o;
     var out = {};
-    for (var k in o){ if (Object.prototype.hasOwnProperty.call(o, k)) out[k] = themeWalk(o[k], k, dark); }
+    for (var k in o){ if (Object.prototype.hasOwnProperty.call(o, k)) out[k] = themeWalk(o[k], k, dark, key); }
     return dark ? themeInject(out, key) : out;
   }
-  if (typeof o === 'string') return themeMapColor(key, o, dark);
+  if (typeof o === 'string') return themeMapColor(key, o, dark, pkey);
   return o;
 }
 function themeChartOpt(o, dom){
@@ -20790,7 +20879,9 @@ var AI_SECTOR_COLOR = {
 };
 function aiSectorChip(name){
   var c = AI_SECTOR_COLOR[name] || '#5a6278';
-  return '<span class="ai-sector" style="background:' + c + '18;color:' + c + '">'
+  //  다크에서는 같은 색상을 밝게 띄운 것으로 (CSS 가 --scd 를 고릅니다)
+  var cd = (typeof themeBright === 'function' && themeBright(c.toLowerCase())) || c;
+  return '<span class="ai-sector" style="background:' + c + '22;--sc:' + c + ';--scd:' + cd + '">'
        + esc(name || '미분류') + '</span>';
 }
 
@@ -22233,10 +22324,15 @@ function aiValTable(v, curDefault, px, side){
         var cur = aiStr(x.cur) || curDefault;
         var mcell;
         if (aiStr(x.calc)){
-          var mm = aiNum(x.multiple);
+          var mm = aiNum(x.multiple), nowM = aiNum(x.now_multiple);
+          /*  ⚠️ 학회장: «bull 이랑 bear 잘 계산되고 있는지». 모델이 고른 배수 옆에 <지금 시장이 주는
+              배수> (같은 기준) 를 서버가 세어 붙입니다. 강세가 지금보다 낮은 배수면 «디레이팅 가정» 표시.  */
           mcell = (aiStr(x.method) === 'DCF' || mm == null ? ''
                     : '<b>' + esc(aiTrim(num(mm, 2))) + '배</b> × ')
             + esc(aiStr(x.basis_lab)) + (aiStr(x.basis_val) ? ' <b>' + esc(aiStr(x.basis_val)) + '</b>' : '')
+            + (nowM != null ? ' <span class="ai-now" title="같은 기준값에 현재가(시가총액·EV)를 나눈 것 — 지금 시장이 주는 배수">지금 ' + esc(aiTrim(num(nowM, 2))) + '배</span>' : '')
+            + (x.derate ? ' <span class="ai-vs odd" title="강세인데 지금 배수보다 낮은 배수를 가정했습니다 — 목표가가 현재가 밑으로 나오는 이유">디레이팅 가정</span>' : '')
+            + (x.rerate ? ' <span class="ai-vs" title="약세인데 지금 배수보다 높은 배수를 가정했습니다">지금보다 높은 배수</span>' : '')
             + '<div class="ai-calc">' + esc(aiStr(x.calc)) + '</div>';
         } else mcell = aiBlank(x.multiple) ? '—' : aiRich(x.multiple);
         return '<tr><td><b>' + esc(aiStr(x.method) || '—') + '</b></td>'
@@ -22260,6 +22356,10 @@ function aiSideCard(side, v, cls, curDefault, px, which){
         ? '<p class="st-hint" style="margin:6px 0 0">목표가 = ' + esc(aiStr(v.target_how))
           + ' · 곱셈은 서버가 했습니다</p>' : '')
     + aiSec('밸류에이션 (기법 · 배수 근거 · 목표가)', aiValTable(v, curDefault, px, which))
+    + (v && v.pair_mismatch
+        ? '<div class="note warn" style="margin-top:8px">강세·약세가 <b>서로 다른 기법</b>으로 계산됐습니다 — 두 목표가의 차이를 '
+          + '전망 차이로 읽지 마세요 (기법 차이일 수 있습니다). 서버가 같은 기법 묶음을 두 번 요구했지만 모델이 못 맞췄습니다. '
+          + '<b>6·7번만 다시 만들기</b>를 눌러 보세요.</div>' : '')
     + aiPara(v && v.target_why)
     + aiTargetWarn(v, px, which)
     + '</div>';
