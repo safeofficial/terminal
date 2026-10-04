@@ -4707,10 +4707,133 @@ var EN_NAMES = {
   'fred|TOTCI|': 'C&I Loans', 'fred|DRCCLACBS|': 'Card Delinquency Rate', 'fred|DRSFRMACBS|': 'Mortgage Delinquency Rate',
   'fred|CP|': 'Corporate Profits', 'fred|IPB50001SQ|': 'Industrial Production (Q)', 'fred|CAPUTLB50001SQ|': 'Capacity Utilization (Q)'
 };
+
+/*  ── 목록에 없는 지표도 영문으로 (10/4) ─────────────────────────────────────
+    학회장: «영어 모드는 다 영어로 칭해야 되는 거 아닌가».
+    지표 목록(indicator_catalog)에 든 수백 개 이름은 전부 국문이라, 손으로 고른 영문 이름이
+    없는 것은 <용어 사전으로 자동 번역> 합니다 («일본 보유 (월간)» → «Japan Holdings (Monthly)»).
+    우선순위: ① 설정 › 지표 목록에 임원진이 적은 영문 이름(label_en)  ② 아래 EN_NAMES
+             ③ 자동 번역.  자동 번역이 어색하면 ① 에 적어 두면 그걸 씁니다.                 */
+var KO_EN = {
+  //  나라 · 기관
+  '미국': 'US', '한국': 'Korea', '일본': 'Japan', '중국': 'China', '유로존': 'Eurozone', '유럽': 'Europe', '독일': 'Germany', '영국': 'UK',
+  '대만': 'Taiwan', '인도': 'India', '베트남': 'Vietnam', '호주': 'Australia', '캐나다': 'Canada', '브라질': 'Brazil', '멕시코': 'Mexico',
+  '신흥국': 'EM', '선진국': 'DM', '글로벌': 'Global', '세계': 'World', '전세계': 'Global', '해외': 'Overseas', '국내': 'Domestic',
+  '미시간대': 'UMich', '미시건대': 'UMich', '컨퍼런스보드': 'Conference Board', '연준': 'Fed', '연방준비제도': 'Fed', '한국은행': 'BOK', '한은': 'BOK', '일본은행': 'BOJ', '유럽중앙은행': 'ECB', '영란은행': 'BOE', '인민은행': 'PBOC',
+  '재무부': 'Treasury', '기획재정부': 'MOEF', '통계청': 'KOSTAT', '관세청': 'Customs', '뉴욕 연은': 'NY Fed', '뉴욕연은': 'NY Fed',
+  '필라델피아 연은': 'Philly Fed', '애틀랜타 연은': 'Atlanta Fed', '시카고 연은': 'Chicago Fed', '댈러스 연은': 'Dallas Fed', '리치먼드 연은': 'Richmond Fed',
+  '캔자스시티 연은': 'KC Fed', '세인트루이스 연은': 'St. Louis Fed', '연은': 'Fed',
+  //  물가
+  '소비자물가지수': 'CPI', '소비자물가': 'CPI', '생산자물가지수': 'PPI', '생산자물가': 'PPI', '근원': 'Core', '헤드라인': 'Headline',
+  '기대인플레이션': 'Inflation Expectations', '인플레이션': 'Inflation', '물가상승률': 'Inflation', '물가': 'Prices', '수입물가': 'Import Prices',
+  '수출물가': 'Export Prices', '주거비': 'Shelter', '임대료': 'Rent', '에너지': 'Energy', '식품': 'Food', '식료품': 'Food', '서비스': 'Services',
+  '상품': 'Goods', '재화': 'Goods', '개인소비지출': 'PCE', '물가연동': 'Inflation-linked', '물가연동채': 'TIPS',
+  //  고용
+  '비농업': 'Nonfarm', '고용자수': 'Payrolls', '고용률': 'Employment Rate', '취업자': 'Employment', '취업자수': 'Employment', '고용': 'Employment',
+  '실업률': 'Unemployment Rate', '실업자': 'Unemployed', '실업': 'Unemployment', '광의': 'Broad', '신규 실업수당 청구': 'Initial Claims',
+  '계속 실업수당 청구': 'Continuing Claims', '실업수당': 'Jobless Claims', '청구': 'Claims', '구인건수': 'Job Openings', '구인': 'Job Openings',
+  '자발적 퇴직률': 'Quits Rate', '퇴직률': 'Quits Rate', '퇴직': 'Quits', '해고': 'Layoffs', '채용': 'Hires', '경제활동참가율': 'Participation Rate',
+  '경제활동인구': 'Labor Force', '평균 시급': 'Avg. Hourly Earnings', '시간당 평균임금': 'Avg. Hourly Earnings', '시급': 'Hourly Earnings', '임금': 'Wages',
+  '근로시간': 'Hours Worked', '주당': 'Weekly', '고용비용지수': 'ECI', '노동생산성': 'Productivity', '생산성': 'Productivity', '단위노동비용': 'Unit Labor Cost',
+  '노동': 'Labor', '민간': 'Private', '정부': 'Government', '공공': 'Public',
+  //  생산 · 경기
+  '산업생산': 'Industrial Production', '제조업 생산': 'Manufacturing Output', '제조업': 'Manufacturing', '비제조업': 'Non-Mfg', '설비가동률': 'Capacity Utilization',
+  '가동률': 'Capacity Utilization', '내구재': 'Durable Goods', '자본재': 'Capital Goods', '핵심 자본재': 'Core Capital Goods', '수주잔고': 'Unfilled Orders',
+  '미충족 주문': 'Unfilled Orders', '신규주문': 'New Orders', '주문': 'Orders', '재고/판매': 'Inventories/Sales', '재고': 'Inventories', '출하': 'Shipments',
+  '판매': 'Sales', '소매판매': 'Retail Sales', '소매': 'Retail', '도매': 'Wholesale', '경기선행지수': 'Leading Index', '선행지수': 'Leading Index',
+  '동행지수': 'Coincident Index', '후행지수': 'Lagging Index', '경기': 'Business', '기업심리': 'Business Sentiment', '기업경기': 'Business Conditions',
+  '소비자심리': 'Consumer Sentiment', '소비자신뢰': 'Consumer Confidence', '소비심리': 'Consumer Sentiment', '심리지수': 'Sentiment', '서베이': 'Survey', '조사': 'Survey',
+  '제조업지수': 'Mfg. Index', '구매관리자지수': 'PMI', '국내총생산': 'GDP', '경제성장률': 'GDP Growth', '성장률': 'Growth', '잠재성장률': 'Potential Growth',
+  '설비투자': 'Capex', '건설투자': 'Construction Investment', '투자': 'Investment', '건설': 'Construction', '수출': 'Exports', '수입': 'Imports',
+  '무역수지': 'Trade Balance', '경상수지': 'Current Account', '외환보유액': 'FX Reserves', '반도체': 'Semiconductor', '자동차': 'Auto', '조선': 'Shipbuilding',
+  '철강': 'Steel', '화학': 'Chemicals', '석유': 'Petroleum', '정유': 'Refining', '전자': 'Electronics', '기계': 'Machinery', '물동량': 'Freight', '운임': 'Freight Rates',
+  '컨테이너': 'Container', '벌크': 'Dry Bulk', '항공': 'Air', '해운': 'Shipping',
+  //  주택
+  '주택착공': 'Housing Starts', '착공': 'Starts', '건축허가': 'Building Permits', '허가': 'Permits', '기존주택': 'Existing Home', '신규주택': 'New Home',
+  '주택판매': 'Home Sales', '주택가격': 'Home Prices', '집값': 'Home Prices', '주택': 'Housing', '모기지': 'Mortgage', '아파트': 'Apartment', '전세': 'Jeonse',
+  '매매가격': 'Prices', '부동산': 'Real Estate',
+  //  금리 · 채권
+  '국고채': 'KTB', '국채': 'Treasury', '회사채': 'Corporate Bond', '하이일드': 'High Yield', '투자등급': 'IG', '정크': 'HY', '스프레드': 'Spread',
+  '장단기': 'Term', '장기': 'Long-term', '단기': 'Short-term', '만기': 'Maturity', '기준금리': 'Policy Rate', '정책금리': 'Policy Rate',
+  '실효 연방기금금리': 'EFFR', '연방기금금리': 'Fed Funds Rate', '연방기금': 'Fed Funds', '콜금리': 'Call Rate', '금리차': 'Spread', '금리': 'Rate',
+  '수익률': 'Yield', '실질금리': 'Real Yield', '실질': 'Real', '명목': 'Nominal', '기간프리미엄': 'Term Premium', '역전': 'Inversion', '통화량': 'Money Supply',
+  '본원통화': 'Monetary Base', '총유동성': 'Liquidity', '유동성': 'Liquidity', '대차대조표': 'Balance Sheet', '자산': 'Assets', '부채': 'Debt',
+  '총자산': 'Total Assets', '기업': 'Business', '가격': 'Price', '당': 'per', '지급준비금': 'Reserves', '역레포': 'Reverse Repo', '레포': 'Repo', '단기자금': 'Money Market', '기업어음': 'CP', '양도성예금증서': 'CD', '예금': 'Deposits',
+  '대출': 'Loans', '신용': 'Credit', '연체율': 'Delinquency Rate', '연체': 'Delinquency', '대출태도': 'Lending Standards', '보유': 'Holdings', '보유량': 'Holdings',
+  '발행': 'Issuance', '잔액': 'Outstanding', '순매수': 'Net Buying', '순매도': 'Net Selling', '외국인': 'Foreign', '기관': 'Institutional', '개인': 'Retail',
+  //  환율 · 원자재 · 주식
+  '환율': 'FX', '달러인덱스': 'Dollar Index', '달러 지수': 'Dollar Index', '달러': 'USD', '원화': 'KRW', '위안': 'CNY', '엔화': 'JPY', '엔': 'JPY', '유로': 'EUR',
+  '파운드': 'GBP', '유가': 'Oil', '브렌트': 'Brent', '두바이유': 'Dubai Crude', '천연가스': 'Natural Gas', '금': 'Gold', '은': 'Silver', '구리': 'Copper',
+  '원자재': 'Commodities', '곡물': 'Grains', '밀': 'Wheat', '옥수수': 'Corn', '대두': 'Soybeans', '철광석': 'Iron Ore', '주가': 'Stock Price', '주가지수': 'Equity Index',
+  '코스피': 'KOSPI', '코스닥': 'KOSDAQ', '나스닥': 'Nasdaq', '다우': 'Dow', '변동성': 'Volatility', '변동성지수': 'VIX', '시가총액': 'Market Cap', '배당': 'Dividend',
+  //  소득 · 소비 · 재정
+  '개인소득': 'Personal Income', '가처분소득': 'Disposable Income', '소득': 'Income', '개인소비': 'Consumer Spending', '소비지출': 'Spending', '소비': 'Consumption',
+  '저축률': 'Saving Rate', '저축': 'Savings', '가계부채': 'Household Debt', '가계': 'Household', '신용카드': 'Credit Card', '소비자신용': 'Consumer Credit',
+  '재정수지': 'Fiscal Balance', '재정': 'Fiscal', '적자': 'Deficit', '흑자': 'Surplus', '세수': 'Tax Revenue', '국가부채': 'Government Debt', '정부부채': 'Government Debt',
+  '지출': 'Spending', '이전지출': 'Transfers',
+  //  수식어 · 단위 · 주기
+  '계절조정': 'SA', '원계열': 'NSA', '전년비': 'YoY', '전년동월비': 'YoY', '전년동기비': 'YoY', '전월비': 'MoM', '전기비': 'QoQ', '전주비': 'WoW', '연율': 'Annualized',
+  '연환산': 'Annualized', '증가율': 'Growth', '상승률': 'Change', '하락률': 'Decline', '변동률': 'Change', '증감': 'Change', '변화': 'Change', '차이': 'Diff', '격차': 'Gap',
+  '비율': 'Ratio', '비중': 'Share', '지수': 'Index', '총지수': 'Headline', '총': 'Total', '전체': 'Total', '합계': 'Total', '평균': 'Avg.', '중앙값': 'Median',
+  '월간': 'Monthly', '주간': 'Weekly', '일간': 'Daily', '일별': 'Daily', '분기': 'Quarterly', '연간': 'Annual', '월평균': 'Monthly Avg.', '월말': 'Month-end',
+  '최종수요': 'Final Demand', '제외': 'ex', '포함': 'incl.', '대비': 'vs', '기준': '', '추정': 'Est.', '예상': 'Forecast', '전망': 'Outlook', '잠정': 'Prelim.',
+  '확정': 'Final', '속보': 'Advance', '수정': 'Revised', '신규': 'New', '계속': 'Continuing', '누적': 'Cumulative', '순': 'Net', '명': '', '건': '', '세': '',
+  '백만달러': '$M', '십억달러': '$B', '억달러': '$100M', '조달러': '$T', '백만': 'M', '십억': 'B', '천': 'K', '억원': 'KRW 100M', '조원': 'KRW T', '십억원': 'KRW B',
+  '달러/배럴': '$/bbl', '배럴': 'bbl', '온스': 'oz', '톤': 'ton', '포인트': 'pt', '퍼센트': '%', '퍼센트포인트': 'pp',
+  //  그 밖에 이름에 자주 나오는 말
+  '지표': 'Indicator', '종합': 'Composite', '지역': 'Regional', '전국': 'National', '수도권': 'Seoul Metro', '서울': 'Seoul', '시장금리': 'Market Rate',
+  '시장': 'Market', '예금은행': 'Banks', '은행': 'Bank', '증권': 'Securities', '보험': 'Insurance', '펀드': 'Fund', '채권': 'Bond', '주식': 'Equity',
+  '현물': 'Spot', '선물': 'Futures', '옵션': 'Options', '거래량': 'Volume', '거래대금': 'Turnover', '매출액': 'Sales', '매출': 'Revenue', '영업이익': 'Operating Profit',
+  '순이익': 'Net Income', '이익': 'Profit', '마진': 'Margin', '수익': 'Earnings', '인구': 'Population', '출생': 'Births', '고령': 'Elderly', '청년': 'Youth',
+  '전력': 'Electricity', '발전': 'Power Generation', '소비량': 'Consumption', '생산량': 'Output', '생산': 'Production', '수요': 'Demand', '공급': 'Supply',
+  '운송': 'Transport', '여행': 'Travel', '관광': 'Tourism', '입국': 'Arrivals', '카드': 'Card', '승인': 'Approvals', '백화점': 'Department Store',
+  '온라인': 'Online', '항만': 'Port', '수출입': 'Trade', '선박': 'Vessels', '수주': 'Orders', '운임지수': 'Freight Index', '통화': 'Currency',
+  '협의통화': 'M1', '광의통화': 'M2', '총통화': 'M2', '금융': 'Financial', '경제': 'Economic', '심리': 'Sentiment', '종목': 'Stocks', '거래': 'Trading',
+  '목록': 'List', '없는': 'n/a', '기타': 'Other', '합성': 'Composite', '가중': 'Weighted', '실적': 'Actual', '잔고': 'Balance', '계정': 'Account'
+};
+var KO_EN_KEYS = Object.keys(KO_EN).sort(function(a, b){ return b.length - a.length; });
+var KO_EN_RE = new RegExp(KO_EN_KEYS.map(function(k){ return k.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&'); }).join('|'), 'g');
+function koToEn(label){
+  var t = String(label == null ? '' : label);
+  if (!/[가-힣]/.test(t)) return t;
+  //  숫자 + 기간: 10년 → 10Y · 3개월 → 3M · 2주 → 2W · 25~54세 → 25-54
+  t = t.replace(/(\d+)\s*년물?/g, '$1Y').replace(/(\d+)\s*개월물?/g, '$1M').replace(/(\d+)\s*주일?(?![가-힣])/g, '$1W')
+       .replace(/(\d+)\s*~\s*(\d+)\s*세/g, '$1-$2').replace(/(\d+)\s*세/g, '$1');
+  //  «온스당 달러» → «달러 per 온스» (X당 Y = Y per X)
+  t = t.replace(/([^\s()]+)당\s+([^\s()]+)/g, '$2 per $1');
+  //  «1달러 = 위안» 같은 환율 설명은 통째로
+  t = t.replace(/\(1\s*달러\s*=\s*([가-힣]+)[^)]*\)/g, function(_, cur){ return '(USD/' + (KO_EN[cur] || cur) + ')'; })
+       .replace(/\(1\s*([가-힣]+)\s*=\s*달러[^)]*\)/g, function(_, cur){ return '(' + (KO_EN[cur] || cur) + '/USD)'; });
+  t = t.replace(KO_EN_RE, function(m){ var e = KO_EN[m]; return e == null ? m : (' ' + e + ' '); });
+  //  남은 조사·접미사는 떼어냅니다 (에·의·별·용·분·치·량 …)
+  t = t.replace(/\s*(의|별|용|치|분|량|률|수|액|가)\s(?=[A-Za-z(])/g, ' ');
+  t = t.replace(/\s(에|의|을|를|이|가|은|는|와|과|로|으로|에서|부터|까지)\s/g, ' ').replace(/\s및\s/g, ' & ').replace(/\s등\s?/g, ' etc. ').replace(/\s중\s/g, ' of ');
+  t = t.replace(/\s+/g, ' ').replace(/\(\s+/g, '(').replace(/\s+\)/g, ')').replace(/\s+,/g, ',').replace(/\s+·\s+/g, ' · ').replace(/\s*\/\s*/g, '/').trim();
+  //  «Auto ex» → «ex Auto» · «US CPI (CPI)» → «US CPI» · «USD/CNY FX (USD/CNY)» → «USD/CNY»
+  t = t.replace(/\b([A-Za-z][\w.\/]*) ex\b/g, 'ex $1').replace(/\b([\w.\/]+) \(\1\)/g, '$1').replace(/^([A-Z]{3}\/[A-Z]{3}) FX \(\1\)$/, '$1');
+  //  단어 첫 글자 대문자 (vs · ex · of · incl. 같은 작은 말은 그대로)
+  t = t.replace(/(^|[\s(·/])([a-z])(?=[a-z]*)/g, function(all, pre, ch, off, str){
+    var word = str.slice(off + pre.length).match(/^[a-z.]+/); var w = word ? word[0] : '';
+    if (/^(vs|ex|of|incl\.|per|and|to|in|on|by)$/.test(w)) return all;
+    return pre + ch.toUpperCase();
+  });
+  return t;
+}
+
 function enKey(src, code, item){ return String(src || '') + '|' + String(code || '') + '|' + String(item == null ? '' : item); }
-function enName(src, code, item){ return EN_NAMES[enKey(src, code, item)] || null; }
-/*  화면에 적을 이름 — 영문 모드면 영문 짧은 이름, 없으면 국문 그대로  */
-function indName(src, code, item, ko){ var e = isEn() ? enName(src, code, item) : null; return e || ko; }
+var catEn = {};          //  key → 임원진이 설정 › 지표 목록에 적은 영문 이름 (label_en)
+function enName(src, code, item, ko){
+  var k = enKey(src, code, item);
+  if (catEn[k]) return catEn[k];
+  if (EN_NAMES[k]) return EN_NAMES[k];
+  if (ko == null && typeof catalog !== 'undefined' && catalog){
+    var c = catalog.filter(function(x){ return enKey(x.source, x.code, x.item_code) === k; })[0];
+    ko = c ? c.label : null;
+  }
+  return ko ? koToEn(ko) : null;
+}
+/*  화면에 적을 이름 — 영문 모드면 영문(손으로 적은 것 → 사전 → 자동 번역), 국문 모드면 국문  */
+function indName(src, code, item, ko){ var e = isEn() ? enName(src, code, item, ko) : null; return e || ko; }
 var UNIT_EN = { '%': '%', '%p': 'pp', '천명': 'K', '건': '', '천건': 'K', '지수': 'Index', '달러/배럴': '$/bbl', '백만달러': '$M',
                 '십억달러': '$B', '달러/시간': '$/hr', '배': 'x', '시간': 'hrs', '원': 'KRW', '달러': 'USD', '억원': 'KRW 100M',
                 '십억원': 'KRW B', '백만': 'M', '천': 'K', '명': '', '포인트': 'pt', 'p': 'pt', '가격(100)': 'Price (100)' };
@@ -4732,10 +4855,12 @@ function applyLang(quiet){
   //  큰 차트의 선 이름 — 국문·영문을 둘 다 들고 있다가 바꿔 끼웁니다
   if (typeof series !== 'undefined' && series) series.forEach(function(s){
     if (s.label_ko == null) s.label_ko = s.label;
-    var e = enName(s.source, s.code, s.item_code);
+    var e = enName(s.source, s.code, s.item_code, s.label_ko);
     s.label_en = e; s.label = (isEn() && e) ? e : s.label_ko;
   });
   if (typeof renderSeriesList === 'function' && $('seriesList')) renderSeriesList();
+  if (typeof renderCatalogSel === 'function' && $('catalogSel')) renderCatalogSel();
+  if (typeof dtFillParents === 'function' && $('dtParent')) dtFillParents();
   if (typeof drawChart === 'function' && typeof chart !== 'undefined' && chart) drawChart();
   if (typeof renderMacroTeam === 'function' && $('mtmGrid')) renderMacroTeam();
   if (typeof mbOpen !== 'undefined' && mbOpen) mbDraw();
@@ -5292,7 +5417,7 @@ function renderCatalogSel(){
       ⚠️ 시계열 지표와 <같은 그림에> 겹칠 수는 없습니다. 가로축이
       «날짜» 와 «만기» 로 서로 다릅니다. 겹쳐 그리면 둘 다 거짓말이
       됩니다. 그래서 커브를 고르면 차트를 <넘겨받습니다>. */
-  var ycOpt = '<option value="' + YC_ID + '">★★★  미국 일드커브 (만기별 곡선)</option>';
+  var ycOpt = '<option value="' + YC_ID + '">★★★  ' + T('미국 일드커브 (만기별 곡선)', 'US Yield Curve (by maturity)') + '</option>';
   var ycShow = (!catCat || catCat === YC_CAT);
   var ycPut = false;
   Object.keys(byCat).forEach(function(cat){
@@ -5304,7 +5429,7 @@ function renderCatalogSel(){
     if (ycShow && cat === YC_CAT){ html += ycOpt; ycPut = true; }
     g.forEach(function(c){
       html += '<option value="' + c.id + '">'
-            + starTxt(starOf(c)) + '  ' + esc(c.label)
+            + starTxt(starOf(c)) + '  ' + esc(indName(c.source, c.code, c.item_code, c.label))
             + (c.unit ? ' (' + esc(c.unit) + ')' : '') + '</option>';
     });
     html += '</optgroup>';
@@ -5333,6 +5458,8 @@ async function loadCatalog(){
   var r = await sb.from('indicator_catalog').select('*').order('sort_order');
   if (r.error) { warn('researchWarn','지표 목록을 불러오지 못했습니다. terminal-phase2.sql 을 실행했는지 확인하세요.'); return; }
   catalog = r.data || [];
+  catEn = {};
+  catalog.forEach(function(c){ if (c.label_en && String(c.label_en).trim()) catEn[enKey(c.source, c.code, c.item_code)] = String(c.label_en).trim(); });
   renderCatalogSel();
   renderBundles();
   dtFillParents();
@@ -5400,7 +5527,7 @@ function dtFillParents(){
   var opts = catalog.filter(function(c){ return c.source === 'fred' || c.source === 'ecos'; })
     .map(function(c){
       return '<option value="' + esc(String(c.id)) + '">'
-           + esc(c.label) + ' (' + esc(c.source.toUpperCase()) + ')</option>';
+           + esc(indName(c.source, c.code, c.item_code, c.label)) + ' (' + esc(c.source.toUpperCase()) + ')</option>';
     }).join('');
   sel.innerHTML = opts || '<option value="">등록된 지표가 없습니다</option>';
   if (keep) sel.value = keep;
@@ -12350,7 +12477,7 @@ function addSeries(s){
   warn('researchWarn','');
   s.key = key;
   //  국문·영문 이름을 둘 다 들고 있습니다 — 머리의 «한/EN» 으로 바꿔 끼웁니다
-  s.label_ko = s.label; s.label_en = enName(s.source, s.code, s.item_code);
+  s.label_ko = s.label; s.label_en = enName(s.source, s.code, s.item_code, s.label);
   if (isEn() && s.label_en) s.label = s.label_en;
   s.color = freeColor(series);
   //  단위가 같은 지표끼리 축을 나눠 씁니다 — 그래야 하나가 평평해지지 않습니다.
@@ -27859,10 +27986,32 @@ function renderIndicatorTable(){
           +   '<input type="text" value="' + esc(c.description || '') + '"'
           +     ' placeholder="이 지표가 무엇을 재는지 한 줄로 (화면에서 고르면 여기 뜹니다)"'
           +     ' style="width:100%" onchange="setIndicatorDesc(' + c.id + ',this.value)">'
-          + '</td></tr>';
+          + '</td></tr>'
+          /*  영문 이름 — 비워 두면 EN 모드에서 사전·자동 번역이 쓰입니다 (placeholder 가 그 값).
+              어색하면 여기 적어 두면 그걸 씁니다 (terminal-영문이름.sql 로 칸을 먼저 만들어야 합니다). */
+          + '<tr class="ic-desc"><td></td><td colspan="6"><div style="display:flex;gap:6px;align-items:center">'
+          +   '<span class="st-hint" style="flex:none">EN</span>'
+          +   '<input type="text" value="' + esc(c.label_en || '') + '"'
+          +     ' placeholder="' + esc('영문 이름 · 비우면 → ' + (EN_NAMES[enKey(c.source, c.code, c.item_code)] || koToEn(c.label))) + '"'
+          +     ' style="flex:1" onchange="setIndicatorEn(' + c.id + ',this.value)">'
+          + '</div></td></tr>';
       }).join('') + '</tbody>';
 }
 
+/*  임원진이 영문 이름을 적습니다 — EN 모드에서 이 이름이 먼저입니다.          */
+async function setIndicatorEn(id, v){
+  var t = String(v || '').trim().slice(0, 80);
+  var r = await sb.from('indicator_catalog').update({ label_en: t || null }).eq('id', id);
+  if (r.error){
+    alert(/label_en/.test(String(r.error.message || '')) ? 'terminal-영문이름.sql 을 먼저 실행해야 영문 이름 칸이 생깁니다.' : errMsg(r.error));
+    return;
+  }
+  var c = catalog.filter(function(x){ return Number(x.id) === Number(id); })[0];
+  if (c) c.label_en = t || null;
+  var k = c ? enKey(c.source, c.code, c.item_code) : null;
+  if (k){ if (t) catEn[k] = t; else delete catEn[k]; }
+  if (isEn()) applyLang();
+}
 /*  임원진이 지표 설명을 고칩니다.                                     */
 async function setIndicatorDesc(id, v){
   var t = String(v || '').trim().slice(0, 300);
