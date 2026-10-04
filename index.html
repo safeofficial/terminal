@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAFE Terminal</title>
+<meta name="color-scheme" content="light dark">
+<!--  밝기 모드 — 화면이 그려지기 <전에> 정합니다. 안 그러면 다크로 저장해 둔 사람에게
+      새로고침마다 흰 화면이 한 번 번쩍입니다. 기본은 «기기 설정 따라감».       -->
+<script>
+(function(){
+  var pref = 'auto';
+  try { pref = localStorage.getItem('safe_theme_v1') || 'auto'; } catch(e){}
+  var dark = pref === 'dark' || (pref !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <!--  ⚠️ 주석 글꼴용. 발표 자료에 넣을 때 학회 서식과 맞추려고 고를 수 있게 합니다. -->
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
@@ -18,6 +29,42 @@
     --warn:#f57f17; --warn-soft:#fff8e1;
     --danger:#c62828; --danger-soft:#fce8e6;
   }
+  /*  변수 몇 개는 뒤쪽 규칙이 var(--x, 기본값) 으로 쓰고 있어 여기서도 정해 둡니다  */
+  :root{ --bg-sub:#f1f3f8; --bg-soft:#f6f7fa; --card:#fff; --warn-text:#8a5a00; --warn-line:#f0d9ab; --accent-dark:#b26a00 }
+  /*  ── 다크 모드 (10/4) ──────────────────────────────────────
+      학회장: «밝기 모드도 화이트/다크 전환 가능했으면» · «기기 설정 따라감».
+      색은 전부 변수라 여기 한 번만 바꾸면 화면 전체가 따라옵니다.
+      ⚠️ 매크로 경제 큰 차트(와 상세 항목 차트)는 다크에서도 <학회 표준 색> 그대로입니다 —
+         발표 자료로 뽑는 그림이라, 화면 모드에 따라 색이 바뀌면 안 됩니다.      */
+  :root[data-theme="dark"]{
+    --bg:#0f121a; --white:#171b25;
+    --primary:#7f9ae6; --primary-light:#9db2ee; --accent:#7f9be6; --accent-soft:#1f2740;
+    --text:#e4e8f1; --text-sub:#9aa3b8; --border:#2a3144;
+    --up:#ef6b5e; --down:#5b9cf0;
+    --ok:#5cc08a; --ok-soft:#14301f;
+    --warn:#f5a623; --warn-soft:#352a12;
+    --danger:#ef5350; --danger-soft:#3a1a1a;
+    --bg-sub:#1c2130; --bg-soft:#1c2130; --card:#171b25; --warn-text:#f0c27a; --warn-line:#5a4420; --accent-dark:#f0c27a;
+    color-scheme:dark;
+  }
+  :root[data-theme="dark"] header.top{background:rgba(23,27,37,.96)}
+  :root[data-theme="dark"] .login-card,:root[data-theme="dark"] .deny-card{box-shadow:0 12px 40px rgba(0,0,0,.35)}
+  :root[data-theme="dark"] .mode-seg button.on{box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  :root[data-theme="dark"] .mtm-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.35)}
+  /*  글자색을 직접 적어둔 딱지들 — 어두운 바탕에 맞는 색으로  */
+  :root[data-theme="dark"] .by-tag.manual,:root[data-theme="dark"] .sym-tag.etf,:root[data-theme="dark"] .pf-k.balance{background:#262d3d;color:#aab2c4}
+  :root[data-theme="dark"] .sym-tag.lev,:root[data-theme="dark"] .ai-sev.hi,:root[data-theme="dark"] .ai-tone.dn,
+  :root[data-theme="dark"] .kind-tag.put,:root[data-theme="dark"] .pill.KR,:root[data-theme="dark"] .vc-step .pw.hi{background:rgba(239,107,94,.16);color:#f29084}
+  :root[data-theme="dark"] .ai-tone.up,:root[data-theme="dark"] .kind-tag.call{background:rgba(92,192,138,.16);color:#6fd49a}
+  :root[data-theme="dark"] .sym-tag.scan,:root[data-theme="dark"] .by-tag.auto{background:rgba(127,155,230,.18);color:#a9bdf4}
+  :root[data-theme="dark"] .ai-card.ok{background:rgba(31,138,112,.10)}
+  :root[data-theme="dark"] .ai-card.risk{background:rgba(192,57,43,.10)}
+  :root[data-theme="dark"] .ai-card.risk.lo{background:rgba(217,164,65,.10)}
+  :root[data-theme="dark"] .ann-t.on,:root[data-theme="dark"] #annBtn.on{background:#3d7fd6;border-color:#3d7fd6}
+  /*  헤더의 밝기 단추  */
+  .theme-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--white);cursor:pointer;
+    font-size:16px;line-height:1;display:inline-flex;align-items:center;justify-content:center;color:var(--text);transition:all .15s}
+  .theme-btn:hover{border-color:var(--primary);background:var(--accent-soft)}
   body{font-family:'Inter','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);
     line-height:1.6;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
   .hidden{display:none !important}
@@ -85,7 +132,51 @@
     cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
   .tab:hover{color:var(--primary)}
   .tab.on{color:var(--primary);border-bottom-color:var(--primary)}
+  /*  하위 탭 — 상단 탭 바로 아래 한 줄 (모의투자: 팀/개인 · 분석: 산업/기업/AI/파생/자금 · 매크로: 팀별)  */
+  .subtabs{background:var(--bg);border-bottom:1px solid var(--border)}
+  .subtabs-in{max-width:1560px;margin:0 auto;padding:6px 24px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .subtabs-in::-webkit-scrollbar{display:none}
+  .subtab{padding:6px 13px;border:1px solid transparent;background:none;border-radius:999px;font-size:13px;font-weight:600;
+    color:var(--text-sub);cursor:pointer;white-space:nowrap;transition:all .15s}
+  .subtab:hover{color:var(--primary);background:var(--accent-soft)}
+  .subtab.on{color:#fff;background:var(--primary);border-color:var(--primary)}
 
+  .md-kind{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.3px;padding:1px 6px;border-radius:5px;
+    background:var(--accent-soft);color:var(--primary);margin-right:7px;vertical-align:1px}
+
+  /*  팀별 핵심 지표 카드 (매크로 경제)  */
+  .mtm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:10px}
+  .mtm-card{position:relative;border:1px solid var(--border);border-radius:11px;padding:11px 12px 9px;background:var(--white);
+    display:flex;flex-direction:column;gap:4px;min-height:132px;transition:border-color .15s,box-shadow .15s}
+  .mtm-card:hover{border-color:var(--accent);box-shadow:0 4px 14px rgba(44,62,107,.08)}
+  .mtm-card.stale{border-style:dashed}
+  .mtm-card.err{border-color:var(--danger-soft);background:var(--danger-soft)}
+  .mtm-h{display:flex;align-items:flex-start;gap:6px;font-size:12.5px;font-weight:700;color:var(--text);line-height:1.3;min-height:2.6em}
+  .mtm-h .mtm-star{font-size:10px;color:var(--warn);letter-spacing:-1px;flex:none;margin-top:2px}
+  .mtm-h .mtm-cy{margin-left:auto;flex:none;font-size:10px;font-weight:600;color:var(--text-sub);background:var(--bg);
+    border:1px solid var(--border);border-radius:5px;padding:0 5px;line-height:16px}
+  .mtm-big{display:flex;align-items:baseline;gap:6px;margin-top:2px}
+  .mtm-big b{font-size:22px;font-weight:800;letter-spacing:-.3px;line-height:1.1;font-variant-numeric:tabular-nums}
+  .mtm-big span{font-size:11px;color:var(--text-sub)}
+  .mtm-sub{font-size:11px;color:var(--text-sub);line-height:1.5;font-variant-numeric:tabular-nums}
+  .mtm-sub .up{color:var(--up)} .mtm-sub .down{color:var(--down)}
+  .mtm-spark{height:30px;width:100%;display:block;margin:2px 0 0}
+  .mtm-f{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--text-sub);margin-top:auto;padding-top:4px;
+    border-top:1px dashed var(--border)}
+  .mtm-f .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mtm-f button{font-size:10.5px;padding:2px 7px;border-radius:6px;border:1px solid var(--border);background:var(--white);
+    color:var(--primary);cursor:pointer;flex:none}
+  .mtm-f button:hover{background:var(--accent-soft)}
+  .mtm-badge{display:inline-block;font-size:9.5px;font-weight:700;padding:0 5px;border-radius:4px;line-height:15px;flex:none}
+  .mtm-badge.stale{background:var(--warn-soft);color:var(--warn)}
+  .mtm-badge.new{background:var(--ok-soft);color:var(--ok)}
+  .mtm-badge.soon{background:var(--accent-soft);color:var(--primary)}
+  .mtm-wait{color:var(--text-sub);font-size:11.5px;padding:18px 0;text-align:center}
+  .mtm-grid>*{min-width:0}
+  .mtm-h>span:not(.mtm-star):not(.mtm-cy){min-width:0;overflow-wrap:anywhere}
+  .mtm-big{flex-wrap:wrap}
+  @media (max-width:640px){ .mtm-grid{grid-template-columns:repeat(2,1fr);gap:8px} .mtm-big b{font-size:19px} }
+  @media (max-width:420px){ .mtm-grid{grid-template-columns:1fr} }
   main{max-width:1560px;margin:0 auto;padding:30px 24px 80px}
   .page-head{margin-bottom:22px}
   .page-head h1{font-size:1.45rem;font-weight:700;color:var(--primary);margin-bottom:5px}
@@ -1179,25 +1270,25 @@
       </div>
       <div class="who">
         <div class="who-chip"><span class="badge" id="whoBadge">임원진</span><span class="nm" id="whoName">—</span></div>
+        <button class="theme-btn" id="themeBtn" type="button" onclick="themeCycle()" title="밝기 모드">🌓</button>
         <button class="btn-ghost" onclick="doLogout()">로그아웃</button>
       </div>
     </div>
   </header>
 
+  <!--  ⚠️ 학회장 (10/4): «탭이 많다 — 홈 · 매크로 경제 · 모의투자 · 분석 · 자료실 · 설정(임원만)».
+        상단은 여섯 개, 그 아래 작은 줄(하위 탭)로 나눕니다. 화면 상자(pane-*)는 그대로라
+        데이터·함수는 손대지 않습니다 — showTab 이 «어느 묶음의 어느 칸인지» 만 더 압니다. -->
   <nav class="tabs">
     <div class="tabs-in">
-      <button class="tab on" data-tab="home" onclick="showTab('home')">홈</button>
-      <button class="tab" data-tab="research" onclick="showTab('research')">매크로 경제</button>
-      <button class="tab" data-tab="trading" onclick="showTab('trading')">모의투자</button>
-      <button class="tab" data-tab="solo" onclick="showTab('solo')">개인 대회</button>
-      <button class="tab" data-tab="company" onclick="showTab('company')">기업 분석</button>
-      <button class="tab" data-tab="ai" onclick="showTab('ai')">AI 분석</button>
-      <button class="tab" data-tab="deriv" onclick="showTab('deriv')">파생상품</button>
-      <button class="tab" data-tab="flow" onclick="showTab('flow')">자금 흐름</button>
-      <button class="tab" data-tab="links" onclick="showTab('links')">자료실</button>
-      <button class="tab hidden" id="tabAccess" data-tab="access" onclick="showTab('access')">접속 기록</button>
-      <button class="tab hidden" id="tabAdmin" data-tab="admin" onclick="showTab('admin')">설정</button>
+      <button class="tab on" data-tab="home" data-group="home" onclick="showTab('home')">홈</button>
+      <button class="tab" data-tab="research" data-group="macro" onclick="showGroup('macro')">매크로 경제</button>
+      <button class="tab" data-tab="trading" data-group="invest" onclick="showGroup('invest')">모의투자</button>
+      <button class="tab" data-tab="industry" data-group="analysis" onclick="showGroup('analysis')">분석</button>
+      <button class="tab" data-tab="links" data-group="links" onclick="showTab('links')">자료실</button>
+      <button class="tab hidden" id="tabAdmin" data-tab="admin" data-group="admin" onclick="showTab('admin')">설정</button>
     </div>
+    <div class="subtabs hidden" id="subTabs"><div class="subtabs-in" id="subTabsIn"></div></div>
   </nav>
 
   <main>
@@ -1341,12 +1432,13 @@
             <input type="text" id="mdNote" class="grow" placeholder="설명 (선택)">
           </div>
           <div class="row">
-            <input type="file" id="mdFile" accept="application/pdf,.pdf" class="grow">
+            <input type="file" id="mdFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.hwp,.hwpx,.xls,.xlsx" class="grow">
             <button class="btn-sm btn-solid" id="mdUpBtn" onclick="mdUpload()">올리기</button>
           </div>
           <div class="msg" id="mdMsg"></div>
           <p style="font-size:11px;color:var(--text-sub);margin:6px 0 0;line-height:1.6">
-            PDF 만 · 한 개 25MB 까지. 올린 자료는 활동 기수 학회원만 볼 수 있습니다.
+            PDF · 워드(doc/docx) · PPT(ppt/pptx) · 한글(hwp/hwpx) · 엑셀(xls/xlsx) · 한 개 25MB 까지.
+            올린 자료는 활동 기수 학회원만 볼 수 있습니다. PDF 는 브라우저에서 바로 열리고, 나머지는 내려받아 엽니다.
           </p>
         </div>
 
@@ -1362,6 +1454,27 @@
         <p>여러 지표를 한 차트에 겹쳐 보고, 학회 표준 색으로 그린 뒤 JPG와 CSV로 내보냅니다.</p>
       </div>
       <div id="researchWarn"></div>
+
+      <!--  ── 팀별 핵심 지표 (10/4) ──────────────────────────────
+            학회장: «인플레이션·고용·제조업·채권과 금리 4개 탭으로 나눠서 각 팀에
+            중요한 지표들만» · «모든 지표들을 모든 섹션이 엑세스 할 수 있는데
+            각 팀 탭에 중요한 지표들이 좀 하이라이트 된거지».
+            팀 탭은 <거름망이 아니라 이정표> 입니다 — 위에 그 팀 지표가 카드로
+            서고, 아래 «지표 추가» 목록은 전부 그대로 남습니다.               -->
+      <div class="card" id="macroTeamCard">
+        <h2>
+          <span id="mtmTitle">팀 핵심 지표</span>
+          <span class="st-hint" id="mtmSub" style="font-weight:400;margin-left:8px"></span>
+          <span class="tools">
+            <button class="btn-sm btn-solid" onclick="macroTeamToChart(false)" title="이 팀의 대표 지표(최대 6개)를 아래 차트에 한 번에 올립니다">핵심 묶음 차트에</button>
+            <button class="btn-sm" onclick="macroTeamCsv()" title="카드의 숫자(최신값·전기비·전년비·기준일·다음 발표)를 CSV 로">CSV</button>
+            <button class="btn-sm" onclick="macroTeamRefresh()" title="이 브라우저에 남겨둔 요약을 버리고 다시 받습니다">새로 받기</button>
+          </span>
+        </h2>
+        <div id="mtmGrid" class="mtm-grid"></div>
+        <div id="mtmNote" class="st-hint" style="margin-top:8px"></div>
+      </div>
+
       <div class="grid2">
         <div>
           <div class="card">
@@ -3432,15 +3545,6 @@
     </div>
 
     <!-- ════ 접속 기록 ════ -->
-    <div id="pane-access" class="hidden">
-      <div class="page-head">
-        <h1>접속 기록</h1>
-        <p>누가 언제 터미널에 들어왔는지 확인합니다. IP나 위치는 저장하지 않습니다.</p>
-      </div>
-      <div class="note"><b>부원들에게 미리 알려주세요.</b> 학회원 개개인의 활동을 임원진이 보는 기능입니다.</div>
-      <div id="accessBody"><div class="empty">불러오는 중…</div></div>
-    </div>
-
     <!-- ════ 설정 ════ -->
     <div id="pane-admin" class="hidden">
 
@@ -3457,6 +3561,7 @@
           <button id="adSeg-ai" class="" onclick="adTab('ai')">AI</button>
           <button id="adSeg-who" class="" onclick="adTab('who')">학회원</button>
           <button id="adSeg-etc" class="" onclick="adTab('etc')">자료</button>
+          <button id="adSeg-access" class="" onclick="adTab('access')">접속 기록</button>
         </div>
 
         <div id="adPane-mt">
@@ -3872,7 +3977,81 @@
         <div class="scroll" style="margin-top:8px"><table id="icTable"></table></div>
       </div>
         </div>
+        <!--  ⚠️ 접속 기록은 설정 안으로 (10/4) — 임원만 보는 칸끼리 한 자리에 -->
+        <div id="adPane-access" class="hidden">
+<div class="page-head">
+        <h2 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">접속 기록</h2>
+        <p>누가 언제 터미널에 들어왔는지 확인합니다. IP나 위치는 저장하지 않습니다.</p>
       </div>
+      <div class="note"><b>부원들에게 미리 알려주세요.</b> 학회원 개개인의 활동을 임원진이 보는 기능입니다.</div>
+      <div id="accessBody"><div class="empty">불러오는 중…</div></div>
+        </div>
+      </div>
+
+    <!-- ════ 분석 › 산업분석 (10/4 신설) ════ -->
+    <div id="pane-industry" class="hidden">
+      <div class="page-head">
+        <h1>산업분석</h1>
+        <p>섹터 모니터 · 병목 모니터 — 어느 산업에 돈이 몰리고, 어디서 공급이 수요를 못 따라가는지.</p>
+      </div>
+      <div id="indWarn"></div>
+
+      <!--  ── 섹터 모니터 ────────────────────────────────────────
+            섹터 ETF 의 기간별 수익률을 벤치마크(SPY · KODEX 200)와 나란히.
+            «어디에 돈이 몰리나» 를 한 표로 봅니다.                       -->
+      <div class="card" id="secCard">
+        <h2>섹터 모니터
+          <span class="st-hint" style="font-weight:400;margin-left:8px" id="secSub">섹터 ETF 수익률 · 벤치마크 대비</span>
+          <span class="tools">
+            <button class="btn-sm" onclick="secCsv()">CSV</button>
+            <button class="btn-sm" onclick="secRefresh()" title="이 브라우저에 남겨둔 시세 요약을 버리고 다시 받습니다">새로 받기</button>
+          </span>
+        </h2>
+        <div class="row" style="gap:10px;flex-wrap:wrap;align-items:center">
+          <div class="mode-seg" id="secMkt" style="margin:0;flex:none">
+            <button id="secMkt-us" class="on" onclick="secSet('mkt','us')">🇺🇸 미국 섹터</button>
+            <button id="secMkt-usi" onclick="secSet('mkt','usi')">🇺🇸 산업 ETF</button>
+            <button id="secMkt-kr" onclick="secSet('mkt','kr')">🇰🇷 한국 섹터</button>
+          </div>
+          <span class="st-hint" style="flex:none">정렬·막대</span>
+          <div class="nf-chips" id="secPeriods"></div>
+          <span class="st-hint grow" id="secNote"></span>
+        </div>
+        <div id="secChart" style="height:250px;margin-top:6px"></div>
+        <div class="scroll" style="margin-top:8px"><table id="secTable"></table></div>
+        <p class="st-hint" style="margin:8px 0 0;line-height:1.6">
+          수익률은 <b>종가 기준</b> (배당 제외) · «벤치 대비» 는 그 기간 수익률에서 벤치마크 수익률을 뺀 것(%p) ·
+          «52주 고점» 은 최근 1년 최고 종가 대비 지금 자리 · 추세선은 최근 3개월.
+          국내 섹터는 KODEX 섹터 ETF 로 봅니다 — 섹터 지수 그 자체는 아니지만 거의 같이 움직입니다.
+        </p>
+      </div>
+
+      <!--  ── 병목 모니터 ────────────────────────────────────────
+            학회장: «병목 현상 진행되고 있는 산업이나 산업 분석들을 할 수 있는
+            지표나 분석들이 있으면 좋을 거 같은데».
+            «공급이 수요를 못 따라가는 곳» 은 네 군데에서 티가 납니다 —
+            가동률(공장이 꽉 참) · 수주잔고(못 만든 주문이 쌓임) · 재고/판매(재고가
+            바닥남) · 생산자물가(값이 뜀) · 그리고 구인(사람이 모자람) · 물동량.
+            지표마다 <2015년부터 지금까지 어디쯤인가> (백분위) 를 재고, 산업별로
+            평균 내서 «병목 점수» 를 냅니다.                                  -->
+      <div class="card" id="bnCard">
+        <h2>병목 모니터
+          <span class="st-hint" style="font-weight:400;margin-left:8px">어디서 공급이 수요를 못 따라가나 — 2015년 이후 역사 위치(백분위)</span>
+          <span class="tools">
+            <button class="btn-sm" onclick="bnCsv()">CSV</button>
+            <button class="btn-sm" onclick="bnRefresh()">새로 받기</button>
+          </span>
+        </h2>
+        <div class="note info" style="margin-bottom:10px;line-height:1.65">
+          <b>읽는 법</b> — 점수 <b>70 이상</b>이면 그 산업은 지금 <b>빡빡</b>합니다(가동률·수주잔고·물가가 역사 상단, 재고는 바닥).
+          <b>30 이하</b>면 <b>느슨</b>합니다(설비가 놀고 재고가 쌓임). 병목인 산업은 가격 결정력이 생기고(관련 기업 마진↑),
+          풀리는 산업은 가격 경쟁이 시작됩니다. 점수는 «지금 값이 2015년 이후 자료 중 몇 번째인가» 라서, 역사 평균이 바뀐 지표(예: 구조적으로 가동률이 낮아진 업종)는 조심해서 읽으세요.
+        </div>
+        <div id="bnChart" style="height:320px"></div>
+        <div id="bnNote" class="st-hint" style="margin:4px 0 8px"></div>
+        <div id="bnTable"></div>
+      </div>
+    </div>
   </main>
 
   <!--  ── 라이브 뉴스 (우하단 서랍) ──────────────────────────
@@ -3982,7 +4161,10 @@
           var keep = !c.__axNoKeep;
           var snap = keep ? axZoomSnap(c) : null;
           c.__axNoKeep = false;
-          var r = _set.call(c, (typeof ensureAxisZoom === 'function') ? ensureAxisZoom(o) : o, a, b);
+          var oo = (typeof ensureAxisZoom === 'function') ? ensureAxisZoom(o) : o;
+          //  다크 모드면 틀 색(배경·축 글씨·눈금선)만 바꿔 넣습니다 (themeChartOpt)
+          if (typeof themeChartOpt === 'function') oo = themeChartOpt(oo, dom);
+          var r = _set.call(c, oo, a, b);
           if (snap && snap.length) axZoomApply(c, snap);
           return r;
         };
@@ -3999,6 +4181,163 @@
     보이는 게 아니라 <사이가> 넓어 보입니다.
 
     화면에서 조절할 수 있게 두되, 값은 한 군데(BARW)에 모아둡니다.  */
+/* ══════════ 밝기 모드 — 화이트 · 다크 · 기기 설정 (10/4) ══════════
+
+   학회장: «밝기 모드도 화이트/다크 전환 가능했으면 좋겠어» · 기본은 «기기 설정 따라감».
+
+     · 헤더의 단추를 누르면 화이트 → 다크 → 기기 설정 → 화이트 … 로 돕니다. 고른 것은
+       이 브라우저에 남습니다 (safe_theme_v1). 기기 설정을 따를 때는 OS 가 바뀌면 같이 바뀝니다.
+     · 화면 색은 CSS 변수라 data-theme 하나로 통째로 바뀝니다 (<head> 의 작은 스크립트가
+       그리기 전에 먼저 정해서, 다크로 둔 사람에게 흰 화면이 번쩍이지 않습니다).
+     · 차트(ECharts)는 색을 옵션에 직접 적어 두는 물건이라 CSS 가 못 건드립니다. 그래서
+       setOption 을 지나는 길목(echarts.init 감싸기)에서 <틀 색만> 바꿔 줍니다 — 배경·축 글씨·
+       눈금선·툴팁. 선·막대 색(자료 색)은 그대로입니다.
+     · 되돌릴 수 있어야 합니다 — 다크로 바꾼 틀 색은 화이트로 돌아갈 때 원래 색으로 되돌립니다.
+       (그래서 다크 쪽 색은 이 파일 어디에도 안 쓰는 값으로 골랐습니다)
+
+   ⚠️ 매크로 경제 큰 차트 · 상세 항목 차트는 <학회 표준 색> 을 지킵니다. 발표 자료로 뽑는
+      그림이라, 화면 모드에 따라 색이 바뀌면 같은 자료가 사람마다 다르게 나옵니다.
+      다크에서는 그 차트만 흰 종이처럼 보입니다 — 의도한 것입니다.                         */
+var THEME_KEY = 'safe_theme_v1';
+var THEME_NO_DARK = { chartBox:1, dtChartBox:1, dtBarBox:1 };
+//  틀 색 — 화이트 → 다크 (글자 · 눈금선 · 배경). 되돌리기는 거꾸로.
+var THEME_TEXT_D = { '#5a6278':'#9aa3b8', '#77809a':'#9aa3b8', '#8a93a8':'#9aa3b8', '#8b93a7':'#9aa3b8', '#8a94ad':'#9aa3b8',
+                     '#a7b0c2':'#8f98ad', '#a9b3c6':'#8f98ad', '#2c3e6b':'#b4c2ea', '#3d52a0':'#b4c2ea', '#1a1f36':'#e4e8f1', '#1a2b4c':'#e4e8f1' };
+var THEME_GRID_D = { '#e8ecf4':'#2a3144', '#eef1f6':'#2a3144', '#eef1f7':'#2a3144', '#e2e6f0':'#2a3144', '#c8d0e0':'#2a3144',
+                     '#c3cad8':'#2a3144', '#c9d2e6':'#2a3144', '#f1f3f8':'#2a3144', '#e0e4ee':'#2a3144', '#e0e6f1':'#2a3144', '#6e7079':'#9aa3b8' };
+var THEME_BG_D   = { '#fff':'#171b25', '#ffffff':'#171b25', '#f8f9fb':'#171b25', '#f6f7fa':'#171b25', '#fafbfd':'#171b25',
+                     'rgba(255,255,255,.96)':'rgba(30,35,48,.96)', 'rgba(255,255,255,.92)':'rgba(30,35,48,.96)',
+                     'rgba(255,255,255,.82)':'rgba(30,35,48,.88)', 'rgba(255,255,255,0.96)':'rgba(30,35,48,.96)' };
+var THEME_TEXT_L = {}, THEME_GRID_L = {}, THEME_BG_L = {};
+Object.keys(THEME_TEXT_D).forEach(function(k){ if (!THEME_TEXT_L[THEME_TEXT_D[k]]) THEME_TEXT_L[THEME_TEXT_D[k]] = k; });
+Object.keys(THEME_GRID_D).forEach(function(k){ if (!THEME_GRID_L[THEME_GRID_D[k]]) THEME_GRID_L[THEME_GRID_D[k]] = k; });
+Object.keys(THEME_BG_D).forEach(function(k){ if (!THEME_BG_L[THEME_BG_D[k]]) THEME_BG_L[THEME_BG_D[k]] = k; });
+
+function themePref(){ try { return localStorage.getItem(THEME_KEY) || 'auto'; } catch(e){ return 'auto'; } }
+function themeOsDark(){ return !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
+function themeResolve(pref){ return pref === 'dark' || (pref !== 'light' && themeOsDark()) ? 'dark' : 'light'; }
+function isDark(){ return document.documentElement.getAttribute('data-theme') === 'dark'; }
+
+/*  옵션을 훑으며 틀 색만 바꿉니다. data 는 건너뜁니다 (수천 점짜리 배열 — 틀 색이 없습니다).  */
+function themeMapColor(key, v, dark){
+  var lc = String(v).toLowerCase().replace(/\s+/g, '');
+  if (key === 'backgroundColor'){ var b = dark ? THEME_BG_D[lc] : THEME_BG_L[lc]; return b || v; }
+  if (key === 'color' || key === 'borderColor' || key === 'textBorderColor'){
+    var m = dark ? (THEME_TEXT_D[lc] || THEME_GRID_D[lc] || (key !== 'color' && THEME_BG_D[lc]))
+                 : (THEME_TEXT_L[lc] || THEME_GRID_L[lc] || (key !== 'color' && THEME_BG_L[lc]));
+    return m || v;
+  }
+  return v;
+}
+/*  ⚠️ 옵션에 색을 <안 적은> 자리도 있습니다 — 그러면 ECharts 기본값(밝은 눈금선 #E0E6F1 ·
+    회색 글씨 #6E7079 · 흰 툴팁)이 나와 어두운 바탕에서 안 보입니다. 다크일 때는 빈 자리에
+    다크 틀 색을 채워 넣습니다. 화이트로 돌아갈 때는 그 색이 화이트 틀 색으로 바뀝니다
+    (ECharts 기본값과 거의 같은 색이라 티가 안 납니다).                                  */
+function themeInject(out, key){
+  var set = function(obj, path, val){
+    var cur = obj;
+    for (var i = 0; i < path.length - 1; i++){
+      if (cur[path[i]] == null || typeof cur[path[i]] !== 'object') cur[path[i]] = {};
+      cur = cur[path[i]];
+    }
+    if (cur[path[path.length - 1]] == null) cur[path[path.length - 1]] = val;
+  };
+  if (key === 'xAxis' || key === 'yAxis' || key === 'radiusAxis' || key === 'angleAxis'){
+    set(out, ['axisLabel', 'color'], '#9aa3b8');
+    set(out, ['nameTextStyle', 'color'], '#9aa3b8');
+    set(out, ['splitLine', 'lineStyle', 'color'], '#2a3144');
+    set(out, ['axisLine', 'lineStyle', 'color'], '#2a3144');
+  } else if (key === 'legend'){
+    set(out, ['textStyle', 'color'], '#9aa3b8');
+    set(out, ['pageTextStyle', 'color'], '#9aa3b8');
+  } else if (key === 'tooltip'){
+    set(out, ['backgroundColor'], 'rgba(30,35,48,.96)');
+    set(out, ['borderColor'], '#2a3144');
+    set(out, ['textStyle', 'color'], '#e4e8f1');
+  } else if (key === 'title'){
+    set(out, ['textStyle', 'color'], '#e4e8f1');
+    set(out, ['subtextStyle', 'color'], '#9aa3b8');
+  } else if (key === 'dataZoom'){
+    set(out, ['textStyle', 'color'], '#9aa3b8');
+  } else if (key === 'series'){
+    //  막대 위 숫자 같은 글씨 — 기본값이 검정이라 어두운 바탕에서 안 보입니다
+    if (out.label && out.label.show && out.label.color == null && out.label.position !== 'inside') out.label.color = '#e4e8f1';
+  }
+  return out;
+}
+function themeWalk(o, key, dark){
+  if (Array.isArray(o)){
+    if (key === 'data') return o;
+    return o.map(function(x){ return themeWalk(x, key, dark); });
+  }
+  if (o && typeof o === 'object'){
+    if (key === 'data') return o;
+    var out = {};
+    for (var k in o){ if (Object.prototype.hasOwnProperty.call(o, k)) out[k] = themeWalk(o[k], k, dark); }
+    return dark ? themeInject(out, key) : out;
+  }
+  if (typeof o === 'string') return themeMapColor(key, o, dark);
+  return o;
+}
+function themeChartOpt(o, dom){
+  if (!o || typeof o !== 'object') return o;
+  var id = dom && dom.id;
+  if (id && THEME_NO_DARK[id]) return o;
+  return themeWalk(o, '', isDark());
+}
+
+function themeIcon(pref){ return pref === 'dark' ? '🌙' : pref === 'light' ? '☀️' : '🌓'; }
+function themeTitle(pref){
+  return pref === 'dark' ? '다크 모드 (누르면 기기 설정 따라감)'
+       : pref === 'light' ? '화이트 모드 (누르면 다크)'
+       : '기기 설정 따라감 — 지금 ' + (themeResolve('auto') === 'dark' ? '다크' : '화이트') + ' (누르면 화이트로 고정)';
+}
+function applyTheme(pref, redraw){
+  var mode = themeResolve(pref);
+  var was = document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', mode);
+  var b = $('themeBtn');
+  if (b){ b.textContent = themeIcon(pref); b.title = themeTitle(pref); b.setAttribute('aria-label', b.title); }
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta){ meta = document.createElement('meta'); meta.name = 'theme-color'; document.head.appendChild(meta); }
+  meta.content = mode === 'dark' ? '#171b25' : '#ffffff';
+  if (redraw && was !== mode) themeRedrawCharts();
+}
+/*  이미 그려둔 차트에 새 틀 색을 입힙니다 — 들고 있는 옵션을 꺼내 같은 길목으로 다시 넣습니다.
+    매크로 큰 차트(THEME_NO_DARK)는 안 건드립니다.                                             */
+function themeRedrawCharts(){
+  if (typeof echarts === 'undefined') return;
+  var seen = [];
+  var push = function(c){ if (c && seen.indexOf(c) < 0) seen.push(c); };
+  (typeof CHART_BOXES !== 'undefined' ? CHART_BOXES : []).forEach(function(id){ var el = $(id); if (el) push(echarts.getInstanceByDom(el)); });
+  document.querySelectorAll('[_echarts_instance_]').forEach(function(el){ push(echarts.getInstanceByDom(el)); });
+  seen.forEach(function(c){
+    try {
+      var dom = c.getDom && c.getDom();
+      if (!dom || THEME_NO_DARK[dom.id]) return;
+      var o = c.getOption();
+      if (!o) return;
+      c.setOption(o, true);
+    } catch(e){ /* 한 차트가 안 바뀌어도 나머지는 바뀝니다 */ }
+  });
+}
+function themeCycle(){
+  var cur = themePref();
+  var next = cur === 'light' ? 'dark' : cur === 'dark' ? 'auto' : 'light';
+  try { localStorage.setItem(THEME_KEY, next); } catch(e){}
+  applyTheme(next, true);
+}
+(function(){
+  //  기기 설정을 따르는 중에 OS 가 바뀌면 같이 바뀝니다
+  try {
+    var mq = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
+    if (mq && mq.addEventListener) mq.addEventListener('change', function(){ if (themePref() === 'auto') applyTheme('auto', true); });
+  } catch(e){}
+  //  단추 모양 맞추기 (화면은 <head> 에서 이미 정해졌습니다)
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ applyTheme(themePref(), false); });
+  else applyTheme(themePref(), false);
+})();
+
 var BARW = { pct: 60 };
 function barW(){ return Math.max(10, Math.min(100, Number(BARW.pct) || 60)) + '%'; }
 
@@ -4226,7 +4565,6 @@ async function enterApp(){
   $('whoBadge').className = 'badge' + (off ? '' : ' mem');
   $('whoName').textContent = me.name || me.student_id || '';
   document.querySelectorAll('.admin-only').forEach(function(el){ el.classList.toggle('hidden', !off); });
-  $('tabAccess').classList.toggle('hidden', !off);
   $('tabAdmin').classList.toggle('hidden', !off);
   $('tDate').value = today();
   await loadTheme();
@@ -4248,14 +4586,57 @@ async function enterApp(){
     ⚠️ 다만 <이미 그 탭에 있을 때만> 처음으로 되돌립니다. 다른 탭에서
        넘어온 것까지 되돌리면, 팀 방을 보다가 잠깐 홈 갔다 온 사람이
        방을 잃습니다.                                                */
+/*  ── 탭 묶음 (10/4) ────────────────────────────────────────
+    상단 탭 하나가 화면 여러 개를 품습니다. «어느 묶음의 어느 칸» 을 여기서 정합니다.
+    예전 이름(showTab('solo') 등)은 그대로 동작합니다 — 북마클릿·시험이 그 이름을 씁니다.  */
+var TAB_GROUPS = {
+  //  매크로 경제의 하위 탭은 <화면이 하나> 이고 팀만 바뀝니다 (pane 하나 · 팀 키)
+  macro:    { pane:'research', tabs: [['infl','인플레이션'], ['jobs','고용'], ['mfg','제조업'], ['rates','채권·금리']] },
+  invest:   { tabs: [['trading','팀 대회'], ['solo','개인 대회']] },
+  analysis: { tabs: [['industry','산업분석'], ['company','기업분석'], ['ai','AI 분석'], ['deriv','파생상품'], ['flow','자금흐름']] }
+};
+var TAB_GROUP_OF = { research:'macro', trading:'invest', solo:'invest', industry:'analysis', company:'analysis', ai:'analysis', deriv:'analysis', flow:'analysis' };
+var SUB_KEY = 'safe_subtab_v1';
+function groupOf(name){ return TAB_GROUP_OF[name] || name; }
+//  상단 묶음을 누르면 <마지막에 보던 칸> 으로 (처음엔 첫 칸)
+function showGroup(g){
+  var grp = TAB_GROUPS[g]; if (!grp) return showTab(g);
+  if (grp.pane) return showTab(grp.pane);
+  var last = null;
+  try { last = JSON.parse(localStorage.getItem(SUB_KEY) || '{}')[g]; } catch(e){}
+  var ok = grp.tabs.some(function(t){ return t[0] === last; });
+  showTab(ok ? last : grp.tabs[0][0]);
+}
+function renderSubTabs(name){
+  var g = groupOf(name), grp = TAB_GROUPS[g], bar = $('subTabs'), box = $('subTabsIn');
+  if (!bar || !box) return;
+  if (!grp){ bar.classList.add('hidden'); box.innerHTML = ''; return; }
+  //  매크로 경제: 팀 키가 «켜진 칸» 이고, 누르면 화면은 그대로 두고 팀만 바꿉니다
+  var cur = grp.pane ? (typeof macroTeam !== 'undefined' ? macroTeam : grp.tabs[0][0]) : name;
+  box.innerHTML = grp.tabs.map(function(t){
+    var go = grp.pane ? "setMacroTeam('" + t[0] + "')" : "showTab('" + t[0] + "')";
+    return '<button type="button" class="subtab' + (t[0] === cur ? ' on' : '') + '" data-sub="' + t[0] + '" onclick="' + go + '">' + esc(t[1]) + '</button>';
+  }).join('');
+  bar.classList.remove('hidden');
+  if (grp.pane) return;
+  try { var m = JSON.parse(localStorage.getItem(SUB_KEY) || '{}'); m[g] = name; localStorage.setItem(SUB_KEY, JSON.stringify(m)); } catch(e){}
+}
+var curTab = 'home';
+var ALL_PANES = ['home','research','trading','solo','industry','company','ai','deriv','flow','links','admin'];
 function showTab(name){
+  //  예전 «접속 기록» 탭 이름 → 설정 안의 칸
+  if (name === 'access'){ adForce = 'access'; name = 'admin'; }
+  if (ALL_PANES.indexOf(name) < 0) name = 'home';
   var same = document.querySelector('.tab.on');
-  var again = !!same && same.dataset.tab === name;
+  var again = !!same && same.dataset.group === groupOf(name) && (typeof curTab === 'undefined' || curTab === name);
+  curTab = name;
 
-  ['home','research','trading','solo','company','ai','deriv','flow','links','access','admin'].forEach(function(t){
+  ALL_PANES.forEach(function(t){
     var p = $('pane-'+t); if (p) p.classList.toggle('hidden', t !== name);
   });
-  document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('on', b.dataset.tab === name); });
+  var g = groupOf(name);
+  document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('on', b.dataset.group === g); });
+  renderSubTabs(name);
 
   /*  ⚠️ 되돌리기와 «맨 위로» 를 <먼저> 합니다.
 
@@ -4286,9 +4667,10 @@ function showTab(name){
   if (name==='deriv')   go(initDeriv);
   if (name==='flow')    go(initFlow);
   if (name==='links')   go(loadLinks);
-  if (name==='access')  go(loadAccess);
+  if (name==='industry' && typeof initIndustry === 'function') go(initIndustry);
   if (name==='admin'){ go(adTabInit); go(loadAdmin); }
   //  차트를 한 번도 안 그린 상태면 빈 흰 상자만 보입니다 — 안내 문구라도 띄웁니다.
+  if (name==='research' && typeof renderMacroTeam === 'function') go(function(){ renderMacroTeam(); });
   if (name==='research') setTimeout(function(){
     if (chart) chart.resize(); else if (typeof echarts !== 'undefined') drawChart(); }, 60);
   if (name==='research') setTimeout(function(){
@@ -10505,6 +10887,893 @@ async function macroBundle(i, replace){
   });
 }
 
+/* ══════════ 팀별 핵심 지표 (10/4) ══════════
+
+   학회장: «매크로 경제 내에 인플레이션·고용·제조업·채권과 금리 4개 탭으로
+   나눠서 각 팀에 중요한 지표들만» · «모든 지표들을 모든 섹션이 엑세스 할 수
+   있는데 각 팀 탭에 중요한 지표들이 좀 하이라이트 된거지».
+
+   그래서 팀 탭은 <거름망이 아니라 이정표> 입니다.
+     · 위: 그 팀이 매주 보는 지표가 카드로 섭니다 — 최신값 · 전기비 · 전년비 ·
+       기준일 · 다음 발표 · 작은 추세선. 누르면 아래 차트에 올라갑니다.
+     · 아래: «지표 추가» 목록은 전부 그대로입니다. 분류 칩만 그 팀 쪽으로
+       미리 눌러 둡니다 (다시 누르면 풀립니다).
+
+   ⚠️ 서버 부담을 늘리지 않습니다.
+     · 카드 하나 = 차트에 올릴 때와 <같은 요청> (같은 start) 이라 서버
+       보관함(series_cache)을 그대로 같이 씁니다. 카드를 보고 나서 차트에
+       올리면 서버는 보관함에서 꺼내 줍니다.
+     · 받은 요약(마지막 값 몇 개)은 이 브라우저에도 남깁니다 — 다음 발표일
+       까지, 길어야 6시간/45일. 팀 탭을 오가거나 새로고침해도 다시 안 부릅니다.
+     · 한 번에 3개씩 받습니다 (차트의 reloadAll 과 같은 규칙).
+
+   ⚠️ 카드는 목록(indicator_catalog)에 없어도 뜹니다 — 서버는 코드만 있으면
+      받아 줍니다. 다만 «차트에» 로 올릴 때 이름·단위는 목록 것이 있으면 그걸
+      씁니다. terminal-팀지표.sql 을 돌리면 없는 코드가 목록에도 생깁니다.
+
+   카드 종류(t):
+     idx   물가지수·생산지수처럼 <수준> 보다 <얼마나 올랐나> 를 보는 것 → 큰 숫자 = 전년비
+     rate  이미 % 인 것(금리·실업률·가동률) → 큰 숫자 = 값, 변화는 %p
+     chg   고용자수처럼 <이번 달 증감> 이 곧 뉴스인 것 → 큰 숫자 = 전기 증감
+     lvl   수준을 그대로 보는 것(청구건수·구인건수·유가) → 큰 숫자 = 값, 변화는 %
+     ratio 비율·확산지수 → 큰 숫자 = 값, 변화는 차이                           */
+var MACRO_TEAMS = {
+  infl: { n:'인플레이션', sub:'물가 · 기대인플레이션 · 원자재', cats:['물가','인플레이션','물가·기대인플레이션'],
+    items:[
+      { s:'fred', c:'CPIAUCSL',      cy:'M', t:'idx',  u:'지수',    st:3, b:1, l:'미국 CPI (소비자물가)',          d:'1982-84=100 · 계절조정' },
+      { s:'fred', c:'CPILFESL',      cy:'M', t:'idx',  u:'지수',    st:3, b:1, l:'미국 근원 CPI (식품·에너지 제외)', d:'연준이 더 보는 쪽' },
+      { s:'fred', c:'PCEPI',         cy:'M', t:'idx',  u:'지수',    st:3, b:1, l:'PCE 물가',                     d:'연준 목표(2%)의 기준 지표' },
+      { s:'fred', c:'PCEPILFE',      cy:'M', t:'idx',  u:'지수',    st:3, b:1, l:'근원 PCE 물가',                 d:'식품·에너지 제외' },
+      { s:'fred', c:'PPIFIS',        cy:'M', t:'idx',  u:'지수',    st:2, b:0, l:'미국 PPI (최종수요)',           d:'생산자물가 · CPI 보다 먼저 움직입니다' },
+      { s:'fred', c:'CUSR0000SAH1',  cy:'M', t:'idx',  u:'지수',    st:2, b:0, l:'CPI 주거비 (Shelter)',          d:'CPI 의 1/3 · 가장 느리게 식는 항목' },
+      { s:'fred', c:'CUSR0000SASLE', cy:'M', t:'idx',  u:'지수',    st:2, b:0, l:'CPI 서비스 (에너지 제외)',       d:'임금과 같이 움직이는 끈적한 물가' },
+      { s:'fred', c:'CPIENGSL',      cy:'M', t:'idx',  u:'지수',    st:1, b:0, l:'CPI 에너지',                   d:'유가가 바로 비칩니다' },
+      { s:'fred', c:'CPIUFDSL',      cy:'M', t:'idx',  u:'지수',    st:1, b:0, l:'CPI 식품',                     d:'체감물가' },
+      { s:'fred', c:'T5YIE',         cy:'D', t:'rate', u:'%',       st:2, b:1, l:'5년 기대인플레이션 (BEI)',       d:'국채 - 물가연동채 금리차' },
+      { s:'fred', c:'T10YIE',        cy:'D', t:'rate', u:'%',       st:2, b:0, l:'10년 기대인플레이션 (BEI)',      d:'장기 기대' },
+      { s:'fred', c:'MICH',          cy:'M', t:'rate', u:'%',       st:2, b:0, l:'미시간대 1년 기대인플레이션',     d:'소비자 설문 · 중앙값' },
+      { s:'fred', c:'DCOILWTICO',    cy:'D', t:'lvl',  u:'달러/배럴', st:2, b:1, l:'WTI 유가',                     d:'헤드라인 물가의 절반은 여기서' },
+      { s:'ecos', c:'901Y009', i:'0', cy:'M', t:'idx', u:'지수',    st:3, b:0, l:'한국 CPI (총지수)',             d:'한국은행 ECOS · 2020=100' }
+    ] },
+  jobs: { n:'고용', sub:'고용 · 실업 · 임금 · 구인', cats:['고용','노동','고용·노동'],
+    items:[
+      { s:'fred', c:'PAYEMS',        cy:'M', t:'chg',  u:'천명',    st:3, b:1, l:'비농업 고용 (NFP)',             d:'매달 첫 금요일 · 증감이 뉴스' },
+      { s:'fred', c:'UNRATE',        cy:'M', t:'rate', u:'%',       st:3, b:1, l:'실업률',                       d:'가계조사(U3)' },
+      { s:'fred', c:'CES0500000003', cy:'M', t:'idx',  u:'달러/시간', st:3, b:1, l:'평균 시급 (민간 전체)',          d:'임금 상승률 = 전년비' },
+      { s:'fred', c:'CIVPART',       cy:'M', t:'rate', u:'%',       st:2, b:0, l:'경제활동참가율',                 d:'일하거나 구직 중인 비율' },
+      { s:'fred', c:'LNS12300060',   cy:'M', t:'rate', u:'%',       st:2, b:1, l:'25~54세 고용률',                d:'인구구조 영향을 뺀 고용 체온계' },
+      { s:'fred', c:'ICSA',          cy:'D', t:'lvl',  u:'건',      st:3, b:1, l:'신규 실업수당 청구 (주간)',       d:'매주 목요일 · 가장 빠른 고용 지표' },
+      { s:'fred', c:'CCSA',          cy:'D', t:'lvl',  u:'건',      st:2, b:0, l:'계속 실업수당 청구 (주간)',       d:'재취업이 느려지면 늘어납니다' },
+      { s:'fred', c:'JTSJOL',        cy:'M', t:'lvl',  u:'천건',    st:2, b:1, l:'구인 건수 (JOLTS)',             d:'빈 일자리' },
+      { s:'fred', c:'JTSQUR',        cy:'M', t:'rate', u:'%',       st:2, b:0, l:'자발적 퇴직률 (JOLTS)',          d:'높으면 노동자가 자신 있다는 뜻' },
+      { s:'fred', c:'U6RATE',        cy:'M', t:'rate', u:'%',       st:1, b:0, l:'광의 실업률 (U6)',              d:'불완전 취업 포함' },
+      { s:'fred', c:'AWHAETP',       cy:'M', t:'lvl',  u:'시간',    st:1, b:0, l:'주당 근로시간 (민간)',           d:'해고 전에 먼저 줄어듭니다' },
+      { s:'fred', c:'ECIALLCIV',     cy:'Q', t:'idx',  u:'지수',    st:2, b:0, l:'고용비용지수 (ECI)',             d:'분기 · 연준이 보는 임금 지표' }
+    ] },
+  mfg: { n:'제조업', sub:'생산 · 가동률 · 주문 · 재고 · 지역 연은 조사', cats:['제조업','생산','산업','경기'],
+    items:[
+      { s:'fred', c:'INDPRO',        cy:'M', t:'idx',  u:'지수',    st:3, b:1, l:'산업생산',                     d:'2017=100 · 전년비로 봅니다' },
+      { s:'fred', c:'IPMAN',         cy:'M', t:'idx',  u:'지수',    st:2, b:0, l:'제조업 생산',                   d:'산업생산 중 제조업만' },
+      { s:'fred', c:'TCU',           cy:'M', t:'rate', u:'%',       st:3, b:1, l:'설비가동률 (전체)',              d:'80% 근처면 빠듯 · 병목 신호' },
+      { s:'fred', c:'MCUMFN',        cy:'M', t:'rate', u:'%',       st:2, b:0, l:'제조업 가동률',                 d:'제조업만' },
+      { s:'fred', c:'NEWORDER',      cy:'M', t:'idx',  u:'백만달러', st:3, b:1, l:'핵심 자본재 주문',               d:'항공기 제외 비국방 · 설비투자 선행' },
+      { s:'fred', c:'DGORDER',       cy:'M', t:'idx',  u:'백만달러', st:2, b:0, l:'내구재 주문',                   d:'변동이 큽니다 (항공기)' },
+      { s:'fred', c:'AMTMUO',        cy:'M', t:'idx',  u:'백만달러', st:2, b:1, l:'제조업 수주잔고 (미충족 주문)',    d:'쌓이면 공급이 못 따라간다는 뜻' },
+      { s:'fred', c:'MNFCTRIRSA',    cy:'M', t:'ratio',u:'배',      st:2, b:1, l:'제조업 재고/판매 비율',           d:'높으면 재고 과잉' },
+      { s:'fred', c:'ISRATIO',       cy:'M', t:'ratio',u:'배',      st:1, b:0, l:'기업 전체 재고/판매 비율',         d:'제조·도매·소매 합계' },
+      { s:'fred', c:'MANEMP',        cy:'M', t:'chg',  u:'천명',    st:2, b:0, l:'제조업 고용',                   d:'증감' },
+      { s:'fred', c:'GACDISA066MSFRBNY',  cy:'M', t:'ratio', u:'',  st:2, b:1, l:'뉴욕 연은 제조업지수 (Empire)',  d:'0 위면 확장 · ISM 보다 먼저' },
+      { s:'fred', c:'GACDFSA066MSFRBPHI', cy:'M', t:'ratio', u:'',  st:2, b:0, l:'필라델피아 연은 제조업지수',      d:'0 위면 확장' },
+      { s:'fred', c:'PCUOMFGOMFG',   cy:'M', t:'idx',  u:'지수',    st:1, b:0, l:'제조업 생산자물가 (PPI)',         d:'투입 비용' }
+    ] },
+  rates: { n:'채권·금리', sub:'국채 · 스프레드 · 신용 · 정책금리', cats:['금리','채권','금리·채권','단기자금'],
+    items:[
+      { s:'fred', c:'DGS2',          cy:'D', t:'rate', u:'%',       st:3, b:1, l:'미국 국채 2년',                 d:'연준 경로를 가장 빨리 비칩니다' },
+      { s:'fred', c:'DGS10',         cy:'D', t:'rate', u:'%',       st:3, b:1, l:'미국 국채 10년',                d:'전 세계 자산가격의 기준' },
+      { s:'fred', c:'DGS30',         cy:'D', t:'rate', u:'%',       st:2, b:0, l:'미국 국채 30년',                d:'재정·기간프리미엄' },
+      { s:'fred', c:'DGS3MO',        cy:'D', t:'rate', u:'%',       st:2, b:0, l:'미국 국채 3개월',               d:'정책금리와 거의 같이' },
+      { s:'fred', c:'T10Y2Y',        cy:'D', t:'rate', u:'%p',      st:3, b:1, l:'10년-2년 스프레드',             d:'마이너스 = 역전' },
+      { s:'fred', c:'T10Y3M',        cy:'D', t:'rate', u:'%p',      st:2, b:0, l:'10년-3개월 스프레드',            d:'연준이 보는 침체 신호' },
+      { s:'fred', c:'DFF',           cy:'D', t:'rate', u:'%',       st:3, b:0, l:'실효 연방기금금리 (일별)',        d:'정책금리의 실제 값' },
+      { s:'fred', c:'DFII10',        cy:'D', t:'rate', u:'%',       st:2, b:1, l:'10년 실질금리 (TIPS)',           d:'명목 - 기대인플레이션' },
+      { s:'fred', c:'T10YIE',        cy:'D', t:'rate', u:'%',       st:2, b:0, l:'10년 기대인플레이션 (BEI)',      d:'인플레이션 팀과 같은 지표' },
+      { s:'fred', c:'BAMLH0A0HYM2',  cy:'D', t:'rate', u:'%p',      st:3, b:1, l:'하이일드 스프레드 (OAS)',        d:'위험선호의 체온계' },
+      { s:'fred', c:'BAMLC0A0CM',    cy:'D', t:'rate', u:'%p',      st:2, b:0, l:'투자등급 스프레드 (OAS)',        d:'회사채 전체' },
+      { s:'fred', c:'MORTGAGE30US',  cy:'D', t:'rate', u:'%',       st:2, b:0, l:'미국 30년 모기지 금리 (주간)',    d:'매주 목요일' },
+      { s:'ecos', c:'817Y002', i:'010200000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'한국 국고채 3년',            d:'국내 기준물' },
+      { s:'ecos', c:'817Y002', i:'010210000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'한국 국고채 10년',           d:'' },
+      { s:'ecos', c:'722Y001', i:'0101000',   cy:'D', t:'rate', u:'%', st:3, b:0, l:'한국은행 기준금리',           d:'금통위 결정' }
+    ] }
+};
+var MT_KEY = 'safe_macro_team_v1', MC_KEY = 'safe_mcard_v1';
+var macroTeam = 'infl';
+try { var _mt = localStorage.getItem(MT_KEY); if (_mt && MACRO_TEAMS[_mt]) macroTeam = _mt; } catch(e){}
+var mcMem = {};              //  이 화면에서 받은 요약 (키 → 요약)
+var mcBusy = {};             //  받는 중인 키
+var mcRun = 0;               //  팀을 바꾸면 이전 받기 묶음은 결과를 그리지 않습니다
+
+function mcKey(it){ return it.s + '|' + it.c + '|' + (it.i || ''); }
+function mcCatOf(it){
+  return (catalog || []).filter(function(x){
+    return x.source === it.s && x.code === it.c && String(x.item_code || '') === String(it.i || ''); })[0] || null;
+}
+
+function setMacroTeam(k, quiet){
+  if (!MACRO_TEAMS[k]) return;
+  macroTeam = k;
+  try { localStorage.setItem(MT_KEY, k); } catch(e){}
+  renderSubTabs('research');
+  //  분류 칩을 그 팀 쪽으로 — 있을 때만, 그리고 <같이 보던 걸 깨지 않게> 토글이 아니라 지정
+  if (!quiet && typeof renderCatalogSel === 'function'){
+    var have = {};
+    (catalog || []).forEach(function(c){ have[catKey(c)] = 1; });
+    var pick = (MACRO_TEAMS[k].cats || []).filter(function(c){ return have[c]; })[0] || '';
+    if (pick !== catCat){ catCat = pick; renderCatalogSel(); }
+  }
+  renderMacroTeam();
+}
+
+/*  ── 브라우저 보관함 ──────────────────────────────────────────
+    요약만 둡니다 (마지막 값 · 전기 · 1년 전 · 작은 추세선). 지표 전체를
+    두면 localStorage 5MB 가 금방 찹니다.
+    기한: 다음 발표일(until)까지 — 단, 발표 뒤 이틀은 6시간 (서버와 같은 규칙).  */
+function mcStoreRead(){
+  try { return JSON.parse(localStorage.getItem(MC_KEY) || '{}') || {}; } catch(e){ return {}; }
+}
+function mcStoreWrite(m){
+  try {
+    var keys = Object.keys(m);
+    if (keys.length > 120){                      //  오래된 것부터 덜어냅니다
+      keys.sort(function(a, b){ return (m[a].at || 0) - (m[b].at || 0); });
+      keys.slice(0, keys.length - 120).forEach(function(k){ delete m[k]; });
+    }
+    localStorage.setItem(MC_KEY, JSON.stringify(m));
+  } catch(e){ /* 꽉 찼으면 그냥 안 남깁니다 */ }
+}
+function mcExpiry(s){
+  var now = Date.now(), six = now + 6 * 36e5;
+  if (!s.until) return six;
+  var sinceRel = s.rel ? Math.floor((now - Date.parse(s.rel)) / 864e5) : 999;
+  var untilMs = Date.parse(s.until);
+  if (!isFinite(untilMs) || untilMs <= now || sinceRel < 2) return six;
+  return Math.min(untilMs, now + 45 * 864e5);
+}
+function mcCached(key){
+  if (mcMem[key]) return mcMem[key];
+  var m = mcStoreRead(), e = m[key];
+  if (e && e.exp > Date.now() && e.s){ mcMem[key] = e.s; return e.s; }
+  return null;
+}
+function mcRemember(key, s){
+  mcMem[key] = s;
+  var m = mcStoreRead();
+  m[key] = { exp: mcExpiry(s), at: Date.now(), s: s };
+  mcStoreWrite(m);
+}
+
+/*  받은 점들 → 카드 요약. 점은 {d:'YYYY-MM-DD', v:number} 입니다.  */
+function mcYearAgo(pts, d){
+  var y = Number(String(d).slice(0, 4)) - 1;
+  var target = y + String(d).slice(4, 10);
+  var hit = null;
+  for (var i = pts.length - 1; i >= 0; i--){ if (pts[i].d <= target){ hit = pts[i]; break; } }
+  return hit;
+}
+function mcSummarize(d, it){
+  var pts = (d.points || []).filter(function(p){ return p && p.d && p.v != null && isFinite(Number(p.v)); })
+            .map(function(p){ return { d: String(p.d).slice(0, 10), v: Number(p.v) }; })
+            .sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+  if (!pts.length) return null;
+  var n = pts.length, last = pts[n - 1], prev = n > 1 ? pts[n - 2] : null, ya = mcYearAgo(pts, last.d);
+  var k = it.cy === 'D' ? 60 : (it.cy === 'Q' ? 12 : 24);
+  return {
+    v: last.v, d: last.d,
+    pv: prev ? prev.v : null, pd: prev ? prev.d : null,
+    ya: ya ? ya.v : null, yad: ya ? ya.d : null,
+    a3: n >= 4 ? (last.v - pts[n - 4].v) / 3 : null,
+    unit: d.unit || '', until: d.until || d.valid_until || null, rel: d.last_release || null,
+    stale: !!d.stale, note: d.note || null, n: n,
+    spark: pts.slice(-k).map(function(p){ return Math.round(p.v * 1e4) / 1e4; }),
+    at: Date.now()
+  };
+}
+
+/*  숫자 모양 — 크기에 맞춰 소수 자리를 고르고 끝의 0 은 뗍니다  */
+function mcNum(v, dmax){
+  if (v == null || !isFinite(v)) return '-';
+  var a = Math.abs(v);
+  var dec = dmax != null ? dmax : (a >= 1000 ? 0 : a >= 100 ? 1 : 2);
+  var s = Number(v).toLocaleString('ko-KR', { minimumFractionDigits: 0, maximumFractionDigits: dec });
+  return s;
+}
+function mcVal(v, u){
+  if (v == null || !isFinite(v)) return '-';
+  u = u || '';
+  if (u === '%' || u === '%p') return mcNum(v, 2) + '%';
+  return mcNum(v) + (u ? ' ' + u : '');
+}
+function mcPct(v){ return (v == null || !isFinite(v)) ? '-' : (v > 0 ? '+' : '') + mcNum(v, Math.abs(v) >= 10 ? 1 : 2) + '%'; }
+function mcPp(v){ return (v == null || !isFinite(v)) ? '-' : (v > 0 ? '+' : '') + Number(v).toFixed(2) + '%p'; }
+function mcDelta(v, u){
+  if (v == null || !isFinite(v)) return '-';
+  return (v > 0 ? '+' : '') + mcNum(v, Math.abs(v) >= 100 ? 0 : 2) + (u ? ' ' + u : '');
+}
+function mcChg(a, b){ return (a == null || b == null || !b) ? null : (a / b - 1) * 100; }
+function mcSign(v){ return (v == null || !isFinite(v) || v === 0) ? '' : (v > 0 ? 'up' : 'down'); }
+function mcWrap(txt, v){ var c = mcSign(v); return c ? '<span class="' + c + '">' + esc(txt) + '</span>' : esc(txt); }
+function mcDate(d, cy){
+  var s = String(d || ''); if (!/^\d{4}-\d{2}/.test(s)) return s;
+  if (cy === 'Q'){ var q = Math.floor((Number(s.slice(5, 7)) - 1) / 3) + 1; return s.slice(0, 4) + ' ' + q + 'Q'; }
+  if (cy === 'D') return s.slice(0, 10);
+  return s.slice(0, 7);
+}
+
+/*  카드의 «큰 숫자» 와 아랫줄 — 종류별로 다릅니다 (맨 위 설명 참고)  */
+function mcMain(it, s){
+  var u = it.u || s.unit || '';
+  var big, lbl, sub = [], sign = null;
+  if (it.t === 'idx'){
+    var yoy = mcChg(s.v, s.ya), mom = mcChg(s.v, s.pv);
+    if (yoy != null){ big = mcPct(yoy); lbl = '전년비'; sign = yoy; }
+    else { big = mcVal(s.v, u); lbl = '최신'; }
+    sub.push(mcWrap('전기비 ' + mcPct(mom), mom));
+    sub.push(esc('값 ' + mcVal(s.v, u)));
+  } else if (it.t === 'rate'){
+    big = mcVal(s.v, u === '%p' ? '%' : u); lbl = u === '%p' ? '%p' : '';
+    if (u === '%p') big = mcNum(s.v, 2);
+    var d1 = s.pv != null ? s.v - s.pv : null, dy = s.ya != null ? s.v - s.ya : null;
+    sign = d1;
+    sub.push(mcWrap('전기 대비 ' + mcPp(d1), d1));
+    sub.push(mcWrap('1년 전 대비 ' + mcPp(dy), dy));
+  } else if (it.t === 'chg'){
+    var dd = s.pv != null ? s.v - s.pv : null;
+    big = mcDelta(dd, u); lbl = '전기 증감'; sign = dd;
+    sub.push(esc('수준 ' + mcVal(s.v, u)));
+    sub.push(mcWrap('3개월 평균 ' + mcDelta(s.a3, u), s.a3));
+  } else if (it.t === 'ratio'){
+    big = mcNum(s.v, 2); lbl = u;
+    var r1 = s.pv != null ? s.v - s.pv : null;
+    sign = r1;
+    sub.push(mcWrap('전기 대비 ' + mcDelta(r1, ''), r1));
+    sub.push(esc('1년 전 ' + mcNum(s.ya, 2)));
+  } else {
+    big = mcVal(s.v, u); lbl = '';
+    var p1 = mcChg(s.v, s.pv), py = mcChg(s.v, s.ya);
+    sign = p1;
+    sub.push(mcWrap('전기 대비 ' + mcPct(p1), p1));
+    sub.push(mcWrap('전년 대비 ' + mcPct(py), py));
+  }
+  return { big: big, lbl: lbl, sub: sub, sign: sign };
+}
+
+function mcSpark(vals){
+  if (!vals || vals.length < 2) return '';
+  var w = 200, h = 30, lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+  var span = (hi - lo) || 1;
+  var pts = vals.map(function(v, i){
+    var x = (i / (vals.length - 1)) * (w - 2) + 1, y = h - 2 - ((v - lo) / span) * (h - 4);
+    return x.toFixed(1) + ',' + y.toFixed(1);
+  }).join(' ');
+  var last = vals[vals.length - 1], first = vals[0];
+  var col = last > first ? 'var(--up)' : last < first ? 'var(--down)' : 'var(--text-sub)';
+  //  0 선이 범위 안에 있으면 (확산지수·스프레드) 그어 줍니다
+  var zero = (lo < 0 && hi > 0) ? '<line x1="0" x2="' + w + '" y1="' + (h - 2 - ((0 - lo) / span) * (h - 4)).toFixed(1)
+           + '" y2="' + (h - 2 - ((0 - lo) / span) * (h - 4)).toFixed(1) + '" stroke="var(--border)" stroke-dasharray="2 2"/>' : '';
+  return '<svg class="mtm-spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">'
+       + zero + '<polyline fill="none" stroke="' + col + '" stroke-width="1.6" stroke-linejoin="round" points="' + pts + '"/></svg>';
+}
+
+function mcCardHtml(it, s, state){
+  var cat = mcCatOf(it);
+  var label = it.l, star = starTxt(cat ? starOf(cat) : (it.st || 1));
+  var head = '<div class="mtm-h"><span class="mtm-star" title="중요도">' + star + '</span>'
+           + '<span title="' + esc((it.d || '') + (cat ? '' : ' · 목록에 없는 코드 (terminal-팀지표.sql)')) + '">' + esc(label) + '</span>'
+           + '<span class="mtm-cy">' + esc(cycleName(it.cy)) + '</span></div>';
+  if (state === 'wait')
+    return '<div class="mtm-card" data-key="' + esc(mcKey(it)) + '">' + head + '<div class="mtm-wait">받는 중…</div></div>';
+  if (state === 'err')
+    return '<div class="mtm-card err" data-key="' + esc(mcKey(it)) + '">' + head
+         + '<div class="mtm-sub" style="color:var(--danger)">' + esc(s || '받지 못했습니다') + '</div>'
+         + '<div class="mtm-f"><span class="grow">' + esc(it.s.toUpperCase() + ' ' + it.c + (it.i ? ' / ' + it.i : '')) + '</span>'
+         + '<button type="button" onclick="mcRetry(this)">다시</button></div></div>';
+  var m = mcMain(it, s);
+  var tod = today();
+  var badges = '';
+  if (s.stale) badges += '<span class="mtm-badge stale" title="지금 새로 받지 못해 서버가 받아둔 값입니다">낡음</span>';
+  else if (s.rel && (Date.parse(tod) - Date.parse(s.rel)) / 864e5 <= 2) badges += '<span class="mtm-badge new" title="발표된 지 이틀 안">새 발표</span>';
+  if (s.until){
+    var days = Math.round((Date.parse(s.until) - Date.parse(tod)) / 864e5);
+    if (days >= 0 && days <= 3) badges += '<span class="mtm-badge soon" title="다음 발표 ' + esc(s.until) + '">' + (days === 0 ? '오늘 발표' : 'D-' + days) + '</span>';
+  }
+  var foot = '기준 ' + mcDate(s.d, it.cy) + (s.until ? ' · 다음 ' + String(s.until).slice(5) : '');
+  return '<div class="mtm-card' + (s.stale ? ' stale' : '') + '" data-key="' + esc(mcKey(it)) + '">' + head
+       + '<div class="mtm-big"><b>' + esc(m.big) + '</b>'
+       + (m.lbl ? '<span>' + esc(m.lbl) + '</span>' : '') + badges + '</div>'
+       + '<div class="mtm-sub">' + m.sub.join(' · ') + '</div>'
+       + mcSpark(s.spark)
+       + '<div class="mtm-f"><span class="grow" title="' + esc(foot + (s.note ? ' · ' + String(s.note).replace(/<[^>]+>/g, '') : '')) + '">' + esc(foot) + '</span>'
+       + '<button type="button" onclick="mcToChart(this)" title="아래 차트에 올립니다">차트에</button>'
+       + ((it.s === 'fred' || it.s === 'ecos') && cat ? '<button type="button" onclick="mcDetail(this)" title="아래 «상세 항목 분석» 에서 엽니다">상세</button>' : '')
+       + '</div></div>';
+}
+
+function mcItemByKey(key){
+  var t = MACRO_TEAMS[macroTeam];
+  return (t ? t.items : []).filter(function(it){ return mcKey(it) === key; })[0] || null;
+}
+function mcPaint(it, s, state){
+  var box = $('mtmGrid'); if (!box) return;
+  var el = box.querySelector('.mtm-card[data-key="' + mcKey(it).replace(/"/g, '\\"') + '"]');
+  if (!el) return;
+  var tmp = document.createElement('div');
+  tmp.innerHTML = mcCardHtml(it, s, state);
+  el.replaceWith(tmp.firstChild);
+}
+
+async function mcLoad(it, run){
+  var key = mcKey(it);
+  var hit = mcCached(key);
+  if (hit){ if (run === mcRun) mcPaint(it, hit); return hit; }
+  if (mcBusy[key]) return null;
+  mcBusy[key] = 1;
+  try {
+    var d = await edge({ source: it.s, code: it.c, item_code: it.i || '', cycle: it.cy || 'M', start: fetchStart() });
+    var s = mcSummarize(d, it);
+    if (!s) throw new Error('해당 기간 자료가 없습니다');
+    mcRemember(key, s);
+    if (run === mcRun) mcPaint(it, s);
+    return s;
+  } catch(e){
+    if (run === mcRun) mcPaint(it, String(e && e.message || e), 'err');
+    return null;
+  } finally { delete mcBusy[key]; }
+}
+
+async function renderMacroTeam(){
+  var t = MACRO_TEAMS[macroTeam], box = $('mtmGrid'); if (!t || !box) return;
+  var ttl = $('mtmTitle'), sub = $('mtmSub'), note = $('mtmNote');
+  if (ttl) ttl.textContent = t.n + ' 팀 핵심 지표';
+  if (sub) sub.textContent = t.sub || '';
+  var run = ++mcRun;
+  //  먼저 자리를 다 잡고 (보관함에 있는 건 바로 채워집니다) 없는 것만 받습니다
+  box.innerHTML = t.items.map(function(it){
+    var hit = mcCached(mcKey(it));
+    return mcCardHtml(it, hit || null, hit ? null : 'wait');
+  }).join('');
+  var need = t.items.filter(function(it){ return !mcCached(mcKey(it)); });
+  if (note) note.textContent = need.length
+    ? need.length + '개 받는 중 · 받은 요약은 다음 발표일까지 이 브라우저에 남겨 다시 부르지 않습니다.'
+    : '전부 보관함에서 (다음 발표일까지 그대로) · 카드를 누르면 아래 차트에 올라갑니다 · 아래 목록에서는 모든 지표를 고를 수 있습니다.';
+  for (var j = 0; j < need.length; j += 3){
+    if (run !== mcRun) return;                    //  그 사이 팀을 바꿨으면 멈춥니다
+    await Promise.all(need.slice(j, j + 3).map(function(it){ return mcLoad(it, run); }));
+  }
+  if (run === mcRun && note && need.length){
+    var bad = need.filter(function(it){ return !mcCached(mcKey(it)); }).length;
+    note.textContent = bad
+      ? (need.length - bad) + '개 받음 · ' + bad + '개는 받지 못했습니다 — 빨간 카드의 «다시» 를 눌러 보세요 (서버 함수가 안 올라갔거나 잠시 막힌 것일 수 있습니다).'
+      : '받았습니다 · 다음 발표일까지 이 브라우저에 남겨 다시 부르지 않습니다 · 카드를 누르면 아래 차트에 올라갑니다.';
+  }
+}
+
+function macroTeamRefresh(){
+  var t = MACRO_TEAMS[macroTeam]; if (!t) return;
+  var m = mcStoreRead();
+  t.items.forEach(function(it){ var k = mcKey(it); delete mcMem[k]; delete m[k]; });
+  mcStoreWrite(m);
+  renderMacroTeam();
+}
+
+/*  카드 → 아래 차트. 목록에 있으면 목록의 이름·단위를, 없으면 카드 것을 씁니다.
+    금리처럼 값 자체가 말인 것(rate·ratio)은 전기비로 바꾸지 않습니다.           */
+function mcAddToChart(it){
+  var cat = mcCatOf(it);
+  if (typeof macroMode !== 'undefined' && macroMode === 'curve' && typeof ycFromMain === 'function') ycFromMain();
+  addSeries({ source: it.s, code: it.c, item_code: it.i || '', cycle: it.cy || 'M',
+              label: cat ? cat.label : it.l, unit: cat ? (cat.unit || '') : (it.u || ''),
+              keepRaw: it.t === 'rate' || it.t === 'ratio' });
+}
+function mcToChart(btn){
+  var el = btn.closest('.mtm-card'), it = el && mcItemByKey(el.dataset.key); if (!it) return;
+  mcAddToChart(it);
+  var cb = $('chartBox'); if (cb && cb.scrollIntoView) cb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function mcDetail(btn){
+  var el = btn.closest('.mtm-card'), it = el && mcItemByKey(el.dataset.key); if (!it) return;
+  var cat = mcCatOf(it); if (!cat) return;
+  dtFollow(cat.id);
+  var p = $('dtParent'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function mcRetry(btn){
+  var el = btn.closest('.mtm-card'), it = el && mcItemByKey(el.dataset.key); if (!it) return;
+  mcPaint(it, null, 'wait');
+  mcLoad(it, mcRun);
+}
+
+/*  «핵심 묶음 차트에» — 그 팀의 대표 지표(b:1, 최대 6개)를 한 번에.
+    자리가 모자라면 말없이 몇 개만 올리지 않습니다 (macroBundle 과 같은 규칙).  */
+function macroTeamToChart(replace){
+  var t = MACRO_TEAMS[macroTeam]; if (!t) return;
+  var want = t.items.filter(function(it){ return it.b; }).slice(0, 6);
+  if (replace){ series.splice(0, series.length); renderSeriesList(); drawChart(); }
+  var room = 8 - series.length;
+  if (want.length > room){
+    warn('researchWarn', '이 묶음은 ' + want.length + '개인데 차트에 자리가 ' + room + '개 남았습니다. '
+       + '<button class="btn-sm" onclick="macroTeamToChart(true)" style="margin-left:6px">지금 것 지우고 올리기</button>');
+    return;
+  }
+  warn('researchWarn', '');
+  want.forEach(mcAddToChart);
+  var cb = $('chartBox'); if (cb && cb.scrollIntoView) cb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function macroTeamCsv(){
+  var t = MACRO_TEAMS[macroTeam]; if (!t) return;
+  var rows = [['지표', '출처', '코드', '주기', '기준일', '최신값', '단위', '전기', '전기 대비', '1년 전', '전년 대비', '다음 발표', '비고']];
+  t.items.forEach(function(it){
+    var s = mcCached(mcKey(it)); if (!s) return;
+    var u = it.u || s.unit || '';
+    var isPct = (it.t === 'rate' || it.t === 'ratio');
+    var d1 = s.pv != null ? (isPct ? (s.v - s.pv) : mcChg(s.v, s.pv)) : null;
+    var dy = s.ya != null ? (isPct ? (s.v - s.ya) : mcChg(s.v, s.ya)) : null;
+    rows.push([it.l, it.s.toUpperCase(), it.c + (it.i ? '/' + it.i : ''), cycleName(it.cy), s.d, s.v, u,
+               s.pv == null ? '' : s.pv, d1 == null ? '' : (isPct ? d1.toFixed(3) + '%p' : d1.toFixed(2) + '%'),
+               s.ya == null ? '' : s.ya, dy == null ? '' : (isPct ? dy.toFixed(3) + '%p' : dy.toFixed(2) + '%'),
+               s.until || '', s.stale ? '낡음(새로 못 받음)' : '']);
+  });
+  if (rows.length < 2){ warn('researchWarn', '아직 받은 카드가 없습니다.'); return; }
+  var csv = '﻿' + rows.map(function(r){
+    return r.map(function(c){ var x = String(c == null ? '' : c); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }).join(',');
+  }).join('\n');
+  saveBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), 'SAFE-' + t.n + '-핵심지표-' + today() + '.csv');
+}
+
+/* ══════════ 분석 › 산업분석 (10/4 신설) ══════════
+
+   두 칸입니다.
+     ① 섹터 모니터 — 섹터 ETF 의 기간별 수익률을 벤치마크와 나란히. «어디에 돈이 몰리나».
+     ② 병목 모니터 — 학회장: «병목 현상 진행되고 있는 산업이나 산업 분석들을 할 수
+        있는 지표나 분석들». 가동률·수주잔고·재고/판매·생산자물가·구인·물동량을
+        산업별로 묶고, 지표마다 <2015년 이후 역사에서 어디쯤인가>(백분위) 를 재서
+        평균 낸 «병목 점수» 를 냅니다.
+
+   ⚠️ 서버 부담: 시세는 차트와 같은 창구(quote_us · quote_kr)이고 서버가 6시간
+      보관합니다. 병목 지표는 FRED 월간이라 서버가 다음 발표일까지 보관합니다.
+      이 브라우저에도 요약만 남겨(localStorage) 탭을 오가도 다시 안 부릅니다.
+      한 번에 3개씩 받습니다.                                                   */
+
+/* ── ① 섹터 모니터 ─────────────────────────────────────────── */
+var SEC_SETS = {
+  us:  { n:'미국 섹터 (S&P 500 · SPDR)', src:'quote_us', bench:['SPY','S&P 500 (SPY)'],
+         items:[['XLK','기술'],['XLC','통신서비스'],['XLY','임의소비재'],['XLP','필수소비재'],['XLV','헬스케어'],
+                ['XLF','금융'],['XLI','산업재'],['XLB','소재'],['XLE','에너지'],['XLU','유틸리티'],['XLRE','부동산']] },
+  usi: { n:'미국 산업 ETF', src:'quote_us', bench:['SPY','S&P 500 (SPY)'],
+         items:[['SMH','반도체'],['XHB','주택건설'],['XRT','소매'],['KRE','지역은행'],['IYT','운송'],['ITA','항공우주·방산'],
+                ['XOP','석유·가스 탐사'],['GDX','금광'],['IBB','바이오'],['PAVE','인프라'],['TAN','태양광'],['URA','우라늄']] },
+  kr:  { n:'한국 섹터 (KODEX 섹터 ETF)', src:'quote_kr', bench:['069500','KODEX 200'],
+         items:[['091160','반도체'],['091170','은행'],['091180','자동차'],['117700','건설'],['117460','에너지화학'],
+                ['117680','철강'],['102970','증권'],['140700','보험'],['305720','2차전지'],['266420','헬스케어'],['244580','바이오']] }
+};
+var SEC_PERIODS = [['1w','1주',5],['1m','1개월',21],['3m','3개월',63],['ytd','YTD',0],['1y','1년',252]];
+var SEC_KEY = 'safe_sec_v1', SECQ_KEY = 'safe_secq_v1';
+var secState = { mkt:'us', per:'3m' };
+try { var _ss = JSON.parse(localStorage.getItem(SEC_KEY) || '{}'); if (SEC_SETS[_ss.mkt]) secState.mkt = _ss.mkt; if (SEC_PERIODS.some(function(p){ return p[0] === _ss.per; })) secState.per = _ss.per; } catch(e){}
+var secMem = {}, secRun = 0, secChart = null;
+
+//  시세는 2년치 — 1년 수익률 + YTD 에 넉넉합니다. 해가 바뀔 때만 바뀌는 start 라 서버 보관함을 같이 씁니다.
+function secStart(){ return (new Date().getFullYear() - 2) + '-01-01'; }
+function secKey(src, sym){ return src + '|' + sym; }
+function secStoreRead(){ try { return JSON.parse(localStorage.getItem(SECQ_KEY) || '{}') || {}; } catch(e){ return {}; } }
+function secStoreWrite(m){ try { localStorage.setItem(SECQ_KEY, JSON.stringify(m)); } catch(e){} }
+function secCached(key){
+  if (secMem[key]) return secMem[key];
+  var e = secStoreRead()[key];
+  if (e && e.exp > Date.now() && e.s){ secMem[key] = e.s; return e.s; }
+  return null;
+}
+function secRemember(key, s){
+  secMem[key] = s;
+  var m = secStoreRead(); m[key] = { exp: Date.now() + 6 * 36e5, s: s }; secStoreWrite(m);
+}
+
+/*  종가 배열 → 기간 수익률. «n 거래일 전» 은 자료의 n번째 앞 점입니다 (달력이 아니라 거래일).  */
+function secSummarize(d){
+  var pts = (d.points || []).filter(function(p){ return p && p.d && p.v != null && isFinite(Number(p.v)) && Number(p.v) > 0; })
+            .map(function(p){ return { d: String(p.d).slice(0, 10), v: Number(p.v) }; })
+            .sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+  if (pts.length < 2) return null;
+  var n = pts.length, last = pts[n - 1];
+  var back = function(k){ return n > k ? pts[n - 1 - k].v : null; };
+  var ret = function(base){ return base ? (last.v / base - 1) * 100 : null; };
+  var y = last.d.slice(0, 4);
+  //  YTD 기준 = 작년 마지막 종가 (없으면 올해 첫 종가 — 그러면 0 에 가깝게 나오니 표시에 적습니다)
+  var prevYearLast = null, firstThisYear = null;
+  for (var i = n - 1; i >= 0; i--){ if (pts[i].d.slice(0, 4) < y){ prevYearLast = pts[i]; break; } }
+  for (var j = 0; j < n; j++){ if (pts[j].d.slice(0, 4) === y){ firstThisYear = pts[j]; break; } }
+  var ytdBase = prevYearLast ? prevYearLast.v : (firstThisYear ? firstThisYear.v : null);
+  var last252 = pts.slice(-252).map(function(p){ return p.v; });
+  var hi = Math.max.apply(null, last252), lo = Math.min.apply(null, last252);
+  return {
+    v: last.v, d: last.d, n: (d.points.length && d.points[d.points.length - 1].n) || null,
+    r: { '1w': ret(back(5)), '1m': ret(back(21)), '3m': ret(back(63)), 'ytd': ret(ytdBase), '1y': ret(back(252)) },
+    ytdFrom: prevYearLast ? prevYearLast.d : (firstThisYear ? firstThisYear.d : null),
+    hi52: hi, lo52: lo, dd: (last.v / hi - 1) * 100,
+    spark: pts.slice(-63).map(function(p){ return Math.round(p.v * 100) / 100; }),
+    stale: !!d.stale, at: Date.now()
+  };
+}
+
+async function secLoad(src, sym, run){
+  var key = secKey(src, sym);
+  var hit = secCached(key); if (hit) return hit;
+  try {
+    var d = await edge({ source: src, code: sym, item_code: '', cycle: 'D', start: secStart() });
+    var s = secSummarize(d);
+    if (!s) throw new Error('자료 없음');
+    secRemember(key, s);
+    return s;
+  } catch(e){
+    var err = { err: String(e && e.message || e) };
+    secMem[key] = err;              //  이 화면에서는 기억하되 저장은 안 합니다 (다음에 다시 시도)
+    return err;
+  }
+}
+
+function secSet(k, v){
+  secState[k] = v;
+  try { localStorage.setItem(SEC_KEY, JSON.stringify(secState)); } catch(e){}
+  if (k === 'mkt') loadSectors(); else renderSectors();
+}
+function secRefresh(){
+  var set = SEC_SETS[secState.mkt]; if (!set) return;
+  var m = secStoreRead();
+  [set.bench].concat(set.items).forEach(function(it){ var k = secKey(set.src, it[0]); delete secMem[k]; delete m[k]; });
+  secStoreWrite(m);
+  loadSectors();
+}
+
+async function loadSectors(){
+  var set = SEC_SETS[secState.mkt]; if (!set) return;
+  var run = ++secRun;
+  document.querySelectorAll('#secMkt button').forEach(function(b){ b.classList.toggle('on', b.id === 'secMkt-' + secState.mkt); });
+  var sub = $('secSub'); if (sub) sub.textContent = set.n + ' · 벤치마크 ' + set.bench[1];
+  renderSectors();
+  var all = [set.bench].concat(set.items);
+  var need = all.filter(function(it){ return !secCached(secKey(set.src, it[0])); });
+  var note = $('secNote');
+  if (note) note.textContent = need.length ? need.length + '개 시세 받는 중…' : '시세는 이 브라우저에 6시간 남겨 둡니다.';
+  for (var j = 0; j < need.length; j += 3){
+    if (run !== secRun) return;
+    await Promise.all(need.slice(j, j + 3).map(function(it){ return secLoad(set.src, it[0], run); }));
+    if (run === secRun) renderSectors();
+  }
+  if (run === secRun && note) note.textContent = need.length ? '받았습니다 · 6시간 동안 이 브라우저에 남겨 둡니다.' : note.textContent;
+}
+
+function secCell(v, unit){
+  if (v == null || !isFinite(v)) return '<td style="text-align:right;color:var(--text-sub)">-</td>';
+  var a = Math.min(Math.abs(v) / 20, 1) * 0.18;
+  var bg = v > 0 ? 'rgba(192,57,43,' + a.toFixed(3) + ')' : v < 0 ? 'rgba(27,95,168,' + a.toFixed(3) + ')' : 'transparent';
+  var col = v > 0 ? 'var(--up)' : v < 0 ? 'var(--down)' : 'var(--text-sub)';
+  return '<td style="text-align:right;font-variant-numeric:tabular-nums;background:' + bg + ';color:' + col + '">'
+       + (v > 0 ? '+' : '') + v.toFixed(unit === 'p' ? 1 : 1) + (unit || '%') + '</td>';
+}
+
+function renderSectors(){
+  var set = SEC_SETS[secState.mkt], tb = $('secTable'); if (!set || !tb) return;
+  var per = secState.per;
+  var chips = $('secPeriods');
+  if (chips) chips.innerHTML = SEC_PERIODS.map(function(p){
+    return '<span class="nf-chip' + (p[0] === per ? ' on' : '') + '" onclick="secSet(\'per\',\'' + p[0] + '\')">' + esc(p[1]) + '</span>'; }).join('');
+  var bench = secCached(secKey(set.src, set.bench[0]));
+  var bR = bench && !bench.err ? bench.r : null;
+  var rows = set.items.map(function(it){
+    var s = secCached(secKey(set.src, it[0])) || secMem[secKey(set.src, it[0])] || null;
+    return { sym: it[0], name: it[1], s: s && !s.err ? s : null, err: s && s.err };
+  });
+  //  고른 기간으로 정렬 (자료 없는 건 뒤로)
+  rows.sort(function(a, b){
+    var x = a.s && a.s.r[per] != null ? a.s.r[per] : -Infinity, y = b.s && b.s.r[per] != null ? b.s.r[per] : -Infinity;
+    return y - x; });
+  var perName = (SEC_PERIODS.filter(function(p){ return p[0] === per; })[0] || [])[1] || per;
+  var head = '<tr><th>섹터</th><th style="text-align:right">1주</th><th style="text-align:right">1개월</th><th style="text-align:right">3개월</th>'
+           + '<th style="text-align:right">YTD</th><th style="text-align:right">1년</th>'
+           + '<th style="text-align:right" title="' + esc(perName) + ' 수익률 - 벤치마크 수익률">벤치 대비<br><span style="font-weight:400">' + esc(perName) + '</span></th>'
+           + '<th style="text-align:right" title="최근 1년 최고 종가 대비">52주 고점</th><th style="width:110px">3개월 추세</th><th>기준일</th></tr>';
+  var line = function(r, isBench){
+    var s = r.s;
+    var nm = '<td><b>' + esc(r.name) + '</b> <span style="color:var(--text-sub);font-size:11px">' + esc(r.sym) + '</span>'
+           + (s && s.stale ? ' <span class="mtm-badge stale">낡음</span>' : '') + '</td>';
+    if (!s) return '<tr' + (isBench ? ' style="background:var(--accent-soft)"' : '') + '>' + nm
+         + '<td colspan="9" style="color:var(--text-sub)">' + esc(r.err ? '받지 못했습니다 — ' + r.err : '받는 중…') + '</td></tr>';
+    var rel = (bR && !isBench && s.r[per] != null && bR[per] != null) ? s.r[per] - bR[per] : null;
+    return '<tr' + (isBench ? ' style="background:var(--accent-soft);font-weight:600"' : '') + '>' + nm
+      + secCell(s.r['1w']) + secCell(s.r['1m']) + secCell(s.r['3m']) + secCell(s.r['ytd']) + secCell(s.r['1y'])
+      + (isBench ? '<td style="text-align:right;color:var(--text-sub)">기준</td>' : secCell(rel, 'p'))
+      + '<td style="text-align:right;font-variant-numeric:tabular-nums;color:' + (s.dd <= -10 ? 'var(--down)' : 'var(--text-sub)') + '">' + s.dd.toFixed(1) + '%</td>'
+      + '<td>' + mcSpark(s.spark) + '</td>'
+      + '<td style="color:var(--text-sub);font-size:11px;white-space:nowrap">' + esc(s.d) + '</td></tr>';
+  };
+  tb.innerHTML = head + line({ sym: set.bench[0], name: set.bench[1], s: bench && !bench.err ? bench : null, err: bench && bench.err }, true)
+               + rows.map(function(r){ return line(r, false); }).join('');
+
+  //  막대 — 고른 기간 수익률, 벤치마크는 다른 색
+  var box = $('secChart'); if (!box || typeof echarts === 'undefined') return;
+  var data = rows.filter(function(r){ return r.s && r.s.r[per] != null; });
+  if (bench && !bench.err && bench.r[per] != null) data.push({ sym: set.bench[0], name: set.bench[1], s: bench, bench: true });
+  data.sort(function(a, b){ return b.s.r[per] - a.s.r[per]; });
+  secChart = chartOn(box, secChart); if (!secChart) return;
+  var bv = bench && !bench.err ? bench.r[per] : null;
+  secChart.setOption({
+    animation: false,
+    grid: { left: 8, right: 16, top: 26, bottom: 8, containLabel: true },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+      formatter: function(ps){ var p = ps[0]; return p.name + '<br>' + perName + ' ' + (p.value > 0 ? '+' : '') + Number(p.value).toFixed(2) + '%'; } },
+    xAxis: { type: 'category', data: data.map(function(r){ return r.name; }), axisLabel: { interval: 0, rotate: data.length > 8 ? 28 : 0, fontSize: 11 } },
+    yAxis: { type: 'value', axisLabel: { formatter: function(v){ return v + '%'; } }, splitLine: { show: true } },
+    series: [{ type: 'bar', barMaxWidth: 34,
+      data: data.map(function(r){ var v = Math.round(r.s.r[per] * 100) / 100;
+        return { value: v, itemStyle: { color: r.bench ? '#8a94ad' : (v >= 0 ? '#c0392b' : '#1b5fa8'), borderRadius: v >= 0 ? [4,4,0,0] : [0,0,4,4] } }; }),
+      label: { show: true, position: 'top', fontSize: 10, formatter: function(p){ return (p.value > 0 ? '+' : '') + Number(p.value).toFixed(1); } },
+      markLine: bv == null ? undefined : { silent: true, symbol: 'none', lineStyle: { type: 'dashed', color: '#8a94ad' },
+        label: { formatter: '벤치마크 ' + (bv > 0 ? '+' : '') + bv.toFixed(1) + '%', position: 'insideEndTop', fontSize: 10 }, data: [{ yAxis: bv }] }
+    }]
+  }, true);
+}
+
+function secCsv(){
+  var set = SEC_SETS[secState.mkt]; if (!set) return;
+  var rows = [['이름', '코드', '기준일', '종가', '1주', '1개월', '3개월', 'YTD', '1년', '52주 고점 대비', 'YTD 기준일']];
+  [set.bench].concat(set.items).forEach(function(it){
+    var s = secCached(secKey(set.src, it[0])); if (!s) return;
+    var f = function(v){ return v == null ? '' : Number(v).toFixed(2); };
+    rows.push([it[1], it[0], s.d, s.v, f(s.r['1w']), f(s.r['1m']), f(s.r['3m']), f(s.r['ytd']), f(s.r['1y']), f(s.dd), s.ytdFrom || '']);
+  });
+  if (rows.length < 2){ warn('indWarn', '아직 받은 시세가 없습니다.'); return; }
+  var csv = '﻿' + rows.map(function(r){ return r.map(function(c){ var x = String(c == null ? '' : c); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }).join(','); }).join('\n');
+  saveBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), 'SAFE-섹터-' + secState.mkt + '-' + today() + '.csv');
+}
+
+/* ── ② 병목 모니터 ─────────────────────────────────────────── */
+/*  m (뜻):
+      lvl  값이 높을수록 빡빡 (가동률 · 구인)
+      yoy  전년비가 높을수록 빡빡 (수주잔고 · 생산자물가 · 물동량 · 생산)
+      inv  값이 높을수록 <느슨> (재고/판매 · 주택 재고 개월수) → 백분위를 뒤집습니다
+    코드는 2026-10-03 에 FRED 페이지에서 하나씩 확인했습니다.                  */
+var BN_INDUSTRIES = [
+  { k:'mfg',   n:'제조업 전체', ind:[
+      { c:'TCU',        l:'설비가동률 (전체 산업)', m:'lvl', u:'%' },
+      { c:'MCUMFN',     l:'제조업 가동률',          m:'lvl', u:'%' },
+      { c:'AMTMUO',     l:'제조업 수주잔고',         m:'yoy', u:'백만달러' },
+      { c:'MNFCTRIRSA', l:'제조업 재고/판매',        m:'inv', u:'배' },
+      { c:'JTS3000JOL', l:'제조업 구인',            m:'lvl', u:'천건' } ] },
+  { k:'semi',  n:'반도체·전자', ind:[
+      { c:'CAPUTLG3344S', l:'반도체·전자부품 가동률', m:'lvl', u:'%' },
+      { c:'CAPUTLG334S',  l:'컴퓨터·전자제품 가동률', m:'lvl', u:'%' },
+      { c:'A34SUO',       l:'컴퓨터·전자 수주잔고',   m:'yoy', u:'백만달러' },
+      { c:'IPG3344S',     l:'반도체·전자부품 생산',   m:'yoy', u:'지수' } ] },
+  { k:'auto',  n:'자동차', ind:[
+      { c:'CAPUTLG3361T3S', l:'자동차·부품 가동률',  m:'lvl', u:'%' },
+      { c:'A36SUO',         l:'운송장비 수주잔고',    m:'yoy', u:'백만달러' },
+      { c:'AISRSA',         l:'자동차 재고/판매',     m:'inv', u:'배' } ] },
+  { k:'steel', n:'철강·금속', ind:[
+      { c:'CAPUTLG3311A2S', l:'철강 가동률',         m:'lvl', u:'%' },
+      { c:'WPU1017',        l:'철강 제품 생산자물가', m:'yoy', u:'지수' },
+      { c:'WPU10',          l:'금속 전체 생산자물가', m:'yoy', u:'지수' } ] },
+  { k:'chem',  n:'화학', ind:[
+      { c:'CAPUTLG325S', l:'화학 가동률',            m:'lvl', u:'%' },
+      { c:'WPU06',       l:'화학제품 생산자물가',     m:'yoy', u:'지수' } ] },
+  { k:'mach',  n:'기계', ind:[
+      { c:'CAPUTLG333S', l:'기계 가동률',            m:'lvl', u:'%' },
+      { c:'A33SUO',      l:'기계 수주잔고',           m:'yoy', u:'백만달러' },
+      { c:'WPU11',       l:'기계·장비 생산자물가',    m:'yoy', u:'지수' } ] },
+  { k:'build', n:'건설·주택', ind:[
+      { c:'MSACSR',     l:'신규주택 재고 (개월수)',   m:'inv', u:'개월' },
+      { c:'JTS2300JOL', l:'건설 구인',               m:'lvl', u:'천건' },
+      { c:'WPU08',      l:'목재 생산자물가',          m:'yoy', u:'지수' } ] },
+  { k:'logi',  n:'물류·운송', ind:[
+      { c:'TRUCKD11',           l:'트럭 물동량',      m:'yoy', u:'지수' },
+      { c:'TSIFRGHT',           l:'화물 운송지수',    m:'yoy', u:'지수' },
+      { c:'RAILFRTCARLOADSD11', l:'철도 화물',        m:'yoy', u:'량' } ] },
+  { k:'energy', n:'에너지·광업', ind:[
+      { c:'CAPUTLG21S', l:'광업 가동률',              m:'lvl', u:'%' },
+      { c:'DCOILWTICO', l:'WTI 유가',                m:'yoy', u:'달러' },
+      { c:'DHHNGSP',    l:'천연가스 (헨리허브)',       m:'yoy', u:'달러' } ] },
+  { k:'util',  n:'전력·가스', ind:[
+      { c:'CAPUTLG2211A2S', l:'전기·가스 유틸리티 가동률', m:'lvl', u:'%' } ] },
+  { k:'retail', n:'유통', ind:[
+      { c:'WHLSLRIRSA', l:'도매 재고/판매',           m:'inv', u:'배' },
+      { c:'RETAILIRSA', l:'소매 재고/판매',           m:'inv', u:'배' },
+      { c:'JTS4000JOL', l:'유통·운수 구인',           m:'lvl', u:'천건' } ] },
+  { k:'health', n:'보건', ind:[
+      { c:'JTS6200JOL', l:'보건·사회복지 구인',        m:'lvl', u:'천건' } ] },
+  { k:'leisure', n:'여가·숙박', ind:[
+      { c:'JTS7000JOL', l:'여가·숙박 구인',           m:'lvl', u:'천건' } ] }
+];
+var BN_START = '2015-01-01', BN_KEY = 'safe_bn_v1';
+var bnMem = {}, bnRun = 0, bnChart = null;
+
+function bnStoreRead(){ try { return JSON.parse(localStorage.getItem(BN_KEY) || '{}') || {}; } catch(e){ return {}; } }
+function bnStoreWrite(m){ try { localStorage.setItem(BN_KEY, JSON.stringify(m)); } catch(e){} }
+function bnCached(code){
+  if (bnMem[code] && !bnMem[code].err) return bnMem[code];
+  var e = bnStoreRead()[code];
+  if (e && e.exp > Date.now() && e.s){ bnMem[code] = e.s; return e.s; }
+  return null;
+}
+function bnRemember(code, s){
+  bnMem[code] = s; var m = bnStoreRead(); m[code] = { exp: mcExpiry(s), at: Date.now(), s: s }; bnStoreWrite(m);
+}
+//  백분위 — «지금 값보다 작거나 같은 값이 전체의 몇 %» (0~100)
+function bnPct(vals, v){
+  if (!vals.length) return null;
+  var c = 0; vals.forEach(function(x){ if (x <= v) c++; });
+  return Math.round(c / vals.length * 1000) / 10;
+}
+//  일간·주간 자료는 월말 값으로 줄입니다 — 월간 지표와 같은 잣대로 재려고
+function bnMonthly(pts){
+  var by = {};
+  pts.forEach(function(p){ by[p.d.slice(0, 7)] = p; });
+  return Object.keys(by).sort().map(function(k){ return by[k]; });
+}
+function bnSummarize(d){
+  var pts = (d.points || []).filter(function(p){ return p && p.d && p.v != null && isFinite(Number(p.v)); })
+            .map(function(p){ return { d: String(p.d).slice(0, 10), v: Number(p.v) }; })
+            .sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+  if (pts.length < 13) return null;
+  var m = bnMonthly(pts), n = m.length, last = m[n - 1];
+  var vals = m.map(function(p){ return p.v; });
+  //  전년비 — 12개월 앞 점이 있는 것만 (분기 자료면 4개 앞이지만 여긴 월간뿐)
+  var yoys = [], byYm = {};
+  m.forEach(function(p){ byYm[p.d.slice(0, 7)] = p.v; });
+  m.forEach(function(p){
+    var y = Number(p.d.slice(0, 4)) - 1, prev = byYm[y + p.d.slice(4, 7)];
+    if (prev != null && prev !== 0) yoys.push({ d: p.d, v: (p.v / prev - 1) * 100 });
+  });
+  var lastYoy = yoys.length && yoys[yoys.length - 1].d === last.d ? yoys[yoys.length - 1].v : null;
+  return {
+    v: last.v, d: last.d, pv: n > 1 ? m[n - 2].v : null,
+    yoy: lastYoy, pctLvl: bnPct(vals, last.v),
+    pctYoy: lastYoy == null ? null : bnPct(yoys.map(function(y){ return y.v; }), lastYoy),
+    from: m[0].d, n: n, until: d.until || d.valid_until || null, rel: d.last_release || null, stale: !!d.stale, at: Date.now()
+  };
+}
+//  지표의 «빡빡함» 0~100
+function bnTight(ind, s){
+  if (!s) return null;
+  if (ind.m === 'yoy') return s.pctYoy;
+  if (ind.m === 'inv') return s.pctLvl == null ? null : 100 - s.pctLvl;
+  return s.pctLvl;
+}
+function bnAllCodes(){
+  var seen = {}, out = [];
+  BN_INDUSTRIES.forEach(function(g){ g.ind.forEach(function(i){ if (!seen[i.c]){ seen[i.c] = 1; out.push(i.c); } }); });
+  return out;
+}
+async function bnLoad(code, run){
+  var hit = bnCached(code); if (hit) return hit;
+  try {
+    var d = await edge({ source: 'fred', code: code, item_code: '', cycle: 'M', start: BN_START });
+    var s = bnSummarize(d);
+    if (!s) throw new Error('자료가 너무 짧습니다');
+    bnRemember(code, s);
+    return s;
+  } catch(e){ bnMem[code] = { err: String(e && e.message || e) }; return bnMem[code]; }
+}
+async function loadBottleneck(){
+  var run = ++bnRun;
+  renderBottleneck();
+  var need = bnAllCodes().filter(function(c){ return !bnCached(c); });
+  var note = $('bnNote');
+  if (note) note.textContent = need.length ? need.length + '개 지표 받는 중 (3개씩) — 받은 요약은 다음 발표일까지 이 브라우저에 남깁니다.' : '전부 보관함에서 (다음 발표일까지).';
+  for (var j = 0; j < need.length; j += 3){
+    if (run !== bnRun) return;
+    await Promise.all(need.slice(j, j + 3).map(function(c){ return bnLoad(c, run); }));
+    if (run === bnRun) renderBottleneck();
+  }
+  if (run === bnRun && note && need.length) note.textContent = '받았습니다 — 다음 발표일까지 이 브라우저에 남겨 다시 부르지 않습니다.';
+}
+function bnRefresh(){
+  var m = bnStoreRead(); bnAllCodes().forEach(function(c){ delete bnMem[c]; delete m[c]; }); bnStoreWrite(m);
+  loadBottleneck();
+}
+function bnScores(){
+  return BN_INDUSTRIES.map(function(g){
+    var ts = [], miss = 0, errs = 0;
+    g.ind.forEach(function(i){
+      var s = bnCached(i.c);
+      if (!s){ if (bnMem[i.c] && bnMem[i.c].err) errs++; else miss++; return; }
+      var t = bnTight(i, s); if (t != null) ts.push(t);
+    });
+    var score = ts.length ? Math.round(ts.reduce(function(a, b){ return a + b; }, 0) / ts.length) : null;
+    return { g: g, score: score, have: ts.length, miss: miss, errs: errs };
+  });
+}
+function bnSignal(t){
+  if (t == null) return { c: 'var(--text-sub)', t: '-' };
+  if (t >= 70) return { c: 'var(--up)', t: '빡빡' };
+  if (t <= 30) return { c: 'var(--down)', t: '느슨' };
+  return { c: 'var(--text-sub)', t: '보통' };
+}
+function bnBar(t){
+  if (t == null) return '<span style="color:var(--text-sub)">-</span>';
+  var sg = bnSignal(t);
+  return '<div style="display:flex;align-items:center;gap:7px"><div style="flex:1;height:7px;border-radius:999px;background:var(--bg);border:1px solid var(--border);position:relative;min-width:70px">'
+       + '<div style="position:absolute;left:0;top:0;bottom:0;width:' + Math.max(1, Math.min(100, t)).toFixed(1) + '%;border-radius:999px;background:' + sg.c + ';opacity:.75"></div></div>'
+       + '<b style="font-variant-numeric:tabular-nums;min-width:34px;text-align:right;color:' + sg.c + '">' + Math.round(t) + '</b></div>';
+}
+function renderBottleneck(){
+  var box = $('bnTable'); if (!box) return;
+  var sc = bnScores();
+  var order = sc.slice().sort(function(a, b){ return (b.score == null ? -1 : b.score) - (a.score == null ? -1 : a.score); });
+  var html = '<div class="scroll"><table style="min-width:640px"><tr><th>산업 · 지표</th><th style="text-align:right">최신</th><th>기준</th>'
+           + '<th style="text-align:right">전년비</th><th style="width:170px" title="2015년 이후 자료 중 지금 값의 위치 — 재고처럼 높을수록 느슨한 지표는 뒤집어서">빡빡함 (0~100)</th><th>신호</th></tr>';
+  order.forEach(function(r){
+    var sg = bnSignal(r.score);
+    html += '<tr style="background:var(--accent-soft)"><td><b>' + esc(r.g.n) + '</b> <span style="color:var(--text-sub);font-size:11px">지표 ' + r.have + '/' + r.g.ind.length
+          + (r.miss ? ' · 받는 중' : '') + (r.errs ? ' · ' + r.errs + '개 실패' : '') + '</span></td><td></td><td></td><td></td>'
+          + '<td>' + bnBar(r.score) + '</td><td><b style="color:' + sg.c + '">' + sg.t + '</b></td></tr>';
+    r.g.ind.forEach(function(i){
+      var s = bnCached(i.c), er = bnMem[i.c] && bnMem[i.c].err;
+      var t = bnTight(i, s), sgi = bnSignal(t);
+      var how = i.m === 'yoy' ? '전년비' : i.m === 'inv' ? '값(뒤집음)' : '값';
+      html += '<tr><td style="padding-left:26px">' + esc(i.l) + ' <span style="color:var(--text-sub);font-size:10.5px">' + esc(i.c) + ' · ' + how + '</span>'
+            + (s && s.stale ? ' <span class="mtm-badge stale">낡음</span>' : '') + '</td>';
+      if (!s){ html += '<td colspan="5" style="color:var(--text-sub);font-size:12px">' + esc(er ? '받지 못했습니다 — ' + er : '받는 중…') + '</td></tr>'; return; }
+      html += '<td style="text-align:right;font-variant-numeric:tabular-nums">' + esc(mcVal(s.v, i.u)) + '</td>'
+            + '<td style="color:var(--text-sub);font-size:11px;white-space:nowrap">' + esc(s.d.slice(0, 7)) + (s.until ? ' · 다음 ' + esc(String(s.until).slice(5)) : '') + '</td>'
+            + '<td style="text-align:right;font-variant-numeric:tabular-nums">' + mcWrap(mcPct(s.yoy), s.yoy) + '</td>'
+            + '<td>' + bnBar(t) + '</td><td style="color:' + sgi.c + '">' + sgi.t + '</td></tr>';
+    });
+  });
+  html += '</table></div>';
+  box.innerHTML = html;
+
+  var cb = $('bnChart'); if (!cb || typeof echarts === 'undefined') return;
+  var data = order.filter(function(r){ return r.score != null; }).reverse();   //  가로 막대는 아래→위라 뒤집습니다
+  bnChart = chartOn(cb, bnChart); if (!bnChart) return;
+  bnChart.setOption({
+    animation: false,
+    grid: { left: 8, right: 40, top: 8, bottom: 8, containLabel: true },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+      formatter: function(ps){ var p = ps[0], r = data[p.dataIndex]; return r.g.n + '<br>병목 점수 ' + r.score + ' (지표 ' + r.have + '개 평균)'; } },
+    xAxis: { type: 'value', min: 0, max: 100, splitLine: { show: true }, axisLabel: { fontSize: 10 } },
+    yAxis: { type: 'category', data: data.map(function(r){ return r.g.n; }), axisLabel: { fontSize: 11 } },
+    series: [{ type: 'bar', barMaxWidth: 18,
+      data: data.map(function(r){ var sg = bnSignal(r.score); return { value: r.score, itemStyle: { color: sg.c === 'var(--text-sub)' ? '#8a94ad' : (r.score >= 70 ? '#c0392b' : '#1b5fa8'), borderRadius: [0,4,4,0] } }; }),
+      label: { show: true, position: 'right', fontSize: 10, formatter: function(p){ return p.value; } },
+      markLine: { silent: true, symbol: 'none', lineStyle: { type: 'dashed', color: '#8a94ad' }, label: { show: false },
+        data: [{ xAxis: 30 }, { xAxis: 70 }] }
+    }]
+  }, true);
+}
+function bnCsv(){
+  var rows = [['산업', '지표', '코드', '뜻', '기준', '최신값', '단위', '전년비', '빡빡함(0~100)', '산업 점수', '다음 발표']];
+  bnScores().forEach(function(r){
+    r.g.ind.forEach(function(i){
+      var s = bnCached(i.c); if (!s) return;
+      var t = bnTight(i, s);
+      rows.push([r.g.n, i.l, i.c, i.m, s.d, s.v, i.u, s.yoy == null ? '' : s.yoy.toFixed(2) + '%', t == null ? '' : t, r.score == null ? '' : r.score, s.until || '']);
+    });
+  });
+  if (rows.length < 2){ warn('indWarn', '아직 받은 지표가 없습니다.'); return; }
+  var csv = '﻿' + rows.map(function(r){ return r.map(function(c){ var x = String(c == null ? '' : c); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }).join(','); }).join('\n');
+  saveBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), 'SAFE-병목모니터-' + today() + '.csv');
+}
+
+var indInited = false;
+function initIndustry(){
+  if (indInited){
+    //  다시 들어오면 그려둔 것만 크기 맞춤 (안 부릅니다)
+    setTimeout(function(){ if (secChart) secChart.resize(); if (bnChart) bnChart.resize(); }, 60);
+    return;
+  }
+  indInited = true;
+  warn('indWarn', '');
+  loadSectors();
+  loadBottleneck();
+}
+
 function addSeries(s){
   var key = s.source+'|'+s.code+'|'+(s.item_code||'');
   if (series.some(function(x){ return x.key === key; })) { warn('researchWarn','이미 추가된 지표입니다.'); return; }
@@ -10558,6 +11827,10 @@ function renderSeriesList(){
       +     '<div class="code">'+esc(srcName(s.source, s.code))+' · '+esc(s.code)
       //  ⚠️ 같은 코드를 뒤집어 쓰는 줄(위안/달러 = 1 ÷ 달러/위안)은 목록에서도 표시합니다
       +     (s.item_code === 'inv' ? ' · <b>1 ÷ 값</b>' : '')
+      /*  ⚠️ «이거 오늘 값 맞아?» 에 목록이 답합니다 — 마지막 자료 날짜 · 다음 발표 · 낡음 (10/4)  */
+      +     (s.points && s.points.length ? ' · 기준 ' + esc(seriesLastDate(s)) : '')
+      +     (s.until ? ' · 다음 ' + esc(String(s.until).slice(5, 10)) : '')
+      +     (s.stale ? ' <span class="mtm-badge stale" title="지금 새로 받지 못해 서버가 받아둔 값입니다">낡음</span>' : '')
       +     (s.points ? '' : ' <span class="spin"></span>')+'</div></div>'
       +   '<button class="xbtn" onclick="removeSeries('+i+')" title="삭제">&times;</button>'
       + '</div>'
@@ -10608,6 +11881,14 @@ function renderSeriesList(){
        색·축·변환까지 그대로 돌아옵니다.
 
     ⚠️ 지운 것처럼 보이면 안 됩니다. 흐리게 두고 단추는 남깁니다.       */
+/*  마지막 자료 날짜 — 월간이면 «2026-08», 일간이면 날짜까지  */
+function seriesLastDate(s){
+  var last = '';
+  (s.points || []).forEach(function(p){ if (p && p.d && String(p.d) > last) last = String(p.d); });
+  if (!last) return '';
+  var cy = String(s.cycle || 'M').toUpperCase();
+  return cy === 'D' ? last.slice(0, 10) : last.slice(0, 7);
+}
 function eyeSVG(off){
   //  열린 눈 / 빗금 그은 눈 — 글꼴에 기대지 않게 직접 그립니다
   //  (이모지는 기기마다 모양이 달라서 <감은 눈인지> 알아보기 어렵습니다)
@@ -16539,7 +17820,7 @@ function mtTvRender(mk, sym, label){
     save_image: true, style: '1',
     symbol: tv,
     //  학회장: «테마는 페이지랑 맞게 — 라이트»
-    theme: 'light',
+    theme: (typeof isDark === 'function' && isDark()) ? 'dark' : 'light',
     timezone: 'Asia/Seoul',
     backgroundColor: '#ffffff',
     gridColor: 'rgba(226, 230, 240, 0.8)',
@@ -18543,7 +19824,7 @@ function downloadCSV(){
 
 /*  차트를 새로 만들 때마다 이 목록에 손으로 더하는 걸 잊기 쉬워서,
     화면에 있는 차트 상자를 훑어 전부 다시 맞춥니다. */
-var CHART_BOXES = ['chartBox','corrBox','dtChartBox','dtBarBox',
+var CHART_BOXES = ['chartBox','corrBox','dtChartBox','dtBarBox','secChart','bnChart',
   'pieBox','pnlBox','benchBox','stratPrevBox',
   'coFinBox','coPriceBox',
   'dvMapBox','dvTermBox','dvPayBox','dvIvBox','dvOiBox','dvGkBox',
@@ -25033,7 +26314,7 @@ async function loadMeetingDocs(){
   mdDocs = r.data || [];
   if (!mdDocs.length){
     box.innerHTML = '<div class="empty">아직 올라온 자료가 없습니다.'
-      + (isOfficer() ? ' 위에서 PDF 를 올려보세요.' : '') + '</div>';
+      + (isOfficer() ? ' 위에서 자료를 올려보세요.' : '') + '</div>';
     return;
   }
   box.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr>'
@@ -25045,17 +26326,42 @@ async function loadMeetingDocs(){
     + mdDocs.map(function(d){
         return '<tr>'
           + '<td>' + esc(d.meeting_on || String(d.created_at || '').slice(0, 10)) + '</td>'
-          + '<td><b>' + esc(d.title) + '</b>'
+          + '<td><span class="md-kind" title="' + esc(mdKind(d.path).name) + '">' + esc(mdKind(d.path).tag) + '</span><b>' + esc(d.title) + '</b>'
           + (d.note ? '<div class="nt" style="font-size:11.5px;color:var(--text-sub)">'
                       + esc(d.note) + '</div>' : '') + '</td>'
           + '<td class="num">' + mdSize(d.bytes) + '</td>'
           + '<td>' + esc(d.by_name || '—') + '</td>'
-          + '<td style="white-space:nowrap"><button class="btn-sm" onclick="mdOpen(' + Number(d.id) + ')">열기</button>'
+          + '<td style="white-space:nowrap"><button class="btn-sm" onclick="mdOpen(' + Number(d.id) + ')">' + (mdKind(d.path).ext === 'pdf' ? '열기' : '내려받기') + '</button>'
           + (isOfficer()
               ? ' <button class="btn-sm" onclick="mdDelete(' + Number(d.id) + ')">삭제</button>' : '')
           + '</td></tr>';
       }).join('')
     + '</tbody></table></div>';
+}
+
+/*  ── 회의 자료 종류 (10/4) ──
+    ⚠️ 학회장: «회의 자료 pdf 만 올릴 수 있는데 워드랑 피피티도» → PDF·워드·PPT·한글·엑셀.
+    확장자만 믿지 않고 브라우저가 말하는 종류(MIME)도 같이 봅니다 — 이름만 바꾼 파일을 거릅니다.  */
+var MD_KINDS = {
+  pdf:  { name:'PDF',   tag:'PDF',  mime:['application/pdf'] },
+  doc:  { name:'워드',  tag:'DOC',  mime:['application/msword'] },
+  docx: { name:'워드',  tag:'DOC',  mime:['application/vnd.openxmlformats-officedocument.wordprocessingml.document'] },
+  ppt:  { name:'PPT',   tag:'PPT',  mime:['application/vnd.ms-powerpoint'] },
+  pptx: { name:'PPT',   tag:'PPT',  mime:['application/vnd.openxmlformats-officedocument.presentationml.presentation'] },
+  hwp:  { name:'한글',  tag:'HWP',  mime:['application/x-hwp', 'application/haansofthwp', 'application/vnd.hancom.hwp'] },
+  hwpx: { name:'한글',  tag:'HWP',  mime:['application/hwp+zip', 'application/vnd.hancom.hwpx', 'application/zip'] },
+  xls:  { name:'엑셀',  tag:'XLS',  mime:['application/vnd.ms-excel'] },
+  xlsx: { name:'엑셀',  tag:'XLS',  mime:['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] }
+};
+function mdExtOf(name){ var m = /\.([a-z0-9]+)$/i.exec(String(name || '')); return m ? m[1].toLowerCase() : ''; }
+function mdKind(path){ var e = mdExtOf(path); var k = MD_KINDS[e]; return k ? { ext:e, name:k.name, tag:k.tag } : { ext:e, name:'파일', tag:'FILE' }; }
+//  올려도 되는 파일인가 — 확장자가 목록에 있고, MIME 가 비었거나(한글 등 브라우저가 모름) 그 확장자의 것이어야
+function mdAccept(f){
+  var e = mdExtOf(f.name), k = MD_KINDS[e];
+  if (!k) return { ok:false, why:'PDF · 워드 · PPT · 한글 · 엑셀만 올릴 수 있습니다.' };
+  var t = String(f.type || '');
+  if (t && k.mime.indexOf(t) < 0 && !(e === 'hwp' && /octet-stream/.test(t))) return { ok:false, why:'파일 종류가 확장자(' + e + ')와 다릅니다 — 이름만 바꾼 파일은 받지 않습니다.' };
+  return { ok:true, ext:e, mime:k.mime[0] };
 }
 
 /*  누를 때마다 새 주소를 받습니다 — 주소가 돌아다녀도 곧 막힙니다  */
@@ -25078,20 +26384,19 @@ async function mdUpload(){
     $('mdMsg').style.color = ok ? 'var(--ok)' : 'var(--danger)';
     $('mdMsg').textContent = txt;
   };
-  if (!f){ msg('PDF 파일을 골라주세요.'); return; }
+  if (!f){ msg('파일을 골라주세요 (PDF · 워드 · PPT · 한글 · 엑셀).'); return; }
   if (!t){ msg('자료 이름을 적어주세요.'); return; }
-  //  확장자만 보고 넘기면 이름만 바꾼 파일이 들어옵니다 — 종류도 같이 봅니다
-  var isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
-  if (!isPdf){ msg('PDF 만 올릴 수 있습니다.'); return; }
+  var acc = mdAccept(f);
+  if (!acc.ok){ msg(acc.why); return; }
   if (f.size > 25 * 1024 * 1024){ msg('파일이 25MB 를 넘습니다.'); return; }
 
   $('mdUpBtn').disabled = true; msg('올리는 중…', true);
-  //  파일 이름에 한글 · 공백이 있으면 주소가 깨집니다 — 날짜 + 임의 값으로 짓습니다
+  //  파일 이름에 한글 · 공백이 있으면 주소가 깨집니다 — 날짜 + 임의 값 + 확장자로 짓습니다
   var key = (($('mdDate').value || today()).replace(/-/g, '')) + '-'
-          + Math.random().toString(36).slice(2, 10) + '.pdf';
+          + Math.random().toString(36).slice(2, 10) + '.' + acc.ext;
   try {
     var up = await sb.storage.from('meeting-docs')
-      .upload(key, f, { contentType:'application/pdf', upsert:false });
+      .upload(key, f, { contentType: acc.mime, upsert:false });
     if (up.error) throw up.error;
     //  올린 사람은 서버가 로그인 정보로 채웁니다 (화면이 보내지 않습니다)
     var ins = await sb.from('meeting_docs').insert({
@@ -25219,7 +26524,7 @@ var AD_KEY = 'safe.adtab.v1';
 var adView = 'mt';
 
 function adTab(which){
-  var keys = ['mt','ai','who','etc'];
+  var keys = ['mt','ai','who','etc','access'];
   if (keys.indexOf(which) < 0) which = 'mt';
   adView = which;
   keys.forEach(function(k){
@@ -25227,6 +26532,8 @@ function adTab(which){
     var b = $('adSeg-' + k);  if (b) b.classList.toggle('on', k === which);
   });
   try { localStorage.setItem(AD_KEY, which); } catch(e){ /* 사생활 모드 */ }
+  //  접속 기록은 열 때마다 새로 받습니다 (설정 안으로 옮긴 뒤로 showTab 이 안 부르므로 여기서)
+  if (which === 'access' && typeof loadAccess === 'function'){ try { loadAccess(); } catch(e){ console.warn('접속 기록', e); } }
   //  숨김이 풀린 뒤에 차트·표가 제 크기를 잡게 합니다
   setTimeout(resizeAllCharts, 60);
 }
