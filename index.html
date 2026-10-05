@@ -217,6 +217,7 @@
   .mtm-big{flex-wrap:wrap}
   @media (max-width:640px){ .mtm-grid{grid-template-columns:repeat(2,1fr);gap:8px} .mtm-big b{font-size:19px} }
   @media (max-width:420px){ .mtm-grid{grid-template-columns:1fr} }
+  .yc-chip{border-color:var(--primary);color:var(--primary);font-weight:700}
   .ub-chip{display:inline-flex;align-items:stretch}
   .ub-chip .btn-sm{border-top-right-radius:0;border-bottom-right-radius:0;border-right:0;border-style:dashed}
   .ub-chip .ub-x{border:1px solid var(--border);border-style:dashed;border-left:0;border-top-right-radius:8px;border-bottom-right-radius:8px;background:var(--white);
@@ -2071,16 +2072,21 @@
             고르면 이 안의 시점 손잡이와 표를 <위 차트로 옮겨서> 씁니다
             (ycMove). 통째로 없애면 옮길 것이 사라져 커브가 안 열립니다.  -->
       <div class="card hidden" id="ycCard" data-yc-host="1">
-        <h2>미국 일드커브
+        <h2><span id="ycTitle">미국 일드커브</span>
           <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
             만기별 국채 금리 — 시점을 겹쳐 봅니다</span>
           <span class="tools">
             <span id="ycAsOf" style="font-size:11.5px;color:var(--text-sub);font-weight:400"></span>
-            <button class="btn-sm" onclick="chartJpg(ycChart, '미국 일드커브')">JPG</button>
+            <button class="btn-sm" onclick="chartJpg(ycChart, ycMktName())">JPG</button>
             <button class="btn-sm" onclick="loadYC(true)">새로 받기</button>
           </span>
         </h2>
         <div id="ycCtl">
+          <div class="row" style="margin-bottom:4px">
+            <span class="st-hint" style="flex:none">국가</span>
+            <button class="btn-sm" id="ycMktUs" onclick="ycSetMarket('us')">미국 국채</button>
+            <button class="btn-sm" id="ycMktKr" onclick="ycSetMarket('kr')">한국 국고채</button>
+          </div>
           <div class="row" style="margin-bottom:2px;align-items:flex-start">
             <span class="st-hint" style="flex:none;padding-top:4px">시점</span>
             <div class="nf-chips grow" id="ycChips"></div>
@@ -4711,7 +4717,18 @@ var EN_NAMES = {
   'fred|BAMLH0A0HYM2|': 'HY Spread (OAS)', 'fred|BAMLC0A0CM|': 'IG Spread (OAS)', 'fred|MORTGAGE30US|': '30Y Mortgage Rate',
   'ecos|817Y002|010200000': 'KTB 3Y', 'ecos|817Y002|010210000': 'KTB 10Y', 'ecos|722Y001|0101000': 'BOK Base Rate',
   'ecos|817Y002|010101000': 'Korea Call Rate', 'ecos|817Y002|010502000': 'Korea CD 91D', 'ecos|817Y002|010503000': 'Korea CP 91D',
-  'ecos|817Y002|010150000': 'KORIBOR 3M', 'ecos|817Y002|010400000': 'MSB 1Y', 'ecos|817Y002|010190000': 'KTB 1Y',
+  'ecos|817Y002|010150000': 'KORIBOR 3M', 'ecos|817Y002|010400000': 'MSB 91D', 'ecos|817Y002|010400001': 'MSB 1Y', 'ecos|817Y002|010190000': 'KTB 1Y',
+  'ecos|817Y002|010901000': 'KOFR', 'ecos|817Y002|010195000': 'KTB 2Y', 'ecos|817Y002|010220000': 'KTB 20Y', 'ecos|817Y002|010230000': 'KTB 30Y',
+  'ecos|161Y006|BBHA04': 'Korea MMF', 'ecos|161Y006|BBHA15': 'Korea RP Sold', 'ecos|161Y006|BBHA06': 'Korea CD Outstanding', 'ecos|161Y006|BBHA08': 'Korea CMA',
+  'ecos|161Y006|BBHA00': 'Korea M2', 'ecos|901Y056|S23A': 'Investor Deposits', 'ecos|901Y056|S23E': 'Margin Loans', 'ecos|901Y056|S23C': 'Brokerage RP',
+  'ecos|103Y002|BCAA215': 'MSB Outstanding', 'ecos|103Y002|BCAA216': 'BOK RP Sold', 'ecos|103Y002|BCAA2121': 'Bank Reserves at BOK',
+  'ecos|103Y002|BCAA213': 'Govt Deposits at BOK', 'ecos|103Y002|BCAA1': 'BOK Total Assets',
+  'ecos|131Y014|BDHE1C': 'Non-bank Real Estate Loans', 'ecos|131Y014|BDHE16': 'Non-bank Construction Loans',
+  'ecos|131Y013|BDDE1C': 'Bank Real Estate Loans', 'ecos|131Y013|BDDE16': 'Bank Construction Loans', 'ecos|131Y016|BDDE1C': 'Real Estate Loans (All)',
+  'fred|RPONTTLD|': 'SRF Usage', 'fred|RPONTSYD|': 'SRF Usage (UST)', 'fred|RPONMBSD|': 'SRF Usage (MBS)', 'fred|RRPONTSYD|': 'ON RRP',
+  'fred|SOFR|': 'SOFR', 'fred|SOFR99|': 'SOFR 99th pct', 'fred|TGCRRATE|': 'TGCR', 'fred|IORB|': 'IORB', 'fred|SRFTSYD|': 'SRF Rate',
+  'fred|SOFRVOL|': 'SOFR Volume', 'fred|WRESBAL|': 'Reserve Balances', 'fred|WTREGEN|': 'TGA', 'fred|WLCFLPCL|': 'Discount Window',
+  'fred|H41RESPPALGTRFNWW|': 'FIMA Repo', 'fred|WLRRAFOIAL|': 'Foreign RRP Pool', 'fred|EFFR|': 'EFFR', 'fred|WALCL|': 'Fed Total Assets',
   'ecos|817Y002|010200001': 'KTB 5Y', 'ecos|817Y002|010300000': 'Korea Corp 3Y (AA-)', 'ecos|817Y002|010320000': 'Korea Corp 3Y (BBB-)',
   //  자주 쓰는 나머지 (목록에 있으면 그대로 영문으로)
   'fred|GDPC1|': 'Real GDP', 'fred|GDP|': 'Nominal GDP', 'fred|RSAFS|': 'Retail Sales', 'fred|RSXFS|': 'Retail Sales ex-Autos',
@@ -4859,7 +4876,7 @@ function enName(src, code, item, ko){
 function indName(src, code, item, ko){ var e = isEn() ? enName(src, code, item, ko) : null; return e || ko; }
 var UNIT_EN = { '%': '%', '%p': 'pp', '천명': 'K', '건': '', '천건': 'K', '지수': 'Index', '달러/배럴': '$/bbl', '백만달러': '$M',
                 '십억달러': '$B', '달러/시간': '$/hr', '배': 'x', '시간': 'hrs', '원': 'KRW', '달러': 'USD', '억원': 'KRW 100M',
-                '십억원': 'KRW B', '백만': 'M', '천': 'K', '명': '', '포인트': 'pt', 'p': 'pt', '가격(100)': 'Price (100)' };
+                '십억원': 'KRW B', '조원': 'KRW tn', '백만': 'M', '천': 'K', '명': '', '포인트': 'pt', 'p': 'pt', '가격(100)': 'Price (100)' };
 function unitDisp(u){ u = String(u == null ? '' : u); if (!isEn()) return u; return UNIT_EN[u] != null ? UNIT_EN[u] : u; }
 var MON_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 //  전기비의 영문은 주기에 따라 다릅니다 — 월간 MoM · 분기 QoQ · 주간/일간 WoW
@@ -4998,7 +5015,7 @@ async function enterApp(){
     예전 이름(showTab('solo') 등)은 그대로 동작합니다 — 북마클릿·시험이 그 이름을 씁니다.  */
 var TAB_GROUPS = {
   //  매크로 경제의 하위 탭은 <화면이 하나> 이고 팀만 바뀝니다 (pane 하나 · 팀 키)
-  macro:    { pane:'research', tabs: [['infl','인플레이션'], ['jobs','고용'], ['mfg','제조업'], ['rates','채권·금리'], ['krmm','한국 금리']] },
+  macro:    { pane:'research', tabs: [['infl','인플레이션'], ['jobs','고용'], ['mfg','제조업'], ['rates','채권·금리'], ['usmm','미국 단기자금'], ['krmm','한국 금리'], ['krliq','한국 자금'], ['krpf','한국 PF']] },
   invest:   { tabs: [['trading','팀 대회'], ['solo','개인 대회']] },
   analysis: { tabs: [['industry','산업분석'], ['company','기업분석'], ['ai','AI 분석'], ['deriv','파생상품'], ['flow','자금흐름']] }
 };
@@ -5491,7 +5508,8 @@ function renderCatalogSel(){
       ⚠️ 시계열 지표와 <같은 그림에> 겹칠 수는 없습니다. 가로축이
       «날짜» 와 «만기» 로 서로 다릅니다. 겹쳐 그리면 둘 다 거짓말이
       됩니다. 그래서 커브를 고르면 차트를 <넘겨받습니다>. */
-  var ycOpt = '<option value="' + YC_ID + '">★★★  ' + T('미국 일드커브 (만기별 곡선)', 'US Yield Curve (by maturity)') + '</option>';
+  var ycOpt = '<option value="' + YC_ID + '">★★★  ' + T('미국 일드커브 (만기별 곡선)', 'US Yield Curve (by maturity)') + '</option>'
+            + '<option value="' + YC_ID_KR + '">★★★  ' + T('한국 일드커브 (국고채 만기별)', 'Korea Yield Curve (KTB)') + '</option>';
   var ycShow = (!catCat || catCat === YC_CAT);
   var ycPut = false;
   Object.keys(byCat).forEach(function(cat){
@@ -5544,12 +5562,12 @@ function onManualSource(){
   $('mEcosRow').style.display = $('mSource').value === 'ecos' ? 'flex' : 'none';
 }
 
-var YC_ID = '__yieldcurve__', YC_CAT = '금리';
+var YC_ID = '__yieldcurve__', YC_ID_KR = '__yieldcurve_kr__', YC_CAT = '금리';
 
 function addFromCatalog(){
   var id = $('catalogSel').value;
   if (!id) return;
-  if (id === YC_ID){ ycToMain(); return; }
+  if (id === YC_ID || id === YC_ID_KR){ ycSetMarket(id === YC_ID_KR ? 'kr' : 'us', true); ycToMain(); return; }
   //  다른 지표를 올리면 커브 모드에서 빠져나옵니다
   if (macroMode === 'curve') ycFromMain();
   var c = catalog.filter(function(x){ return String(x.id) === String(id); })[0];
@@ -11433,7 +11451,7 @@ var MACRO_BUNDLES = [
     주기는 한 묶음 안에서 같게 둡니다 (주간·월간 섞지 않음 — 위 주석 참고).
     코드는 terminal-팀지표.sql 이 목록에 넣은 것들이라, 그 SQL 을 안 돌렸으면 조용히 빠집니다.  */
 var TEAM_BUNDLES = {
-  rates: MACRO_BUNDLES,
+  rates: [{ n:'미국 일드커브', d:'미 국채 만기별 곡선 (1개월~30년) — 최근 · 1년 전 겹쳐 보기', curve:'us', c:[] }].concat(MACRO_BUNDLES),
   infl: [
     { n:'물가 4종 — CPI · 근원 CPI · PCE · 근원 PCE', d:'연준이 보는 네 가지 물가 (월간, 전년비 %)', tf:'yoy',
       c:['CPIAUCSL','CPILFESL','PCEPI','PCEPILFE'] },
@@ -11461,16 +11479,53 @@ var TEAM_BUNDLES = {
       c:['JTSJOL','JTSQUR'] }
   ],
   krmm: [
-    { n:'단기자금 — 기준금리 · 콜 · CD · CP · KORIBOR 3M', d:'한국 단기금리 다섯 (일간, %) — 기준금리 위로 얼마나 붙었나', keepRaw:true,
-      c:['722Y001|0101000','817Y002|010101000','817Y002|010502000','817Y002|010503000','817Y002|010150000'] },
-    { n:'국고채 커브 — 1 · 3 · 5 · 10년', d:'만기별 국고채 금리 (일간, %)', keepRaw:true,
-      c:['817Y002|010190000','817Y002|010200000','817Y002|010200001','817Y002|010210000'] },
+    { n:'한국 일드커브', d:'국고채 만기별 곡선 (통안 91일 · 1~50년) — 최근 · 1년 전 겹쳐 보기', curve:'kr', c:[] },
+    { n:'단기자금 — 기준금리 · 콜 · KOFR · CD · CP · KORIBOR 3M', d:'한국 단기금리 여섯 (일간, %) — 기준금리 위로 얼마나 붙었나', keepRaw:true,
+      c:['722Y001|0101000','817Y002|010101000','817Y002|010901000','817Y002|010502000','817Y002|010503000','817Y002|010150000'] },
+    { n:'국고채 커브 — 1 · 3 · 5 · 10 · 30년', d:'만기별 국고채 금리 (일간, %)', keepRaw:true,
+      c:['817Y002|010190000','817Y002|010200000','817Y002|010200001','817Y002|010210000','817Y002|010230000'] },
     { n:'신용 스프레드 — 국고채 3년 · 회사채 AA- · BBB-', d:'같은 3년 만기 · 차이가 신용 스프레드 (일간, %)', keepRaw:true,
       c:['817Y002|010200000','817Y002|010300000','817Y002|010320000'] },
-    { n:'기준금리 vs 시장 — 기준금리 · 통안 1년 · 국고채 3년', d:'시장이 다음 금통위를 어떻게 보나 (일간, %)', keepRaw:true,
-      c:['722Y001|0101000','817Y002|010400000','817Y002|010200000'] },
+    { n:'기준금리 vs 시장 — 기준금리 · 통안 91일 · 통안 1년 · 국고채 3년', d:'시장이 다음 금통위를 어떻게 보나 (일간, %)', keepRaw:true,
+      c:['722Y001|0101000','817Y002|010400000','817Y002|010400001','817Y002|010200000'] },
     { n:'한·미 10년 — 한국 국고채 10년 · 미국 국채 10년', d:'한·미 금리차 (일간, %)', keepRaw:true,
       c:['817Y002|010210000','DGS10'] }
+  ],
+  usmm: [
+    { n:'SRF 이용 — 합계 · 국채 · MBS', d:'연준 상설 레포 이용액 (일간, 십억달러) — 분기말에 튑니다', keepRaw:true,
+      c:['RPONTTLD','RPONTSYD','RPONMBSD'] },
+    { n:'레포 압력 — SRF 금리 · SOFR 99% · SOFR · TGCR · IORB', d:'꼬리(99%)가 천장(SRF 금리)에 닿으면 SRF 이용이 늘어납니다 (일간, %)', keepRaw:true,
+      c:['SRFTSYD','SOFR99','SOFR','TGCRRATE','IORB'] },
+    { n:'SRF 이용(좌) vs ON RRP 잔액(우)', d:'돈이 모자란 쪽 vs 남는 쪽 (일간, 십억달러) — 크기가 수십 배 달라 축을 나눕니다', keepRaw:true, ax:[0,1],
+      c:['RPONTTLD','RRPONTSYD'] },
+    { n:'SOFR 거래량(좌) · SOFR(우)', d:'레포 시장 크기와 금리 (일간)', keepRaw:true, ax:[0,1],
+      c:['SOFRVOL','SOFR'] },
+    { n:'지준 · TGA · 연준 총자산', d:'주간 · 백만달러', keepRaw:true,
+      c:['WRESBAL','WTREGEN','WALCL'] },
+    { n:'연준 비상 창구 — 할인창구 · FIMA 레포 · 해외공적 역레포(우)', d:'주간 · 백만달러 — 은행·해외 중앙은행이 연준에 기대는 정도', keepRaw:true, ax:[0,0,1],
+      c:['WLCFLPCL','H41RESPPALGTRFNWW','WLRRAFOIAL'] }
+  ],
+  krpf: [
+    { n:'PF 대출 — 비은행 부동산업 · 건설업', d:'비은행예금취급기관 (분기, 조원)', keepRaw:true,
+      c:['131Y014|BDHE1C','131Y014|BDHE16'] },
+    { n:'부동산업 대출 — 은행 · 비은행', d:'분기 · 조원', keepRaw:true,
+      c:['131Y013|BDDE1C','131Y014|BDHE1C'] },
+    { n:'부동산업·건설업 대출 증가율 — 은행 · 비은행', d:'전년비 % (분기) — 비은행이 먼저 꺾이면 경색', tf:'yoy',
+      c:['131Y013|BDDE1C','131Y014|BDHE1C','131Y013|BDDE16','131Y014|BDHE16'] },
+    { n:'PF 자금 경색 — CP 91일 · CD 91일 · 회사채 BBB- · AA-', d:'일간 · % — CP−CD 가 벌어지고 BBB- 가 튀면 경색', keepRaw:true,
+      c:['817Y002|010503000','817Y002|010502000','817Y002|010320000','817Y002|010300000'] }
+  ],
+  krliq: [
+    { n:'대기자금 — MMF · RP · CD · CMA', d:'M2 구성 · 평잔 (월간, 조원)', keepRaw:true,
+      c:['161Y006|BBHA04','161Y006|BBHA15','161Y006|BBHA06','161Y006|BBHA08'] },
+    { n:'증시 대기자금 — 투자자예탁금(좌) · 신용융자(우)', d:'월간 · 조원', keepRaw:true, ax:[0,1],
+      c:['901Y056|S23A','901Y056|S23E'] },
+    { n:'한은 유동성 조절 — 통안증권 · RP 매각 · 지준예금', d:'한국은행 주요계정 말잔 (월간, 조원)', keepRaw:true,
+      c:['103Y002|BCAA215','103Y002|BCAA216','103Y002|BCAA2121'] },
+    { n:'한은 대차대조표 — 총자산(좌) · 정부예금(우)', d:'말잔 (월간, 조원)', keepRaw:true, ax:[0,1],
+      c:['103Y002|BCAA1','103Y002|BCAA213'] },
+    { n:'M2 · MMF 증가율', d:'전년비 % (월간)', tf:'yoy',
+      c:['161Y006|BBHA00','161Y006|BBHA04'] }
   ],
   mfg: [
     { n:'생산 — 산업생산 · 제조업 생산', d:'전체 산업과 제조업만 (월간, 전년비 %)', tf:'yoy',
@@ -11606,6 +11661,8 @@ function renderBundles(){
   var list = teamBundles();
   var t = (typeof MACRO_TEAMS !== 'undefined' && MACRO_TEAMS[macroTeam]) || null;
   var html = list.map(function(b, i){
+    //  일드커브 단추는 지표 목록과 상관없이 늘 섭니다 (서버가 커브를 만들어 줍니다)
+    if (b.curve) return '<button class="btn-sm yc-chip" onclick="macroBundle(' + i + ')" title="' + esc(b.d) + '">📈 ' + esc(b.n) + '</button>';
     var have = b.c.filter(function(spec){ return !!bundleFind(spec); }).length;
     if (!have) return '';                //  SQL 을 안 돌렸으면 단추를 아예 안 보여줍니다
     return '<button class="btn-sm" onclick="macroBundle(' + i + ')" '
@@ -11618,6 +11675,7 @@ function renderBundles(){
 
 async function macroBundle(i, replace){
   var b = teamBundles()[i]; if (!b) return;
+  if (b.curve){ ycSetMarket(b.curve, true); ycToMain(); var cbx = $('chartBox'); if (cbx && cbx.scrollIntoView) cbx.scrollIntoView({ behavior:'smooth', block:'center' }); return; }
   var want = b.c.map(function(spec, k){ var c = bundleFind(spec); return c ? { c: c, k: k } : null; }).filter(Boolean);
   if (!want.length){ warn('researchWarn','이 묶음의 지표가 아직 등록되지 않았습니다.'); return; }
 
@@ -11748,7 +11806,74 @@ var MACRO_TEAMS = {
       전부 한국은행 ECOS 817Y002(시장금리 · 일별) 항목코드 — 콜 010101000 · KORIBOR 3M 010150000 ·
       국고채 1/3/5/10년 010190000/010200000/010200001/010210000 · 통안 1년 010400000 ·
       회사채 AA- 010300000 · BBB- 010320000 · CD 010502000 · CP 010503000 — 와 기준금리 722Y001/0101000.
-      (항목코드는 한국은행 통계표 «4.1.1 시장금리(일별)» 목록에서 확인)                             */
+      (항목코드는 한국은행 통계표 «1.3.2.1 시장금리(일별)» 항목 목록에서 확인 — 10/5 다시 확인하며
+       010400000 이 <통안증권 91일> 임을 바로잡았습니다. 1년물은 010400001 입니다.)                  */
+  /*  미국 단기자금 (10/5) — 학회장: «미국 SRF 사용량 등 이런 데이터도». 전부 FRED (뉴욕 연은 · H.4.1).
+        RPONTTLD 일간 레포(= 상설 레포 SRF) 이용액 합계 · RPONTSYD 국채 담보 · RPONMBSD MBS 담보 (십억달러)
+        RRPONTSYD ON RRP 잔액 · SOFRVOL SOFR 거래량 (십억달러) · TGCRRATE 3자간 GC 레포 금리
+        WLCFLPCL 할인창구(1차 대출) · H41RESPPALGTRFNWW FIMA 레포 · WLRRAFOIAL 해외공적 역레포 (주간, 백만달러)  */
+  usmm: { n:'미국 단기자금', en:'US Funding', sub:'SRF 이용 · ON RRP · 레포 금리 · 지준 · 연준 창구', subEn:'SRF usage · ON RRP · Repo rates · Reserves · Fed facilities',
+    cats:['단기자금','금리'],
+    items:[
+      { s:'fred', c:'RPONTTLD',      cy:'D', t:'lvl',  u:'십억달러', st:3, b:1, l:'SRF 이용액 (합계)',            d:'연준 상설 레포 — 분기말·납세일에 튑니다' },
+      { s:'fred', c:'RPONTSYD',      cy:'D', t:'lvl',  u:'십억달러', st:2, b:0, l:'SRF 이용액 (국채 담보)',        d:'' },
+      { s:'fred', c:'RPONMBSD',      cy:'D', t:'lvl',  u:'십억달러', st:1, b:0, l:'SRF 이용액 (MBS 담보)',         d:'' },
+      { s:'fred', c:'RRPONTSYD',     cy:'D', t:'lvl',  u:'십억달러', st:3, b:1, l:'ON RRP 잔액',                   d:'남는 돈이 연준에 쉬는 곳 · 0 에 가까우면 여유 소진' },
+      { s:'fred', c:'SOFR',          cy:'D', t:'rate', u:'%',        st:3, b:1, l:'SOFR',                          d:'국채 담보 익일물' },
+      { s:'fred', c:'SOFR99',        cy:'D', t:'rate', u:'%',        st:2, b:0, l:'SOFR 99% 분위',                 d:'꼬리 · SRF 금리를 넘으면 SRF 로 갑니다' },
+      { s:'fred', c:'TGCRRATE',      cy:'D', t:'rate', u:'%',        st:2, b:0, l:'TGCR (3자간 GC 레포)',          d:'' },
+      { s:'fred', c:'IORB',          cy:'D', t:'rate', u:'%',        st:2, b:0, l:'IORB (지준 이자)',              d:'SOFR 가 이보다 높으면 돈이 빡빡' },
+      { s:'fred', c:'SRFTSYD',       cy:'D', t:'rate', u:'%',        st:2, b:0, l:'SRF 금리',                      d:'회랑 천장' },
+      { s:'fred', c:'SOFRVOL',       cy:'D', t:'lvl',  u:'십억달러', st:2, b:0, l:'SOFR 거래량',                   d:'레포 시장 크기' },
+      { s:'fred', c:'WRESBAL',       cy:'D', t:'lvl',  u:'백만달러', st:3, b:1, l:'지급준비금',                    d:'주간 · 줄면 QT 끝이 가깝다는 신호' },
+      { s:'fred', c:'WTREGEN',       cy:'D', t:'lvl',  u:'백만달러', st:2, b:1, l:'TGA (재무부 계좌)',             d:'주간 · 늘면 시중 유동성이 빠짐' },
+      { s:'fred', c:'WLCFLPCL',      cy:'D', t:'lvl',  u:'백만달러', st:2, b:0, l:'할인창구 (1차 대출)',           d:'주간 · 은행이 급할 때' },
+      { s:'fred', c:'H41RESPPALGTRFNWW', cy:'D', t:'lvl', u:'백만달러', st:1, b:0, l:'FIMA 레포',                  d:'주간 · 해외 중앙은행이 국채 맡기고 달러 빌림' },
+      { s:'fred', c:'WLRRAFOIAL',    cy:'D', t:'lvl',  u:'백만달러', st:1, b:0, l:'해외공적 역레포',               d:'주간 · 해외 중앙은행 달러 예치' }
+    ] },
+  /*  한국 자금 (10/5) — 학회장: «단기자금 잔액·거래량(콜 거래량, RP 잔액, MMF 설정액, CD 발행잔액)».
+        ECOS 통계표·항목코드를 항목 목록에서 하나씩 확인했습니다 (전부 월간).
+        161Y006 M2 상품별 구성(평잔·원계열·십억원): BBHA00 M2 · BBHA04 MMF · BBHA06 CD · BBHA08 CMA · BBHA15 RP매도
+        901Y056 증시주변자금(원): S23A 투자자예탁금 · S23C RP · S23E 신용융자
+        103Y002 한국은행 주요계정(말잔·십억원): BCAA1 총자산 · BCAA215 통안증권 · BCAA216 RP매각 · BCAA2121 은행 지준예금 · BCAA213 정부예금
+      ⚠️ 콜 «거래량» 은 ECOS 통계표 목록(1. 통화/금융)에 없어 못 넣었습니다.
+      ⚠️ 금액은 화면에서 <조원> 으로 바꿔 보여줍니다 (krwJo — 원·백만원·십억원 → 조원).  */
+  krliq: { n:'한국 자금', en:'Korea Liquidity', sub:'MMF · RP · CD · CMA · 증시 대기자금 · 한국은행 유동성 조절 (월간, 조원)', subEn:'MMF · RP · CD · CMA · Brokerage cash · BOK operations (monthly, KRW tn)',
+    cats:['단기자금','통화'],
+    items:[
+      { s:'ecos', c:'161Y006', i:'BBHA04', cy:'M', t:'lvl', u:'조원', st:3, b:1, l:'MMF 잔액',                  d:'M2 구성 · 평잔 · 갈 곳 없는 돈이 쉬는 곳' },
+      { s:'ecos', c:'161Y006', i:'BBHA15', cy:'M', t:'lvl', u:'조원', st:2, b:1, l:'RP 매도 잔액',              d:'M2 구성 · 평잔' },
+      { s:'ecos', c:'161Y006', i:'BBHA06', cy:'M', t:'lvl', u:'조원', st:2, b:1, l:'CD 잔액',                   d:'M2 구성 · 평잔 · 은행 단기 조달' },
+      { s:'ecos', c:'161Y006', i:'BBHA08', cy:'M', t:'lvl', u:'조원', st:2, b:0, l:'CMA 잔액',                  d:'M2 구성 · 평잔' },
+      { s:'ecos', c:'161Y006', i:'BBHA00', cy:'M', t:'idx', u:'조원', st:3, b:1, l:'M2 (광의통화)',             d:'평잔 · 원계열 · 전년비로 봅니다' },
+      { s:'ecos', c:'901Y056', i:'S23A',   cy:'M', t:'lvl', u:'조원', st:3, b:1, l:'투자자예탁금',              d:'증시 대기자금' },
+      { s:'ecos', c:'901Y056', i:'S23E',   cy:'M', t:'lvl', u:'조원', st:2, b:0, l:'신용융자 잔고',             d:'빚투' },
+      { s:'ecos', c:'901Y056', i:'S23C',   cy:'M', t:'lvl', u:'조원', st:1, b:0, l:'증권사 RP',                 d:'증시주변자금 · 대고객 RP' },
+      { s:'ecos', c:'103Y002', i:'BCAA215', cy:'M', t:'lvl', u:'조원', st:3, b:1, l:'통안증권 발행잔액',        d:'한국은행이 빨아들인 돈 (말잔)' },
+      { s:'ecos', c:'103Y002', i:'BCAA216', cy:'M', t:'lvl', u:'조원', st:2, b:0, l:'한은 RP 매각 잔액',        d:'단기 유동성 흡수 (말잔)' },
+      { s:'ecos', c:'103Y002', i:'BCAA2121', cy:'M', t:'lvl', u:'조원', st:2, b:0, l:'은행 지준예금 (한은)',     d:'말잔' },
+      { s:'ecos', c:'103Y002', i:'BCAA213', cy:'M', t:'lvl', u:'조원', st:1, b:0, l:'정부예금 (한은)',          d:'한국판 TGA · 말잔' },
+      { s:'ecos', c:'103Y002', i:'BCAA1',   cy:'M', t:'lvl', u:'조원', st:2, b:0, l:'한국은행 총자산',          d:'말잔' }
+    ] },
+  /*  한국 PF·부동산 (10/5) — 학회장: «한국 PF 관련 데이터도».
+        PF 대출 잔액 자체는 금감원 분기 보도자료에만 있고 API 가 없습니다. 그래서 ECOS 에서 <확인한> 대리 지표로:
+        산업별대출금(분기·십억원) — 예금은행 131Y013 · 비은행예금취급기관 131Y014 · 예금취급기관 전체 131Y016
+          부동산업 BDDE1C(은행·전체) / BDHE1C(비은행) · 건설업 BDDE16 / BDHE16
+        시장 스트레스 — CP 91일(PF-ABCP 차환 압력이 먼저 비침) · CD 91일 · 회사채 BBB-·AA- (일간)
+      ⚠️ 2022년 말 레고랜드 때처럼 CP−CD 차이가 벌어지고 BBB- 가 튀는 것이 PF 경색의 시장 신호입니다.  */
+  krpf: { n:'한국 PF', en:'Korea PF', sub:'부동산업·건설업 대출 (은행 · 비은행) · CP · 회사채 — PF 경색 신호', subEn:'Real-estate & construction loans · CP · Corporate bonds',
+    cats:['단기자금','금리'],
+    items:[
+      { s:'ecos', c:'131Y014', i:'BDHE1C', cy:'Q', t:'idx', u:'조원', st:3, b:1, l:'비은행 부동산업 대출',      d:'저축은행·상호금융 등 · PF 위험이 몰린 곳 (분기)' },
+      { s:'ecos', c:'131Y014', i:'BDHE16', cy:'Q', t:'idx', u:'조원', st:3, b:1, l:'비은행 건설업 대출',        d:'분기' },
+      { s:'ecos', c:'131Y013', i:'BDDE1C', cy:'Q', t:'idx', u:'조원', st:2, b:1, l:'은행 부동산업 대출',        d:'분기' },
+      { s:'ecos', c:'131Y013', i:'BDDE16', cy:'Q', t:'idx', u:'조원', st:2, b:0, l:'은행 건설업 대출',          d:'분기' },
+      { s:'ecos', c:'131Y016', i:'BDDE1C', cy:'Q', t:'idx', u:'조원', st:2, b:0, l:'부동산업 대출 (예금취급기관 전체)', d:'은행 + 비은행 (분기)' },
+      { s:'ecos', c:'817Y002', i:'010503000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'CP 91일',                  d:'PF-ABCP 차환 압력이 먼저 비칩니다' },
+      { s:'ecos', c:'817Y002', i:'010502000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'CD 91일',                  d:'CP 와의 차이가 신용 경계' },
+      { s:'ecos', c:'817Y002', i:'010320000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'회사채 3년 (BBB-)',         d:'건설사·비우량 조달 비용' },
+      { s:'ecos', c:'817Y002', i:'010300000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'회사채 3년 (AA-)',          d:'' }
+    ] },
   krmm: { n:'한국 금리', en:'Korea Rates', sub:'기준금리 · 단기자금(콜·CD·CP·KORIBOR) · 국고채 · 회사채', subEn:'Policy rate · Money market · KTB · Corporate',
     cats:['금리','채권','금리·채권','단기자금'],
     items:[
@@ -11756,12 +11881,17 @@ var MACRO_TEAMS = {
       { s:'ecos', c:'817Y002', i:'010101000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'콜금리 (1일)',               d:'은행 간 하루짜리 · 기준금리에 붙어 움직입니다' },
       { s:'ecos', c:'817Y002', i:'010502000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'CD 91일',                    d:'은행 단기 조달 · 대출금리의 기준' },
       { s:'ecos', c:'817Y002', i:'010503000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'CP 91일',                    d:'기업 단기 조달 · CD 와 벌어지면 신용 경계' },
+      { s:'ecos', c:'817Y002', i:'010901000', cy:'D', t:'rate', u:'%', st:3, b:0, l:'KOFR (무위험 지표금리)',      d:'국채·통안 담보 익일물 RP 금리 · 한국판 SOFR (2021-11~)' },
       { s:'ecos', c:'817Y002', i:'010150000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'KORIBOR 3개월',              d:'은행 간 3개월 · 변동금리 대출 기준' },
-      { s:'ecos', c:'817Y002', i:'010400000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'통안증권 1년',               d:'한국은행 발행 · 1년 구간의 기준' },
+      { s:'ecos', c:'817Y002', i:'010400000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'통안증권 91일',              d:'한국은행 발행 · 3개월 구간의 기준 (국고채엔 3개월물이 없음)' },
+      { s:'ecos', c:'817Y002', i:'010400001', cy:'D', t:'rate', u:'%', st:2, b:0, l:'통안증권 1년',               d:'1년 구간 · 다음 금통위 기대를 비춤' },
       { s:'ecos', c:'817Y002', i:'010190000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'한국 국고채 1년',            d:'단기 끝' },
+      { s:'ecos', c:'817Y002', i:'010195000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'한국 국고채 2년',            d:'2021-03 부터' },
       { s:'ecos', c:'817Y002', i:'010200000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'한국 국고채 3년',            d:'국내 기준물' },
       { s:'ecos', c:'817Y002', i:'010200001', cy:'D', t:'rate', u:'%', st:2, b:0, l:'한국 국고채 5년',            d:'' },
-      { s:'ecos', c:'817Y002', i:'010210000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'한국 국고채 10년',           d:'장기 끝 · 3년과의 차이가 장단기 스프레드' },
+      { s:'ecos', c:'817Y002', i:'010210000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'한국 국고채 10년',           d:'장기 · 3년과의 차이가 장단기 스프레드' },
+      { s:'ecos', c:'817Y002', i:'010220000', cy:'D', t:'rate', u:'%', st:1, b:0, l:'한국 국고채 20년',           d:'' },
+      { s:'ecos', c:'817Y002', i:'010230000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'한국 국고채 30년',           d:'초장기 · 보험사 수요' },
       { s:'ecos', c:'817Y002', i:'010300000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'회사채 3년 (AA-)',           d:'우량 회사채 · 국고채 3년과의 차이가 신용 스프레드' },
       { s:'ecos', c:'817Y002', i:'010320000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'회사채 3년 (BBB-)',          d:'비우량 · 위험선호의 국내 체온계' },
       { s:'fred', c:'DGS10',   cy:'D', t:'rate', u:'%',       st:2, b:0, l:'미국 국채 10년',                d:'한·미 금리차 볼 때' }
@@ -11775,6 +11905,22 @@ var mcBusy = {};             //  받는 중인 키
 var mcRun = 0;               //  팀을 바꾸면 이전 받기 묶음은 결과를 그리지 않습니다
 
 function mcKey(it){ return it.s + '|' + it.c + '|' + (it.i || ''); }
+/*  ── 원화 금액을 «조원» 으로 (10/5) ───────────────────────────────────────
+    ECOS 금액은 표마다 단위가 다릅니다 — 증시주변자금은 <원> (106,032,451,738,557), M2 는 <십억원>
+    (187,890.9), 지급준비금은 <백만원>. 그대로 그리면 축 숫자가 열다섯 자리가 됩니다.
+    목록(또는 카드)에 단위를 «조원» 으로 적은 지표만, 서버가 알려준 원래 단위로 나눠 조원으로 바꿉니다.
+    서버가 단위를 안 주면 표 코드로 압니다 (KRW_SRC_UNIT).                                       */
+var KRW_SRC_UNIT = { '161Y006':'십억원', '161Y005':'십억원', '161Y007':'십억원', '161Y008':'십억원', '103Y002':'십억원',
+                     '131Y013':'십억원', '131Y014':'십억원', '131Y016':'십억원',
+                     '104Y013':'십억원', '111Y007':'십억원', '901Y056':'원', '814Y001':'백만원' };
+var KRW_DIV = { '원':1e12, '천원':1e9, '백만원':1e6, '억원':1e4, '십억원':1e3, '조원':1 };
+function krwJo(points, wantUnit, srcUnit, code){
+  if (String(wantUnit || '') !== '조원') return points;
+  var su = String(srcUnit || '').replace(/\s/g, '') || KRW_SRC_UNIT[code] || '';
+  var div = KRW_DIV[su];
+  if (!div || div === 1) return points;
+  return (points || []).map(function(p){ return { d: p.d, v: (p.v == null || !isFinite(p.v)) ? p.v : Math.round(p.v / div * 1e4) / 1e4 }; });
+}
 function mcCatOf(it){
   return (catalog || []).filter(function(x){
     return x.source === it.s && x.code === it.c && String(x.item_code || '') === String(it.i || ''); })[0] || null;
@@ -12006,6 +12152,7 @@ async function mcLoad(it, run){
   try {
     var st0 = fetchStart();
     var d = await edge({ source: it.s, code: it.c, item_code: it.i || '', cycle: it.cy || 'M', start: st0 });
+    if (it.u === '조원') d = Object.assign({}, d, { points: krwJo(d.points, '조원', d.unit, it.c), unit: '조원' });
     var s = mcSummarize(d, it);
     if (!s) throw new Error('해당 기간 자료가 없습니다');
     //  받은 점은 «핵심 묶음» 패널도 씁니다 — 같은 지표를 두 번 부르지 않게 (화면 메모리에만)
@@ -12153,6 +12300,7 @@ async function mbLoad(it){
   if (hit && hit.start <= st && !hit.err) return hit;
   try {
     var d = await edge({ source: it.s, code: it.c, item_code: it.i || '', cycle: it.cy || 'M', start: st });
+    if (it.u === '조원') d = Object.assign({}, d, { points: krwJo(d.points, '조원', d.unit, it.c), unit: '조원' });
     var pts = (d.points || []).filter(function(p){ return p && p.d && p.v != null && isFinite(Number(p.v)); })
               .map(function(p){ return { d: String(p.d).slice(0, 10), v: Number(p.v) }; })
               .sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
@@ -15086,7 +15234,7 @@ async function loadSeries(s){
   try {
     var d = await edge({ source:s.source, code:s.code, item_code:s.item_code,
                          cycle:s.cycle, start:fetchStart() });
-    s.points = d.points || [];
+    s.points = krwJo(d.points || [], s.unit, d.unit, s.code);     //  목록 단위가 «조원» 이면 조원으로
     if (d.unit && !s.unit) s.unit = d.unit;
     /*  ⚠️ «언제까지 저장된 값을 쓰는지» 를 들고 다닙니다. 학회원이
         "이거 오늘 값 맞아?" 하고 물을 때 화면이 답할 수 있어야 합니다.  */
@@ -25827,7 +25975,7 @@ function renderYcList(box){
       +     'aria-pressed="'+(off?'true':'false')+'">'+eyeSVG(off)+'</button>'
       +   '<div class="nm">'+esc(t.label)
       +     (off ? ' <span style="font-size:10.5px;font-weight:600;color:var(--text-sub)">· 숨김</span>' : '')
-      +     '<div class="code">미 국채 커브 · '+esc(t.want ? fmtDateKo(t.want) : '')+'</div></div>'
+      +     '<div class="code">'+(ycMarket === 'kr' ? '한국 국고채 커브' : '미 국채 커브')+' · '+esc(t.want ? fmtDateKo(t.want) : '')+'</div></div>'
       +   '<button class="xbtn" onclick="ycRemove('+i+')" title="이 시점 빼기">&times;</button>'
       + '</div>'
       + '<div class="series-ctl">'
@@ -25959,12 +26107,39 @@ function ycAddDate(){
   loadYC();
 }
 
+/*  ── 미국 / 한국 커브 (10/5) ───────────────────────────────────────────────
+    학회장: «한국 일드커브(만기별 곡선 그림)». 같은 손잡이·표·선 설정으로 국가만 바꿉니다.
+    한국은 서버(kr_curve)가 ECOS 국고채 만기별 금리로 만듭니다 — 짧은 끝은 통안증권 91일.
+    고른 국가는 이 브라우저에 기억합니다. 국가마다 받은 커브는 따로 들고 있어 왔다 갔다 해도 다시 안 부릅니다.  */
+var YC_MKT_KEY = 'safe_yc_mkt_v1';
+var ycMarket = 'us', ycCacheBy = {};
+try { if (localStorage.getItem(YC_MKT_KEY) === 'kr') ycMarket = 'kr'; } catch(e){}
+function ycMktName(m){ m = m || ycMarket; return m === 'kr' ? T('한국 일드커브', 'Korea Yield Curve') : T('미국 일드커브', 'US Yield Curve'); }
+function ycMarketUi(){
+  var h = $('ycTitle'); if (h) h.textContent = ycMktName();
+  var a = $('ycMktUs'), b = $('ycMktKr');
+  if (a) a.classList.toggle('btn-solid', ycMarket !== 'kr');
+  if (b) b.classList.toggle('btn-solid', ycMarket === 'kr');
+}
+function ycSetMarket(m, quiet){
+  m = (m === 'kr') ? 'kr' : 'us';
+  if (m === ycMarket){ ycMarketUi(); return; }
+  if (ycData) ycCacheBy[ycMarket] = ycData;
+  ycMarket = m;
+  try { localStorage.setItem(YC_MKT_KEY, m); } catch(e){}
+  ycData = ycCacheBy[m] || null; ycLoaded = !!ycData; ycListSig = '';
+  ycMarketUi();
+  if (typeof macroMode !== 'undefined' && macroMode === 'curve'){ if (ycData) { ycDraw(); renderSeriesList(); } else loadYC(); }
+}
 async function loadYC(force){
   if (ycBusy) return;
   ycBusy = true;
   ycChips();
+  ycMarketUi();
   try {
-    ycData = await edge({ source:'us_curve', dates: ycDates() });
+    var mk = ycMarket;
+    ycData = await edge({ source: mk === 'kr' ? 'kr_curve' : 'us_curve', dates: ycDates() });
+    ycCacheBy[mk] = ycData;
     ycLoaded = true;
     warn('ycWarn','');
     if (ycData.failed && ycData.failed.length)
@@ -26032,7 +26207,8 @@ function ycDraw(){
     xAxis:{ type:'category', data:labs, boundaryGap:false,
       axisLine:{ lineStyle:{ color: macroTheme().grid } },
       axisTick:{ show:false },
-      axisLabel:{ color:'#77809a', fontSize:11 },
+      //  ⚠️ 첫 만기 이름표가 왼쪽 끝에서 반쯤 잘렸습니다 («3M(통안)» → «M(통안)») — 첫 칸은 왼쪽 맞춤
+      axisLabel:{ color:'#77809a', fontSize:11, alignMinLabel:'left', alignMaxLabel:'right' },
       /*  만기마다 세로선 — 어느 만기인지 눈이 바로 찾습니다.
           ⚠️ 예전엔 이 두 줄이 테마 격자색을 <그대로> 썼습니다. 그래서
              다른 차트보다 눈금선이 진해 «자료보다 격자가 먼저» 보였습니다.
@@ -26056,10 +26232,15 @@ function ycDraw(){
   }, true);
 
   ycTable(d);
+  //  차트 제목 — 커브 모드에선 «한국 일드커브 · 2026년 10월 2일» (시계열 제목 자리를 같이 씁니다)
+  var tEl = $('chartTitle');
+  if (tEl){ var nw = (d.curves[0] || {}).on; tEl.textContent = ycMktName() + (nw ? ' · ' + fmtDateKo(nw) : ''); }
   /*  ⚠️ «실시간» 이라고 적지 않습니다. 하루 한 번 올라오는 값입니다.     */
-  $('ycNote').innerHTML =
-      '<b>미 재무부 고시 금리(FRED H.15) 일별 종가</b>입니다 — 장중에 움직이는 값이 아니라 '
-    + '영업일 저녁에 하루 한 번 올라옵니다. '
+  $('ycNote').innerHTML = (ycMarket === 'kr'
+      ? '<b>한국은행 ECOS 시장금리(일별) 종가</b>입니다 — 국고채에 3개월물이 없어 짧은 끝은 <b>통안증권 91일</b>, '
+        + '2년물은 2021-03 · 50년물은 2016-10 부터 있습니다 (그 전 날짜는 그 칸이 비어 선을 이어 그립니다). '
+      : '<b>미 재무부 고시 금리(FRED H.15) 일별 종가</b>입니다 — 장중에 움직이는 값이 아니라 '
+        + '영업일 저녁에 하루 한 번 올라옵니다. ')
     + '고른 날짜가 주말·휴일이면 <b>그 직전 영업일</b> 값을 씁니다(표의 «실제 날짜»). '
     + '가로축은 만기를 <b>등간격</b>으로 놓았습니다 — 실제 길이로 두면 1개월~1년이 한 점에 뭉칩니다.';
 }
@@ -26076,11 +26257,22 @@ function ycTable(d){
     var x = c.values[idx[a]], y = c.values[idx[b]];
     return (x == null || y == null) ? null : (x - y);
   };
+  //  스프레드 칸은 서버가 정해 줍니다 (미국 10Y−2Y · 10Y−3M / 한국 10Y−3Y · 3Y−통안 91일)
+  var sps = (d.spreads && d.spreads.length ? d.spreads : [['DGS10', 'DGS2'], ['DGS10', 'DGS3MO']])
+    .filter(function(p){ return idx[p[0]] != null && idx[p[1]] != null; });
+  //  표 머리 — 국문은 «10년−2년 · 10년−3개월» (예전 그대로), 영문은 «10Y−2Y»
+  var lab = function(code){
+    var l = String(mats[idx[code]].label || '');
+    if (isEn()) return l.replace('3M(통안)', '3M MSB');
+    if (l === '3M(통안)') return '통안91일';
+    return l.replace(/^(\d+)Y$/, '$1년').replace(/^(\d+)M$/, '$1개월');
+  };
   var H = '<thead><tr><th>시점</th><th>실제 날짜</th>'
         + mats.map(function(m){ return '<th class="num">' + esc(m.label) + '</th>'; }).join('')
-        + '<th class="num">10년−2년</th><th class="num">10년−3개월</th></tr></thead><tbody>';
+        + sps.map(function(p){ return '<th class="num">' + esc(lab(p[0]) + '−' + lab(p[1])) + '</th>'; }).join('')
+        + '</tr></thead><tbody>';
   curves.forEach(function(c){
-    var g1 = gap(c, 'DGS10', 'DGS2'), g2 = gap(c, 'DGS10', 'DGS3MO');
+    var gs = sps.map(function(p){ return gap(c, p[0], p[1]); });
     var cell = function(v){
       return '<td class="num">' + (v == null ? '—' : num(Number(v), 2)) + '</td>';
     };
@@ -26094,7 +26286,7 @@ function ycTable(d){
     };
     H += '<tr><td><b>' + esc(ycLabelOf(c.want)) + '</b></td>'
        + '<td class="st-hint">' + esc(c.on ? fmtDateKo(c.on) : '—') + '</td>'
-       + c.values.map(cell).join('') + gcell(g1) + gcell(g2) + '</tr>';
+       + c.values.map(cell).join('') + gs.map(gcell).join('') + '</tr>';
   });
   el.innerHTML = H + '</tbody>';
 }
