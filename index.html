@@ -149,6 +149,15 @@
   .top-brand .n{font-size:15px;font-weight:700;color:var(--primary);line-height:1.15}
   .top-brand .s{font-size:9.5px;color:var(--text-sub);letter-spacing:.4px}
   .who{display:flex;align-items:center;gap:10px}
+  /*  휴대폰: 머리줄이 화면 밖으로 밀리지 않게 (이름 · 부제 감춤 · 간격 줄임) — 10/5 점검에서 375px 에서 15px 넘쳤습니다  */
+  @media (max-width:480px){
+    .top-in{padding:0 12px;gap:8px}
+    .top-brand .s{display:none}
+    .who{gap:6px}
+    .who-chip{padding:5px 8px}
+    .who-chip .nm{display:none}
+    .who .btn-ghost{padding:6px 9px;font-size:12px}
+  }
   .who-chip{display:flex;align-items:center;gap:8px;background:var(--accent-soft);
     padding:6px 13px;border-radius:20px;font-size:12.5px;font-weight:600;color:var(--primary)}
   .who-chip .badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;
@@ -184,39 +193,101 @@
   .md-kind{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.3px;padding:1px 6px;border-radius:5px;
     background:var(--accent-soft);color:var(--primary);margin-right:7px;vertical-align:1px}
 
-  /*  팀별 핵심 지표 카드 (매크로 경제)  */
-  .mtm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:10px}
-  .mtm-card{position:relative;border:1px solid var(--border);border-radius:11px;padding:11px 12px 9px;background:var(--white);
-    display:flex;flex-direction:column;gap:4px;min-height:132px;transition:border-color .15s,box-shadow .15s}
-  .mtm-card:hover{border-color:var(--accent);box-shadow:0 4px 14px rgba(44,62,107,.08)}
+  /*  ── 팀별 핵심 지표 (매크로 경제) · 10/5 다시 그림 ──────────────────────────────
+      학회장: «좀 더 미니멀리스틱하고 가독성 좋게». 원칙 —
+        · 한 카드에 <숫자 하나> 가 주인공. 별·주기·새 발표·D-n 알약 넷이 숫자와 다투던 것을 걷어냈습니다
+          (주기·다음 발표는 바닥 한 줄 옅은 글자, 새 발표는 이름 옆 작은 점, 핵심 지표는 왼쪽 가는 막대)
+        · 색은 <숫자에만>. 추세선은 중립색 — 빨강/파랑 선이 열댓 개 서 있으면 «다 나쁜가?» 로 읽힙니다
+        · 단추는 손을 올렸을 때만 (터치 화면은 늘). 카드를 누르면 차트에 올라갑니다
+        · 카드가 많은 팀은 소제목으로 묶습니다 (국채 / 스프레드·신용 / …)                     */
+  .mtm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px 8px}
+  /*  소제목 묶음 — 같은 줄에 작은 묶음 둘이 나란히 설 수 있게 (subgrid · 칸 수는 mcFit 이 정함)  */
+  .mtm-gbox{display:grid;grid-template-columns:subgrid;grid-column:span var(--n,1);gap:8px;align-content:start;min-width:0}
+  .mtm-gbox>.mtm-grp{grid-column:1/-1}
+  @supports not (grid-template-columns:subgrid){ .mtm-gbox{grid-column:1/-1;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))} }
+  .mtm-grp{grid-column:1/-1;display:flex;align-items:center;gap:8px;margin:0;font-size:11px;font-weight:700;
+    letter-spacing:.04em;color:var(--text-sub);text-transform:uppercase}
+  .mtm-grp:first-child{margin-top:0}
+  .mtm-grp::after{content:'';flex:1;height:1px;background:var(--border)}
+  .mtm-card{position:relative;border:1px solid var(--border);border-radius:10px;padding:10px 12px 8px;background:var(--white);
+    display:flex;flex-direction:column;gap:3px;min-height:0;cursor:pointer;transition:border-color .15s,background .15s}
+  .mtm-card:hover{border-color:var(--accent)}
+  .mtm-card.key::before{content:'';position:absolute;left:-1px;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
   .mtm-card.stale{border-style:dashed}
-  .mtm-card.err{border-color:var(--danger-soft);background:var(--danger-soft)}
-  .mtm-h{display:flex;align-items:flex-start;gap:6px;font-size:12.5px;font-weight:700;color:var(--text);line-height:1.3;min-height:2.6em}
-  .mtm-h .mtm-star{font-size:10px;color:var(--warn);letter-spacing:-1px;flex:none;margin-top:2px}
-  .mtm-h .mtm-cy{margin-left:auto;flex:none;font-size:10px;font-weight:600;color:var(--text-sub);background:var(--bg);
-    border:1px solid var(--border);border-radius:5px;padding:0 5px;line-height:16px}
-  .mtm-big{display:flex;align-items:baseline;gap:6px;margin-top:2px}
-  .mtm-big b{font-size:22px;font-weight:800;letter-spacing:-.3px;line-height:1.1;font-variant-numeric:tabular-nums}
-  .mtm-big span{font-size:11px;color:var(--text-sub)}
-  .mtm-sub{font-size:11px;color:var(--text-sub);line-height:1.5;font-variant-numeric:tabular-nums}
+  /*  차트에 올라가 있는 카드 · 줄 — 옅은 강조색 바탕 (10/5)  */
+  .mtm-card.on-chart{background:color-mix(in srgb, var(--accent) 7%, var(--white));border-color:color-mix(in srgb, var(--accent) 45%, var(--border))}
+  .mtm-tbl tr.on-chart td{background:color-mix(in srgb, var(--accent) 6%, transparent)}
+  /*  화면 아래 잠깐 뜨는 알림  */
+  .app-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);z-index:80;max-width:calc(100vw - 32px);
+    background:var(--text);color:var(--white);font-size:12.5px;line-height:1.5;padding:9px 14px;border-radius:10px;
+    box-shadow:0 10px 30px rgba(0,0,0,.22);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s}
+  .app-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  /*  AI 서랍이 열려 있으면 알림은 위쪽에 (입력칸을 가리지 않게)  */
+  body.aic-on .app-toast{bottom:auto;top:76px}
+  .app-toast button{margin-left:8px;border:none;background:none;color:inherit;font:inherit;font-weight:700;text-decoration:underline;cursor:pointer;padding:0}
+  .mtm-card.err{border-color:var(--danger-soft);background:var(--danger-soft);cursor:default}
+  .mtm-h{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-sub);line-height:1.3;min-height:1.3em}
+  .mtm-h .mtm-n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mtm-card.key .mtm-h .mtm-n{color:var(--text)}
+  .mtm-h .mtm-star{display:none}
+  /*  중요도 별 — 노란 별 대신 테마색으로 작게 (켜진 별 = 강조색 · 꺼진 별 = 테두리색) (10/5)  */
+  .mtm-stars{flex:none;font-size:9px;line-height:1;letter-spacing:-.5px;color:var(--border);user-select:none;font-style:normal}
+  .mtm-stars i{font-style:normal}
+  .mtm-stars i.on{color:var(--accent);opacity:.8}
+  :root[data-theme="dark"] .mtm-stars{color:#3a4254}
+  .mtm-tbl .mtm-stars{display:inline-block;margin-left:6px;vertical-align:1px}
+  .mtm-h .mtm-cy{display:none}
+  .mtm-dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--ok)}
+  .mtm-dot.soon{background:var(--accent)} .mtm-dot.stale{background:var(--warn)}
+  .mtm-mid{display:flex;align-items:flex-end;gap:10px;margin-top:2px;min-width:0}
+  .mtm-mid .mtm-spark{flex:1;min-width:44px;height:28px;margin:0 0 3px}
+  .mtm-big{display:flex;align-items:baseline;gap:5px;margin-top:0;flex:none;white-space:nowrap}
+  .mtm-big b{font-size:23px;font-weight:700;letter-spacing:-.4px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--text)}
+  .mtm-big span{font-size:11px;color:var(--text-sub);font-weight:500}
+  .mtm-sub{font-size:11px;color:var(--text-sub);line-height:1.5;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mtm-sub b{font-weight:600}
   .mtm-sub .up{color:var(--up)} .mtm-sub .down{color:var(--down)}
-  .mtm-spark{height:30px;width:100%;display:block;margin:2px 0 0}
-  .mtm-f{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--text-sub);margin-top:auto;padding-top:4px;
-    border-top:1px dashed var(--border)}
-  .mtm-f .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .mtm-f button{font-size:10.5px;padding:2px 7px;border-radius:6px;border:1px solid var(--border);background:var(--white);
-    color:var(--primary);cursor:pointer;flex:none}
-  .mtm-f button:hover{background:var(--accent-soft)}
+  .mtm-spark{height:26px;width:100%;display:block;margin:4px 0 2px;color:var(--text-sub);overflow:visible}
+  .mtm-f{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--text-sub);margin-top:auto;min-height:20px;padding-top:1px}
+  .mtm-f .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.85}
+  .mtm-f button{font-size:10.5px;padding:1px 7px;border-radius:6px;border:1px solid transparent;background:none;
+    color:var(--primary);cursor:pointer;flex:none;opacity:0;transition:opacity .12s}
+  .mtm-card:hover .mtm-f button,.mtm-card:focus-within .mtm-f button,.mtm-card.err .mtm-f button{opacity:1}
+  .mtm-f button:hover{background:var(--accent-soft);border-color:var(--border)}
+  @media (hover:none){ .mtm-f button{opacity:1} }
   .mtm-badge{display:inline-block;font-size:9.5px;font-weight:700;padding:0 5px;border-radius:4px;line-height:15px;flex:none}
   .mtm-badge.stale{background:var(--warn-soft);color:var(--warn)}
   .mtm-badge.new{background:var(--ok-soft);color:var(--ok)}
   .mtm-badge.soon{background:var(--accent-soft);color:var(--primary)}
   .mtm-wait{color:var(--text-sub);font-size:11.5px;padding:18px 0;text-align:center}
-  .mtm-grid>*{min-width:0}
-  .mtm-h>span:not(.mtm-star):not(.mtm-cy){min-width:0;overflow-wrap:anywhere}
-  .mtm-big{flex-wrap:wrap}
+  .mtm-grid>*,.mtm-gbox>*{min-width:0}
   @media (max-width:640px){ .mtm-grid{grid-template-columns:repeat(2,1fr);gap:8px} .mtm-big b{font-size:19px} }
   @media (max-width:420px){ .mtm-grid{grid-template-columns:1fr} }
+  /*  표 보기 — 지표가 많을 때 한 화면에 (블룸버그 ECO 식)  */
+  .mtm-tblw{overflow-x:auto}
+  .mtm-tbl{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+  .mtm-tbl th{font-size:10.5px;font-weight:700;color:var(--text-sub);text-align:right;padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+  .mtm-tbl th:first-child,.mtm-tbl td:first-child{text-align:left}
+  .mtm-tbl td{padding:6px 10px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap;color:var(--text)}
+  .mtm-tbl tr.mtm-row{cursor:pointer}
+  .mtm-tbl tr.mtm-row:hover td{background:var(--accent-soft)}
+  .mtm-tbl tr.mtm-gr td{font-size:10.5px;font-weight:700;color:var(--text-sub);letter-spacing:.04em;text-transform:uppercase;padding-top:12px;background:none;cursor:default}
+  .mtm-tbl td.n{font-weight:600} .mtm-tbl tr.key td.n{color:var(--text)} .mtm-tbl tr:not(.key) td.n{color:var(--text-sub)}
+  .mtm-tbl td.v{font-weight:700} .mtm-tbl td.m{color:var(--text-sub);font-size:11px}
+  .mtm-tbl .up{color:var(--up)} .mtm-tbl .down{color:var(--down)}
+  .mtm-tbl svg{width:90px;height:20px;display:block;margin-left:auto;color:var(--text-sub)}
+  /*  머리 — 제목·설명은 왼쪽에 쌓고, 단추는 오른쪽에 작게  */
+  .mtm-head{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .mtm-head .ttl{flex:1;min-width:220px}
+  .mtm-head .ttl b{display:block;font-size:1rem;font-weight:700;color:var(--primary)}
+  .mtm-head .ttl span{display:block;font-size:11.5px;color:var(--text-sub);margin-top:2px}
+  .mtm-head .tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .seg button{border:0;background:none;padding:4px 10px;font-size:12px;font-weight:600;color:var(--text-sub);cursor:pointer}
+  .seg button.on{background:var(--accent-soft);color:var(--primary)}
+  .icon-btn{border:1px solid var(--border);background:var(--white);color:var(--text-sub);border-radius:8px;width:30px;height:28px;
+    display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px}
+  .icon-btn:hover{color:var(--primary);border-color:var(--accent)}
   .yc-chip{border-color:var(--primary);color:var(--primary);font-weight:700}
   .ub-chip{display:inline-flex;align-items:stretch}
   .ub-chip .btn-sm{border-top-right-radius:0;border-bottom-right-radius:0;border-right:0;border-style:dashed}
@@ -952,6 +1023,59 @@
   .nf-dock .nf-row .nf-tag{grid-area:tag}
   .nf-dock .nf-row .src{grid-area:src;text-align:right}
   .nf-dock .nf-row .ttl{grid-area:ttl;font-size:12.5px;line-height:1.45}
+  /* ── AI 비서 서랍 (10/5) ─────────────────────────────────────
+     라이브 뉴스 단추 바로 위에 단추 하나 · 열면 오른쪽 아래 서랍 (뉴스 서랍과 번갈아).  */
+  .aic-fab{position:fixed;right:20px;bottom:66px;z-index:60;display:flex;align-items:center;gap:7px;
+    font-size:12.5px;font-weight:600;color:var(--white);background:var(--primary);border:1px solid var(--primary);
+    border-radius:22px;padding:9px 16px;cursor:pointer;box-shadow:0 6px 20px rgba(44,62,107,.18)}
+  .aic-fab:hover{filter:brightness(1.08)}
+  .aic-fab i{font-style:normal;font-size:13px;line-height:1}
+  .aic-dock{position:fixed;right:20px;bottom:20px;z-index:62;width:430px;max-width:calc(100vw - 32px);
+    height:min(700px,84vh);display:flex;flex-direction:column;background:var(--white);
+    border:1px solid var(--border);border-radius:14px;box-shadow:0 18px 50px rgba(44,62,107,.2)}
+  .aic-head{display:flex;align-items:center;gap:8px;padding:10px 12px 10px 14px;border-bottom:1px solid var(--border);
+    font-size:13px;color:var(--primary)}
+  .aic-head b{font-weight:700}
+  .aic-head .st{font-size:11px;color:var(--text-sub);font-weight:400}
+  .aic-head .r{margin-left:auto;display:flex;align-items:center;gap:6px}
+  .aic-head .mode-seg{margin:0}
+  .aic-head .mode-seg button{padding:3px 8px;font-size:11px}
+  .aic-list{flex:1 1 auto;min-height:0;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+  .aic-msg{max-width:92%;font-size:12.8px;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
+  .aic-msg.me{align-self:flex-end;background:var(--accent-soft);color:var(--text);border-radius:12px 12px 4px 12px;padding:8px 11px;white-space:pre-wrap}
+  .aic-msg.ai{align-self:flex-start;color:var(--text);padding:2px 2px}
+  .aic-msg.ai p{margin:0 0 6px} .aic-msg.ai p:last-child{margin-bottom:0}
+  .aic-msg.ai ul{margin:2px 0 6px 0;padding-left:16px} .aic-msg.ai li{margin:1px 0}
+  .aic-msg.ai .h{font-weight:700;color:var(--primary);margin:8px 0 3px;font-size:12.5px}
+  .aic-msg.ai .h:first-child{margin-top:0}
+  .aic-msg.ai code{font-size:11.5px;background:var(--accent-soft);padding:0 4px;border-radius:4px}
+  .aic-msg.err{align-self:stretch;color:var(--danger);font-size:12px;background:var(--danger-soft);border-radius:8px;padding:7px 10px}
+  .aic-meta{font-size:10.5px;color:var(--text-sub);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .aic-meta button{font-size:10.5px;border:none;background:none;color:var(--primary);cursor:pointer;padding:0}
+  .aic-empty{color:var(--text-sub);font-size:12px;line-height:1.6}
+  .aic-sugg{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+  .aic-sugg button{text-align:left;font-size:12px;border:1px solid var(--border);background:var(--white);color:var(--text);
+    border-radius:9px;padding:7px 10px;cursor:pointer}
+  .aic-sugg button:hover{border-color:var(--accent);color:var(--primary)}
+  .aic-foot{border-top:1px solid var(--border);padding:8px 12px 10px}
+  .aic-foot .opt{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-sub);margin-bottom:6px}
+  .aic-foot .opt input{width:auto;margin:0}
+  .aic-in{display:flex;gap:6px;align-items:flex-end}
+  .aic-in textarea{flex:1;resize:none;min-height:38px;max-height:120px;padding:9px 11px;border:1px solid var(--border);
+    border-radius:10px;font:inherit;font-size:13px;background:var(--white);color:var(--text);outline:none}
+  .aic-in textarea:focus{border-color:var(--accent)}
+  .aic-typing{align-self:flex-start;font-size:12px;color:var(--text-sub)}
+  .aic-typing span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--text-sub);margin-right:3px;animation:aicDot 1s infinite}
+  .aic-typing span:nth-child(2){animation-delay:.15s} .aic-typing span:nth-child(3){animation-delay:.3s}
+  @keyframes aicDot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+  .aic-ctx{align-self:flex-end;font-size:10.5px;color:var(--text-sub);margin-top:-6px}
+  .aic-msg.ai ol{margin:2px 0 6px 0;padding-left:18px}
+  /*  휴대폰: 글자 16px (iOS 가 입력칸을 누르면 확대하지 않게) · 키보드가 올라와도 입력칸이 보이게 dvh  */
+  @media(max-width:760px){
+    .aic-dock{right:8px;left:8px;width:auto;max-width:none;bottom:8px;height:86vh;height:86dvh}
+    .aic-fab{right:12px;bottom:60px}
+    .aic-in textarea{font-size:16px}
+  }
   .nf-note{margin-top:8px;border-top:1px solid var(--border);padding-top:7px}
   .nf-note summary{font-size:11px;color:var(--text-sub);cursor:pointer;list-style:none}
   .nf-note summary::-webkit-details-marker{display:none}
@@ -1546,15 +1670,17 @@
             팀 탭은 <거름망이 아니라 이정표> 입니다 — 위에 그 팀 지표가 카드로
             서고, 아래 «지표 추가» 목록은 전부 그대로 남습니다.               -->
       <div class="card" id="macroTeamCard">
-        <h2>
-          <span id="mtmTitle">팀 핵심 지표</span>
-          <span class="st-hint" id="mtmSub" style="font-weight:400;margin-left:8px"></span>
-          <span class="tools">
+        <div class="mtm-head">
+          <div class="ttl"><b id="mtmTitle">팀 핵심 지표</b><span id="mtmSub"></span></div>
+          <div class="tools">
+            <span class="seg" role="group" aria-label="보기">
+              <button type="button" id="mtmVCard" onclick="setMcView('card')" title="카드로 보기">카드</button><button type="button" id="mtmVTable" onclick="setMcView('table')" title="표로 보기 — 한 화면에 다">표</button>
+            </span>
             <button class="btn-sm btn-solid" onclick="mbOpenPanel()" title="이 팀의 대표 지표(최대 6개)를 작은 차트 여러 장으로 나란히 봅니다">핵심 묶음</button>
-            <button class="btn-sm" onclick="macroTeamCsv()" title="카드의 숫자(최신값·전기비·전년비·기준일·다음 발표)를 CSV 로">CSV</button>
-            <button class="btn-sm" onclick="macroTeamRefresh()" title="이 브라우저에 남겨둔 요약을 버리고 다시 받습니다">새로 받기</button>
-          </span>
-        </h2>
+            <button class="icon-btn" onclick="macroTeamCsv()" title="카드의 숫자(최신값·전기비·전년비·기준일·다음 발표)를 CSV 로" aria-label="CSV">⤓</button>
+            <button class="icon-btn" onclick="macroTeamRefresh()" title="이 브라우저에 남겨둔 요약을 버리고 다시 받습니다" aria-label="새로 받기">↻</button>
+          </div>
+        </div>
         <div id="mtmGrid" class="mtm-grid"></div>
         <div id="mtmNote" class="st-hint" style="margin-top:8px"></div>
         <!--  핵심 묶음 — 패널 하나씩 (한 차트에 겹치면 못 읽습니다)  -->
@@ -1581,6 +1707,44 @@
         <div>
           <div class="card">
             <h2>지표 추가</h2>
+            <!--  ── 경제지표 / 주가·ETF (10/5) ── 학회장: «매크로 경제에도 주가나 etf 추이들 다
+                  추가할 수 있게 — 경제지표와도 비교하고 싶을 수도 있고 그냥 그대로만 보고 싶을 수
+                  있을건데». 같은 차트에 올라가서 좌·우 축 · 100 기준 변환이 그대로 됩니다.         -->
+            <div class="mode-seg" id="addKind" style="margin:0 0 8px">
+              <button id="addKind-ind" class="on" onclick="setAddKind('ind')">경제지표</button>
+              <button id="addKind-stk" onclick="setAddKind('stk')">주가 · ETF</button>
+            </div>
+            <div id="addStkBox" class="hidden">
+              <div class="row" style="margin-bottom:2px;align-items:flex-start">
+                <span class="st-hint" style="flex:none;padding-top:4px">묶음</span>
+                <div class="nf-chips grow" id="stkSets"></div>
+              </div>
+              <div class="row"><select id="stkSel" class="grow" onchange="stkDescShow()"></select></div>
+              <div id="stkDesc" class="cat-desc"></div>
+              <div class="row">
+                <button class="btn-sm btn-solid grow" onclick="stkAdd()">+ 차트에 추가</button>
+                <label class="st-hint" style="flex:none;display:flex;align-items:center;gap:4px;white-space:nowrap"
+                       title="보이는 기간의 첫 값을 100 으로 맞춥니다 — 단위가 다른 종목·지표와 «얼마나 올랐나» 를 비교할 때">
+                  <input type="checkbox" id="stkReb"> 100 기준</label>
+              </div>
+              <div class="row" style="margin-top:2px">
+                <select id="stkMkt" style="width:auto">
+                  <option value="quote_us">미국</option>
+                  <option value="quote_kr">한국</option>
+                  <option value="quote_bn">바이낸스</option>
+                  <option value="quote_crypto">코인</option>
+                </select>
+                <input type="text" id="stkCode" class="grow" placeholder="티커 · 코드 · 이름 (예: EWJ / 005930 / 삼성전자)"
+                       onkeydown="if(event.key==='Enter'){event.preventDefault();stkAddCode();}">
+                <button class="btn-sm" onclick="stkAddCode()">추가</button>
+              </div>
+              <p style="font-size:11px;color:var(--text-sub);margin:8px 0 0;line-height:1.6">
+                미국 시세는 <b>달러</b> (국가 ETF · ADR 로 다른 나라도 봅니다) · 한국은 <b>원</b> ·
+                바이낸스는 <b>USDT</b> 24시간 무기한 선물이라 <b>상장일(대부분 2026년)부터</b>만 있습니다.
+                경제지표와 겹칠 때는 오른쪽 축으로 나뉘고, «100 기준» 이면 서로 다른 단위끼리도 상승률로 비교됩니다.
+              </p>
+            </div>
+            <div id="addIndBox">
             <!--  ⚠️ 지표가 133개입니다. 신입 부원이 처음 열면 어디서부터
                   봐야 할지 모릅니다. 별로 이정표를 세워 둡니다.        -->
             <div class="row" style="margin-bottom:2px">
@@ -1656,6 +1820,7 @@
               <div class="hint" style="font-size:11px;color:var(--text-sub);margin-top:8px">
                 국내 주가는 6자리 종목코드, 해외는 티커를 넣으세요.
               </div>
+            </div>
             </div>
           </div>
 
@@ -4131,7 +4296,7 @@
             섹터 ETF 의 기간별 수익률을 벤치마크(SPY · KODEX 200)와 나란히.
             «어디에 돈이 몰리나» 를 한 표로 봅니다.                       -->
       <div class="card" id="secCard">
-        <h2>섹터 모니터
+        <h2>섹터 · 종목 모니터
           <span class="st-hint" style="font-weight:400;margin-left:8px" id="secSub">섹터 ETF 수익률 · 벤치마크 대비</span>
           <span class="tools">
             <button class="btn-sm" onclick="secCsv()">CSV</button>
@@ -4139,7 +4304,8 @@
           </span>
         </h2>
         <div class="row" style="gap:10px;flex-wrap:wrap;align-items:center">
-          <div class="mode-seg" id="secMkt" style="margin:0;flex:none">
+          <!--  묶음 단추는 SEC_ORDER 로 그립니다 (매크로 «주가·ETF» 고르기와 같은 목록)  -->
+          <div class="mode-seg" id="secMkt" style="margin:0;flex:0 1 auto;flex-wrap:wrap;max-width:100%">
             <button id="secMkt-us" class="on" onclick="secSet('mkt','us')">🇺🇸 미국 섹터</button>
             <button id="secMkt-usi" onclick="secSet('mkt','usi')">🇺🇸 산업 ETF</button>
             <button id="secMkt-kr" onclick="secSet('mkt','kr')">🇰🇷 한국 섹터</button>
@@ -4151,7 +4317,39 @@
         <div id="secChart" style="height:250px;margin-top:6px"></div>
         <div id="secBench" class="st-hint" style="text-align:right;margin-top:-2px"></div>
         <div class="scroll" style="margin-top:8px"><table id="secTable"></table></div>
+        <!--  ── 가격 차트 (10/5) — 표의 줄을 누르거나 티커를 직접 넣으면 여기 그립니다.
+              여러 개면 100 기준으로 맞춰 비교 · «매크로 차트에 올리기» 로 경제지표와 겹쳐 봅니다.  -->
+        <div class="row" style="gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px">
+          <span class="st-hint" style="flex:none">종목 직접 보기</span>
+          <select id="secPxMkt" style="width:auto">
+            <option value="quote_us">미국 (티커)</option>
+            <option value="quote_kr">한국 (6자리)</option>
+            <option value="quote_bn">바이낸스 USDT</option>
+            <option value="quote_crypto">코인</option>
+          </select>
+          <input type="text" id="secPxCode" style="width:170px" placeholder="예: EWJ · 005930 · 삼성전자"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();secPxAddCode();}">
+          <button class="btn-sm" onclick="secPxAddCode()">보기</button>
+          <span class="st-hint grow">표의 줄을 눌러도 아래 가격 차트에 올라갑니다 · 여러 개 고르면 100 기준으로 비교</span>
+        </div>
+        <div id="secPx" class="hidden" style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+          <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center">
+            <b style="font-size:13px">가격 차트</b>
+            <div class="nf-chips" id="secPxPer"></div>
+            <label class="st-hint" style="display:flex;align-items:center;gap:4px;flex:none" title="고른 기간의 첫 값을 100 으로 맞춰 수익률처럼 비교합니다">
+              <input type="checkbox" id="secPxReb" onchange="secPxDraw()"> 100 기준</label>
+            <label class="st-hint" style="display:flex;align-items:center;gap:4px;flex:none">
+              <input type="checkbox" id="secPxBench" onchange="secPxBenchToggle()"> 벤치마크 같이</label>
+            <span class="grow"></span>
+            <button class="btn-sm" onclick="secPxToMacro()" title="고른 종목을 매크로 경제 차트에 올려 경제지표와 겹쳐 봅니다">매크로 차트에 올리기</button>
+            <button class="btn-sm" onclick="secPxClear()">닫기</button>
+          </div>
+          <div class="nf-chips" id="secPxSel" style="margin-top:6px"></div>
+          <div id="secPxChart" style="height:320px;margin-top:4px"></div>
+          <div id="secPxNote" class="st-hint" style="margin-top:2px"></div>
+        </div>
         <p class="st-hint" style="margin:8px 0 0;line-height:1.6">
+          미국 시세는 <b>달러</b> · 한국은 <b>원</b> · 바이낸스는 <b>USDT</b> (24시간 무기한 선물 · 상장일부터라 1년 수익률이 비어 있을 수 있음) ·
           수익률은 <b>종가 기준</b> (배당 제외) · «벤치 대비» 는 그 기간 수익률에서 벤치마크 수익률을 뺀 것(%p) ·
           «52주 고점» 은 최근 1년 최고 종가 대비 지금 자리 · 추세선은 최근 3개월.
           국내 섹터는 KODEX 섹터 ETF 로 봅니다 — 섹터 지수 그 자체는 아니지만 거의 같이 움직입니다.
@@ -4201,6 +4399,33 @@
     <span class="dot"></span>라이브 뉴스
   </button>
 
+  <!--  ── AI 비서 (10/5) ── 지금 보는 화면(팀 지표 · 차트 · 섹터 표 …)과 함께 물어봅니다.
+        답은 서버 함수 ai-chat 이 만듭니다 (AI 분석과 같은 열쇠 · 같은 월 예산).            -->
+  <button id="aicFab" class="aic-fab hidden" onclick="aicDock(true)" title="지금 보는 화면을 같이 보내고 물어봅니다"><i>✦</i>AI 비서</button>
+  <div id="aicDock" class="aic-dock hidden" role="dialog" aria-label="AI 비서">
+    <div class="aic-head">
+      <b>AI 비서</b><span class="st" id="aicSt"></span>
+      <span class="r">
+        <span class="mode-seg" id="aicDepth">
+          <button id="aicDepth-fast" class="on" onclick="aicSetDepth('fast')" title="빠르고 싼 모델 (Haiku)">빠르게</button>
+          <button id="aicDepth-deep" onclick="aicSetDepth('deep')" title="더 꼼꼼한 모델 (Sonnet) · 값이 두 배쯤">꼼꼼하게</button>
+        </span>
+        <button class="nf-x" onclick="aicNew()" title="새 대화">↺</button>
+        <button class="nf-x" onclick="aicDock(false)" title="닫기">✕</button>
+      </span>
+    </div>
+    <div class="aic-list" id="aicList"></div>
+    <div class="aic-foot">
+      <label class="opt" title="지금 탭의 핵심 지표 카드 · 차트에 올린 선 · 섹터 표 같은 요약을 질문과 같이 보냅니다">
+        <input type="checkbox" id="aicScreen" checked> 지금 화면 같이 보내기 <span id="aicScreenWhat"></span></label>
+      <div class="aic-in">
+        <textarea id="aicQ" rows="1" placeholder="물어보세요 (Enter 보내기)" title="Shift+Enter 는 줄바꿈"
+                  onkeydown="aicKey(event)" oninput="aicGrow(this)"></textarea>
+        <button class="btn-sm btn-solid" id="aicSend" onclick="aicAsk()">보내기</button>
+      </div>
+    </div>
+  </div>
+
   <div id="nfDock" class="nf-dock hidden">
     <div class="nf-head">
       <b>라이브 뉴스</b>
@@ -4209,6 +4434,7 @@
         <label title="1분마다 저절로 받아옵니다">
           <input type="checkbox" id="nfAuto" checked onchange="nfTick()"> 자동
         </label>
+        <button class="nf-x hidden" id="nfAic" onclick="aicDock(true)" title="AI 비서 열기 (뉴스 서랍은 닫힙니다)" style="width:auto;padding:0 7px;font-weight:700;color:var(--primary)">✦ AI</button>
         <button class="nf-x" onclick="nfLoad(true)" title="지금 새로고침">↻</button>
         <button class="nf-x" onclick="nfDock(false)" title="닫기">✕</button>
       </span>
@@ -4866,6 +5092,11 @@ function enName(src, code, item, ko){
   var k = enKey(src, code, item);
   if (catEn[k]) return catEn[k];
   if (EN_NAMES[k]) return EN_NAMES[k];
+  //  주가 · ETF — 묶음 목록(SEC_SETS)의 영문 이름 + 기호 (10/5)
+  if (/^quote_/.test(String(src || '')) && typeof secPxNameOf === 'function'){
+    var sn = secPxNameOf(src, code);
+    if (sn && sn[1] && sn[1] !== code) return stkLabel(sn[1], code);
+  }
   if (ko == null && typeof catalog !== 'undefined' && catalog){
     var c = catalog.filter(function(x){ return enKey(x.source, x.code, x.item_code) === k; })[0];
     ko = c ? c.label : null;
@@ -4876,7 +5107,7 @@ function enName(src, code, item, ko){
 function indName(src, code, item, ko){ var e = isEn() ? enName(src, code, item, ko) : null; return e || ko; }
 var UNIT_EN = { '%': '%', '%p': 'pp', '천명': 'K', '건': '', '천건': 'K', '지수': 'Index', '달러/배럴': '$/bbl', '백만달러': '$M',
                 '십억달러': '$B', '달러/시간': '$/hr', '배': 'x', '시간': 'hrs', '원': 'KRW', '달러': 'USD', '억원': 'KRW 100M',
-                '십억원': 'KRW B', '조원': 'KRW tn', '백만': 'M', '천': 'K', '명': '', '포인트': 'pt', 'p': 'pt', '가격(100)': 'Price (100)' };
+                '십억원': 'KRW B', '조원': 'KRW tn', '백만': 'M', '천': 'K', '명': '', '포인트': 'pt', 'p': 'pt', '가격(100)': 'Price (100)', '100 기준': 'Index (start = 100)', 'USDT': 'USDT' };
 function unitDisp(u){ u = String(u == null ? '' : u); if (!isEn()) return u; return UNIT_EN[u] != null ? UNIT_EN[u] : u; }
 var MON_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 //  전기비의 영문은 주기에 따라 다릅니다 — 월간 MoM · 분기 QoQ · 주간/일간 WoW
@@ -4904,6 +5135,14 @@ function applyLang(quiet){
   if (typeof drawChart === 'function' && typeof chart !== 'undefined' && chart) drawChart();
   if (typeof renderMacroTeam === 'function' && $('mtmGrid')) renderMacroTeam();
   if (typeof mbOpen !== 'undefined' && mbOpen) mbDraw();
+  //  10/5 새 화면들도 이름을 바꿔 끼웁니다 (주가·ETF 고르기 · 섹터·종목 모니터 · 가격 차트 · AI 서랍 안내)
+  if (typeof renderSecMkt === 'function' && $('secMkt')){
+    renderSecMkt(); secSubRender();
+    if (typeof indInited !== 'undefined' && indInited) renderSectors();
+    if (typeof secPx !== 'undefined' && secPx.picks.length) secPxDraw();
+  }
+  if (typeof addKind !== 'undefined' && addKind === 'stk' && typeof stkRender === 'function') stkRender();
+  if (typeof aicOpen !== 'undefined' && aicOpen && typeof aicRender === 'function') aicRender();
 }
 
 /* ══════════ 로그인 ══════════ */
@@ -4995,6 +5234,9 @@ async function enterApp(){
   if (typeof ubLoad === 'function') ubLoad();     //  내 묶음 (계정에 저장된 것) — 기다리지 않습니다
   showTab('home');
   nfDockInit();          //  지난번에 열어뒀으면 그대로 열어 줍니다
+  if (typeof aicInit === 'function') aicInit();    //  AI 비서 단추 (서버에서 켜져 있을 때만)
+  //  지난번에 보던 칸(경제지표 / 주가·ETF)으로 — <로그인 뒤에> (그 전에 바이낸스 목록을 부르면 «로그인이 끊겼습니다» 로 굳었습니다)
+  if (typeof addKind !== 'undefined' && addKind === 'stk') setAddKind('stk');
 }
 
 /*  ── 상단 탭을 누르면 <그 탭의 첫 화면> 으로 ──────────────────
@@ -5102,6 +5344,8 @@ function showTab(name){
     //  ⚠️ 한 번만 받습니다. 탭을 오갈 때마다 FRED 를 부를 이유가 없습니다.
     if (!ycLoaded) loadYC(); else if (ycChart) ycChart.resize(); }, 70);
   if (name==='home' && homeFxChart) setTimeout(function(){ homeFxChart.resize(); }, 60);
+  //  AI 서랍이 열려 있으면 «지금 화면 같이 보내기 (…)» 와 추천 질문을 새 탭에 맞춥니다
+  if (typeof aicOpen !== 'undefined' && aicOpen && typeof aicRender === 'function') aicRender();
 }
 
 /*  그 탭의 «첫 화면» 이 무엇인지 — 탭마다 다릅니다.  */
@@ -7443,6 +7687,8 @@ function nfDock(open){
   var d = $('nfDock'), f = $('nfFab');
   if (d) d.classList.toggle('hidden', !nfOpen);
   if (f) f.classList.toggle('hidden', nfOpen);
+  //  AI 비서 서랍과 같은 자리라 번갈아 엽니다
+  if (nfOpen && typeof aicOpen !== 'undefined' && aicOpen && typeof aicDock === 'function') aicDock(false);
   try { localStorage.setItem(NF_DOCK_KEY, nfOpen ? '1' : '0'); } catch(e){ /* 사생활 모드 */ }
   if (nfOpen){
     if (!nfData[nfKind]) nfLoad(); else nfRender();
@@ -7464,6 +7710,309 @@ function nfDockInit(){
 document.addEventListener('keydown', function(e){
   if (e.key === 'Escape' && nfOpen) nfDock(false);
 });
+
+/* ══════════ AI 비서 (10/5) ══════════
+
+   학회장: «터미널 안에 AI 비서 — 비서가 팀 지표·차트·포트폴리오·13F·리포트를 읽고 답하는 식» (①안).
+
+   · 단추는 서버에서 켜져 있을 때만 보입니다 (ai_chat_status · 임원진이 설정 › AI 비용에서 켜고 끔).
+   · «지금 화면 같이 보내기» 를 켜 두면 지금 탭의 요약(팀 핵심 지표 카드 · 매크로 차트에 올린 선 ·
+     섹터 표 · 고른 기업 · 열어 둔 AI 리포트)을 글로 만들어 질문과 같이 보냅니다. 원자료 전체가
+     아니라 <요약> 이라 값이 싸고, 서버는 필요하면 도구로 더 찾아봅니다.
+   · 대화는 이 브라우저에만 남깁니다 (서버는 질문 내용을 저장하지 않습니다).
+   · ⚠️ 답은 모델이 쓴 글입니다 — HTML 로 넣지 않고, 이스케이프한 뒤 굵게 · 목록 · 소제목만 다시 입힙니다. */
+var AIC_KEY = 'safe_aic_v1', AIC_DEPTH_KEY = 'safe_aic_depth_v1', AIC_OPEN_KEY = 'safe_aic_open_v1';
+var aicMsgs = [], aicBusy = false, aicOpen = false, aicDepth = 'fast', aicStatus = null, aicUid = '';
+try { if (localStorage.getItem(AIC_DEPTH_KEY) === 'deep') aicDepth = 'deep'; } catch(e){}
+/*  ⚠️ 대화는 <계정마다> 따로 남깁니다. 한 열쇠에 두면 동아리방 공용 PC 에서 다음에 로그인한 사람이
+    앞사람 대화(«우리 팀 손익» 같은)를 보고, 그 대화가 다음 질문의 문맥으로 서버에 같이 갔습니다.  */
+function aicStoreKey(){ return aicUid ? AIC_KEY + ':' + aicUid : ''; }
+function aicSave(){ var k = aicStoreKey(); if (!k) return; try { localStorage.setItem(k, JSON.stringify(aicMsgs.slice(-30))); } catch(e){} }
+function aicLoadMsgs(){
+  aicMsgs = [];
+  var k = aicStoreKey(); if (!k) return;
+  try { var a = JSON.parse(localStorage.getItem(k) || '[]'); if (Array.isArray(a)) aicMsgs = a; } catch(e){}
+}
+
+async function aicInit(){
+  aicStatus = null;
+  try { localStorage.removeItem(AIC_KEY); } catch(e){}        //  예전(모두 같은 열쇠) 기록은 지웁니다
+  try { var ss = await sb.auth.getSession(); aicUid = (ss && ss.data && ss.data.session && ss.data.session.user && ss.data.session.user.id) || ''; } catch(e){ aicUid = ''; }
+  aicLoadMsgs();
+  try {
+    var r = await sb.rpc('ai_chat_status');
+    if (!r.error && r.data) aicStatus = r.data;
+  } catch(e){}
+  var f = $('aicFab'), nb = $('nfAic');
+  //  SQL 을 안 돌렸거나 꺼져 있으면 단추를 숨깁니다 (임원진에게는 설정 화면에서 안내)
+  if (f) f.classList.toggle('hidden', !(aicStatus && aicStatus.on) || aicOpen);
+  if (nb) nb.classList.toggle('hidden', !(aicStatus && aicStatus.on));
+  aicStRender();
+  var v = '0';
+  try { v = localStorage.getItem(AIC_OPEN_KEY) || '0'; } catch(e){}
+  if (v === '1' && aicStatus && aicStatus.on) aicDock(true);
+}
+function aicStRender(){
+  var st = $('aicSt'); if (!st) return;
+  st.textContent = aicStatus ? (T('오늘 ', 'today ') + Number(aicStatus.used_today || 0) + '/' + Number(aicStatus.daily || 0)) : '';
+  //  임원진이 «Haiku 만» 으로 두었으면 «꼼꼼하게» 를 감춥니다 (서버도 Haiku 로만 답합니다)
+  var deepOk = !aicStatus || aicStatus.model === 'claude-sonnet-5';
+  var seg = $('aicDepth'); if (seg) seg.classList.toggle('hidden', !deepOk);
+  var dep = deepOk ? aicDepth : 'fast';
+  ['fast', 'deep'].forEach(function(k){ var b = $('aicDepth-' + k); if (b) b.classList.toggle('on', dep === k); });
+}
+function aicSetDepth(k){
+  aicDepth = k === 'deep' ? 'deep' : 'fast';
+  try { localStorage.setItem(AIC_DEPTH_KEY, aicDepth); } catch(e){}
+  aicStRender();
+}
+function aicDock(open){
+  aicOpen = !!open;
+  var d = $('aicDock'), f = $('aicFab');
+  if (d) d.classList.toggle('hidden', !aicOpen);
+  if (f) f.classList.toggle('hidden', aicOpen || !(aicStatus && aicStatus.on));
+  document.body.classList.toggle('aic-on', aicOpen);
+  //  뉴스 서랍과 같은 자리라 번갈아 엽니다
+  if (aicOpen && typeof nfOpen !== 'undefined' && nfOpen && typeof nfDock === 'function') nfDock(false);
+  try { localStorage.setItem(AIC_OPEN_KEY, aicOpen ? '1' : '0'); } catch(e){}
+  if (aicOpen){ aicRender(); setTimeout(function(){ var q = $('aicQ'); if (q) q.focus(); }, 30); }
+}
+function aicNew(){
+  if (aicBusy) return;
+  aicMsgs = []; aicSave(); aicRender();
+}
+function aicKey(e){
+  if (e.key === 'Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); aicAsk(); }
+}
+function aicGrow(t){ t.style.height = 'auto'; t.style.height = Math.min(120, t.scrollHeight) + 'px'; }
+
+/*  ── 모델 글 → 화면 (안전하게) ──
+    이스케이프를 <먼저> 하고, 그 위에 우리가 정한 몇 가지 모양만 입힙니다.
+    링크 · 이미지 · HTML 은 글자 그대로 보입니다.                              */
+function aicMd(txt){
+  var lines = String(txt || '').replace(/\r/g, '').split('\n');
+  var out = [], list = null, listTag = 'ul';
+  var inline = function(s){
+    return esc(s).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/`([^`]+)`/g, '<code>$1</code>');
+  };
+  var flush = function(){ if (list){ out.push('<' + listTag + '>' + list.join('') + '</' + listTag + '>'); list = null; } };
+  lines.forEach(function(raw){
+    var l = raw.replace(/\s+$/, '');
+    var m;
+    if (!l.trim()){ flush(); return; }
+    //  번호 목록은 번호를 살리고(1. 2. → ol), «2026. 10월» 같은 연도는 목록으로 안 봅니다 (두 자리까지만)
+    var ord = /^\s*\d{1,2}[.)]\s+(.*)$/.exec(l), bul = /^\s*[-*•·]\s+(.*)$/.exec(l);
+    if (ord || bul){
+      var tag = ord ? 'ol' : 'ul';
+      if (list && listTag !== tag) flush();
+      listTag = tag; (list = list || []).push('<li>' + inline((ord || bul)[1]) + '</li>'); return;
+    }
+    flush();
+    if ((m = /^\s*#{1,4}\s+(.*)$/.exec(l))){ out.push('<div class="h">' + inline(m[1]) + '</div>'); return; }
+    if (/^\s*\[[^\]]{1,30}\]\s*$/.test(l)){ out.push('<div class="h">' + inline(l.trim()) + '</div>'); return; }
+    out.push('<p>' + inline(l) + '</p>');
+  });
+  flush();
+  return out.join('');
+}
+var AIC_TOOL_KO = { search_indicators:'지표 찾기', get_indicator:'지표 값', get_price:'시세', search_reports:'리포트 찾기',
+                    get_report:'리포트 본문', get_my_portfolio:'우리 팀 포트폴리오', get_13f:'13F' };
+function aicUsedTxt(used){
+  return (used || []).map(function(u){
+    var a = u.args || {};
+    var what = a.code || a.symbol || a.query || a.manager || a.id || '';
+    return (AIC_TOOL_KO[u.tool] || u.tool) + (what ? '(' + what + ')' : '') + (u.ok ? '' : ' ⚠️');
+  }).join(' · ');
+}
+function aicSuggestions(){
+  if (curTab === 'research'){
+    var t = MACRO_TEAMS[macroTeam];
+    var base = [ (t ? t.n + ' 팀 핵심 지표로 지금 경기를 세 줄로 요약해줘' : '지금 핵심 지표로 경기를 세 줄로 요약해줘') ];
+    if (series && series.length) base.push('지금 차트에 올린 지표들이 서로 어떤 관계인지 설명해줘');
+    base.push('보고서에 넣을 영문 한 문단으로 정리해줘');
+    return base;
+  }
+  if (curTab === 'industry') return ['이 표에서 최근 3개월 강한 섹터와 약한 섹터, 이유를 정리해줘', '반도체(SMH)와 미국 10년 금리 흐름을 같이 봐줘'];
+  if (curTab === 'company' && typeof co !== 'undefined' && co) return [(co.name || co.code) + ' 최근 주가 흐름과 학회 리포트가 있으면 요약해줘'];
+  if (curTab === 'trading') return ['우리 팀 포트폴리오를 점검해줘 - 쏠림 · 위험 · 손익'];
+  return ['미국 2년물과 SOFR 최근 흐름을 비교해줘', '버크셔 해서웨이 최근 13F 에서 뭐가 바뀌었어?', '우리 팀 포트폴리오를 점검해줘'];
+}
+function aicRender(){
+  var box = $('aicList'); if (!box) return;
+  aicStRender();
+  var w = $('aicScreenWhat'); if (w) w.textContent = '(' + aicScreenWhat() + ')';
+  if (!aicMsgs.length && !aicBusy){
+    box.innerHTML = '<div class="aic-empty">지금 보는 화면(지표 카드 · 차트 · 표)을 같이 보내서 물어볼 수 있습니다. '
+      + '필요하면 비서가 지표 값 · 시세 · 13F · 학회 AI 리포트 · 우리 팀 포트폴리오를 직접 찾아봅니다 (읽기만).'
+      + '<div class="aic-sugg">' + aicSuggestions().map(function(q){
+          return '<button type="button" onclick="aicAsk(' + esc(JSON.stringify(q)).replace(/"/g, '&quot;') + ')">' + esc(q) + '</button>'; }).join('') + '</div>'
+      + '<p style="margin-top:10px;font-size:11px">답은 틀릴 수 있습니다 - 숫자는 출처 날짜를 같이 확인하세요. 질문 내용은 서버에 저장하지 않습니다.</p></div>';
+    return;
+  }
+  box.innerHTML = aicMsgs.map(function(m, i){
+    if (m.role === 'user') return '<div class="aic-msg me">' + esc(m.content) + '</div>'
+      + (m.ctx ? '<div class="aic-ctx" title="이 질문과 같이 보낸 화면 요약">📎 ' + esc(m.ctx) + '</div>' : '');
+    if (m.err) return '<div class="aic-msg err">' + esc(m.content) + '</div>';
+    return '<div class="aic-msg ai">' + aicMd(m.content)
+      + '<div class="aic-meta">' + (m.used && m.used.length ? '<span>찾아본 자료: ' + esc(aicUsedTxt(m.used)) + '</span>' : '')
+      + (m.cost != null ? '<span>$' + Number(m.cost).toFixed(4) + '</span>' : '')
+      + '<button type="button" onclick="aicCopy(' + i + ')">복사</button></div></div>';
+  }).join('') + (aicBusy ? '<div class="aic-typing"><span></span><span></span><span></span> 생각하는 중… <b>' + Math.round((Date.now() - aicT0) / 1000) + '초</b>'
+                           + ' <span style="opacity:.75">(자료를 찾아보면 10~30초)</span></div>' : '');
+  box.scrollTop = box.scrollHeight;
+}
+function aicCopy(i){
+  var m = aicMsgs[i]; if (!m) return;
+  var ok = function(){ toast('답을 복사했습니다'); }, no = function(){ toast('복사하지 못했습니다 - 글을 직접 골라 복사해 주세요'); };
+  try { navigator.clipboard.writeText(m.content).then(ok, no); } catch(e){ no(); }
+}
+
+/*  ── 지금 화면 → 짧은 글 ──────────────────────────────────── */
+function aicScreenWhat(){
+  if (curTab === 'research') return '팀 지표' + (series && series.length ? ' · 차트 ' + series.length + '개' : '');
+  if (curTab === 'industry') return '섹터 표' + (typeof secPx !== 'undefined' && secPx.picks.length ? ' · 가격 차트' : '');
+  if (curTab === 'company') return (typeof co !== 'undefined' && co) ? '기업 ' + (co.name || co.code) : '기업분석';
+  if (curTab === 'ai') return (typeof aiRep !== 'undefined' && aiRep) ? 'AI 리포트' : 'AI 분석';
+  return '탭 이름';
+}
+function aicNum(v){ return v == null || !isFinite(v) ? '-' : (Math.abs(v) >= 1000 ? Math.round(v).toLocaleString('en-US') : String(Math.round(v * 1e4) / 1e4)); }
+function aicSeriesLine(s){
+  var v = (typeof viewPoints === 'function') ? viewPoints(s) : (s.points || []);
+  v = (v || []).filter(function(p){ return p && isFinite(p.v); });
+  var head = '- ' + (s.label_ko || s.label) + ' [' + srcName(s.source, s.code) + ' ' + s.code + (s.item_code ? '/' + s.item_code : '') + ']'
+           + ' · 단위 ' + (unitOf(s) || '-') + ((s.tf && s.tf !== 'raw') ? ' · 변환 ' + s.tf : '') + (s.hidden ? ' · 숨김' : '');
+  if (!v.length) return head + ' · (자료 없음)';
+  var last = v[v.length - 1], lo = v[0], hi = v[0];
+  v.forEach(function(p){ if (p.v < lo.v) lo = p; if (p.v > hi.v) hi = p; });
+  var ya = null, tgt = new Date(Date.parse(last.d) - 365 * 864e5).toISOString().slice(0, 10);
+  for (var i = v.length - 1; i >= 0; i--){ if (v[i].d <= tgt){ ya = v[i]; break; } }
+  var mm = {}; v.forEach(function(p){ mm[p.d.slice(0, 7)] = p; });
+  var months = Object.keys(mm).sort().slice(-12).map(function(k){ return k + ' ' + aicNum(mm[k].v); });
+  return head + '\n  최신 ' + last.d + ' = ' + aicNum(last.v) + (ya ? ' · 1년 전(' + ya.d + ') ' + aicNum(ya.v) : '')
+       + ' · 구간 최저 ' + aicNum(lo.v) + '(' + lo.d + ') 최고 ' + aicNum(hi.v) + '(' + hi.d + ')'
+       + '\n  월별(마지막 값): ' + months.join(', ');
+}
+function aicScreen(){
+  var out = [];
+  var tabNm = { home:'홈', research:'매크로 경제', trading:'팀 모의투자', solo:'개인 모의투자', industry:'분석 › 산업분석',
+                company:'분석 › 기업분석', ai:'분석 › AI 분석', deriv:'분석 › 파생상품', flow:'분석 › 자금흐름', links:'자료실', admin:'설정' };
+  out.push('[탭] ' + (tabNm[curTab] || curTab) + (curTab === 'research' && MACRO_TEAMS[macroTeam] ? ' › ' + MACRO_TEAMS[macroTeam].n : ''));
+  try {
+    if (curTab === 'research'){
+      var t = MACRO_TEAMS[macroTeam];
+      if (t){
+        var lines = t.items.map(function(it){
+          var s = mcCached(mcKey(it)); if (!s) return null;
+          var m = mcMain(it, s);
+          return '- ' + it.l + ' (' + it.s.toUpperCase() + ' ' + it.c + (it.i ? '/' + it.i : '') + ', 중요도 ' + mcStarN(it) + '): ' + m.big + (m.lbl ? ' ' + m.lbl : '')
+               + ' · ' + m.parts.map(function(q){ return q.k + ' ' + q.v; }).join(' · ') + ' · 기준 ' + s.d + (s.until ? ' · 다음 발표 ' + s.until : '');
+        }).filter(Boolean);
+        if (lines.length) out.push('[' + t.n + ' 팀 핵심 지표 카드]\n' + lines.join('\n'));
+      }
+      if (series && series.length){
+        out.push('[매크로 차트] 기간 ' + startDate() + ' ~ · 선 ' + series.length + '개\n' + series.map(aicSeriesLine).join('\n'));
+      }
+    } else if (curTab === 'industry' && typeof SEC_SETS !== 'undefined'){
+      var set = SEC_SETS[secState.mkt];
+      if (set){
+        var rows = [[set.bench[0], set.bench[1], secBSrc(set)]].concat(set.items.map(function(it){ return [it[0], it[1], set.src]; }))
+          .map(function(it){ var s = secCached(secKey(it[2], it[0])); if (!s || s.err) return null;
+            var f = function(v){ return v == null ? '-' : (v > 0 ? '+' : '') + v.toFixed(1) + '%'; };
+            return '- ' + it[1] + ' ' + it[0] + ': 1주 ' + f(s.r['1w']) + ' · 1개월 ' + f(s.r['1m']) + ' · 3개월 ' + f(s.r['3m']) + ' · YTD ' + f(s.r.ytd) + ' · 1년 ' + f(s.r['1y'])
+                 + ' · 52주 고점 대비 ' + s.dd.toFixed(1) + '% · 기준 ' + s.d; }).filter(Boolean);
+        out.push('[섹터·종목 모니터] ' + set.n + ' (첫 줄 = 벤치마크)\n' + rows.join('\n'));
+      }
+      if (typeof secPx !== 'undefined' && secPx.picks.length)
+        out.push('[가격 차트에 올린 종목] ' + secPx.picks.map(function(x){ return x.ko + ' ' + x.sym; }).join(', ') + ' · 기간 ' + secPx.per);
+    } else if (curTab === 'company' && typeof co !== 'undefined' && co){
+      out.push('[기업분석] ' + (co.name || '') + ' · ' + (co.market || '') + ' ' + (co.code || co.symbol || ''));
+      if (typeof coProf !== 'undefined' && coProf && coProf.found){
+        var pf = coProf, bits = [];
+        ['sector', 'industry', 'mcap', 'pe', 'pb', 'div_yield', 'target', 'rating'].forEach(function(k){ if (pf[k] != null && typeof pf[k] !== 'object') bits.push(k + ' ' + pf[k]); });
+        if (bits.length) out.push('  개요: ' + bits.join(' · '));
+      }
+      if (typeof coPricePts !== 'undefined' && coPricePts && coPricePts.length){
+        var cp = coPricePts.filter(function(p){ return p && isFinite(p.v); });
+        if (cp.length) out.push('  주가 최신 ' + cp[cp.length - 1].d + ' = ' + aicNum(cp[cp.length - 1].v));
+      }
+    } else if (curTab === 'ai' && typeof aiRep !== 'undefined' && aiRep){
+      out.push('[열어 둔 AI 리포트] id ' + aiRep.id + ' · ' + (aiRep.name || '') + ' ' + (aiRep.code || '') + ' (본문은 get_report 로)');
+    }
+  } catch(e){ out.push('(화면 요약을 만들다 일부 실패: ' + String(e && e.message || e).slice(0, 80) + ')'); }
+  var txt = out.join('\n\n');
+  return txt.length > 15000 ? txt.slice(0, 15000) + '\n…(잘림)' : txt;
+}
+
+/*  기다리는 동안 «몇 초째» — 자료를 찾아보면 10~30초 걸립니다. 멈춘 건지 아닌지 알 수 있게.  */
+var aicT0 = 0, aicTimer = null;
+function aicTick(){
+  clearInterval(aicTimer);
+  aicTimer = setInterval(function(){
+    var el = document.querySelector('#aicList .aic-typing b');
+    if (!aicBusy){ clearInterval(aicTimer); return; }
+    if (el){ var sec = Math.round((Date.now() - aicT0) / 1000); el.textContent = sec + '초'; }
+  }, 1000);
+}
+async function aicAsk(qIn){
+  if (aicBusy) return;
+  var qa = $('aicQ');
+  var q = String(qIn != null ? qIn : (qa ? qa.value : '')).trim();
+  if (!q) return;
+  if (qa && qIn == null){ qa.value = ''; aicGrow(qa); }
+  var sendScr = !!($('aicScreen') && $('aicScreen').checked);
+  aicMsgs.push({ role: 'user', content: q.slice(0, 4000), ctx: sendScr ? aicScreenWhat() : '' });
+  aicBusy = true; aicT0 = Date.now(); aicSave(); aicRender(); aicTick();
+  var sendBtn = $('aicSend'); if (sendBtn) sendBtn.disabled = true;
+  try {
+    var hist = aicMsgs.filter(function(m){ return !m.err; }).slice(-12).map(function(m){ return { role: m.role, content: m.content }; });
+    var deepOk = !aicStatus || aicStatus.model === 'claude-sonnet-5';
+    var d = await edgeCall('ai-chat', { action: 'ask', messages: hist, depth: deepOk ? aicDepth : 'fast', tab: curTab,
+                                         screen: sendScr ? aicScreen() : '' });
+    aicMsgs.push({ role: 'assistant', content: String(d.answer || ''), used: d.used || [], cost: d.cost_usd != null ? d.cost_usd : null, model: d.model });
+    if (aicStatus){ aicStatus.used_today = d.used_today; aicStatus.daily = d.daily; }
+  } catch(e){
+    var msg = String(e && e.message || e);
+    if (/ai-chat 함수가 배포되지/.test(msg)) msg = 'AI 비서 서버 함수(ai-chat)가 아직 배포되지 않았습니다 - 임원진에게 말해 주세요.';
+    aicMsgs.push({ role: 'assistant', content: msg, err: true });
+  } finally {
+    aicBusy = false; aicSave(); aicRender();
+    if (sendBtn) sendBtn.disabled = false;
+  }
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && aicOpen) aicDock(false); });
+
+/*  ── 설정 (임원진) — AI 비용 카드 아래 «AI 비서» 칸 ── */
+async function aicAdminHtml(){
+  var st = null;
+  try { var r = await sb.rpc('ai_chat_status'); if (!r.error) st = r.data; } catch(e){}
+  if (!st) return '<div class="ai-set"><h3>AI 비서</h3><p class="st-hint">아직 준비 전입니다 - SQL Editor 에서 <b>terminal-AI비서.sql</b> 을 돌리고 '
+                + '서버 함수 <b>ai-chat</b> 을 배포하면 여기서 켜고 끌 수 있습니다.</p></div>';
+  return '<div class="ai-set"><h3>AI 비서</h3>'
+    + '<div class="row">'
+    +   '<label style="min-width:auto;display:flex;align-items:center;gap:6px"><input type="checkbox" id="aicOn"' + (st.on ? ' checked' : '') + ' style="width:auto"> 켜기</label>'
+    +   '<label style="min-width:auto">1인 하루</label><input type="number" id="aicDaily" min="0" max="500" style="width:90px" value="' + Number(st.daily || 0) + '">'
+    +   '<span class="st-hint" style="flex:none">개</span>'
+    +   '<label style="min-width:auto" title="«빠르게» 는 늘 Haiku · «꼼꼼하게» 를 Sonnet 으로 허용할지">모델</label><select id="aicModel" style="width:auto">'
+    +     '<option value="claude-haiku-4-5"' + (st.model === 'claude-haiku-4-5' ? ' selected' : '') + '>Haiku 만 (꼼꼼하게 끔)</option>'
+    +     '<option value="claude-sonnet-5"' + (st.model === 'claude-sonnet-5' ? ' selected' : '') + '>꼼꼼하게 = Sonnet 허용</option></select>'
+    +   '<button class="btn-sm btn-solid" onclick="aicAdminSave()">저장</button>'
+    + '</div>'
+    + '<p class="st-hint" style="margin:6px 0 0">이번 달 ' + Number(st.month_n || 0) + '개 질문 · ' + Number(st.month_users || 0) + '명 · $'
+    +   Number(st.month_usd || 0).toFixed(3) + ' (월 상한은 AI 리포트와 같이 셉니다). «Haiku 만» 이면 학회원 화면의 «꼼꼼하게» 단추가 사라집니다 (Sonnet 은 질문당 값이 두 배쯤). 질문 내용은 저장하지 않습니다.</p>'
+    + '<div id="aicSetMsg" class="st-hint" style="margin-top:6px"></div></div>';
+}
+async function aicAdminSave(){
+  var msg = $('aicSetMsg'); if (msg) msg.textContent = '저장 중…';
+  try {
+    //  ⚠️ 칸을 비우면 Number('') = 0 → 모두 0개(사실상 끔)가 됩니다. 비운 칸은 <안 바꿈> 으로 보냅니다.
+    var dRaw = String(($('aicDaily') || {}).value || '').trim(), dv = Number(dRaw);
+    var r = await sb.rpc('ai_chat_admin_set', { p_on: !!($('aicOn') && $('aicOn').checked),
+      p_daily: (dRaw !== '' && isFinite(dv)) ? Math.round(dv) : null, p_model: ($('aicModel') || {}).value || null });
+    if (r.error) throw new Error(errMsg(r.error));
+    if (msg){ msg.style.color = 'var(--pos)'; msg.textContent = '저장했습니다 - ' + (r.data && r.data.on ? '켜짐' : '꺼짐') + ' · 하루 ' + Number(r.data && r.data.daily) + '개'; }
+    aicInit();
+  } catch(e){ if (msg){ msg.style.color = 'var(--neg)'; msg.textContent = e.message || String(e); } }
+}
 
 /*  자동 갱신 — 서랍이 열려 있을 때만 돕니다.
     닫아뒀거나 창을 내려놨으면 부르지 않습니다. 서버 캐시가 3분이라
@@ -11395,6 +11944,132 @@ async function drillSearch(){
   }
 }
 
+/*  ── 지표 추가 › 주가 · ETF (10/5) ─────────────────────────────────────────────
+    묶음(SEC_SETS — 분석 › 섹터·종목 모니터와 같은 목록)에서 고르거나 티커를 넣으면 매크로 차트에
+    가격 선으로 올라갑니다. 단위(달러 · 원 · USDT)가 경제지표와 다르면 자동으로 다른 축.
+    «100 기준» 을 켜고 올리면 변환이 «시작점 = 100» 으로 걸려 상승률끼리 겹쳐 봅니다.          */
+var ADDK_KEY = 'safe_addkind_v1', STK_KEY = 'safe_stkset_v1';
+var addKind = 'ind', stkSet = 'us';
+try { if (localStorage.getItem(ADDK_KEY) === 'stk') addKind = 'stk'; var _sk = localStorage.getItem(STK_KEY); if (_sk) stkSet = _sk; } catch(e){}
+function setAddKind(k){
+  addKind = k === 'stk' ? 'stk' : 'ind';
+  try { localStorage.setItem(ADDK_KEY, addKind); } catch(e){}
+  var a = $('addStkBox'), b = $('addIndBox');
+  if (a) a.classList.toggle('hidden', addKind !== 'stk');
+  if (b) b.classList.toggle('hidden', addKind === 'stk');
+  var x = $('addKind-ind'), y = $('addKind-stk');
+  if (x) x.classList.toggle('on', addKind !== 'stk'); if (y) y.classList.toggle('on', addKind === 'stk');
+  if (addKind === 'stk') stkRender();
+}
+async function stkSetPick(k){
+  if (!SEC_SETS[k]) return;
+  stkSet = k;
+  try { localStorage.setItem(STK_KEY, k); } catch(e){}
+  stkRender();
+  //  실패했던 목록은 단추를 다시 누르면 다시 받습니다
+  if (SEC_SETS[k].dyn){ await bnListLoad(bnList.st === 'err' || (bnList.st === 'ok' && !SEC_SETS.bn.items.length)); if (stkSet === k) stkRender(); }
+}
+function stkRender(){
+  if (!SEC_SETS[stkSet]) stkSet = 'us';
+  var set = SEC_SETS[stkSet];
+  var ch = $('stkSets');
+  if (ch) ch.innerHTML = SEC_ORDER.map(function(k){
+    var st = SEC_SETS[k];
+    return '<span class="nf-chip' + (k === stkSet ? ' on' : '') + '" onclick="stkSetPick(\'' + k + '\')">' + esc(isEn() ? st.tabEn : st.tab) + '</span>';
+  }).join('');
+  var sel = $('stkSel'); if (!sel) return;
+  var cur = sel.value;
+  var opts = [[set.bench[0], secNm(set.bench), secBSrc(set), null, 1]].concat(set.items.map(function(it){ return [it[0], secNm(it), set.src, it[3] || null, 0]; }));
+  if (set.dyn && !set.items.length){
+    sel.innerHTML = '<option value="">' + esc(bnList.st === 'busy' || !bnList.st ? '바이낸스 목록 받는 중…' : ('목록을 받지 못했습니다 - ' + (bnList.err || '') + ' (묶음 단추를 다시 누르면 다시 받습니다)')) + '</option>';
+    if (!bnList.st && typeof me !== 'undefined' && me) bnListLoad().then(function(){ if (stkSet === 'bn') stkRender(); });
+  } else {
+    sel.innerHTML = opts.map(function(o){
+      return '<option value="' + esc(o[2] + '|' + o[0]) + '">' + esc(o[0] + ' · ' + o[1] + (o[4] ? T(' (벤치마크)', ' (benchmark)') : '') + (o[3] ? ' · ' + o[3] + '~' : '')) + '</option>';
+    }).join('');
+    if (cur && opts.some(function(o){ return o[2] + '|' + o[0] === cur; })) sel.value = cur;
+  }
+  stkDescShow();
+}
+function stkDescShow(){
+  var box = $('stkDesc'), sel = $('stkSel'); if (!box || !sel) return;
+  var v = String(sel.value || ''); if (!v){ box.textContent = ''; return; }
+  var src = v.split('|')[0], sym = v.split('|')[1];
+  var set = SEC_SETS[stkSet];
+  var where = src === 'quote_kr' ? '한국 시세 · 원 · 일별 종가'
+            : src === 'quote_bn' ? '바이낸스 TradFi 무기한 선물 · USDT · 24시간 (일봉 = UTC 0시 마감) · 상장일부터'
+            : src === 'quote_crypto' ? '코인 · 달러' : '미국 시세 · 달러 · 일별 종가 (배당 제외)';
+  box.innerHTML = '<b>' + esc(sym) + '</b> · ' + esc(set ? (isEn() ? set.en : set.n) : '') + '<br>' + esc(where);
+}
+function stkAdd(){
+  var v = String(($('stkSel') || {}).value || ''); if (!v) return;
+  stkToMacro(v.split('|')[0], v.split('|')[1], !!($('stkReb') && $('stkReb').checked));
+}
+/*  ── 직접 입력: 티커 · 6자리 코드 · <이름> (10/5) ──
+    «삼성전자» · «일본» · «Tesla» 처럼 이름으로 넣어도 묶음 목록(SEC_SETS)에서 찾아 줍니다. 시장 칸과 달라도
+    (미국에 «삼성전자») 찾은 쪽 시장으로 올립니다. 여러 개면 후보를 알려 주고, 없으면 코드로 넣으라고 합니다.  */
+function stkFind(q){
+  var t = String(q || '').trim().toLowerCase(); if (!t) return [];
+  var out = [], seen = {};
+  SEC_ORDER.forEach(function(k){
+    var st = SEC_SETS[k];
+    [[st.bench[0], st.bench[1], st.bench[2], secBSrc(st)]].concat(st.items.map(function(it){ return [it[0], it[1], it[2], st.src]; })).forEach(function(it){
+      var key = it[3] + '|' + it[0]; if (seen[key]) return;
+      var ko = String(it[1] || '').toLowerCase(), en = String(it[2] || '').toLowerCase(), sy = String(it[0]).toLowerCase();
+      if (sy === t || ko.indexOf(t) >= 0 || en.indexOf(t) >= 0){ seen[key] = 1; out.push({ src: it[3], sym: it[0], ko: it[1], exact: sy === t || ko === t || en === t || ko.replace(/\s*\(.*$/, '') === t }); }
+    });
+  });
+  var ex = out.filter(function(x){ return x.exact; });
+  return ex.length ? ex : out;
+}
+function stkResolve(src, raw, warnId){
+  raw = String(raw || '').trim();
+  if (!raw){ warn(warnId, '티커 · 6자리 코드 · 이름을 넣어 주세요.'); return null; }
+  var isCode = src === 'quote_kr' ? /^\d{6}$/.test(raw.replace(/\s/g, '')) : /^[A-Za-z0-9.\-]{1,15}$/.test(raw);
+  if (!isCode || /[가-힣]/.test(raw)){
+    var hits = stkFind(raw);
+    if (hits.length === 1) return { src: hits[0].src, sym: hits[0].sym };
+    if (hits.length > 1){
+      warn(warnId, '«' + esc(raw) + '» 이 여럿입니다 - ' + hits.slice(0, 6).map(function(h){ return esc(h.ko) + ' ' + esc(h.sym); }).join(' · ') + ' 중 기호로 넣어 주세요.');
+      return null;
+    }
+    if (src === 'quote_kr' || /[가-힣]/.test(raw)){
+      warn(warnId, '목록에서 «' + esc(raw) + '» 을 찾지 못했습니다 - 한국은 6자리 코드(예: 005930), 해외는 티커로 넣어 주세요.');
+      return null;
+    }
+  }
+  var sym = src === 'quote_kr' ? raw.replace(/\D/g, '') : raw.toUpperCase().replace(/\s+/g, '');
+  if (src === 'quote_bn'){ sym = sym.replace(/[^A-Z0-9]/g, ''); if (!/(USDT|USDC)$/.test(sym)) sym += 'USDT'; }
+  warn(warnId, '');
+  return { src: src, sym: sym };
+}
+function stkAddCode(){
+  var r = stkResolve(($('stkMkt') || {}).value || 'quote_us', ($('stkCode') || {}).value, 'researchWarn'); if (!r) return;
+  if (stkToMacro(r.src, r.sym, !!($('stkReb') && $('stkReb').checked))) $('stkCode').value = '';
+}
+//  «이름 (기호)» — 이름에 이미 기호가 들어 있으면(S&P 500 (SPY)) 두 번 붙이지 않습니다
+function stkLabel(nm, sym){
+  if (!nm || nm === sym) return sym;
+  return String(nm).indexOf('(' + sym + ')') >= 0 ? nm : nm + ' (' + sym + ')';
+}
+//  종목 하나를 매크로 차트에 (이미 있으면 100 기준만 맞춥니다)
+function stkToMacro(src, sym, reb){
+  var key = src + '|' + sym + '|';
+  var have = series.filter(function(x){ return x.key === key; })[0];
+  if (have){
+    //  setTf 로 바꿔야 축도 다시 고릅니다 (100 기준끼리 한 축)
+    if (reb && have.tf !== 'reb'){ have.autoTf = false; setTf(series.indexOf(have), 'reb'); return true; }
+    warn('researchWarn', '이미 추가된 종목입니다.'); return 'have';
+  }
+  if (series.length >= 8){ warn('researchWarn', '한 차트에 최대 8개까지 넣을 수 있습니다.'); return false; }
+  if (typeof macroMode !== 'undefined' && macroMode === 'curve' && typeof ycFromMain === 'function') ycFromMain();
+  var nm = secPxNameOf(src, sym);
+  addSeries({ source: src, code: sym, item_code: '', cycle: 'D', label: stkLabel(nm[0], sym), unit: SEC_UNIT[src] || '', keepRaw: true });
+  var s0 = series.filter(function(x){ return x.key === key; })[0];
+  if (s0 && reb){ s0.tf = 'reb'; s0.autoTf = false; renderSeriesList(); }
+  return !!s0;
+}
+
 function addManual(){
   var src = $('mSource').value, code = $('mCode').value.trim();
   if (!code) { warn('researchWarn','코드를 입력해주세요.'); return; }
@@ -12016,17 +12691,27 @@ function mcNum(v, dmax){
   var s = Number(v).toLocaleString('ko-KR', { minimumFractionDigits: 0, maximumFractionDigits: dec });
   return s;
 }
+/*  반올림해서 0 이면 진짜 0 — «-0.00%p» 처럼 부호·색이 붙은 0 을 없앱니다 (10/5)  */
+function mcR(v, dec){
+  if (v == null || !isFinite(v)) return v;
+  var f = Math.pow(10, dec), r = Math.round(v * f) / f;
+  return r === 0 ? 0 : r;
+}
+function mcRp(v){ return (v == null || !isFinite(v)) ? v : mcR(v, Math.abs(v) >= 10 ? 1 : 2); }
+//  금리는 소수 둘째 자리까지 늘 맞춰 씁니다 (4.7% → 4.70%) — 줄마다 자릿수가 같아야 눈이 편합니다
+function mcFix2(v){ return Number(v).toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function mcVal(v, u){
   if (v == null || !isFinite(v)) return '-';
   u = u || '';
-  if (u === '%' || u === '%p') return mcNum(v, 2) + '%';
+  if (u === '%' || u === '%p') return mcFix2(v) + '%';
   u = unitDisp(u);
   return mcNum(v) + (u ? ' ' + u : '');
 }
-function mcPct(v){ return (v == null || !isFinite(v)) ? '-' : (v > 0 ? '+' : '') + mcNum(v, Math.abs(v) >= 10 ? 1 : 2) + '%'; }
-function mcPp(v){ return (v == null || !isFinite(v)) ? '-' : (v > 0 ? '+' : '') + Number(v).toFixed(2) + T('%p', 'pp'); }
+function mcPct(v){ v = mcRp(v); return (v == null || !isFinite(v)) ? '-' : (v > 0 ? '+' : '') + mcNum(v, Math.abs(v) >= 10 ? 1 : 2) + '%'; }
+function mcPp(v){ v = mcR(v, 2); return (v == null || !isFinite(v)) ? '-' : (v > 0 ? '+' : '') + Number(v).toFixed(2) + T('%p', 'pp'); }
 function mcDelta(v, u){
   if (v == null || !isFinite(v)) return '-';
+  v = mcR(v, Math.abs(v) >= 100 ? 0 : 2);
   u = unitDisp(u || '');
   return (v > 0 ? '+' : '') + mcNum(v, Math.abs(v) >= 100 ? 0 : 2) + (u ? ' ' + u : '');
 }
@@ -12041,93 +12726,241 @@ function mcDate(d, cy){
 }
 
 /*  카드의 «큰 숫자» 와 아랫줄 — 종류별로 다릅니다 (맨 위 설명 참고)  */
+/*  ── 직전 값이 <얼마 전> 인가로 말을 고릅니다 (10/5) ─────────────────────────────
+    예전엔 주기(cy)로만 정해서, 일별 국채금리가 «WoW» 로 찍혔습니다 — 실제로는 <전일> 대비입니다.
+    두 점 사이 날짜로 정합니다: 3일 이내 전일 · 10일 이내 전주 · 45일 이내 전월 · 100일 이내 전분기.  */
+function mcGapWord(s, it){
+  var g = (s && s.d && s.pd) ? (Date.parse(s.d) - Date.parse(s.pd)) / 864e5 : null;
+  var k = g == null ? String(it.cy || 'M').toUpperCase()
+        : g <= 4 ? 'D' : g <= 10 ? 'W' : g <= 45 ? 'M' : g <= 100 ? 'Q' : 'A';
+  return isEn() ? ({ D:'DoD', W:'WoW', M:'MoM', Q:'QoQ', A:'YoY' }[k] || 'Chg')
+                : ({ D:'전일', W:'전주', M:'전월', Q:'전분기', A:'전년' }[k] || '직전');
+}
+/*  카드의 «큰 숫자» 와 아랫줄 — 종류별로 다릅니다.
+    parts: [{ v:'+0.25%', k:'전월', sign:+1 }, …] — 색은 숫자에만, 말은 옅게.             */
 function mcMain(it, s){
   var u = it.u || s.unit || '';
-  var big, lbl, sub = [], sign = null;
-  var en = isEn(), pw = prevWord(it.cy);
+  var big, lbl, parts = [], sign = null;
+  var pw = mcGapWord(s, it), yw = T('1년', '1Y');
+  var P = function(v, k, sg){ parts.push({ v: v, k: k, sign: sg }); };
   if (it.t === 'idx'){
-    var yoy = mcChg(s.v, s.ya), mom = mcChg(s.v, s.pv);
+    var yoy = mcRp(mcChg(s.v, s.ya)), mom = mcRp(mcChg(s.v, s.pv));
     if (yoy != null){ big = mcPct(yoy); lbl = T('전년비', 'YoY'); sign = yoy; }
     else { big = mcVal(s.v, u); lbl = T('최신', 'Latest'); }
-    sub.push(mcWrap((en ? pw + ' ' : '전기비 ') + mcPct(mom), mom));
-    sub.push(esc(T('값 ', 'Level ') + mcVal(s.v, u)));
+    P(mcPct(mom), pw, mom);
+    P(mcVal(s.v, u), T('값', 'level'), null);
   } else if (it.t === 'rate'){
     big = mcVal(s.v, u === '%p' ? '%' : u); lbl = u === '%p' ? T('%p', 'pp') : '';
-    if (u === '%p') big = mcNum(s.v, 2);
-    var d1 = s.pv != null ? s.v - s.pv : null, dy = s.ya != null ? s.v - s.ya : null;
+    if (u === '%p') big = mcFix2(s.v);
+    var d1 = s.pv != null ? mcR(s.v - s.pv, 2) : null, dy = s.ya != null ? mcR(s.v - s.ya, 2) : null;
     sign = d1;
-    sub.push(mcWrap((en ? pw + ' ' : '전기 대비 ') + mcPp(d1), d1));
-    sub.push(mcWrap(T('1년 전 대비 ', 'YoY ') + mcPp(dy), dy));
+    P(mcPp(d1), pw, d1); P(mcPp(dy), yw, dy);
   } else if (it.t === 'chg'){
     var dd = s.pv != null ? s.v - s.pv : null;
-    big = mcDelta(dd, u); lbl = T('전기 증감', pw + ' change'); sign = dd;
-    sub.push(esc(T('수준 ', 'Level ') + mcVal(s.v, u)));
-    sub.push(mcWrap(T('3개월 평균 ', '3M avg ') + mcDelta(s.a3, u), s.a3));
+    if (dd != null) dd = mcR(dd, Math.abs(dd) >= 100 ? 0 : 2);
+    var a3 = s.a3 == null ? null : mcR(s.a3, Math.abs(s.a3) >= 100 ? 0 : 2);
+    big = mcDelta(dd, u); lbl = T(pw + ' 증감', pw + ' chg'); sign = dd;
+    P(mcDelta(a3, u), T('3개월 평균', '3M avg'), a3);
+    P(mcVal(s.v, u), T('수준', 'level'), null);
   } else if (it.t === 'ratio'){
     big = mcNum(s.v, 2); lbl = unitDisp(u);
-    var r1 = s.pv != null ? s.v - s.pv : null;
+    var r1 = s.pv != null ? mcR(s.v - s.pv, 2) : null;
     sign = r1;
-    sub.push(mcWrap((en ? pw + ' ' : '전기 대비 ') + mcDelta(r1, ''), r1));
-    sub.push(esc(T('1년 전 ', '1Y ago ') + mcNum(s.ya, 2)));
+    P(mcDelta(r1, ''), pw, r1); P(mcNum(s.ya, 2), T('1년 전', '1Y ago'), null);
   } else {
     big = mcVal(s.v, u); lbl = '';
-    var p1 = mcChg(s.v, s.pv), py = mcChg(s.v, s.ya);
+    var p1 = mcRp(mcChg(s.v, s.pv)), py = mcRp(mcChg(s.v, s.ya));
     sign = p1;
-    sub.push(mcWrap((en ? pw + ' ' : '전기 대비 ') + mcPct(p1), p1));
-    sub.push(mcWrap(T('전년 대비 ', 'YoY ') + mcPct(py), py));
+    P(mcPct(p1), pw, p1); P(mcPct(py), yw, py);
   }
-  return { big: big, lbl: lbl, sub: sub, sign: sign };
+  //  옛 모양(sub 문자열)도 같이 — CSV·시험이 씁니다
+  var sub = parts.map(function(q){ return mcWrap((q.sign === null ? q.k + ' ' : q.k + ' ') + q.v, q.sign); });
+  return { big: big, lbl: lbl, sub: sub, parts: parts, sign: sign };
+}
+function mcPartsHtml(parts){
+  return (parts || []).map(function(q){
+    var c = mcSign(q.sign);
+    return (q.sign === null ? '<span>' + esc(q.k) + ' </span><b>' + esc(q.v) + '</b>'
+                            : '<b' + (c ? ' class="' + c + '"' : '') + '>' + esc(q.v) + '</b><span> ' + esc(q.k) + '</span>');
+  }).join('<span> · </span>');
 }
 
-function mcSpark(vals){
+/*  추세선 — 중립색 선 + 옅은 면 + 끝점. 방향은 숫자 색이 말합니다.  */
+var mcSparkN = 0;
+function mcSpark(vals, w0, h0){
   if (!vals || vals.length < 2) return '';
-  var w = 200, h = 30, lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+  var gid = 'mcsg' + (++mcSparkN);
+  var w = w0 || 200, h = h0 || 26, lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
   var span = (hi - lo) || 1;
-  var pts = vals.map(function(v, i){
-    var x = (i / (vals.length - 1)) * (w - 2) + 1, y = h - 2 - ((v - lo) / span) * (h - 4);
-    return x.toFixed(1) + ',' + y.toFixed(1);
-  }).join(' ');
-  var last = vals[vals.length - 1], first = vals[0];
-  var col = last > first ? 'var(--up)' : last < first ? 'var(--down)' : 'var(--text-sub)';
-  //  0 선이 범위 안에 있으면 (확산지수·스프레드) 그어 줍니다
-  var zero = (lo < 0 && hi > 0) ? '<line x1="0" x2="' + w + '" y1="' + (h - 2 - ((0 - lo) / span) * (h - 4)).toFixed(1)
-           + '" y2="' + (h - 2 - ((0 - lo) / span) * (h - 4)).toFixed(1) + '" stroke="var(--border)" stroke-dasharray="2 2"/>' : '';
+  var xy = vals.map(function(v, i){
+    return [(i / (vals.length - 1)) * (w - 4) + 1, h - 3 - ((v - lo) / span) * (h - 6)];
+  });
+  var pts = xy.map(function(p){ return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+  var area = 'M' + xy[0][0].toFixed(1) + ',' + h + ' L' + pts.replace(/ /g, ' L') + ' L' + xy[xy.length - 1][0].toFixed(1) + ',' + h + ' Z';
+  var e = xy[xy.length - 1];
+  var zy = (lo < 0 && hi > 0) ? (h - 3 - ((0 - lo) / span) * (h - 6)).toFixed(1) : null;
   return '<svg class="mtm-spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">'
-       + zero + '<polyline fill="none" stroke="' + col + '" stroke-width="1.6" stroke-linejoin="round" points="' + pts + '"/></svg>';
+       + (zy ? '<line x1="0" x2="' + w + '" y1="' + zy + '" y2="' + zy + '" stroke="currentColor" stroke-opacity=".35" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/>' : '')
+       + '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".16"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>'
+       + '<path d="' + area + '" fill="url(#' + gid + ')" stroke="none"/>'
+       + '<polyline fill="none" stroke="currentColor" stroke-opacity=".75" stroke-width="1.4" stroke-linejoin="round" vector-effect="non-scaling-stroke" points="' + pts + '"/>'
+       + '<circle cx="' + e[0].toFixed(1) + '" cy="' + e[1].toFixed(1) + '" r="2.2" fill="var(--accent)"/></svg>';
+}
+
+/*  ── 소제목 묶기 (10/5) ── 카드가 열댓 개면 눈이 길을 잃습니다. 팀마다 서너 묶음으로.
+    열쇠: 항목코드(ECOS) 또는 코드(FRED). 목록에 없는 지표는 마지막 «기타».            */
+var MC_GROUPS = {
+  infl:  [['소비자물가', 'Consumer prices', ['CPIAUCSL','CPILFESL','PCEPI','PCEPILFE','CUSR0000SAH1','CUSR0000SASLE','CPIENGSL','CPIUFDSL','901Y009']],
+          ['생산자·원자재', 'Producer & commodities', ['PPIFIS','DCOILWTICO']],
+          ['기대인플레이션', 'Expectations', ['T5YIE','T10YIE','MICH']]],
+  jobs:  [['고용', 'Employment', ['PAYEMS','UNRATE','U6RATE','CIVPART','LNS12300060','AWHAETP']],
+          ['임금', 'Wages', ['CES0500000003','ECIALLCIV']],
+          ['실업수당 · JOLTS', 'Claims & JOLTS', ['ICSA','CCSA','JTSJOL','JTSQUR']]],
+  mfg:   [['생산 · 가동률', 'Output & utilization', ['INDPRO','IPMAN','TCU','MCUMFN','MANEMP']],
+          ['주문 · 재고', 'Orders & inventories', ['NEWORDER','DGORDER','AMTMUO','MNFCTRIRSA','ISRATIO']],
+          ['서베이 · 비용', 'Surveys & costs', ['GACDISA066MSFRBNY','GACDFSA066MSFRBPHI','PCUOMFGOMFG']]],
+  rates: [['미국 국채', 'Treasuries', ['DGS3MO','DGS2','DGS10','DGS30','DFII10','T10YIE']],
+          ['스프레드 · 신용', 'Spreads & credit', ['T10Y2Y','T10Y3M','BAMLH0A0HYM2','BAMLC0A0CM']],
+          ['정책금리 · 대출', 'Policy & lending', ['DFF','MORTGAGE30US']],
+          ['한국', 'Korea', ['010200000','010210000','0101000']]],
+  usmm:  [['SRF · 역레포', 'SRF & reverse repo', ['RPONTTLD','RPONTSYD','RPONMBSD','RRPONTSYD']],
+          ['레포 금리', 'Repo rates', ['SOFR','SOFR99','TGCRRATE','IORB','SRFTSYD','SOFRVOL']],
+          ['연준 대차대조표', 'Fed balance sheet', ['WRESBAL','WTREGEN','WLCFLPCL','H41RESPPALGTRFNWW','WLRRAFOIAL']]],
+  krmm:  [['정책 · 단기', 'Policy & money market', ['0101000','010101000','010901000','010502000','010503000','010150000']],
+          ['통안 · 국고채', 'MSB & KTB', ['010400000','010400001','010190000','010195000','010200000','010200001','010210000','010220000','010230000']],
+          ['회사채 · 비교', 'Corporate & compare', ['010300000','010320000','DGS10']]],
+  krliq: [['MMF · RP · CD', 'MMF · RP · CD', ['BBHA04','BBHA15','BBHA06','BBHA08','BBHA00']],
+          ['증시 대기자금', 'Brokerage cash', ['S23A','S23E','S23C']],
+          ['한국은행', 'Bank of Korea', ['BCAA215','BCAA216','BCAA2121','BCAA213','BCAA1']]],
+  krpf:  [['부동산 · 건설 대출 (분기)', 'Real-estate & construction loans (Q)', ['BDHE1C','BDHE16','BDDE1C','BDDE16']],
+          ['시장 스트레스 (일간)', 'Market stress (daily)', ['010503000','010502000','010320000','010300000']]]
+};
+function mcGroups(teamKey, items){
+  var defs = MC_GROUPS[teamKey] || [], used = {}, out = [];
+  defs.forEach(function(g){
+    //  ⚠️ 항목코드가 '0' 같은 것(한국 CPI 901Y009/0)이면 «it.i || it.c» 가 '0' 이 되어 «기타» 로 빠졌습니다 — 둘 다 봅니다
+    var its = items.filter(function(it){ return (g[2].indexOf(String(it.i || '')) >= 0 || g[2].indexOf(it.c) >= 0) && !used[mcKey(it)]; });
+    its.forEach(function(it){ used[mcKey(it)] = 1; });
+    if (its.length) out.push({ n: isEn() ? g[1] : g[0], items: its });
+  });
+  var rest = items.filter(function(it){ return !used[mcKey(it)]; });
+  if (rest.length) out.push({ n: defs.length ? T('기타', 'Other') : '', items: rest });
+  return out;
+}
+
+//  바닥 줄 날짜 — 짧게: 일간 «10/1» · 월간 «2026.08» · 분기 «2026 2Q»
+function mcDateShort(d, cy){
+  var s = String(d || ''); if (!/^\d{4}-\d{2}/.test(s)) return s;
+  var Y = s.slice(0, 4), M = Number(s.slice(5, 7)), D = Number(s.slice(8, 10));
+  cy = String(cy || 'M').toUpperCase();
+  if (cy === 'Q'){ var q = Math.floor((M - 1) / 3) + 1; return isEn() ? (q + 'Q' + Y.slice(2)) : (Y + ' ' + q + 'Q'); }
+  if (cy === 'D') return isEn() ? (MON_EN[M - 1] + ' ' + D) : (M + '/' + D);
+  return isEn() ? (MON_EN[M - 1] + ' ' + Y) : (Y + '.' + String(M).padStart(2, '0'));
+}
+function mcStatus(s){
+  if (!s) return null;
+  var tod = today();
+  if (s.stale) return { c:'stale', t: T('낡음 — 지금 새로 받지 못해 서버가 받아둔 값입니다', 'Stale — server cached value') , b: T('낡음', 'Stale') };
+  if (s.rel && (Date.parse(tod) - Date.parse(s.rel)) / 864e5 <= 2) return { c:'new', t: T('새 발표 (이틀 안)', 'New release'), b: T('새 발표', 'New') };
+  if (s.until){
+    var days = Math.round((Date.parse(s.until) - Date.parse(tod)) / 864e5);
+    if (days >= 0 && days <= 3) return { c:'soon', t: T('다음 발표 ', 'Next release ') + s.until, b: days === 0 ? T('오늘 발표', 'Today') : 'D-' + days };
+  }
+  return null;
+}
+function mcFoot(it, s){
+  var nx = s.until ? (isEn() ? mcDate(s.until, 'D').replace(/, \d{4}$/, '') : mcDateShort(s.until, 'D')) : '';
+  return mcDateShort(s.d, it.cy) + ' · ' + cycleName(it.cy) + (nx ? T(' · 다음 ', ' · next ') + nx : '');
+}
+function mcStarN(it){ var cat = mcCatOf(it); return cat ? starOf(cat) : (Number(it.st) || 1); }
+function mcIsKey(it){ return mcStarN(it) >= 3; }
+function mcStarsHtml(it){
+  var n = mcStarN(it), o = '';
+  for (var k = 1; k <= 3; k++) o += '<i' + (k <= n ? ' class="on"' : '') + '>★</i>';
+  return '<span class="mtm-stars" title="' + esc(T('중요도 ', 'Importance ') + n + '/3') + '" aria-label="' + esc(T('중요도 ', 'Importance ') + n) + '">' + o + '</span>';
 }
 
 function mcCardHtml(it, s, state){
   var cat = mcCatOf(it);
-  var label = indName(it.s, it.c, it.i, it.l), star = starTxt(cat ? starOf(cat) : (it.st || 1));
-  var head = '<div class="mtm-h"><span class="mtm-star" title="중요도">' + star + '</span>'
-           + '<span title="' + esc((it.d || '') + (cat ? '' : ' · 목록에 없는 코드 (terminal-팀지표.sql)')) + '">' + esc(label) + '</span>'
-           + '<span class="mtm-cy">' + esc(cycleName(it.cy)) + '</span></div>';
+  var label = indName(it.s, it.c, it.i, it.l);
+  var st = (state ? null : mcStatus(s));
+  var head = '<div class="mtm-h"><span class="mtm-n" title="' + esc(label + (it.d ? ' — ' + it.d : '') + (cat ? '' : ' · 목록에 없는 코드')) + '">' + esc(label) + '</span>'
+           + (st ? '<span class="mtm-dot ' + st.c + '" title="' + esc(st.t) + '"></span><span class="mtm-badge ' + st.c + '" style="display:none">' + esc(st.b) + '</span>' : '')
+           + mcStarsHtml(it)
+           + '</div>';
+  var cls = 'mtm-card' + (mcIsKey(it) ? ' key' : '');
   if (state === 'wait')
-    return '<div class="mtm-card" data-key="' + esc(mcKey(it)) + '">' + head + '<div class="mtm-wait">' + T('받는 중…', 'Loading…') + '</div></div>';
+    return '<div class="' + cls + '" data-key="' + esc(mcKey(it)) + '">' + head + '<div class="mtm-wait">' + T('받는 중…', 'Loading…') + '</div></div>';
   if (state === 'err')
-    return '<div class="mtm-card err" data-key="' + esc(mcKey(it)) + '">' + head
-         + '<div class="mtm-sub" style="color:var(--danger)">' + esc(s || T('받지 못했습니다', 'Failed to load')) + '</div>'
+    return '<div class="' + cls + ' err" data-key="' + esc(mcKey(it)) + '">' + head
+         + '<div class="mtm-sub" style="color:var(--danger);white-space:normal">' + esc(s || T('받지 못했습니다', 'Failed to load')) + '</div>'
          + '<div class="mtm-f"><span class="grow">' + esc(it.s.toUpperCase() + ' ' + it.c + (it.i ? ' / ' + it.i : '')) + '</span>'
          + '<button type="button" onclick="mcRetry(this)">' + T('다시', 'Retry') + '</button></div></div>';
   var m = mcMain(it, s);
-  var tod = today();
-  var badges = '';
-  if (s.stale) badges += '<span class="mtm-badge stale" title="지금 새로 받지 못해 서버가 받아둔 값입니다">' + T('낡음', 'Stale') + '</span>';
-  else if (s.rel && (Date.parse(tod) - Date.parse(s.rel)) / 864e5 <= 2) badges += '<span class="mtm-badge new" title="발표된 지 이틀 안">' + T('새 발표', 'New') + '</span>';
-  if (s.until){
-    var days = Math.round((Date.parse(s.until) - Date.parse(tod)) / 864e5);
-    if (days >= 0 && days <= 3) badges += '<span class="mtm-badge soon" title="다음 발표 ' + esc(s.until) + '">' + (days === 0 ? T('오늘 발표', 'Today') : 'D-' + days) + '</span>';
-  }
-  var foot = T('기준 ', 'As of ') + mcDate(s.d, it.cy) + (s.until ? T(' · 다음 ', ' · Next ') + (isEn() ? mcDate(s.until, 'D').replace(/, \d{4}$/, '') : String(s.until).slice(5)) : '');
-  return '<div class="mtm-card' + (s.stale ? ' stale' : '') + '" data-key="' + esc(mcKey(it)) + '">' + head
-       + '<div class="mtm-big"><b>' + esc(m.big) + '</b>'
-       + (m.lbl ? '<span>' + esc(m.lbl) + '</span>' : '') + badges + '</div>'
-       + '<div class="mtm-sub">' + m.sub.join(' · ') + '</div>'
-       + mcSpark(s.spark)
+  var foot = mcFoot(it, s);
+  return '<div class="' + cls + (s.stale ? ' stale' : '') + (mcOnChart(it) ? ' on-chart' : '') + '" data-key="' + esc(mcKey(it)) + '" onclick="mcCardClick(event,this)" title="' + esc(T('누르면 아래 차트에 올라갑니다', 'Click to add to the chart')) + '">' + head
+       + '<div class="mtm-mid"><div class="mtm-big"><b>' + esc(m.big) + '</b>' + (m.lbl ? '<span>' + esc(m.lbl) + '</span>' : '') + '</div>'
+       + mcSpark(s.spark, 120, 28) + '</div>'
+       + '<div class="mtm-sub">' + mcPartsHtml(m.parts) + '</div>'
        + '<div class="mtm-f"><span class="grow" title="' + esc(foot + (s.note ? ' · ' + String(s.note).replace(/<[^>]+>/g, '') : '')) + '">' + esc(foot) + '</span>'
        + '<button type="button" onclick="mcToChart(this)" title="아래 차트에 올립니다">' + T('차트에', 'Chart') + '</button>'
        + ((it.s === 'fred' || it.s === 'ecos') && cat ? '<button type="button" onclick="mcDetail(this)" title="아래 «상세 항목 분석» 에서 엽니다">' + T('상세', 'Detail') + '</button>' : '')
        + '</div></div>';
+}
+//  표 보기 한 줄
+function mcRowHtml(it, s, state){
+  var label = indName(it.s, it.c, it.i, it.l);
+  var st = state ? null : mcStatus(s);
+  var lead = '<td class="n" title="' + esc(it.d || '') + '">' + esc(label) + mcStarsHtml(it) + (st ? ' <span class="mtm-dot ' + st.c + '" title="' + esc(st.t) + '" style="display:inline-block;vertical-align:1px;margin-left:4px"></span>' : '') + '</td>';
+  var tr = '<tr class="mtm-row' + (mcIsKey(it) ? ' key' : '') + (mcOnChart(it) ? ' on-chart' : '') + '" data-key="' + esc(mcKey(it)) + '"'
+         + (state ? '' : ' onclick="mcCardClick(event,this)" title="' + esc(T('누르면 아래 차트에 올라갑니다', 'Click to add to the chart')) + '"') + '>';
+  if (state === 'wait') return tr + lead + '<td class="m" colspan="6">' + T('받는 중…', 'Loading…') + '</td></tr>';
+  if (state === 'err') return tr + lead + '<td class="m" colspan="5" style="color:var(--danger);text-align:left">' + esc(s || T('받지 못했습니다', 'Failed')) + '</td><td><button type="button" class="btn-sm" onclick="mcRetry(this)">' + T('다시', 'Retry') + '</button></td></tr>';
+  var m = mcMain(it, s), p = m.parts;
+  var cell = function(q){ if (!q) return '<td></td>'; var c = mcSign(q.sign); return '<td><span' + (c ? ' class="' + c + '"' : '') + '>' + esc(q.v) + '</span> <span class="m" style="font-size:10.5px;color:var(--text-sub)">' + esc(q.k) + '</span></td>'; };
+  return tr + lead
+       + '<td class="v">' + esc(m.big) + (m.lbl ? ' <span class="m" style="font-size:10.5px;font-weight:500;color:var(--text-sub)">' + esc(m.lbl) + '</span>' : '') + '</td>'
+       + cell(p[0]) + cell(p[1])
+       + '<td>' + mcSpark(s.spark, 90, 20) + '</td>'
+       + '<td class="m">' + esc(mcDateShort(s.d, it.cy)) + '</td>'
+       + '<td class="m">' + esc(s.until ? mcDateShort(s.until, 'D') : '—') + '</td></tr>';
+}
+/*  ── 카드를 누르면 (10/5 다듬음) ──
+    예전엔 올리고 나서 차트로 <내려가 버려서>, 카드 여러 개를 연달아 올리려면 매번 다시 올라와야 했고
+    휴대폰에서는 스크롤하다 잘못 눌러도 화면이 튀었습니다. 이제 제자리에서 올리고 아래 알림에서 «차트 보기».
+    차트에 올라가 있는 카드는 옅게 칠해 둡니다.                                                        */
+function mcOnChart(it){ var k = mcKey(it); return (typeof series !== 'undefined' && series || []).some(function(x){ return x.key === k; }); }
+function mcMarkOnChart(){
+  var box = $('mtmGrid'); if (!box) return;
+  box.querySelectorAll('[data-key]').forEach(function(el){
+    var k = el.dataset.key;
+    el.classList.toggle('on-chart', (series || []).some(function(x){ return x.key === k; }));
+  });
+}
+function goChart(){ var cb = $('chartBox'); if (cb && cb.scrollIntoView) cb.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+var toastT = null;
+function toast(html, ms){
+  var el = $('appToast');
+  if (!el){ el = document.createElement('div'); el.id = 'appToast'; el.className = 'app-toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.innerHTML = html; el.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(function(){ el.classList.remove('on'); }, ms || 3200);
+}
+function mcCardClick(ev, el){
+  if (ev && ev.target && ev.target.closest && ev.target.closest('button')) return;
+  var it = el && mcItemByKey(el.dataset.key); if (!it) return;
+  var nm = esc(indName(it.s, it.c, it.i, it.l));
+  if (mcOnChart(it)){ toast('«' + nm + '» 은 이미 차트에 있습니다 <button type="button" onclick="goChart()">차트 보기 ↓</button>'); return; }
+  if (series.length >= 8){ toast('차트에는 8개까지 올릴 수 있습니다 - 차트에서 하나를 빼고 눌러 주세요. <button type="button" onclick="goChart()">차트 보기 ↓</button>', 4200); return; }
+  mcAddToChart(it);
+  toast('«' + nm + '» 을 차트에 올렸습니다 (' + series.length + '/8) <button type="button" onclick="goChart()">차트 보기 ↓</button>');
+}
+var MC_VIEW_KEY = 'safe_mc_view_v1';
+var mcView = 'card';
+try { if (localStorage.getItem(MC_VIEW_KEY) === 'table') mcView = 'table'; } catch(e){}
+function setMcView(v){
+  mcView = v === 'table' ? 'table' : 'card';
+  try { localStorage.setItem(MC_VIEW_KEY, mcView); } catch(e){}
+  renderMacroTeam();
 }
 
 function mcItemByKey(key){
@@ -12136,8 +12969,12 @@ function mcItemByKey(key){
 }
 function mcPaint(it, s, state){
   var box = $('mtmGrid'); if (!box) return;
-  var el = box.querySelector('.mtm-card[data-key="' + mcKey(it).replace(/"/g, '\\"') + '"]');
+  var el = box.querySelector('[data-key="' + mcKey(it).replace(/"/g, '\\"') + '"]');
   if (!el) return;
+  if (el.tagName === 'TR'){
+    var tb = document.createElement('tbody'); tb.innerHTML = mcRowHtml(it, s, state);
+    el.replaceWith(tb.firstChild); return;
+  }
   var tmp = document.createElement('div');
   tmp.innerHTML = mcCardHtml(it, s, state);
   el.replaceWith(tmp.firstChild);
@@ -12147,45 +12984,91 @@ async function mcLoad(it, run){
   var key = mcKey(it);
   var hit = mcCached(key);
   if (hit){ if (run === mcRun) mcPaint(it, hit); return hit; }
-  if (mcBusy[key]) return null;
-  mcBusy[key] = 1;
-  try {
-    var st0 = fetchStart();
-    var d = await edge({ source: it.s, code: it.c, item_code: it.i || '', cycle: it.cy || 'M', start: st0 });
-    if (it.u === '조원') d = Object.assign({}, d, { points: krwJo(d.points, '조원', d.unit, it.c), unit: '조원' });
-    var s = mcSummarize(d, it);
-    if (!s) throw new Error('해당 기간 자료가 없습니다');
-    //  받은 점은 «핵심 묶음» 패널도 씁니다 — 같은 지표를 두 번 부르지 않게 (화면 메모리에만)
-    if (typeof mbMem !== 'undefined'){
-      mbMem[key] = { start: st0, unit: d.unit || '', err: '',
-        pts: (d.points || []).filter(function(p){ return p && p.d && p.v != null && isFinite(Number(p.v)); })
-             .map(function(p){ return { d: String(p.d).slice(0, 10), v: Number(p.v) }; })
-             .sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; }) };
-    }
-    mcRemember(key, s);
-    if (run === mcRun) mcPaint(it, s);
-    return s;
-  } catch(e){
-    if (run === mcRun) mcPaint(it, String(e && e.message || e), 'err');
-    return null;
-  } finally { delete mcBusy[key]; }
+  /*  ⚠️ 이미 받는 중이면 <그걸 기다렸다가> 지금 화면에 칠합니다. 예전엔 그냥 null 을 돌려줘서,
+      받는 도중 카드/표를 바꾸거나 한/EN 을 바꾸면 그 칸이 «받는 중…» 에 멈춰 있었습니다
+      (먼저 부른 쪽은 화면이 바뀌어 칠하지 않고, 새 화면은 기다리지 않았습니다).            */
+  if (mcBusy[key]){
+    var r0 = await mcBusy[key];
+    if (run === mcRun){ if (r0 && r0.s) mcPaint(it, r0.s); else mcPaint(it, (r0 && r0.err) || '받지 못했습니다', 'err'); }
+    return r0 && r0.s ? r0.s : null;
+  }
+  var job = (async function(){
+    try {
+      var st0 = fetchStart();
+      var d = await edge({ source: it.s, code: it.c, item_code: it.i || '', cycle: it.cy || 'M', start: st0 });
+      if (it.u === '조원') d = Object.assign({}, d, { points: krwJo(d.points, '조원', d.unit, it.c), unit: '조원' });
+      var s = mcSummarize(d, it);
+      if (!s) throw new Error('해당 기간 자료가 없습니다');
+      //  받은 점은 «핵심 묶음» 패널도 씁니다 — 같은 지표를 두 번 부르지 않게 (화면 메모리에만)
+      if (typeof mbMem !== 'undefined'){
+        mbMem[key] = { start: st0, unit: d.unit || '', err: '',
+          pts: (d.points || []).filter(function(p){ return p && p.d && p.v != null && isFinite(Number(p.v)); })
+               .map(function(p){ return { d: String(p.d).slice(0, 10), v: Number(p.v) }; })
+               .sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; }) };
+      }
+      mcRemember(key, s);
+      return { s: s };
+    } catch(e){ return { err: String(e && e.message || e) }; }
+  })();
+  mcBusy[key] = job;
+  var r = await job;
+  delete mcBusy[key];
+  if (run === mcRun){ if (r.s) mcPaint(it, r.s); else mcPaint(it, r.err, 'err'); }
+  return r.s || null;
 }
 
+/*  묶음마다 «카드 수만큼» 칸을 차지하게 — 칸이 남으면 다음 작은 묶음이 같은 줄에 섭니다
+    (예: 스프레드 4개 + 정책금리 2개가 한 줄). 칸 수는 화면 폭에 따라 바뀌어서 그때마다 다시 잽니다.  */
+var mcFitRO = null;
+function mcFit(){
+  var box = $('mtmGrid'); if (!box || !box.classList.contains('mtm-grid')) return;
+  var gbs = box.querySelectorAll('.mtm-gbox');
+  /*  ⚠️ 먼저 전부 1칸으로 돌려놓고 잽니다. 넓은 화면에서 6칸을 차지하던 묶음이 남아 있으면
+      휴대폰 폭에서도 브라우저가 <보이지 않는 칸> 을 더 만들어 «칸 수 = 6» 으로 읽혀서,
+      카드가 화면 밖으로 밀려났습니다 (계산된 칸 목록에 그 칸들까지 들어갑니다).            */
+  gbs.forEach(function(g){ g.style.setProperty('--n', 1); });
+  var cols = String(getComputedStyle(box).gridTemplateColumns || '').trim().split(/\s+/).filter(Boolean).length || 1;
+  gbs.forEach(function(g){
+    g.style.setProperty('--n', Math.max(1, Math.min(Number(g.dataset.n) || 1, cols)));
+  });
+  if (!mcFitRO && typeof ResizeObserver !== 'undefined'){
+    var lastW = 0;
+    mcFitRO = new ResizeObserver(function(){ var w = box.clientWidth; if (w !== lastW){ lastW = w; mcFit(); } });
+    mcFitRO.observe(box);
+  }
+}
 async function renderMacroTeam(){
   var t = MACRO_TEAMS[macroTeam], box = $('mtmGrid'); if (!t || !box) return;
   var ttl = $('mtmTitle'), sub = $('mtmSub'), note = $('mtmNote');
   if (ttl) ttl.textContent = isEn() ? ((t.en || t.n) + ' — Key Indicators') : (t.n + ' 팀 핵심 지표');
   if (sub) sub.textContent = (isEn() ? (t.subEn || t.sub) : t.sub) || '';
   var run = ++mcRun;
-  //  먼저 자리를 다 잡고 (보관함에 있는 건 바로 채워집니다) 없는 것만 받습니다
-  box.innerHTML = t.items.map(function(it){
-    var hit = mcCached(mcKey(it));
-    return mcCardHtml(it, hit || null, hit ? null : 'wait');
-  }).join('');
+  //  먼저 자리를 다 잡고 (보관함에 있는 건 바로 채워집니다) 없는 것만 받습니다 — 소제목으로 묶어서
+  var groups = mcGroups(macroTeam, t.items);
+  var va = $('mtmVCard'), vb = $('mtmVTable');
+  if (va) va.classList.toggle('on', mcView !== 'table'); if (vb) vb.classList.toggle('on', mcView === 'table');
+  if (mcView === 'table'){
+    box.className = 'mtm-tblw';
+    box.innerHTML = '<table class="mtm-tbl"><thead><tr><th>' + T('지표', 'Indicator') + '</th><th>' + T('최신', 'Latest') + '</th><th>' + T('직전 대비', 'Change') + '</th><th>'
+      + T('1년 · 참고', '1Y / ref') + '</th><th>' + T('추이', 'Trend') + '</th><th>' + T('기준', 'As of') + '</th><th>' + T('다음 발표', 'Next') + '</th></tr></thead><tbody>'
+      + groups.map(function(g){
+          return (g.n ? '<tr class="mtm-gr"><td colspan="7">' + esc(g.n) + '</td></tr>' : '')
+               + g.items.map(function(it){ var hit = mcCached(mcKey(it)); return mcRowHtml(it, hit || null, hit ? null : 'wait'); }).join('');
+        }).join('') + '</tbody></table>';
+  } else {
+    box.className = 'mtm-grid';
+    box.innerHTML = groups.map(function(g){
+      return '<div class="mtm-gbox" data-n="' + g.items.length + '">'
+           + (g.n && groups.length > 1 ? '<div class="mtm-grp">' + esc(g.n) + '</div>' : '')
+           + g.items.map(function(it){ var hit = mcCached(mcKey(it)); return mcCardHtml(it, hit || null, hit ? null : 'wait'); }).join('')
+           + '</div>';
+    }).join('');
+    mcFit();
+  }
   var need = t.items.filter(function(it){ return !mcCached(mcKey(it)); });
   if (note) note.textContent = need.length
     ? need.length + '개 받는 중 · 받은 요약은 다음 발표일까지 이 브라우저에 남겨 다시 부르지 않습니다.'
-    : '전부 보관함에서 (다음 발표일까지 그대로) · 카드를 누르면 아래 차트에 올라갑니다 · 아래 목록에서는 모든 지표를 고를 수 있습니다.';
+    : '카드를 누르면 아래 차트에 올라갑니다 · 별 = 중요도(★★★ 은 왼쪽 막대도) · 점 = 새 발표(초록) · 곧 발표(파랑) · 낡은 값(노랑)';
   for (var j = 0; j < need.length; j += 3){
     if (run !== mcRun) return;                    //  그 사이 팀을 바꿨으면 멈춥니다
     await Promise.all(need.slice(j, j + 3).map(function(it){ return mcLoad(it, run); }));
@@ -12227,7 +13110,8 @@ function mcDetail(btn){
   var p = $('dtParent'); if (p && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 function mcRetry(btn){
-  var el = btn.closest('.mtm-card'), it = el && mcItemByKey(el.dataset.key); if (!it) return;
+  //  카드 보기는 .mtm-card, 표 보기는 tr.mtm-row 안에 «다시» 단추가 있습니다
+  var el = btn.closest('.mtm-card, tr.mtm-row'), it = el && mcItemByKey(el.dataset.key); if (!it) return;
   mcPaint(it, null, 'wait');
   mcLoad(it, mcRun);
 }
@@ -12467,18 +13351,94 @@ window.addEventListener('resize', function(){ if (!mbOpen) return; clearTimeout(
       이 브라우저에도 요약만 남겨(localStorage) 탭을 오가도 다시 안 부릅니다.
       한 번에 3개씩 받습니다.                                                   */
 
-/* ── ① 섹터 모니터 ─────────────────────────────────────────── */
+/* ── ① 섹터 · 종목 모니터 ─────────────────────────────────────── */
+/*  ── 종목 묶음 (10/5 넓힘) ───────────────────────────────────────────────────
+    학회장: «산업 ETF/주가 차트들도 모두 볼 수 있었으면… 다른 나라 주식들은 바이낸스로…
+    매크로 경제에도 주가나 etf 추이들 다 추가할 수 있게 · 분석 탭에서도».
+    이 목록 하나를 두 곳이 같이 씁니다 — 여기(섹터 · 종목 모니터)와 매크로 «지표 추가 › 주가·ETF».
+
+    다른 나라는 <미국 상장 국가 ETF · ADR> 로 봅니다 — 달러 기준이고 기록이 깁니다(10년+).
+    바이낸스 USDT 묶음은 거래소가 그때그때 올린 TradFi 무기한 선물이라 목록을 서버(bn_list)에서
+    받아 채웁니다 (상장일부터 · 24시간).
+
+    items: [기호, 국문, 영문] · bench: [기호, 국문, 영문] · bsrc: 벤치마크를 다른 창구로 받을 때.  */
 var SEC_SETS = {
-  us:  { n:'미국 섹터 (S&P 500 · SPDR)', src:'quote_us', bench:['SPY','S&P 500 (SPY)'],
-         items:[['XLK','기술'],['XLC','통신서비스'],['XLY','임의소비재'],['XLP','필수소비재'],['XLV','헬스케어'],
-                ['XLF','금융'],['XLI','산업재'],['XLB','소재'],['XLE','에너지'],['XLU','유틸리티'],['XLRE','부동산']] },
-  usi: { n:'미국 산업 ETF', src:'quote_us', bench:['SPY','S&P 500 (SPY)'],
-         items:[['SMH','반도체'],['XHB','주택건설'],['XRT','소매'],['KRE','지역은행'],['IYT','운송'],['ITA','항공우주·방산'],
-                ['XOP','석유·가스 탐사'],['GDX','금광'],['IBB','바이오'],['PAVE','인프라'],['TAN','태양광'],['URA','우라늄']] },
-  kr:  { n:'한국 섹터 (KODEX 섹터 ETF)', src:'quote_kr', bench:['069500','KODEX 200'],
-         items:[['091160','반도체'],['091170','은행'],['091180','자동차'],['117700','건설'],['117460','에너지화학'],
-                ['117680','철강'],['102970','증권'],['140700','보험'],['305720','2차전지'],['266420','헬스케어'],['244580','바이오']] }
+  us:  { n:'미국 섹터 (S&P 500 · SPDR)', en:'US sectors (SPDR)', tab:'🇺🇸 미국 섹터', tabEn:'🇺🇸 US sectors', src:'quote_us', bench:['SPY','S&P 500 (SPY)','S&P 500 (SPY)'],
+         items:[['XLK','기술','Technology'],['XLC','통신서비스','Communication'],['XLY','임의소비재','Cons. discretionary'],['XLP','필수소비재','Cons. staples'],
+                ['XLV','헬스케어','Health care'],['XLF','금융','Financials'],['XLI','산업재','Industrials'],['XLB','소재','Materials'],['XLE','에너지','Energy'],
+                ['XLU','유틸리티','Utilities'],['XLRE','부동산','Real estate']] },
+  usi: { n:'미국 산업 ETF', en:'US industry ETFs', tab:'🇺🇸 산업 ETF', tabEn:'🇺🇸 Industry ETFs', src:'quote_us', bench:['SPY','S&P 500 (SPY)','S&P 500 (SPY)'],
+         items:[['SMH','반도체','Semiconductors'],['XHB','주택건설','Homebuilders'],['XRT','소매','Retail'],['KRE','지역은행','Regional banks'],['IYT','운송','Transports'],
+                ['ITA','항공우주·방산','Aerospace & defense'],['XOP','석유·가스 탐사','Oil & gas E&P'],['GDX','금광','Gold miners'],['IBB','바이오','Biotech'],
+                ['PAVE','인프라','Infrastructure'],['TAN','태양광','Solar'],['URA','우라늄','Uranium']] },
+  ctry:{ n:'국가 ETF (미국 상장 · 달러)', en:'Country ETFs (US-listed, USD)', tab:'🌏 국가 ETF', tabEn:'🌏 Country ETFs', src:'quote_us', bench:['ACWI','전 세계 (ACWI)','World (ACWI)'],
+         items:[['SPY','미국','United States'],['EWJ','일본','Japan'],['MCHI','중국','China'],['KWEB','중국 인터넷','China internet'],['EWH','홍콩','Hong Kong'],
+                ['EWT','대만','Taiwan'],['EWY','한국','Korea'],['INDA','인도','India'],['VNM','베트남','Vietnam'],['EWG','독일','Germany'],['EWU','영국','United Kingdom'],
+                ['EWQ','프랑스','France'],['VGK','유럽','Europe'],['EWZ','브라질','Brazil'],['EWW','멕시코','Mexico'],['EWA','호주','Australia'],['EWC','캐나다','Canada'],
+                ['EEM','신흥국','Emerging markets']] },
+  adr: { n:'해외 대표주 (미국 상장 ADR · 달러)', en:'Global leaders (US-listed ADRs, USD)', tab:'🌏 해외 대표주', tabEn:'🌏 Global ADRs', src:'quote_us', bench:['ACWI','전 세계 (ACWI)','World (ACWI)'],
+         items:[['TSM','TSMC (대만)','TSMC (Taiwan)'],['ASML','ASML (네덜란드)','ASML (Netherlands)'],['NVO','노보 노디스크 (덴마크)','Novo Nordisk (Denmark)'],
+                ['SAP','SAP (독일)','SAP (Germany)'],['AZN','아스트라제네카 (영국)','AstraZeneca (UK)'],['SHEL','셸 (영국)','Shell (UK)'],['ARM','ARM (영국)','Arm (UK)'],
+                ['TM','도요타 (일본)','Toyota (Japan)'],['SONY','소니 (일본)','Sony (Japan)'],['MUFG','미쓰비시UFJ (일본)','MUFG (Japan)'],
+                ['BABA','알리바바 (중국)','Alibaba (China)'],['PDD','PDD (중국)','PDD (China)'],['JD','징둥 (중국)','JD.com (China)'],['BIDU','바이두 (중국)','Baidu (China)'],
+                ['HDB','HDFC은행 (인도)','HDFC Bank (India)'],['INFY','인포시스 (인도)','Infosys (India)'],['SE','씨 (싱가포르)','Sea (Singapore)'],
+                ['NU','누 홀딩스 (브라질)','Nu Holdings (Brazil)'],['MELI','메르카도리브레 (중남미)','MercadoLibre (LatAm)']] },
+  kr:  { n:'한국 섹터 (KODEX 섹터 ETF)', en:'Korea sectors (KODEX)', tab:'🇰🇷 한국 섹터', tabEn:'🇰🇷 KR sectors', src:'quote_kr', bench:['069500','KODEX 200','KODEX 200'],
+         items:[['091160','반도체','Semiconductors'],['091170','은행','Banks'],['091180','자동차','Autos'],['117700','건설','Construction'],['117460','에너지화학','Energy & chemicals'],
+                ['117680','철강','Steel'],['102970','증권','Brokers'],['140700','보험','Insurance'],['305720','2차전지','Batteries'],['266420','헬스케어','Health care'],['244580','바이오','Biotech']] },
+  krs: { n:'한국 대표주', en:'Korea large caps', tab:'🇰🇷 한국 대표주', tabEn:'🇰🇷 KR large caps', src:'quote_kr', bench:['069500','KODEX 200','KODEX 200'],
+         items:[['005930','삼성전자','Samsung Electronics'],['000660','SK하이닉스','SK hynix'],['373220','LG에너지솔루션','LG Energy Solution'],['207940','삼성바이오로직스','Samsung Biologics'],
+                ['005380','현대차','Hyundai Motor'],['000270','기아','Kia'],['068270','셀트리온','Celltrion'],['105560','KB금융','KB Financial'],['055550','신한지주','Shinhan Financial'],
+                ['035420','NAVER','NAVER'],['035720','카카오','Kakao'],['012450','한화에어로스페이스','Hanwha Aerospace'],['329180','HD현대중공업','HD Hyundai Heavy'],
+                ['005490','POSCO홀딩스','POSCO Holdings'],['006400','삼성SDI','Samsung SDI']] },
+  //  바이낸스 TradFi 무기한 — items 는 bnListLoad 가 채웁니다. 벤치마크는 미국 시세 SPY (같은 달러권)
+  bn:  { n:'바이낸스 USDT (TradFi 무기한 · 24시간)', en:'Binance USDT (TradFi perps, 24/7)', tab:'₮ 바이낸스', tabEn:'₮ Binance', src:'quote_bn', bsrc:'quote_us',
+         bench:['SPY','S&P 500 (SPY)','S&P 500 (SPY)'], items:[], dyn:true }
 };
+var SEC_ORDER = ['us', 'usi', 'ctry', 'adr', 'kr', 'krs', 'bn'];
+var SEC_UNIT = { quote_us:'달러', quote_kr:'원', quote_bn:'USDT', quote_crypto:'달러' };
+function secBSrc(set){ return (set && set.bsrc) || (set && set.src); }
+function secNm(it){ return isEn() ? (it[2] || it[1]) : it[1]; }
+
+/*  바이낸스 이름 — 거래소는 기호만 줍니다 (TSLAUSDT). 아는 것만 사람 이름을 붙이고 나머지는 기호 그대로.  */
+var BN_NAMES = {
+  TSLA:['테슬라','Tesla'], NVDA:['엔비디아','NVIDIA'], AAPL:['애플','Apple'], MSFT:['마이크로소프트','Microsoft'], AMZN:['아마존','Amazon'],
+  GOOGL:['알파벳','Alphabet'], META:['메타','Meta'], NFLX:['넷플릭스','Netflix'], AMD:['AMD','AMD'], INTC:['인텔','Intel'], AVGO:['브로드컴','Broadcom'],
+  MSTR:['스트래티지','Strategy'], COIN:['코인베이스','Coinbase'], HOOD:['로빈후드','Robinhood'], PLTR:['팔란티어','Palantir'], CRCL:['서클','Circle'],
+  PAYP:['페이팔','PayPal'], PYPL:['페이팔','PayPal'], ORCL:['오라클','Oracle'], MU:['마이크론','Micron'], TSM:['TSMC','TSMC'], BABA:['알리바바','Alibaba'],
+  SPY:['S&P 500 ETF','S&P 500 ETF'], QQQ:['나스닥 100 ETF','Nasdaq 100 ETF'], EWJ:['일본 ETF','Japan ETF'], EWY:['한국 ETF','Korea ETF'],
+  XAU:['금','Gold'], XAG:['은','Silver'], XPT:['백금','Platinum'], XPD:['팔라듐','Palladium'], CL:['WTI 원유','WTI crude'], BZ:['브렌트유','Brent crude'],
+  NATGAS:['천연가스','Natural gas'], COPPER:['구리','Copper'],
+  SAMSUNG:['삼성전자','Samsung Electronics'], SKHYNIX:['SK하이닉스','SK hynix'], HYUNDAI:['현대차','Hyundai Motor'],
+  HK0700:['텐센트 (홍콩)','Tencent (HK)'], TENCENT:['텐센트','Tencent'], HK1810:['샤오미 (홍콩)','Xiaomi (HK)'], MINIMAX:['미니맥스','MiniMax'], ZHIPU:['즈푸 AI','Zhipu AI']
+};
+function bnBase(sym){ return String(sym || '').toUpperCase().replace(/(USDT|USDC)$/, ''); }
+function bnName(sym, lang){ var b = bnBase(sym), n = BN_NAMES[b]; return n ? (lang === 'en' ? n[1] : n[0]) : b; }
+var bnList = { st:'', items:[], err:'', note:'', p:null };
+/*  ⚠️ 받는 중에 또 부르면 <같은 약속> 을 기다립니다. 예전엔 바로 빈 손으로 돌아와서, 매크로 고르기와
+    섹터 표 중 늦게 부른 쪽이 «받는 중…» / «받지 못했습니다» 에 멈춰 있었습니다.                    */
+function bnListLoad(force){
+  if (bnList.p) return bnList.p;
+  if (!force && bnList.st === 'ok') return Promise.resolve(bnList);
+  bnList.p = bnListFetch().then(function(){ bnList.p = null; return bnList; });
+  return bnList.p;
+}
+async function bnListFetch(){
+  bnList.st = 'busy';
+  try {
+    var d = await edge({ source:'bn_list' });
+    var items = (d && Array.isArray(d.items)) ? d.items : [];
+    bnList.items = items;
+    bnList.err = items.length ? '' : String((d && d.error) || '바이낸스 목록이 비어 있습니다.');
+    bnList.note = d && d.stale ? String(d.note || '') : '';
+    SEC_SETS.bn.items = items.map(function(x){ return [x.symbol, bnName(x.symbol, 'ko'), bnName(x.symbol, 'en'), x.since || null]; });
+    bnList.st = 'ok';
+  } catch(e){
+    bnList.err = String(e && e.message || e); bnList.st = 'err';
+  }
+  return bnList;
+}
+
 var SEC_PERIODS = [['1w','1주',5],['1m','1개월',21],['3m','3개월',63],['ytd','YTD',0],['1y','1년',252]];
 var SEC_KEY = 'safe_sec_v1', SECQ_KEY = 'safe_secq_v1';
 var secState = { mkt:'us', per:'3m' };
@@ -12501,14 +13461,19 @@ function secRemember(key, s){
   var m = secStoreRead(); m[key] = { exp: Date.now() + 6 * 36e5, s: s }; secStoreWrite(m);
 }
 
-/*  종가 배열 → 기간 수익률. «n 거래일 전» 은 자료의 n번째 앞 점입니다 (달력이 아니라 거래일).  */
+/*  종가 배열 → 기간 수익률. ⚠️ 10/5: 기준은 <달력 날짜> 입니다 (1주 = 7일 전 · 1개월 · 3개월 · 1년 = 같은 날짜 전,
+    그날 거래가 없으면 그 직전 종가). 예전 «5·21·63·252 거래일 전» 은 주 7일 거래하는 바이낸스·코인에서
+    1년이 8개월로 잡혔고, 미국·한국도 휴장일 수에 따라 조금씩 어긋났습니다. 기록이 그보다 짧으면 비웁니다.  */
 function secSummarize(d){
   var pts = (d.points || []).filter(function(p){ return p && p.d && p.v != null && isFinite(Number(p.v)) && Number(p.v) > 0; })
             .map(function(p){ return { d: String(p.d).slice(0, 10), v: Number(p.v) }; })
             .sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
   if (pts.length < 2) return null;
   var n = pts.length, last = pts[n - 1];
-  var back = function(k){ return n > k ? pts[n - 1 - k].v : null; };
+  var dates = pts.map(function(p){ return p.d; });
+  var at = function(target){ if (target < pts[0].d) return null; var j = idxAtOrBefore(dates, target); return j >= 0 && j < n - 1 ? pts[j].v : null; };
+  var d7 = new Date(Date.parse(last.d) - 7 * 864e5).toISOString().slice(0, 10);
+  var y1 = shiftIso(last.d, -1, 0);
   var ret = function(base){ return base ? (last.v / base - 1) * 100 : null; };
   var y = last.d.slice(0, 4);
   //  YTD 기준 = 작년 마지막 종가 (없으면 올해 첫 종가 — 그러면 0 에 가깝게 나오니 표시에 적습니다)
@@ -12516,14 +13481,15 @@ function secSummarize(d){
   for (var i = n - 1; i >= 0; i--){ if (pts[i].d.slice(0, 4) < y){ prevYearLast = pts[i]; break; } }
   for (var j = 0; j < n; j++){ if (pts[j].d.slice(0, 4) === y){ firstThisYear = pts[j]; break; } }
   var ytdBase = prevYearLast ? prevYearLast.v : (firstThisYear ? firstThisYear.v : null);
-  var last252 = pts.slice(-252).map(function(p){ return p.v; });
+  var last252 = pts.filter(function(p){ return p.d >= y1; }).map(function(p){ return p.v; });
   var hi = Math.max.apply(null, last252), lo = Math.min.apply(null, last252);
   return {
     v: last.v, d: last.d, n: (d.points.length && d.points[d.points.length - 1].n) || null,
-    r: { '1w': ret(back(5)), '1m': ret(back(21)), '3m': ret(back(63)), 'ytd': ret(ytdBase), '1y': ret(back(252)) },
+    r: { '1w': ret(at(d7)), '1m': ret(at(shiftIso(last.d, 0, -1))), '3m': ret(at(shiftIso(last.d, 0, -3))), 'ytd': ret(ytdBase), '1y': ret(at(y1)) },
     ytdFrom: prevYearLast ? prevYearLast.d : (firstThisYear ? firstThisYear.d : null),
     hi52: hi, lo52: lo, dd: (last.v / hi - 1) * 100,
-    spark: pts.slice(-63).map(function(p){ return Math.round(p.v * 100) / 100; }),
+    spark: (function(m3){ return pts.filter(function(p){ return p.d >= m3; }); })(shiftIso(last.d, 0, -3)).map(function(p){ return Math.round(p.v * 100) / 100; }),
+    first: pts[0].d,
     stale: !!d.stale, at: Date.now()
   };
 }
@@ -12549,27 +13515,54 @@ function secSet(k, v){
   try { localStorage.setItem(SEC_KEY, JSON.stringify(secState)); } catch(e){}
   if (k === 'mkt') loadSectors(); else renderSectors();
 }
+function secAll(set){
+  return [[set.bench[0], set.bench[1], secBSrc(set)]].concat(set.items.map(function(it){ return [it[0], it[1], set.src]; }));
+}
 function secRefresh(){
   var set = SEC_SETS[secState.mkt]; if (!set) return;
   var m = secStoreRead();
-  [set.bench].concat(set.items).forEach(function(it){ var k = secKey(set.src, it[0]); delete secMem[k]; delete m[k]; });
+  secAll(set).forEach(function(it){ var k = secKey(it[2], it[0]); delete secMem[k]; delete m[k]; });
   secStoreWrite(m);
+  if (set.dyn) bnList.st = '';
   loadSectors();
+}
+function secSubRender(){
+  var set = SEC_SETS[secState.mkt], sub = $('secSub'); if (!set || !sub) return;
+  sub.textContent = (isEn() ? set.en : set.n) + ' · ' + T('벤치마크 ', 'benchmark ') + secNm(set.bench);
+}
+function renderSecMkt(){
+  var box = $('secMkt'); if (!box) return;
+  box.innerHTML = SEC_ORDER.map(function(k){
+    var st = SEC_SETS[k];
+    return '<button id="secMkt-' + k + '"' + (k === secState.mkt ? ' class="on"' : '') + ' onclick="secSet(\'mkt\',\'' + k + '\')">' + esc(isEn() ? st.tabEn : st.tab) + '</button>';
+  }).join('');
 }
 
 async function loadSectors(){
   var set = SEC_SETS[secState.mkt]; if (!set) return;
   var run = ++secRun;
-  document.querySelectorAll('#secMkt button').forEach(function(b){ b.classList.toggle('on', b.id === 'secMkt-' + secState.mkt); });
-  var sub = $('secSub'); if (sub) sub.textContent = set.n + ' · 벤치마크 ' + set.bench[1];
-  renderSectors();
-  var all = [set.bench].concat(set.items);
-  var need = all.filter(function(it){ return !secCached(secKey(set.src, it[0])); });
+  renderSecMkt(); secSubRender();
   var note = $('secNote');
+  if (set.dyn){
+    if (note) note.textContent = '바이낸스 목록 받는 중…';
+    renderSectors();
+    await bnListLoad(bnList.st === 'err');
+    if (run !== secRun) return;
+    if (!set.items.length){
+      if (note) note.textContent = '';
+      var tb0 = $('secTable');
+      if (tb0) tb0.innerHTML = '<tr><td style="color:var(--text-sub);padding:14px 8px;line-height:1.6">바이낸스 목록을 받지 못했습니다 — '
+        + esc(bnList.err || '알 수 없는 이유') + '<br>같은 종목은 «🌏 국가 ETF · 해외 대표주» (미국 시세)로 볼 수 있습니다.</td></tr>';
+      return;
+    }
+  }
+  renderSectors();
+  var all = secAll(set);
+  var need = all.filter(function(it){ return !secCached(secKey(it[2], it[0])); });
   if (note) note.textContent = need.length ? need.length + '개 시세 받는 중…' : '시세는 이 브라우저에 6시간 남겨 둡니다.';
   for (var j = 0; j < need.length; j += 3){
     if (run !== secRun) return;
-    await Promise.all(need.slice(j, j + 3).map(function(it){ return secLoad(set.src, it[0], run); }));
+    await Promise.all(need.slice(j, j + 3).map(function(it){ return secLoad(it[2], it[0], run); }));
     if (run === secRun) renderSectors();
   }
   if (run === secRun && note) note.textContent = need.length ? '받았습니다 · 6시간 동안 이 브라우저에 남겨 둡니다.' : note.textContent;
@@ -12581,7 +13574,7 @@ function secCell(v, unit){
   var bg = v > 0 ? 'rgba(192,57,43,' + a.toFixed(3) + ')' : v < 0 ? 'rgba(27,95,168,' + a.toFixed(3) + ')' : 'transparent';
   var col = v > 0 ? 'var(--up)' : v < 0 ? 'var(--down)' : 'var(--text-sub)';
   return '<td style="text-align:right;font-variant-numeric:tabular-nums;background:' + bg + ';color:' + col + '">'
-       + (v > 0 ? '+' : '') + v.toFixed(unit === 'p' ? 1 : 1) + (unit || '%') + '</td>';
+       + (v > 0 ? '+' : '') + v.toFixed(1) + (unit || '%') + '</td>';
 }
 
 function renderSectors(){
@@ -12590,42 +13583,47 @@ function renderSectors(){
   var chips = $('secPeriods');
   if (chips) chips.innerHTML = SEC_PERIODS.map(function(p){
     return '<span class="nf-chip' + (p[0] === per ? ' on' : '') + '" onclick="secSet(\'per\',\'' + p[0] + '\')">' + esc(p[1]) + '</span>'; }).join('');
-  var bench = secCached(secKey(set.src, set.bench[0]));
+  var bsrc = secBSrc(set);
+  var bench = secCached(secKey(bsrc, set.bench[0])) || secMem[secKey(bsrc, set.bench[0])] || null;
   var bR = bench && !bench.err ? bench.r : null;
   var rows = set.items.map(function(it){
     var s = secCached(secKey(set.src, it[0])) || secMem[secKey(set.src, it[0])] || null;
-    return { sym: it[0], name: it[1], s: s && !s.err ? s : null, err: s && s.err };
+    return { sym: it[0], name: secNm(it), src: set.src, s: s && !s.err ? s : null, err: s && s.err };
   });
   //  고른 기간으로 정렬 (자료 없는 건 뒤로)
   rows.sort(function(a, b){
     var x = a.s && a.s.r[per] != null ? a.s.r[per] : -Infinity, y = b.s && b.s.r[per] != null ? b.s.r[per] : -Infinity;
     return y - x; });
   var perName = (SEC_PERIODS.filter(function(p){ return p[0] === per; })[0] || [])[1] || per;
-  var head = '<tr><th>섹터</th><th style="text-align:right">1주</th><th style="text-align:right">1개월</th><th style="text-align:right">3개월</th>'
+  var firstCol = /^(us|usi|kr)$/.test(secState.mkt) ? '섹터' : '종목';
+  var head = '<tr><th>' + firstCol + '</th><th style="text-align:right">1주</th><th style="text-align:right">1개월</th><th style="text-align:right">3개월</th>'
            + '<th style="text-align:right">YTD</th><th style="text-align:right">1년</th>'
            + '<th style="text-align:right" title="' + esc(perName) + ' 수익률 - 벤치마크 수익률">벤치 대비<br><span style="font-weight:400">' + esc(perName) + '</span></th>'
            + '<th style="text-align:right" title="최근 1년 최고 종가 대비">52주 고점</th><th style="width:110px">3개월 추세</th><th>기준일</th></tr>';
   var line = function(r, isBench){
     var s = r.s;
+    var pick = ' data-src="' + esc(r.src) + '" data-sym="' + esc(r.sym) + '" onclick="secRowPick(this)" style="cursor:pointer' + (isBench ? ';background:var(--accent-soft)' + (s ? ';font-weight:600' : '') : '') + '" title="누르면 아래 가격 차트에 올립니다"';
+    var on = secPx.picks.some(function(x){ return x.src === r.src && x.sym === r.sym; });
     var nm = '<td><b>' + esc(r.name) + '</b> <span style="color:var(--text-sub);font-size:11px">' + esc(r.sym) + '</span>'
+           + (on ? ' <span class="mtm-dot soon" style="display:inline-block;vertical-align:1px" title="가격 차트에 올라가 있음"></span>' : '')
            + (s && s.stale ? ' <span class="mtm-badge stale">낡음</span>' : '') + '</td>';
-    if (!s) return '<tr' + (isBench ? ' style="background:var(--accent-soft)"' : '') + '>' + nm
+    if (!s) return '<tr' + pick + '>' + nm
          + '<td colspan="9" style="color:var(--text-sub)">' + esc(r.err ? '받지 못했습니다 — ' + r.err : '받는 중…') + '</td></tr>';
     var rel = (bR && !isBench && s.r[per] != null && bR[per] != null) ? s.r[per] - bR[per] : null;
-    return '<tr' + (isBench ? ' style="background:var(--accent-soft);font-weight:600"' : '') + '>' + nm
+    return '<tr' + pick + '>' + nm
       + secCell(s.r['1w']) + secCell(s.r['1m']) + secCell(s.r['3m']) + secCell(s.r['ytd']) + secCell(s.r['1y'])
-      + (isBench ? '<td style="text-align:right;color:var(--text-sub)">기준</td>' : secCell(rel, 'p'))
+      + (isBench ? '<td style="text-align:right;color:var(--text-sub)">기준</td>' : secCell(rel, '%p'))
       + '<td style="text-align:right;font-variant-numeric:tabular-nums;color:' + (s.dd <= -10 ? 'var(--down)' : 'var(--text-sub)') + '">' + s.dd.toFixed(1) + '%</td>'
       + '<td>' + mcSpark(s.spark) + '</td>'
       + '<td style="color:var(--text-sub);font-size:11px;white-space:nowrap">' + esc(s.d) + '</td></tr>';
   };
-  tb.innerHTML = head + line({ sym: set.bench[0], name: set.bench[1], s: bench && !bench.err ? bench : null, err: bench && bench.err }, true)
+  tb.innerHTML = head + line({ sym: set.bench[0], name: secNm(set.bench), src: bsrc, s: bench && !bench.err ? bench : null, err: bench && bench.err }, true)
                + rows.map(function(r){ return line(r, false); }).join('');
 
   //  막대 — 고른 기간 수익률, 벤치마크는 다른 색
   var box = $('secChart'); if (!box || typeof echarts === 'undefined') return;
   var data = rows.filter(function(r){ return r.s && r.s.r[per] != null; });
-  if (bench && !bench.err && bench.r[per] != null) data.push({ sym: set.bench[0], name: set.bench[1], s: bench, bench: true });
+  if (bench && !bench.err && bench.r[per] != null) data.push({ sym: set.bench[0], name: secNm(set.bench), s: bench, bench: true });
   data.sort(function(a, b){ return b.s.r[per] - a.s.r[per]; });
   secChart = chartOn(box, secChart); if (!secChart) return;
   var bv = bench && !bench.err ? bench.r[per] : null;
@@ -12633,7 +13631,7 @@ function renderSectors(){
     animation: false,
     grid: { left: 8, right: 16, top: 26, bottom: 8, containLabel: true },
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
-      formatter: function(ps){ var p = ps[0]; return p.name + '<br>' + perName + ' ' + (p.value > 0 ? '+' : '') + Number(p.value).toFixed(2) + '%'; } },
+      formatter: function(ps){ var p = ps[0]; return esc(p.name) + '<br>' + esc(perName) + ' ' + (p.value > 0 ? '+' : '') + Number(p.value).toFixed(2) + '%'; } },
     xAxis: { type: 'category', data: data.map(function(r){ return r.name; }), axisLabel: { interval: 0, rotate: data.length > 8 ? 28 : 0, fontSize: 11 } },
     yAxis: { type: 'value', axisLabel: { formatter: function(v){ return v + '%'; } }, splitLine: { show: true } },
     series: [{ type: 'bar', barMaxWidth: 34,
@@ -12646,20 +13644,174 @@ function renderSectors(){
     }]
   }, true);
   var bn = $('secBench');
-  if (bn) bn.textContent = bv == null ? '' : '점선 = 벤치마크 ' + set.bench[1] + ' ' + perName + ' ' + (bv > 0 ? '+' : '') + bv.toFixed(1) + '%';
+  if (bn) bn.textContent = bv == null ? '' : '점선 = 벤치마크 ' + secNm(set.bench) + ' ' + perName + ' ' + (bv > 0 ? '+' : '') + bv.toFixed(1) + '%';
 }
 
 function secCsv(){
   var set = SEC_SETS[secState.mkt]; if (!set) return;
   var rows = [['이름', '코드', '기준일', '종가', '1주', '1개월', '3개월', 'YTD', '1년', '52주 고점 대비', 'YTD 기준일']];
-  [set.bench].concat(set.items).forEach(function(it){
-    var s = secCached(secKey(set.src, it[0])); if (!s) return;
+  [[set.bench[0], set.bench[1], secBSrc(set)]].concat(set.items.map(function(it){ return [it[0], it[1], set.src]; })).forEach(function(it){
+    var s = secCached(secKey(it[2], it[0])); if (!s || s.err) return;
     var f = function(v){ return v == null ? '' : Number(v).toFixed(2); };
     rows.push([it[1], it[0], s.d, s.v, f(s.r['1w']), f(s.r['1m']), f(s.r['3m']), f(s.r['ytd']), f(s.r['1y']), f(s.dd), s.ytdFrom || '']);
   });
   if (rows.length < 2){ warn('indWarn', '아직 받은 시세가 없습니다.'); return; }
   var csv = '﻿' + rows.map(function(r){ return r.map(function(c){ var x = String(c == null ? '' : c); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }).join(','); }).join('\n');
   saveBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), 'SAFE-섹터-' + secState.mkt + '-' + today() + '.csv');
+}
+
+/* ── 가격 차트 (10/5) ───────────────────────────────────────────
+   표의 줄을 누르거나 티커를 넣으면 종가 선을 그립니다. 여러 개면 «100 기준» 으로 맞춰
+   어느 쪽이 더 올랐나를 봅니다. «매크로 차트에 올리기» 는 같은 종목을 매크로 경제 차트로
+   보내 경제지표와 겹쳐 보게 합니다 (변환 «시작점 = 100» 까지 같이).
+   시세는 서버 보관함(series_cache)을 차트와 같이 씁니다 — 6년치 한 번이면 기간을 바꿔도 다시 안 부릅니다. */
+var SECPX_PER = [['1m','1개월',1],['3m','3개월',3],['6m','6개월',6],['1y','1년',12],['3y','3년',36],['5y','5년',60],['all','전체',0]];
+var secPx = { picks: [], per: '1y' };
+var secPxMem = {}, secPxChart = null;
+function secPxStart(){ return (new Date().getFullYear() - 6) + '-01-01'; }
+function secPxNameOf(src, sym){
+  for (var i = 0; i < SEC_ORDER.length; i++){
+    var st = SEC_SETS[SEC_ORDER[i]];
+    if (secBSrc(st) === src && st.bench[0] === sym) return [st.bench[1], st.bench[2]];
+    if (st.src !== src) continue;
+    var hit = st.items.filter(function(it){ return it[0] === sym; })[0];
+    if (hit) return [hit[1], hit[2] || hit[1]];
+  }
+  if (src === 'quote_bn') return [bnName(sym, 'ko'), bnName(sym, 'en')];
+  return [sym, sym];
+}
+function secRowPick(tr){
+  var src = tr && tr.dataset.src, sym = tr && tr.dataset.sym; if (!src || !sym) return;
+  var i = -1;
+  secPx.picks.forEach(function(x, k){ if (x.src === src && x.sym === sym) i = k; });
+  if (i >= 0) secPx.picks.splice(i, 1);
+  else secPxAdd(src, sym);
+  secPxShow(); renderSectors();
+}
+function secPxAdd(src, sym){
+  if (secPx.picks.some(function(x){ return x.src === src && x.sym === sym; })) return;
+  if (secPx.picks.length >= 6){ warn('indWarn', '가격 차트에는 6개까지 올릴 수 있습니다 — 칩의 × 로 하나 빼고 넣어 주세요.'); return; }
+  warn('indWarn', '');
+  var nm = secPxNameOf(src, sym);
+  secPx.picks.push({ src: src, sym: sym, ko: nm[0], en: nm[1] });
+  secPxLoad(src, sym);
+}
+function secPxAddCode(){
+  var r = stkResolve(($('secPxMkt') || {}).value || 'quote_us', ($('secPxCode') || {}).value, 'indWarn'); if (!r) return;
+  $('secPxCode').value = '';
+  secPxAdd(r.src, r.sym); secPxShow(); renderSectors();
+}
+async function secPxLoad(src, sym){
+  var k = secKey(src, sym);
+  if (secPxMem[k] && (secPxMem[k].pts || secPxMem[k].busy)) return;
+  secPxMem[k] = { busy: true };
+  try {
+    var d = await edge({ source: src, code: sym, item_code: '', cycle: 'D', start: secPxStart() });
+    var pts = (d.points || []).filter(function(p){ return p && p.d && isFinite(Number(p.v)) && Number(p.v) > 0; })
+              .map(function(p){ return { d: String(p.d).slice(0, 10), v: Number(p.v) }; })
+              .sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+    if (!pts.length) throw new Error('해당 기간 자료가 없습니다');
+    secPxMem[k] = { pts: pts, stale: !!d.stale };
+  } catch(e){
+    secPxMem[k] = { err: String(e && e.message || e) };
+  }
+  secPxDraw();
+}
+function secPxShow(){
+  var box = $('secPx'); if (!box) return;
+  box.classList.toggle('hidden', !secPx.picks.length);
+  secPxDraw();
+}
+function secPxClear(){ secPx.picks = []; secPxShow(); renderSectors(); }
+function secPxDrop(i){ secPx.picks.splice(i, 1); secPxShow(); renderSectors(); }
+function secPxSetPer(p){ secPx.per = p; secPxDraw(); }
+function secPxBenchToggle(){
+  var set = SEC_SETS[secState.mkt];
+  if (set && $('secPxBench') && $('secPxBench').checked) secPxLoad(secBSrc(set), set.bench[0]);
+  secPxDraw();
+}
+function secPxCut(){
+  var p = SECPX_PER.filter(function(x){ return x[0] === secPx.per; })[0];
+  if (!p || !p[2]) return '0000-01-01';
+  var d = new Date(); d.setMonth(d.getMonth() - p[2]);
+  return d.toISOString().slice(0, 10);
+}
+function secPxLines(){
+  var set = SEC_SETS[secState.mkt];
+  var list = secPx.picks.map(function(x){ return { src: x.src, sym: x.sym, name: isEn() ? x.en : x.ko, bench: false }; });
+  if (set && $('secPxBench') && $('secPxBench').checked && !list.some(function(x){ return x.src === secBSrc(set) && x.sym === set.bench[0]; }))
+    list.push({ src: secBSrc(set), sym: set.bench[0], name: secNm(set.bench), bench: true });
+  return list;
+}
+function secPxDraw(){
+  var box = $('secPxChart'); if (!box || !secPx.picks.length) return;
+  var per = $('secPxPer');
+  if (per) per.innerHTML = SECPX_PER.map(function(p){
+    return '<span class="nf-chip' + (p[0] === secPx.per ? ' on' : '') + '" onclick="secPxSetPer(\'' + p[0] + '\')">' + esc(p[1]) + '</span>'; }).join('');
+  var sel = $('secPxSel');
+  if (sel) sel.innerHTML = secPx.picks.map(function(x, i){
+    var m = secPxMem[secKey(x.src, x.sym)] || {};
+    return '<span class="nf-chip on" style="cursor:default">' + esc(isEn() ? x.en : x.ko) + ' <span style="opacity:.7">' + esc(x.sym) + '</span>'
+         + (m.busy ? ' <span class="spin"></span>' : '') + (m.err ? ' ⚠️' : '')
+         + ' <b style="cursor:pointer;margin-left:2px" onclick="secPxDrop(' + i + ')" title="빼기">×</b></span>';
+  }).join('');
+  var lines = secPxLines(), cut = secPxCut();
+  var cmp = lines.length > 1 || ($('secPxReb') && $('secPxReb').checked);
+  var pal = ((typeof theme !== 'undefined' && theme && theme.palette) || DEFAULT_THEME.palette || []).concat(['#2a5aa8','#c0392b','#2e8b57','#b26a00','#7d3c98','#16a085']);
+  var errs = [], ser = [], units = {};
+  /*  ⚠️ 100 기준으로 비교할 때는 <모두 같은 날> 을 100 으로 맞춥니다 — 가장 늦게 시작한 선의 첫 날.
+      각자 첫 값을 100 으로 하면 상장한 지 얼마 안 된 바이낸스 종목(2026-02 = 100)과 SPY(1년 전 = 100)가
+      같은 출발선인 것처럼 보였습니다.                                                               */
+  var c0 = cut;
+  if (cmp) lines.forEach(function(x){
+    var m = secPxMem[secKey(x.src, x.sym)]; if (!m || !m.pts) return;
+    var f = m.pts.filter(function(p){ return p.d >= cut; })[0];
+    if (f && f.d > c0) c0 = f.d;
+  });
+  lines.forEach(function(x, i){
+    var m = secPxMem[secKey(x.src, x.sym)];
+    if (!m || m.busy) return;
+    if (m.err){ errs.push(x.name + ' - ' + m.err); return; }
+    var w = m.pts.filter(function(p){ return p.d >= (cmp ? c0 : cut); });
+    if (!w.length) return;
+    var b0 = w[0].v;
+    units[SEC_UNIT[x.src] || ''] = 1;
+    ser.push({ name: x.name + (x.src === 'quote_bn' ? ' (USDT)' : ''), type: 'line', showSymbol: false, smooth: false,
+      lineStyle: { width: x.bench ? 1.6 : 2.2, type: x.bench ? 'dashed' : 'solid' },
+      color: x.bench ? '#8a94ad' : pal[i % pal.length],
+      data: w.map(function(p){ return [p.d, cmp ? Math.round(p.v / b0 * 1e4) / 100 : p.v]; }) });
+  });
+  secPxChart = chartOn(box, secPxChart); if (!secPxChart) return;
+  var u = Object.keys(units).filter(Boolean);
+  secPxChart.setOption({
+    animation: false,
+    legend: { top: 0, type: 'scroll', textStyle: { fontSize: 11 } },
+    grid: { left: 8, right: 16, top: 30, bottom: 8, containLabel: true },
+    tooltip: { trigger: 'axis', valueFormatter: function(v){ return v == null ? '-' : (cmp ? Number(v).toFixed(1) : Number(v).toLocaleString('ko-KR', { maximumFractionDigits: 2 })); } },
+    xAxis: { type: 'time' },
+    yAxis: { type: 'value', scale: true, name: cmp ? T('시작 = 100', 'Start = 100') : (u.length === 1 ? unitDisp(u[0]) : ''),
+             splitLine: { show: true } },
+    series: ser
+  }, true);
+  var note = $('secPxNote');
+  if (note){
+    var bnFirst = lines.filter(function(x){ return x.src === 'quote_bn'; }).map(function(x){ var m = secPxMem[secKey(x.src, x.sym)]; return m && m.pts ? x.name + ' ' + m.pts[0].d + '~' : ''; }).filter(Boolean);
+    note.innerHTML = (cmp ? '<b>' + esc(c0 > cut ? c0 : (ser[0] && ser[0].data[0] ? ser[0].data[0][0] : '')) + '</b> 종가를 모두 <b>100</b> 으로 맞췄습니다 (110 이면 그 뒤 +10%)'
+                           + (c0 > cut ? ' - 가장 늦게 시작한 종목에 맞춘 날짜입니다' : '') + '. ' : '')
+      + (u.length > 1 && !cmp ? '통화가 다릅니다 - 100 기준으로 보세요. ' : '')
+      + (bnFirst.length ? '바이낸스는 상장일부터: ' + esc(bnFirst.join(' · ')) + '. ' : '')
+      + (errs.length ? '<span style="color:var(--danger)">받지 못함: ' + esc(errs.join(' / ')) + '</span>' : '');
+  }
+}
+/*  매크로 차트로 보내기 — 같은 종목을 경제지표 차트에 올립니다 (100 기준이었으면 그 변환까지).  */
+function secPxToMacro(){
+  var cmp = secPxLines().length > 1 || ($('secPxReb') && $('secPxReb').checked);
+  var n = 0, have = 0;
+  secPxLines().forEach(function(x){ var r = stkToMacro(x.src, x.sym, cmp); if (r === 'have') have++; else if (r) n++; });
+  if (!n && !have){ warn('indWarn', '매크로 차트에 자리가 없습니다 (8개까지) - 매크로 탭에서 몇 개 빼고 다시 눌러 주세요.'); return; }
+  showTab('research');
+  if (!n) warn('researchWarn', '고른 종목은 이미 매크로 차트에 있습니다.', 'info');
+  setTimeout(function(){ var cb = $('chartBox'); if (cb && cb.scrollIntoView) cb.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 120);
 }
 
 /* ── ② 병목 모니터 ─────────────────────────────────────────── */
@@ -12934,6 +14086,7 @@ function addSeries(s){
 function renderSeriesList(){
   var box = $('seriesList');
   closePalette();
+  if (typeof mcMarkOnChart === 'function') mcMarkOnChart();
   /*  ⚠️ 일드커브를 위 차트로 넘긴 동안에는 <그려져 있는 것> 의 목록을
       보여줍니다. 지표 목록을 그대로 두면 목록과 그림이 서로 다른 것을
       가리켜, 색을 고쳐도 아무 일도 안 일어난 것처럼 보였습니다.       */
@@ -12976,6 +14129,9 @@ function renderSeriesList(){
           걸 수 없는 지표에는 목록에서 아예 안 보여줍니다.             */
       +     (canPriceTf(s)
               ? '<option value="price"'+(tf==='price'?' selected':'')+'>채권 가격 환산 (100 기준)</option>'
+              : '')
+      +     (!isRateUnit(s.unit) || tf === 'reb'
+              ? '<option value="reb"'+(tf==='reb'?' selected':'')+'>시작점 = 100 (상승률 비교)</option>'
               : '')
       +     '</select>'
       //  ⚠️ 가격 환산일 때만 만기를 고릅니다 (평소엔 자리만 차지합니다)
@@ -13056,7 +14212,9 @@ function shownSeries(){
        국채는 나라마다 <발행 당국이 다른 창구> 라, 어디서 온 숫자인지
        가 곧 신뢰도입니다 — 이름으로 적어줍니다.                       */
 var BOND_ORIGIN = { JP:'일본 재무성', DE:'분데스방크' };
+var SRC_NAME = { quote_us:'미국 시세', quote_kr:'한국 시세', quote_bn:'바이낸스 USDT', quote_crypto:'코인' };
 function srcName(src, code){
+  if (SRC_NAME[src]) return SRC_NAME[src];
   if (src !== 'bond') return String(src || '').toUpperCase();
   var m = /^([A-Z]{2})/.exec(String(code || '').toUpperCase());
   return (m && BOND_ORIGIN[m[1]]) || '해외국채';
@@ -13856,7 +15014,8 @@ function setTf(i,v){
       바닥에 눌려 평평해 보입니다 — 축을 다시 고릅니다.
       (켤 때만이 아니라 <끌 때도> 입니다. 되돌렸는데 축이 남아 있으면
        같은 이유로 반대쪽이 눌립니다.)                                */
-  if ((was === 'price') !== (v === 'price'))
+  //  «시작점 = 100» 도 같습니다 — 100 기준 선끼리 한 축에 모여야 상승률이 바로 비교됩니다 (10/5)
+  if ((was === 'price') !== (v === 'price') || (was === 'reb') !== (v === 'reb'))
     s.axis = pickAxisFor(series.filter(function(x){ return x.points && x.points.length; }), s, 4);
   //  ⚠️ 가격 환산으로 바꾸면 만기 칸이 새로 생깁니다 — 목록을 다시 그립니다
   renderSeriesList();
@@ -13893,12 +15052,12 @@ function removeSeries(i){
 
 /* ══════════ 지표 변환 (원지수 / YoY / MoM) ══════════ */
 var TF_SUFFIX = { raw:'', yoy:' (YoY)', mom:' (MoM)', yoyd:' (YoY 차)', momd:' (전기 증감)',
-                  price:' (가격 환산)' };
+                  price:' (가격 환산)', reb:' (100 기준)' };
 /*  ⚠️ 여기서 '' 를 쓰면 안 됩니다. unitOf 가 «||» 로 이어받기 때문에
        빈 문자열은 <단위를 안 적은 것> 으로 읽혀 원래 단위(%)로
        흘러내립니다. 그러면 가격 환산 선이 <금리와 같은 축> 에
        붙습니다 — 100 옆에 4.2 가 붙어 금리 쪽이 바닥에 눌립니다.  */
-var TF_UNIT   = { raw:null, yoy:'%', mom:'%', yoyd:'%p', momd:null, price:'가격(100)' };
+var TF_UNIT   = { raw:null, yoy:'%', mom:'%', yoyd:'%p', momd:null, price:'가격(100)', reb:'100 기준' };
 
 /*  ── 금리를 <채권 가격> 으로 환산합니다 ──────────────────────
 
@@ -13985,7 +15144,7 @@ function canPriceTf(s){
   return /금리|수익률|국채|국고채|이자율|yield/i.test(String((s && s.label) || ''));
 }
 
-var TF_SUFFIX_EN = { raw:'', yoy:' (YoY)', mom:' (MoM)', yoyd:' (YoY diff)', momd:' (MoM change)', price:' (price)' };
+var TF_SUFFIX_EN = { raw:'', yoy:' (YoY)', mom:' (MoM)', yoyd:' (YoY diff)', momd:' (MoM change)', price:' (price)', reb:' (=100)' };
 function tfSuffix(s){ return (isEn() ? TF_SUFFIX_EN : TF_SUFFIX)[s.tf||'raw'] || ''; }
 //  ⚠️ «||» 가 아니라 «null 인가» 로 봅니다 (위 주석 참고)
 function unitOf(s){
@@ -14018,6 +15177,16 @@ function applyTf(pts, tf, from, opt){
   /*  ── 금리 → 가격 환산 ──────────────────────────────────────
       ⚠️ 표면금리는 <보이는 구간의 첫 값> 으로 잡습니다. 기간을 바꾸면
          기준도 같이 바뀌어서 늘 «그때 산 채권» 이 됩니다.            */
+  /*  ── 시작점 = 100 (10/5) ── 보이는 구간의 첫 (양수) 값을 100 으로. 주가·ETF 와 경제지표를
+      «얼마나 올랐나» 로 겹쳐 볼 때 씁니다. 기간을 바꾸면 기준도 같이 옮겨 갑니다.          */
+  if (tf === 'reb'){
+    var rw = pts.filter(function(p){ return p.d >= from && isFinite(p.v); });
+    var k0 = -1;
+    for (var q = 0; q < rw.length; q++){ if (rw[q].v > 0){ k0 = q; break; } }
+    if (k0 < 0) return [];
+    var b0 = rw[k0].v;
+    return rw.slice(k0).map(function(p){ return { d: p.d, v: p.v / b0 * 100 }; });
+  }
   if (tf === 'price'){
     var win = pts.filter(function(p){ return p.d >= from && isFinite(p.v); });
     if (!win.length) return [];
@@ -14075,7 +15244,23 @@ function applyTf(pts, tf, from, opt){
 }
 
 function viewPoints(s){
-  return applyTf(s.points, s.tf || 'raw', startDate(), { mat: s.mat });
+  var from = startDate();
+  if ((s.tf || 'raw') === 'reb') from = rebCommonFrom();
+  return applyTf(s.points, s.tf || 'raw', from, { mat: s.mat });
+}
+/*  ── «시작점 = 100» 선끼리는 <같은 날> 출발 (10/5) ──
+    보이는 구간에서 각 선의 첫 날짜 중 <가장 늦은 날> 을 모두의 100 으로. 바이낸스처럼 늦게 시작한 종목과
+    오래된 ETF 를 겹쳐도 출발선이 같습니다. 숨긴 선은 셈에서 뺍니다.                                  */
+function rebCommonFrom(){
+  var st = startDate(), best = st;
+  (series || []).forEach(function(x){
+    if ((x.tf || 'raw') !== 'reb' || x.hidden || !x.points || !x.points.length) return;
+    for (var i = 0; i < x.points.length; i++){
+      var p = x.points[i];
+      if (p.d >= st && isFinite(p.v) && p.v > 0){ if (p.d > best) best = p.d; break; }
+    }
+  });
+  return best;
 }
 
 /*  ── 금액 축 라벨 ────────────────────────────────────────────
@@ -17461,7 +18646,9 @@ function drawChart(){
     + (norm ? ' · 지수화' : (nAxis > 2 ? ' · 축 ' + nAxis + '개'
                             : (usedRight ? ' · 좌우 축 분리 (눈금 맞춤)' : '')))
     + (bands.length ? ' · 침체 ' + bands.length + '구간 음영' : '')
-    + (anyTf ? ' · 변환 적용' : ''))
+    + (anyTf ? ' · 변환 적용' : '')
+    + (function(){ var r = series.filter(function(x){ return x.tf === 'reb' && !x.hidden && x.points && x.points.length; })[0];
+                   var v = r ? viewPoints(r) : []; return v.length ? ' · 100 기준 = ' + v[0].d : ''; })())
     + (shortOnes.length
         ? '<br><span style="color:var(--text-sub)">자료가 있는 데까지만 그렸습니다 — '
           + esc(shortOnes.join(' · ')) + ' <b>(FRED 에 그만큼만 있습니다)</b></span>'
@@ -22190,6 +23377,7 @@ async function loadAiSpend(){
       +     '「빠르게」와 「꼼꼼하게」는 따로 세므로 한쪽을 뽑아도 다른 쪽은 만들 수 있습니다.</p>'
       +   '<div id="aiSetMsg" class="st-hint" style="margin-top:6px"></div>'
       + '</div>'
+      + await aicAdminHtml()
       + (aiArr(d.by_model).length
           ? '<div class="scroll"><table><thead><tr><th>모델</th><th class="num">건수</th>'
             + '<th class="num">비용</th></tr></thead><tbody>'
