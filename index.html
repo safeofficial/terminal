@@ -4710,6 +4710,9 @@ var EN_NAMES = {
   'fred|T10Y2Y|': '10Y-2Y Spread', 'fred|T10Y3M|': '10Y-3M Spread', 'fred|DFF|': 'Fed Funds (EFFR)', 'fred|DFII10|': '10Y Real Yield',
   'fred|BAMLH0A0HYM2|': 'HY Spread (OAS)', 'fred|BAMLC0A0CM|': 'IG Spread (OAS)', 'fred|MORTGAGE30US|': '30Y Mortgage Rate',
   'ecos|817Y002|010200000': 'KTB 3Y', 'ecos|817Y002|010210000': 'KTB 10Y', 'ecos|722Y001|0101000': 'BOK Base Rate',
+  'ecos|817Y002|010101000': 'Korea Call Rate', 'ecos|817Y002|010502000': 'Korea CD 91D', 'ecos|817Y002|010503000': 'Korea CP 91D',
+  'ecos|817Y002|010150000': 'KORIBOR 3M', 'ecos|817Y002|010400000': 'MSB 1Y', 'ecos|817Y002|010190000': 'KTB 1Y',
+  'ecos|817Y002|010200001': 'KTB 5Y', 'ecos|817Y002|010300000': 'Korea Corp 3Y (AA-)', 'ecos|817Y002|010320000': 'Korea Corp 3Y (BBB-)',
   //  자주 쓰는 나머지 (목록에 있으면 그대로 영문으로)
   'fred|GDPC1|': 'Real GDP', 'fred|GDP|': 'Nominal GDP', 'fred|RSAFS|': 'Retail Sales', 'fred|RSXFS|': 'Retail Sales ex-Autos',
   'fred|UMCSENT|': 'UMich Sentiment', 'fred|HOUST|': 'Housing Starts', 'fred|PERMIT|': 'Building Permits',
@@ -4995,7 +4998,7 @@ async function enterApp(){
     예전 이름(showTab('solo') 등)은 그대로 동작합니다 — 북마클릿·시험이 그 이름을 씁니다.  */
 var TAB_GROUPS = {
   //  매크로 경제의 하위 탭은 <화면이 하나> 이고 팀만 바뀝니다 (pane 하나 · 팀 키)
-  macro:    { pane:'research', tabs: [['infl','인플레이션'], ['jobs','고용'], ['mfg','제조업'], ['rates','채권·금리']] },
+  macro:    { pane:'research', tabs: [['infl','인플레이션'], ['jobs','고용'], ['mfg','제조업'], ['rates','채권·금리'], ['krmm','한국 금리']] },
   invest:   { tabs: [['trading','팀 대회'], ['solo','개인 대회']] },
   analysis: { tabs: [['industry','산업분석'], ['company','기업분석'], ['ai','AI 분석'], ['deriv','파생상품'], ['flow','자금흐름']] }
 };
@@ -11457,6 +11460,18 @@ var TEAM_BUNDLES = {
     { n:'JOLTS — 구인건수(좌) · 자발적 퇴직률(우)', d:'빈 일자리와 노동자의 자신감 (월간)', keepRaw:true, ax:[0,1],
       c:['JTSJOL','JTSQUR'] }
   ],
+  krmm: [
+    { n:'단기자금 — 기준금리 · 콜 · CD · CP · KORIBOR 3M', d:'한국 단기금리 다섯 (일간, %) — 기준금리 위로 얼마나 붙었나', keepRaw:true,
+      c:['722Y001|0101000','817Y002|010101000','817Y002|010502000','817Y002|010503000','817Y002|010150000'] },
+    { n:'국고채 커브 — 1 · 3 · 5 · 10년', d:'만기별 국고채 금리 (일간, %)', keepRaw:true,
+      c:['817Y002|010190000','817Y002|010200000','817Y002|010200001','817Y002|010210000'] },
+    { n:'신용 스프레드 — 국고채 3년 · 회사채 AA- · BBB-', d:'같은 3년 만기 · 차이가 신용 스프레드 (일간, %)', keepRaw:true,
+      c:['817Y002|010200000','817Y002|010300000','817Y002|010320000'] },
+    { n:'기준금리 vs 시장 — 기준금리 · 통안 1년 · 국고채 3년', d:'시장이 다음 금통위를 어떻게 보나 (일간, %)', keepRaw:true,
+      c:['722Y001|0101000','817Y002|010400000','817Y002|010200000'] },
+    { n:'한·미 10년 — 한국 국고채 10년 · 미국 국채 10년', d:'한·미 금리차 (일간, %)', keepRaw:true,
+      c:['817Y002|010210000','DGS10'] }
+  ],
   mfg: [
     { n:'생산 — 산업생산 · 제조업 생산', d:'전체 산업과 제조업만 (월간, 전년비 %)', tf:'yoy',
       c:['INDPRO','IPMAN'] },
@@ -11473,6 +11488,11 @@ var TEAM_BUNDLES = {
   ]
 };
 function teamBundles(){ return TEAM_BUNDLES[typeof macroTeam !== 'undefined' ? macroTeam : 'rates'] || MACRO_BUNDLES; }
+/*  묶음 항목 표기: «코드» 또는 «코드|항목코드» (한국은행 ECOS 는 한 통계표 안에 항목이 여럿이라 항목까지 적습니다)  */
+function bundleFind(spec){
+  var p = String(spec || '').split('|'), code = p[0], item = p.length > 1 ? p[1] : null;
+  return (catalog || []).filter(function(x){ return x.code === code && (item == null || String(x.item_code || '') === item); })[0] || null;
+}
 /*  ── 내 묶음 — 학회원 각자의 지표 조합 (10/4) ─────────────────────────────────
     학회장: «팀 묶음에 지표들을 학회원들이 원하는대로 개인 페이지에 추가할 수 있게 … 로그아웃하고
     로그인 다시 하거나 업데이트해도 본인만의 저장된 콤보들을 볼 수 있었으면 … 나가서 지표 추가한
@@ -11586,8 +11606,7 @@ function renderBundles(){
   var list = teamBundles();
   var t = (typeof MACRO_TEAMS !== 'undefined' && MACRO_TEAMS[macroTeam]) || null;
   var html = list.map(function(b, i){
-    var have = b.c.filter(function(code){
-      return catalog.some(function(x){ return x.code === code; }); }).length;
+    var have = b.c.filter(function(spec){ return !!bundleFind(spec); }).length;
     if (!have) return '';                //  SQL 을 안 돌렸으면 단추를 아예 안 보여줍니다
     return '<button class="btn-sm" onclick="macroBundle(' + i + ')" '
          + 'title="' + esc(b.d) + '">' + esc(b.n) + ' (' + have + ')</button>';
@@ -11599,9 +11618,7 @@ function renderBundles(){
 
 async function macroBundle(i, replace){
   var b = teamBundles()[i]; if (!b) return;
-  var want = b.c.map(function(code){
-    return catalog.filter(function(x){ return x.code === code; })[0];
-  }).filter(Boolean);
+  var want = b.c.map(function(spec, k){ var c = bundleFind(spec); return c ? { c: c, k: k } : null; }).filter(Boolean);
   if (!want.length){ warn('researchWarn','이 묶음의 지표가 아직 등록되지 않았습니다.'); return; }
 
   //  배열을 새로 만들지 않고 비웁니다 — 다른 곳이 이 배열을 들고 있습니다
@@ -11616,8 +11633,8 @@ async function macroBundle(i, replace){
     return;
   }
   warn('researchWarn','');
-  want.forEach(function(c, k){
-    var idx = b.c.indexOf(c.code);
+  want.forEach(function(w){
+    var c = w.c, idx = w.k;
     var tf = (b.tfEach && b.tfEach[idx]) || b.tf || null;
     addSeries({ source:c.source, code:c.code, item_code:c.item_code||'',
                 cycle:c.cycle||'M', label:c.label, unit:c.unit||'', keepRaw:!!b.keepRaw || !!tf });
@@ -11726,6 +11743,28 @@ var MACRO_TEAMS = {
       { s:'ecos', c:'817Y002', i:'010200000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'한국 국고채 3년',            d:'국내 기준물' },
       { s:'ecos', c:'817Y002', i:'010210000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'한국 국고채 10년',           d:'' },
       { s:'ecos', c:'722Y001', i:'0101000',   cy:'D', t:'rate', u:'%', st:3, b:0, l:'한국은행 기준금리',           d:'금통위 결정' }
+    ] },
+  /*  한국 금리 · 단기자금시장 (10/4) — 학회장: «한국 단기자금시장/금리 등 매크로 탭에 보이게».
+      전부 한국은행 ECOS 817Y002(시장금리 · 일별) 항목코드 — 콜 010101000 · KORIBOR 3M 010150000 ·
+      국고채 1/3/5/10년 010190000/010200000/010200001/010210000 · 통안 1년 010400000 ·
+      회사채 AA- 010300000 · BBB- 010320000 · CD 010502000 · CP 010503000 — 와 기준금리 722Y001/0101000.
+      (항목코드는 한국은행 통계표 «4.1.1 시장금리(일별)» 목록에서 확인)                             */
+  krmm: { n:'한국 금리', en:'Korea Rates', sub:'기준금리 · 단기자금(콜·CD·CP·KORIBOR) · 국고채 · 회사채', subEn:'Policy rate · Money market · KTB · Corporate',
+    cats:['금리','채권','금리·채권','단기자금'],
+    items:[
+      { s:'ecos', c:'722Y001', i:'0101000',   cy:'D', t:'rate', u:'%', st:3, b:1, l:'한국은행 기준금리',           d:'금통위 결정 · 단기금리의 닻' },
+      { s:'ecos', c:'817Y002', i:'010101000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'콜금리 (1일)',               d:'은행 간 하루짜리 · 기준금리에 붙어 움직입니다' },
+      { s:'ecos', c:'817Y002', i:'010502000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'CD 91일',                    d:'은행 단기 조달 · 대출금리의 기준' },
+      { s:'ecos', c:'817Y002', i:'010503000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'CP 91일',                    d:'기업 단기 조달 · CD 와 벌어지면 신용 경계' },
+      { s:'ecos', c:'817Y002', i:'010150000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'KORIBOR 3개월',              d:'은행 간 3개월 · 변동금리 대출 기준' },
+      { s:'ecos', c:'817Y002', i:'010400000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'통안증권 1년',               d:'한국은행 발행 · 1년 구간의 기준' },
+      { s:'ecos', c:'817Y002', i:'010190000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'한국 국고채 1년',            d:'단기 끝' },
+      { s:'ecos', c:'817Y002', i:'010200000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'한국 국고채 3년',            d:'국내 기준물' },
+      { s:'ecos', c:'817Y002', i:'010200001', cy:'D', t:'rate', u:'%', st:2, b:0, l:'한국 국고채 5년',            d:'' },
+      { s:'ecos', c:'817Y002', i:'010210000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'한국 국고채 10년',           d:'장기 끝 · 3년과의 차이가 장단기 스프레드' },
+      { s:'ecos', c:'817Y002', i:'010300000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'회사채 3년 (AA-)',           d:'우량 회사채 · 국고채 3년과의 차이가 신용 스프레드' },
+      { s:'ecos', c:'817Y002', i:'010320000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'회사채 3년 (BBB-)',          d:'비우량 · 위험선호의 국내 체온계' },
+      { s:'fred', c:'DGS10',   cy:'D', t:'rate', u:'%',       st:2, b:0, l:'미국 국채 10년',                d:'한·미 금리차 볼 때' }
     ] }
 };
 var MT_KEY = 'safe_macro_team_v1', MC_KEY = 'safe_mcard_v1';
