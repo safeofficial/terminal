@@ -189,6 +189,12 @@
     color:var(--text-sub);cursor:pointer;white-space:nowrap;transition:all .15s}
   .subtab:hover{color:var(--primary);background:var(--accent-soft)}
   .subtab.on{color:#fff;background:var(--primary);border-color:var(--primary)}
+  /*  안쪽 탭 (한국 금리 › 금리 · 자금 · PF)  */
+  .subgrp{display:inline-flex;align-items:center;gap:4px;flex:none}
+  .subsub{display:inline-flex;align-items:center;gap:2px;padding:2px;border-radius:999px;background:var(--accent-soft)}
+  .subsub-b{border:none;background:none;padding:4px 11px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--text-sub);cursor:pointer;white-space:nowrap;font-family:inherit}
+  .subsub-b:hover{color:var(--primary)}
+  .subsub-b.on{background:var(--white);color:var(--primary);box-shadow:0 1px 3px rgba(44,62,107,.16)}
 
   .md-kind{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.3px;padding:1px 6px;border-radius:5px;
     background:var(--accent-soft);color:var(--primary);margin-right:7px;vertical-align:1px}
@@ -1099,6 +1105,12 @@
   .aic-act button{font-size:11.5px;padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--text);font-family:inherit}
   .aic-act button:hover{border-color:var(--accent)}
   .aic-act button.go{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+  .cites{margin-top:7px;font-size:11.5px;color:var(--text-sub)}
+  .cites .ch{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--text)}
+  .cites .ch button{font-size:11px;padding:3px 8px;font-weight:600}
+  .cites ul{margin:4px 0 0;padding-left:16px} .cites li{margin:2px 0;line-height:1.45}
+  .cites a{color:var(--primary)}
+  .cites.web{margin-top:8px;border-top:1px dashed var(--border);padding-top:6px}
   .aic-ctx{align-self:flex-end;font-size:10.5px;color:var(--text-sub);margin-top:-6px}
   .aic-msg.ai ol{margin:2px 0 6px 0;padding-left:18px}
   /*  휴대폰: 글자 16px (iOS 가 입력칸을 누르면 확대하지 않게) · 키보드가 올라와도 입력칸이 보이게 dvh  */
@@ -1123,6 +1135,10 @@
   .px-seg button:disabled{opacity:.32;cursor:not-allowed}
   .px-seg .sep{width:1px;background:var(--border);margin:4px 3px}
   .px-cmp{display:flex;align-items:center;gap:4px;flex:none}
+  .sbulk{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:-2px 0 10px}
+  .sbulk .lb{font-size:12px;font-weight:700;color:var(--text-sub)}
+  .sbulk .px-seg button{padding:4px 9px;font-size:11.5px}
+  .sbulk .st-hint{font-size:11px}
   .px-tabs .nf-chip{display:inline-flex;align-items:center;gap:5px}
   .px-tabs .nf-chip .x{cursor:pointer;margin-left:1px;opacity:.75;font-weight:700}
   .px-tabs .nf-chip .x:hover{opacity:1}
@@ -1164,6 +1180,23 @@
     .nf-fab{right:12px;bottom:12px;padding:8px 13px;font-size:12px}
     .nf-dock{right:10px;left:10px;bottom:10px;width:auto;max-width:none;max-height:72vh}
   }
+  /*  ── 서랍 둘을 같이 · 왼쪽/오른쪽 · 크기 조절 (10/5) ──
+      학회장: «라이브 뉴스랑 AI 탭 둘 다 동시에 · 왼쪽 배치 오른쪽 배치 옵션 · 커서랑 클릭으로 위아래 · 양옆으로 늘리기».
+      가장자리(안쪽 옆 · 위)와 위 모서리를 끌면 크기가 바뀝니다 (두 번 누르면 처음 크기). 휴대폰에서는 예전처럼 한 번에 하나.  */
+  .dk-rz{position:absolute;z-index:5;touch-action:none}
+  .dk-x{top:16px;bottom:16px;left:-5px;width:10px;cursor:ew-resize}
+  .dk-y{top:-5px;left:16px;right:16px;height:10px;cursor:ns-resize}
+  .dk-xy{top:-6px;left:-6px;width:16px;height:16px;cursor:nwse-resize}
+  .dk-left .dk-x{left:auto;right:-5px}
+  .dk-left .dk-xy{left:auto;right:-6px;cursor:nesw-resize}
+  .dk-rz::after{content:'';position:absolute;border-radius:3px;background:var(--accent);opacity:0;transition:opacity .12s}
+  .dk-x::after{top:30%;bottom:30%;left:4px;width:3px}
+  .dk-y::after{left:35%;right:35%;top:4px;height:3px}
+  .dk-rz:hover::after,body.dk-drag .dk-rz::after{opacity:.55}
+  body.dk-drag{user-select:none;-webkit-user-select:none}
+  body.dk-drag iframe{pointer-events:none}
+  .nf-dock.dk-left,.aic-dock.dk-left{right:auto;left:20px}
+  @media(max-width:760px){ .dk-rz,.dk-side{display:none !important} }
 
   /* ── 모의투자 ── */
   /*  ── 평단 띠 ────────────────────────────────────────────
@@ -1990,6 +2023,7 @@
 
           <div class="card">
             <h2>선 목록</h2>
+            <div id="seriesBulk" class="sbulk hidden"></div>
             <div id="seriesList"><div class="empty" style="padding:22px">지표를 추가해 주세요.</div></div>
           </div>
 
@@ -4502,6 +4536,7 @@
       <b>AI 비서</b><span class="st" id="aicSt"></span>
       <span class="r">
         <button class="nf-x" onclick="aicNew()" title="새 대화">↺</button>
+        <button class="nf-x dk-side" onclick="dkFlip('aic')" title="왼쪽 · 오른쪽으로 옮기기 (가장자리를 끌면 크기 조절)">⇆</button>
         <button class="nf-x" onclick="aicDock(false)" title="닫기">✕</button>
       </span>
     </div>
@@ -4525,8 +4560,9 @@
         <label title="1분마다 저절로 받아옵니다">
           <input type="checkbox" id="nfAuto" checked onchange="nfTick()"> 자동
         </label>
-        <button class="nf-x hidden" id="nfAic" onclick="aicDock(true)" title="AI 비서 열기 (뉴스 서랍은 닫힙니다)" style="width:auto;padding:0 7px;font-weight:700;color:var(--primary)">✦ AI</button>
+        <button class="nf-x hidden" id="nfAic" onclick="aicDock(true)" title="AI 비서 열기 (뉴스와 같이 볼 수 있습니다)" style="width:auto;padding:0 7px;font-weight:700;color:var(--primary)">✦ AI</button>
         <button class="nf-x" onclick="nfLoad(true)" title="지금 새로고침">↻</button>
+        <button class="nf-x dk-side" onclick="dkFlip('nf')" title="왼쪽 · 오른쪽으로 옮기기 (가장자리를 끌면 크기 조절)">⇆</button>
         <button class="nf-x" onclick="nfDock(false)" title="닫기">✕</button>
       </span>
     </div>
@@ -5045,7 +5081,9 @@ var EN_NAMES = {
   'fred|RPONTTLD|': 'SRF Usage', 'fred|RPONTSYD|': 'SRF Usage (UST)', 'fred|RPONMBSD|': 'SRF Usage (MBS)', 'fred|RRPONTSYD|': 'ON RRP',
   'fred|SOFR|': 'SOFR', 'fred|SOFR99|': 'SOFR 99th pct', 'fred|TGCRRATE|': 'TGCR', 'fred|IORB|': 'IORB', 'fred|SRFTSYD|': 'SRF Rate',
   'fred|SOFRVOL|': 'SOFR Volume', 'fred|WRESBAL|': 'Reserve Balances', 'fred|WTREGEN|': 'TGA', 'fred|WLCFLPCL|': 'Discount Window',
-  'fred|H41RESPPALGTRFNWW|': 'FIMA Repo', 'fred|WLRRAFOIAL|': 'Foreign RRP Pool', 'fred|EFFR|': 'EFFR', 'fred|WALCL|': 'Fed Total Assets',
+  'fred|H41RESPPALGTRFNWW|': 'FIMA Repo', 'fred|WLRRAFOIAL|': 'Foreign RRP Pool',
+  'fred|MMMFFAQ027S|': 'MMF Total Assets', 'fred|RMFSL|': 'Retail MMF', 'fred|WRMFNS|': 'Retail MMF (weekly)',
+  'fred|BOGZ1FL633061105Q|': 'MMF Treasury Holdings', 'fred|BOGZ1FL632051000Q|': 'MMF Repo Assets', 'fred|EFFR|': 'EFFR', 'fred|WALCL|': 'Fed Total Assets',
   'ecos|817Y002|010200001': 'KTB 5Y', 'ecos|817Y002|010300000': 'Korea Corp 3Y (AA-)', 'ecos|817Y002|010320000': 'Korea Corp 3Y (BBB-)',
   //  자주 쓰는 나머지 (목록에 있으면 그대로 영문으로)
   'fred|GDPC1|': 'Real GDP', 'fred|GDP|': 'Nominal GDP', 'fred|RSAFS|': 'Retail Sales', 'fred|RSXFS|': 'Retail Sales ex-Autos',
@@ -5348,7 +5386,10 @@ async function enterApp(){
     예전 이름(showTab('solo') 등)은 그대로 동작합니다 — 북마클릿·시험이 그 이름을 씁니다.  */
 var TAB_GROUPS = {
   //  매크로 경제의 하위 탭은 <화면이 하나> 이고 팀만 바뀝니다 (pane 하나 · 팀 키)
-  macro:    { pane:'research', tabs: [['infl','인플레이션'], ['jobs','고용'], ['mfg','제조업'], ['rates','채권·금리'], ['usmm','미국 단기자금'], ['krmm','한국 금리'], ['krliq','한국 자금'], ['krpf','한국 PF']] },
+  //  10/5 학회장: «한국 금리에 한국 자금과 한국 PF 탭을 넣어줘 — 셋이 따로 있으니 길어 보인다».
+  //  셋째 칸이 있으면 <안쪽 탭> 입니다: «한국 금리» 를 켜면 옆에 금리 · 자금 · PF 가 나옵니다 (팀 키는 그대로).
+  macro:    { pane:'research', tabs: [['infl','인플레이션'], ['jobs','고용'], ['mfg','제조업'], ['rates','채권·금리'], ['usmm','미국 단기자금'],
+                                      ['krmm','한국 금리', [['krmm','금리'], ['krliq','자금'], ['krpf','PF']]]] },
   invest:   { tabs: [['trading','팀 대회'], ['solo','개인 대회']] },
   analysis: { tabs: [['industry','산업분석'], ['company','기업분석'], ['ai','AI 분석'], ['deriv','파생상품'], ['flow','자금흐름']] }
 };
@@ -5371,12 +5412,45 @@ function renderSubTabs(name){
   //  매크로 경제: 팀 키가 «켜진 칸» 이고, 누르면 화면은 그대로 두고 팀만 바꿉니다
   var cur = grp.pane ? (typeof macroTeam !== 'undefined' ? macroTeam : grp.tabs[0][0]) : name;
   box.innerHTML = grp.tabs.map(function(t){
+    var kids = t[2];
+    if (kids && grp.pane){
+      var on = kids.some(function(k){ return k[0] === cur; });
+      return '<span class="subgrp' + (on ? ' on' : '') + '">'
+        + '<button type="button" class="subtab' + (on ? ' on' : '') + '" data-sub="' + t[0] + '" onclick="subGrpGo(' + grp.tabs.indexOf(t) + ')">' + esc(t[1]) + '</button>'
+        + (on ? '<span class="subsub" role="tablist">' + kids.map(function(k){
+              return '<button type="button" class="subsub-b' + (k[0] === cur ? ' on' : '') + '" data-sub2="' + k[0] + '" onclick="setMacroTeam(\'' + k[0] + '\')">' + esc(k[1]) + '</button>'; }).join('') + '</span>' : '')
+        + '</span>';
+    }
     var go = grp.pane ? "setMacroTeam('" + t[0] + "')" : "showTab('" + t[0] + "')";
     return '<button type="button" class="subtab' + (t[0] === cur ? ' on' : '') + '" data-sub="' + t[0] + '" onclick="' + go + '">' + esc(t[1]) + '</button>';
   }).join('');
   bar.classList.remove('hidden');
   if (grp.pane) return;
   try { var m = JSON.parse(localStorage.getItem(SUB_KEY) || '{}'); m[g] = name; localStorage.setItem(SUB_KEY, JSON.stringify(m)); } catch(e){}
+}
+//  안쪽 탭이 있는 칸(한국 금리 › 금리 · 자금 · PF)을 누르면 <마지막에 보던 안쪽 칸> 으로
+var SUBGRP_KEY = 'safe_subgrp_v1';
+function subGrpGo(i){
+  var t = TAB_GROUPS.macro.tabs[i]; if (!t || !t[2]) return;
+  var last = ''; try { last = (JSON.parse(localStorage.getItem(SUBGRP_KEY) || '{}') || {})[t[0]] || ''; } catch(e){}
+  var ok = t[2].some(function(k){ return k[0] === last; });
+  setMacroTeam(ok ? last : t[2][0][0]);
+}
+function subGrpRemember(k){
+  TAB_GROUPS.macro.tabs.forEach(function(t){
+    if (t[2] && t[2].some(function(c){ return c[0] === k; })){
+      try { var m = JSON.parse(localStorage.getItem(SUBGRP_KEY) || '{}') || {}; m[t[0]] = k; localStorage.setItem(SUBGRP_KEY, JSON.stringify(m)); } catch(e){}
+    }
+  });
+}
+//  화면에 쓰는 경로 이름 — «한국 금리 › 자금» 처럼 (AI 비서 카드 등)
+function macroTeamPath(k){
+  var out = '';
+  TAB_GROUPS.macro.tabs.forEach(function(t){
+    if (t[0] === k && !t[2]) out = t[1];
+    if (t[2]) t[2].forEach(function(c){ if (c[0] === k) out = t[1] + ' › ' + c[1]; });
+  });
+  return out || (MACRO_TEAMS[k] ? MACRO_TEAMS[k].n : k);
 }
 var curTab = 'home';
 var ALL_PANES = ['home','research','trading','solo','industry','company','ai','deriv','flow','links','admin'];
@@ -7778,9 +7852,11 @@ function nfDock(open){
   var d = $('nfDock'), f = $('nfFab');
   if (d) d.classList.toggle('hidden', !nfOpen);
   if (f) f.classList.toggle('hidden', nfOpen);
-  //  AI 비서 서랍과 같은 자리라 번갈아 엽니다
-  if (nfOpen && typeof aicOpen !== 'undefined' && aicOpen && typeof aicDock === 'function') aicDock(false);
+  //  10/5: PC 에서는 AI 비서 서랍과 같이 엽니다 (나란히 · 왼쪽/오른쪽) — 휴대폰에서만 번갈아
+  if (nfOpen && dkMobile() && typeof aicOpen !== 'undefined' && aicOpen && typeof aicDock === 'function') aicDock(false);
+  if (nfOpen) DK.nf.at = Date.now();
   try { localStorage.setItem(NF_DOCK_KEY, nfOpen ? '1' : '0'); } catch(e){ /* 사생활 모드 */ }
+  dkLayout();
   if (nfOpen){
     if (!nfData[nfKind]) nfLoad(); else nfRender();
     nfTick();
@@ -7798,9 +7874,124 @@ function nfDockInit(){
 }
 
 //  ⚠️ 서랍은 화면을 가립니다. 닫는 길이 ✕ 하나뿐이면 답답합니다.
+//  ⚠️ Esc 는 한 곳에서만 받습니다 — 예전엔 뉴스 · AI 가 따로 받아서, 뉴스를 닫고 나면 AI 쪽이
+//     «이제 열린 건 AI 하나» 로 보고 그것까지 닫았습니다 (한 번 눌렀는데 둘 다 닫힘).
 document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape' && nfOpen) nfDock(false);
+  if (e.key !== 'Escape') return;
+  var k = dkEscTarget();
+  if (k === 'nf' && nfOpen) nfDock(false);
+  else if (k === 'aic' && typeof aicOpen !== 'undefined' && aicOpen && typeof aicDock === 'function') aicDock(false);
 });
+
+/* ══════════ 서랍 배치 · 크기 (10/5) ══════════
+   학회장: «라이브 뉴스랑 AI 탭 둘 다 동시에 · 왼쪽 배치 오른쪽 배치 옵션 · 커서랑 클릭으로 위아래 · 양옆으로 늘리기».
+   · 서랍마다 왼쪽/오른쪽(머리의 ⇆) · 너비 · 높이를 이 브라우저에 기억합니다 (safe_dock_v1).
+   · 같은 쪽에 둘이면 먼저 연 것이 가장자리, 나중 것이 그 옆. 화면이 좁아 안 들어가면 나중 것을 반대쪽에.
+   · 안쪽 옆 가장자리 = 너비 · 위 가장자리 = 높이 · 위 안쪽 모서리 = 둘 다. 두 번 누르면 처음 크기.
+   · 휴대폰(760px 이하)은 화면을 거의 다 쓰니 예전처럼 한 번에 하나 · 크기 조절 없음.                        */
+var DK_KEY = 'safe_dock_v1';
+var DK_DEF = { nf: { w: 392 }, aic: { w: 430 } };
+var DK = { nf: { el: 'nfDock', side: 'right', w: 392, h: 0, at: 0 }, aic: { el: 'aicDock', side: 'right', w: 430, h: 0, at: 0 } };
+try {
+  var _dk = JSON.parse(localStorage.getItem(DK_KEY) || '{}') || {};
+  ['nf', 'aic'].forEach(function(k){ var v = _dk[k]; if (!v) return;
+    if (v.side === 'left' || v.side === 'right') DK[k].side = v.side;
+    if (Number(v.w) > 0) DK[k].w = Number(v.w);
+    if (Number(v.h) > 0) DK[k].h = Number(v.h); });
+} catch(e){}
+function dkSave(){
+  try { localStorage.setItem(DK_KEY, JSON.stringify({ nf: { side: DK.nf.side, w: DK.nf.w, h: DK.nf.h }, aic: { side: DK.aic.side, w: DK.aic.w, h: DK.aic.h } })); } catch(e){}
+}
+function dkMobile(){ return window.innerWidth <= 760; }
+function dkIsOpen(k){ return k === 'nf' ? (typeof nfOpen !== 'undefined' && !!nfOpen) : (typeof aicOpen !== 'undefined' && !!aicOpen); }
+function dkClampW(w){ return Math.round(Math.max(300, Math.min(Number(w) || 400, Math.min(960, window.innerWidth - 40)))); }
+function dkClampH(h){ return Math.round(Math.max(260, Math.min(Number(h) || 600, window.innerHeight - 40))); }
+var dkDragK = '', dkBusy = false;
+function dkLayout(){
+  if (dkBusy) return;
+  var mob = dkMobile();
+  //  ⚠️ 휴대폰 폭으로 줄었는데 둘 다 열려 있으면 겹칩니다 — 먼저 연 것을 닫습니다 (휴대폰은 한 번에 하나)
+  if (mob && dkIsOpen('nf') && dkIsOpen('aic')){
+    var older = DK.nf.at <= DK.aic.at ? 'nf' : 'aic';
+    dkBusy = true;
+    try { if (older === 'nf') nfDock(false); else if (typeof aicDock === 'function') aicDock(false); } finally { dkBusy = false; }
+  }
+  ['nf', 'aic'].forEach(function(k){
+    var d = $(DK[k].el); if (!d) return;
+    dkResizeInit(k);
+    d.classList.toggle('dk-left', !mob && DK[k].side === 'left');
+    if (mob){ ['width', 'height', 'maxWidth', 'maxHeight', 'left', 'right'].forEach(function(p){ d.style[p] = ''; }); return; }
+    d.style.width = dkClampW(DK[k].w) + 'px'; d.style.maxWidth = 'none';
+    if (DK[k].h){ d.style.height = dkClampH(DK[k].h) + 'px'; d.style.maxHeight = 'none'; } else { d.style.height = ''; d.style.maxHeight = ''; }
+    d.style.left = ''; d.style.right = '';
+  });
+  if (mob) return;
+  /*  ⚠️ 둘이 겹치지 않게 — 반대쪽으로 옮겨도 필요한 폭은 같습니다 (양끝 20 + 사이 12 + 두 너비).
+      모자라면 <보이는 너비만> 줄입니다: 나중에 연 것부터(끌고 있는 서랍은 맨 나중) 300 까지.
+      기억한 너비(DK.w)는 그대로라 창을 다시 넓히면 원래 크기로 돌아옵니다.
+      PC 폭(761 이상)이면 300 + 300 + 52 = 652 라 둘 다 늘 들어갑니다.                              */
+  var vw = window.innerWidth, used = { left: 20, right: 20 }, place = {};
+  var open = ['nf', 'aic'].filter(dkIsOpen).sort(function(a, b){ return DK[a].at - DK[b].at; });
+  var ww = {}; open.forEach(function(k){ ww[k] = dkClampW(DK[k].w); });
+  var need = 40 + 12 * Math.max(0, open.length - 1) + open.reduce(function(s, k){ return s + ww[k]; }, 0);
+  open.slice().reverse().sort(function(a, b){ return (a === dkDragK) - (b === dkDragK); }).forEach(function(k){
+    if (need <= vw) return;
+    var cut = Math.min(need - vw, ww[k] - 300);
+    if (cut > 0){ ww[k] -= cut; need -= cut; }
+  });
+  open.forEach(function(k){
+    var d = $(DK[k].el); if (!d) return;
+    var side = DK[k].side;
+    place[k] = side;
+    d.style.width = ww[k] + 'px';
+    d.style[side] = used[side] + 'px'; d.style[side === 'left' ? 'right' : 'left'] = 'auto';
+    d.classList.toggle('dk-left', side === 'left');
+    used[side] += ww[k] + 12;
+  });
+  return place;
+}
+function dkFlip(k){ DK[k].side = DK[k].side === 'right' ? 'left' : 'right'; DK[k].at = Date.now(); dkSave(); dkLayout(); }
+function dkResizeInit(k){
+  var d = $(DK[k].el); if (!d || d.__dkRz) return;
+  d.__dkRz = 1;
+  [['x', '옆으로 끌어 너비 조절 (두 번 누르면 처음 크기)'], ['y', '위아래로 끌어 높이 조절 (두 번 누르면 처음 크기)'], ['xy', '끌어서 너비 · 높이 조절']].forEach(function(t){
+    var h = document.createElement('div');
+    h.className = 'dk-rz dk-' + t[0]; h.title = t[1]; h.setAttribute('data-dk', k);
+    h.addEventListener('pointerdown', function(e){ dkDragStart(k, t[0], e); });
+    h.addEventListener('dblclick', function(){ if (t[0] !== 'y') DK[k].w = DK_DEF[k].w; if (t[0] !== 'x') DK[k].h = 0; dkSave(); dkLayout(); });
+    d.appendChild(h);
+  });
+}
+function dkDragStart(k, t, e){
+  if (dkMobile() || (e.button != null && e.button !== 0)) return;
+  e.preventDefault();
+  var d = $(DK[k].el); if (!d) return;
+  var r = d.getBoundingClientRect();
+  var leftSide = d.classList.contains('dk-left');
+  var st = { x: e.clientX, y: e.clientY, w: r.width, h: r.height };
+  dkDragK = k;                                     //  끄는 서랍은 자리가 모자라도 맨 나중에 줄입니다 (다른 서랍이 비켜 줌)
+  var mv = function(ev){
+    if (t !== 'y'){ var dx = ev.clientX - st.x; DK[k].w = dkClampW(leftSide ? st.w + dx : st.w - dx); }
+    if (t !== 'x'){ var dy = ev.clientY - st.y; DK[k].h = dkClampH(st.h - dy); }      //  아래가 붙어 있어 위로 끌면 커집니다
+    dkLayout();
+  };
+  var up = function(){
+    document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up);
+    document.body.classList.remove('dk-drag'); dkDragK = ''; dkSave();
+    if (k === 'nf' && typeof nfRender === 'function'){ try { nfRender(); } catch(e2){} }
+  };
+  document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
+  document.body.classList.add('dk-drag');
+}
+//  Esc — 글을 쓰던 서랍(포커스) → 없으면 마지막에 연 서랍 하나만
+function dkEscTarget(){
+  var a = document.activeElement;
+  if (a && $('aicDock') && $('aicDock').contains(a)) return 'aic';
+  if (a && $('nfDock') && $('nfDock').contains(a)) return 'nf';
+  var open = ['nf', 'aic'].filter(dkIsOpen).sort(function(x, y){ return DK[y].at - DK[x].at; });
+  return open[0] || '';
+}
+window.addEventListener('resize', function(){ try { dkLayout(); } catch(e){} });
 
 /* ══════════ AI 비서 (10/5) ══════════
 
@@ -7853,8 +8044,10 @@ function aicDock(open){
   if (d) d.classList.toggle('hidden', !aicOpen);
   if (f) f.classList.toggle('hidden', aicOpen || !(aicStatus && aicStatus.on));
   document.body.classList.toggle('aic-on', aicOpen);
-  //  뉴스 서랍과 같은 자리라 번갈아 엽니다
-  if (aicOpen && typeof nfOpen !== 'undefined' && nfOpen && typeof nfDock === 'function') nfDock(false);
+  //  10/5: PC 에서는 뉴스 서랍과 같이 (나란히) — 휴대폰에서만 번갈아
+  if (aicOpen) DK.aic.at = Date.now();
+  if (aicOpen && dkMobile() && typeof nfOpen !== 'undefined' && nfOpen && typeof nfDock === 'function') nfDock(false);
+  dkLayout();
   try { localStorage.setItem(AIC_OPEN_KEY, aicOpen ? '1' : '0'); } catch(e){}
   if (aicOpen){ aicRender(); setTimeout(function(){ var q = $('aicQ'); if (q) q.focus(); }, 30); }
 }
@@ -7897,11 +8090,13 @@ function aicMd(txt){
   return out.join('');
 }
 var AIC_TOOL_KO = { search_indicators:'지표 찾기', get_indicator:'지표 값', get_price:'시세', search_reports:'리포트 찾기',
-                    get_report:'리포트 본문', get_my_portfolio:'우리 팀 포트폴리오', get_13f:'13F', make_chart:'차트 만들기' };
+                    get_report:'리포트 본문', get_my_portfolio:'우리 팀 포트폴리오', get_13f:'13F', make_chart:'차트 만들기',
+                    search_fred:'FRED 찾기', fred_info:'FRED 정보', search_ecos:'ECOS 찾기', ecos_items:'ECOS 항목',
+                    search_worldbank:'World Bank 찾기', worldbank_info:'World Bank 정보', web_search:'웹 검색' };
 function aicUsedTxt(used){
   return (used || []).map(function(u){
     var a = u.args || {};
-    var what = a.code || a.symbol || a.query || a.manager || a.id || a.title || '';
+    var what = a.code || a.symbol || a.query || a.manager || a.id || a.series_id || a.stat_code || a.title || '';
     return (AIC_TOOL_KO[u.tool] || u.tool) + (what ? '(' + what + ')' : '') + (u.ok ? '' : ' ⚠️');
   }).join(' · ');
 }
@@ -7911,7 +8106,7 @@ function aicSuggestions(){
     var base = [ (t ? t.n + ' 추이가 잘 보이게 차트 만들어줘' : '인플레이션 추이가 잘 보이게 차트 만들어줘'),
                  (t ? t.n + ' 팀 핵심 지표로 지금 경기를 세 줄로 요약해줘' : '지금 핵심 지표로 경기를 세 줄로 요약해줘') ];
     if (series && series.length) base.push('지금 차트에 올린 지표들이 서로 어떤 관계인지 설명해줘');
-    base.push('보고서에 넣을 영문 한 문단으로 정리해줘');
+    base.push('보고서용: «미국 고용이 식고 있지만 침체는 아니다» 를 보여 줄 지표로 차트 만들고 출처 달아줘');
     return base;
   }
   if (curTab === 'industry') return ['엔비디아 · TSMC · SK하이닉스 1년 흐름을 겹쳐서 차트로 보여줘', '이 표에서 최근 3개월 강한 섹터와 약한 섹터, 이유를 정리해줘'];
@@ -7940,6 +8135,7 @@ function aicRender(){
     var used = (m.used || []).filter(function(u){ return u.tool !== 'make_chart'; });
     return '<div class="aic-msg ai">' + aicMd(m.content)
       + (m.actions && m.actions.length ? m.actions.map(function(a, j){ return aicActHtml(a, i, j); }).join('') : '')
+      + aicWebHtml(m)
       + '<div class="aic-meta">' + (used.length ? '<span>찾아본 자료: ' + esc(aicUsedTxt(used)) + '</span>' : '')
       + '<button type="button" onclick="aicCopy(' + i + ')">복사</button></div></div>';
   }).join('') + (aicBusy ? aicWaitHtml() : '');
@@ -8063,10 +8259,12 @@ async function aicAsk(qIn){
     var hist = aicMsgs.filter(function(m){ return !m.err; }).slice(-12).map(function(m){ return { role: m.role, content: m.content }; });
     var d = await edgeCall('ai-chat', { action: 'ask', messages: hist, tab: curTab, screen: sendScr ? aicScreen() : '', menu: aicMenu() });
     var acts = (Array.isArray(d.actions) ? d.actions : []).slice(0, 2).map(aicActClean).filter(Boolean);
-    aicMsgs.push({ role: 'assistant', content: String(d.answer || ''), used: d.used || [], actions: acts, model: d.model });
+    var web = (Array.isArray(d.web_sources) ? d.web_sources : []).slice(0, 8).map(function(x){ return { url: String(x && x.url || '').slice(0, 500), title: String(x && x.title || '').slice(0, 140) }; });
+    aicMsgs.push({ role: 'assistant', content: String(d.answer || ''), used: d.used || [], actions: acts, model: d.model, web: web, webNote: d.web_note ? String(d.web_note).slice(0, 200) : '' });
     //  그 탭에 이미 있으면 바로 그립니다 · 다른 탭이면 카드의 «이동해서 만들기» 단추를 기다립니다 (학회장 지시)
     var mi = aicMsgs.length - 1;
-    acts.forEach(function(a, j){ if (curTab === aicActTab(a)) aicActApply(mi, j, true); });
+    //  ⚠️ 차례대로 (기다리며) — 동시에 돌리면 둘째 차트가 첫째를 바로 덮어, 첫째 «내 묶음» 저장과 되돌리기가 둘째 것을 담았습니다
+    for (var aj = 0; aj < acts.length; aj++){ if (curTab === aicActTab(acts[aj])) await aicActApply(mi, aj, true); }
   } catch(e){
     var msg = String(e && e.message || e);
     if (/ai-chat 함수가 배포되지/.test(msg)) msg = 'AI 비서 서버 함수(ai-chat)가 아직 배포되지 않았습니다 - 임원진에게 말해 주세요.';
@@ -8102,7 +8300,17 @@ function aicActClean(a){
     if (a.bundle != null && !(Number.isInteger(a.bundle) && a.team && aicOwn(TEAM_BUNDLES, a.team) && TEAM_BUNDLES[a.team][a.bundle])) a.bundle = null;
     if (a.tf && !aicOwn(AIC_TF_NM, a.tf)) a.tf = null;
     a.years = Number.isInteger(a.years) && a.years >= 1 && a.years <= 60 ? a.years : null;
-    a.items = (Array.isArray(a.items) ? a.items : []).filter(function(it){ return it && /^(fred|ecos|bond)$/.test(it.source) && /^[A-Za-z0-9_.\-]+$/.test(String(it.code || '')); }).slice(0, 8);
+    //  4판: World Bank(wb) 도 — item_code = 나라 ISO3 · ECOS 는 항목 여럿이면 A/B
+    a.items = (Array.isArray(a.items) ? a.items : []).filter(function(it){
+      if (!it || !/^(fred|ecos|bond|wb|bls|bea)$/.test(it.source) || !/^[A-Za-z0-9_.\-]+$/.test(String(it.code || ''))) return false;
+      if (it.source === 'wb') return /^[A-Z0-9]{2,3}$/.test(String(it.item_code || ''));
+      if (it.source === 'bea') return /^\d{1,3}\|[AQM]$/.test(String(it.item_code || ''));
+      return !it.item_code || /^[A-Za-z0-9_.\-\/]+$/.test(String(it.item_code));
+    }).slice(0, 8);
+    if (a.save_as != null) a.save_as = String(a.save_as).slice(0, 30);
+    //  주석 핀 (5판) — 날짜 · 짧은 글 · 어느 선 위에
+    a.notes = (Array.isArray(a.notes) ? a.notes : []).filter(function(n){ return n && /^\d{4}-\d{2}-\d{2}$/.test(String(n.date || '')) && String(n.text || '').trim(); })
+      .slice(0, 6).map(function(n){ return { date: String(n.date), text: String(n.text).slice(0, 40), on: String(n.on || '').slice(0, 60) }; });
     if (!a.team && !a.items.length) return null;
     return a;
   }
@@ -8126,7 +8334,7 @@ function aicActClean(a){
 }
 function aicActWhere(a){
   var s = AIC_TAB_NM[aicActTab(a)] || aicActTab(a);
-  if ((a.type === 'macro' || a.type === 'open') && a.team && MACRO_TEAMS[a.team]) s += ' › ' + MACRO_TEAMS[a.team].n;
+  if ((a.type === 'macro' || a.type === 'open') && a.team && MACRO_TEAMS[a.team]) s += ' › ' + macroTeamPath(a.team);
   if (a.type === 'price') s += ' › 가격 차트';
   if (a.type === 'sector') s += ' › 섹터·종목 모니터';
   return s;
@@ -8169,11 +8377,71 @@ function aicActHtml(a, i, j){
     + '<div class="t">' + (op ? AIC_GO_SVG : AIC_CHART_SVG) + esc(title) + '</div>'
     + '<div class="w">' + esc(where) + '</div>'
     + (a.type !== 'open' ? '<div class="d">' + esc(aicActWhat(a)) + '</div>' : '')
-    + (a.dropped && a.dropped.length ? '<div class="x">' + esc('목록에 없어 뺀 지표: ' + a.dropped.join(', ')) + '</div>' : '')
+    + (a.dropped && a.dropped.length ? '<div class="x">' + esc('확인하지 못해 뺀 지표: ' + a.dropped.join(' / ')) + '</div>' : '')
+    + (a.save_as ? '<div class="x">' + esc('그리면 «내 묶음» 에 «' + a.save_as + '» 로 남깁니다') + '</div>' : '')
+    + (a.notes && a.notes.length ? '<div class="x">' + esc('주석 핀 ' + a.notes.length + '개: ' + a.notes.map(function(n){ return n.date.slice(0, 7) + ' ' + n.text; }).join(' · ')) + '</div>' : '')
+    + aicCiteHtml(a, i, j)
     + '<div class="b">' + btn + '</div></div>';
 }
 //  ⚠️ 이미 그 탭이면 showTab 을 다시 부르지 않습니다 — 같은 탭을 다시 누르면 «처음 화면으로» 되돌리는 동작(tabHome)이 걸립니다
 function aicGoTab(t){ if (curTab !== t) showTab(t); }
+/*  ── 출처 (4판) ── 지표마다 발표 기관 · 코드 · 링크. 링크는 FRED · World Bank · 한국은행 주소만 엽니다 (서버가 만든 값이어도 한 번 더).
+    «출처 복사» 는 보고서에 붙일 국문 · 영문 줄을 같이 복사합니다 (터미널 보고서는 영문).                                  */
+var AIC_CITE_HOST = /^https:\/\/(fred\.stlouisfed\.org|data\.worldbank\.org|ecos\.bok\.or\.kr|data\.bls\.gov|www\.bls\.gov|apps\.bea\.gov|www\.bea\.gov)\//;
+function aicCiteOf(it){ var c = it && it.cite; return c && typeof c === 'object' ? c : null; }
+function aicCiteHtml(a, i, j){
+  if (a.type !== 'macro' || !a.items || !a.items.some(aicCiteOf)) return '';
+  return '<div class="cites"><div class="ch">' + T('출처', 'Sources') + ' <button type="button" onclick="aicCiteCopy(' + i + ',' + j + ')">' + T('출처 복사 (보고서용)', 'Copy sources') + '</button></div><ul>'
+    + a.items.map(function(it){
+        var c = aicCiteOf(it); if (!c) return '';
+        var src = c.kind === 'fred' ? 'FRED ' + c.id : c.kind === 'wb' ? 'World Bank ' + c.id + (c.country ? ' · ' + c.country : '') : c.kind === 'ecos' ? 'ECOS ' + c.id
+                : c.kind === 'bls' ? 'BLS ' + c.id : c.kind === 'bea' ? 'BEA ' + c.id : String(c.id || '');
+        var url = String(c.url || '');
+        return '<li><b>' + esc(it.label || it.code) + '</b> - ' + esc([c.org, src].filter(Boolean).join(' · '))
+             + (AIC_CITE_HOST.test(url) ? ' · <a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + T('링크', 'link') + '</a>' : '') + '</li>';
+      }).join('') + '</ul></div>';
+}
+function aicCiteLines(a){
+  var day = today(), ko = [], en = [];
+  (a.items || []).forEach(function(it){
+    var c = aicCiteOf(it); if (!c) return;
+    var url = AIC_CITE_HOST.test(String(c.url || '')) ? ' ' + c.url : '';
+    if (c.kind === 'fred'){
+      ko.push('- ' + (it.label || c.id) + ': ' + (c.org ? c.org + ', ' : '') + 'FRED(' + c.id + ')' + url);
+      en.push('Source: ' + (c.org ? c.org + ' via ' : '') + 'FRED, Federal Reserve Bank of St. Louis (' + c.id + (c.title ? ', ' + c.title : '') + '),' + url + ' (accessed ' + day + ').');
+    } else if (c.kind === 'wb'){
+      ko.push('- ' + (it.label || c.id) + ': World Bank WDI(' + c.id + (c.country ? ', ' + c.country : '') + ')' + (c.org ? ' · 원출처 ' + c.org : '') + url);
+      en.push('Source: World Bank, World Development Indicators (' + c.id + (c.country ? ', ' + c.country : '') + ')' + (c.org ? '; original source: ' + c.org : '') + '.' + url + ' (accessed ' + day + ').');
+    } else if (c.kind === 'bls'){
+      ko.push('- ' + (it.label || c.id) + ': 미국 노동통계국(BLS) ' + c.id + url);
+      en.push('Source: U.S. Bureau of Labor Statistics (' + c.id + (c.title ? ', ' + c.title : '') + ').' + url + ' (accessed ' + day + ').');
+    } else if (c.kind === 'bea'){
+      ko.push('- ' + (it.label || c.id) + ': 미국 경제분석국(BEA) ' + c.id + url);
+      en.push('Source: U.S. Bureau of Economic Analysis, ' + (c.release ? c.release + ', ' : '') + c.id + (c.title ? ' (' + c.title + ')' : '') + '.' + url + ' (accessed ' + day + ').');
+    } else if (c.kind === 'ecos'){
+      ko.push('- ' + (it.label || c.id) + ': 한국은행 경제통계시스템(ECOS) ' + c.id + url);
+      en.push('Source: Bank of Korea, Economic Statistics System (ECOS), ' + c.id + '.' + url + ' (accessed ' + day + ').');
+    } else {
+      ko.push('- ' + (it.label || c.id) + ': ' + (c.org || ''));
+      en.push('Source: ' + (c.org || c.id) + '.');
+    }
+  });
+  return '[출처]\n' + ko.join('\n') + '\n\n[Sources]\n' + en.join('\n');
+}
+function aicCiteCopy(i, j){
+  var a = aicMsgs[i] && aicMsgs[i].actions && aicMsgs[i].actions[j]; if (!a) return;
+  var txt = aicCiteLines(a);
+  var ok = function(){ toast(T('출처를 복사했습니다 (국문 · 영문)', 'Sources copied')); }, no = function(){ toast(T('복사하지 못했습니다', 'Copy failed')); };
+  try { navigator.clipboard.writeText(txt).then(ok, no); } catch(e){ no(); }
+}
+//  웹 검색으로 찾은 참고 자료 (임원진이 켰을 때만 옵니다)
+function aicWebHtml(m){
+  var w = (Array.isArray(m.web) ? m.web : []).filter(function(x){ return x && /^https?:\/\//.test(String(x.url || '')); }).slice(0, 8);
+  if (!w.length && !m.webNote) return '';
+  return '<div class="cites web"><div class="ch">' + T('참고 자료 (웹)', 'Web sources') + '</div>'
+    + (w.length ? '<ul>' + w.map(function(x){ return '<li><a href="' + esc(x.url) + '" target="_blank" rel="noopener noreferrer nofollow">' + esc(x.title || x.url) + '</a></li>'; }).join('') + '</ul>' : '')
+    + (m.webNote ? '<div class="x">' + esc(m.webNote) + '</div>' : '') + '</div>';
+}
 function aicActGo(i, j){
   var a = aicMsgs[i] && aicMsgs[i].actions && aicMsgs[i].actions[j]; if (!a) return;
   aicGoTab(aicActTab(a)); aicActReveal(a);
@@ -8191,6 +8459,7 @@ function aicActReveal(a){
 }
 function aicSnap(a){
   if (a.type === 'macro') return { tab: curTab, team: macroTeam, rs: rangeMode(), ry: rangeYears(), mode: typeof macroMode !== 'undefined' ? macroMode : 'series',
+    ann: typeof annSnapshot === 'function' ? annSnapshot() : null, annOn: typeof annOn !== 'undefined' ? annOn : false,
     series: series.map(function(s){ return { source: s.source, code: s.code, item_code: s.item_code || '', cycle: s.cycle, label: s.label_ko || s.label, unit: s.unit || '',
       tf: s.tf, axis: s.axis, autoAxis: s.autoAxis, autoTf: s.autoTf, type: s.type, color: s.color, width: s.width, hidden: !!s.hidden, keepRaw: !!s.keepRaw }; }) };
   if (a.type === 'price') return { tab: curTab, picks: secPx.picks.slice(), act: secPx.act, view: secPx.view, tf: secPx.tf, per: secPx.per };
@@ -8242,6 +8511,10 @@ async function aicActApply(i, j, auto){
       //  하나도 못 올렸으면(자리 없음 · 목록에 없는 묶음) «그렸습니다» 라고 하지 않습니다
       if (want && !series.some(function(s){ return want.indexOf(s.key) >= 0; }))
         throw new Error(T('차트에 올리지 못했습니다 (자리가 없거나 목록에 없는 지표) - 매크로 탭의 안내를 보세요.', 'Nothing was added to the chart.'));
+      //  자료가 들어올 때까지 기다린 뒤(변환 · 축이 정해진 다음) — 주석 핀 · «내 묶음» 저장 (보고서용으로 차트를 둘로 나눌 때)
+      if ((a.save_as || (a.notes && a.notes.length)) && want) await aicWaitPoints(want, 15000);
+      if (a.notes && a.notes.length) aicNotesApply(a.notes, want);
+      if (a.save_as && typeof ubSave === 'function'){ var bid = await ubSave(a.save_as, { auto: true }); if (bid != null) snap.bundleId = bid; }
     } else if (a.type === 'price'){
       aicGoTab('industry');
       if (a.view) secPx.view = a.view;
@@ -8271,6 +8544,41 @@ async function aicActApply(i, j, auto){
     toast(esc(String(e && e.message || e)), 4200);
   }
 }
+//  지표들이 자료를 받을 때까지 (늦어도 ms 까지) — 실패한 선은 points 가 [] 로 들어와 기다림이 끝납니다
+function aicWaitPoints(keys, ms){
+  var t0 = Date.now();
+  return new Promise(function(res){
+    (function tick(){
+      var ss = series.filter(function(s){ return keys.indexOf(s.key) >= 0; });
+      if (!ss.length || ss.every(function(s){ return Array.isArray(s.points); }) || Date.now() - t0 > ms) return res();
+      setTimeout(tick, 150);
+    })();
+  });
+}
+/*  ── 주석 핀 (5판) ── 학회장: «주석 기능 써서 중요한 키 타임라인들 핀포인트».
+    차트 주석과 같은 «선 위의 핀» 입니다 (날짜 · 값으로 저장 → 기간을 바꿔도 그 점에 붙음). 고르기 도구로 옮기고 지울 수 있습니다.
+    어느 선 위에: on(지표 코드) → 없으면 첫 선. 그 날짜에 값이 없으면 직전 값. 글은 핀마다 위 · 아래를 번갈아 겹치지 않게.  */
+function aicNotesApply(notes, keys){
+  if (!chart || !notes || !notes.length) return 0;
+  if (!annOn) annToggle();
+  var vis = series.filter(function(s){ return !s.hidden && (!keys || keys.indexOf(s.key) >= 0) && s.points && s.points.length; });
+  if (!vis.length) vis = shownSeries();
+  annPush();
+  var n = 0;
+  notes.forEach(function(nt, k){
+    var s = vis.filter(function(x){ return nt.on && String(x.code).toUpperCase() === nt.on; })[0] || vis[0]; if (!s) return;
+    var pts = viewPoints(s); if (!pts.length) return;
+    var p = null;
+    for (var i = pts.length - 1; i >= 0; i--){ if (pts[i].d <= nt.date){ p = pts[i]; break; } }
+    if (!p) return;
+    var vals = pts.map(function(q){ return q.v; }).filter(isFinite);
+    var span = (Math.max.apply(null, vals) - Math.min.apply(null, vals)) || 1;
+    annAdd({ type:'pin', x: Date.parse(p.d), y: p.v, ax: Number(s.axis) || 0, sid: s.key, len: span * (k % 2 ? -0.16 : 0.16), text: nt.text });
+    n++;
+  });
+  annApply();
+  return n;
+}
 function aicActUndo(i, j, quiet){
   var a = aicMsgs[i] && aicMsgs[i].actions && aicMsgs[i].actions[j], snap = aicUndo[i + '.' + j]; if (!a || !snap) return;
   if (a.type === 'macro'){
@@ -8287,6 +8595,13 @@ function aicActUndo(i, j, quiet){
     });
     renderSeriesList(); drawChart();
     if (snap.mode === 'curve' && typeof ycToMain === 'function' && macroMode !== 'curve') ycToMain();
+    //  비서가 꽂은 주석 핀도 전으로
+    if (snap.ann && typeof annRestore === 'function'){ annRestore(snap.ann); if (annOn !== snap.annOn) annToggle(); }
+    //  비서가 «내 묶음» 에 남긴 것도 지웁니다 (비서가 이름을 붙여 새로 만든 것만 — 원래 있던 묶음은 안 건드림)
+    if (snap.bundleId != null){
+      var bid = snap.bundleId; delete snap.bundleId;
+      try { Promise.resolve(sb.from('user_bundles').delete().eq('id', bid)).then(function(r){ if (!(r && r.error) && typeof ubLoad === 'function') ubLoad(); }, function(){}); } catch(e){}
+    }
   } else if (a.type === 'price'){
     aicGoTab('industry');
     secPx.picks = snap.picks.slice(); secPx.act = snap.act; secPx.view = snap.view; secPx.tf = snap.tf; secPx.per = snap.per; secPxSave();
@@ -8308,12 +8623,13 @@ function aicMenu(){
     L.push('[매크로 경제 하위 탭 = team 키] 묶음 #번호 = bundle · 지표 = source:code[/item_code] 이름 (주기)');
     Object.keys(MACRO_TEAMS).forEach(function(k){
       var t = MACRO_TEAMS[k];
-      L.push('■ ' + k + ' ' + t.n + ' (' + (t.sub || '') + ')');
+      L.push('■ ' + k + ' ' + t.n + ' [화면: 매크로 경제 › ' + macroTeamPath(k) + '] (' + (t.sub || '') + ')');
       (TEAM_BUNDLES[k] || []).forEach(function(b, i){ L.push('  #' + i + ' ' + b.n + (b.curve ? ' [일드커브]' : b.tf ? ' [' + b.tf + ']' : '')); });
       L.push('  지표: ' + t.items.map(function(it){ return it.s + ':' + it.c + (it.i ? '/' + it.i : '') + ' ' + it.l + '(' + (it.cy || 'M') + ')'; }).join(' · '));
     });
     L.push('[섹터·종목 모니터 set] ' + SEC_ORDER.map(function(k){ return k + ' ' + SEC_SETS[k].n; }).join(' · '));
     L.push('[가격 차트] view candle(기본)|line · tf 5m 15m 1h 4h 1d 1w 1mo (한국 주식은 분봉 없음) · period 1m 3m 6m 1y 3y 5y all · 최대 6종목');
+    L.push('[목록 밖 지표] FRED 전체(search_fred · 연준 자료 포함) · BLS 원본(bls_series · source bls) · BEA 원본(search_bea → bea_lines · source bea · item_code 줄|주기) · 한국은행 ECOS(search_ecos → ecos_items) · World Bank WDI(search_worldbank · source wb · item_code 나라 ISO3 KOR USA CHN JPN DEU GBR WLD) - make_chart 에 그대로 넣으면 화면이 받아 그립니다 · 중요한 시점은 annotations 로 핀');
     aicMenuTxt = L.join('\n');
   } catch(e){ aicMenuTxt = ''; }
   return aicMenuTxt;
@@ -8334,7 +8650,7 @@ async function aicWhyNoFetch(){
          + '② 코드를 붙여넣고 Deploy 했는지 ③ 그 함수의 Logs 에 빨간 오류(시작 실패)가 있는지. (' + m2.slice(0, 60) + ')';
   }
 }
-document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && aicOpen) aicDock(false); });
+//  Esc 는 라이브 뉴스 서랍 쪽 한 곳에서 받습니다 (dkEscTarget 이 둘 중 하나만 고름)
 
 /*  ── 설정 (임원진) — AI 비용 카드 아래 «AI 비서» 칸 ── */
 async function aicAdminHtml(){
@@ -8345,6 +8661,7 @@ async function aicAdminHtml(){
   return '<div class="ai-set"><h3>AI 비서</h3>'
     + '<div class="row">'
     +   '<label style="min-width:auto;display:flex;align-items:center;gap:6px"><input type="checkbox" id="aicOn"' + (st.on ? ' checked' : '') + ' style="width:auto"> 켜기</label>'
+    +   '<label style="min-width:auto;display:flex;align-items:center;gap:6px" title="비서가 기사 · 보고서 출처를 웹에서 찾습니다 (Anthropic 웹 검색 · 검색 1번에 약 $0.01 · 같은 월 예산)"><input type="checkbox" id="aicWeb"' + (st.web ? ' checked' : '') + ' style="width:auto"> 웹 검색 허용 (검색 1번 약 $0.01)</label>'
     +   '<button class="btn-sm btn-solid" onclick="aicAdminSave()">저장</button>'
     + '</div>'
     + '<p class="st-hint" style="margin:6px 0 0">이번 달 ' + Number(st.month_n || 0) + '개 질문 · ' + Number(st.month_users || 0) + '명 · $'
@@ -8356,9 +8673,11 @@ async function aicAdminHtml(){
 async function aicAdminSave(){
   var msg = $('aicSetMsg'); if (msg) msg.textContent = '저장 중…';
   try {
-    var r = await sb.rpc('ai_chat_admin_set', { p_on: !!($('aicOn') && $('aicOn').checked) });
-    if (r.error) throw new Error(/ai_chat_admin_set/.test(String(r.error.message || '')) ? 'terminal-AI비서.sql (새 판) 을 한 번 더 돌려 주세요.' : errMsg(r.error));
-    if (msg){ msg.style.color = 'var(--pos)'; msg.textContent = '저장했습니다 - ' + (r.data && r.data.on ? '켜짐' : '꺼짐'); }
+    var args = { p_on: !!($('aicOn') && $('aicOn').checked) };
+    if ($('aicWeb')) args.p_web = !!$('aicWeb').checked;
+    var r = await sb.rpc('ai_chat_admin_set', args);
+    if (r.error) throw new Error(/ai_chat_admin_set|p_web/.test(String(r.error.message || '')) ? 'terminal-AI비서.sql (새 판) 을 한 번 더 돌려 주세요.' : errMsg(r.error));
+    if (msg){ msg.style.color = 'var(--pos)'; msg.textContent = '저장했습니다 - ' + (r.data && r.data.on ? '켜짐' : '꺼짐') + (r.data && r.data.web ? ' · 웹 검색 허용' : ' · 웹 검색 꺼짐'); }
     aicInit();
   } catch(e){ if (msg){ msg.style.color = 'var(--neg)'; msg.textContent = e.message || String(e); } }
 }
@@ -12540,7 +12859,11 @@ var TEAM_BUNDLES = {
     { n:'지준 · TGA · 연준 총자산', d:'주간 · 백만달러', keepRaw:true,
       c:['WRESBAL','WTREGEN','WALCL'] },
     { n:'연준 비상 창구 — 할인창구 · FIMA 레포 · 해외공적 역레포(우)', d:'주간 · 백만달러 — 은행·해외 중앙은행이 연준에 기대는 정도', keepRaw:true, ax:[0,0,1],
-      c:['WLCFLPCL','H41RESPPALGTRFNWW','WLRRAFOIAL'] }
+      c:['WLCFLPCL','H41RESPPALGTRFNWW','WLRRAFOIAL'] },
+    { n:'MMF 어디로 — 총자산 · 미국채 · 레포', d:'분기 · 백만달러 (Z.1) — MMF 돈이 T-bill 로 가나 레포(ON RRP)로 가나', keepRaw:true,
+      c:['MMMFFAQ027S','BOGZ1FL633061105Q','BOGZ1FL632051000Q'] },
+    { n:'소매 MMF vs M2 — 전년비', d:'월간 · 전년비 % — 돈이 예금(M2)보다 빨리 MMF 로 옮겨 가는지', tf:'yoy',
+      c:['RMFSL','M2SL'] }
   ],
   krpf: [
     { n:'PF 대출 — 비은행 부동산업 · 건설업', d:'비은행예금취급기관 (분기, 조원)', keepRaw:true,
@@ -12633,20 +12956,26 @@ function ubChipsHtml(){
   out += '<button class="btn-sm ub-save" onclick="ubSave()" title="지금 차트에 올라간 지표 조합(변환·축·색까지)을 내 계정에 저장합니다">+ 지금 차트 저장</button>';
   return out;
 }
-async function ubSave(){
+//  nameIn · opts.auto — AI 비서가 이름을 정해 남길 때 (묻지 않고 · 같은 이름이 있으면 «(2)» 를 붙여 새로)
+async function ubSave(nameIn, opts){
+  opts = opts || {};
   if (!myBundlesLoaded) await ubLoad();
   if (myBundlesErr === 'nosql'){ warn('researchWarn', '내 묶음은 <b>terminal-내묶음.sql</b> 을 실행해야 저장됩니다 (임원진에게 말해 주세요).'); return; }
   var items = ubSnapshot();
   if (!items.length){ warn('researchWarn', '차트에 올라간 지표가 없습니다 — 먼저 지표를 올리고 저장하세요.'); return; }
   var t = MACRO_TEAMS[macroTeam];
   var dflt = items.slice(0, 3).map(function(it){ return it.l.replace(/\s*\(.*$/, ''); }).join(' · ');
-  var name = prompt((t ? t.n + ' 팀' : '') + ' 내 묶음 이름 (지표 ' + items.length + '개 · 변환·축·색 그대로 저장)', dflt);
+  var name = (typeof nameIn === 'string' && nameIn.trim()) ? nameIn : prompt((t ? t.n + ' 팀' : '') + ' 내 묶음 이름 (지표 ' + items.length + '개 · 변환·축·색 그대로 저장)', dflt);
   if (name == null) return;
   name = String(name).trim().slice(0, 40);
   if (!name){ warn('researchWarn', '이름을 적어 주세요.'); return; }
   var u = null;
   try { u = (await sb.auth.getUser()).data.user; } catch(e){}
   if (!u){ warn('researchWarn', '로그인이 끊겼습니다. 다시 로그인해주세요.'); return; }
+  if (opts.auto){
+    var base = name, n = 2;
+    while (ubMine().some(function(b){ return b.name === name; })) name = (base + ' (' + (n++) + ')').slice(0, 40);
+  }
   var dup = ubMine().filter(function(b){ return b.name === name; })[0];
   if (dup && !confirm('«' + name + '» 이 이미 있습니다. 지금 차트로 덮어쓸까요?')) return;
   var r = dup
@@ -12659,6 +12988,9 @@ async function ubSave(){
   await ubLoad();
   warn('researchWarn', '✅ «' + esc(name) + '» 을 내 묶음에 ' + (dup ? '덮어썼습니다' : '저장했습니다') + ' — 다른 기기에서 로그인해도 그대로입니다.', 'info');
   setTimeout(function(){ warn('researchWarn', ''); }, 4000);
+  //  저장된 묶음 id — AI 비서가 «되돌리기» 때 자기가 만든 묶음을 지우는 데 씁니다
+  var mine = ubMine().filter(function(b){ return b.name === name; })[0];
+  return mine ? mine.id : null;
 }
 async function ubDelete(id){
   var b = myBundles.filter(function(x){ return Number(x.id) === Number(id); })[0]; if (!b) return;
@@ -12849,7 +13181,7 @@ var MACRO_TEAMS = {
         RPONTTLD 일간 레포(= 상설 레포 SRF) 이용액 합계 · RPONTSYD 국채 담보 · RPONMBSD MBS 담보 (십억달러)
         RRPONTSYD ON RRP 잔액 · SOFRVOL SOFR 거래량 (십억달러) · TGCRRATE 3자간 GC 레포 금리
         WLCFLPCL 할인창구(1차 대출) · H41RESPPALGTRFNWW FIMA 레포 · WLRRAFOIAL 해외공적 역레포 (주간, 백만달러)  */
-  usmm: { n:'미국 단기자금', en:'US Funding', sub:'SRF 이용 · ON RRP · 레포 금리 · 지준 · 연준 창구', subEn:'SRF usage · ON RRP · Repo rates · Reserves · Fed facilities',
+  usmm: { n:'미국 단기자금', en:'US Funding', sub:'SRF 이용 · ON RRP · 레포 금리 · 지준 · 연준 창구 · MMF', subEn:'SRF usage · ON RRP · Repo rates · Reserves · Fed facilities · MMF',
     cats:['단기자금','금리'],
     items:[
       { s:'fred', c:'RPONTTLD',      cy:'D', t:'lvl',  u:'십억달러', st:3, b:1, l:'SRF 이용액 (합계)',            d:'연준 상설 레포 — 분기말·납세일에 튑니다' },
@@ -12866,7 +13198,16 @@ var MACRO_TEAMS = {
       { s:'fred', c:'WTREGEN',       cy:'D', t:'lvl',  u:'백만달러', st:2, b:1, l:'TGA (재무부 계좌)',             d:'주간 · 늘면 시중 유동성이 빠짐' },
       { s:'fred', c:'WLCFLPCL',      cy:'D', t:'lvl',  u:'백만달러', st:2, b:0, l:'할인창구 (1차 대출)',           d:'주간 · 은행이 급할 때' },
       { s:'fred', c:'H41RESPPALGTRFNWW', cy:'D', t:'lvl', u:'백만달러', st:1, b:0, l:'FIMA 레포',                  d:'주간 · 해외 중앙은행이 국채 맡기고 달러 빌림' },
-      { s:'fred', c:'WLRRAFOIAL',    cy:'D', t:'lvl',  u:'백만달러', st:1, b:0, l:'해외공적 역레포',               d:'주간 · 해외 중앙은행 달러 예치' }
+      { s:'fred', c:'WLRRAFOIAL',    cy:'D', t:'lvl',  u:'백만달러', st:1, b:0, l:'해외공적 역레포',               d:'주간 · 해외 중앙은행 달러 예치' },
+      /*  MMF (10/5 학회장: «미국 단기자금에 MMF 지표들도»). FRED 시리즈 페이지에서 하나씩 확인 (2026-10-05):
+          RMFSL 소매 MMF(H.6 · 월간 · 십억달러 · 계절조정) · WRMFNS 소매 MMF(H.6 · 주간 · 원계열 · ICI 자료)
+          MMMFFAQ027S MMF 총자산(Z.1 · 분기 · 백만달러) · BOGZ1FL633061105Q MMF 보유 미국채 · BOGZ1FL632051000Q MMF 레포 운용
+          ⚠️ 기관 MMF(WIMFSL)는 2021-02 에 끊겨 넣지 않았습니다 — 기관 몫은 Z.1 총자산에 들어 있습니다.  */
+      { s:'fred', c:'MMMFFAQ027S',   cy:'Q', t:'lvl',  u:'백만달러', st:3, b:1, l:'MMF 총자산',                    d:'분기 · Z.1 · 기관 MMF 포함 전체 · 금리가 높으면 예금에서 옮겨 옵니다' },
+      { s:'fred', c:'RMFSL',         cy:'M', t:'lvl',  u:'십억달러', st:3, b:1, l:'소매 MMF 잔액',                 d:'월간 · M2 구성 · 개인 MMF' },
+      { s:'fred', c:'WRMFNS',        cy:'D', t:'lvl',  u:'십억달러', st:2, b:0, l:'소매 MMF 잔액 (주간)',          d:'주간 · 원계열 · ICI 자료 · 월간보다 빨리 나옵니다' },
+      { s:'fred', c:'BOGZ1FL633061105Q', cy:'Q', t:'lvl', u:'백만달러', st:2, b:0, l:'MMF 보유 미국채',            d:'분기 · T-bill 수요의 큰손' },
+      { s:'fred', c:'BOGZ1FL632051000Q', cy:'Q', t:'lvl', u:'백만달러', st:2, b:0, l:'MMF 레포 운용',              d:'분기 · ON RRP 포함 · 레포로 굴리는 돈' }
     ] },
   /*  한국 자금 (10/5) — 학회장: «단기자금 잔액·거래량(콜 거래량, RP 잔액, MMF 설정액, CD 발행잔액)».
         ECOS 통계표·항목코드를 항목 목록에서 하나씩 확인했습니다 (전부 월간).
@@ -12966,6 +13307,7 @@ function mcCatOf(it){
 function setMacroTeam(k, quiet){
   if (!MACRO_TEAMS[k]) return;
   macroTeam = k;
+  subGrpRemember(k);
   try { localStorage.setItem(MT_KEY, k); } catch(e){}
   renderSubTabs('research');
   //  분류 칩을 그 팀 쪽으로 — 있을 때만, 그리고 <같이 보던 걸 깨지 않게> 토글이 아니라 지정
@@ -13227,7 +13569,8 @@ var MC_GROUPS = {
           ['한국', 'Korea', ['010200000','010210000','0101000']]],
   usmm:  [['SRF · 역레포', 'SRF & reverse repo', ['RPONTTLD','RPONTSYD','RPONMBSD','RRPONTSYD']],
           ['레포 금리', 'Repo rates', ['SOFR','SOFR99','TGCRRATE','IORB','SRFTSYD','SOFRVOL']],
-          ['연준 대차대조표', 'Fed balance sheet', ['WRESBAL','WTREGEN','WLCFLPCL','H41RESPPALGTRFNWW','WLRRAFOIAL']]],
+          ['연준 대차대조표', 'Fed balance sheet', ['WRESBAL','WTREGEN','WLCFLPCL','H41RESPPALGTRFNWW','WLRRAFOIAL']],
+          ['MMF', 'Money market funds', ['MMMFFAQ027S','RMFSL','WRMFNS','BOGZ1FL633061105Q','BOGZ1FL632051000Q']]],
   krmm:  [['정책 · 단기', 'Policy & money market', ['0101000','010101000','010901000','010502000','010503000','010150000']],
           ['통안 · 국고채', 'MSB & KTB', ['010400000','010400001','010190000','010195000','010200000','010200001','010210000','010220000','010230000']],
           ['회사채 · 비교', 'Corporate & compare', ['010300000','010320000','DGS10']]],
@@ -14900,9 +15243,51 @@ function addSeries(s){
   loadSeries(s);
 }
 
+/*  ── 선 목록 한꺼번에 (10/5) ── 학회장: «선 목록에 모두 선 / 모두 바 · 다 원지수 그대로 · MoM · YoY 로 한번에».
+    · 경기침체 띠(USREC)는 건드리지 않습니다.
+    · % 단위 지표(금리 · 실업률)에 «전년비 · 전기비» 를 걸면 «%의 %» 가 되어 뜻이 없습니다 → %p 차이(yoyd · momd)로 겁니다.
+    · 변환을 바꾸면 단위가 같아진 선끼리 한 축으로 다시 모읍니다 (모두 전년비면 % 축 하나).  */
+var SBULK_TF = [['raw','원값'], ['yoy','전년비 YoY'], ['mom','전기비 MoM'], ['reb','시작 = 100']];
+function seriesBulkTargets(){ return series.filter(function(x){ return !(typeof isRecSeries === 'function' && isRecSeries(x)); }); }
+function seriesBulkTf(v){
+  var list = seriesBulkTargets(); if (!list.length) return;
+  list.forEach(function(x){
+    var t = v;
+    if ((v === 'yoy' || v === 'mom') && isRateUnit(x.unit)) t = v === 'yoy' ? 'yoyd' : 'momd';
+    if (v === 'reb' && isRateUnit(x.unit)) t = 'raw';          //  금리는 «시작 = 100» 이 뜻이 없어 원값으로
+    x.tf = t; x.autoTf = false;
+  });
+  seriesBulkAxes();
+  renderSeriesList(); drawChart();
+}
+function seriesBulkType(v){
+  seriesBulkTargets().forEach(function(x){ x.type = v === 'bar' ? 'bar' : 'line'; });
+  renderSeriesList(); drawChart();
+}
+function seriesBulkAxes(){
+  var done = [];
+  seriesBulkTargets().forEach(function(x){ x.axis = pickAxisFor(done, x, 4); x.autoAxis = true; done.push(x); });
+}
+function renderSeriesBulk(){
+  var box = $('seriesBulk'); if (!box) return;
+  var list = seriesBulkTargets();
+  var on = list.length >= 2 && !(typeof macroMode !== 'undefined' && macroMode === 'curve');
+  box.classList.toggle('hidden', !on);
+  if (!on){ box.innerHTML = ''; return; }
+  var allType = list.every(function(x){ return x.type === 'bar'; }) ? 'bar' : list.every(function(x){ return x.type !== 'bar'; }) ? 'line' : '';
+  var tfOf = function(x){ var t = x.tf || 'raw'; return t === 'yoyd' ? 'yoy' : t === 'momd' ? 'mom' : t; };
+  var t0 = tfOf(list[0]), allTf = list.every(function(x){ return tfOf(x) === t0; }) ? t0 : '';
+  box.innerHTML = '<span class="lb">' + T('모두', 'All') + '</span>'
+    + '<span class="px-seg">' + [['line', T('선', 'Line')], ['bar', T('막대', 'Bar')]].map(function(o){
+        return '<button type="button"' + (allType === o[0] ? ' class="on"' : '') + ' onclick="seriesBulkType(\'' + o[0] + '\')">' + esc(o[1]) + '</button>'; }).join('') + '</span>'
+    + '<span class="px-seg">' + SBULK_TF.map(function(o){
+        return '<button type="button"' + (allTf === o[0] ? ' class="on"' : '') + ' onclick="seriesBulkTf(\'' + o[0] + '\')" title="' + esc(T('선 ' + list.length + '개 모두', 'All ' + list.length + ' lines')) + '">' + esc(o[1]) + '</button>'; }).join('') + '</span>'
+    + '<span class="st-hint">' + T('% 지표(금리 · 실업률)는 %p 차이로', 'Rates use %p change') + '</span>';
+}
 function renderSeriesList(){
   var box = $('seriesList');
   closePalette();
+  try { renderSeriesBulk(); } catch(e){}
   if (typeof mcMarkOnChart === 'function') mcMarkOnChart();
   /*  ⚠️ 일드커브를 위 차트로 넘긴 동안에는 <그려져 있는 것> 의 목록을
       보여줍니다. 지표 목록을 그대로 두면 목록과 그림이 서로 다른 것을
@@ -15029,7 +15414,7 @@ function shownSeries(){
        국채는 나라마다 <발행 당국이 다른 창구> 라, 어디서 온 숫자인지
        가 곧 신뢰도입니다 — 이름으로 적어줍니다.                       */
 var BOND_ORIGIN = { JP:'일본 재무성', DE:'분데스방크' };
-var SRC_NAME = { quote_us:'미국 시세', quote_kr:'한국 시세', quote_bn:'바이낸스 USDT', quote_crypto:'코인' };
+var SRC_NAME = { quote_us:'미국 시세', quote_kr:'한국 시세', quote_bn:'바이낸스 USDT', quote_crypto:'코인', wb:'World Bank', bls:'BLS', bea:'BEA' };
 function srcName(src, code){
   if (SRC_NAME[src]) return SRC_NAME[src];
   if (src !== 'bond') return String(src || '').toUpperCase();
