@@ -1139,6 +1139,19 @@
   .sbulk .lb{font-size:12px;font-weight:700;color:var(--text-sub)}
   .sbulk .px-seg button{padding:4px 9px;font-size:11.5px}
   .sbulk .st-hint{font-size:11px}
+  /*  밸류에이션 노트 (10/6)  */
+  .vn-row{flex-wrap:wrap;gap:8px;align-items:center}
+  .vn-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  .vn-f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--text-sub);font-weight:600}
+  .vn-f textarea{width:100%;font-size:13px;line-height:1.55;font-weight:400;color:var(--text);resize:vertical;min-height:52px}
+  .vn-f:first-child{grid-column:1/-1}
+  @media (max-width:760px){ .vn-grid{grid-template-columns:1fr} }
+  .aic-chk{font-size:11px;margin-top:4px;color:var(--text-sub)}
+  .aic-chk.ok b{color:var(--up, #1f8a70)}
+  .aic-chk.bad{color:#b45309}
+  .aic-chk.bad b{color:#b45309}
+  .aic-act .x.aic-chk-x,.vn-warn{color:#b45309}
+  :root[data-theme="dark"] .aic-chk.bad, :root[data-theme="dark"] .aic-chk.bad b, :root[data-theme="dark"] .aic-act .x.aic-chk-x, :root[data-theme="dark"] .vn-warn{color:#f0b35a}
   /*  산업 지표 차트 (10/6)  */
   .ic-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
   #icList{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px}
@@ -3331,12 +3344,49 @@
                  style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"></div>
           </div>
 
+          <!--  10/6 학회장: «작성자의 뷰와 함께 설정 · 개개인의 화면에서 개개인의 탭에서 다른 사람 안 보이게 · 비서가 해주는 거니까»
+                학회원 본인만 보는 노트 — 회사마다 내 계정(user_val_notes · RLS 본인만)과 이 브라우저에 저장합니다.  -->
+          <div class="card" id="valNoteCard">
+            <h2>내 밸류에이션 노트 <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">작성자 뷰 · 나만 보입니다</span>
+              <span class="tools"><button class="btn-sm btn-solid" onclick="valNoteAskAi()" title="AI 비서가 가정을 점검해 화면에 넣고, 이 노트에 초안을 채웁니다">✦ AI 비서에게 초안</button></span>
+            </h2>
+            <div class="row vn-row">
+              <label>투자의견</label>
+              <div class="px-seg" id="vnOp"></div>
+              <label style="min-width:auto">목표주가</label>
+              <input type="number" id="vnTarget" step="any" style="width:130px" oninput="valNoteDirty()">
+              <span class="st-hint" id="vnUp"></span>
+            </div>
+            <div class="vn-grid">
+              <label class="vn-f"><span>투자의견 이유</span><textarea id="vnWhy" rows="2" oninput="valNoteDirty()" placeholder="2~3줄 - 숫자 근거와 함께"></textarea></label>
+              <label class="vn-f"><span>투자 포인트 · 사업 구조 · 제품 · 밸류체인 · 강점</span><textarea id="vnThesis" rows="5" oninput="valNoteDirty()" placeholder="- 무엇을 팔아 어떻게 버는 회사인가&#10;- 밸류체인에서 어디에 있고 무엇이 강점인가"></textarea></label>
+              <label class="vn-f"><span>가정 근거 · 멀티플 · 성장률 · 이익률 · WACC 를 왜 이렇게</span><textarea id="vnAssume" rows="5" oninput="valNoteDirty()" placeholder="- 목표 PER 18배: 과거 결산 가운데값 15배 + 성장 할증 …"></textarea></label>
+              <label class="vn-f"><span>리스크 · 논거가 깨지는 조건</span><textarea id="vnRisk" rows="3" oninput="valNoteDirty()"></textarea></label>
+            </div>
+            <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:6px">
+              <button class="btn-sm" onclick="valNoteSave(true)" title="위 «가정» 칸 값도 이 회사 노트에 같이 저장합니다">지금 가정도 같이 저장</button>
+              <button class="btn-sm" onclick="valNoteLoadInputs()">저장한 가정 불러오기</button>
+              <span class="st-hint grow" id="vnSt"></span>
+            </div>
+          </div>
+
           <div class="card">
             <h2>지금 몇 배에 거래되나
               <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">
                 주가 · 주식수 · 재무제표로 직접 계산했습니다</span>
             </h2>
             <div id="valMult"></div>
+          </div>
+
+          <!--  10/6 학회장: «멀티플 추이 + PER 밴드 · PBR 밴드 · PSR 도 포함»  -->
+          <div class="card" id="valBandCard">
+            <h2>멀티플 추이 · 밴드
+              <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">과거 결산 배수와 지금 · 주가가 어느 배수 띠에 있나</span>
+              <span class="tools"><button class="btn-sm" onclick="chartJpg(valBandChart,'멀티플')">JPG</button></span>
+            </h2>
+            <div class="px-seg" id="valBandSeg" style="margin-bottom:8px"></div>
+            <div id="valBandBox" style="height:330px"></div>
+            <p class="st-hint" id="valBandNote" style="margin:6px 0 0"></p>
           </div>
 
           <div class="card">
@@ -8160,7 +8210,7 @@ var AIC_TOOL_KO = { search_indicators:'지표 찾기', get_indicator:'지표 값
                     get_report:'리포트 본문', get_my_portfolio:'우리 팀 포트폴리오', get_13f:'13F', make_chart:'차트 만들기',
                     search_fred:'FRED 찾기', fred_info:'FRED 정보', search_ecos:'ECOS 찾기', ecos_items:'ECOS 항목',
                     search_worldbank:'World Bank 찾기', worldbank_info:'World Bank 정보', web_search:'웹 검색',
-                    bls_series:'BLS 확인', search_bea:'BEA 찾기', bea_lines:'BEA 줄', search_company:'기업 찾기', get_financials:'재무제표' };
+                    bls_series:'BLS 확인', search_bea:'BEA 찾기', bea_lines:'BEA 줄', search_company:'기업 찾기', get_financials:'재무제표', get_valuation:'밸류에이션 재료' };
 function aicUsedTxt(used){
   return (used || []).map(function(u){
     var a = u.args || {};
@@ -8178,7 +8228,7 @@ function aicSuggestions(){
     return base;
   }
   if (curTab === 'industry') return ['반도체 업황(가동률 · 수주 · 생산)과 SK하이닉스 · SOXX 주가를 한 차트로 보여줘', '엔비디아 · TSMC · SK하이닉스 1년 흐름을 겹쳐서 차트로 보여줘', '이 표에서 최근 3개월 강한 섹터와 약한 섹터, 이유를 정리해줘'];
-  if (curTab === 'company' && typeof co !== 'undefined' && co) return [(co.name || co.code) + ' 대차대조표 중심으로 자산 · 부채 · 자본 추이 차트 만들고 분석해줘', (co.name || co.code) + ' 최근 주가 흐름과 학회 리포트가 있으면 요약해줘'];
+  if (curTab === 'company' && typeof co !== 'undefined' && co) return [(co.name || co.code) + ' 밸류에이션 점검해줘 - 멀티플 · DCF 가정 추천하고 작성자 뷰 초안 · 투자의견까지', (co.name || co.code) + ' 대차대조표 중심으로 자산 · 부채 · 자본 추이 차트 만들고 분석해줘', (co.name || co.code) + ' PER 밴드로 지금이 싼지 비싼지 보여줘'];
   if (curTab === 'company') return ['삼성전자랑 SK하이닉스 대차대조표 중심으로 비교 차트 만들어줘 (부채비율도)', '엔비디아 재무제표 열어서 최근 4분기 매출 · 영업이익 보여줘'];
   if (curTab === 'trading') return ['우리 팀 포트폴리오를 점검해줘 - 쏠림 · 위험 · 손익'];
   return ['인플레이션 추이가 잘 보이게 차트 만들어줘', '미국 2년물과 SOFR 최근 흐름을 비교해줘', '버크셔 해서웨이 최근 13F 에서 뭐가 바뀌었어?'];
@@ -8205,10 +8255,19 @@ function aicRender(){
     return '<div class="aic-msg ai">' + aicMd(m.content)
       + (m.actions && m.actions.length ? m.actions.map(function(a, j){ return aicActHtml(a, i, j); }).join('') : '')
       + aicWebHtml(m)
+      + aicCheckHtml(m)
       + '<div class="aic-meta">' + (used.length ? '<span>찾아본 자료: ' + esc(aicUsedTxt(used)) + '</span>' : '')
       + '<button type="button" onclick="aicCopy(' + i + ')">복사</button></div></div>';
   }).join('') + (aicBusy ? aicWaitHtml() : '');
   box.scrollTop = box.scrollHeight;
+}
+/*  팩트체크 표시 (6판) — 서버가 답의 숫자를 도구 결과 · 화면 자료와 대조한 결과  */
+function aicCheckHtml(m){
+  var c = m && m.check; if (!c || !(c.n > 0)) return '';
+  var fl = Array.isArray(c.flagged) ? c.flagged.slice(0, 12) : [];
+  if (!fl.length) return '<div class="aic-chk ok" title="답의 숫자를 이번에 찾아본 자료 · 화면과 하나씩 대조했습니다">✓ <b>숫자 ' + Number(c.n) + '개 근거 확인</b>' + (c.fixed ? ' (한 번 고쳐 씀)' : '') + '</div>';
+  return '<div class="aic-chk bad" title="자료에서 같은 값을 찾지 못한 숫자 - 직접 확인하세요">⚠ <b>근거를 찾지 못한 숫자 ' + fl.length + '개</b>: ' + esc(fl.join(' · '))
+    + ' <span>(' + Number(c.ok) + '/' + Number(c.n) + ' 확인 · 그대로 쓰기 전에 화면 · 원자료로 확인)</span></div>';
 }
 function aicCopy(i){
   var m = aicMsgs[i]; if (!m) return;
@@ -8220,7 +8279,8 @@ function aicCopy(i){
 function aicScreenWhat(){
   if (curTab === 'research') return '팀 지표' + (series && series.length ? ' · 차트 ' + series.length + '개' : '');
   if (curTab === 'industry') return '섹터 표' + (typeof secPx !== 'undefined' && secPx.picks.length ? ' · 가격 차트' : '') + (typeof IC !== 'undefined' && IC.s.length ? ' · 산업 지표 ' + IC.s.length + '개' : '');
-  if (curTab === 'company') return (typeof co !== 'undefined' && co) ? '기업 ' + (co.name || co.code) + (typeof coFinSeries !== 'undefined' && coFinSeries.length ? ' · 재무 차트 ' + coFinSeries.length + '개' : '') : '기업분석';
+  if (curTab === 'company') return (typeof co !== 'undefined' && co) ? '기업 ' + (co.name || co.code) + (typeof coFinSeries !== 'undefined' && coFinSeries.length ? ' · 재무 차트 ' + coFinSeries.length + '개' : '')
+    + (typeof valData !== 'undefined' && valData && valData.code === co.code ? ' · 밸류에이션' : '') : '기업분석';
   if (curTab === 'ai') return (typeof aiRep !== 'undefined' && aiRep) ? 'AI 리포트' : 'AI 분석';
   return (typeof AIC_TAB_NM !== 'undefined' && AIC_TAB_NM[curTab] ? AIC_TAB_NM[curTab] : '지금') + ' 화면';
 }
@@ -8240,6 +8300,29 @@ function aicSeriesLine(s){
   return head + '\n  최신 ' + last.d + ' = ' + aicNum(last.v) + (ya ? ' · 1년 전(' + ya.d + ') ' + aicNum(ya.v) : '')
        + ' · 구간 최저 ' + aicNum(lo.v) + '(' + lo.d + ') 최고 ' + aicNum(hi.v) + '(' + hi.d + ')'
        + '\n  월별(마지막 값): ' + months.join(', ');
+}
+//  밸류에이션 탭 지금 상태 (6판) — 가정 · 방법별 결과 · 지금 vs 과거 배수 · WACC · 내 노트 의견
+function aicValLines(){
+  try {
+    var o = valCompute(), m = valMultiples(), h = valHistMultiples(), w = valWacc(), I = valInputsNow(), cur = valData.cur;
+    var mo = function(v){ return v == null || !isFinite(v) ? '-' : (cur === '원' ? Math.round(v).toLocaleString('en-US') + '원' : '$' + (Math.round(v * 100) / 100)); };
+    var x = function(v){ return v == null || !isFinite(v) ? '-' : (Math.round(v * 100) / 100) + '배'; };
+    var L = ['  [밸류에이션 탭] 현재가 ' + mo(valData.px) + ' · 최근 결산 ' + ((valData.f.periods || []).slice(-1)[0] || '?') + ' · 주식 수 ' + (valData.shares ? Math.round(valData.shares).toLocaleString('en-US') : '-')];
+    L.push('  가정: 매출 성장률 ' + I.growth + '% · 영업이익률 ' + I.margin + '% · WACC ' + I.wacc + '% · 영구성장률 ' + I.terminal + '% · ' + I.years + '년 · 법인세 ' + I.tax + '%'
+         + ' · 목표 PER ' + (I.per || '(과거 중앙값 ' + x(h.per) + ')') + ' · PBR ' + (I.pbr || '(' + x(h.pbr) + ')') + ' · EV/EBITDA ' + (I.ev_ebitda || '(' + x(h.ev) + ')')
+         + ' · EV/매출 ' + (I.ev_sales || '(' + x(h.evRev) + ')') + ' · 감가상각률 ' + (I.dep || '자동') + ' · 설비투자율 ' + (I.capex || '자동') + ' · 중간연도 할인 ' + (I.mid_year ? '켬' : '끔'));
+    L.push('  방법별 적정주가: DCF ' + mo(o.dcf) + ' · PER ' + mo(o.per) + ' · PBR ' + mo(o.pbr) + ' · EV/EBITDA ' + mo(o.ev) + ' · EV/매출 ' + mo(o.evrev)
+         + (o.imply && o.imply.g != null && !o.imply.edge ? ' · 역산 DCF 함의 성장률 ' + (Math.round(o.imply.g * 10) / 10) + '%' : '')
+         + (o.tvShare != null ? ' · DCF 중 잔여가치 비중 ' + Math.round(o.tvShare * 100) + '%' : '') + (valData.target ? ' · 애널리스트 목표 ' + mo(valData.target) : ''));
+    L.push('  지금 배수(최근 결산 · 오늘 주가): PER ' + x(m.per) + ' · PBR ' + x(m.pbr) + ' · PSR ' + x(m.psr) + ' · EV/EBITDA ' + x(m.evEbitda) + ' · EV/매출 ' + x(m.evRev)
+         + ' / 과거 결산 가운데값(' + (h.from || '?') + '~' + (h.to || '?') + ', ' + h.n + '개): PER ' + x(h.per) + ' · PBR ' + x(h.pbr) + ' · PSR ' + x(h.psr) + ' · EV/EBITDA ' + x(h.ev)
+         + ' · 매출 CAGR ' + (valData.f.cagr != null ? (Math.round(valData.f.cagr * 10) / 10) + '%' : '-') + ' · 영업이익률 중앙값 ' + (valData.f.margin != null ? (Math.round(valData.f.margin * 10) / 10) + '%' : '-')
+         + ' · ROIC ' + (m.roic != null ? (Math.round(m.roic * 10) / 10) + '%' : '-'));
+    L.push('  WACC 구성: 무위험 ' + (w.rf != null ? w.rf + '%' : '-') + ' · 베타 ' + (w.beta != null ? Math.round(w.beta * 100) / 100 : '-') + ' · 위험프리미엄 ' + w.erp + '% · 자기자본비용 '
+         + (w.ke != null ? Math.round(w.ke * 100) / 100 + '%' : '-') + ' · 타인자본비용 ' + (w.kd != null ? Math.round(w.kd * 100) / 100 + '%' : '-') + ' · 계산 WACC ' + (w.wacc != null ? Math.round(w.wacc * 100) / 100 + '%' : '-'));
+    if (vnRec && vnRec.note && vnLoadedFor === vnKey()) L.push('  내 노트: 투자의견 ' + (vnRec.note.opinion || '미정') + (vnRec.note.target ? ' · 목표 ' + mo(vnRec.note.target) : ''));
+    return L.join('\n');
+  } catch(e){ return '  [밸류에이션 탭] 요약을 만들다 실패: ' + String(e && e.message || e).slice(0, 60); }
 }
 //  산업 지표 차트의 선 하나 — 화면에 보이는 값(변환 뒤) 기준
 function aicIcLine(x){
@@ -8299,6 +8382,7 @@ function aicScreen(){
               return '  - ' + x.label + (x.ratio ? ' (%)' : x.kind === 'fin' ? '' : ' [' + x.code + ']') + ': ' + vs.map(function(v){ return v == null ? '-' : aicNum(v); }).join(', ');
             }).join('\n'));
       }
+      if (typeof valData !== 'undefined' && valData && valData.code === co.code) out.push(aicValLines());
       if (typeof coPricePts !== 'undefined' && coPricePts && coPricePts.length){
         var cp = coPricePts.filter(function(p){ return p && isFinite(p.v); });
         if (cp.length) out.push('  주가 최신 ' + cp[cp.length - 1].d + ' = ' + aicNum(cp[cp.length - 1].v));
@@ -8344,11 +8428,15 @@ async function aicAsk(qIn){
   aicBusy = true; aicT0 = Date.now(); aicSave(); aicRender(); aicTick();
   var sendBtn = $('aicSend'); if (sendBtn) sendBtn.disabled = true;
   try {
-    var hist = aicMsgs.filter(function(m){ return !m.err; }).slice(-12).map(function(m){ return { role: m.role, content: m.content }; });
+    //  앞 답에서 «근거를 찾지 못한 숫자» 는 서버가 다음 차례 근거에서 빼도록 같이 보냅니다
+    var hist = aicMsgs.filter(function(m){ return !m.err; }).slice(-12).map(function(m){
+      return (m.role === 'assistant' && m.check && m.check.flagged && m.check.flagged.length) ? { role: m.role, content: m.content, flagged: m.check.flagged } : { role: m.role, content: m.content }; });
     var d = await edgeCall('ai-chat', { action: 'ask', messages: hist, tab: curTab, screen: sendScr ? aicScreen() : '', menu: aicMenu(), co: aicOpenCo() });
     var acts = (Array.isArray(d.actions) ? d.actions : []).slice(0, 2).map(aicActClean).filter(Boolean);
     var web = (Array.isArray(d.web_sources) ? d.web_sources : []).slice(0, 8).map(function(x){ return { url: String(x && x.url || '').slice(0, 500), title: String(x && x.title || '').slice(0, 140) }; });
-    aicMsgs.push({ role: 'assistant', content: String(d.answer || ''), used: d.used || [], actions: acts, model: d.model, web: web, webNote: d.web_note ? String(d.web_note).slice(0, 200) : '' });
+    var chk = d.check && typeof d.check === 'object' ? { n: Number(d.check.n) || 0, ok: Number(d.check.ok) || 0, fixed: !!d.check.fixed,
+              flagged: (Array.isArray(d.check.flagged) ? d.check.flagged : []).slice(0, 12).map(function(x){ return String(x).slice(0, 30); }) } : null;
+    aicMsgs.push({ role: 'assistant', content: String(d.answer || ''), used: d.used || [], actions: acts, model: d.model, web: web, webNote: d.web_note ? String(d.web_note).slice(0, 200) : '', check: chk });
     //  그 탭에 이미 있으면 바로 그립니다 · 다른 탭이면 카드의 «이동해서 만들기» 단추를 기다립니다 (학회장 지시)
     var mi = aicMsgs.length - 1;
     //  ⚠️ 차례대로 (기다리며) — 동시에 돌리면 둘째 차트가 첫째를 바로 덮어, 첫째 «내 묶음» 저장과 되돌리기가 둘째 것을 담았습니다
@@ -8373,7 +8461,9 @@ async function aicAsk(qIn){
    · 그린 뒤에는 «되돌리기» (바로 전 차트로 · 이 창을 닫기 전까지) · «다시 그리기».
    · 모델 말을 그대로 믿지 않습니다: 아는 팀 · 묶음 · 지표 모양 · 종목 모양만 · 차트 8개 / 가격 차트 6개까지.
    · 비서가 고를 재료(탭 · 팀 · 묶음 · 지표 코드)는 aicMenu() 로 질문과 같이 보냅니다.                       */
-var AIC_ACT_TAB = { macro: 'research', price: 'industry', sector: 'industry', industry: 'industry', company: 'company' };
+var AIC_ACT_TAB = { macro: 'research', price: 'industry', sector: 'industry', industry: 'industry', company: 'company', valuation: 'company' };
+var AIC_VAL_IN = { growth:['매출 성장률','%'], margin:['영업이익률','%'], wacc:['WACC','%'], terminal:['영구성장률','%'], years:['추정 기간','년'], tax:['법인세율','%'],
+                   per:['목표 PER','배'], pbr:['목표 PBR','배'], ev_ebitda:['목표 EV/EBITDA','배'], ev_sales:['목표 EV/매출','배'], dep:['감가상각률','%'], capex:['설비투자율','%'] };
 var AIC_CO_SUB = { prof:'개요', val:'밸류에이션', fin:'재무제표', price:'주가', disc:'공시', own:'지분', f13:'13F' };
 var AIC_IND_SEC = { price:'가격 차트', indicators:'산업 지표 차트', sector:'섹터·종목 모니터', bottleneck:'병목 모니터' };
 var AIC_FS = ['재무상태표', '손익계산서', '현금흐름표', 'summary'];
@@ -8447,6 +8537,25 @@ function aicActClean(a){
     a.fy_note = a.fy_note ? String(a.fy_note).replace(/[<>]/g, '').slice(0, 160) : '';
     return a.companies.length && (a.accounts.length || a.ratios.length) ? a : null;
   }
+  if (t === 'valuation'){
+    a.company = aicCoOk(a.company);
+    if (!a.company) return null;
+    var inp = {}, i0 = a.inputs && typeof a.inputs === 'object' ? a.inputs : {};
+    Object.keys(AIC_VAL_IN).forEach(function(k){ if (aicOwn(i0, k) && i0[k] != null && isFinite(Number(i0[k]))) inp[k] = Number(i0[k]); });
+    if (typeof i0.mid_year === 'boolean') inp.mid_year = i0.mid_year;
+    a.inputs = inp;
+    a.methods = (Array.isArray(a.methods) ? a.methods : []).filter(function(m){ return VAL_PICK_ALL.indexOf(m) >= 0; });
+    a.chart = aicOwn(VAL_BAND_NAME, a.chart) ? a.chart : null;
+    var v0 = a.view && typeof a.view === 'object' ? a.view : {}, vw = {};
+    if (['매수', '중립', '매도'].indexOf(v0.opinion) >= 0) vw.opinion = v0.opinion;
+    if (Number(v0.target) > 0) vw.target = Number(v0.target);
+    [['why', 400], ['thesis', 1500], ['assumptions', 1500], ['risks', 800]].forEach(function(f){ if (v0[f[0]]) vw[f[0]] = String(v0[f[0]]).replace(/[<>]/g, '').slice(0, f[1]); });
+    a.view = vw;
+    //  서버 팩트체크 — 노트 초안의 숫자 중 근거를 못 찾은 것
+    a.check = a.check && Array.isArray(a.check.flagged)
+      ? { n: Number(a.check.n) || 0, flagged: a.check.flagged.slice(0, 12).map(function(x){ return String(x).replace(/[<>]/g, '').slice(0, 40); }) } : null;
+    return (Object.keys(inp).length || a.methods.length || a.chart || Object.keys(vw).length) ? a : null;
+  }
   if (t === 'open'){
     if (a.team && !aicOwn(MACRO_TEAMS, a.team)) a.team = null;
     if (ALL_PANES.indexOf(a.tab) < 0 || a.tab === 'admin') return null;
@@ -8468,6 +8577,7 @@ function aicActWhere(a){
   if (a.type === 'sector') s += ' › 섹터·종목 모니터';
   if (a.type === 'industry') s += ' › 산업 지표 차트';
   if (a.type === 'company') s += ' › ' + ((a.companies[0] && a.companies[0].name) || '') + ' › 재무 차트';
+  if (a.type === 'valuation') s += ' › ' + a.company.name + ' › 밸류에이션';
   if (a.type === 'open'){
     if (a.company) s += ' › ' + a.company.name;
     if (a.sub) s += ' › ' + AIC_CO_SUB[a.sub];
@@ -8507,6 +8617,12 @@ function aicActWhat(a){
     a.symbols.forEach(function(x){ parts.push(secPxNameOf(x.src, x.sym)[0] + ' ' + x.sym); });
     return parts.join(' · ') + (a.tf ? ' · ' + (AIC_TF_NM[a.tf] || a.tf) : '') + (a.years ? ' · 최근 ' + a.years + '년' : '');
   }
+  if (a.type === 'valuation'){
+    var parts2 = Object.keys(a.inputs).filter(function(k){ return AIC_VAL_IN[k]; }).map(function(k){ return AIC_VAL_IN[k][0] + ' ' + num(a.inputs[k], a.inputs[k] % 1 ? (a.inputs[k] * 10 % 1 ? 2 : 1) : 0) + AIC_VAL_IN[k][1]; });
+    if (a.chart) parts2.push(VAL_BAND_NAME[a.chart]);
+    if (a.methods.length) parts2.push('방법: ' + a.methods.map(function(m){ return VAL_PICK_NAME[m] || m; }).join('·'));
+    return parts2.join(' · ') || '작성자 뷰 초안';
+  }
   if (a.type === 'company')
     return a.companies.map(function(c){ return c.name; }).join(' vs ') + ' · '
          + a.accounts.map(function(x){ return x.name; }).concat(a.ratios).join(' · ')
@@ -8534,6 +8650,9 @@ function aicActHtml(a, i, j){
     + (a.dropped && a.dropped.length ? '<div class="x">' + esc((a.type === 'company' ? '확인하지 못해 뺀 것: ' : '확인하지 못해 뺀 지표: ') + a.dropped.join(' / ')) + '</div>' : '')
     + (a.save_as ? '<div class="x">' + esc('그리면 «내 묶음» 에 «' + a.save_as + '» 로 남깁니다') + '</div>' : '')
     + (a.fy_note ? '<div class="x">' + esc(a.fy_note) + '</div>' : '')
+    + (a.type === 'valuation' && a.view && Object.keys(a.view).length ? '<div class="x">' + esc('내 밸류에이션 노트(나만 보임)에 작성자 뷰 초안'
+        + (a.view.opinion ? ' · 투자의견 ' + a.view.opinion : '') + (a.view.target ? ' · 목표 ' + num(a.view.target, a.view.target < 1000 ? 2 : 0) : '') + ' - 그린 뒤 고쳐 쓰세요') + '</div>'
+        + (a.check && a.check.flagged.length ? '<div class="x aic-chk-x">' + esc('⚠ 노트 초안에서 근거를 찾지 못한 숫자: ' + a.check.flagged.join(' · ') + ' - 직접 확인하세요') + '</div>' : '') : '')
     + (a.notes && a.notes.length ? '<div class="x">' + esc('주석 핀 ' + a.notes.length + '개: ' + a.notes.map(function(n){ return n.date.slice(0, 7) + ' ' + n.text; }).join(' · ')) + '</div>' : '')
     + aicCiteHtml(a, i, j)
     + '<div class="b">' + btn + '</div></div>';
@@ -8606,7 +8725,7 @@ function aicActReveal(a){
   setTimeout(function(){
     var secEl = { price: 'pxCard', indicators: 'icCard', sector: 'secCard', bottleneck: 'bnCard' };
     var el = a.type === 'macro' ? $('chartBox') : a.type === 'price' ? $('pxCard') : a.type === 'sector' ? $('secCard')
-           : a.type === 'industry' ? $('icCard') : a.type === 'company' ? $('coFinBox')
+           : a.type === 'industry' ? $('icCard') : a.type === 'company' ? $('coFinBox') : a.type === 'valuation' ? $('valTiles')
            : (a.type === 'open' && a.section) ? $(secEl[a.section]) : (a.type === 'open' && a.statement) ? $('coFinBox') : null;
     if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: (a.type === 'macro' || a.type === 'company' || a.statement) ? 'center' : 'start' });
   }, 160);
@@ -8625,6 +8744,7 @@ function aicSnap(a){
   //  ⚠️ 산업분석을 한 번도 안 열었으면 기억해 둔 차트를 먼저 읽고 찍습니다 (안 그러면 되돌리기가 빈 차트로 덮음)
   if (a.type === 'industry'){ if (!icInited){ icInited = true; icStoreLoad(); } return { tab: curTab, ic: icSnapshot() }; }
   if (a.type === 'company') return { tab: curTab, co: coFinSnapshot() };
+  if (a.type === 'valuation') return { tab: curTab, val: valSnapshot() };
   return { tab: curTab, team: macroTeam };
 }
 function aicSetRange(mode, yrs){
@@ -8701,6 +8821,9 @@ async function aicActApply(i, j, auto){
     } else if (a.type === 'company'){
       aicGoTab('company');
       await coFromAi(a);
+    } else if (a.type === 'valuation'){
+      aicGoTab('company');
+      await valFromAi(a, snap.val);
     } else if (a.type === 'open'){
       aicGoTab(a.tab);
       if (a.tab === 'research' && a.team && MACRO_TEAMS[a.team]) setMacroTeam(a.team);
@@ -8771,6 +8894,9 @@ async function aicActUndo(i, j, quiet){
   } else if (a.type === 'company'){
     aicGoTab('company');
     try { await coFinRestore(snap.co); } catch(e){}
+  } else if (a.type === 'valuation'){
+    aicGoTab('company');
+    try { await valRestore(snap.val, a); } catch(e){}
   } else if (a.type === 'macro'){
     aicGoTab('research');
     if (snap.team && MACRO_TEAMS[snap.team] && macroTeam !== snap.team) setMacroTeam(snap.team);
@@ -8825,6 +8951,9 @@ function aicMenu(){
       + ' / indicators (매크로와 같은 규칙) + symbols (관련 종목 · ETF 주가) · 합쳐 8개');
     L.push('[기업분석 = kind company · open company] 칸(sub): ' + Object.keys(AIC_CO_SUB).map(function(k){ return k + ' ' + AIC_CO_SUB[k]; }).join(' · ')
       + ' / 재무제표(statement): 재무상태표(대차대조표) · 손익계산서 · 현금흐름표 · summary / 비율(ratios): ' + CO_RATIO_LIST.join(' · '));
+    L.push('[밸류에이션 = kind valuation] inputs: ' + Object.keys(AIC_VAL_IN).map(function(k){ return k + '(' + AIC_VAL_IN[k][0] + ' ' + AIC_VAL_IN[k][1] + ')'; }).join(' · ')
+      + ' / methods: ' + VAL_PICK_ALL.join(' · ') + ' / val_chart: ' + Object.keys(VAL_BAND_NAME).map(function(k){ return k + ' ' + VAL_BAND_NAME[k]; }).join(' · ')
+      + ' / view_note: opinion(매수·중립·매도) · target · why · thesis · assumptions · risks → 학회원 본인 노트');
     L.push('[산업분석 카드(section)] ' + Object.keys(AIC_IND_SEC).map(function(k){ return k + ' ' + AIC_IND_SEC[k]; }).join(' · ')
       + ' · [AI 분석] open ai + report_id · [파생상품] open deriv + symbol(미국 티커) · [자금흐름] open flow + flow dark|cong');
     L.push('[목록 밖 지표] FRED 전체(search_fred · 연준 자료 포함) · BLS 원본(bls_series · source bls) · BEA 원본(search_bea → bea_lines · source bea · item_code 줄|주기) · 한국은행 ECOS(search_ecos → ecos_items) · World Bank WDI(search_worldbank · source wb · item_code 나라 ISO3 KOR USA CHN JPN DEU GBR WLD) - make_chart 에 그대로 넣으면 화면이 받아 그립니다 · 중요한 시점은 annotations 로 핀');
@@ -9147,11 +9276,17 @@ function valNum(id){ var e = $(id); return e ? Number(e.value) : NaN; }
     연간 기준으로 최근 값과 몇 해 평균을 함께 봅니다.                  */
 function valPull(d){
   function row(group, names){
-    var list = (d.statements || {})[group] || [];
+    //  ⚠️ (10/6) 포괄손익계산서 한 장으로만 내는 국내 회사는 손익 줄이 거기 있습니다.
+    //     (10/6 점검) 이름 순서가 먼저입니다 — 손익계산서 전체를 먼저 보면 «지배주주 순이익» 이 포괄 쪽에 있을 때
+    //     손익계산서의 «당기순이익»(비지배 몫 포함)을 집었습니다. 이름마다 두 표를 차례로 봅니다 (서버 fpKrRowFor 와 같게).
+    var groups = group === '손익계산서' ? ['손익계산서', '포괄손익계산서'] : [group];
     for (var i = 0; i < names.length; i++){
-      for (var j = 0; j < list.length; j++){
-        if (String(list[j].name).replace(/\s+/g,'') === names[i].replace(/\s+/g,''))
-          return list[j];
+      for (var g = 0; g < groups.length; g++){
+        var list = (d.statements || {})[groups[g]] || [];
+        for (var j = 0; j < list.length; j++){
+          if (String(list[j].name).replace(/\s+/g,'') === names[i].replace(/\s+/g,'') && list[j].values && Object.keys(list[j].values).length)
+            return list[j];
+        }
       }
     }
     return null;
@@ -9186,8 +9321,11 @@ function valPull(d){
   }
   var rev = series(row('손익계산서', ['매출액']));
   var op  = series(row('손익계산서', ['영업이익']));
-  var net = series(row('손익계산서', ['당기순이익']));
-  var eq  = series(row('재무상태표', ['자본총계']));
+  /*  ⚠️ (10/6) PER · EPS 의 분자는 <지배주주 몫> 입니다. 국내 연결 손익계산서의 «당기순이익» 은 비지배 몫까지 든 값이라
+      자회사가 많은 회사(지주 · 그룹사)는 PER 이 낮게, PER 기준 적정주가가 높게 나왔습니다. 있으면 지배주주 순이익을 씁니다.  */
+  var net = series(row('손익계산서', ['지배주주 순이익', '당기순이익']));
+  //  (10/6 점검) PBR · BPS 의 자본도 <지배주주 몫> — 국내 «자본총계» 는 비지배지분까지 든 값입니다 (미국 표의 자본총계는 원래 지배 몫)
+  var eq  = series(row('재무상태표', ['지배주주지분', '자본총계']));
   var ast = series(row('재무상태표', ['자산총계']));
   var lia = series(row('재무상태표', ['부채총계']));
   /*  ⚠️ 여기가 <현금성자산만> 이었습니다. UiPath 는 현금을 단기·장기 채권에
@@ -9195,7 +9333,11 @@ function valPull(d){
       — EV/Sales 가 3.5배로 찍혔는데 맞는 값은 3배 아래였습니다. 기업가치에서
       빼는 «현금» 은 현금성자산 + 단기 투자 + 장기 유가증권입니다.            */
   var cashEq = series(row('재무상태표', ['현금성자산']));
-  var cashSt = series(row('재무상태표', ['단기투자자산', '단기금융상품']));
+  //  (10/6 점검) 국내는 단기투자자산 · 단기금융상품이 <다른 줄> 입니다 — 첫 줄만 집어 나머지가 빠졌습니다 (서버 사실표는 둘 다 더함)
+  var cashSt = (function(){
+    var a = series(row('재무상태표', ['단기투자자산'])), b = series(row('재무상태표', ['단기금융상품']));
+    return per.map(function(_k, i){ return (a[i] == null && b[i] == null) ? null : Math.abs(a[i] || 0) + Math.abs(b[i] || 0); });
+  })();
   var cashLt = series(row('재무상태표', ['장기 유가증권']));
   var cash = cashEq.map(function(v, i){
     var b = cashSt[i], c = cashLt[i];
@@ -9216,15 +9358,28 @@ function valPull(d){
 
       ⚠️ 이자비용은 <모든 차입금> 에 붙습니다. 분모만 장기로 두면 kd 가
          부풀어 WACC 가 같이 올라갑니다 — 그쪽도 이 수정으로 맞습니다.   */
-  var dbtL = series(row('재무상태표', ['장기차입금']));
-  var dbtS = series(row('재무상태표', ['단기차입금']));
+  /*  ⚠️ (10/6 점검) 국내 표는 사채 · 유동성장기부채 · 유동성사채가 <따로 된 줄> 입니다 (서버가 나눠서 줍니다).
+      장기 + 단기차입금만 더하면 SK하이닉스 · 현대차처럼 사채가 큰 회사의 차입금이 몇 분의 일로 나왔습니다 (서버 사실표는 다섯 줄을 다 더함).
+      미국 표에는 이 세 줄이 없습니다 (단기차입금에 유동성 장기부채가 이미 들어 있음) — 겹치지 않습니다.  */
+  function sumRows(names){
+    var rs = names.map(function(n){ return series(row('재무상태표', [n])); });
+    return per.map(function(_k, i){
+      var any = false, t = 0;
+      rs.forEach(function(r){ if (r[i] != null){ any = true; t += Math.abs(r[i]); } });
+      return any ? t : null;
+    });
+  }
+  var dbtL = sumRows(['장기차입금', '사채']);
+  var dbtS = sumRows(['단기차입금', '유동성장기부채', '유동성사채']);
   var dbt  = dbtL.map(function(v, i){
     var a = dbtL[i], b = dbtS[i];
     if (a == null && b == null) return null;
-    return Math.abs(a || 0) + Math.abs(b || 0);
+    return (a || 0) + (b || 0);
   });
-  //  WACC 의 타인자본비용을 내려면 이자비용이 필요합니다
-  var itr = series(row('손익계산서', ['이자비용', '금융비용']));
+  /*  WACC 의 타인자본비용을 내려면 이자비용이 필요합니다.
+      ⚠️ (10/6 점검) 국내 표에는 이자비용 줄이 없고 «금융비용» 만 있습니다 — 외환차손 · 파생상품 손실까지 든 값이라
+      이자비용으로 쓰면 Kd 가 부풀었습니다. 이자비용 줄만 씁니다 (없으면 WACC 가 «국채금리 + 1.5%p» 로 대신).  */
+  var itr = series(row('손익계산서', ['이자비용']));
   /*  ⚠️ 운전자본 — DCF 에서 빠져 있던 항목입니다.
       매출채권 + 재고자산 − 매입채무. 매출이 매년 g% 씩 자라는 모형이라
       이 셋도 같이 자랍니다. 그만큼은 <현금으로 안 남고 묶입니다>.     */
@@ -9287,7 +9442,10 @@ function valPull(d){
               : (ms[ms.length/2 - 1] + ms[ms.length/2]) / 2)
             : ((lrev && lop != null) ? lop / lrev * 100 : null);
 
-  var eps = series(row('손익계산서', ['EPS (희석)', 'EPS', '주당순이익']));
+  /*  ⚠️ (10/6) 국내 표의 줄 이름은 «희석주당이익 · 기본주당이익» 입니다. 미국 이름만 찾아서 국내 종목은 EPS 가 늘 비었고 —
+      과거 PER 을 한 번도 못 냈습니다 (PER 기준 적정주가가 «지금 PER» 로 물러나 늘 현재가와 같게 나옴).
+      그해 주식 수(순이익 ÷ EPS)도 못 되살려서 PBR · EV 과거 배수가 전부 «지금 주식 수» 로 셌습니다.  */
+  var eps = series(row('손익계산서', ['EPS (희석)', '희석주당이익', 'EPS', '주당순이익', '기본주당이익']));
   var ends = ends0;
 
   return {
@@ -9311,7 +9469,8 @@ function valPull(d){
       return (a || 0) + (b || 0) - (c || 0);
     })(),
     ar: last(arc), inv: last(inv), ap: last(apy),
-    minority: mag(last(mnri)), preferred: mag(last(pfd)),
+    //  (10/6 점검) 비지배지분은 부호 그대로 (자회사 적자로 음수인 회사가 있습니다 — 크기로 바꾸면 반대로 뺐습니다)
+    minority: last(mnri), preferred: mag(last(pfd)), minSeries: mnri, pfdSeries: pfd,
     cagr: cagr, margin: margin, marginLast: (lrev && lop != null) ? lop / lrev * 100 : null,
     /*  ── 감가상각률 · 설비투자율의 <여러 해 중앙값> ──────────
 
@@ -9384,6 +9543,7 @@ async function valMarketInputs(){
          탭을 눌렀느냐로 WACC 와 적정주가가 갈립니다. 관측창을 2년으로
          못 박고, 이미 받아둔 주가가 있어도 <그 2년만> 잘라 씁니다.   */
   valBeta = null;
+  var gen = valGen;
   try {
     var idx = co.market === 'KR' ? { source:'quote_kr', code:'069500' }
                                  : { source:'quote_us', code:'SPY' };
@@ -9393,14 +9553,34 @@ async function valMarketInputs(){
     var stock = (have.length >= 200) ? have
       : ((await edge({ source: quoteSource(co.market), code: co.code,
                        start: from })).points || []);
-    valBeta = calcBeta(stock, ix.points || []);
+    if (gen === valGen) valBeta = calcBeta(stock, ix.points || []);   //  그사이 회사를 바꿨으면 안 씀
   } catch(e){ /* 지수를 못 받으면 베타 없이 갑니다 */ }
 }
 
-async function valLoad(force){
+/*  10/6: 기다릴 수 있게 — AI 비서가 «불러온 뒤 가정을 넣기» 를 하려면 끝나는 때를 알아야 합니다.
+    부르는 중에 또 부르면 같은 약속(promise)을 돌려줍니다 (예전엔 그냥 돌아가서 기다릴 수가 없었습니다).  */
+var valLoadP = null, valMktP = null;
+/*  ⚠️ (10/6 점검) 회사를 바꾸는 사이에 앞 회사의 불러오기가 끝나면 — A 의 재무제표에 B 의 주가 · 목표가가 섞인 valData 가
+    «B» 이름으로 남았습니다 (다시 열어도 안 고쳐짐). 회사를 고를 때마다 세대(valGen)를 올리고, 기다린 뒤에 세대가 바뀌었으면 버립니다.  */
+var valGen = 0, valLoadPGen = -1;
+function valCoKey(c){ return c ? c.market + '|' + c.code : ''; }
+function valReset4Co(){
+  valGen++; valData = null; valLoadP = null; valMktP = null; valBusy = false; valBeta = null;
+}
+function valLoad(force){
+  if (valLoadP && valLoadPGen === valGen) return valLoadP;
+  if (co && vnLoadedFor !== co.market + '|' + co.code) valNoteLoad();
+  var p = valLoadInner(force);
+  valLoadP = p; valLoadPGen = valGen;
+  p.then(function(){ if (valLoadP === p) valLoadP = null; }, function(){ if (valLoadP === p) valLoadP = null; });
+  return p;
+}
+async function valLoadInner(force){
   if (!co){ warn('valWarn','먼저 기업을 선택해주세요.'); return; }
   if (valBusy) return;
-  if (valData && valData.code === co.code && !force){ valDraw(); return; }
+  if (valData && valData.key === valCoKey(co) && !force){ valDraw(); return; }
+  var gen = valGen, me = co;
+  var stale = function(){ return gen !== valGen || co !== me; };
   valBusy = true;
   $('valTiles').innerHTML = '<div class="empty" style="padding:22px">재무제표를 불러오는 중…</div>';
   warn('valWarn','');
@@ -9409,7 +9589,11 @@ async function valLoad(force){
     var d = await edgeCo({ action: co.market === 'KR' ? 'kr_fin_full' : 'us_fin_full',
                            code: co.market === 'KR' ? co.corp_code : co.cik,
                            period: 'annual' });
+    if (stale()) return;
     var f = valPull(d);
+    /*  ⚠️ (10/6 점검) 국내 «우선주» 줄은 우선주 <자본금(액면)> 입니다 — 시장가치가 아니라 빼면 엉뚱합니다.
+        국내 EPS · 지배주주 순이익 · 자본은 보통주 + 우선주 주주 몫이라, 우선주는 <주식 수에 더해서> 맞춥니다 (아래).  */
+    if (co.market === 'KR'){ f.preferred = null; f.pfdSeries = null; }
     if (!f.rev && !f.net){
       $('valTiles').innerHTML = '';
       warn('valWarn','재무제표에서 매출·순이익을 찾지 못해 계산할 수 없습니다.');
@@ -9425,6 +9609,10 @@ async function valLoad(force){
     if (d.shares && Number(d.shares.value) > 0){
       shares = Number(d.shares.value);
       sharesNote = d.shares.basis || '';
+      /*  ⚠️ (10/6 점검) 국내는 보통주 수만 왔고 우선주(d.shares.pref)는 따로 옵니다. 순이익 · 자본은 우선주 몫까지라
+          보통주로만 나누면 PER 이 작게(삼성전자 모양 12% 싸 보임) · 적정주가가 크게 나왔습니다. 우선주도 같은 값으로 셉니다.  */
+      var prefN = Number(d.shares.pref);
+      if (co.market === 'KR' && prefN > 0){ shares += prefN; sharesNote = (sharesNote ? sharesNote + ' ' : '') + '(보통주 + 우선주 ' + num(prefN, 0) + '주)'; }
     }
     /*  ⚠️ 주가가 없으면 밸류에이션이 <통째로> 빕니다.
 
@@ -9445,6 +9633,7 @@ async function valLoad(force){
       try {
         var pr = await edge({ source: quoteSource(co.market), code: co.code,
                               start: shiftIso(today(), -2, 0) });
+        if (stale()) return;
         var pp = (pr.points || []).filter(function(x){ return x.v > 0; });
         if (pp.length){
           px = pp[pp.length-1].v;
@@ -9469,6 +9658,7 @@ async function valLoad(force){
         <항상> 불러옵니다. 실패해도 아래 역산으로 이어집니다.            */
     if (!coProf){
       try { await loadProfile(); } catch(e){ /* 없어도 아래에서 더 시도합니다 */ }
+      if (stale()) return;
     }
     try {
       if (coProf && coProf.found){
@@ -9517,24 +9707,279 @@ async function valLoad(force){
       note = '주당 매출이 주가의 200배가 넘습니다 — 재무제표 단위와 주식 수 단위가 '
            + '어긋났을 때 나오는 모습입니다. <b>개요 · 컨센서스</b> 탭을 다시 불러와 주세요.';
 
-    valData = { code: co.code, f: f, px: px, shares: shares, target: target,
+    /*  10/6: 과거 배수 · 밴드용 긴 주가 — 첫 결산 한 달 전부터 (주가 탭의 3년치로는 «과거 평균» 이 2~3개 결산뿐이었습니다)  */
+    var pxHist = null;
+    try {
+      var e0 = (f.ends || []).filter(Boolean)[0];
+      if (e0){
+        //  (10/6 점검) 미국은 <분할만> 맞춘 주가 — 배당까지 맞춘 값은 옛 주가가 받은 배당만큼 낮아 과거 PER · PBR 이 낮게 나왔습니다
+        var ph = await edge({ source: quoteSource(co.market), code: co.code, start: shiftIso(e0, 0, -1), item_code: co.market === 'US' ? 'split' : '' });
+        pxHist = (ph.points || []).filter(function(x){ return x && x.v > 0; });
+      }
+    } catch(e){ pxHist = null; }
+    if (stale()) return;
+    valData = { code: co.code, key: valCoKey(co), market: co.market, f: f, px: px, shares: shares, target: target, pxHist: pxHist,
                 sharesNote: sharesNote, sharesAsOf: (d.shares && d.shares.as_of) || '',
                 note: note, cur: co.market === 'KR' ? '원' : '$' };
     //  화면 슬라이더를 이 회사 실제 값으로 맞춰줍니다
     valReset(true);
     valDraw();
     //  시장 재료(국채금리·베타)는 뒤에서 받아 WACC 를 채웁니다 — 기다리지 않습니다
-    valMarketInputs().then(function(){
+    valMktP = valMarketInputs().then(function(){
+      if (stale()) return;
       var w = valWacc();
       if (w.wacc != null && w.wacc > 3 && w.wacc < 25)
         $('vWacc').value = (Math.round(w.wacc * 2) / 2).toFixed(1);
       valDraw();
     });
   } catch(e){
+    if (stale()) return;
     $('valTiles').innerHTML = '';
     warn('valWarn', esc(e.message));
+  } finally {
+    if (!stale()) valBusy = false;
   }
-  valBusy = false;
+}
+
+/* ══════════ 내 밸류에이션 노트 (작성자 뷰 · 10/6) ══════════
+   학회장: «작성자의 뷰와 함께 설정 · 기록하고 싶으면 개개인의 화면에서 · 다른 사람 안 보이게 · 브라우저에도 기억해도 되고».
+   · 회사마다 하나. 내 계정(user_val_notes · RLS 본인만 · 임원진도 못 봄)과 이 브라우저에 같이 저장합니다.
+   · 표가 아직 없으면(terminal-밸류노트.sql 실행 전) 브라우저에만 — 화면에 그렇게 적습니다.
+   · 고치면 1초 뒤 저절로 저장 · «지금 가정도 같이 저장» 은 위 가정 칸 값까지.                                   */
+var VN_KEY = 'safe_valnote_v1', VN_OPS = ['매수', '중립', '매도', '미정'];
+var vnRec = null, vnOp = '미정', vnTimer = null, vnTableOk = null, vnLoadedFor = '', vnUid = '', vnPendKey = '';
+function vnKey(){ return co ? co.market + '|' + co.code : ''; }
+/*  ⚠️ (10/6 점검) 브라우저 저장은 <계정마다 따로> — 학회실 PC 처럼 한 브라우저를 여럿이 쓰면 앞 사람의 노트가 다음 사람에게
+    «내 계정 노트 (나만 보임)» 로 보이고, 고치면 그 글이 다음 사람 계정으로 올라갔습니다 (AI 비서 대화 aicStoreKey 와 같은 방식).
+    로그인 아이디를 모르면 브라우저에는 안 씁니다.  */
+function vnStoreKey(){ return vnUid ? VN_KEY + ':' + vnUid : ''; }
+async function vnUidGet(){
+  if (vnUid) return vnUid;
+  try { var ss = await sb.auth.getSession(); vnUid = (ss && ss.data && ss.data.session && ss.data.session.user && ss.data.session.user.id) || ''; } catch(e){}
+  return vnUid;
+}
+function vnLocalAll(){ var k = vnStoreKey(); if (!k) return {}; try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch(e){ return {}; } }
+function vnLocalSet(a){ var k = vnStoreKey(); if (!k) return; try { localStorage.setItem(k, JSON.stringify(a)); } catch(e){} }
+function vnLocalPut(k, rec){
+  try {
+    var a = vnLocalAll(); a[k] = rec;
+    //  너무 쌓이지 않게 최근 80개만
+    var ks = Object.keys(a).sort(function(x, y){ return String(a[y].at || '').localeCompare(String(a[x].at || '')); });
+    ks.slice(80).forEach(function(x){ delete a[x]; });
+    vnLocalSet(a);
+  } catch(e){}
+}
+function vnSt(t){ var e = $('vnSt'); if (e) e.innerHTML = t; }
+function vnOpRender(){
+  var b = $('vnOp'); if (!b) return;
+  b.innerHTML = VN_OPS.map(function(o){ return '<button type="button"' + (vnOp === o ? ' class="on"' : '') + ' onclick="vnSetOp(\'' + o + '\')">' + esc(o) + '</button>'; }).join('');
+}
+function vnSetOp(o){ vnOp = VN_OPS.indexOf(o) >= 0 ? o : '미정'; vnOpRender(); valNoteDirty(); }
+function vnUpRender(){
+  var e = $('vnUp'); if (!e) return;
+  var t = Number(($('vnTarget') || {}).value), px = valData && valData.px;
+  e.textContent = (t > 0 && px > 0) ? '현재가 대비 ' + ((t / px - 1) * 100 >= 0 ? '+' : '') + num((t / px - 1) * 100, 1) + '%' : '';
+}
+function vnRead(){
+  var t = Number(($('vnTarget') || {}).value);
+  return { opinion: vnOp, target: t > 0 ? t : null,
+           why: String(($('vnWhy') || {}).value || '').slice(0, 600), thesis: String(($('vnThesis') || {}).value || '').slice(0, 3000),
+           assumptions: String(($('vnAssume') || {}).value || '').slice(0, 3000), risks: String(($('vnRisk') || {}).value || '').slice(0, 1500) };
+}
+function vnFill(n){
+  n = n || {};
+  vnOp = VN_OPS.indexOf(n.opinion) >= 0 ? n.opinion : '미정'; vnOpRender();
+  if ($('vnTarget')) $('vnTarget').value = n.target > 0 ? n.target : '';
+  if ($('vnWhy')) $('vnWhy').value = n.why || '';
+  if ($('vnThesis')) $('vnThesis').value = n.thesis || '';
+  if ($('vnAssume')) $('vnAssume').value = n.assumptions || '';
+  if ($('vnRisk')) $('vnRisk').value = n.risks || '';
+  vnUpRender();
+}
+function vnMissing(err){ return /user_val_notes|schema cache|does not exist|relation/i.test(String(err && err.message || err || '')); }
+async function valNoteLoad(){
+  if (!co) return;
+  var k = vnKey(); vnLoadedFor = k;
+  await vnUidGet();
+  if (vnKey() !== k) return;
+  var local = vnLocalAll()[k] || null, remote = null;
+  vnFill(local ? local.note : {}); vnRec = local;
+  vnSt(local ? '이 브라우저에 저장된 노트' : '');
+  try {
+    var r = await sb.from('user_val_notes').select('note, inputs, updated_at').eq('market', co.market).eq('code', co.code).maybeSingle();
+    if (r.error){ if (vnMissing(r.error)) vnTableOk = false; }
+    else { vnTableOk = true; remote = r.data || null; }
+  } catch(e){}
+  if (vnKey() !== k) return;                      //  기다리는 사이 다른 회사로
+  //  더 최근 것을 씁니다 (다른 기기에서 고쳤으면 계정 쪽이 최신)
+  if (remote && (!local || String(remote.updated_at || '') > String(local.at || ''))){
+    vnRec = { note: remote.note || {}, inputs: remote.inputs || null, at: remote.updated_at };
+    vnFill(vnRec.note); vnLocalPut(k, vnRec);
+  }
+  vnSt(vnRec ? (vnTableOk ? '내 계정에 저장된 노트 (나만 보임)' : '이 브라우저에 저장된 노트') + (vnRec.at ? ' · ' + esc(String(vnRec.at).slice(0, 16).replace('T', ' ')) : '')
+             : (vnTableOk === false ? '아직 노트가 없습니다 · 계정 저장은 임원진이 terminal-밸류노트.sql 을 돌린 뒤 (지금은 이 브라우저에만)' : '아직 노트가 없습니다 - 적으면 저절로 저장됩니다'));
+}
+/*  ⚠️ (10/6 점검) 1초 뒤 저장이 <그때 열린 회사> 로 저장해서, 고치고 1초 안에 회사를 바꾸면 A 의 글이 B 의 노트로 들어갔습니다.
+    고친 순간의 회사 열쇠를 잡아 두고, 회사를 바꿀 때(pickCompany)는 기다리지 않고 바로 그 열쇠로 저장합니다.  */
+function valNoteDirty(){
+  vnUpRender(); clearTimeout(vnTimer); vnSt('저장 중…');
+  vnPendKey = vnLoadedFor || vnKey();
+  vnTimer = setTimeout(function(){ valNoteSave(false); }, 1000);
+}
+function valNoteFlush(){
+  if (!vnTimer || !vnPendKey) return;
+  clearTimeout(vnTimer); vnTimer = null;
+  var k = vnPendKey; vnPendKey = '';
+  var rec = { note: vnRead(), inputs: (vnRec && vnRec.inputs) || null, at: new Date().toISOString() };
+  vnLocalPut(k, rec);
+  vnWrite(k, rec, true);
+}
+function valInputsNow(){
+  return { growth: valNum('vGrow'), margin: valNum('vMargin'), wacc: valNum('vWacc'), terminal: valNum('vTerm'), years: Number(($('vYears') || {}).value) || 5,
+           tax: valNum('vTax'), per: ($('vPer') || {}).value || '', pbr: ($('vPbr') || {}).value || '', ev_ebitda: ($('vEv') || {}).value || '',
+           ev_sales: ($('vEvRev') || {}).value || '', dep: ($('vDep') || {}).value || '', capex: ($('vCapex') || {}).value || '', mid_year: !!($('vMid') && $('vMid').checked) };
+}
+//  가정 칸에 넣기 — 칸의 최소 · 최대 안으로 (슬라이더는 범위 밖 값을 조용히 잘라 버립니다 · 그 값이 화면과 계산에서 어긋나지 않게)
+function valInputsSet(o){
+  if (!o) return 0;
+  var n = 0;
+  var put = function(id, v){
+    var e = $(id); if (!e || v === undefined) return;
+    if (v === '' || v === null){ if (e.type === 'number'){ e.value = ''; n++; } return; }      //  빈 칸 = 자동(과거 중앙값)
+    var x = Number(v); if (!isFinite(x)) return;
+    var lo = e.min !== '' ? Number(e.min) : -Infinity, hi = e.max !== '' ? Number(e.max) : Infinity;
+    //  영업이익률 슬라이더 바닥보다 낮은(적자) 가정이면 바닥을 내려 줍니다 (−30% 까지)
+    if (id === 'vMargin' && x < lo && x >= -30){ e.min = String(Math.floor(x)); lo = x; }
+    e.value = String(Math.max(lo, Math.min(hi, x))); n++;
+  };
+  put('vGrow', o.growth); put('vMargin', o.margin); put('vWacc', o.wacc); put('vTerm', o.terminal); put('vTax', o.tax);
+  if ([5, 7, 10].indexOf(Number(o.years)) >= 0 && $('vYears')){ $('vYears').value = String(o.years); n++; }
+  put('vPer', o.per); put('vPbr', o.pbr); put('vEv', o.ev_ebitda); put('vEvRev', o.ev_sales); put('vDep', o.dep); put('vCapex', o.capex);
+  if (typeof o.mid_year === 'boolean' && $('vMid')){ $('vMid').checked = o.mid_year; n++; }
+  return n;
+}
+async function valNoteSave(withInputs){
+  clearTimeout(vnTimer); vnTimer = null;
+  if (!co) return;
+  var k = vnKey();
+  //  잡아 둔 열쇠가 지금 회사와 다르면(그사이 회사가 바뀜) 저장하지 않습니다 — 바꿀 때 이미 그 열쇠로 저장했습니다
+  if (vnPendKey && vnPendKey !== k){ vnPendKey = ''; return; }
+  vnPendKey = '';
+  if (vnLoadedFor && vnLoadedFor !== k) return;
+  var rec = { note: vnRead(), inputs: withInputs ? valInputsNow() : ((vnRec && vnRec.inputs) || null), at: new Date().toISOString() };
+  vnRec = rec; vnLocalPut(k, rec);
+  if (vnTableOk === false){ vnSt('이 브라우저에만 저장했습니다 (' + esc(rec.at.slice(11, 16)) + ') · 계정 저장은 terminal-밸류노트.sql 실행 뒤'); return; }
+  try {
+    var u = null; try { u = (await sb.auth.getUser()).data.user; } catch(e){}
+    if (!u){ vnSt('이 브라우저에만 저장했습니다 - 로그인이 끊겼습니다'); return; }
+    var r = await sb.from('user_val_notes').upsert({ user_id: u.id, market: co.market, code: co.code, name: String(co.name || '').slice(0, 80),
+                                                     note: rec.note, inputs: rec.inputs }, { onConflict: 'user_id,market,code' });
+    if (r && r.error){
+      if (vnMissing(r.error)) vnTableOk = false;
+      vnSt('이 브라우저에만 저장했습니다' + (vnTableOk === false ? ' · 계정 저장은 terminal-밸류노트.sql 실행 뒤' : ' - ' + esc(errMsg(r.error))));
+      return;
+    }
+    vnTableOk = true;
+    vnSt('저장됨 ' + esc(new Date().toTimeString().slice(0, 5)) + ' · 내 계정 (나만 보임)' + (withInputs ? ' · 가정 포함' : ''));
+  } catch(e){ vnSt('이 브라우저에만 저장했습니다 - ' + esc(String(e && e.message || e))); }
+}
+function valNoteLoadInputs(){
+  if (vnRec && vnRec.inputs){ valInputsSet(vnRec.inputs); valDraw(); vnSt('저장한 가정을 불러왔습니다'); }
+  else vnSt('저장한 가정이 없습니다 - «지금 가정도 같이 저장» 으로 남겨 두세요');
+}
+function valNoteAskAi(){
+  if (!co){ warn('valWarn', '먼저 기업을 선택해주세요.'); return; }
+  if (typeof aicDock === 'function') aicDock(true);
+  if (typeof aicAsk === 'function')
+    aicAsk(co.name + ' 밸류에이션 점검해줘 - 과거 배수 · 동종업계와 비교해서 가정(성장률 · 이익률 · WACC · 목표 배수)을 추천해 화면에 넣고, '
+         + '사업 구조 · 제품 · 밸류체인 · 강점, 가정 근거, 리스크, 투자의견을 작성자 뷰 초안으로 채워줘');
+}
+/*  AI 비서 (kind valuation) — 회사 열기 → 밸류에이션 → 불러오기 · 시장 재료(WACC) 기다리기 → 가정 · 방법 · 차트 → 노트 초안 (저장)  */
+async function valFromAi(a, sn){
+  var c = a.company;
+  /*  ⚠️ (10/6 점검) 기다리는 동안 학회원이 다른 회사를 열면 — 비서의 가정 · 초안이 <그 회사> 노트로 저장됐습니다. 기다릴 때마다 확인합니다.  */
+  var moved = function(){ return !co || !coSameCo(co, c); };
+  var MOVED = '그사이 다른 회사를 열어 적용을 멈췄습니다 - 다시 누르면 ' + (c && c.name || '') + ' 로 갑니다.';
+  if (!coSameCo(co, c)){ coHits = [c]; await pickCompany(0); }
+  if (!co) throw new Error('기업을 열지 못했습니다.');
+  if (moved()) throw new Error(MOVED);
+  coShow('val');
+  await valLoad();
+  if (moved()) throw new Error(MOVED);
+  //  ⚠️ 시장 재료(국채금리 · 베타)가 늦게 와서 WACC 칸을 다시 채웁니다 — 기다린 뒤에 넣어야 비서의 WACC 가 안 덮입니다
+  if (valMktP){ try { await valMktP; } catch(e){} }
+  if (moved()) throw new Error(MOVED);
+  if (!valData || valData.key !== valCoKey(co)) throw new Error(T('밸류에이션 자료를 불러오지 못했습니다.', 'Valuation data unavailable.'));
+  var n = valInputsSet(a.inputs);
+  if (a.methods && a.methods.length){
+    var pk = a.methods.filter(function(m){ return VAL_PICK_ALL.indexOf(m) >= 0; });
+    if (pk.indexOf('px') < 0) pk.push('px');
+    valPick = pk;
+  }
+  if (a.chart && VAL_BAND_NAME[a.chart]) valBandMode = a.chart;
+  valDraw();
+  var v = a.view || {};
+  if (Object.keys(v).length){
+    if (vnLoadedFor !== vnKey()) await valNoteLoad();
+    if (moved()) throw new Error(MOVED);
+    //  되돌리기용 — 계정에서 불러온 <그 회사의 전 노트> (다른 기기에서 쓴 것까지)
+    if (sn){ sn.preNoteSet = true; sn.preNote = vnRec ? JSON.parse(JSON.stringify(vnRec)) : null; }
+    var cur = vnRead();
+    vnFill({ opinion: v.opinion || cur.opinion, target: v.target != null ? v.target : cur.target, why: v.why || cur.why,
+             thesis: v.thesis || cur.thesis, assumptions: v.assumptions || cur.assumptions, risks: v.risks || cur.risks });
+    await valNoteSave(true);
+    var fl = a.check && a.check.flagged && a.check.flagged.length ? a.check.flagged : null;
+    vnSt(($('vnSt') || {}).innerHTML + ' · <b>AI 비서 초안</b> - 고쳐 쓰세요'
+      + (fl ? ' · <span class="vn-warn">⚠ 근거를 찾지 못한 숫자: ' + esc(fl.join(' · ')) + '</span>' : ''));
+  }
+  return n;
+}
+function valSnapshot(){
+  return { co: coFinSnapshot(), code: co ? co.market + '|' + co.code : '', inputs: valData ? valInputsNow() : null, marginMin: ($('vMargin') || {}).min,
+           pick: valPick ? valPick.slice() : null, band: valBandMode, note: vnRec ? JSON.parse(JSON.stringify(vnRec)) : null, noteFor: vnLoadedFor,
+           allNotes: vnLocalAll() };
+}
+//  노트 하나를 그 회사 열쇠로 직접 씁니다 (지금 열린 회사가 아니어도) — 되돌리기용 · rec 가 없으면 지웁니다
+async function vnWrite(key, rec, keepLocal){
+  var mk = key.split('|')[0], cd = key.split('|')[1];
+  if (!keepLocal){
+    var al = vnLocalAll();
+    if (rec) al[key] = rec; else delete al[key];
+    vnLocalSet(al);
+  }
+  if (vnTableOk === false) return;
+  try {
+    if (rec){
+      var u = (await sb.auth.getUser()).data.user; if (!u) return;
+      var nm = (co && co.market === mk && co.code === cd) ? String(co.name || '').slice(0, 80) : undefined;
+      var row = { user_id: u.id, market: mk, code: cd, note: rec.note || {}, inputs: rec.inputs || null };
+      if (nm) row.name = nm;
+      await sb.from('user_val_notes').upsert(row, { onConflict: 'user_id,market,code' });
+    } else {
+      await sb.from('user_val_notes').delete().eq('market', mk).eq('code', cd);
+    }
+  } catch(e){}
+}
+async function valRestore(sn, a){
+  if (!sn) return;
+  //  ① 비서가 채운 노트 → 그 회사 노트를 전으로 (없었으면 지움) — 계정 · 브라우저 둘 다
+  var aiKey = a && a.company ? a.company.market + '|' + a.company.code : '';
+  /*  ⚠️ (10/6 점검) 노트는 <비서가 실제로 노트를 덮은 뒤>(preNoteSet)에만 되돌립니다. 적용이 노트 전에 실패했는데도 되돌리면
+      브라우저에 없던(다른 기기에서 쓴) 계정 노트를 «없었다» 고 보고 지웠습니다.  */
+  if (a && a.view && Object.keys(a.view).length && aiKey && sn.preNoteSet){
+    var prev = sn.preNote;
+    await vnWrite(aiKey, prev);
+    if (vnKey() === aiKey){ vnRec = prev; vnFill(prev ? prev.note : {}); vnSt(prev ? '되돌렸습니다 (전 노트)' : '되돌렸습니다 (노트 없음)'); }
+  }
+  //  ② 가정 · 방법 · 차트 · 칸 (같은 회사면 그대로 · 다른 회사였으면 그 회사로)
+  if (sn.code && vnKey() === sn.code){
+    if (sn.inputs){ if ($('vMargin') && sn.marginMin != null) $('vMargin').min = sn.marginMin; valInputsSet(sn.inputs); }
+    valPick = sn.pick; valBandMode = sn.band || 'multiples';
+    if (valData) valDraw();
+    coShow(sn.co && sn.co.sub ? sn.co.sub : 'val');
+  } else if (sn.co){
+    await coFinRestore(sn.co);
+  }
 }
 
 /*  슬라이더를 이 회사 실제 실적으로 맞춥니다.
@@ -9724,8 +10169,11 @@ function valMultiples(){
   var mcap = px * sh;
   var debt = f.debt || 0, cash = f.cash || 0;
   var netDebt = debt - cash;
-  var ev = mcap + netDebt;
-  var ebitda = (f.op != null ? f.op : 0) + (f.dep || 0);
+  /*  ⚠️ (10/6 점검) 지금 EV 는 순차입금만 더했는데, EV 기준 적정주가(valCompute)는 비지배지분 · 우선주까지 뺐습니다 —
+      그 회사의 지금 배수를 그대로 넣어도 EV 방법만 현재가보다 낮게 나왔습니다 (지주회사가 늘 저평가로). 같은 다리를 씁니다.  */
+  var ev = mcap + valBridge(f);
+  //  영업이익이 없으면 EBITDA 도 없습니다 (감가상각만으로 «EV/EBITDA» 를 내지 않음 — 은행 · 보험 · 태그 없는 미국 회사)
+  var ebitda = f.op != null ? f.op + (f.dep || 0) : null;
   /*  ⚠️ EV/FCF 가 <무차입 분자 ÷ 차입 후 분모> 였습니다.
       영업활동현금흐름(CFO)은 이자를 <내고 난> 값입니다. 기업가치(EV)는
       채권자 몫까지 포함한 값이고요. 그대로 나누면 레버리지가 높을수록
@@ -9745,7 +10193,7 @@ function valMultiples(){
   out.mcap = mcap;
   out.ev = ev;
   out.netDebt = netDebt;
-  out.ebitda = ebitda > 0 ? ebitda : null;
+  out.ebitda = ebitda != null && ebitda > 0 ? ebitda : null;
   out.fcf = fcf;            //  무차입 (FCFF) — EV 와 짝이 맞습니다
   out.fcfe = fcfe;          //  주주 몫 (FCFE) — 시가총액과 짝이 맞습니다
 
@@ -9781,76 +10229,225 @@ function valMultiples(){
     그래서 기본값을 <b>과거 평균 배수</b>로 씁니다. 애널리스트가 실제로 하는
     방식입니다 — "지금 68배인데 5년 평균은 45배다, 비싸다".
     과거 각 결산 시점의 주가와 그때 실적으로 배수를 내고 평균합니다.      */
-function valHistMultiples(){
-  var out = { per:null, pbr:null, ev:null, evRev:null, n:0, approx:0, from:'', to:'' };
+/*  ── 결산마다의 과거 배수 (10/6 고침 · 밴드 차트와 같이 씀) ─────────────────────
+    ⚠️ 예전에는 주가 탭이 받아 둔 <최근 3년> 주가(coPricePts)로만 셌습니다 — «과거 평균» 이 사실상 2~3개 결산이었습니다.
+       이제 첫 결산부터의 주가(valData.pxHist)로 셉니다 (없으면 예전처럼).
+    ⚠️ 액면분할: 옛 EPS 가 분할 전 기준이면 그해 주식 수(순이익 ÷ EPS)가 지금의 몇 분의 일로 나오고, 분할 반영된 주가 ÷ 옛 EPS 는
+       PER 이 터무니없이 작게 나옵니다 (삼성전자 2018 50:1 · 애플 2014 7:1 · 2020 4:1 · 엔비디아 2021 4:1 · 2024 10:1).
+    ⚠️ (10/6 점검) 처음엔 «지금 주식 수 ÷ 그해 주식 수» 를 ±20% 로 봤는데, 그 폭이면 1.8 배 넘는 거의 모든 값이 어떤 분할과 맞고
+       (앞에서부터 고르니 애플 2019 은 자사주 매입으로 줄어든 3.2배 → 4 가 아니라 3), 유상증자 · 합병으로 늘어난 회사도 분할로 고쳤습니다.
+       이제 <이웃한 결산끼리> 주식 수가 정수배로 뛰는 곳(±10%, 해가 벌어질수록 조금 넓게)만 분할로 보고, 가장 가까운 배수를 고릅니다.
+       최근 결산 → 지금 사이 분할(결산 뒤 분할)도 같은 규칙(±12%). AI 비서(get_valuation)도 같은 식입니다.               */
+var VAL_SPLITS = [2, 3, 4, 5, 6, 7, 8, 10, 15, 20, 25, 30, 40, 50, 100];
+function valSplitK(r, tol){
+  tol = tol || 0.1;
+  if (!(r > 0) || !isFinite(r)) return 1;
+  var inv = r < 1, x = inv ? 1 / r : r;
+  if (x < 1.8) return 1;
+  var best = 0, bd = 1e9;
+  VAL_SPLITS.forEach(function(sp){ var dd = Math.abs(x / sp - 1); if (dd <= tol && dd < bd){ bd = dd; best = sp; } });
+  return best ? (inv ? 1 / best : best) : 1;
+}
+//  해마다 «지금 주식 수 기준» 으로 맞출 배수 (shY = 그해 순이익 ÷ EPS · 없으면 null)
+function valSplitFactors(shY, sharesNow, ends){
+  var n = shY.length, f = [], idx = [], i;
+  for (i = 0; i < n; i++){ f.push(1); if (shY[i] != null && shY[i] > 0) idx.push(i); }
+  if (!idx.length) return f;
+  var last = idx[idx.length - 1], cum = sharesNow > 0 ? valSplitK(sharesNow / shY[last], 0.12) : 1, prev = last;
+  for (i = n - 1; i >= 0; i--){
+    if (i < last && shY[i] != null && shY[i] > 0){
+      var gap = (ends && ends[prev] && ends[i]) ? Math.max(1, Math.round((Date.parse(ends[prev]) - Date.parse(ends[i])) / 3.15576e10)) : (prev - i);
+      if (!(gap >= 1)) gap = 1;
+      cum *= valSplitK(shY[prev] / shY[i], 0.1 + 0.03 * (gap - 1));
+      prev = i;
+    }
+    f[i] = cum;
+  }
+  return f;
+}
+function valHistRows(){
+  var out = { rows: [], approx: 0, split: 0 };
   if (!valData) return out;
   var f = valData.f, sh = valData.shares;
-  var pts = coPricePts || [];
+  var pts = (valData.pxHist && valData.pxHist.length) ? valData.pxHist : (coPricePts || []);
   if (!pts.length || !f.ends || !f.ends.length) return out;
-
   var dates = pts.map(function(p){ return p.d; });
-  var pers = [], pbrs = [], evs = [], evrs = [];
-  var first = '', last = '';
-
+  //  그해 주식 수(순이익 ÷ EPS) — 분할 배수는 주가와 상관없이 모든 결산으로 셉니다
+  var shRaw = f.ends.map(function(_e, i){
+    var e0 = f.epsSeries ? f.epsSeries[i] : null, n0 = f.netSeries ? f.netSeries[i] : null;
+    if (n0 == null || e0 == null || e0 === 0) return null;
+    var q0 = n0 / e0; return isFinite(q0) && q0 > 0 ? q0 : null;
+  });
+  var spF = valSplitFactors(shRaw, sh, f.ends);
   for (var i = 0; i < f.ends.length; i++){
     var end = f.ends[i];
     if (!end) continue;
     var j = idxAtOrBefore(dates, end);
-    if (j < 0) continue;                       //  그 시점 주가가 없으면 건너뜁니다
+    if (j < 0) continue;                                     //  그 시점 주가가 없으면 건너뜁니다
+    //  결산일에서 열흘 넘게 떨어진 주가(상장 전 · 자료 빔)는 그해 주가가 아닙니다
+    if ((Date.parse(end) - Date.parse(dates[j])) / 864e5 > 10) continue;
     var px = Number(pts[j].v);
     if (!(px > 0)) continue;
-    if (!first) first = end;
-    last = end;
-
     var eps = f.epsSeries ? f.epsSeries[i] : null;
-    if (eps != null && eps > 0) pers.push(px / eps);
-
-    /*  ⚠️ 예전에는 모든 과거 연도에 <오늘의 주식 수> 를 곱했습니다.
-        5년 전 1억 주가 오늘 1.5억 주면, 그때 시가총액이 1.5배로
-        부풀려져 과거 PBR 중앙값이 50% 높게 나옵니다. 그 값이 목표
-        배수 기본값으로 쓰이므로 PBR 적정주가가 그대로 50% 높아집니다.
-        (PER 은 주가÷EPS 라 이 영향을 안 받습니다 — 그래서 PER 만
-         맞고 나머지가 틀리는 이상한 모양이었습니다.)
-
-        그해 주식 수는 <당기순이익 ÷ EPS> 로 되살릴 수 있습니다.
-        둘 다 그 해 보고서에 있는 값이라 추정이 아닙니다. 못 구하면
-        오늘 주식 수로 물러서되, 그런 해가 있었는지 세어 둡니다.      */
-    var shY = null;
     var netY = f.netSeries ? f.netSeries[i] : null;
-    if (netY != null && eps != null && eps !== 0){
-      var q = netY / eps;
-      if (isFinite(q) && q > 0) shY = q;
-    }
-    if (shY == null && sh > 0){ shY = sh; out.approx = (out.approx || 0) + 1; }
-
+    var shY = shRaw[i];
+    if (shY != null && spF[i] !== 1){ shY = shY * spF[i]; eps = eps / spF[i]; out.split++; }
+    if (shY == null && sh > 0){ shY = sh; out.approx++; }
+    var r = { end: end, px: px, eps: (eps != null && eps > 0) ? eps : null, per: null, pbr: null, psr: null, ev: null, evRev: null, bps: null, sps: null };
+    if (r.eps) r.per = px / r.eps;
     if (shY > 0){
       var mcap = px * shY;
       var eq = f.eqSeries ? f.eqSeries[i] : null;
-      if (eq != null && eq > 0) pbrs.push(mcap / eq);
-
+      if (eq != null && eq > 0){ r.pbr = mcap / eq; r.bps = eq / shY; }
+      var rv = f.revSeries2 ? f.revSeries2[i] : null;
+      if (rv != null && rv > 0){ r.psr = mcap / rv; r.sps = rv / shY; }
       var dbt = f.debtSeries ? (f.debtSeries[i] || 0) : 0;
       var csh = f.cashSeries ? (f.cashSeries[i] || 0) : 0;
-      var ev = mcap + Math.abs(dbt) - Math.abs(csh);
+      //  (10/6 점검) 지금 EV · 적정주가 다리와 같게 — 그해 비지배지분(부호 그대로) · 우선주(미국)까지
+      var mnY = f.minSeries ? (f.minSeries[i] || 0) : 0, pfY = f.pfdSeries ? Math.abs(f.pfdSeries[i] || 0) : 0;
+      var ev = mcap + Math.abs(dbt) - Math.abs(csh) + mnY + pfY;
       var op = f.opSeries ? f.opSeries[i] : null;
       var dep = f.depSeries ? (f.depSeries[i] || 0) : 0;
       var ebitda = (op != null) ? op + Math.abs(dep) : null;
-      if (ebitda != null && ebitda > 0 && ev > 0) evs.push(ev / ebitda);
-      var rv = f.revSeries2 ? f.revSeries2[i] : null;
-      if (rv != null && rv > 0 && ev > 0) evrs.push(ev / rv);
+      if (ebitda != null && ebitda > 0 && ev > 0) r.ev = ev / ebitda;
+      if (rv != null && rv > 0 && ev > 0) r.evRev = ev / rv;
     }
+    out.rows.push(r);
   }
-  function med(a){
+  return out;
+}
+function valHistMultiples(){
+  var out = { per:null, pbr:null, ev:null, evRev:null, psr:null, n:0, approx:0, split:0, from:'', to:'' };
+  if (!valData) return out;
+  var H = valHistRows(), rows = H.rows;
+  if (!rows.length) return out;
+  function med(k){
+    var a = rows.map(function(r){ return r[k]; }).filter(function(v){ return v != null && isFinite(v); });
     if (!a.length) return null;
     var b = a.slice().sort(function(x,y){ return x - y; });
     return b.length % 2 ? b[(b.length-1)/2] : (b[b.length/2-1] + b[b.length/2]) / 2;
   }
-  out.per = med(pers); out.pbr = med(pbrs); out.ev = med(evs); out.evRev = med(evrs);
-  //  ⚠️ evrs 가 빠져 있었습니다. 적자 기업은 EPS·EBITDA 가 없어 EV/매출만
-  //     남는데, 그때 n 이 0 이 되어 «과거 주가가 모자라 못 냈습니다» 라는
-  //     <사실이 아닌> 안내가 떴습니다.
-  out.n = Math.max(pers.length, pbrs.length, evs.length, evrs.length);
-  out.from = first.slice(0, 4); out.to = last.slice(0, 4);
+  out.per = med('per'); out.pbr = med('pbr'); out.ev = med('ev'); out.evRev = med('evRev'); out.psr = med('psr');
+  //  ⚠️ evRev 가 빠져 있었습니다. 적자 기업은 EPS·EBITDA 가 없어 EV/매출만 남는데, 그때 n 이 0 이 되어
+  //     «과거 주가가 모자라 못 냈습니다» 라는 <사실이 아닌> 안내가 떴습니다.
+  out.n = Math.max.apply(null, ['per', 'pbr', 'ev', 'evRev'].map(function(k){ return rows.filter(function(r){ return r[k] != null; }).length; }));
+  out.approx = H.approx; out.split = H.split;
+  out.from = rows[0].end.slice(0, 4); out.to = rows[rows.length - 1].end.slice(0, 4);
   return out;
+}
+
+/*  ── 멀티플 추이 · 밴드 차트 (10/6) ─────────────────────────────────────────
+    학회장: «멀티플 추이 + PER 밴드 · PBR 밴드 · PSR 도 포함».
+    · 멀티플 추이: 결산마다 PER · PBR · PSR · EV/EBITDA (결산일 주가 ÷ 그해 실적) + 가운데값 점선 + 지금(오늘 주가 · 최근 결산).
+    · 밴드: 주가(일별) 위에 «배수 × 그때 알려진 최근 결산 주당 실적» 선 다섯 개. 배수는 과거 범위를 고르게 나눈 보기 좋은 숫자.
+      주가가 어느 띠에 있는지 = 지금이 과거에 비해 비싼지 싼지.                                                     */
+var valBandMode = 'multiples', valBandChart = null;
+var VAL_BAND_NAME = { multiples: '멀티플 추이', per_band: 'PER 밴드', pbr_band: 'PBR 밴드', psr_band: 'PSR 밴드' };
+function valNiceStep(span){
+  var raw = span / 4; if (!(raw > 0)) return 1;
+  var p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+}
+function valBandLevels(vals){
+  var a = vals.filter(function(v){ return v != null && isFinite(v) && v > 0; }).sort(function(x, y){ return x - y; });
+  if (!a.length) return [];
+  var lo = a[0], hi = a[a.length - 1];
+  if (hi - lo < lo * 0.2){ lo = lo * 0.8; hi = hi * 1.2; }       //  범위가 좁으면 ±20% 로 넓혀 띠가 겹치지 않게
+  var st = valNiceStep(hi - lo), out = [];
+  var x0 = Math.floor(lo / st) * st;
+  for (var x = x0; out.length < 6 && x <= hi + st * 0.5; x += st) if (x > 0) out.push(Math.round(x * 1000) / 1000);
+  return out.slice(0, 6);
+}
+function valBandSet(mode){
+  if (VAL_BAND_NAME[mode]) valBandMode = mode;
+  valBandDraw();
+}
+function valBandDraw(){
+  var box = $('valBandBox'), seg = $('valBandSeg'), note = $('valBandNote');
+  if (seg) seg.innerHTML = Object.keys(VAL_BAND_NAME).map(function(k){
+    return '<button type="button"' + (valBandMode === k ? ' class="on"' : '') + ' onclick="valBandSet(\'' + k + '\')">' + esc(VAL_BAND_NAME[k]) + '</button>'; }).join('');
+  if (!box || typeof echarts === 'undefined' || !valData) return;
+  valBandChart = chartOn(box, valBandChart); if (!valBandChart) return;
+  valBandChart.__axNoKeep = true;
+  var H = valHistRows(), rows = H.rows, m = valMultiples(), cur = valData.cur;
+  var x1 = function(v){ return v == null || !isFinite(v) ? null : Math.round(v * 100) / 100; };
+  if (rows.length < 2){
+    valBandChart.clear();
+    valBandChart.setOption({ title: { text: '결산일 주가가 두 해 이상 있어야 그립니다', left: 'center', top: 'middle', textStyle: { fontSize: 13, fontWeight: 'normal', color: '#8b93a7' } } }, true);
+    if (note) note.textContent = '';
+    return;
+  }
+  var lab = function(r){ return r.end.slice(0, 7); };
+  if (valBandMode === 'multiples'){
+    var keys = [['per', 'PER', m.per], ['pbr', 'PBR', m.pbr], ['psr', 'PSR', m.psr], ['ev', 'EV/EBITDA', m.evEbitda]];
+    var cats = rows.map(lab).concat(['지금']);
+    var pal = (theme && theme.palette) || ['#2c5aa0', '#c0392b', '#1f8a70', '#b7791f'];
+    var ser = [];
+    keys.forEach(function(k, i){
+      var data = rows.map(function(r){ return x1(r[k[0]]); }).concat([x1(k[2])]);
+      if (!data.some(function(v){ return v != null; })) return;
+      var hv = data.slice(0, -1).filter(function(v){ return v != null; }).sort(function(a, b){ return a - b; });
+      var md = hv.length ? (hv.length % 2 ? hv[(hv.length - 1) / 2] : (hv[hv.length / 2 - 1] + hv[hv.length / 2]) / 2) : null;
+      ser.push({ name: k[1], type: 'line', yAxisIndex: k[0] === 'pbr' || k[0] === 'psr' ? 1 : 0, data: data, connectNulls: true, symbolSize: 7, color: pal[i % pal.length],
+        lineStyle: { width: 2 },
+        markLine: md == null ? undefined : { silent: true, symbol: 'none', lineStyle: { type: 'dashed', color: pal[i % pal.length], opacity: .7 },
+          label: { formatter: k[1] + ' 가운데 ' + num(md, md < 10 ? 2 : 1) + '배', fontSize: 10, position: 'insideEndTop' }, data: [{ yAxis: md }] } });
+    });
+    valBandChart.setOption({
+      animation: false,
+      legend: { top: 0, type: 'scroll', textStyle: { fontSize: 11 } },
+      grid: { left: 8, right: 16, top: 34, bottom: 8, containLabel: true },
+      tooltip: { trigger: 'axis', confine: true, valueFormatter: function(v){ return v == null ? '-' : num(v, v < 10 ? 2 : 1) + '배'; } },
+      xAxis: { type: 'category', data: cats },
+      yAxis: [{ type: 'value', name: 'PER · EV/EBITDA (배)', scale: true }, { type: 'value', name: 'PBR · PSR (배)', scale: true, splitLine: { show: false } }],
+      series: ser
+    }, true);
+    if (note) note.innerHTML = '결산마다 <b>결산일 주가 ÷ 그해 실적</b> (' + esc(rows[0].end.slice(0, 4)) + '~' + esc(rows[rows.length - 1].end.slice(0, 4)) + ' · ' + rows.length + '개 결산) · 마지막 칸 «지금» = 오늘 주가 ÷ 최근 결산'
+      + (H.split ? ' · 액면분할로 보이는 ' + H.split + '개 해는 EPS · 주식 수를 분할 뒤 기준으로 맞췄습니다' : '')
+      + (H.approx ? ' · ' + H.approx + '개 해는 그해 주식 수를 몰라 지금 주식 수로 셌습니다' : '')
+      + ' · 점선 = 과거 가운데값 (목표 배수를 비우면 이 값을 씁니다).';
+    return;
+  }
+  //  ── 밴드 ──
+  var kind = valBandMode === 'per_band' ? 'per' : valBandMode === 'pbr_band' ? 'pbr' : 'psr';
+  var perShare = { per: 'eps', pbr: 'bps', psr: 'sps' }[kind];
+  var levels = valBandLevels(rows.map(function(r){ return r[kind]; }));
+  var pts = (valData.pxHist && valData.pxHist.length) ? valData.pxHist : (coPricePts || []);
+  var first = rows[0].end;
+  var px = pts.filter(function(p){ return p.d >= first; });
+  if (!levels.length || px.length < 2){
+    valBandChart.clear();
+    valBandChart.setOption({ title: { text: (kind === 'per' ? '흑자 결산이' : '자료가') + ' 모자라 밴드를 그릴 수 없습니다', left: 'center', top: 'middle', textStyle: { fontSize: 13, fontWeight: 'normal', color: '#8b93a7' } } }, true);
+    if (note) note.textContent = '';
+    return;
+  }
+  //  날짜마다 «그때 알려진 최근 결산» 의 주당 실적 (결산일 기준 계단)
+  var fsDates = rows.map(function(r){ return r.end; }), fsVals = rows.map(function(r){ return r[perShare]; });
+  var stepAt = function(d){ var j = idxAtOrBefore(fsDates, d); return j < 0 ? null : fsVals[j]; };
+  //  하루치 점이 수천 개면 무겁습니다 — 주 1개로 줄입니다
+  var thin = px.filter(function(p, i){ return i % 5 === 0 || i === px.length - 1; });
+  var gold = ['#c7d2e6', '#9fb2d6', '#7891c4', '#5272b0', '#2f5597', '#1f3a6e'];
+  var ser = levels.map(function(lv, i){
+    return { name: VAL_BAND_NAME[valBandMode].replace(' 밴드', '') + ' ' + num(lv, lv < 10 ? 1 : 0) + '배', type: 'line', showSymbol: false, step: 'end',
+      lineStyle: { width: 1.2, type: 'dashed' }, color: gold[Math.min(i, gold.length - 1)],
+      data: thin.map(function(p){ var b = stepAt(p.d); return [p.d, b != null && b > 0 ? Math.round(lv * b * 100) / 100 : null]; }) };
+  });
+  ser.push({ name: '주가', type: 'line', showSymbol: false, lineStyle: { width: 2.2 }, color: '#c0392b', z: 5,
+             data: thin.map(function(p){ return [p.d, p.v]; }) });
+  valBandChart.setOption({
+    animation: false,
+    legend: { top: 0, type: 'scroll', textStyle: { fontSize: 11 } },
+    grid: { left: 8, right: 16, top: 34, bottom: 8, containLabel: true },
+    tooltip: { trigger: 'axis', confine: true, valueFormatter: function(v){ return v == null ? '-' : (cur === '원' ? num(v, 0) + '원' : '$' + num(v, 2)); } },
+    xAxis: { type: 'time' },
+    yAxis: { type: 'value', scale: true, name: cur === '원' ? '원' : '$' },
+    series: ser
+  }, true);
+  var nowM = kind === 'per' ? m.per : kind === 'pbr' ? m.pbr : m.psr;
+  if (note) note.innerHTML = '점선 = 배수 × 그때 알려진 <b>최근 결산</b> ' + ({ eps: 'EPS', bps: '주당순자산(BPS)', sps: '주당매출(SPS)' }[perShare])
+    + ' (결산일마다 계단) · 배수는 과거 범위(' + esc(num(levels[0], 1)) + '~' + esc(num(levels[levels.length - 1], 1)) + '배)를 고르게 나눈 값'
+    + (nowM != null ? ' · <b>지금 ' + esc(VAL_BAND_NAME[valBandMode].replace(' 밴드', '')) + ' ' + esc(num(nowM, nowM < 10 ? 2 : 1)) + '배</b>' : '')
+    + (H.split ? ' · 액면분할 ' + H.split + '개 해는 분할 뒤 기준으로 맞춤' : '') + '.';
 }
 
 /*  목표 배수를 안 넣었을 때 쓰는 기본값 = 과거 평균.
@@ -9953,6 +10550,7 @@ function valDraw(){
 
   valMultBox();
   valWaccBox();
+  try { valBandDraw(); } catch(e){ console.warn('밴드 차트', e); }
   valDrawChart(out, px, mid);
   valGrid();
   valSteps(out);
@@ -10089,8 +10687,8 @@ function valCompute(){
 
   // ── ④ EV/EBITDA ──
   var evm = Number($('vEv').value) || own.ev;
-  var ebitda = (f.op != null ? f.op : 0) + (f.dep || 0);
-  if (evm > 0 && ebitda > 0 && shares && shares > 0){
+  var ebitda = f.op != null ? f.op + (f.dep || 0) : null;
+  if (evm > 0 && ebitda != null && ebitda > 0 && shares && shares > 0){
     var ev = ebitda * evm;
     var eq2 = ev - valBridge(f);
     if (eq2 > 0) res.ev = eq2 / shares;
@@ -10277,9 +10875,10 @@ function valWacc(){
   //  타인자본비용 = 이자비용 ÷ 총차입금
   var kd = (f && f.interest != null && f.debt > 0)
          ? f.interest / f.debt * 100 : null;
+  var kdSrc = kd != null ? 'interest' : 'rf';
   //  이상한 값이면 국채금리에 신용스프레드를 얹어 대신합니다
-  if (kd != null && (kd < 0.3 || kd > 25)) kd = (rf != null) ? rf + 1.5 : null;
-  if (kd == null && rf != null) kd = rf + 1.5;
+  if (kd != null && (kd < 0.3 || kd > 25)){ kd = (rf != null) ? rf + 1.5 : null; kdSrc = 'rf'; }
+  if (kd == null && rf != null){ kd = rf + 1.5; kdSrc = 'rf'; }
 
   var E = m.mcap || null;
   var D = (f && f.debt) ? f.debt : 0;
@@ -10302,7 +10901,7 @@ function valWacc(){
   if (beta == null) missing.push('베타 (주가 회귀 — 주가 자료가 짧으면 못 냅니다)');
   if (!(E > 0))     missing.push('시가총액 (주가 × 주식 수)');
 
-  return { rf: rf, beta: beta, erp: erp, ke: ke, kd: kd,
+  return { rf: rf, beta: beta, erp: erp, ke: ke, kd: kd, kdSrc: kdSrc,
            E: E, D: D, tax: tax * 100, wacc: wacc, missing: missing,
            betaN: valBeta ? valBeta.n : null };
 }
@@ -10335,15 +10934,16 @@ function valImplied(f, mg, w, tg, tax, N, shares){
   var px = valData ? valData.px : null;
   if (!px || !(px > 0) || !(shares > 0) || !f.rev) return null;
   var lo = -0.30, hi = 1.00;
-  var vLo = valDcfAt(f, lo, mg, w, tg, tax, N, shares);
-  var vHi = valDcfAt(f, hi, mg, w, tg, tax, N, shares);
-  if (vLo == null || vHi == null) return null;
+  /*  ⚠️ (10/6 점검) 주주가치가 0 아래면 valDcfAt 이 null 입니다 — 차입이 많은 회사는 −30% 성장에서 늘 null 이라
+      답이 있는데도 역산 칸이 통째로 사라졌습니다. null 은 «주가보다 낮음» 으로 봅니다 (성장률이 오를수록 값이 오르는 식).  */
+  var at = function(gg){ var v0 = valDcfAt(f, gg, mg, w, tg, tax, N, shares); return v0 == null ? -Infinity : v0; };
+  var vLo = at(lo), vHi = at(hi);
+  if (vHi === -Infinity) return null;
   if (vLo > px) return { g: lo * 100, edge: 'low' };    //  가장 낮게 잡아도 주가보다 비쌈
   if (vHi < px) return { g: hi * 100, edge: 'high' };   //  100% 성장해도 주가에 못 미침
   for (var i = 0; i < 60; i++){
     var mid = (lo + hi) / 2;
-    var v = valDcfAt(f, mid, mg, w, tg, tax, N, shares);
-    if (v == null) return null;
+    var v = at(mid);
     if (v < px) lo = mid; else hi = mid;
   }
   return { g: (lo + hi) / 2 * 100, edge: null };
@@ -10430,7 +11030,7 @@ function valMultBox(){
     ['순차입금', big(m.netDebt), '', '차입금 − 현금'],
     ['PER', x(m.per), x(h.per) + ' ' + gap(m.per, h.per), '시가총액 ÷ 당기순이익'],
     ['PBR', x(m.pbr, 2), x(h.pbr, 2) + ' ' + gap(m.pbr, h.pbr), '시가총액 ÷ 자본총계'],
-    ['PSR', x(m.psr, 2), '', '시가총액 ÷ 매출액'],
+    ['PSR', x(m.psr, 2), x(h.psr, 2) + ' ' + gap(m.psr, h.psr), '시가총액 ÷ 매출액'],
     ['EV/EBITDA', x(m.evEbitda), x(h.ev) + ' ' + gap(m.evEbitda, h.ev),
       '자본구조와 무관해 회사 간 비교에 씁니다'],
     ['EV/EBIT', x(m.evEbit), '', '감가상각까지 반영한 영업이익 기준'],
@@ -10460,7 +11060,7 @@ function valMultBox(){
     + (verdict ? '<p class="st-hint" style="margin-top:10px">· ' + verdict + '</p>' : '')
     + (h.n
         ? '<p class="st-hint" style="margin-top:6px">· <b>과거 평균</b>은 각 결산 시점의 주가와 그때 실적으로 낸 배수의 중앙값입니다 ('
-          + h.n + '개 기간). 목표 배수를 비워두면 <b>이 값</b>으로 적정주가를 냅니다 — '
+          + h.n + '개 기간' + (h.split ? ' · 액면분할로 보이는 ' + h.split + '개 해는 EPS · 주식 수를 분할 뒤 기준으로 맞춤' : '') + '). 목표 배수를 비워두면 <b>이 값</b>으로 적정주가를 냅니다 — '
           + '지금 배수를 그대로 쓰면 답이 항상 현재가가 되어 아무 의미가 없습니다.</p>'
         : '<p class="st-hint" style="margin-top:6px">· 과거 주가가 모자라 평균 배수를 못 냈습니다. '
           + '지금 배수를 쓰므로 배수 기준 적정주가는 현재가와 같게 나옵니다 — 비교할 과거가 없다는 뜻입니다.</p>')
@@ -10487,7 +11087,7 @@ function valWaccBox(){
       '<b>가정값</b> — ' + ((co && co.market === 'KR')
         ? '한국 (미국 5.5% + 국가위험)' : '미국 장기 평균 근처')],
     ['자기자본비용 (Ke)', pc(w.ke), 'Rf + β × ERP'],
-    ['타인자본비용 (Kd)', pc(w.kd), '이자비용 ÷ 총차입금(장기+단기)'],
+    ['타인자본비용 (Kd)', pc(w.kd), w.kdSrc === 'interest' ? '이자비용 ÷ 총차입금 (차입금 · 사채 · 유동성 부분)' : '국채금리 + 1.5%p (이자비용 자료가 없거나 이상해서)'],
     ['법인세율', pc(w.tax, 0), '위 슬라이더 값'],
     ['자본구조', (w.E ? 'E ' + num(w.E / (w.E + w.D) * 100, 0) + '% / D '
        + num(w.D / (w.E + w.D) * 100, 0) + '%' : '—'), '시가총액 대 차입금'],
@@ -10631,22 +11231,27 @@ function valSteps(out){
     + (out.tvShare != null
         ? '<br>이 값의 <b>' + num(out.tvShare * 100, 0) + '%</b> 가 잔여가치입니다 — '
           + '비중이 높으면 영구성장률 가정 하나가 결과를 좌우합니다.' : '')]);
+  /*  ⚠️ (10/6 점검) 목표 배수를 비우면 <과거 결산 배수 가운데값> 을 씁니다 (없을 때만 지금 배수) — 설명이 «현재 PER» 이라고 틀리게 적혀 있었습니다.  */
+  var hm = valHistMultiples(), mNow = valMultiples();
+  function srcOf(inputId, hk){
+    if ($(inputId) && $(inputId).value) return ' (직접 넣은 값)';
+    return hm[hk] ? ' (과거 결산 배수 가운데값 · ' + esc(hm.from) + '~' + esc(hm.to) + ')' : ' (과거 배수가 없어 지금 배수)';
+  }
+  var bridgeTxt = '<b>순차입금</b>(차입금 − 현금)' + ((f.minority || f.preferred) ? ' · <b>비지배지분</b>' + (f.preferred ? ' · <b>우선주</b>' : '') : '');
   st.push(['PER 기준',
-    '당기순이익 <code>' + m(f.net) + '</code> × 목표 PER <b>'
-    + (u.per > 0 ? num(u.per, 1) : '—') + '</b> ÷ 주식 수.'
-    + ($('vPer').value ? ' (직접 넣은 값)' : ' (이 회사의 현재 PER 을 그대로 썼습니다)')]);
+    '지배주주 순이익 <code>' + m(f.net) + '</code> × 목표 PER <b>'
+    + (u.per > 0 ? num(u.per, 1) : '—') + '</b> ÷ 주식 수.' + srcOf('vPer', 'per')]);
   st.push(['PBR 기준',
-    '자본총계 <code>' + m(f.eq) + '</code> × 목표 PBR <b>'
-    + (u.pbr > 0 ? num(u.pbr, 2) : '—') + '</b> ÷ 주식 수.'
-    + ($('vPbr').value ? ' (직접 넣은 값)' : ' (이 회사의 현재 PBR)')]);
+    '자본(지배주주 몫) <code>' + m(f.eq) + '</code> × 목표 PBR <b>'
+    + (u.pbr > 0 ? num(u.pbr, 2) : '—') + '</b> ÷ 주식 수.' + srcOf('vPbr', 'pbr')]);
   st.push(['EV/EBITDA 기준',
     'EBITDA <code>' + m(u.ebitda) + '</code> (영업이익 + 감가상각) × 배수 <b>'
     + (u.ev > 0 ? num(u.ev, 1) + '배' : '—') + '</b> 로 기업가치를 구하고, '
-    + '거기서 <b>순차입금</b>(차입금 − 현금)을 빼면 주주 몫입니다.']);
+    + '거기서 ' + bridgeTxt + '을 빼면 주주 몫입니다.' + srcOf('vEv', 'ev')]);
   st.push(['EV/매출 기준',
     '매출 <code>' + m(f.rev) + '</code> × 배수 <b>'
     + (u.evRev > 0 ? num(u.evRev, 2) + '배' : '—') + '</b> 로 기업가치를 구하고 '
-    + '순차입금을 뺍니다.<br>이익이 적자거나 널뛰는 회사는 PER 이 안 먹습니다. '
+    + bridgeTxt + '을 뺍니다.' + srcOf('vEvRev', 'evRev') + '<br>이익이 적자거나 널뛰는 회사는 PER 이 안 먹습니다. '
     + '매출은 남아 있어서 성장주 · 초기기업에 이 배수를 씁니다.']);
   var im2 = out.imply;
   st.push(['역산 DCF',
@@ -10775,8 +11380,10 @@ async function loadProfile(){
   warn('profWarn','');
   try {
     //  이름을 같이 보냅니다 — 예비 창구(Perplexity)가 종목을 찾는 데 씁니다
+    var meP = co;
     var d = await edgeCo({ action:'eod_full', code: co.code, market: co.market,
                            name: co.name });
+    if (co !== meP) return;      //  (10/6 점검) 그사이 다른 회사를 골랐으면 그 회사 화면에 그리지 않습니다
     if (!d.found){
       /*  ⚠️ esc() 를 씌우면 안내에 넣어둔 <b> 가 글자로 보입니다.
           서버가 만든 안내문은 우리가 쓴 것이라 그대로 보여줍니다.
@@ -23927,7 +24534,7 @@ function downloadCSV(){
     화면에 있는 차트 상자를 훑어 전부 다시 맞춥니다. */
 var CHART_BOXES = ['chartBox','corrBox','dtChartBox','dtBarBox','secChart','bnChart','icChart',
   'pieBox','pnlBox','benchBox','stratPrevBox',
-  'coFinBox','coPriceBox',
+  'coFinBox','coPriceBox','valBandBox',
   'dvMapBox','dvTermBox','dvPayBox','dvIvBox','dvOiBox','dvGkBox',
   'dkBox'];
 
@@ -25209,7 +25816,9 @@ async function aiLibLoad(off){
 //  예전 이름을 부르는 곳이 남아 있어도 안 터지게
 function aiLoadList(){ return aiLibLoad(aiLib.off); }
 
+var aiOpenSeq = 0;
 async function aiOpen(id){
+  var mySeq = ++aiOpenSeq;
   try {
     /*  ⚠️ 설정 → AI 리포트 점검의 표에서도 이걸 부릅니다. 그때는 AI 탭이
         숨어 있어서, 그대로 그리면 <안 보이는 화면> 에 그려놓고 아무 일도
@@ -25221,6 +25830,7 @@ async function aiOpen(id){
       if (typeof aiShow === 'function') aiShow('lib');
     }
     var r = await sb.rpc('ai_report_get', { p_id: Number(id) });
+    if (mySeq !== aiOpenSeq) return;          //  (10/6 점검) 늦게 온 앞 요청이 뒤에 연 리포트를 덮지 않게
     if (r.error || !r.data) throw new Error(errMsg(r.error) || '리포트를 찾지 못했습니다.');
     aiRep = r.data;
     //  보관함에서 열면 보관함 쪽에, 새로 만들면 새 리포트 쪽에 그립니다
@@ -25276,7 +25886,8 @@ async function aiAuditAll(){
       //  ⚠️ 화면에서 쓰는 <그 검사 그대로> 돌립니다. 둘이 다르면
       //     «점검은 통과했는데 열어보니 빨간 경고» 가 됩니다.
       var w = aiTargetSanity(sec, px2, cur2, rep && rep.id);
-      if (w) bad.push({ rep: rep, why: w, px: px2, cur: cur2 });
+      //  참고(note info)만 있는 리포트는 «앞뒤가 안 맞음» 이 아닙니다
+      if (w && w.indexOf('note warn') >= 0) bad.push({ rep: rep, why: w, px: px2, cur: cur2 });
     }
     msg.textContent = '';
     if (!seen){
@@ -26056,8 +26667,17 @@ function aiByMethod(v){
   return m;
 }
 
+/*  (10/6 점검) «관망 (매수 보류)» 가 /매수|사/ 에 걸려 «사라» 로 읽혔습니다 — 보류 · 자제 · 관망 · 중립 · 매도 · 축소가 있으면 사라는 말이 아닙니다.  */
+function aiIsBuy(a){
+  a = String(a || '');
+  if (/보류|자제|않|금지|말\s*것|관망|중립|매도|비중\s*축소|hold|avoid|sell|wait/i.test(a)) return false;
+  return /매수|buy|비중\s*확대|사(?:라|세요|기|자|들)/i.test(a);
+}
 function aiTargetSanity(sec, px, cur, repId){
   var out = [];
+  //  (10/6 점검) <참고> 는 따로 — «고평가 결론 · 약세가 없음 · 컨센서스와 차이» 는 앞뒤가 안 맞는 게 아닙니다.
+  //  예전엔 이것만 있어도 학회원에게 «목표가가 현재가와 크게 어긋납니다 - 믿지 마세요» 가 떴습니다.
+  var info = [];
 
   /*  ── 서버가 붙인 딱지 ────────────────────────────────────────
 
@@ -26085,7 +26705,8 @@ function aiTargetSanity(sec, px, cur, repId){
   Object.keys(mb).forEach(function(k){
     var a = mb[k], b = mr[k]; if (!b) return;
     //  배수를 둘 다 읽을 수 있을 때만 (DCF 는 배수가 없습니다)
-    if (a.mul != null && b.mul != null && a.mul <= b.mul)
+    //  (10/6 점검) 같은 배수는 정상 (서버가 지금 배수를 사이에 두고 둘 다 지금 배수로 맞추기도 · 성장 가정만 다른 시나리오) — 서버 callSanity 와 같게
+    if (a.mul != null && b.mul != null && a.mul < b.mul)
       flip.push({ k: k, bull: a, bear: b });
   });
   if (flip.length){
@@ -26150,7 +26771,7 @@ function aiTargetSanity(sec, px, cur, repId){
                                                                       */
     var trAct = aiStr((sec.trader || {}).action);
     var trEn  = aiNum((sec.trader || {}).entry);
-    var wantsBuy = /매수|buy|사/i.test(trAct) || (trEn != null && trEn > 0);
+    var wantsBuy = aiIsBuy(trAct) || (trEn != null && trEn > 0);
     if (hi < px && wantsBuy)
       out.push('<b>고평가라고 보면서 «사라» 고 합니다.</b> '
         + '가장 높은 목표가가 ' + esc(aiMoney(hi, cur)) + ' 인데 현재가는 '
@@ -26160,14 +26781,14 @@ function aiTargetSanity(sec, px, cur, repId){
         + '지금 배수가 그 종목이 실제로 받는 배수보다 한참 낮을 수 있습니다.');
     else if (hi < px)
       //  ⚠️ 이건 «틀렸다» 가 아닙니다. 그렇게 읽히지 않게 말을 고릅니다.
-      out.push('<span style="font-weight:700">이 리포트의 결론은 «고평가» 입니다.</span> '
+      info.push('<span style="font-weight:700">이 리포트의 결론은 «고평가» 입니다.</span> '
         + '목표가가 전부 현재가(' + esc(aiMoney(px, cur)) + ') 아래입니다 '
         + '(가장 높은 것 ' + esc(aiMoney(hi, cur)) + ').<br>'
         + '앞뒤는 맞습니다. 다만 <b>왜 시장이 지금 값을 주는지</b>와 '
         + '<b>무엇이 일어나야 배수가 내려오는지</b>가 본문에 적혀 있는지 확인하세요. '
         + '그게 없으면 결론만 있고 근거가 없는 리포트입니다.');
     else if (lo > px)
-      out.push('<b>모든 목표가가 현재가(' + esc(aiMoney(px, cur)) + ')보다 높습니다.</b> '
+      info.push('<b>모든 목표가가 현재가(' + esc(aiMoney(px, cur)) + ')보다 높습니다.</b> '
         + '약세 시나리오가 빠진 셈입니다.');
   }
 
@@ -26176,7 +26797,7 @@ function aiTargetSanity(sec, px, cur, repId){
   if (ct != null && ct > 0 && all.length){
     var hi2 = Math.max.apply(null, all), lo2 = Math.min.apply(null, all);
     if (ct > hi2 * 1.5 || ct < lo2 * 0.67)
-      out.push('애널리스트 컨센서스는 <b>' + esc(aiMoney(ct, cur))
+      info.push('애널리스트 컨센서스는 <b>' + esc(aiMoney(ct, cur))
         + '</b>' + (aiNum(sec.meta.cons_n) ? ' (' + esc(String(aiNum(sec.meta.cons_n))) + '명)' : '')
         + ' 인데, 이 리포트의 목표가는 ' + esc(aiMoney(lo2, cur)) + ' ~ '
         + esc(aiMoney(hi2, cur)) + ' 입니다. <b>차이가 큽니다</b> — '
@@ -26215,7 +26836,7 @@ function aiTargetSanity(sec, px, cur, repId){
   var act = aiStr(tr.action);
   var en = aiNum(tr.entry), st = aiNum(tr.stop), tk = aiNum(tr.take);
   var wp = aiNum(tr.weight_pct);
-  var isBuy = /매수|buy|사/i.test(act);
+  var isBuy = aiIsBuy(act);
   var tOut = [];
 
   if (en != null && en > 0){
@@ -26247,7 +26868,13 @@ function aiTargetSanity(sec, px, cur, repId){
       + tOut.map(function(x){ return '· ' + x; }).join('<br>')
       + '<br><b>이 칸은 그대로 따라 하는 숫자입니다.</b> 앞의 목표가와 맞춰 다시 보세요.');
 
-  if (!out.length) return '';
+  if (!out.length){
+    //  참고만 있으면 — 학회원에게는 경고를 띄우지 않고, 임원진에게만 참고로
+    if (!info.length || !isOfficer()) return '';
+    return '<div class="note info" style="margin:0 0 12px">'
+         + 'ℹ️ <b>참고</b> <span class="st-hint">(임원진에게만 보입니다 · 앞뒤가 안 맞는 곳은 없습니다)</span><br>'
+         + info.join('<br><br>') + '</div>';
+  }
 
   /*  ── 누구에게 무엇까지 보여줄 것인가 ──────────────────────────
 
@@ -26277,7 +26904,7 @@ function aiTargetSanity(sec, px, cur, repId){
   return '<div class="note warn" style="margin:0 0 12px">'
        + '⚠️ <b>이 리포트는 앞뒤가 안 맞습니다</b> '
        + '<span class="st-hint">(임원진에게만 보입니다)</span><br>'
-       + out.join('<br><br>')
+       + out.concat(info).join('<br><br>')
        + aiRedoBtn(repId)
        + '</div>';
 }
@@ -26703,7 +27330,9 @@ function aiFactFlags(sec){
     + '</details>';
 }
 
+var aiBoxRep = {};          //  (10/6 점검) 칸마다 지금 그려진 리포트 — 늦게 온 시세가 다른 리포트를 덮지 않게
 function aiRender(rep, boxId){
+  aiBoxRep[boxId] = rep;
   var box = $(boxId || 'aiReport'); if (!box) return;
   //  전에 그린 차트를 먼저 치웁니다 — 안 치우면 ECharts 가 쌓입니다
   aiChartIns.forEach(function(c){
@@ -26724,13 +27353,14 @@ function aiRender(rep, boxId){
       지금 시세를 받아 한 번만 다시 그립니다 (무한 반복 방지).       */
   if (pxRep == null && !rep.__pxTried){
     rep.__pxTried = true;
-    aiFillPx(rep).then(function(got){ if (got) aiRender(rep, boxId); });
+    //  (10/6 점검) 그사이 다른 리포트를 열었으면 다시 그리지 않습니다 (앞 리포트가 지금 리포트 자리를 덮었습니다)
+    aiFillPx(rep).then(function(got){ if (got && aiBoxRep[boxId] === rep) aiRender(rep, boxId); });
   }
   //  지금 현재가 — 열 때마다 받습니다 (5분 보관). 받아지면 한 번 다시 그립니다.
   var pxNow = aiNum(meta.px_now);
   if (pxNow == null && !rep.__pxNowTried){
     rep.__pxNowTried = true;
-    aiFetchPxNow(rep).then(function(got){ if (got) aiRender(rep, boxId); });
+    aiFetchPxNow(rep).then(function(got){ if (got && aiBoxRep[boxId] === rep) aiRender(rep, boxId); });
   }
   //  화면에서 «현재가 대비» 는 지금 값으로. 리포트 안의 앞뒤 검사는 작성일 값으로.
   var px = pxNow != null ? pxNow : pxRep;
@@ -27052,7 +27682,7 @@ function aiRender(rep, boxId){
     ? '<div class="ai-verdict ' + (/고평가/.test(vdView) ? 'neg' : /저평가/.test(vdView) ? 'pos' : '')
       + '"><b>판정 · ' + esc(vdView) + '</b>' + (aiStr(vd.why) ? ' — ' + aiRich(vd.why) : '')
       + (aiStr(vd.view_how) ? '<div class="st-hint" style="margin-top:4px">' + esc(aiStr(vd.view_how))
-          + (pxRep != null ? ' · 작성일 현재가 ' + esc(aiMoney(pxRep, cur)) + ' 기준' : '')
+          + (pxRep != null && !meta.px_live ? ' · 작성일 현재가 ' + esc(aiMoney(pxRep, cur)) + ' 기준' : '')
           + (vd.view_fixed ? ' · 모델이 다르게 적어 서버 값으로 바로잡았습니다' : '') + '</div>' : '')
       + aiViewNow(sec, pxNow, pxRep, cur)
       + '</div>'
@@ -27467,6 +28097,9 @@ async function pickCompany(i){
   $('coDivTable').innerHTML = ''; $('coMajorTable').innerHTML = ''; $('coElestTable').innerHTML = '';
   coFin = null; coFull = null; coFullCache = {}; coProf = null;
   coSeries = []; coFinSeries = []; coPricePts = [];
+  //  (10/6 점검) 밸류에이션 · 노트는 회사마다 — 앞 회사 것을 비우고, 쓰던 노트는 <앞 회사 열쇠로> 바로 저장
+  if (typeof valNoteFlush === 'function') valNoteFlush();
+  if (typeof valReset4Co === 'function') valReset4Co();
   if (coFinChart) coFinChart.clear();
   $('coFinMk').value = co.market;
   renderCoSeriesList(); renderCoFinSeriesList();
