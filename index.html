@@ -8210,7 +8210,8 @@ var AIC_TOOL_KO = { search_indicators:'지표 찾기', get_indicator:'지표 값
                     get_report:'리포트 본문', get_my_portfolio:'우리 팀 포트폴리오', get_13f:'13F', make_chart:'차트 만들기',
                     search_fred:'FRED 찾기', fred_info:'FRED 정보', search_ecos:'ECOS 찾기', ecos_items:'ECOS 항목',
                     search_worldbank:'World Bank 찾기', worldbank_info:'World Bank 정보', web_search:'웹 검색',
-                    bls_series:'BLS 확인', search_bea:'BEA 찾기', bea_lines:'BEA 줄', search_company:'기업 찾기', get_financials:'재무제표', get_valuation:'밸류에이션 재료' };
+                    bls_series:'BLS 확인', search_bea:'BEA 찾기', bea_lines:'BEA 줄', search_company:'기업 찾기', get_financials:'재무제표', get_valuation:'밸류에이션 재료',
+                    get_options:'옵션 가격대', get_price_levels:'주가 가격대' };
 function aicUsedTxt(used){
   return (used || []).map(function(u){
     var a = u.args || {};
@@ -8461,7 +8462,8 @@ async function aicAsk(qIn){
    · 그린 뒤에는 «되돌리기» (바로 전 차트로 · 이 창을 닫기 전까지) · «다시 그리기».
    · 모델 말을 그대로 믿지 않습니다: 아는 팀 · 묶음 · 지표 모양 · 종목 모양만 · 차트 8개 / 가격 차트 6개까지.
    · 비서가 고를 재료(탭 · 팀 · 묶음 · 지표 코드)는 aicMenu() 로 질문과 같이 보냅니다.                       */
-var AIC_ACT_TAB = { macro: 'research', price: 'industry', sector: 'industry', industry: 'industry', company: 'company', valuation: 'company' };
+var AIC_ACT_TAB = { macro: 'research', price: 'industry', sector: 'industry', industry: 'industry', company: 'company', valuation: 'company', options: 'deriv' };
+var AIC_LV_KIND = { support: ['지지', '#1b5fa8'], resistance: ['저항', '#c0392b'], pivot: ['가격대', '#6b5ca5'], target: ['목표', '#b26a00'] };
 var AIC_VAL_IN = { growth:['매출 성장률','%'], margin:['영업이익률','%'], wacc:['WACC','%'], terminal:['영구성장률','%'], years:['추정 기간','년'], tax:['법인세율','%'],
                    per:['목표 PER','배'], pbr:['목표 PBR','배'], ev_ebitda:['목표 EV/EBITDA','배'], ev_sales:['목표 EV/매출','배'], dep:['감가상각률','%'], capex:['설비투자율','%'] };
 var AIC_CO_SUB = { prof:'개요', val:'밸류에이션', fin:'재무제표', price:'주가', disc:'공시', own:'지분', f13:'13F' };
@@ -8511,7 +8513,18 @@ function aicActClean(a){
     if (a.view !== 'line' && a.view !== 'candle') a.view = null;
     if (!SECPX_TF.some(function(z){ return z[0] === a.tf; })) a.tf = null;
     if (!SECPX_PER.some(function(z){ return z[0] === a.period; })) a.period = null;
+    //  7판: 핵심 가격대 선 (첫 종목 캔들 위)
+    a.levels = (Array.isArray(a.levels) ? a.levels : []).map(function(x){
+      return x && { price: Number(x.price), label: String(x.label || '').replace(/[<>]/g, '').slice(0, 24), kind: aicOwn(AIC_LV_KIND, x.kind) ? x.kind : 'pivot' };
+    }).filter(function(x){ return x && isFinite(x.price) && x.price > 0 && x.label; }).slice(0, 8);
     return a.items.length ? a : null;
+  }
+  if (t === 'options'){
+    a.market = a.market === 'CRYPTO' ? 'CRYPTO' : 'US';
+    a.symbol = String(a.symbol || '').toUpperCase();
+    if (a.market === 'CRYPTO' ? !/^[A-Z]{2,6}$/.test(a.symbol) : !/^[A-Z][A-Z.]{0,5}$/.test(a.symbol)) return null;
+    a.expiration = /^\d{4}-\d{2}-\d{2}$/.test(String(a.expiration || '')) ? String(a.expiration) : null;
+    return a;
   }
   if (t === 'sector'){
     if (!aicOwn(SEC_SETS, a.set)) return null;
@@ -8578,6 +8591,7 @@ function aicActWhere(a){
   if (a.type === 'industry') s += ' › 산업 지표 차트';
   if (a.type === 'company') s += ' › ' + ((a.companies[0] && a.companies[0].name) || '') + ' › 재무 차트';
   if (a.type === 'valuation') s += ' › ' + a.company.name + ' › 밸류에이션';
+  if (a.type === 'options') s += ' › ' + a.symbol + (a.market === 'CRYPTO' ? ' 코인 옵션' : ' 옵션') + (a.expiration ? ' · ' + a.expiration + ' 만기' : '');
   if (a.type === 'open'){
     if (a.company) s += ' › ' + a.company.name;
     if (a.sub) s += ' › ' + AIC_CO_SUB[a.sub];
@@ -8607,7 +8621,10 @@ function aicActWhat(a){
   }
   if (a.type === 'price')
     return a.items.map(function(x){ return secPxNameOf(x.src, x.sym)[0] + ' ' + x.sym; }).join(' · ')
-         + ' · ' + (a.view === 'line' ? '비교(선)' : '캔들') + (a.tf ? ' · ' + secPxTfName(a.tf) : '') + (a.period ? ' · ' + a.period : '');
+         + ' · ' + (a.view === 'line' ? '비교(선)' : '캔들') + (a.tf ? ' · ' + secPxTfName(a.tf) : '') + (a.period ? ' · ' + a.period : '')
+         + (a.levels && a.levels.length ? ' · 가격대 선 ' + a.levels.length + '개 (' + a.levels.map(function(x){ return x.label + ' ' + secPxNum(x.price); }).join(' · ') + ')' : '');
+  if (a.type === 'options')
+    return (a.market === 'CRYPTO' ? '코인 옵션 (Deribit)' : '미국 주식 옵션') + ' · 체인 · 콜벽/풋벽 · 맥스 페인 · 예상 변동폭 · 가격대 지도' + (a.expiration ? ' · ' + a.expiration + ' 만기' : ' · 기본 만기');
   if (a.type === 'sector') return (SEC_SETS[a.set] ? SEC_SETS[a.set].n : a.set) + (a.period ? ' · 정렬 ' + a.period : '');
   if (a.type === 'industry'){
     var g = a.set ? BN_INDUSTRIES.filter(function(x){ return x.k === a.set; })[0] : null;
@@ -8725,7 +8742,7 @@ function aicActReveal(a){
   setTimeout(function(){
     var secEl = { price: 'pxCard', indicators: 'icCard', sector: 'secCard', bottleneck: 'bnCard' };
     var el = a.type === 'macro' ? $('chartBox') : a.type === 'price' ? $('pxCard') : a.type === 'sector' ? $('secCard')
-           : a.type === 'industry' ? $('icCard') : a.type === 'company' ? $('coFinBox') : a.type === 'valuation' ? $('valTiles')
+           : a.type === 'industry' ? $('icCard') : a.type === 'company' ? $('coFinBox') : a.type === 'valuation' ? $('valTiles') : a.type === 'options' ? $('dvBody')
            : (a.type === 'open' && a.section) ? $(secEl[a.section]) : (a.type === 'open' && a.statement) ? $('coFinBox') : null;
     if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: (a.type === 'macro' || a.type === 'company' || a.statement) ? 'center' : 'start' });
   }, 160);
@@ -8739,7 +8756,7 @@ function aicSnap(a){
     ann: typeof annSnapshot === 'function' ? annSnapshot() : null, annOn: typeof annOn !== 'undefined' ? annOn : false,
     series: series.map(function(s){ return { source: s.source, code: s.code, item_code: s.item_code || '', cycle: s.cycle, label: s.label_ko || s.label, unit: s.unit || '',
       tf: s.tf, axis: s.axis, autoAxis: s.autoAxis, autoTf: s.autoTf, type: s.type, color: s.color, width: s.width, hidden: !!s.hidden, keepRaw: !!s.keepRaw }; }) };
-  if (a.type === 'price') return { tab: curTab, picks: secPx.picks.slice(), act: secPx.act, view: secPx.view, tf: secPx.tf, per: secPx.per };
+  if (a.type === 'price') return { tab: curTab, picks: secPx.picks.slice(), act: secPx.act, view: secPx.view, tf: secPx.tf, per: secPx.per, levels: secPx.levels || null };
   if (a.type === 'sector') return { tab: curTab, mkt: secState.mkt, per: secState.per };
   //  ⚠️ 산업분석을 한 번도 안 열었으면 기억해 둔 차트를 먼저 읽고 찍습니다 (안 그러면 되돌리기가 빈 차트로 덮음)
   if (a.type === 'industry'){ if (!icInited){ icInited = true; icStoreLoad(); } return { tab: curTab, ic: icSnapshot() }; }
@@ -8809,6 +8826,9 @@ async function aicActApply(i, j, auto){
       if (a.replace !== false){ secPx.picks = []; secPx.act = 0; }
       a.items.forEach(function(x){ secPxAdd(x.src, x.sym); });
       var k0 = secPxIdx(a.items[0].src, a.items[0].sym); if (k0 >= 0) secPx.act = k0;
+      //  7판: 가격대 선은 첫 종목에 (없으면 전 선을 지움 - 다른 분석의 선이 남지 않게)
+      secPx.levels = a.levels && a.levels.length ? { src: a.items[0].src, sym: a.items[0].sym, items: a.levels.slice() } : null;
+      if (secPx.levels) secPx.view = 'candle';
       secPxShow(); renderSectors();
       if (!a.items.some(function(x){ return secPxIdx(x.src, x.sym) >= 0; })) throw new Error(T('가격 차트에 올리지 못했습니다 (6개까지).', 'Price chart is full.'));
     } else if (a.type === 'sector'){
@@ -8824,6 +8844,9 @@ async function aicActApply(i, j, auto){
     } else if (a.type === 'valuation'){
       aicGoTab('company');
       await valFromAi(a, snap.val);
+    } else if (a.type === 'options'){
+      aicGoTab('deriv');
+      await dvFromAi(a);
     } else if (a.type === 'open'){
       aicGoTab(a.tab);
       if (a.tab === 'research' && a.team && MACRO_TEAMS[a.team]) setMacroTeam(a.team);
@@ -8920,7 +8943,7 @@ async function aicActUndo(i, j, quiet){
     }
   } else if (a.type === 'price'){
     aicGoTab('industry');
-    secPx.picks = snap.picks.slice(); secPx.act = snap.act; secPx.view = snap.view; secPx.tf = snap.tf; secPx.per = snap.per; secPxSave();
+    secPx.picks = snap.picks.slice(); secPx.act = snap.act; secPx.view = snap.view; secPx.tf = snap.tf; secPx.per = snap.per; secPx.levels = snap.levels || null; secPxSave();
     secPxShow(); renderSectors();
   } else if (a.type === 'sector'){
     aicGoTab('industry'); secState.per = snap.per; secSet('mkt', snap.mkt);
@@ -8955,7 +8978,9 @@ function aicMenu(){
       + ' / methods: ' + VAL_PICK_ALL.join(' · ') + ' / val_chart: ' + Object.keys(VAL_BAND_NAME).map(function(k){ return k + ' ' + VAL_BAND_NAME[k]; }).join(' · ')
       + ' / view_note: opinion(매수·중립·매도) · target · why · thesis · assumptions · risks → 학회원 본인 노트');
     L.push('[산업분석 카드(section)] ' + Object.keys(AIC_IND_SEC).map(function(k){ return k + ' ' + AIC_IND_SEC[k]; }).join(' · ')
-      + ' · [AI 분석] open ai + report_id · [파생상품] open deriv + symbol(미국 티커) · [자금흐름] open flow + flow dark|cong');
+      + ' · [AI 분석] open ai + report_id · [자금흐름] open flow + flow dark|cong');
+    L.push('[파생상품 = kind options] symbol(미국 티커 · 코인 BTC ETH) + market US|CRYPTO + expiration(get_options 의 만기) → 옵션 체인 · 가격대 지도 · 국내 옵션은 아직 출시 전'
+      + ' / [가격대 선 = kind price + levels] price · label · kind(support 지지 · resistance 저항 · pivot · target) 4~8개 → 첫 종목 캔들 위에 선');
     L.push('[목록 밖 지표] FRED 전체(search_fred · 연준 자료 포함) · BLS 원본(bls_series · source bls) · BEA 원본(search_bea → bea_lines · source bea · item_code 줄|주기) · 한국은행 ECOS(search_ecos → ecos_items) · World Bank WDI(search_worldbank · source wb · item_code 나라 ISO3 KOR USA CHN JPN DEU GBR WLD) - make_chart 에 그대로 넣으면 화면이 받아 그립니다 · 중요한 시점은 annotations 로 핀');
     aicMenuTxt = L.join('\n');
   } catch(e){ aicMenuTxt = ''; }
@@ -12056,6 +12081,25 @@ async function dvFind(){
            + esc(x.name) + '</button>'; }).join('');
     $('dvHitsRow').classList.remove('hidden');
   } catch(e){ warn('dvWarn', esc(e.message)); }
+}
+/*  7판: AI 비서 (kind options) — 미국 주식 · 코인 옵션을 그 종목 · 만기로 열고 체인 · 가격대 지도를 그립니다  */
+async function dvFromAi(a){
+  var has = function(sel, v){ return !!sel && Array.prototype.some.call(sel.options, function(o){ return o.value === v; }); };
+  if (a.market === 'CRYPTO'){
+    if (dvMkt !== 'crypto') dvMarket('crypto');
+    await dvLoadCoins();
+    if (!has($('dvCur'), a.symbol)) throw new Error(a.symbol + ' 코인 옵션을 찾지 못했습니다 (Deribit 목록에 없음).');
+    $('dvCur').value = a.symbol; dv = null;
+    await dvLoadCrypto();
+    if (a.expiration && has($('dvExp'), a.expiration) && $('dvExp').value !== a.expiration){ $('dvExp').value = a.expiration; await dvLoadCrypto(); }
+  } else {
+    if (dvMkt !== 'stock') dvMarket('stock');
+    dv = null;
+    await dvPick(a.symbol);
+    if (a.expiration && has($('dvExp'), a.expiration) && $('dvExp').value !== a.expiration){ $('dvExp').value = a.expiration; await dvLoadChain(); }
+  }
+  if (!dv || !dv.rows || !dv.rows.length || String(dv.symbol || '').toUpperCase() !== a.symbol)
+    throw new Error(a.symbol + ' 옵션 자료를 불러오지 못했습니다 - 파생상품 탭의 안내를 보세요.');
 }
 function dvPick(sym){
   $('dvSym').value = sym;
@@ -15536,6 +15580,7 @@ function secPxPick(i){ if (!secPx.picks[i]) return; secPx.act = i; secPxDraw(); 
 function secPxSetView(v){ secPx.view = v === 'line' ? 'line' : 'candle'; secPxSave(); secPxDraw(); }
 function secPxSetTf(t){ if (!SECPX_TF.some(function(x){ return x[0] === t; })) return; secPx.tf = t; secPxSave(); secPxDraw(); secPxTick(); }
 function secPxSetPer(p){ secPx.per = p; secPxSave(); secPxDraw(); }
+function secPxLevelsClear(){ secPx.levels = null; secPxDraw(); }
 function secPxBenchToggle(){
   var set = SEC_SETS[secState.mkt];
   if (set && $('secPxBench') && $('secPxBench').checked) secPxLoad(secBSrc(set), set.bench[0], secPx.tf);
@@ -15633,6 +15678,16 @@ function secPxDrawCandle(box, x, tf){
   var closes = pts.map(function(p){ return p.v; });
   var ma = function(k){ var out = [], s = 0; for (var i = 0; i < n; i++){ s += closes[i]; if (i >= k) s -= closes[i - k]; out.push(i >= k - 1 ? +(s / k).toPrecision(6) : null); } return out; };
   var sfx = tf === '1d' ? '일선' : tf === '1w' ? '주선' : tf === '1mo' ? '개월선' : '봉선';
+  /*  7판: AI 비서가 고른 핵심 가격대 — 이 종목일 때만 · 이름표는 오른쪽 끝 · 지지 파랑 · 저항 빨강 (봉 색과 같은 뜻)
+      현재가 ±30% 안의 선만 세로 범위에 넣습니다 (멀리 있는 값 하나 때문에 캔들이 납작해지지 않게)  */
+  var LV = secPx.levels && secPx.levels.src === x.src && secPx.levels.sym === x.sym ? secPx.levels.items : [];
+  var lastPx = pts[n - 1].v;
+  var lvLines = LV.map(function(it){
+    var k = AIC_LV_KIND[it.kind] || AIC_LV_KIND.pivot;
+    return { yAxis: it.price, name: it.label, lineStyle: { color: k[1], type: 'dashed', width: 1.2, opacity: .9 },
+             label: { show: true, position: 'insideEndTop', color: k[1], fontSize: 10, formatter: it.label + ' ' + secPxNum(it.price) } };
+  });
+  var lvIn = LV.map(function(it){ return it.price; }).filter(function(v){ return v > lastPx * 0.7 && v < lastPx * 1.3; });
   var maDef = [[5, '#b26a00'], [20, '#6b5ca5'], [60, '#2e8b57']].filter(function(m){ return n >= m[0] + 5; })
                 .map(function(m){ return { k: m[0], c: m[1], name: isEn() ? 'MA' + m[0] : m[0] + sfx, d: ma(m[0]) }; });
   //  처음 보이는 범위 — 일·주·월봉은 기간 칩, 분봉은 마지막 160봉. 같은 그림을 다시 그리면(1분마다) 보던 범위를 지킵니다
@@ -15667,6 +15722,8 @@ function secPxDrawCandle(box, x, tf){
     xAxis: [{ type: 'category', data: cat, gridIndex: 0, boundaryGap: true, axisLabel: { show: !hasVol, fontSize: 10 }, axisTick: { show: false } },
             { type: 'category', data: cat, gridIndex: 1, boundaryGap: true, axisLabel: { show: hasVol, fontSize: 10 }, axisTick: { show: false }, axisLine: { show: hasVol } }],
     yAxis: [{ type: 'value', scale: true, gridIndex: 0, position: 'right', name: unitDisp(unit), nameTextStyle: { fontSize: 10, align: 'right' },
+              min: lvIn.length ? function(v){ return Math.min(v.min, Math.min.apply(null, lvIn) * 0.99); } : undefined,
+              max: lvIn.length ? function(v){ return Math.max(v.max, Math.max.apply(null, lvIn) * 1.01); } : undefined,
               splitLine: { show: true, lineStyle: { opacity: .5 } }, axisLabel: { fontSize: 10, formatter: secPxNum } },
             { type: 'value', gridIndex: 1, position: 'right', splitNumber: 2, show: hasVol, splitLine: { show: false }, axisLabel: { fontSize: 9, formatter: secPxVol } }],
     dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], startValue: s0, endValue: e0, zoomOnMouseWheel: 'ctrl', moveOnMouseWheel: false, moveOnMouseMove: !touch },
@@ -15684,7 +15741,8 @@ function secPxDrawCandle(box, x, tf){
         return out;
       } },
     series: [{ name: T('봉', 'Price'), type: 'candlestick', data: ohlc, xAxisIndex: 0, yAxisIndex: 0, barMaxWidth: 14,
-               itemStyle: { color: UP, color0: DN, borderColor: UP, borderColor0: DN, borderWidth: 1 } }]
+               itemStyle: { color: UP, color0: DN, borderColor: UP, borderColor0: DN, borderWidth: 1 },
+               markLine: lvLines.length ? { symbol: 'none', silent: true, animation: false, data: lvLines } : undefined }]
       .concat(maDef.map(function(m){ return { name: m.name, type: 'line', data: m.d, xAxisIndex: 0, yAxisIndex: 0, showSymbol: false, smooth: true,
                                                lineStyle: { width: 1.4, color: m.c }, itemStyle: { color: m.c }, z: 3 }; }))
       .concat(hasVol ? [{ name: T('거래량', 'Volume'), type: 'bar', data: vols, xAxisIndex: 1, yAxisIndex: 1, barMaxWidth: 14 }] : [])
@@ -15703,6 +15761,7 @@ function secPxDrawCandle(box, x, tf){
     if (x.src === 'quote_kr' && !intra) bits.push(T('한국 시세는 하루 늦게 들어옵니다.', 'Korean prices arrive a day late.'));
     if (x.src === 'quote_bn' && !intra && pts[0]) bits.push(esc(T('바이낸스는 상장일(' + pts[0].d.slice(0, 10) + ')부터.', 'Binance data from listing (' + pts[0].d.slice(0, 10) + ').')));
     bits.push(T('끌어서 옮기고 · 아래 막대로 늘리고 줄입니다 (Ctrl + 휠로 확대).', 'Drag to pan · use the bar below (or Ctrl + wheel) to zoom.'));
+    if (LV.length) bits.push('<b>' + T('AI 비서 가격대 선 ', 'AI levels ') + LV.length + T('개', '') + '</b> <button type="button" class="btn-sm" onclick="secPxLevelsClear()">' + T('선 지우기', 'Clear') + '</button>');
     if (dd.err) bits.push('<span style="color:var(--danger)">' + T('새로 받지 못함: ', 'Refresh failed: ') + esc(dd.err) + '</span>');
     note.innerHTML = bits.join(' ');
   }
