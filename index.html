@@ -15,9 +15,17 @@
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
 })();
 </script>
+<!--  (10/7 효율 점검) 글꼴 · 라이브러리 서버에 미리 연결해 둡니다 (첫 화면이 조금 빨리 뜸) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-<!--  ⚠️ 주석 글꼴용. 발표 자료에 넣을 때 학회 서식과 맞추려고 고를 수 있게 합니다. -->
-<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+<!--  ⚠️ 주석 글꼴용. 발표 자료에 넣을 때 학회 서식과 맞추려고 고를 수 있게 합니다.
+      (10/7) 첫 화면을 막지 않게 뒤에서 받고(media=print → all), 글꼴 파일은 <쓰는 글자 조각만> 받는 판(dynamic-subset)으로.
+      예전 판은 굵기 하나에 한글 전체(수백 KB)를 통째로 받았습니다. 글꼴 이름(Pretendard)은 같습니다. -->
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css" rel="stylesheet"></noscript>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -5751,6 +5759,7 @@ async function doLogin(){
 async function doLogout(){
   if (sb) await sb.auth.signOut();
   me = null; loggedThisSession = false;
+  if (typeof ecForget === 'function') ecForget();     //  (10/7) 받아 둔 자료 메모리도 비움
   /*  ⚠️ 학회장: «학회원 계정으로 로그인했는데 임원진에게만 보인다는 문구가 보인다».
       로그아웃해도 화면(AI 리포트 · 설정 표)이 DOM 에 그대로 남아 있었고, 같은 탭에서
       학회원으로 다시 로그인하면 <임원으로 그려둔 화면> 을 그대로 봤습니다.
@@ -6035,6 +6044,7 @@ async function authFresh(){
 }
 function authLost(why){
   me = null;
+  if (typeof ecForget === 'function') ecForget();
   hide('appView'); hide('denyView'); show('loginView');
   var m = $('loginMsg'); if (m) m.textContent = why || '로그인이 끊겨 다시 로그인이 필요합니다 (다른 기기에서 로그아웃했거나 비밀번호를 바꾼 경우).';
 }
@@ -6046,7 +6056,103 @@ function authRefreshSoon(){
 }
 document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible' && me) authRefreshSoon(); });
 window.addEventListener('focus', function(){ if (me) authRefreshSoon(); });
+/*  ── 같은 자료를 두 번 받지 않기 (10/7 효율 점검) ─────────────────────────────────────────────
+    학회장: «한번 검색한 내용 · 나라 · 주식 · 경제 부분 미리 있었던 내용 효율적으로 관리 · 페이지 로딩 오래 안 걸리게».
+    ① 아래 표에 있는 <읽기 전용> 자료만 이 화면 메모리에 잠깐(분) 둡니다 — 같은 요청은 서버에 다시 안 갑니다
+       (같은 회사를 다시 열 때 · 탭을 오갈 때 · 두 칸이 같은 것을 부를 때). 새로고침(F5)하면 비워집니다.
+    ② 같은 요청이 이미 가는 중이면 그 답을 같이 기다립니다 (한 번만 보냄).
+    ⚠️ 주문 · 저장 · 실시간(마켓 맵 10초 · 바이낸스 · 모의투자 · 개인전 · 옵션 체인) · AI(세이피 · 리포트)는 표에 없어서
+       언제나 서버로 갑니다. 낡은 값(stale) · 빈 시계열 · 오류는 남기지 않습니다 (다음에 다시 시도).
+    ⚠️ 화면의 «새로 받기» 단추(병목 · 섹터 · 팀 지표)는 ecForget 으로 이 메모리도 같이 비웁니다.
+    ⚠️ 매크로 카드 · 섹터 · 병목 요약은 원래대로 브라우저(localStorage)에 다음 발표일 · 6시간까지 남습니다 (그대로).  */
+var EC_TTL = {
+  'market-data': {
+    fred: 30, ecos: 30, bond: 30, bls: 30, bea: 60, wb: 60,                       //  거시 지표 (하루 한 번 바뀜)
+    fred_items: 60, fred_search: 30, fred_report: 30, ecos_report: 30,          //  지표 목록 · 발표 표
+    us_curve: 10, kr_curve: 10, macro_calendar: 10,                              //  금리 곡선 · 증시 캘린더
+    quote_us: 3, quote_kr: 3, quote_crypto: 3, home_fx: 2, news_feed: 2,          //  종가 · 환율 · 뉴스 (짧게)
+    universe_crypto: 60, crypto_currencies: 60, darkpool: 60, darkpool_top: 30, opt_expirations: 10
+  },
+  'company-data': {
+    kr_div: 60, kr_major: 60, kr_elest: 60, kr_main: 60, eod_full: 30, filing_text: 60,
+    f13_search: 60, f13_filings: 60, f13_holdings: 60, congress_index: 30, congress_ptr: 60, dart_recent: 3
+  }
+};
+var ecMem = {}, ecFly = {}, EC_MAX = 160, ecStat = { hit: 0, join: 0, miss: 0 };
+function ecTtl(fn, body){
+  var t = EC_TTL[fn], k = body && (body.source || body.action);
+  if (!t || !k || body.force || !t[k]) return 0;
+  return t[k] * 60000;
+}
+function ecCopy(d){
+  //  받은 쪽이 고쳐 써도 보관본이 안 바뀌게 복사해서 줍니다
+  try { return typeof structuredClone === 'function' ? structuredClone(d) : JSON.parse(JSON.stringify(d)); }
+  catch(e){ try { return JSON.parse(JSON.stringify(d)); } catch(e2){ return d; } }
+}
+function ecKeep(d){
+  return !!d && typeof d === 'object' && !d.stale && !d.error && !d.partial
+      && !(Array.isArray(d.points) && !d.points.length);
+}
+function ecPut(k, d, ttl){
+  var ks = Object.keys(ecMem);
+  if (ks.length >= EC_MAX){                      //  넘치면 오래된 것부터
+    ks.sort(function(a, b){ return ecMem[a].exp - ecMem[b].exp; });
+    ks.slice(0, ks.length - EC_MAX + 20).forEach(function(x){ delete ecMem[x]; });
+  }
+  ecMem[k] = { exp: Date.now() + ttl, d: ecCopy(d) };
+}
+//  ecForget(['fred','ecos']) — 그 자료만 · ecForget() — 전부
+function ecForget(srcs){
+  if (!srcs){ ecMem = {}; return; }
+  var re = new RegExp('"(source|action)":"(' + srcs.join('|') + ')"');
+  Object.keys(ecMem).forEach(function(k){ if (re.test(k)) delete ecMem[k]; });
+}
+/*  localStorage 보관함 — 푼 것(JSON.parse)을 기억해 두고, 저장된 글이 그대로면 다시 풀지 않습니다 (10/7).
+    다른 창 · 다른 코드가 글을 바꾸면 글이 달라지니 저절로 다시 풉니다.                                  */
+function lsMemo(key){ return { key: key, raw: null, obj: null }; }
+/*  그리기 묶기 (10/7) — 여러 묶음을 차례로 받을 때 «받을 때마다 표 전체를 다시» 대신 ms 에 한 번만 그립니다.
+    .flush() = 지금 바로 한 번 (마지막에) · 기다리던 것은 취소.                                              */
+function throttleFn(fn, ms){
+  var last = 0, tm = null;
+  var f = function(){
+    var wait = ms - (Date.now() - last);
+    if (wait <= 0){ if (tm){ clearTimeout(tm); tm = null; } last = Date.now(); fn(); return; }
+    if (!tm) tm = setTimeout(function(){ tm = null; last = Date.now(); fn(); }, wait);
+  };
+  f.flush = function(){ if (tm){ clearTimeout(tm); tm = null; } last = Date.now(); fn(); };
+  return f;
+}
+function lsRead(c){
+  var raw = null;
+  try { raw = localStorage.getItem(c.key); } catch(e){}
+  if (c.obj && raw === c.raw) return c.obj;
+  try { c.obj = JSON.parse(raw || '{}') || {}; } catch(e){ c.obj = {}; }
+  c.raw = raw;
+  return c.obj;
+}
+function lsWrite(c, m){
+  var raw = null;
+  try { raw = JSON.stringify(m); localStorage.setItem(c.key, raw); c.obj = m; c.raw = raw; }
+  catch(e){ c.obj = null; c.raw = null; }       //  못 썼으면(꽉 참) 다음에 저장된 글을 다시 읽습니다 (예전과 같음)
+}
 async function edgeCall(fn, body, _retry){
+  var ttl = _retry ? 0 : ecTtl(fn, body);
+  if (!ttl) return edgeCall0(fn, body, _retry);
+  var k = fn + '|' + JSON.stringify(body);
+  var hit = ecMem[k];
+  if (hit && hit.exp > Date.now()){ ecStat.hit++; return ecCopy(hit.d); }
+  if (hit) delete ecMem[k];
+  if (ecFly[k]){ ecStat.join++; return ecFly[k].then(ecCopy); }
+  ecStat.miss++;
+  var p = edgeCall0(fn, body);
+  ecFly[k] = p;
+  try {
+    var d = await p;
+    if (ecKeep(d)) ecPut(k, d, ttl);
+    return d;
+  } finally { delete ecFly[k]; }
+}
+async function edgeCall0(fn, body, _retry){
   var s = await authFresh();
   if (!s){ if (me) authLost(); throw new Error('로그인이 끊겼습니다. 다시 로그인해주세요.'); }
   var r = await fetch(SUPABASE_URL + '/functions/v1/' + fn, {
@@ -6057,7 +6163,7 @@ async function edgeCall(fn, body, _retry){
   if (r.status === 401 && !_retry){
     //  낡은 토큰 — 갈아 끼우고 한 번만 더
     try { await sb.auth.refreshSession(); } catch(e){}
-    return edgeCall(fn, body, true);
+    return edgeCall0(fn, body, true);
   }
   var d = await r.json().catch(function(){ return {}; });
   if (!r.ok || d.error) {
@@ -7998,8 +8104,8 @@ async function seedFxTable(){
   if (fxSeeded) return;
   fxSeeded = true;
   try {
-    await loadFxFixed();
-    if (fxFixed || (fxPts && fxPts.length)) return;
+    if (fxPts && fxPts.length) return;
+    //  (10/7) 고정 환율 확인(fx_status)은 loadFxSeries 안에서 한 번만 합니다 (예전엔 여기서 한 번 더 물었음)
     await loadFxSeries(new Date(Date.now() - 400*864e5).toISOString().slice(0, 10));
   } catch(e){ /* 조용히 넘어갑니다 */ }
 }
@@ -14562,9 +14668,10 @@ function setMacroTeam(k, quiet){
     요약만 둡니다 (마지막 값 · 전기 · 1년 전 · 작은 추세선). 지표 전체를
     두면 localStorage 5MB 가 금방 찹니다.
     기한: 다음 발표일(until)까지 — 단, 발표 뒤 이틀은 6시간 (서버와 같은 규칙).  */
-function mcStoreRead(){
-  try { return JSON.parse(localStorage.getItem(MC_KEY) || '{}') || {}; } catch(e){ return {}; }
-}
+/*  (10/7 효율 점검) 보관함을 푼 것을 기억해 둡니다 (lsRead). 예전에는 카드 · 줄마다 localStorage 전체를 JSON.parse 해서
+    처음 들어갈 때(아직 없는 지표가 많을 때) 같은 글을 수십 번 풀었습니다. 글이 그대로면 푼 것을 다시 씁니다.  */
+var mcStoreC = lsMemo(MC_KEY);
+function mcStoreRead(){ return lsRead(mcStoreC); }
 function mcStoreWrite(m){
   try {
     var keys = Object.keys(m);
@@ -14572,8 +14679,8 @@ function mcStoreWrite(m){
       keys.sort(function(a, b){ return (m[a].at || 0) - (m[b].at || 0); });
       keys.slice(0, keys.length - 120).forEach(function(k){ delete m[k]; });
     }
-    localStorage.setItem(MC_KEY, JSON.stringify(m));
-  } catch(e){ /* 꽉 찼으면 그냥 안 남깁니다 */ }
+  } catch(e){}
+  lsWrite(mcStoreC, m);                          //  꽉 찼으면 그냥 안 남깁니다
 }
 function mcExpiry(s){
   var now = Date.now(), six = now + 6 * 36e5;
@@ -15067,6 +15174,7 @@ function macroTeamRefresh(){
   var m = mcStoreRead();
   t.items.forEach(function(it){ var k = mcKey(it); delete mcMem[k]; delete m[k]; });
   mcStoreWrite(m);
+  ecForget(t.items.map(function(it){ return it.s; }));     //  (10/7) 화면 메모리에 둔 응답도 비우고 서버에서 새로
   renderMacroTeam();
 }
 
@@ -15511,8 +15619,10 @@ var secMem = {}, secRun = 0, secChart = null;
 //  시세는 2년치 — 1년 수익률 + YTD 에 넉넉합니다. 해가 바뀔 때만 바뀌는 start 라 서버 보관함을 같이 씁니다.
 function secStart(){ return (new Date().getFullYear() - 2) + '-01-01'; }
 function secKey(src, sym){ return src + '|' + sym; }
-function secStoreRead(){ try { return JSON.parse(localStorage.getItem(SECQ_KEY) || '{}') || {}; } catch(e){ return {}; } }
-function secStoreWrite(m){ try { localStorage.setItem(SECQ_KEY, JSON.stringify(m)); } catch(e){} }
+//  (10/7) 푼 것을 기억 (mcStoreRead 와 같은 이유)
+var secStoreC = lsMemo(SECQ_KEY);
+function secStoreRead(){ return lsRead(secStoreC); }
+function secStoreWrite(m){ lsWrite(secStoreC, m); }
 function secCached(key){
   //  바이낸스는 화면 메모리도 2분이 지나면 다시 받습니다
   if (secMem[key] && /^quote_bn\|/.test(key) && secMem[key].at && Date.now() - secMem[key].at > 2 * 60000) delete secMem[key];
@@ -15577,6 +15687,7 @@ async function secLoad(src, sym, run){
   }
 }
 
+var secRenderSoon = throttleFn(function(){ renderSectors(); }, 600);
 function secSet(k, v){
   secState[k] = v;
   try { localStorage.setItem(SEC_KEY, JSON.stringify(secState)); } catch(e){}
@@ -15615,6 +15726,7 @@ function secRefresh(){
   var m = secStoreRead();
   secAll(set).forEach(function(it){ var k = secKey(it[2], it[0]); delete secMem[k]; delete m[k]; });
   secStoreWrite(m);
+  ecForget(['quote_us', 'quote_kr', 'quote_crypto', 'quote_bn']);     //  (10/7) 화면 메모리의 응답도
   if (set.dyn){ bnList.st = ''; bnHeatTick(); }
   loadSectors();
 }
@@ -15656,11 +15768,13 @@ async function loadSectors(){
   var need = all.filter(function(it){ return !secCached(secKey(it[2], it[0])); });
   var step = set.dyn ? 6 : 3;
   if (note) note.textContent = need.length ? need.length + '개 시세 받는 중…' : (set.dyn ? '기간 수익률은 2분마다 새로 받습니다.' : '시세는 이 브라우저에 6시간 남겨 둡니다.');
+  //  (10/7) 묶음마다 표 · 차트 전체를 다시 그리던 것을 0.6초에 한 번으로 묶고, 끝나면 한 번 더
   for (var j = 0; j < need.length; j += step){
     if (run !== secRun) return;
     await Promise.all(need.slice(j, j + step).map(function(it){ return secLoad(it[2], it[0], run); }));
-    if (run === secRun) renderSectors();
+    if (run === secRun) secRenderSoon();
   }
+  if (run === secRun && need.length) secRenderSoon.flush();
   if (run === secRun && note) note.textContent = need.length ? (set.dyn ? '받았습니다 · 기간 수익률은 2분마다 새로 받습니다.' : '받았습니다 · 6시간 동안 이 브라우저에 남겨 둡니다.') : note.textContent;
 }
 
@@ -15674,7 +15788,11 @@ function bnHeatOn(){ return curTab === 'industry' && secState.mkt === 'bn' && !d
 function bnHeatStart(){
   if (bnHeatTimer) return;
   bnHeatTick();
-  bnHeatTimer = setInterval(function(){ if (bnHeatOn()) bnHeatTick(); else { clearInterval(bnHeatTimer); bnHeatTimer = null; } }, 10000);
+  bnHeatTimer = setInterval(function(){
+    if (!bnHeatOn()){ clearInterval(bnHeatTimer); bnHeatTimer = null; return; }
+    if (userIdle() && bnHeatAt && Date.now() - bnHeatAt < 55000) return;      //  (10/7) 자리 비움: 1분마다
+    bnHeatTick();
+  }, 10000);
 }
 var bnHeatP = null;
 function bnHeatTick(){
@@ -15683,8 +15801,9 @@ function bnHeatTick(){
   bnHeatP = bnHeatTick1();
   return bnHeatP;
 }
+var bnHeatAt = 0;
 async function bnHeatTick1(){
-  if (bnHeatBusy) return; bnHeatBusy = true;
+  if (bnHeatBusy) return; bnHeatBusy = true; bnHeatAt = Date.now();
   try {
     var d = await edge({ source: 'bn_live' });
     var m = {}; (d.items || []).forEach(function(x){ m[x.s] = x; });
@@ -15726,7 +15845,7 @@ function bnHeatRender(){
   if (bnLiveData.at){ var t = new Date(bnLiveData.at); last = String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0') + ':' + String(t.getSeconds()).padStart(2, '0'); }
   if (st) st.innerHTML = (bnLiveData.err && !Object.keys(bnLiveData.map).length)
       ? '<span style="color:var(--danger)">' + T('실시간 시세를 받지 못했습니다 - ', 'Live prices unavailable - ') + esc(bnLiveData.err) + '</span>'
-      : T('실시간 · 10초마다 · ', 'Live · every 10s · ') + (last ? last + T(' 기준 · ', ' · ') : '')
+      : (userIdle() ? T('자리 비움 · 1분마다 · ', 'Idle · every 1 min · ') : T('실시간 · 10초마다 · ', 'Live · every 10s · ')) + (last ? last + T(' 기준 · ', ' · ') : '')
         + T('색 = 24시간 등락 (USDT) · 원자재는 평일 24시간(주말 쉼), 주식은 그 시장 시간을 따릅니다 · 누르면 아래 가격 차트에',
             'color = 24h change (USDT) · commodities trade 24/5, stocks follow their market hours · click to chart');
   var dot = document.querySelector('#bnHeatBox .bn-live'); if (dot) dot.classList.toggle('off', !!bnLiveData.stale || !bnLiveData.at);
@@ -15909,11 +16028,31 @@ function initMarket(){
   mkStart();
 }
 function mkOn(){ return curTab === 'market' && !document.hidden && !MK.paused; }
+/*  ── 자리 비움 (10/7 효율 점검) ─────────────────────────────────────────────────────────────
+    화면을 켜 둔 채 자리를 비우면 10초마다 서버를 계속 불렀습니다 (한 사람이 하룻밤 켜 두면 약 4,000번).
+    10분 동안 마우스 · 키보드 · 터치 · 스크롤이 없으면 마켓 맵 · 바이낸스 히트맵을 1분마다로 늦추고,
+    다시 손대면 바로 한 번 받고 10초로 돌아갑니다. ⚠️ 마켓 맵 «전체 화면» 으로 띄워 둔 때는 그대로 10초 (띄워 놓고 보는 용도).  */
+var userActAt = Date.now(), IDLE_SLOW_MS = 10 * 60000;
+function userIdle(){ return Date.now() - userActAt > IDLE_SLOW_MS; }
+function mkSlow(){ return userIdle() && !document.body.classList.contains('mk-full-on'); }
+(function(){
+  var on = function(){
+    var was = userIdle(); userActAt = Date.now();
+    if (!was) return;
+    try { if (curTab === 'market' && MK.inited && mkOn()){ mkTick(); mkHead(); } } catch(e){}
+    try { if (typeof bnHeatOn === 'function' && bnHeatOn() && bnHeatTimer) bnHeatTick(); } catch(e){}
+  };
+  ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart', 'scroll'].forEach(function(ev){
+    window.addEventListener(ev, on, { passive: true, capture: true });
+  });
+})();
 function mkStart(){
   if (!MK.timer){
     MK.timer = setInterval(function(){
       if (curTab !== 'market'){ clearInterval(MK.timer); MK.timer = null; return; }
-      if (mkOn()) mkTick();
+      if (!mkOn()) return;
+      if (mkSlow() && MK.tickAt && Date.now() - MK.tickAt < 55000) return;     //  자리 비움: 1분마다
+      mkTick();
     }, 10000);
   }
   if (!MK.clock) MK.clock = setInterval(function(){ if (curTab === 'market') mkClock(); else { clearInterval(MK.clock); MK.clock = null; } }, 1000);
@@ -15928,6 +16067,7 @@ function mkPause(){
   if (!MK.paused) mkTick();
 }
 async function mkTick(){
+  MK.tickAt = Date.now();
   var jobs = [mkFetchSnap()];
   if (MK.view === 'world' && MK.cc && MK.ctryOpen && MK.ctryTab === 'stk' && MK_LINES.indexOf(MK.cc) >= 0) jobs.push(mkFetchCountry(MK.cc));
   if (MK.view === 'world') mkNewsGet();
@@ -16027,15 +16167,15 @@ function mkHead(){
   var st = $('mkLive'), pb = $('mkPauseBtn');
   if (pb){ pb.textContent = MK.paused ? T('다시 시작', 'Resume') : T('일시정지', 'Pause'); pb.setAttribute('aria-pressed', MK.paused ? 'true' : 'false'); }
   if (!st) return;
-  var stale = MK.at && Date.now() - MK.at > 35000;
+  var slow = mkSlow(), stale = MK.at && Date.now() - MK.at > (slow ? 95000 : 35000);
   var cls = MK.paused ? 'off' : (MK.err && !MK.snap) || stale ? 'warn' : MK.at ? '' : 'off';
   st.className = 'mk-live ' + cls;
   st.innerHTML = '<i></i><span>' + (MK.paused ? esc(T('일시정지', 'Paused'))
-    : MK.at ? esc(T('10초마다', 'every 10s') + ' · ' + mkHhmmss(MK.at) + ' · ') + '<span id="mkAgo">' + esc(mkAgo(MK.at)) + '</span>'
+    : MK.at ? esc((slow ? T('자리 비움 · 1분마다', 'idle · every 1 min') : T('10초마다', 'every 10s')) + ' · ' + mkHhmmss(MK.at) + ' · ') + '<span id="mkAgo">' + esc(mkAgo(MK.at)) + '</span>'
     : esc(MK.err ? T('받지 못함', 'failed') : T('받는 중…', 'Loading…'))) + '</span>';
   st.title = MK.err ? MK.err : T('학회원이 몇 명이 보든 서버가 창구마다 한 벌만 받아 나눠 씁니다 · 지수 · 환율 · 국채는 1분마다 새로 받음', 'Shared server cache');
 }
-function mkClock(){ var a = $('mkAgo'); if (a && MK.at) a.textContent = mkAgo(MK.at); if (MK.at && Date.now() - MK.at > 35000) mkHead(); }
+function mkClock(){ var a = $('mkAgo'); if (a && MK.at) a.textContent = mkAgo(MK.at); if (MK.at && Date.now() - MK.at > 35000) mkHead(); else if (MK.slowShown !== mkSlow()){ MK.slowShown = mkSlow(); mkHead(); } }
 
 /* ── 전체 화면 · 화면 켜두기 ── */
 function mkFull(){
@@ -17582,8 +17722,10 @@ var BN_INDUSTRIES = [
 var BN_START = '2015-01-01', BN_KEY = 'safe_bn_v1';
 var bnMem = {}, bnRun = 0, bnChart = null;
 
-function bnStoreRead(){ try { return JSON.parse(localStorage.getItem(BN_KEY) || '{}') || {}; } catch(e){ return {}; } }
-function bnStoreWrite(m){ try { localStorage.setItem(BN_KEY, JSON.stringify(m)); } catch(e){} }
+//  (10/7) 푼 것을 기억 (mcStoreRead 와 같은 이유 · 병목 표를 그릴 때마다 지표 수 × 2 번 풀던 것)
+var bnStoreC = lsMemo(BN_KEY);
+function bnStoreRead(){ return lsRead(bnStoreC); }
+function bnStoreWrite(m){ lsWrite(bnStoreC, m); }
 function bnCached(code){
   if (bnMem[code] && !bnMem[code].err) return bnMem[code];
   var e = bnStoreRead()[code];
@@ -17655,15 +17797,19 @@ async function loadBottleneck(){
   var need = bnAllCodes().filter(function(c){ return !bnCached(c); });
   var note = $('bnNote');
   if (note) note.textContent = need.length ? need.length + '개 지표 받는 중 (3개씩) — 받은 요약은 다음 발표일까지 이 브라우저에 남깁니다.' : '전부 보관함에서 (다음 발표일까지).';
+  //  (10/7) 3개 받을 때마다 표 · 차트 전체를 다시 그리던 것을 0.6초에 한 번으로 묶고, 끝나면 한 번 더
   for (var j = 0; j < need.length; j += 3){
     if (run !== bnRun) return;
     await Promise.all(need.slice(j, j + 3).map(function(c){ return bnLoad(c, run); }));
-    if (run === bnRun) renderBottleneck();
+    if (run === bnRun) bnRenderSoon();
   }
+  if (run === bnRun && need.length) bnRenderSoon.flush();
   if (run === bnRun && note && need.length) note.textContent = '갱신 완료 · 다음 발표일까지 이 브라우저에 저장됩니다.';
 }
+var bnRenderSoon = throttleFn(function(){ renderBottleneck(); }, 600);
 function bnRefresh(){
   var m = bnStoreRead(); bnAllCodes().forEach(function(c){ delete bnMem[c]; delete m[c]; }); bnStoreWrite(m);
+  ecForget(['fred']);     //  (10/7) 화면 메모리의 응답도
   loadBottleneck();
 }
 function bnScores(){
