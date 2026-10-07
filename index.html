@@ -508,7 +508,16 @@
     .mk-full #mkV-world .mk-ctry{position:absolute;top:0;bottom:auto;max-height:100%;right:0;left:auto;width:clamp(440px,38%,680px);z-index:5;background:var(--card);border:1px solid var(--border);border-radius:12px;
       box-shadow:0 14px 36px rgba(20,30,60,.20);padding:12px 16px;overflow-y:auto;min-height:0}
     .mk-full #mkV-world .mk-world.left .mk-ctry{right:auto;left:0}
+    /*  (10/7 학회장: «이 분석 탭 드래그해서 위치 자유자재로») — 손잡이(⋮⋮)나 탭 줄 빈 곳을 끌어 옮김 · 손잡이 두 번 누르면 제자리  */
+    .mk-full #mkV-world .mk-drag{display:inline-flex;align-items:center;justify-content:center;flex:none;width:20px;height:28px;margin-left:-6px;
+      cursor:grab;color:var(--text-sub);border-radius:6px;user-select:none;touch-action:none;font-size:14px;line-height:1;letter-spacing:-3px}
+    .mk-full #mkV-world .mk-drag:hover{background:var(--accent-soft);color:var(--primary)}
+    .mk-full #mkV-world .mk-ctry-top{cursor:grab}
+    .mk-full #mkV-world .mk-ctry-top button{cursor:pointer}
+    .mk-full #mkV-world .mk-ctry.dragging{cursor:grabbing;user-select:none;box-shadow:0 20px 48px rgba(20,30,60,.30)}
+    .mk-full #mkV-world .mk-ctry.dragging .mk-ctry-top{cursor:grabbing}
   }
+  .mk-drag{display:none}
   .mk-easy{margin-top:10px;border:1px solid var(--border);border-radius:9px;padding:7px 12px;font-size:12.5px;background:var(--card)}
   .mk-easy summary{cursor:pointer;font-weight:700;color:var(--primary)}
   .mk-easy ul{margin:6px 0 2px;padding-left:18px;line-height:1.65} .mk-easy li{margin:2px 0}
@@ -1588,6 +1597,7 @@
   .fs-kids{font-size:10px;color:var(--text-sub);margin-right:5px}
   .fs-nm{vertical-align:middle}
   .fs-num.calc{border-bottom:1px dotted var(--text-sub);cursor:help}
+  .fs-calc-eg{display:inline;border-bottom:1px dotted var(--text-sub);margin-right:1px}
   .cal-key{display:inline-block;font-size:10.5px;padding:1px 6px;border-radius:3px;
     margin-right:4px;background:var(--bg);color:var(--text-sub);border:1px solid var(--border)}
   .cal-key.up{background:rgba(192,57,43,.10);color:var(--up);border-color:transparent}
@@ -4733,10 +4743,11 @@
               <div id="mkMapBox" class="mk-map"></div>
               <div class="mk-chips" id="mkCtryChips"></div>
               <div class="mk-news5" id="mkNews5" aria-live="polite"></div>
-              <p class="st-hint" style="margin:8px 0 0;line-height:1.6">지도 색 = 그 나라 대표 지수(열려 있으면 · 1~15분 지연) 또는 미국 상장 나라 ETF 의 전 거래일 종가 대비 등락 · 나라를 누르면 옆에 그 나라 개요(지수 · 경제 · 금리) · 주요 기업 오늘 선 · 업종 · 환율 예측 · AI 시황 · 시각은 이 기기 시간 · 휠로 확대 · 끌어서 이동</p>
+              <p class="st-hint" style="margin:8px 0 0;line-height:1.6">지도 색 = 그 나라 대표 지수(열려 있으면 · 1~15분 지연) 또는 미국 상장 나라 ETF 의 전 거래일 종가 대비 등락 · 나라를 누르면 옆에 그 나라 개요(지수 · 경제 · 금리) · 주요 기업 오늘 선 · 업종 · 환율 예측 · 시황 · 시각은 이 기기 시간 · 휠로 확대 · 끌어서 이동</p>
             </div>
             <aside class="mk-ctry" id="mkCtry" aria-label="고른 나라">
               <div class="mk-ctry-top">
+                <span class="mk-drag" id="mkCtryDrag" title="끌어서 옮기기 · 두 번 누르면 제자리" aria-hidden="true">⋮⋮</span>
                 <span class="px-seg mk-ctabs" id="mkCtryTabs" role="group" aria-label="보기"></span>
                 <button type="button" class="mk-x" onclick="mkCtryClose()" aria-label="나라 칸 닫기" title="닫기 (지도를 넓게)">×</button>
               </div>
@@ -8764,9 +8775,9 @@ function aicRender(){
 function aicCheckHtml(m){
   var c = m && m.check; if (!c || !(c.n > 0)) return '';
   var fl = Array.isArray(c.flagged) ? c.flagged.slice(0, 12) : [];
-  if (!fl.length) return '<div class="aic-chk ok" title="답의 숫자를 이번에 찾아본 자료 · 화면과 하나씩 대조했습니다">✓ <b>숫자 ' + Number(c.n) + '개 근거 확인</b>' + (c.fixed ? ' (한 번 고쳐 씀)' : '') + '</div>';
-  return '<div class="aic-chk bad" title="자료에서 같은 값을 찾지 못한 숫자 - 직접 확인하세요">⚠ <b>근거를 찾지 못한 숫자 ' + fl.length + '개</b>: ' + esc(fl.join(' · '))
-    + ' <span>(' + Number(c.ok) + '/' + Number(c.n) + ' 확인 · 그대로 쓰기 전에 화면 · 원자료로 확인)</span></div>';
+  //  (10/7 학회장: «팩트체크 · 숫자 몇 개 대조 → 일치 … 이런 문구 숨겨») — 다 맞으면 아무것도 안 적습니다 (대조는 서버가 그대로 함)
+  if (!fl.length) return '';
+  return '<div class="aic-chk bad" title="자료에서 같은 값을 찾지 못한 숫자 - 직접 확인하세요">⚠ <b>확인이 필요한 숫자</b>: ' + esc(fl.join(' · ')) + '</div>';
 }
 function aicCopy(i){
   var m = aicMsgs[i]; if (!m) return;
@@ -11935,9 +11946,9 @@ function renderProfile(d){
       뭐냐" 는 질문에 답을 못 합니다.                                    */
   if (d.source === 'pplx'){
     H += '<div class="note info" style="margin:0 0 14px">'
-       + '<b>이 화면의 숫자는 AI 검색으로 모은 참고값입니다</b> (Perplexity). '
-       + '거래소 원본이 아니고, <b>모의투자 체결 가격에는 쓰이지 않습니다</b>. '
-       + '재무제표 탭의 숫자는 DART · SEC 원문에서 직접 받은 것이라 그대로 정확합니다.'
+       //  (10/7 학회장: «AI 로 찾고 있어요 이런 거 쓰지 마») — 업체 · 방법 이름 없이 «공개 자료 기준 · 출처» 만
+       + '<b>공개 자료에서 모은 숫자입니다</b> - 공시 원문과 다를 수 있어 아래 출처를 확인해 주세요. '
+       + '재무제표 탭의 숫자는 DART · SEC 공시 원문 그대로입니다.'
        + (aiArr(d.sources).length
            ? '<div style="margin-top:8px">출처 · '
              + d.sources.map(function(u, i){
@@ -14113,11 +14124,11 @@ function addManual(){
     코드가 카탈로그에 없으면 (해당 SQL 을 아직 안 돌렸으면) 조용히
     건너뜁니다 — 있는 것만 올라갑니다.                                  */
 var MACRO_BUNDLES = [
-  { n:'미국채 — 누가 들고 있나', d:'연준 · 해외 · 은행 · 가계 · 펀드 · 연기금 (분기, 1945~)',
+  { n:'미국채 - 누가 들고 있나', d:'연준 · 해외 · 은행 · 가계 · 펀드 · 연기금 (분기, 1945~) · 해외 · 펀드는 시가, 나머지는 장부가 · 가계는 Z.1 의 나머지(잔차)',
     keepRaw:true,
     c:['BOGZ1FL713061103Q','BOGZ1LM263061105Q','BOGZ1FL763061100Q',
        'HNOTSAQ027S','BOGZ1FL653061105Q','BOGZ1FL593061105Q'] },
-  { n:'미국채 — 나라별 보유', d:'외국인 전체 · 일본 · 중국 · 영국 · 한국 (월간, 2003~)',
+  { n:'미국채 - 나라별 보유', d:'외국인 전체 · 일본 · 중국 · 영국 · 한국 (월간, 2003~)',
     keepRaw:true,
     c:['FORTREASPOS99996','FORTREASPOS42609','FORTREASPOS41408',
        'FORTREASPOS13005','FORTREASPOS43001'] },
@@ -14125,15 +14136,15 @@ var MACRO_BUNDLES = [
       다섯 금리는 <회랑> 으로 같이 봐야 뜻이 납니다 — 천장(SRF)에서
       바닥(ON RRP) 순서로 올려서 목록 순서도 위아래와 맞춥니다.
       (terminal-단기자금.sql 을 돌려야 단추가 보입니다)              */
-  { n:'단기금리 회랑 — SRF · IORB · SOFR · EFFR · ON RRP',
-    d:'연준 단기금리 다섯 개 — 천장(SRF)부터 바닥(ON RRP)까지 (%, 일간, 2021-07~)',
+  { n:'단기금리 회랑 - SRF · IORB · SOFR · EFFR · ON RRP',
+    d:'연준 단기금리 다섯 개 - 천장(SRF)부터 바닥(ON RRP)까지 (%, 일간, 2021-07~)',
     keepRaw:true,
     c:['SRFTSYD','IORB','SOFR','EFFR','RRPONTSYAWARD'] },
   /*  ⚠️ 금액은 <단위가 같은 것끼리만> 묶습니다. 대차대조표 셋은 주간 ·
       백만 달러이고, 레포 창구 둘(ON RRP 잔액 · SRF 이용액)은 일간 · 십억
       달러라 여기 안 넣습니다 — 섞으면 한쪽이 천 배로 부풀어 보입니다. */
-  { n:'연준 유동성 — 총자산 · 지급준비금 · TGA',
-    d:'연준 총자산 · 은행 지급준비금 · 재무부 계좌 (주간, 백만 달러, 2002~)',
+  { n:'연준 유동성 - 총자산 · 지급준비금 · TGA',
+    d:'연준 총자산 · 은행 지급준비금 · 재무부 계좌 (주간, 백만 달러, 2002~) · 지준 · TGA 는 주평균, 총자산은 수요일 값',
     keepRaw:true,
     c:['WALCL','WRESBAL','WTREGEN'] }
 ];
@@ -14149,98 +14160,98 @@ var MACRO_BUNDLES = [
     주기는 한 묶음 안에서 같게 둡니다 (주간·월간 섞지 않음 — 위 주석 참고).
     코드는 terminal-팀지표.sql 이 목록에 넣은 것들이라, 그 SQL 을 안 돌렸으면 조용히 빠집니다.  */
 var TEAM_BUNDLES = {
-  rates: [{ n:'미국 일드커브', d:'미 국채 만기별 곡선 (1개월~30년) — 최근 · 1년 전 겹쳐 보기', curve:'us', c:[] }].concat(MACRO_BUNDLES),
+  rates: [{ n:'미국 일드커브', d:'미 국채 만기별 곡선 (1개월~30년) - 최근 · 1년 전 겹쳐 보기', curve:'us', c:[] }].concat(MACRO_BUNDLES),
   infl: [
-    { n:'물가 4종 — CPI · 근원 CPI · PCE · 근원 PCE', d:'연준이 보는 네 가지 물가 (월간, 전년비 %)', tf:'yoy',
+    { n:'물가 4종 - CPI · 근원 CPI · PCE · 근원 PCE', d:'연준이 보는 네 가지 물가 (월간, 전년비 %)', tf:'yoy',
       c:['CPIAUCSL','CPILFESL','PCEPI','PCEPILFE'] },
-    { n:'CPI 속 — 주거비 · 서비스(에너지 제외) · 에너지 · 식품', d:'헤드라인을 가르는 네 항목 (월간, 전년비 %)', tf:'yoy',
+    { n:'CPI 속 - 주거비 · 서비스(에너지 제외) · 에너지 · 식품', d:'헤드라인을 가르는 네 항목 (월간, 전년비 %)', tf:'yoy',
       c:['CUSR0000SAH1','CUSR0000SASLE','CPIENGSL','CPIUFDSL'] },
-    { n:'파이프라인 — 제조업 PPI · PPI 최종수요 · CPI', d:'투입 비용 → 생산자 → 소비자 순서 (월간, 전년비 %)', tf:'yoy',
+    { n:'파이프라인 - 제조업 PPI · PPI 최종수요 · CPI', d:'제조업 출하가 → 최종수요 생산자물가 → 소비자물가 순서 (월간, 전년비 %)', tf:'yoy',
       c:['PCUOMFGOMFG','PPIFIS','CPIAUCSL'] },
-    { n:'기대인플레이션 — 5년 BEI · 10년 BEI', d:'국채 − 물가연동채 (일간, %)', keepRaw:true,
+    { n:'기대인플레이션 - 5년 BEI · 10년 BEI', d:'국채 - 물가연동채 (일간, %)', keepRaw:true,
       c:['T5YIE','T10YIE'] },
-    { n:'한·미 물가 — 미국 CPI · 한국 CPI', d:'두 나라 소비자물가 (월간, 전년비 %)', tf:'yoy',
-      c:['CPIAUCSL','901Y009'] }
+    { n:'한·미 물가 - 미국 CPI · 한국 CPI', d:'두 나라 소비자물가 (월간, 전년비 %)', tf:'yoy',
+      c:['CPIAUCSL','901Y009|0'] }
   ],
   jobs: [
-    { n:'실업률 — U3 · U6', d:'공식 실업률과 불완전 취업 포함 광의 실업률 (월간, %)', keepRaw:true,
+    { n:'실업률 - U3 · U6', d:'공식 실업률과 불완전 취업 포함 광의 실업률 (월간, %)', keepRaw:true,
       c:['UNRATE','U6RATE'] },
-    { n:'고용 여건 — 경제활동참가율 · 25~54세 고용률', d:'인구구조 영향을 뺀 고용 수준 (월간, %)', keepRaw:true,
+    { n:'고용 여건 - 경제활동참가율 · 25~54세 고용률', d:'인구구조 영향을 뺀 고용 수준 (월간, %)', keepRaw:true,
       c:['CIVPART','LNS12300060'] },
-    { n:'고용 증감 — 비농업 · 제조업', d:'이달에 몇 천 명 늘었나 (월간, 전기 증감, 천명)', tf:'momd', type:'bar',
+    { n:'고용 증감 - 비농업 · 제조업', d:'이달에 몇 천 명 늘었나 (월간, 전기 증감, 천명)', tf:'momd', type:'bar',
       c:['PAYEMS','MANEMP'] },
-    { n:'실질임금 — 평균 시급 · CPI', d:'시급 상승률이 물가를 이기는가 (월간, 전년비 %)', tf:'yoy',
+    { n:'실질임금 - 평균 시급 · CPI', d:'시급 상승률이 물가를 이기는가 (월간, 전년비 %)', tf:'yoy',
       c:['CES0500000003','CPIAUCSL'] },
-    { n:'주간 청구 — 신규(좌) · 계속(우)', d:'가장 빠른 고용 지표 둘 (주간, 건) — 크기가 달라 축을 나눕니다', keepRaw:true, ax:[0,1],
+    { n:'주간 청구 - 신규(좌) · 계속(우)', d:'가장 빠른 고용 지표 둘 (주간, 건) - 크기가 달라 축을 나눕니다', keepRaw:true, ax:[0,1],
       c:['ICSA','CCSA'] },
-    { n:'JOLTS — 구인건수(좌) · 자발적 퇴직률(우)', d:'빈 일자리와 노동자의 자신감 (월간)', keepRaw:true, ax:[0,1],
+    { n:'JOLTS - 구인건수(좌) · 자발적 퇴직률(우)', d:'빈 일자리와 노동자의 자신감 (월간)', keepRaw:true, ax:[0,1],
       c:['JTSJOL','JTSQUR'] }
   ],
   krmm: [
-    { n:'한국 일드커브', d:'국고채 만기별 곡선 (통안 91일 · 1~50년) — 최근 · 1년 전 겹쳐 보기', curve:'kr', c:[] },
-    { n:'단기자금 — 기준금리 · 콜 · KOFR · CD · CP · KORIBOR 3M', d:'한국 단기금리 여섯 (일간, %) — 기준금리 위로 얼마나 붙었나', keepRaw:true,
+    { n:'한국 일드커브', d:'국고채 만기별 곡선 (통안 91일 · 1~50년) - 최근 · 1년 전 겹쳐 보기', curve:'kr', c:[] },
+    { n:'단기자금 - 기준금리 · 콜 · KOFR · CD · CP · KORIBOR 3M', d:'한국 단기금리 여섯 (일간, %) - 기준금리 위로 얼마나 붙었나', keepRaw:true,
       c:['722Y001|0101000','817Y002|010101000','817Y002|010901000','817Y002|010502000','817Y002|010503000','817Y002|010150000'] },
-    { n:'국고채 커브 — 1 · 3 · 5 · 10 · 30년', d:'만기별 국고채 금리 (일간, %)', keepRaw:true,
+    { n:'국고채 커브 - 1 · 3 · 5 · 10 · 30년', d:'만기별 국고채 금리 (일간, %)', keepRaw:true,
       c:['817Y002|010190000','817Y002|010200000','817Y002|010200001','817Y002|010210000','817Y002|010230000'] },
-    { n:'신용 스프레드 — 국고채 3년 · 회사채 AA- · BBB-', d:'같은 3년 만기 · 차이가 신용 스프레드 (일간, %)', keepRaw:true,
+    { n:'신용 스프레드 - 국고채 3년 · 회사채 AA- · BBB-', d:'같은 3년 만기 · 차이가 신용 스프레드 (일간, %)', keepRaw:true,
       c:['817Y002|010200000','817Y002|010300000','817Y002|010320000'] },
-    { n:'기준금리 vs 시장 — 기준금리 · 통안 91일 · 통안 1년 · 국고채 3년', d:'시장이 다음 금통위를 어떻게 보나 (일간, %)', keepRaw:true,
+    { n:'기준금리 vs 시장 - 기준금리 · 통안 91일 · 통안 1년 · 국고채 3년', d:'시장이 다음 금통위를 어떻게 보나 (일간, %)', keepRaw:true,
       c:['722Y001|0101000','817Y002|010400000','817Y002|010400001','817Y002|010200000'] },
-    { n:'한·미 10년 — 한국 국고채 10년 · 미국 국채 10년', d:'한·미 금리차 (일간, %)', keepRaw:true,
+    { n:'한·미 10년 - 한국 국고채 10년 · 미국 국채 10년', d:'한·미 금리차 (일간, %)', keepRaw:true,
       c:['817Y002|010210000','DGS10'] }
   ],
   usmm: [
-    { n:'SRF 이용 — 합계 · 국채 · MBS', d:'연준 상설 레포 이용액 (일간, 십억달러) — 분기말 급증', keepRaw:true,
+    { n:'SRF 이용 - 합계 · 국채 · MBS', d:'연준 상설 레포 이용액 (일간, 십억달러) - 분기말 급증', keepRaw:true,
       c:['RPONTTLD','RPONTSYD','RPONMBSD'] },
-    { n:'레포 압력 — SRF 금리 · SOFR 99% · SOFR · TGCR · IORB', d:'꼬리(99%)가 천장(SRF 금리)에 닿으면 SRF 이용이 늘어납니다 (일간, %)', keepRaw:true,
+    { n:'레포 압력 - SRF 금리 · SOFR 99% · SOFR · TGCR · IORB', d:'꼬리(99%)가 천장(SRF 금리)에 닿으면 SRF 이용이 늘어납니다 (일간, %)', keepRaw:true,
       c:['SRFTSYD','SOFR99','SOFR','TGCRRATE','IORB'] },
-    { n:'SRF 이용(좌) vs ON RRP 잔액(우)', d:'유동성 부족 측 vs 잉여 측 (일간, 십억달러) — 규모가 수십 배 달라 축을 나눕니다', keepRaw:true, ax:[0,1],
+    { n:'SRF 이용(좌) vs ON RRP 잔액(우)', d:'유동성 부족 측 vs 잉여 측 (일간, 십억달러) - 규모가 수십 배 달라 축을 나눕니다', keepRaw:true, ax:[0,1],
       c:['RPONTTLD','RRPONTSYD'] },
     { n:'SOFR 거래량(좌) · SOFR(우)', d:'레포 시장 크기와 금리 (일간)', keepRaw:true, ax:[0,1],
       c:['SOFRVOL','SOFR'] },
-    { n:'지준 · TGA · 연준 총자산', d:'주간 · 백만달러', keepRaw:true,
+    { n:'지준 · TGA · 연준 총자산', d:'주간 · 백만달러 · 지준 · TGA 는 주평균, 총자산은 수요일 값', keepRaw:true,
       c:['WRESBAL','WTREGEN','WALCL'] },
-    { n:'연준 비상 창구 — 할인창구 · FIMA 레포 · 해외공적 역레포(우)', d:'주간 · 백만달러 — 은행·해외 중앙은행이 연준에 기대는 정도', keepRaw:true, ax:[0,0,1],
+    { n:'연준 비상 창구 - 할인창구 · FIMA 레포 · 해외공적 역레포(우)', d:'주간 · 백만달러 - 은행·해외 중앙은행이 연준에 기대는 정도', keepRaw:true, ax:[0,0,1],
       c:['WLCFLPCL','H41RESPPALGTRFNWW','WLRRAFOIAL'] },
-    { n:'MMF 어디로 — 총자산 · 미국채 · 레포', d:'분기 · 백만달러 (Z.1) — MMF 돈이 T-bill 로 가나 레포(ON RRP)로 가나', keepRaw:true,
+    { n:'MMF 어디로 - 총자산 · 미국채 · 레포', d:'분기 · 백만달러 (Z.1) - MMF 돈이 T-bill 로 가나 레포(ON RRP)로 가나', keepRaw:true,
       c:['MMMFFAQ027S','BOGZ1FL633061105Q','BOGZ1FL632051000Q'] },
-    { n:'소매 MMF vs M2 — 전년비', d:'월간 · 전년비 % — 돈이 예금(M2)보다 빨리 MMF 로 옮겨 가는지', tf:'yoy',
+    { n:'소매 MMF vs M2 - 전년비', d:'월간 · 전년비 % - 소매 MMF 가 M2 전체보다 빨리 느는지 (소매 MMF 는 M2 안에 들어 있음)', tf:'yoy',
       c:['RMFSL','M2SL'] }
   ],
   krpf: [
-    { n:'PF 대출 — 비은행 부동산업 · 건설업', d:'비은행예금취급기관 (분기, 조원)', keepRaw:true,
+    { n:'부동산 · 건설업 대출 - 비은행 (PF 위험 대리지표)', d:'비은행예금취급기관 업종별 대출 (분기, 조원) · PF 만 따로 뗀 숫자는 아님', keepRaw:true,
       c:['131Y014|BDHE1C','131Y014|BDHE16'] },
-    { n:'부동산업 대출 — 은행 · 비은행', d:'분기 · 조원', keepRaw:true,
+    { n:'부동산업 대출 - 은행 · 비은행', d:'분기 · 조원', keepRaw:true,
       c:['131Y013|BDDE1C','131Y014|BDHE1C'] },
-    { n:'부동산업·건설업 대출 증가율 — 은행 · 비은행', d:'전년비 % (분기) — 비은행이 먼저 꺾이면 경색', tf:'yoy',
+    { n:'부동산업·건설업 대출 증가율 - 은행 · 비은행', d:'전년비 % (분기) - 비은행이 먼저 꺾이면 경색', tf:'yoy',
       c:['131Y013|BDDE1C','131Y014|BDHE1C','131Y013|BDDE16','131Y014|BDHE16'] },
-    { n:'PF 자금 경색 — CP 91일 · CD 91일 · 회사채 BBB- · AA-', d:'일간 · % — CP−CD 스프레드 확대 · BBB- 금리 급등은 신용 경색 신호', keepRaw:true,
+    { n:'PF 자금 경색 - CP 91일 · CD 91일 · 회사채 BBB- · AA-', d:'일간 · % - CP-CD 스프레드 확대 · BBB- 금리 급등은 신용 경색 신호', keepRaw:true,
       c:['817Y002|010503000','817Y002|010502000','817Y002|010320000','817Y002|010300000'] }
   ],
   krliq: [
-    { n:'대기자금 — MMF · RP · CD · CMA', d:'M2 구성 · 평잔 (월간, 조원)', keepRaw:true,
+    { n:'대기자금 - MMF · RP · CD · CMA', d:'M2 구성 · 평잔 (월간, 조원)', keepRaw:true,
       c:['161Y006|BBHA04','161Y006|BBHA15','161Y006|BBHA06','161Y006|BBHA08'] },
-    { n:'증시 대기자금 — 투자자예탁금(좌) · 신용융자(우)', d:'월간 · 조원', keepRaw:true, ax:[0,1],
+    { n:'증시 대기자금 - 투자자예탁금(좌) · 신용융자(우)', d:'월간 · 조원', keepRaw:true, ax:[0,1],
       c:['901Y056|S23A','901Y056|S23E'] },
-    { n:'한은 유동성 조절 — 통안증권 · RP 매각 · 지준예금', d:'한국은행 주요계정 말잔 (월간, 조원)', keepRaw:true,
+    { n:'한은 유동성 조절 - 통안증권 · RP 매각 · 지준예금', d:'한국은행 주요계정 말잔 (월간, 조원)', keepRaw:true,
       c:['103Y002|BCAA215','103Y002|BCAA216','103Y002|BCAA2121'] },
-    { n:'한은 대차대조표 — 총자산(좌) · 정부예금(우)', d:'말잔 (월간, 조원)', keepRaw:true, ax:[0,1],
+    { n:'한은 대차대조표 - 총자산(좌) · 정부예금(우)', d:'말잔 (월간, 조원)', keepRaw:true, ax:[0,1],
       c:['103Y002|BCAA1','103Y002|BCAA213'] },
     { n:'M2 · MMF 증가율', d:'전년비 % (월간)', tf:'yoy',
       c:['161Y006|BBHA00','161Y006|BBHA04'] }
   ],
   mfg: [
-    { n:'생산 — 산업생산 · 제조업 생산', d:'전체 산업과 제조업만 (월간, 전년비 %)', tf:'yoy',
+    { n:'생산 - 산업생산 · 제조업 생산', d:'전체 산업과 제조업만 (월간, 전년비 %)', tf:'yoy',
       c:['INDPRO','IPMAN'] },
-    { n:'가동률 — 전체 · 제조업', d:'80% 근처면 설비 여력 제한 (월간, %)', keepRaw:true,
+    { n:'가동률 - 전체 · 제조업', d:'80% 근처면 설비 여력 제한 (월간, %)', keepRaw:true,
       c:['TCU','MCUMFN'] },
-    { n:'주문 — 핵심 자본재 · 내구재', d:'설비투자 선행 (월간, 전년비 %)', tf:'yoy',
+    { n:'주문 - 핵심 자본재 · 내구재', d:'설비투자 선행 (월간, 전년비 %)', tf:'yoy',
       c:['NEWORDER','DGORDER'] },
-    { n:'병목 — 수주잔고 · 재고/판매 비율(우)', d:'쌓이는 주문과 재고 (월간) — 단위가 달라 축을 나눕니다', keepRaw:true, ax:[0,1],
+    { n:'병목 - 수주잔고 · 재고/판매 비율(우)', d:'쌓이는 주문과 재고 (월간) - 단위가 달라 축을 나눕니다', keepRaw:true, ax:[0,1],
       c:['AMTMUO','MNFCTRIRSA'] },
-    { n:'지역 연은 조사 — 뉴욕(Empire) · 필라델피아', d:'0 위면 확장 · ISM 보다 먼저 (월간, 확산지수)', keepRaw:true,
+    { n:'지역 연은 조사 - 뉴욕(Empire) · 필라델피아', d:'0 위면 확장 · ISM 보다 먼저 (월간, 확산지수)', keepRaw:true,
       c:['GACDISA066MSFRBNY','GACDFSA066MSFRBPHI'] },
-    { n:'비용 — 제조업 PPI · 제조업 고용 증감(우)', d:'투입 비용과 고용 (월간) — 비용은 전년비, 고용은 전기 증감', keepRaw:true, ax:[0,1], tfEach:['yoy','momd'],
+    { n:'가격 · 고용 - 제조업 PPI · 제조업 고용 증감(우)', d:'제조업 출하가격과 고용 (월간) - 가격은 전년비, 고용은 전기 증감', keepRaw:true, ax:[0,1], tfEach:['yoy','momd'],
       c:['PCUOMFGOMFG','MANEMP'] }
   ]
 };
@@ -14455,13 +14466,13 @@ var MACRO_TEAMS = {
       { s:'fred', c:'PCEPILFE',      cy:'M', t:'idx',  u:'지수',    st:3, b:1, l:'근원 PCE 물가',                 d:'식품·에너지 제외' },
       { s:'fred', c:'PPIFIS',        cy:'M', t:'idx',  u:'지수',    st:2, b:0, l:'미국 PPI (최종수요)',           d:'생산자물가 · CPI 보다 먼저 움직입니다' },
       { s:'fred', c:'CUSR0000SAH1',  cy:'M', t:'idx',  u:'지수',    st:2, b:0, l:'CPI 주거비 (Shelter)',          d:'CPI 의 1/3 · 둔화가 가장 늦은 항목' },
-      { s:'fred', c:'CUSR0000SASLE', cy:'M', t:'idx',  u:'지수',    st:2, b:0, l:'CPI 서비스 (에너지 제외)',       d:'임금 연동 · 경직적(sticky) 물가' },
+      { s:'fred', c:'CUSR0000SASLE', cy:'M', t:'idx',  u:'지수',    st:2, b:0, l:'CPI 서비스 (에너지 서비스 제외)', d:'임금 연동 · 경직적(sticky) 물가' },
       { s:'fred', c:'CPIENGSL',      cy:'M', t:'idx',  u:'지수',    st:1, b:0, l:'CPI 에너지',                   d:'유가가 바로 비칩니다' },
       { s:'fred', c:'CPIUFDSL',      cy:'M', t:'idx',  u:'지수',    st:1, b:0, l:'CPI 식품',                     d:'체감물가' },
       { s:'fred', c:'T5YIE',         cy:'D', t:'rate', u:'%',       st:2, b:1, l:'5년 기대인플레이션 (BEI)',       d:'국채 - 물가연동채 금리차' },
       { s:'fred', c:'T10YIE',        cy:'D', t:'rate', u:'%',       st:2, b:0, l:'10년 기대인플레이션 (BEI)',      d:'장기 기대' },
       { s:'fred', c:'MICH',          cy:'M', t:'rate', u:'%',       st:2, b:0, l:'미시간대 1년 기대인플레이션',     d:'소비자 설문 · 중앙값' },
-      { s:'fred', c:'DCOILWTICO',    cy:'D', t:'lvl',  u:'달러/배럴', st:2, b:1, l:'WTI 유가',                     d:'헤드라인 물가의 절반은 여기서' },
+      { s:'fred', c:'DCOILWTICO',    cy:'D', t:'lvl',  u:'달러/배럴', st:2, b:1, l:'WTI 유가',                     d:'헤드라인 물가 등락을 가장 크게 흔드는 값' },
       { s:'ecos', c:'901Y009', i:'0', cy:'M', t:'idx', u:'지수',    st:3, b:0, l:'한국 CPI (총지수)',             d:'한국은행 ECOS · 2020=100' }
     ] },
   jobs: { n:'고용', en:'Labor', sub:'고용 · 실업 · 임금 · 구인', subEn:'Jobs · Unemployment · Wages · Openings', cats:['고용','노동','고용·노동'],
@@ -14493,7 +14504,7 @@ var MACRO_TEAMS = {
       { s:'fred', c:'MANEMP',        cy:'M', t:'chg',  u:'천명',    st:2, b:0, l:'제조업 고용',                   d:'증감' },
       { s:'fred', c:'GACDISA066MSFRBNY',  cy:'M', t:'ratio', u:'',  st:2, b:1, l:'뉴욕 연은 제조업지수 (Empire)',  d:'0 위면 확장 · ISM 보다 먼저' },
       { s:'fred', c:'GACDFSA066MSFRBPHI', cy:'M', t:'ratio', u:'',  st:2, b:0, l:'필라델피아 연은 제조업지수',      d:'0 위면 확장' },
-      { s:'fred', c:'PCUOMFGOMFG',   cy:'M', t:'idx',  u:'지수',    st:1, b:0, l:'제조업 생산자물가 (PPI)',         d:'투입 비용' }
+      { s:'fred', c:'PCUOMFGOMFG',   cy:'M', t:'idx',  u:'지수',    st:1, b:0, l:'제조업 생산자물가 (PPI)',         d:'제조업 출하가격 (공장이 받는 값)' }
     ] },
   rates: { n:'채권·금리', en:'Rates & Credit', sub:'국채 · 스프레드 · 신용 · 정책금리', subEn:'Treasuries · Spreads · Credit · Policy rate', cats:['금리','채권','금리·채권','단기자금'],
     items:[
@@ -14526,7 +14537,7 @@ var MACRO_TEAMS = {
   usmm: { n:'미국 단기자금', en:'US Funding', sub:'SRF 이용 · ON RRP · 레포 금리 · 지준 · 연준 창구 · MMF', subEn:'SRF usage · ON RRP · Repo rates · Reserves · Fed facilities · MMF',
     cats:['단기자금','금리'],
     items:[
-      { s:'fred', c:'RPONTTLD',      cy:'D', t:'lvl',  u:'십억달러', st:3, b:1, l:'SRF 이용액 (합계)',            d:'연준 상설 레포 — 분기말·납세일 급증' },
+      { s:'fred', c:'RPONTTLD',      cy:'D', t:'lvl',  u:'십억달러', st:3, b:1, l:'SRF 이용액 (합계)',            d:'연준 상설 레포 - 분기말·납세일 급증' },
       { s:'fred', c:'RPONTSYD',      cy:'D', t:'lvl',  u:'십억달러', st:2, b:0, l:'SRF 이용액 (국채 담보)',        d:'' },
       { s:'fred', c:'RPONMBSD',      cy:'D', t:'lvl',  u:'십억달러', st:1, b:0, l:'SRF 이용액 (MBS 담보)',         d:'' },
       { s:'fred', c:'RRPONTSYD',     cy:'D', t:'lvl',  u:'십억달러', st:3, b:1, l:'ON RRP 잔액',                   d:'초과 유동성 흡수 창구 · 0 에 가까우면 유동성 완충 소진' },
@@ -14534,9 +14545,9 @@ var MACRO_TEAMS = {
       { s:'fred', c:'SOFR99',        cy:'D', t:'rate', u:'%',        st:2, b:0, l:'SOFR 99% 분위',                 d:'꼬리 · SRF 금리를 넘으면 SRF 로 갑니다' },
       { s:'fred', c:'TGCRRATE',      cy:'D', t:'rate', u:'%',        st:2, b:0, l:'TGCR (3자간 GC 레포)',          d:'' },
       { s:'fred', c:'IORB',          cy:'D', t:'rate', u:'%',        st:2, b:0, l:'IORB (지준 이자)',              d:'SOFR 가 이보다 높으면 단기자금 시장 긴축' },
-      { s:'fred', c:'SRFTSYD',       cy:'D', t:'rate', u:'%',        st:2, b:0, l:'SRF 금리',                      d:'회랑 천장' },
+      { s:'fred', c:'SRFTSYD',       cy:'D', t:'rate', u:'%',        st:2, b:0, l:'SRP 금리 (상설 레포)',           d:'회랑 천장 · 옛 이름 SRF' },
       { s:'fred', c:'SOFRVOL',       cy:'D', t:'lvl',  u:'십억달러', st:2, b:0, l:'SOFR 거래량',                   d:'레포 시장 크기' },
-      { s:'fred', c:'WRESBAL',       cy:'D', t:'lvl',  u:'백만달러', st:3, b:1, l:'지급준비금',                    d:'주간 · 줄면 QT 끝이 가깝다는 신호' },
+      { s:'fred', c:'WRESBAL',       cy:'D', t:'lvl',  u:'백만달러', st:3, b:1, l:'지급준비금',                    d:'주간 · 부족하면 레포 금리 급등 · QT 는 2025-12 종료' },
       { s:'fred', c:'WTREGEN',       cy:'D', t:'lvl',  u:'백만달러', st:2, b:1, l:'TGA (재무부 계좌)',             d:'주간 · 늘면 시중 유동성이 빠짐' },
       { s:'fred', c:'WLCFLPCL',      cy:'D', t:'lvl',  u:'백만달러', st:2, b:0, l:'할인창구 (1차 대출)',           d:'주간 · 은행 긴급 유동성 창구' },
       { s:'fred', c:'H41RESPPALGTRFNWW', cy:'D', t:'lvl', u:'백만달러', st:1, b:0, l:'FIMA 레포',                  d:'주간 · 해외 중앙은행이 국채 맡기고 달러 빌림' },
@@ -14547,7 +14558,7 @@ var MACRO_TEAMS = {
           ⚠️ 기관 MMF(WIMFSL)는 2021-02 에 끊겨 넣지 않았습니다 — 기관 몫은 Z.1 총자산에 들어 있습니다.  */
       { s:'fred', c:'MMMFFAQ027S',   cy:'Q', t:'lvl',  u:'백만달러', st:3, b:1, l:'MMF 총자산',                    d:'분기 · Z.1 · 기관 MMF 포함 전체 · 금리가 높으면 예금에서 옮겨 옵니다' },
       { s:'fred', c:'RMFSL',         cy:'M', t:'lvl',  u:'십억달러', st:3, b:1, l:'소매 MMF 잔액',                 d:'월간 · M2 구성 · 개인 MMF' },
-      { s:'fred', c:'WRMFNS',        cy:'D', t:'lvl',  u:'십억달러', st:2, b:0, l:'소매 MMF 잔액 (주간)',          d:'주간 · 원계열 · ICI 자료 · 월간보다 빨리 나옵니다' },
+      { s:'fred', c:'WRMFNS',        cy:'D', t:'lvl',  u:'십억달러', st:2, b:0, l:'소매 MMF 잔액 (주간)',          d:'주간 · 원계열 · ICI 자료 · 월간과 같은 날(H.6) 나옵니다' },
       { s:'fred', c:'BOGZ1FL633061105Q', cy:'Q', t:'lvl', u:'백만달러', st:2, b:0, l:'MMF 보유 미국채',            d:'분기 · T-bill 수요의 큰손' },
       { s:'fred', c:'BOGZ1FL632051000Q', cy:'Q', t:'lvl', u:'백만달러', st:2, b:0, l:'MMF 레포 운용',              d:'분기 · ON RRP 포함 · 레포로 굴리는 돈' }
     ] },
@@ -14581,7 +14592,7 @@ var MACRO_TEAMS = {
           부동산업 BDDE1C(은행·전체) / BDHE1C(비은행) · 건설업 BDDE16 / BDHE16
         시장 스트레스 — CP 91일(PF-ABCP 차환 압력이 먼저 비침) · CD 91일 · 회사채 BBB-·AA- (일간)
       ⚠️ 2022년 말 레고랜드 때처럼 CP−CD 차이가 벌어지고 BBB- 가 튀는 것이 PF 경색의 시장 신호입니다.  */
-  krpf: { n:'한국 PF', en:'Korea PF', sub:'부동산업·건설업 대출 (은행 · 비은행) · CP · 회사채 — PF 경색 신호', subEn:'Real-estate & construction loans · CP · Corporate bonds',
+  krpf: { n:'한국 PF', en:'Korea PF', sub:'부동산업·건설업 대출 (은행 · 비은행) · CP · 회사채 - PF 경색 신호', subEn:'Real-estate & construction loans · CP · Corporate bonds',
     cats:['단기자금','금리'],
     items:[
       { s:'ecos', c:'131Y014', i:'BDHE1C', cy:'Q', t:'idx', u:'조원', st:3, b:1, l:'비은행 부동산업 대출',      d:'저축은행·상호금융 등 · PF 위험이 몰린 곳 (분기)' },
@@ -14602,7 +14613,7 @@ var MACRO_TEAMS = {
       { s:'ecos', c:'817Y002', i:'010502000', cy:'D', t:'rate', u:'%', st:3, b:1, l:'CD 91일',                    d:'은행 단기 조달 · 대출금리의 기준' },
       { s:'ecos', c:'817Y002', i:'010503000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'CP 91일',                    d:'기업 단기 조달 · CD 와 벌어지면 신용 경계' },
       { s:'ecos', c:'817Y002', i:'010901000', cy:'D', t:'rate', u:'%', st:3, b:0, l:'KOFR (무위험 지표금리)',      d:'국채·통안 담보 익일물 RP 금리 · 한국판 SOFR (2021-11~)' },
-      { s:'ecos', c:'817Y002', i:'010150000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'KORIBOR 3개월',              d:'은행 간 3개월 · 변동금리 대출 기준' },
+      { s:'ecos', c:'817Y002', i:'010150000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'KORIBOR 3개월',              d:'은행 간 3개월 호가 금리 · 실제 대출 · 스왑 기준으로는 거의 안 쓰임' },
       { s:'ecos', c:'817Y002', i:'010400000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'통안증권 91일',              d:'한국은행 발행 · 3개월 구간의 기준 (국고채엔 3개월물이 없음)' },
       { s:'ecos', c:'817Y002', i:'010400001', cy:'D', t:'rate', u:'%', st:2, b:0, l:'통안증권 1년',               d:'1년 구간 · 다음 금통위 기대를 비춤' },
       { s:'ecos', c:'817Y002', i:'010190000', cy:'D', t:'rate', u:'%', st:2, b:0, l:'한국 국고채 1년',            d:'단기 끝' },
@@ -16013,9 +16024,11 @@ function mkLoadPrefs(){
     if (MK_CTABS.some(function(t){ return t[0] === p.tab; })) MK.ctryTab = p.tab;
     if (MK_SEC_PER.some(function(x){ return x[0] === p.sp; })) MK.secPer = p.sp;
     if ([5, 21, 63].indexOf(p.h) >= 0) MK.fxH = p.h;
+    //  전체 화면 나라 칸을 옮겨 둔 자리 (지도 칸 안의 비율 · 0~1)
+    if (p.dp && isFinite(p.dp.x) && isFinite(p.dp.y) && p.dp.x >= 0 && p.dp.x <= 1 && p.dp.y >= 0 && p.dp.y <= 1) MK.drawerPos = { x: +p.dp.x, y: +p.dp.y };
   } catch(e){}
 }
-function mkSavePrefs(){ try { localStorage.setItem(MK_KEY, JSON.stringify({ view: MK.view, cc: MK.cc, fx: MK.fxPair, open: !!MK.ctryOpen, tab: MK.ctryTab, h: MK.fxH, sp: MK.secPer })); } catch(e){} }
+function mkSavePrefs(){ try { localStorage.setItem(MK_KEY, JSON.stringify({ view: MK.view, cc: MK.cc, fx: MK.fxPair, open: !!MK.ctryOpen, tab: MK.ctryTab, h: MK.fxH, sp: MK.secPer, dp: MK.drawerPos || null })); } catch(e){} }
 //  누를 수 있는 나라 = 지도에 색이 있는 나라 전부 (10/7 — 개요 · 업종 · 시황은 어느 나라나 · 주요 기업 · 환율은 있는 나라만)
 function mkCtryOk(cc){ return !!cc && !!MK_CC[cc]; }
 //  나라 칸 탭 — [키, 이름]
@@ -16138,13 +16151,15 @@ function mkNewsRender(){
   b.classList.toggle('hidden', !items.length);
   if (!items.length){ b.innerHTML = ''; return; }
   var mh = d.made_at ? mkHm(d.made_at) : '';
-  b.innerHTML = '<div class="mk-n5h"><b>' + esc(T('주요 뉴스', 'Top news')) + '</b><span class="st-hint">' + esc((d.how === 'ai' ? T('AI 가 매시간 고른 5개', 'Top 5, picked hourly by AI') : T('최근 주요 기사 5개', 'Top 5 recent')) + (mh ? ' · ' + mh : '') + T(' · 제목을 누르면 원문', ' · click for source')) + '</span></div>'
+  b.innerHTML = '<div class="mk-n5h"><b>' + esc(T('주요 뉴스', 'Top news')) + '</b>' + (mh ? '<span class="st-hint">' + esc(mh) + '</span>' : '') + '</div>'
     + '<ol class="mk-n5">' + items.slice(0, 5).map(function(x){
         return '<li' + (x.orig && x.orig !== x.title ? ' title="' + esc(T('원문: ', 'Original: ') + x.orig) + '"' : '') + '>' + mkLink(x.url, x.title)
              + ' <span class="st-hint">' + esc([x.src, x.at ? nfAgo(x.at) : ''].filter(Boolean).join(' · ')) + '</span></li>'; }).join('') + '</ol>';
 }
 //  전체 화면의 나라 칸(서랍)은 누른 나라를 가리지 않게 반대쪽에 (아시아 · 오세아니아 → 왼쪽 · 나머지 → 오른쪽)
 function mkDrawerSide(cc){
+  //  (10/7) 학회원이 끌어서 옮겨 둔 자리가 있으면 그 자리 그대로 (누른 나라에 따라 좌우로 안 바꿈)
+  if (MK.drawerPos && mkDrawerFree()){ mkDrawerApply(); return; }
   var left = false;
   try {
     if (document.body.classList.contains('mk-full-on') && (window.innerWidth || 1000) > 900 && mkMapChart){
@@ -16157,6 +16172,53 @@ function mkDrawerSide(cc){
   MK.drawerLeft = left;
   var wr = $('mkWorld'); if (wr) wr.classList.toggle('left', left);
 }
+/*  ── 나라 칸 끌어서 옮기기 (10/7 학회장: «이 분석 탭 드래그 해서 위치 자유자재로 바꿀 수 있게») ──
+    넓은 화면의 전체 화면에서만 (나라 칸이 지도 위에 뜨는 서랍일 때). 일반 화면은 지도 옆 칸이라 그대로입니다.
+    자리는 지도 칸 안의 비율로 이 브라우저에 기억합니다 · 창 크기가 바뀌어도 칸 밖으로 안 나가게 맞춥니다.        */
+function mkDrawerFree(){ return document.body.classList.contains('mk-full-on') && (window.innerWidth || 1000) > 900; }
+function mkDrawerApply(){
+  var d = $('mkCtry'), wr = $('mkWorld'); if (!d || !wr) return false;
+  if (!mkDrawerFree() || !MK.drawerPos){
+    if (d.classList.contains('moved')){ d.style.left = ''; d.style.top = ''; d.style.right = ''; d.classList.remove('moved'); }
+    return false;
+  }
+  var W = wr.clientWidth, H = wr.clientHeight, w = d.offsetWidth || 480;
+  var x = Math.max(0, Math.min(Math.max(0, W - w), MK.drawerPos.x * W)), y = Math.max(0, Math.min(Math.max(0, H - 64), MK.drawerPos.y * H));
+  d.style.left = Math.round(x) + 'px'; d.style.top = Math.round(y) + 'px'; d.style.right = 'auto';
+  d.style.maxHeight = Math.max(160, Math.round(H - y)) + 'px';
+  d.classList.add('moved');
+  return true;
+}
+function mkDrawerReset(){
+  MK.drawerPos = null; mkSavePrefs(); mkDrawerApply();
+  var box = $('mkMapBox'); if (box) mkMapSize(box);
+  if (MK.cc) mkDrawerSide(MK.cc);
+}
+(function(){
+  var st = null;
+  document.addEventListener('pointerdown', function(e){
+    if (!mkDrawerFree() || !e.target || !e.target.closest || e.button > 0) return;
+    var t = e.target, onHandle = t.closest('#mkCtryDrag'), onTop = t.closest('#mkCtry .mk-ctry-top') && !t.closest('button, a, input, select, label');
+    if (!onHandle && !onTop) return;
+    var d = $('mkCtry'), wr = $('mkWorld'); if (!d || !wr || !MK.ctryOpen) return;
+    var r = d.getBoundingClientRect();
+    st = { d: d, wr: wr.getBoundingClientRect(), dx: e.clientX - r.left, dy: e.clientY - r.top, x0: e.clientX, y0: e.clientY, moved: false };
+    e.preventDefault();
+  });
+  document.addEventListener('pointermove', function(e){
+    if (!st) return;
+    if (!st.moved && Math.abs(e.clientX - st.x0) + Math.abs(e.clientY - st.y0) < 4) return;
+    st.moved = true; st.d.classList.add('dragging');
+    var W = st.wr.width, H = st.wr.height, w = st.d.offsetWidth;
+    var x = Math.max(0, Math.min(Math.max(0, W - w), e.clientX - st.wr.left - st.dx));
+    var y = Math.max(0, Math.min(Math.max(0, H - 64), e.clientY - st.wr.top - st.dy));
+    MK.drawerPos = { x: W ? x / W : 0, y: H ? y / H : 0 };
+    mkDrawerApply();
+  });
+  var up = function(){ if (!st) return; if (st.moved){ st.d.classList.remove('dragging'); mkSavePrefs(); } st = null; };
+  document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
+  document.addEventListener('dblclick', function(e){ if (e.target && e.target.closest && e.target.closest('#mkCtryDrag') && MK.drawerPos) mkDrawerReset(); });
+})();
 function mkAgo(ms){
   if (!ms) return '';
   var s = Math.max(0, Math.round((Date.now() - ms) / 1000));
@@ -16172,7 +16234,7 @@ function mkHead(){
   st.className = 'mk-live ' + cls;
   st.innerHTML = '<i></i><span>' + (MK.paused ? esc(T('일시정지', 'Paused'))
     : MK.at ? esc((slow ? T('자리 비움 · 1분마다', 'idle · every 1 min') : T('10초마다', 'every 10s')) + ' · ' + mkHhmmss(MK.at) + ' · ') + '<span id="mkAgo">' + esc(mkAgo(MK.at)) + '</span>'
-    : esc(MK.err ? T('받지 못함', 'failed') : T('받는 중…', 'Loading…'))) + '</span>';
+    : esc(MK.err ? T('받지 못함', 'failed') : T('로딩 중…', 'Loading…'))) + '</span>';
   st.title = MK.err ? MK.err : T('학회원이 몇 명이 보든 서버가 창구마다 한 벌만 받아 나눠 씁니다 · 지수 · 환율 · 국채는 1분마다 새로 받음', 'Shared server cache');
 }
 function mkClock(){ var a = $('mkAgo'); if (a && MK.at) a.textContent = mkAgo(MK.at); if (MK.at && Date.now() - MK.at > 35000) mkHead(); else if (MK.slowShown !== mkSlow()){ MK.slowShown = mkSlow(); mkHead(); } }
@@ -16250,7 +16312,7 @@ function mkChg(c, unit){
 function mkHeatRender(){
   var box = $('mkHeat'); if (!box) return;
   var d = MK.snap;
-  if (!d){ box.innerHTML = '<div class="mk-empty">' + esc(MK.err ? T('시장 스냅샷을 받지 못했습니다 - ', 'Failed - ') + MK.err : T('받는 중…', 'Loading…')) + '</div>'; return; }
+  if (!d){ box.innerHTML = '<div class="mk-empty">' + esc(MK.err ? mkErrTxt(MK.err) : T('로딩 중…', 'Loading…')) + '</div>'; return; }
   var html = '';
   d.groups.forEach(function(g){
     //  (10/7 학회장: «0개 받았으면 그냥 빼줘») 값을 못 받은 칸은 숨기고 · 하나도 못 받은 묶음은 통째로 숨김
@@ -16304,7 +16366,7 @@ function mkMapInit(){
       document.head.appendChild(s);
     });
   }
-  box.innerHTML = '<div class="mk-empty">' + esc(T('세계지도 받는 중…', 'Loading map…')) + '</div>';
+  box.innerHTML = '<div class="mk-empty">' + esc(T('로딩 중…', 'Loading…')) + '</div>';
   mkMapReady.then(function(){ box.innerHTML = ''; mkMapChart = null; mkMapPaint(); }, function(e){ mkMapReady = null; box.innerHTML = '<div class="mk-empty">' + esc(e.message) + ' <button type="button" class="btn-sm" onclick="mkMapInit()">' + esc(T('다시', 'Retry')) + '</button></div>'; });
 }
 //  나라 하나의 지금 등락: 그 나라 지수가 열려 있으면 지수 · 아니면 미국 상장 나라 ETF (장중이면) · 그것도 아니면 마지막 장
@@ -16344,6 +16406,7 @@ function mkMapSize(box){
   if (Math.abs((parseFloat(box.style.height) || 0) - h) > 1) box.style.height = h + 'px';
   //  전체 화면 서랍은 지도 칸 높이까지만 (아래 칩 · 주요 뉴스를 가리지 않게 · 길면 서랍 안에서 스크롤)
   var drw = $('mkCtry'); if (drw) drw.style.maxHeight = fullWide ? h + 'px' : '';
+  mkDrawerApply();                      //  옮겨 둔 자리가 있으면 그 자리 · 높이 (없으면 손대지 않음)
   return { mapW: Math.round(mapW), mapH: Math.round(mapW / MK_MAP_RATIO), h: h };
 }
 function mkMapPaint(){
@@ -16369,7 +16432,7 @@ function mkMapPaint(){
       var v = p.seriesType === 'scatter' ? (d.value || [])[2] : d.value;
       return '<b>' + esc(ko) + '</b>' + (v != null ? ' <span style="color:' + (v > 0 ? '#c0392b' : v < 0 ? '#1b5fa8' : 'inherit') + '">' + mkChg(v) + '</span>' : ' -')
            + (d.by ? '<br><span style="opacity:.75">' + esc(d.by) + '</span>' : '')
-           + (mkCtryOk(cc) ? '<br><span style="opacity:.75">' + esc(T('누르면 옆에 개요 · ', 'Click: overview · ') + (MK_LINES.indexOf(cc) >= 0 ? T('주요 기업 · ', 'companies · ') : '') + T('업종 · ', 'sectors · ') + (mkCtryPairs(cc).length ? T('환율 · ', 'FX · ') : '') + T('AI 시황', 'AI brief')) + '</span>' : ''); } },
+           + (mkCtryOk(cc) ? '<br><span style="opacity:.75">' + esc(T('누르면 옆에 개요 · ', 'Click: overview · ') + (MK_LINES.indexOf(cc) >= 0 ? T('주요 기업 · ', 'companies · ') : '') + T('업종 · ', 'sectors · ') + (mkCtryPairs(cc).length ? T('환율 · ', 'FX · ') : '') + T('시황', 'brief')) + '</span>' : ''); } },
     visualMap: { type: 'continuous', min: -3, max: 3, calculable: false, orient: 'horizontal', left: 10, bottom: 6, itemWidth: 10, itemHeight: 120,
                  text: ['+3%', '-3%'], textStyle: { fontSize: 10.5, color: dark ? '#aeb7ca' : '#5a6278' }, inRange: { color: ['#1b5fa8', '#9db8e0', dark ? '#3a4152' : '#eef0f5', '#e8a39b', '#c0392b'] }, seriesIndex: 0 },
     //  지도는 칸에 꽉 (위 · 아래 여백은 색 막대 자리) · 남극은 잘라 보이게 가운데를 조금 위로
@@ -16476,9 +16539,10 @@ async function mkBriefGet(cc, part){
 function mkCtryHeadSet(){
   var head = $('mkCtryHead'), c1 = MK.cc; if (!head || !MK.ctryOpen || MK.ctryTab === 'stk' || MK.ctryTab === 'fx') return;
   var hint = MK.ctryTab === 'ov' ? T('지수 1년 · IMF 경제 전망 · 금리 · 환율', 'Index · IMF outlook · rates · FX')
-           : MK.ctryTab === 'sec' ? (c1 === 'US' ? T('SPDR 섹터 ETF · 전 거래일 종가 기준', 'SPDR sector ETFs') : c1 === 'KR' ? T('KODEX 섹터 ETF · 공공데이터포털 종가 (하루 늦음)', 'KODEX sector ETFs')
-                                   : T('웹 검색으로 찾은 업종 흐름 (Perplexity · 지난 1주) · 참고값', 'Sector moves from web search (reference)'))
-           : T('AI(Claude) 요약 · 나라마다 하루 한 번', 'AI summary · once a day per country');
+           : MK.ctryTab === 'sec' ? (c1 === 'US' ? T('SPDR 섹터 ETF · 전 거래일 종가 기준', 'SPDR sector ETFs') : c1 === 'KR' ? T('KODEX 섹터 ETF · 종가 기준 (하루 늦음)', 'KODEX sector ETFs')
+                                   : T('업종 흐름 · 지난 1주', 'Sector moves · past week'))
+           //  (10/7 학회장: «AI 로 찾고 있어요 · 가격 이런 거 쓰지 마 · 없어 보여») — 만드는 방법 · 업체 이름은 화면에 안 적습니다
+           : '';
   head.innerHTML = mkCtryHeadKv(c1, null) + '<span class="st-hint">' + esc(hint) + '</span>';
 }
 //  나라 칸 머리: 이름 · 대표 지수(지금) · 나라 ETF — 주식 탭은 그 나라 선 자료의 ETF · 나머지는 지도 스냅샷
@@ -16515,7 +16579,7 @@ function mkCtryRender(){
   }
   var cc = MK.cc, d = MK.ctry && MK.ctry.cc === cc ? MK.ctry : null;
   head.innerHTML = mkCtryHeadKv(cc, d)
-    + '<span class="st-hint">' + esc(!d ? (MK.ctryErr || T('받는 중…', 'Loading…'))
+    + '<span class="st-hint">' + esc(!d ? (MK.ctryErr ? mkErrTxt(MK.ctryErr) : T('로딩 중…', 'Loading…'))
         : (d.live ? T('미국 장중 · 5분 선 + 지금 값 · 10초마다', 'US session live · 5-min + last trade')
                   : T('지난 미국 장', 'Last US session') + (d.day ? ' (' + d.day + ')' : '') + T(' · 지금은 미국 장이 닫혀 있습니다', ' · US market closed'))
           + T(' · 미국 상장(ADR · 원주) 기준 · 전 거래일 종가 대비', ' · US listings vs prior close')
@@ -16604,7 +16668,7 @@ function mkOvRender(){
   if (!grid) return;
   if (!d){
     if (rets) rets.innerHTML = ''; if (src) src.innerHTML = '';
-    grid.innerHTML = '<div class="mk-wait">' + esc(e.err ? T('개요를 받지 못했습니다 - ', 'Failed - ') + e.err : T('지수 1년 · IMF 경제 전망 · 금리를 받는 중…', 'Loading…')) + '</div>';
+    grid.innerHTML = '<div class="mk-wait">' + esc(e.err ? mkErrTxt(e.err) : T('로딩 중…', 'Loading…')) + '</div>';
     if (box) box.classList.add('hidden'); if (mkOvChart){ mkOvChart.clear(); mkOvChart.__ovKey = null; } return;
   }
   //  지수가 있으면 지수(현지 통화) · 없으면 나라 ETF(달러)
@@ -16665,7 +16729,7 @@ function mkSecRender(){
   if (cc === 'US' || cc === 'KR'){
     var e = MK.info[cc] || {}, sec = e.d && e.d.sectors, k = MK.secPer;
     if (seg){ seg.classList.remove('hidden'); seg.innerHTML = MK_SEC_PER.map(function(p){ return '<button type="button"' + (k === p[0] ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + ' onclick="mkSecPerSet(\'' + p[0] + '\')">' + esc(p[1]) + '</button>'; }).join(''); }
-    if (!sec || sec.error || !sec.items){ body.innerHTML = '<div class="mk-wait">' + esc(sec && sec.error ? T('업종을 받지 못했습니다 - ', 'Failed - ') + sec.error : e.err ? e.err : T('섹터 ETF 를 받는 중…', 'Loading…')) + '</div>'; return; }
+    if (!sec || sec.error || !sec.items){ body.innerHTML = '<div class="mk-wait">' + esc(sec && sec.error ? mkErrTxt(sec.error) : e.err ? mkErrTxt(e.err) : T('로딩 중…', 'Loading…')) + '</div>'; return; }
     var val = function(x, p){ var v = x.r && x.r[p]; return v == null ? null : v; };
     var items = sec.items.slice().sort(function(a, b){ var x = val(a, k), y = val(b, k); return (y == null ? -1e9 : y) - (x == null ? -1e9 : x); });
     var mx = Math.max.apply(null, items.map(function(x){ return Math.abs(val(x, k) || 0); }).concat([0.01]));
@@ -16681,17 +16745,23 @@ function mkSecRender(){
   }
   if (seg){ seg.classList.add('hidden'); seg.innerHTML = ''; }
   var b = MK.brief[cc] || {}, pp = b.pplx;
-  if (!pp){ body.innerHTML = '<div class="mk-wait">' + esc(b.pplxErr ? T('업종 흐름을 받지 못했습니다 - ', 'Failed - ') + b.pplxErr : T('웹에서 이 나라 업종 흐름 · 뉴스를 찾는 중… (나라마다 하루 한 번 · 10~20초)', 'Searching the web…')) + '</div>'; return; }
+  if (!pp){ body.innerHTML = '<div class="mk-wait">' + esc(b.pplxErr ? mkErrTxt(b.pplxErr) : T('로딩 중…', 'Loading…')) + '</div>'; return; }
   //  1주 숫자가 있는 업종 먼저(1주 큰 순) · 그다음 1개월 큰 순 · 숫자가 없으면 끝 (기준이 섞이지 않게)
   var rk = function(x){ return x.w1 != null ? [0, -x.w1] : x.m1 != null ? [1, -x.m1] : [2, 0]; };
   var secs = (pp.sectors || []).slice().sort(function(a, c){ var x = rk(a), y = rk(c); return x[0] - y[0] || x[1] - y[1]; });
   body.innerHTML = (secs.length
       ? '<table class="mk-sect"><tr><th>' + esc(T('업종', 'Sector')) + '</th><th>1주</th><th>1개월</th><th style="text-align:left">' + esc(T('왜', 'Why')) + '</th></tr>'
         + secs.map(function(x){ return '<tr><td>' + esc(x.n) + '</td><td class="' + mkUd(x.w1) + '">' + esc(mkPct(x.w1)) + '</td><td class="' + mkUd(x.m1) + '">' + esc(mkPct(x.m1)) + '</td><td class="mk-note">' + esc(x.note || '') + '</td></tr>'; }).join('') + '</table>'
-      : '<div class="mk-wait">' + esc(T('웹 검색에서 이 나라 업종 흐름을 찾지 못했습니다.', 'No sector moves found.')) + '</div>')
+      : '<div class="mk-wait">' + esc(T('업종 흐름 자료가 아직 없습니다.', 'No sector data yet.')) + '</div>')
     + (pp.themes && pp.themes.length ? '<div class="mk-themes">' + pp.themes.map(function(t){ return '<span class="mk-theme">' + esc(t) + '</span>'; }).join('') + '</div>' : '')
     + mkSrcList(pp.sources)
-    + '<p class="st-hint mk-src">' + esc(T('웹 검색으로 받은 참고값 (Perplexity · ', 'Web search reference (Perplexity · ') + (pp.as_of || '') + T(' 기준) · 숫자는 출처마다 다를 수 있고 출처에 없으면 «-» · 받은 시각 ', ') · ') + mkHm(pp.made_at)) + '</p>';
+    + (pp.as_of || pp.made_at ? '<p class="st-hint mk-src">' + esc([pp.as_of ? pp.as_of + T(' 기준', '') : '', mkHm(pp.made_at)].filter(Boolean).join(' · ')) + '</p>' : '');
+}
+//  (10/7) 학회원에게는 짧게 «지금은 불러오지 못했습니다» · 임원진에게만 이유(설정 · 한도 등)를 보여 줍니다
+function mkErrTxt(why){
+  return (typeof isOfficer === 'function' && isOfficer())
+    ? T('불러오지 못했습니다 - ', 'Failed - ') + String(why || '')
+    : T('지금은 불러오지 못했습니다 - 잠시 후 다시 열어 주세요.', 'Not available right now.');
 }
 function mkNewsHtml(news){
   return '<ul class="mk-news">' + (news || []).map(function(x){ return '<li><span class="st-hint">' + esc([x.date, x.source].filter(Boolean).join(' · ')) + '</span>' + mkLink(x.url, x.title) + '</li>'; }).join('') + '</ul>';
@@ -16699,19 +16769,17 @@ function mkNewsHtml(news){
 function mkAiRender(){
   var cc = MK.cc, body = $('mkAiBody'); if (!body) return;
   var b = MK.brief[cc] || {}, br = b.brief, pp = b.pplx;
-  var news = pp && pp.news && pp.news.length ? '<h4>' + esc(T('최근 뉴스', 'Recent news')) + ' <span class="st-hint">' + esc(T('(웹 검색 · 지난 1주)', '(web · past week)')) + '</span></h4>' + mkNewsHtml(pp.news) : '';
+  var news = pp && pp.news && pp.news.length ? '<h4>' + esc(T('최근 뉴스', 'Recent news')) + ' <span class="st-hint">' + esc(T('(지난 1주)', '(past week)')) + '</span></h4>' + mkNewsHtml(pp.news) : '';
   if (!br){
-    body.innerHTML = '<div class="mk-ai"><div class="mk-wait">' + esc(b.why ? b.why : T('AI 가 이 나라 시황 · 유망 산업을 쓰는 중… (나라마다 오늘 처음 한 번 · 10~30초)', 'Writing…')) + '</div>' + news + '</div>';
+    body.innerHTML = '<div class="mk-ai"><div class="mk-wait">' + esc(b.why ? mkErrTxt(b.why) : T('로딩 중…', 'Loading…')) + '</div>' + news + '</div>';
     return;
   }
   body.innerHTML = '<div class="mk-ai"><h4>' + esc(T('시황', 'Market')) + '</h4><ul>' + (br.market || []).map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>'
-    + (br.picks && br.picks.length ? '<h4>' + esc(T('유망 산업', 'Industries to watch')) + ' <span class="st-hint">' + esc(T('(최근 흐름 · 뉴스로 본 «주목» · 투자 권유 아님)', '(not advice)')) + '</span></h4><div class="mk-picks">'
+    + (br.picks && br.picks.length ? '<h4>' + esc(T('유망 산업', 'Industries to watch')) + '</h4><div class="mk-picks">'
         + br.picks.map(function(p){ return '<div class="mk-pick"><b>' + esc(p.name) + '</b><div>' + esc(p.why) + '</div>' + (p.risk ? '<div class="risk">' + esc(T('위험 · ', 'Risk · ') + p.risk) + '</div>' : '') + '</div>'; }).join('') + '</div>' : '')
     + news
-    + (br.fact ? '<p class="mk-fact">' + esc(T('팩트체크 · ', 'Fact check · ') + (br.fact.nums ? T('글의 숫자 ', '') + br.fact.nums + T('개를 재료와 하나하나 대조 → 모두 일치', ' numbers matched to the data') : T('글에 숫자가 없습니다', 'no numbers'))
-        + (br.fact.droppedLines || br.fact.droppedPicks ? T(' · 재료에 없는 숫자가 나온 ', ' · dropped ') + [br.fact.droppedLines ? br.fact.droppedLines + T('줄', ' lines') : '', br.fact.droppedPicks ? T('유망 산업 ', 'picks ') + br.fact.droppedPicks + T('개', '') : ''].filter(Boolean).join(' · ') + T('는 뺐습니다', '') : '')
-        + T(' (숫자의 출처만 자동으로 봅니다 · 해석은 직접 확인)', ' (numbers only)')) + '</p>' : '')
-    + '<p class="st-hint mk-src">' + esc(T('AI(Claude) 요약 · 재료 = 지수 · 업종 · 금리 · 환율 · IMF 전망 · 웹 검색 뉴스 (서버가 모은 숫자만) · 오늘(', 'AI summary · made ') + b.day + ') ' + mkHm(br.made_at) + T(' 에 만들어 모두 같이 봅니다 · AI 글은 틀릴 수 있고 투자 권유가 아닙니다', ' · may be wrong · not advice')) + '</p></div>';
+    //  (10/7 학회장: «팩트체크 · 숫자 몇 개 대조 → 일치 … 이런 문구도 숨겨») — 숫자 대조는 서버가 그대로 합니다 (안 맞는 줄은 빼고 실음) · 화면에는 안 적음
+    + '<p class="st-hint mk-src">' + esc((b.day || '') + ' ' + mkHm(br.made_at) + T(' 기준 · 투자 권유가 아닙니다', ' · not advice')) + '</p></div>';
 }
 
 /* ── ③ 환율 예측 ── */
@@ -17683,8 +17751,9 @@ var BN_INDUSTRIES = [
       { c:'IPG3344S',     l:'반도체·전자부품 생산',   m:'yoy', u:'지수' } ] },
   { k:'auto',  n:'자동차', ind:[
       { c:'CAPUTLG3361T3S', l:'자동차·부품 가동률',  m:'lvl', u:'%' },
-      { c:'A36SUO',         l:'운송장비 수주잔고',    m:'yoy', u:'백만달러' },
-      { c:'AISRSA',         l:'자동차 재고/판매',     m:'inv', u:'배' } ] },
+      //  (10/7 점검) 예전 «운송장비 수주잔고»(A36SUO)는 대부분 항공기(민항 · 방산)라 자동차 점수가 항공기 주문을 따라갔습니다
+      { c:'AMVPUO',         l:'자동차 · 부품 수주잔고', m:'yoy', u:'백만달러' },
+      { c:'AISRSA',         l:'승용차 재고/판매 (BEA)', m:'inv', u:'배' } ] },
   { k:'steel', n:'철강·금속', ind:[
       { c:'CAPUTLG3311A2S', l:'철강 가동률',         m:'lvl', u:'%' },
       { c:'WPU1017',        l:'철강 제품 생산자물가', m:'yoy', u:'지수' },
@@ -17706,8 +17775,8 @@ var BN_INDUSTRIES = [
       { c:'RAILFRTCARLOADSD11', l:'철도 화물',        m:'yoy', u:'량' } ] },
   { k:'energy', n:'에너지·광업', ind:[
       { c:'CAPUTLG21S', l:'광업 가동률',              m:'lvl', u:'%' },
-      { c:'DCOILWTICO', l:'WTI 유가',                m:'yoy', u:'달러' },
-      { c:'DHHNGSP',    l:'천연가스 (헨리허브)',       m:'yoy', u:'달러' } ] },
+      { c:'DCOILWTICO', l:'WTI 유가',                m:'yoy', u:'달러/배럴' },
+      { c:'DHHNGSP',    l:'천연가스 (헨리허브)',       m:'yoy', u:'달러/MMBtu' } ] },
   { k:'util',  n:'전력·가스', ind:[
       { c:'CAPUTLG2211A2S', l:'전기·가스 유틸리티 가동률', m:'lvl', u:'%' } ] },
   { k:'retail', n:'유통', ind:[
@@ -30175,7 +30244,8 @@ function coUnit(){
     <보여줄 값> 이 아니라 <다른 숫자> 로 단위를 정한 것입니다.
     그래서 그 줄에서 가장 큰 값을 보고 조 · 억 · 만 중에 고릅니다.       */
 function coRowUnit(r, years, base){
-  if (r.per_share) return { div: 1, dp: 2, tag: '' };
+  //  (10/7) 주당 값(EPS · 주당배당금 · 국내 «주당이익»)은 나누지 않습니다 — 국내 6,605원이 «1 만» 으로 보이던 것
+  if (r.per_share || /주당/.test(String(r.name || ''))) return base.cur === 'KRW' ? { div: 1, dp: 0, tag: '원', ps: true } : { div: 1, dp: 2, tag: '달러', ps: true };
   var mx = 0;
   (years || []).forEach(function(y){
     var v = Math.abs(Number(r.values[y.key] || 0));
@@ -30193,7 +30263,7 @@ function coRowUnit(r, years, base){
   if (mx >= 5e9) return { div: 1e9, dp: 1, tag: '십억' };
   if (mx >= 1e9) return { div: 1e6, dp: 0, tag: '백만' };
   if (mx >= 1e6) return { div: 1e6, dp: 1, tag: '백만' };
-  return { div: 1, dp: 0, tag: '' };
+  return { div: 1, dp: 0, tag: '달러' };       //  (10/7) 100만 달러 아래 줄 — 단위가 «달러» 라고 적습니다
 }
 
 function coAmt(v){
@@ -30381,14 +30451,24 @@ function periodKey(r){ return r.q ? (r.year + 'Q' + r.q) : String(r.year); }
        «엔비디아 25년 1분기» 라고 적으면 분기도 기간도 틀립니다.
 
     ⚠️ 그래서 기간 이름을 <끝난 달> 로 적고, 여기서 한 번 짚어줍니다.    */
+/*  ⚠️ (10/7 점검) 예전에는 이 안내를 warn 으로 바로 띄웠는데, 바로 뒤에 «계산값(점선)» 안내가 같은 칸을 덮어써서
+    미국 회사(잉여현금흐름이 늘 계산값)는 «12월 결산이 아닙니다» 가 한 번도 안 보였습니다. 이제 글만 돌려주고 함께 띄웁니다. */
 function coFsNote(d, years){
+  //  (10/7 점검) 국내 결산월이 12월이 아닌 회사 — DART 사업연도 이름 그대로라 실제 종료일과 다를 수 있음을 알립니다
+  if (d && d.acc_mt && Number(d.acc_mt) !== 12)
+    return '<b>12월 결산 회사가 아닙니다</b> (결산월 ' + Number(d.acc_mt) + '월). 표의 기간 이름은 DART 사업연도 기준이라 '
+      + '실제 회계기간 종료일과 다를 수 있습니다 - 보고서에 옮길 때 사업보고서의 회계기간을 함께 적어 주세요.';
   var off = (years || []).filter(function(y){ return y && y.fiscal; });
-  if (!off.length){ warn('coFsWarn',''); return; }
-  var ends = off.map(function(y){ return esc(String(y.end)); }).join(' · ');
-  warn('coFsWarn',
-    '<b>12월 결산 회사가 아닙니다.</b> 이 회사의 회계기간은 '
-    + ends + ' 에 끝납니다 — 표의 기간 이름은 <b>기간이 끝난 달</b>로 적었습니다. '
-    + '보고서에 옮길 때 «몇 년 몇 분기» 대신 <b>기간 종료일</b>을 함께 적어주세요.', 'info');
+  if (!off.length) return '';
+  //  (10/7) 분기는 회사가 쓰는 회계연도 이름(FY · 분기)에 끝난 달을 붙여 적습니다
+  var fyq = off.some(function(y){ return y.fq; });
+  //  회계연도가 끝나는 달 = 분기 화면은 «4Q» 칸의 끝난 달 · 연간 화면은 마지막 해의 끝난 달
+  var fyEnd = off.filter(function(y){ return y.fq === 4; }).pop() || (fyq ? null : off[off.length - 1]);
+  return '<b>12월 결산 회사가 아닙니다.</b> '
+    + (fyEnd ? '회계연도가 ' + esc(String(fyEnd.end).slice(5, 7).replace(/^0/, '')) + '월 무렵에 끝납니다 - ' : '')
+    + (fyq ? '분기 이름은 <b>회사 회계연도 기준</b>(예: FY27 2Q)이고, 뒤에 기간이 끝난 달을 적었습니다. '
+           : '표의 연도는 회사가 부르는 회계연도이고, 열 아래에 실제 종료일을 적었습니다. ')
+    + '보고서에 옮길 때 <b>기간 종료일</b>을 함께 적어 주세요.';
 }
 
 function coFullPeriods(d){
@@ -30481,7 +30561,7 @@ async function renderCoStatement(group){
 
     /*  ⚠️ 12월 결산이 아니면 한 번 말해줍니다. 이걸 모르고 «25년 1분기»
         라고 옮겨 적는 것이 기업분석에서 제일 흔한 사고입니다.          */
-    coFsNote(d, years);
+    var fsNote = coFsNote(d, years);
 
     function cells(r){
       //  이 줄에 맞는 단위 (표 전체 단위로는 작은 줄이 전부 0.0 이 됩니다)
@@ -30492,11 +30572,18 @@ async function renderCoStatement(group){
         var raw = r.values[y.key];
         var v = raw == null ? 0 : raw;
         var prevRaw = k > 0 ? r.values[years[k-1].key] : null;
-        var prev = (k > 0) ? (prevRaw == null ? 0 : prevRaw) : null;
-        var txt = r.per_share ? num(v, 2) : num(v / ru.div, ru.dp);
+        //  ⚠️ (10/7 점검) 값이 없는 칸은 «0» 이 아니라 «–» 입니다. 예전에는 0 으로 그리고 증감을 «−100%» 로 찍어서,
+        //     분기 현금흐름처럼 <공시에 그 기간 값이 없는> 칸이 «현금흐름이 0 이 됐다» 로 읽혔습니다.
+        var prev = (k > 0 && prevRaw != null && raw != null) ? prevRaw : null;
+        var txt = raw == null ? '–' : (ru.ps ? num(v, ru.dp) : num(v / ru.div, ru.dp));
         var made = r.derived && r.derived[y.key];
+        var madeWhy = made === 'q4' ? '4분기는 따로 공시하지 않아 «연간 - 3분기 누적» 으로 계산한 값입니다' + (ru.ps ? ' (주당 값은 근사치)' : '')
+                    : made === 'ytd' ? '10-Q 는 누적(YTD)만 실어 «이번 누적 - 앞 누적» 으로 계산한 분기 값입니다'
+                    : made === 'sum' ? '여러 차입금 계정(유동성장기부채 · 단기차입금 · CP)을 더한 값입니다'
+                    : made === 'ltd_total' ? '회사가 장기차입금을 <총액>(유동분 포함)으로만 적은 기간입니다 - 단기차입금과 일부 겹칠 수 있습니다'
+                    : '회사가 직접 내지 않아 다른 계정에서 계산한 값입니다';
         var dd = '';
-        if (prev != null && !r.per_share && Number(prev) !== 0){
+        if (prev != null && !ru.ps && Number(prev) !== 0){
           /*  증감률은 '전기 대비 얼마나 움직였나' 입니다.
               분모를 |전기| 로 두면 부호가 어느 쪽이든 뜻이 통합니다 —
               적자 축소(-100 → -50)는 +50%, 비용 증가(-119 → -129)는 -8%,
@@ -30512,8 +30599,8 @@ async function renderCoStatement(group){
         }
         return '<td class="num"><span class="fs-num' + (made ? ' calc' : '')
              + (raw == null ? ' zero' : '') + '"'
-             + (made ? ' title="회사가 직접 내지 않아 다른 계정에서 계산한 값입니다"'
-                     : (raw == null ? ' title="이 기간 보고서에 이 계정이 없습니다 (거래 없음 = 0)"' : ''))
+             + (made ? ' title="' + esc(madeWhy) + '"'
+                     : (raw == null ? ' title="이 기간 보고서에 이 계정 값이 없습니다"' : ''))
              + '>' + txt + '</span>' + dd + '</td>';
       }).join('');
     }
@@ -30580,9 +30667,14 @@ async function renderCoStatement(group){
     $('coFinUnit').textContent = '단위: ' + u.label + (d.basis ? ' · ' + d.basis : '');
 
     var msg = [];
-    if (d.derived && d.derived.length)
-      msg.push('<span class="fs-num calc">점선</span> 이 그어진 값은 회사가 직접 내지 않아 '
-        + '다른 계정에서 계산한 것입니다 — ' + esc(d.derived.join(', ')) + '.');
+    if (fsNote) msg.push(fsNote);
+    //  (10/7) 계산한 칸 — 다른 계정에서 · 4분기(연간 − 3분기 누적) · 10-Q 누적에서 푼 분기 (칸에 마우스를 올리면 어떻게 셌는지 나옴)
+    var calcRows = (d.derived || []).slice();
+    var anyQ = all.some(function(r){ return r.derived && Object.keys(r.derived).some(function(k){ return r.derived[k] === 'q4' || r.derived[k] === 'ytd'; }); });
+    if (calcRows.length || anyQ)
+      msg.push('<span class="fs-calc-eg">점선</span>이 그어진 값은 공시에 그 숫자가 따로 없어 계산한 것입니다'
+        + (calcRows.length ? ' (' + esc(calcRows.join(', ')) + ')' : '')
+        + (anyQ ? ' · 분기 칸은 «연간 - 3분기 누적» 이나 «누적 - 앞 누적» 으로 셌습니다' : '') + ' - 칸에 마우스를 올리면 셈법이 나옵니다.');
     warn('coFsWarn', msg.join('<br>'), 'info');
   } catch(e){
     tb.innerHTML = '';
@@ -30660,11 +30752,24 @@ async function loadCoFin(){
     ⚠️ 분기에 4를 곱하는 건 계절성이 있는 회사에서 또 틀립니다.
        <최근 네 분기를 더해서> 씁니다 (TTM). 네 분기가 안 모였으면
        억지로 만들지 않고 빈칸으로 둡니다 — 틀린 숫자보다 낫습니다.   */
+/*  ⚠️ (10/7 점검) 예전에는 <마지막 네 줄> 을 더했습니다. 12월 결산이 아닌 회사는 서버가 회계연도 4분기를 안 만들어
+    한 분기가 비어 있었고, 그러면 네 줄이 <다섯 분기에 걸친> 값이 됐습니다 (엔비디아 ROE 77.0% · 맞는 값 84.2%).
+    이제는 분기 번호(qi = 연도 × 4 + 분기)로 <바로 앞 네 분기> 를 찾고, 하나라도 없으면 빈칸입니다.        */
+function coQi(r){
+  if (!r || !r.q) return null;
+  return r.qi != null ? Number(r.qi) : Number(r.year) * 4 + Number(r.q);
+}
+function coQAt(rs, qi){
+  for (var i = rs.length - 1; i >= 0; i--) if (coQi(rs[i]) === qi) return rs[i];
+  return null;
+}
 function coTtm(rs, k){
   if (rs.length < 4) return null;
+  var last = rs[rs.length - 1], qi = coQi(last);
+  if (qi == null) return null;
   var v = 0;
-  for (var i = rs.length - 4; i < rs.length; i++){
-    var x = rs[i] ? rs[i][k] : null;
+  for (var d = 0; d < 4; d++){
+    var r = coQAt(rs, qi - d), x = r ? r[k] : null;
     if (x == null || !isFinite(Number(x))) return null;
     v += Number(x);
   }
@@ -30682,10 +30787,10 @@ function renderCoTiles(){
       견주고 있었습니다. 계절성이 있는 회사는 4분기→1분기가 늘 급감이라
       «−67% YoY» 같은 문장이 나옵니다. 분기면 <1년 전 같은 분기> 와
       견주고, 네 분기가 안 모였으면 «전분기» 라고 정직하게 적습니다.   */
-  var backN = isQ ? 4 : 1;
-  var base = rs[rs.length - 1 - backN];
+  //  (10/7) 분기는 줄 순서가 아니라 분기 번호로 <1년 전 같은 분기> 를 찾습니다 (빠진 분기가 있어도 안 어긋남)
+  var base = isQ ? coQAt(rs, coQi(last) - 4) : rs[rs.length - 2];
   var cmpLab = isQ ? (base ? ' YoY' : ' 전분기') : ' YoY';
-  if (isQ && !base) base = rs[rs.length - 2];
+  if (isQ && !base) base = coQAt(rs, coQi(last) - 1);
 
   function grow(k){
     if (!base || base[k] == null || last[k] == null || !base[k]) return '';
@@ -30712,6 +30817,8 @@ function renderCoTiles(){
 }
 
 function coLabel(r){
+  //  (10/7) 서버가 준 이름이 먼저 — 12월 결산이 아닌 미국 회사는 «FY27 2Q · 7월» 처럼 회사가 쓰는 분기 이름
+  if (r && r.label) return String(r.label);
   return r.q ? (String(r.year).slice(2) + "'" + ' ' + r.q + 'Q') : (r.year + '년');
 }
 
@@ -30803,7 +30910,11 @@ function coRatioValues(full, ratio, quarter){
     else if (ratio === '순이익률') val = pc(v('당기순이익', k), v('매출액', k));
     else if (ratio === '순차입금비율'){
       var debt = ['단기차입금', '유동성장기부채', '유동성사채', '장기차입금', '사채'].map(function(nm){ return v(nm, k); });
-      if (debt.some(function(x){ return x != null; })){
+      /*  ⚠️ (10/7 점검) 빠진 조각을 0 으로 더하면 숫자가 그럴듯하게 틀립니다 — 장기차입금을 일반 태그로 안 적는 은행(JPM)은
+          단기차입금만 잡혀 −76.9% (실제 +43%), 그 분기만 현금 줄이 빈 애플은 10.2% (앞 분기 34.9%) 로 찍혔습니다.
+          미국 회사는 그 기간 장기차입금 · 현금성자산이 둘 다 있어야 셉니다 (없으면 빈칸).                         */
+      var usOk = !(full && full.unit === 'USD') || (v('장기차입금', k) != null && v('현금성자산', k) != null);
+      if (usOk && debt.some(function(x){ return x != null; })){
         //  현금처럼 쓸 수 있는 돈 — AI 리포트 사실표 · 밸류에이션과 같은 규칙 (단기투자자산 · 미국 장기 유가증권 포함)
         var cash = ['현금성자산', '단기금융상품', '단기투자자산', '장기 유가증권'].reduce(function(a2, nm){ return a2 + (v(nm, k) || 0); }, 0);
         val = pc(debt.reduce(function(a, x){ return a + (x || 0); }, 0) - cash, v('자본총계', k));
@@ -31337,7 +31448,9 @@ function dlt(cur, prev, mode){
     txt = (v > 0 ? '+' : '') + v.toFixed(1) + '%p';
   } else {                                  // 금액 항목은 % 증감
     if (!prev) return '';
-    v = (cur / Math.abs(prev) - 1) * 100;
+    //  (10/7 점검) 전기가 음수(적자)면 «cur/|prev| − 1» 은 정확히 200%p 어긋납니다 (−100 → −50 이 −150%).
+    //  재무제표 표와 같은 식: (당기 − 전기) ÷ |전기|  → −100 → −50 = +50% · −100 → +20 = +120%
+    v = (cur - prev) / Math.abs(prev) * 100;
     if (!isFinite(v)) return '';
     if (Math.abs(v) < 0.05) return '<span class="dlt flat">(–)</span>';
     txt = (v > 0 ? '+' : '') + v.toFixed(1) + '%';
