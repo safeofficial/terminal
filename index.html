@@ -522,6 +522,30 @@
   .mk-easy summary{cursor:pointer;font-weight:700;color:var(--primary)}
   .mk-easy ul{margin:6px 0 2px;padding-left:18px;line-height:1.65} .mk-easy li{margin:2px 0}
   .mk-fact{margin:10px 0 0;font-size:11.5px;line-height:1.55;padding:6px 9px;border-radius:7px;background:var(--ok-soft);color:var(--ok)}
+  /*  (10/8) 지도 위 한 줄 — 세계 핵심 시세 12개 (좁으면 옆으로 스크롤) · 시장 시계 (어느 장이 열려 있나)  */
+  .mk-glance{display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;padding:0 0 4px;margin:0 0 6px;-webkit-overflow-scrolling:touch}
+  .mk-glance:empty{display:none}
+  .mk-gl{flex:none;min-width:88px;border:1px solid var(--border);border-radius:8px;padding:4px 8px 5px;background:var(--card);line-height:1.25;cursor:default}
+  .mk-gl .n{font-size:10.5px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+  .mk-gl .v{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .mk-gl .c{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;margin-left:4px}
+  .mk-gl .c.up{color:var(--up,#c0392b)} .mk-gl .c.down{color:var(--down,#1b5fa8)}
+  .mk-gl.na .v{color:var(--text-sub);font-weight:500}
+  .mk-gl i.mk-tag{position:static;margin-left:4px;vertical-align:middle}
+  .mk-clock{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:11px;color:var(--text-sub);margin:0 0 6px;line-height:1.5}
+  .mk-clock:empty{display:none}
+  .mk-clock .lab{font-weight:700;color:var(--text)}
+  .mk-clock .mc{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .mk-clock .mc i{width:7px;height:7px;border-radius:50%;background:var(--border);display:inline-block;flex:none}
+  .mk-clock .mc.open i{background:#1f8a70;box-shadow:0 0 0 2px rgba(31,138,112,.18)}
+  .mk-clock .mc.soon i{background:#b7791f}
+  .mk-clock .mc.open{color:var(--text);font-weight:600}
+  @media(min-width:901px){
+    /*  전체 화면에서는 한 줄짜리 칸 (이름 · 값 나란히) — 지도가 작아지지 않게 세로를 아낍니다  */
+    .mk-full #mkV-world .mk-glance{flex:none;margin-bottom:4px}
+    .mk-full #mkV-world .mk-gl{display:flex;align-items:baseline;gap:6px;padding:3px 8px;min-width:0}
+    .mk-full #mkV-world .mk-clock{flex:none;margin-bottom:4px}
+  }
   .mk-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
   .mk-chip{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:3px 9px;font-size:11.5px;cursor:pointer;color:var(--text)}
   .mk-chip.on{border-color:var(--primary-fill);background:var(--accent-soft);font-weight:700}
@@ -4740,6 +4764,9 @@
         <div id="mkV-world" class="hidden">
           <div class="mk-world" id="mkWorld">
             <div class="mk-mapcol">
+              <!--  (10/8 학회장: «월드맵에 더 유용한 정보») — 지도 위 한 줄: 세계 핵심 시세 12개 (지도 스냅샷에서 · 새 요청 없음) + 어느 장이 열려 있나  -->
+              <div class="mk-glance" id="mkGlance" aria-label="세계 핵심 시세"></div>
+              <div class="mk-clock" id="mkClock" aria-label="시장 시계"></div>
               <div id="mkMapBox" class="mk-map"></div>
               <div class="mk-chips" id="mkCtryChips"></div>
               <div class="mk-news5" id="mkNews5" aria-live="polite"></div>
@@ -4794,8 +4821,8 @@
           <details class="mk-easy" id="mkFxEasy">
             <summary>이 환율 예측은 어떻게 만드나요? (쉽게)</summary>
             <ul>
-              <li><b>보는 것 4가지</b> - ① 두 나라 금리 차이 ② 최근 1 · 3 · 6개월 흐름 ③ 1년 평균에서 얼마나 멀어졌나 ④ 최근 변동성</li>
-              <li><b>배우는 법</b> - 2008년부터의 매일 환율로 «이런 신호일 때 그 뒤 1주 · 1개월 · 3개월에 얼마나 움직였나» 를 통계로 배웁니다 (리지 회귀 · 과하게 맞추지 않게 눌러 둔 회귀)</li>
+              <li><b>보는 것 7가지</b> - ① 두 나라 금리 차이 ② 최근 1 · 3 · 6개월 흐름 ③ 1년 평균에서 얼마나 멀어졌나 ④ 최근 변동성 ⑤ <b>물가를 반영한 실질환율</b>이 5년 평균에서 얼마나 멀어졌나 (장기 복원력 · 구매력평가) ⑥ 달러지수 최근 1개월 흐름 ⑦ 위험회피 정도 (VIX)</li>
+              <li><b>배우는 법</b> - 2008년부터의 매일 환율로 «이런 신호일 때 그 뒤 1주 · 1개월 · 3개월에 얼마나 움직였나» 를 통계로 배웁니다 (리지 회귀 · 과하게 맞추지 않게 눌러 둔 회귀). 물가는 발표가 한 달 늦는 것까지 그대로 (그날 알 수 있던 값만)</li>
               <li><b>채점</b> - 최근 3년을 한 달씩 넘기며 «그때까지 자료만으로» 예측해 보고, 가장 단순한 예측(«지금 값 그대로»)보다 나았는지 채점합니다. 나았던 만큼만 반영하고, 못 이기면 «지금 값 유지» 가 답입니다</li>
               <li><b>범위</b> - 최근 변동성으로 68%(대략 3번 중 2번) · 95% 범위를 그립니다. 기간이 길수록 넓어집니다</li>
               <li><b>읽는 법</b> - «왜 이런 예측인가» 3~5줄 = 결론 · 가장 크게 작용한 요인(숫자) · 믿을 만한가(채점 성적). 환율은 원래 맞히기 아주 어려워 «지금 값 근처» 가 자주 나오는 게 정상이고, 투자 권유가 아닙니다</li>
@@ -9928,23 +9955,25 @@ function valNum(id){ var e = $(id); return e ? Number(e.value) : NaN; }
 
 /*  계산에 필요한 뼈대를 재무제표에서 뽑습니다.
     연간 기준으로 최근 값과 몇 해 평균을 함께 봅니다.                  */
-function valPull(d){
-  function row(group, names){
-    //  ⚠️ (10/6) 포괄손익계산서 한 장으로만 내는 국내 회사는 손익 줄이 거기 있습니다.
-    //     (10/6 점검) 이름 순서가 먼저입니다 — 손익계산서 전체를 먼저 보면 «지배주주 순이익» 이 포괄 쪽에 있을 때
-    //     손익계산서의 «당기순이익»(비지배 몫 포함)을 집었습니다. 이름마다 두 표를 차례로 봅니다 (서버 fpKrRowFor 와 같게).
-    var groups = group === '손익계산서' ? ['손익계산서', '포괄손익계산서'] : [group];
-    for (var i = 0; i < names.length; i++){
-      for (var g = 0; g < groups.length; g++){
-        var list = (d.statements || {})[groups[g]] || [];
-        for (var j = 0; j < list.length; j++){
-          if (String(list[j].name).replace(/\s+/g,'') === names[i].replace(/\s+/g,'') && list[j].values && Object.keys(list[j].values).length)
-            return list[j];
-        }
+//  재무제표에서 줄 하나 찾기 (연간 · 분기 같은 식)
+function valRow(d, group, names){
+  //  ⚠️ (10/6) 포괄손익계산서 한 장으로만 내는 국내 회사는 손익 줄이 거기 있습니다.
+  //     (10/6 점검) 이름 순서가 먼저입니다 — 손익계산서 전체를 먼저 보면 «지배주주 순이익» 이 포괄 쪽에 있을 때
+  //     손익계산서의 «당기순이익»(비지배 몫 포함)을 집었습니다. 이름마다 두 표를 차례로 봅니다 (서버 fpKrRowFor 와 같게).
+  var groups = group === '손익계산서' ? ['손익계산서', '포괄손익계산서'] : [group];
+  for (var i = 0; i < names.length; i++){
+    for (var g = 0; g < groups.length; g++){
+      var list = (d.statements || {})[groups[g]] || [];
+      for (var j = 0; j < list.length; j++){
+        if (String(list[j].name).replace(/\s+/g,'') === names[i].replace(/\s+/g,'') && list[j].values && Object.keys(list[j].values).length)
+          return list[j];
       }
     }
-    return null;
   }
+  return null;
+}
+function valPull(d, dq){
+  function row(group, names){ return valRow(d, group, names); }
   var per = (d.periods || []).map(function(p){ return p.key; });
   //  ⚠️ 기간 종료일 — CAGR 을 «몇 해 떨어져 있나» 로 재는 데 씁니다.
   //     미국 대형주는 12월 결산이 아닌 곳이 많아 자리 개수로 세면 틀립니다.
@@ -9953,9 +9982,12 @@ function valPull(d){
     if (!r) return [];
     return per.map(function(k){ return r.values[k] == null ? null : Number(r.values[k]); });
   }
+  /*  (10/8 트레이딩뷰 대조) «최근 값» 은 <마지막 결산 그 해> 값만 씁니다. 예전엔 줄마다 «마지막으로 있는 값» 을 집어서
+      단기차입금은 2022년 · 현금은 2025년처럼 해가 섞였습니다 (삼성전자 순차입금이 3년 전 차입금으로). 그 해에 없으면 없는 것입니다.  */
   function last(arr){
-    for (var i = arr.length - 1; i >= 0; i--) if (arr[i] != null) return arr[i];
-    return null;
+    if (!arr || !arr.length) return null;
+    var v = arr[arr.length - 1];
+    return v == null ? null : v;
   }
   //  부호는 자료마다 제각각입니다 (감가상각비를 −로 싣는 곳, +로 싣는 곳).
   //  '얼마인가' 만 쓰는 항목은 크기만 가져옵니다.
@@ -10101,9 +10133,12 @@ function valPull(d){
       그해 주식 수(순이익 ÷ EPS)도 못 되살려서 PBR · EV 과거 배수가 전부 «지금 주식 수» 로 셌습니다.  */
   var eps = series(row('손익계산서', ['EPS (희석)', '희석주당이익', 'EPS', '주당순이익', '기본주당이익']));
   var ends = ends0;
+  //  (10/8) 리스부채 — 트레이딩뷰 · S&P · FnGuide 의 총차입금 · EV 는 리스부채를 넣습니다 (미국 «리스부채» 한 줄 · 국내 유동 + 비유동)
+  var lea = sumRows(['리스부채', '유동리스부채', '비유동리스부채']);
 
-  return {
+  var F = {
     periods: per, ends: ends,
+    lease: mag(last(lea)),
     epsSeries: eps, netSeries: net, eqSeries: eq, revSeries2: rev,
     opSeries: op, depSeries: dep, debtSeries: dbt, cashSeries: cash,
     debtLong: mag(last(dbtL)), debtShort: mag(last(dbtS)),
@@ -10141,6 +10176,93 @@ function valPull(d){
     capexRatioLast: (lrev && last(cpx) != null) ? Math.abs(last(cpx)) / lrev * 100 : null,
     revSeries: rev,
   };
+  valNow(F, d, dq);
+  return F;
+}
+
+/*  ── 지금 값: 최근 4분기 손익(TTM) · 최근 분기 잔액(MRQ) (10/8 트레이딩뷰 대조) ──────────────────────
+    학회장: «재무제표랑 밸류에이션 부분은 꼭 맞아야돼 · 트레이딩뷰 서칭해서 다 매칭되는지 봐봐».
+    예전 «지금 PER» 은 <지난 회계연도> 이익으로 셌습니다. 삼성전자처럼 이익이 한 해 사이 3배가 된 회사는 PER 이 트레이딩뷰(12배)의
+    3배(36배)로 나왔습니다. 트레이딩뷰 · 증권사 앱 · FnGuide 는 모두 <최근 4분기 합> 과 <최근 분기 잔액> 으로 셉니다. 같게 맞춥니다.
+      · 손익 · 현금흐름: 연달아 있는 최근 네 분기의 합 (한 분기라도 비면 그 항목은 연간으로)
+      · 잔액(자본 · 현금 · 차입금 · 리스 · 비지배지분): 자산총계가 있는 가장 최근 분기
+      · EPS: 네 분기 EPS 의 합 (주식 수가 분기마다 달라도 회사가 낸 분기 EPS 를 더하는 것이 관례 · 트레이딩뷰와 같음)
+    DCF 의 과거 비율(감가상각률 · 설비투자율 · 영업이익률 중앙값)은 그대로 연간 여러 해에서 냅니다.                                  */
+function valQChain(keys){
+  for (var i = 1; i < keys.length; i++){
+    var a = String(keys[i - 1]).match(/^(\d{4})Q(\d)$/), b = String(keys[i]).match(/^(\d{4})Q(\d)$/);
+    if (!a || !b) return false;
+    var na = Number(a[1]) * 4 + Number(a[2]), nb = Number(b[1]) * 4 + Number(b[2]);
+    if (nb !== na + 1) return false;
+  }
+  return keys.length > 0;
+}
+var VAL_NOW_PNL = ['rev', 'op', 'net', 'eps', 'dep', 'cfo', 'capex', 'interest'];
+var VAL_NOW_BS = ['eq', 'assets', 'liab', 'cash', 'cashEq', 'cashSt', 'cashLt', 'debt', 'debtShort', 'debtLong', 'lease', 'minority', 'preferred', 'ar', 'inv', 'ap'];
+/*  «지금» 값 한 벌 — 항목마다 최근 4분기(T) · 최근 분기(M) 값이 있으면 그것, 없으면 그 자리의 연간 값 (f 의 그 항목을 <그때그때> 읽습니다 —
+    가정을 흔드는 화면 · 시험이 f.debt 같은 값을 바꿔 넣어도 그대로 따라오게)                                                   */
+function valN(f){
+  if (!f) return {};
+  var T = f.ttm, M = f.mrq, N = {};
+  VAL_NOW_PNL.forEach(function(k){ var v = T ? T[k] : null; N[k] = v != null ? v : (k === 'eps' ? (f.epsSeries && f.epsSeries.length ? f.epsSeries[f.epsSeries.length - 1] : null) : f[k]); });
+  VAL_NOW_BS.forEach(function(k){ var v = M ? M[k] : null; N[k] = v != null ? v : f[k]; });
+  N.pretax = T && T.pretax != null ? T.pretax : null; N.tax = T && T.tax != null ? T.tax : null;
+  return N;
+}
+function valNow(F, d, dq){
+  var T = null, M = null, fb = [];
+  var lastEnd = (F.ends || []).filter(Boolean).slice(-1)[0] || null;
+  //  분기 재무제표만 (열쇠가 2026Q2 꼴) — 연간 모양이면 «지금» 은 연간 그대로
+  if (dq && dq.periods && dq.periods.length && dq.statements && dq.periods.every(function(p){ return /^\d{4}Q\d$/.test(String(p.key)); })){
+    var qp = dq.periods.map(function(p){ return p.key; }), qe = dq.periods.map(function(p){ return p.end; }), ql = dq.periods.map(function(p){ return p.label || p.key; });
+    var qrow = function(group, names){ return valRow(dq, group, names); };
+    var qser = function(r){ return r ? qp.map(function(k){ return r.values[k] == null ? null : Number(r.values[k]); }) : []; };
+    var qsum = function(names, group){
+      var rs = names.map(function(n){ return qser(qrow(group || '재무상태표', [n])); });
+      return qp.map(function(_k, i){ var any = false, t = 0; rs.forEach(function(r){ if (r[i] != null){ any = true; t += Math.abs(r[i]); } }); return any ? t : null; });
+    };
+    var revQ = qser(qrow('손익계산서', ['매출액'])), niQ = qser(qrow('손익계산서', ['지배주주 순이익', '당기순이익']));
+    var iq = -1;
+    for (var i = qp.length - 1; i >= 0; i--) if (revQ[i] != null || niQ[i] != null){ iq = i; break; }
+    if (iq >= 3 && valQChain(qp.slice(iq - 3, iq + 1))){
+      var sum4 = function(arr){ if (!arr || !arr.length) return null; var s = 0; for (var j = iq - 3; j <= iq; j++){ if (arr[j] == null) return null; s += arr[j]; } return s; };
+      var abs4 = function(arr){ var s = sum4(arr); return s == null ? null : Math.abs(s); };
+      T = { end: qe[iq], label: ql[iq - 3] + ' ~ ' + ql[iq], from: qe[iq - 3], keys: qp.slice(iq - 3, iq + 1),
+            rev: sum4(revQ), op: sum4(qser(qrow('손익계산서', ['영업이익']))), net: sum4(niQ),
+            eps: sum4(qser(qrow('손익계산서', ['EPS (희석)', '희석주당이익', 'EPS', '주당순이익', '기본주당이익']))),
+            pretax: sum4(qser(qrow('손익계산서', ['법인세차감전이익', '법인세비용차감전순이익', '세전이익']))),
+            tax: sum4(qser(qrow('손익계산서', ['법인세비용', '법인세']))),
+            dep: abs4(qser(qrow('현금흐름표', ['감가상각비']))), cfo: sum4(qser(qrow('현금흐름표', ['영업활동 현금흐름', '영업활동현금흐름']))),
+            capex: abs4(qser(qrow('현금흐름표', ['설비투자 (CAPEX)', '유형자산 취득']))), interest: abs4(qser(qrow('손익계산서', ['이자비용']))) };
+    }
+    var astQ = qser(qrow('재무상태표', ['자산총계']));
+    var ib = -1;
+    for (var i2 = qp.length - 1; i2 >= 0; i2--) if (astQ[i2] != null){ ib = i2; break; }
+    if (ib >= 0){
+      var at = function(arr){ return arr && arr.length && arr[ib] != null ? arr[ib] : null; };
+      var cashE = at(qser(qrow('재무상태표', ['현금성자산']))), cashS = at(qsum(['단기투자자산', '단기금융상품'])), cashL = at(qser(qrow('재무상태표', ['장기 유가증권'])));
+      var dS = at(qsum(['단기차입금', '유동성장기부채', '유동성사채'])), dL = at(qsum(['장기차입금', '사채']));
+      M = { end: qe[ib], label: ql[ib], key: qp[ib],
+            eq: at(qser(qrow('재무상태표', ['지배주주지분', '자본총계']))), eqTotal: at(qser(qrow('재무상태표', ['자본총계']))),
+            assets: at(astQ), liab: at(qser(qrow('재무상태표', ['부채총계']))),
+            cash: (cashE == null && cashS == null && cashL == null) ? null : Math.abs(cashE || 0) + Math.abs(cashS || 0) + Math.abs(cashL || 0),
+            cashEq: cashE == null ? null : Math.abs(cashE), cashSt: cashS, cashLt: cashL == null ? null : Math.abs(cashL),
+            debt: (dS == null && dL == null) ? null : (dS || 0) + (dL || 0), debtShort: dS, debtLong: dL,
+            lease: at(qsum(['리스부채', '유동리스부채', '비유동리스부채'])),
+            minority: at(qser(qrow('재무상태표', ['비지배지분']))), preferred: (function(){ var v = at(qser(qrow('재무상태표', ['우선주']))); return v == null ? null : Math.abs(v); })(),
+            ar: at(qser(qrow('재무상태표', ['매출채권']))), inv: at(qser(qrow('재무상태표', ['재고자산']))), ap: at(qser(qrow('재무상태표', ['매입채무']))) };
+    }
+  }
+  F.ttm = T; F.mrq = M;
+  //  분기 값이 없어 연간으로 물러선 항목 (무엇을 썼는지 적어 둠)
+  var fyEps = F.epsSeries && F.epsSeries.length ? F.epsSeries[F.epsSeries.length - 1] : null;
+  VAL_NOW_PNL.forEach(function(k){ if (T && T[k] == null && (k === 'eps' ? fyEps : F[k]) != null) fb.push(k); });
+  VAL_NOW_BS.forEach(function(k){ if (M && M[k] == null && F[k] != null) fb.push(k); });
+  //  f.now = 그때그때 만든 «지금» 한 벌 (복사본이 아니라 getter — f 의 값을 바꾸면 따라옴)
+  if (!Object.getOwnPropertyDescriptor(F, 'now')) Object.defineProperty(F, 'now', { get: function(){ return valN(this); }, enumerable: false, configurable: true });
+  F.nowBasis = { pnl: T ? 'TTM' : 'FY', bs: M ? 'MRQ' : 'FY', pnlEnd: T ? T.end : lastEnd, bsEnd: M ? M.end : lastEnd,
+                 pnlLabel: T ? '최근 4분기 (' + T.label + ')' : '지난 회계연도', bsLabel: M ? '최근 분기 잔액 (' + M.label + ')' : '지난 회계연도 말 잔액',
+                 fallback: fb };
 }
 
 /*  ── 무위험수익률 ────────────────────────────────────────────
@@ -10238,15 +10360,18 @@ async function valLoadInner(force){
   $('valTiles').innerHTML = '<div class="empty" style="padding:22px">재무제표를 불러오는 중…</div>';
   warn('valWarn','');
   try {
-    //  연간 재무제표가 뼈대입니다 (분기로는 DCF 를 세울 수 없습니다)
-    var d = await edgeCo({ action: co.market === 'KR' ? 'kr_fin_full' : 'us_fin_full',
-                           code: co.market === 'KR' ? co.corp_code : co.cik,
-                           period: 'annual' });
+    //  연간 재무제표가 뼈대 (DCF 의 과거 비율) · 분기 재무제표로 «지금» 값(최근 4분기 손익 · 최근 분기 잔액)을 냅니다 — 둘을 같이 받음
+    var act = co.market === 'KR' ? 'kr_fin_full' : 'us_fin_full', code = co.market === 'KR' ? co.corp_code : co.cik;
+    var both = await Promise.all([edgeCo({ action: act, code: code, period: 'annual' }),
+                                  edgeCo({ action: act, code: code, period: 'quarter' }).catch(function(){ return null; })]);
+    var d = both[0], dq = both[1] && both[1].statements ? both[1] : null;
     if (stale()) return;
-    var f = valPull(d);
+    var f = valPull(d, dq);
     /*  ⚠️ (10/6 점검) 국내 «우선주» 줄은 우선주 <자본금(액면)> 입니다 — 시장가치가 아니라 빼면 엉뚱합니다.
         국내 EPS · 지배주주 순이익 · 자본은 보통주 + 우선주 주주 몫이라, 우선주는 <주식 수에 더해서> 맞춥니다 (아래).  */
-    if (co.market === 'KR'){ f.preferred = null; f.pfdSeries = null; }
+    if (co.market === 'KR'){ f.preferred = null; f.pfdSeries = null; if (f.mrq) f.mrq.preferred = null; }
+    //  (10/8) 은행 · 금융지주 — 예금 · 차입이 영업 재료라 순차입금 · EV · DCF(FCFF) 가 뜻이 없습니다. PER · PBR 만 (서버가 가립니다)
+    var bank = !!(d.bank || (dq && dq.bank));
     if (!f.rev && !f.net){
       $('valTiles').innerHTML = '';
       warn('valWarn','재무제표에서 매출·순이익을 찾지 못해 계산할 수 없습니다.');
@@ -10372,7 +10497,7 @@ async function valLoadInner(force){
     } catch(e){ pxHist = null; }
     if (stale()) return;
     valData = { code: co.code, key: valCoKey(co), market: co.market, f: f, px: px, shares: shares, target: target, pxHist: pxHist,
-                sharesNote: sharesNote, sharesAsOf: (d.shares && d.shares.as_of) || '',
+                sharesNote: sharesNote, sharesAsOf: (d.shares && d.shares.as_of) || '', bank: bank,
                 note: note, cur: co.market === 'KR' ? '원' : '$' };
     //  화면 슬라이더를 이 회사 실제 값으로 맞춰줍니다
     valReset(true);
@@ -10664,13 +10789,17 @@ function valMultiples(){
   if (!(px > 0) || !(sh > 0)) return out;
 
   var mcap = px * sh;
-  var debt = f.debt || 0, cash = f.cash || 0;
+  //  (10/8) «지금» 값 = 최근 4분기 손익 · 최근 분기 잔액 (valNow) — 트레이딩뷰 · 증권사 앱과 같은 기준
+  var N = valN(f);
+  var debt = (N.debt || 0) + (N.lease || 0), cash = N.cash || 0;
   var netDebt = debt - cash;
   /*  ⚠️ (10/6 점검) 지금 EV 는 순차입금만 더했는데, EV 기준 적정주가(valCompute)는 비지배지분 · 우선주까지 뺐습니다 —
       그 회사의 지금 배수를 그대로 넣어도 EV 방법만 현재가보다 낮게 나왔습니다 (지주회사가 늘 저평가로). 같은 다리를 씁니다.  */
   var ev = mcap + valBridge(f);
   //  영업이익이 없으면 EBITDA 도 없습니다 (감가상각만으로 «EV/EBITDA» 를 내지 않음 — 은행 · 보험 · 태그 없는 미국 회사)
-  var ebitda = f.op != null ? f.op + (f.dep || 0) : null;
+  var ebitda = N.op != null ? N.op + (N.dep || 0) : null;
+  //  은행 · 금융지주: EV · 순차입금 · EV 배수 · ROIC 는 뜻이 없어 만들지 않음
+  var bank = !!valData.bank;
   /*  ⚠️ EV/FCF 가 <무차입 분자 ÷ 차입 후 분모> 였습니다.
       영업활동현금흐름(CFO)은 이자를 <내고 난> 값입니다. 기업가치(EV)는
       채권자 몫까지 포함한 값이고요. 그대로 나누면 레버리지가 높을수록
@@ -10679,28 +10808,30 @@ function valMultiples(){
 
       FCFF = CFO + 이자비용×(1−t) − 설비투자                          */
   var taxR = valNum('vTax') / 100;
-  var itrAdj = (f.interest != null && isFinite(taxR))
-             ? Math.abs(f.interest) * (1 - taxR) : 0;
+  var itrAdj = (N.interest != null && isFinite(taxR))
+             ? Math.abs(N.interest) * (1 - taxR) : 0;
   //  주주 몫 잉여현금흐름(FCFE)도 따로 둡니다 — 배당 여력을 볼 때 씁니다
-  var fcfe = (f.cfo != null && f.capex != null) ? f.cfo - Math.abs(f.capex) : null;
+  var fcfe = (N.cfo != null && N.capex != null) ? N.cfo - Math.abs(N.capex) : null;
   var fcf = (fcfe != null) ? fcfe + itrAdj : null;
 
   function ratio(a, b){ return (a != null && b != null && b > 0) ? a / b : null; }
 
   out.mcap = mcap;
-  out.ev = ev;
-  out.netDebt = netDebt;
+  out.ev = bank ? null : ev;
+  out.netDebt = bank ? null : netDebt;
   out.ebitda = ebitda != null && ebitda > 0 ? ebitda : null;
   out.fcf = fcf;            //  무차입 (FCFF) — EV 와 짝이 맞습니다
   out.fcfe = fcfe;          //  주주 몫 (FCFE) — 시가총액과 짝이 맞습니다
 
-  out.per   = ratio(mcap, f.net);          //  주가수익비율
-  out.pbr   = ratio(mcap, f.eq);           //  주가순자산비율
-  out.psr   = ratio(mcap, f.rev);          //  주가매출비율
-  out.evEbitda = ratio(ev, out.ebitda);
-  out.evEbit   = ratio(ev, f.op);
-  out.evRev    = ratio(ev, f.rev);
-  out.evFcf    = (fcf != null && fcf > 0) ? ev / fcf : null;
+  /*  PER = 주가 ÷ 최근 4분기 EPS 합 (트레이딩뷰 · FnGuide 방식 · 우선주 · 자사주 · 희석까지 회사가 센 값). EPS 가 없으면 시가총액 ÷ 순이익.  */
+  out.per   = (N.eps != null && N.eps > 0) ? px / N.eps : ratio(mcap, N.net);
+  out.perHow = (N.eps != null && N.eps > 0) ? 'eps' : 'net';
+  out.pbr   = ratio(mcap, N.eq);           //  주가순자산비율
+  out.psr   = ratio(mcap, N.rev);          //  주가매출비율
+  out.evEbitda = bank ? null : ratio(ev, out.ebitda);
+  out.evEbit   = bank ? null : ratio(ev, N.op);
+  out.evRev    = bank ? null : ratio(ev, N.rev);
+  out.evFcf    = (!bank && fcf != null && fcf > 0) ? ev / fcf : null;
 
   //  PEG — 성장 대비 얼마나 비싼가. 성장률은 최근 매출 CAGR 을 씁니다.
   out.peg = (out.per != null && f.cagr != null && f.cagr > 0)
@@ -10710,9 +10841,10 @@ function valMultiples(){
       투하자본은 '자기자본 + 순차입금' 으로 봅니다 — 사업에 실제로
       묶여 있는 돈입니다. WACC 와 견주면 가치를 만드는지 태우는지 보입니다. */
   var tax = valNum('vTax') / 100;
-  var ic = (f.eq || 0) + netDebt;
-  out.roic = (f.op != null && ic > 0) ? (f.op * (1 - tax)) / ic * 100 : null;
+  var ic = (N.eq || 0) + netDebt;
+  out.roic = (!bank && N.op != null && ic > 0) ? (N.op * (1 - tax)) / ic * 100 : null;
   out.icBase = ic;
+  out.basis = f.nowBasis || null;
 
   return out;
 }
@@ -10902,7 +11034,7 @@ function valBandDraw(){
               { type: 'value', name: 'PBR · PSR (배)', scale: true, splitLine: { show: false }, nameTextStyle: { align: 'right' } }],
       series: ser
     }, true);
-    if (note) note.innerHTML = '결산마다 <b>결산일 주가 ÷ 그해 실적</b> (' + esc(rows[0].end.slice(0, 4)) + '~' + esc(rows[rows.length - 1].end.slice(0, 4)) + ' · ' + rows.length + '개 결산) · 마지막 칸 «지금» = 오늘 주가 ÷ 최근 결산'
+    if (note) note.innerHTML = '결산마다 <b>결산일 주가 ÷ 그해 실적</b> (' + esc(rows[0].end.slice(0, 4)) + '~' + esc(rows[rows.length - 1].end.slice(0, 4)) + ' · ' + rows.length + '개 결산) · 마지막 칸 «지금» = 오늘 주가 ÷ ' + ((m.basis && m.basis.pnl === 'TTM') ? '최근 4분기 실적 (잔액은 최근 분기)' : '최근 결산')
       + (H.split ? ' · 액면분할로 보이는 ' + H.split + '개 해는 EPS · 주식 수를 분할 뒤 기준으로 맞췄습니다' : '')
       + (H.approx ? ' · ' + H.approx + '개 해는 그해 주식 수를 몰라 지금 주식 수로 셌습니다' : '')
       + ' · 점선 = 과거 중앙값 (목표 배수를 비우면 이 값을 씁니다).';
@@ -10994,6 +11126,8 @@ function valDraw(){
     var r = out.odd ? out.odd[k] : null;
     if (r != null) return [VAL_NAME[k], '확인 필요',
       (r >= 1 ? '현재가의 ' + num(r, 0) + '배' : '현재가의 1/' + num(1/r, 0)), 'neg'];
+    //  (10/8) 은행 · 금융지주 — EV · DCF 방법은 «해당 없음» 으로 (빈 칸이 아니라 왜 없는지 보이게)
+    if (out.bank && (k === 'dcf' || k === 'ev' || k === 'evrev')) return [VAL_NAME[k], '해당 없음', '은행 · 금융지주', ''];
     return [VAL_NAME[k], money(out[k]), upside(out[k]), cls(out[k])];
   }
   var tiles = [['현재가', money(px), '지금 시장 가격', '']]
@@ -11041,13 +11175,14 @@ function valDraw(){
   //  왜 비었는지 설명해 줍니다
   var oddK = Object.keys(out.odd || {});
   var msg = valData.note || '';
+  if (out.bank) msg += (msg ? '<br>' : '') + '은행 · 금융지주라 <b>PER · PBR</b> 로만 봅니다 — 예금 · 차입이 영업 재료라 EV · 순차입금 · DCF(FCFF) 는 뜻이 없어 만들지 않습니다.';
   if (oddK.length){
     if (msg) msg += '<br>';
     msg += oddK.map(function(k){ return VAL_NAME[k]; }).join(' · ')
          + ' 값이 현재가에서 30배 넘게 벗어나 결과에서 뺐습니다. '
          + '재무제표 단위와 주식 수가 어긋났거나, 그 방법이 이 회사에 안 맞는 경우입니다.';
   }
-  warn('valWarn', msg, valData.note ? 'err' : '');
+  warn('valWarn', msg, valData.note ? 'err' : (out.bank && !oddK.length ? 'info' : ''));
 
   valMultBox();
   valWaccBox();
@@ -11093,7 +11228,8 @@ function valAssume(f){
   /*  마지막 결산일로부터 지난 햇수 — 그만큼 <가까운 현금흐름> 입니다.
       과거로 할증하지는 않게 아래에서 0 으로 막습니다.                */
   var off = 0;
-  var lastEnd = (f.ends && f.ends.length) ? f.ends[f.ends.length - 1] : null;
+  //  (10/8) 출발 매출이 최근 4분기 합이면 그 끝나는 날부터 셉니다 (지난 회계연도 말이 아니라)
+  var lastEnd = (f.nowBasis && f.nowBasis.pnlEnd) || ((f.ends && f.ends.length) ? f.ends[f.ends.length - 1] : null);
   if (lastEnd){
     var aged = (Date.now() - Date.parse(lastEnd)) / 3.15576e10;   //  365.25일
     if (isFinite(aged) && aged > 0) off = Math.min(3, aged);
@@ -11134,9 +11270,13 @@ function valAssume(f){
        다만 «못 구해서 0» 인지 «진짜 0» 인지는 화면에 적어 둡니다.     */
 function valBridge(f){
   if (!f) return 0;
-  return (f.debt || 0) - (f.cash || 0)
-       + (f.minority || 0) + (f.preferred || 0);
+  //  (10/8) 최근 분기 잔액으로 · 리스부채 포함 (트레이딩뷰 · S&P 의 EV 와 같은 기준)
+  var N = valN(f);
+  return (N.debt || 0) + (N.lease || 0) - (N.cash || 0)
+       + (N.minority || 0) + (N.preferred || 0);
 }
+//  DCF 가 출발하는 «최근 매출» — 최근 4분기 합 (없으면 지난 회계연도). valCompute 와 valDcfAt 가 같은 값을 쓰게 한 곳에서
+function valRev0(f){ var N = valN(f); return N.rev != null ? N.rev : (f ? f.rev : null); }
 
 function valCompute(){
   var f = valData.f, shares = valData.shares;
@@ -11148,16 +11288,17 @@ function valCompute(){
   var res = { dcf:null, per:null, pbr:null, ev:null, evrev:null, cons:null,
               imply:null, fcf:[], pv:[], tv:null, ev_total:null };
 
-  res.imply = valImplied(f, mg, w, tg, tax, N, shares);
+  var bank = !!valData.bank, NOW = valN(f), rev0 = valRev0(f);
+  res.imply = bank ? null : valImplied(f, mg, w, tg, tax, N, shares);
 
-  // ── ① DCF ──
-  if (f.rev && w > tg){
+  // ── ① DCF ── (은행 · 금융지주는 안 함 — FCFF 모형이 맞지 않음)
+  if (rev0 && w > tg && !bank){
     var A = valAssume(f);
-    var rev = f.rev;
+    var rev = rev0;
     res.nwcRatio = A.nwcR; res.stubYears = A.off;
     res.depRatio = A.depR; res.capexRatio = A.cpxR; res.midYear = A.mid;
 
-    var pvSum = 0, prevRev = f.rev;
+    var pvSum = 0, prevRev = rev0;
     for (var i = 1; i <= N; i++){
       rev = rev * (1 + g);
       var ebit = rev * mg;
@@ -11178,18 +11319,19 @@ function valCompute(){
     if (shares && shares > 0 && equity > 0) res.dcf = equity / shares;
   }
 
-  // ── ② PER ──
+  // ── ② PER ── (10/8) 최근 4분기 EPS 합 × 목표 PER (EPS 가 없으면 최근 4분기 지배주주 순이익 ÷ 주식 수)
   var per = Number($('vPer').value) || own.per;
-  if (per > 0 && f.net && shares && shares > 0) res.per = (f.net * per) / shares;
+  if (per > 0 && NOW.eps != null && NOW.eps > 0) res.per = NOW.eps * per;
+  else if (per > 0 && NOW.net && shares && shares > 0) res.per = (NOW.net * per) / shares;
 
-  // ── ③ PBR ──
+  // ── ③ PBR ── 최근 분기 자본(지배주주 몫) × 목표 PBR
   var pbr = Number($('vPbr').value) || own.pbr;
-  if (pbr > 0 && f.eq && shares && shares > 0) res.pbr = (f.eq * pbr) / shares;
+  if (pbr > 0 && NOW.eq && shares && shares > 0) res.pbr = (NOW.eq * pbr) / shares;
 
-  // ── ④ EV/EBITDA ──
+  // ── ④ EV/EBITDA ── 최근 4분기 EBITDA × 배수 − 최근 분기 순차입금 · 리스 · 비지배지분 · 우선주
   var evm = Number($('vEv').value) || own.ev;
-  var ebitda = f.op != null ? f.op + (f.dep || 0) : null;
-  if (evm > 0 && ebitda != null && ebitda > 0 && shares && shares > 0){
+  var ebitda = NOW.op != null ? NOW.op + (NOW.dep || 0) : null;
+  if (!bank && evm > 0 && ebitda != null && ebitda > 0 && shares && shares > 0){
     var ev = ebitda * evm;
     var eq2 = ev - valBridge(f);
     if (eq2 > 0) res.ev = eq2 / shares;
@@ -11198,11 +11340,12 @@ function valCompute(){
   //     적자 회사나 이익 변동성이 큰 회사는 PER 의 설명력이 낮습니다. 매출은 남아 있어서
   //     성장주·초기기업 밸류에이션에서 이 배수를 씁니다.
   var evr = Number($('vEvRev').value) || own.evRev;
-  if (evr > 0 && f.rev && shares && shares > 0){
-    var ev3 = f.rev * evr;
+  if (!bank && evr > 0 && NOW.rev && shares && shares > 0){
+    var ev3 = NOW.rev * evr;
     var eq3 = ev3 - valBridge(f);
     if (eq3 > 0) res.evrev = eq3 / shares;
   }
+  res.bank = bank;
 
   /*  ── ⑥ 역산 DCF ──
       앞의 다섯은 "얼마가 적정한가" 를 묻습니다. 이것 하나는 거꾸로 묻습니다:
@@ -11373,16 +11516,17 @@ function valWacc(){
 
   var erp = waccErp();
   var ke = (rf != null && beta != null) ? rf + beta * erp : null;
-  //  타인자본비용 = 이자비용 ÷ 총차입금
-  var kd = (f && f.interest != null && f.debt > 0)
-         ? f.interest / f.debt * 100 : null;
+  //  타인자본비용 = 이자비용(최근 4분기) ÷ 차입금(최근 분기 · 리스 제외 — 리스 이자는 이자비용 줄에 잘 안 들어서)
+  var NW = f ? valN(f) : null;
+  var kd = (NW && NW.interest != null && NW.debt > 0)
+         ? NW.interest / NW.debt * 100 : null;
   var kdSrc = kd != null ? 'interest' : 'rf';
   //  이상한 값이면 국채금리에 신용스프레드를 얹어 대신합니다
   if (kd != null && (kd < 0.3 || kd > 25)){ kd = (rf != null) ? rf + 1.5 : null; kdSrc = 'rf'; }
   if (kd == null && rf != null){ kd = rf + 1.5; kdSrc = 'rf'; }
 
   var E = m.mcap || null;
-  var D = (f && f.debt) ? f.debt : 0;
+  var D = NW ? ((NW.debt || 0) + (NW.lease || 0)) : 0;
   //  구성요소가 상식 밖이면 WACC 를 내지 않습니다 (틀린 값보다 없는 게 낫습니다)
   if (ke != null && (ke < 1 || ke > 40)) ke = null;
   if (kd != null && (kd < 0 || kd > 30)) kd = null;
@@ -11414,10 +11558,11 @@ function valWacc(){
     8% 성장» 이 서로 앞뒤가 안 맞게 됩니다. 운전자본·stub 기간·지분가치
     다리를 여기에도 그대로 넣습니다.                                   */
 function valDcfAt(f, g, mg, w, tg, tax, N, shares){
-  if (!f.rev || !(w > tg) || !(shares > 0)) return null;
+  var rev0 = valRev0(f);
+  if (!rev0 || !(w > tg) || !(shares > 0)) return null;
   //  ⚠️ 가정은 valAssume 하나에서만 만듭니다 — 위 DCF 와 어긋날 수 없게
   var A = valAssume(f);
-  var rev = f.rev, pv = 0, fcf = 0, prevRev = f.rev;
+  var rev = rev0, pv = 0, fcf = 0, prevRev = rev0;
   for (var i = 1; i <= N; i++){
     rev = rev * (1 + g);
     var dNwc = (A.nwcR != null) ? (rev - prevRev) * A.nwcR : 0;
@@ -11433,7 +11578,7 @@ function valDcfAt(f, g, mg, w, tg, tax, N, shares){
 
 function valImplied(f, mg, w, tg, tax, N, shares){
   var px = valData ? valData.px : null;
-  if (!px || !(px > 0) || !(shares > 0) || !f.rev) return null;
+  if (!px || !(px > 0) || !(shares > 0) || !valRev0(f)) return null;
   var lo = -0.30, hi = 1.00;
   /*  ⚠️ (10/6 점검) 주주가치가 0 아래면 valDcfAt 이 null 입니다 — 차입이 많은 회사는 −30% 성장에서 늘 null 이라
       답이 있는데도 역산 칸이 통째로 사라졌습니다. null 은 «주가보다 낮음» 으로 봅니다 (성장률이 오를수록 값이 오르는 식).  */
@@ -11529,13 +11674,16 @@ function valMultBox(){
     return '<span class="' + (d > 0 ? 'neg' : 'pos') + '">'
          + (d > 0 ? '+' : '') + num(d, 0) + '%</span>';
   }
+  var B = m.basis || {}, ttm = B.pnl === 'TTM', mrq = B.bs === 'MRQ', bank = !!valData.bank;
+  var pnlW = ttm ? '최근 4분기 ' : '', bsW = mrq ? '최근 분기 ' : '';
+  var N = valN(valData.f);
   var rows = [
     ['시가총액', big(m.mcap), '', '주가 × 주식수'],
-    ['기업가치 (EV)', big(m.ev), '', '시가총액 + 순차입금'],
-    ['순차입금', big(m.netDebt), '', '차입금 − 현금'],
-    ['PER', x(m.per), x(h.per) + ' ' + gap(m.per, h.per), '시가총액 ÷ 지배주주 순이익'],
-    ['PBR', x(m.pbr, 2), x(h.pbr, 2) + ' ' + gap(m.pbr, h.pbr), '시가총액 ÷ 지배주주지분'],
-    ['PSR', x(m.psr, 2), x(h.psr, 2) + ' ' + gap(m.psr, h.psr), '시가총액 ÷ 매출액'],
+    ['기업가치 (EV)', bank ? '—' : big(m.ev), '', bank ? '은행 · 금융지주는 만들지 않음' : '시가총액 + 순차입금 + 비지배지분' + (N.preferred ? ' + 우선주' : '')],
+    ['순차입금', bank ? '—' : big(m.netDebt), '', bank ? '예금 · 차입이 영업 재료' : bsW + '차입금' + (N.lease ? ' + 리스부채' : '') + ' − 현금 · 단기금융상품' + (N.cashLt ? ' · 장기 유가증권' : '')],
+    ['PER', x(m.per), x(h.per) + ' ' + gap(m.per, h.per), m.perHow === 'eps' ? '주가 ÷ ' + pnlW + 'EPS' + (ttm ? ' 합' : '') : '시가총액 ÷ ' + pnlW + '지배주주 순이익'],
+    ['PBR', x(m.pbr, 2), x(h.pbr, 2) + ' ' + gap(m.pbr, h.pbr), '시가총액 ÷ ' + bsW + '지배주주지분'],
+    ['PSR', x(m.psr, 2), x(h.psr, 2) + ' ' + gap(m.psr, h.psr), '시가총액 ÷ ' + pnlW + '매출액'],
     ['EV/EBITDA', x(m.evEbitda), x(h.ev) + ' ' + gap(m.evEbitda, h.ev),
       '자본구조와 무관해 회사 간 비교에 씁니다'],
     ['EV/EBIT', x(m.evEbit), '', '감가상각까지 반영한 영업이익 기준'],
@@ -11554,7 +11702,7 @@ function valMultBox(){
       : '<b>ROIC ' + num(m.roic,1) + '% < WACC ' + num(w.wacc,1) + '%</b> — 조달비용만큼도 못 벌고 있습니다. 성장할수록 가치가 깎입니다.';
   }
   box.innerHTML = '<div class="scroll"><table><thead><tr><th>지표</th>'
-    + '<th class="num">지금</th><th class="num">과거 중앙값'
+    + '<th class="num">지금' + (ttm ? ' <span style="font-weight:400">(최근 4분기)</span>' : '') + '</th><th class="num">과거 중앙값'
     + (h.n ? ' <span style="font-weight:400">(' + esc(h.from) + '~' + esc(h.to) + ')</span>' : '')
     + '</th><th>계산</th></tr></thead><tbody>'
     + rows.map(function(r){
@@ -11569,11 +11717,17 @@ function valMultBox(){
           + '지금 배수를 그대로 쓰면 답이 항상 현재가가 되어 아무 의미가 없습니다.</p>'
         : '<p class="st-hint" style="margin-top:6px">· 과거 주가가 모자라 과거 배수(중앙값)를 못 냈습니다. '
           + '지금 배수를 쓰므로 배수 기준 적정주가는 현재가와 같게 나옵니다 — 비교할 과거가 없다는 뜻입니다.</p>')
-    + '<p class="st-hint" style="margin-top:6px">기준: '
-    + esc((valData.f.periods || []).slice(-1)[0] || '최근') + ' 재무제표 · 주식수 '
-    + esc(valData.sharesNote || '—')
-    + (valData.sharesAsOf ? ' (' + esc(valData.sharesAsOf) + ')' : '') + '</p>';
+    + '<p class="st-hint" style="margin-top:6px">기준: 손익 · 현금흐름 = <b>' + esc(B.pnlLabel || (valData.f.periods || []).slice(-1)[0] || '최근') + '</b>'
+    + ' · 잔액 = <b>' + esc(B.bsLabel || '지난 회계연도 말') + '</b>'
+    + (B.fallback && B.fallback.length ? ' · 분기 값이 없어 연간을 쓴 항목: ' + esc(B.fallback.map(valNowName).join(' · ')) : '')
+    + ' · 주식수 ' + esc(valData.sharesNote || '—')
+    + (valData.sharesAsOf ? ' (' + esc(valData.sharesAsOf) + ')' : '')
+    + (bank ? ' · 은행 · 금융지주라 EV · 순차입금 · DCF 는 만들지 않습니다 (PER · PBR 로 봅니다)' : '') + '</p>';
 }
+var VAL_NOW_NAME = { rev: '매출', op: '영업이익', net: '순이익', eps: 'EPS', dep: '감가상각', cfo: '영업현금흐름', capex: '설비투자', interest: '이자비용',
+                     eq: '자본', assets: '자산', liab: '부채', cash: '현금', cashEq: '현금성자산', cashSt: '단기금융상품', cashLt: '장기 유가증권', debt: '차입금',
+                     debtShort: '단기차입금', debtLong: '장기차입금', lease: '리스부채', minority: '비지배지분', preferred: '우선주', ar: '매출채권', inv: '재고', ap: '매입채무' };
+function valNowName(k){ return VAL_NOW_NAME[k] || k; }
 
 //  WACC 를 어떻게 쌓았는지 보여줍니다
 function valWaccBox(){
@@ -11701,8 +11855,9 @@ function valSteps(out){
   function m(v){ return v == null || !isFinite(v) ? '—'
     : (cur === '원' ? num(v/1e8, 0) + '억' : '$' + num(v/1e6, 0) + 'M'); }
   var st = [];
-  st.push(['DCF',
-    '최근 매출 <code>' + m(f.rev) + '</code> 에서 시작해 해마다 <b>'
+  if (out.bank) st.push(['DCF', '은행 · 금융지주는 <b>DCF(FCFF) 를 만들지 않습니다</b> — 예금 · 차입이 영업 재료라 «기업가치 − 순차입금» 식이 맞지 않습니다. 배당할인 · PBR-ROE 로 보는 것이 관례입니다.']);
+  else st.push(['DCF',
+    ((f.nowBasis && f.nowBasis.pnl === 'TTM') ? '최근 4분기 매출' : '최근 매출') + ' <code>' + m(valRev0(f)) + '</code> 에서 시작해 해마다 <b>'
     + valNum('vGrow') + '%</b> 씩 키우고, 영업이익률 <b>' + valNum('vMargin')
     + '%</b> 로 영업이익을 냅니다. 거기서 세금 <b>' + valNum('vTax')
     + '%</b> 를 빼고 감가상각을 더한 뒤 설비투자와 <b>운전자본 증가분</b>을 '
@@ -11710,8 +11865,8 @@ function valSteps(out){
     + '<br>' + u.N + '년치를 <b>' + valNum('vWacc').toFixed(1)
     + '%</b> 로 할인해 더하고, 그 뒤로는 영구히 <b>' + valNum('vTerm').toFixed(1)
     + '%</b> 씩 큰다고 보고 잔여가치 <code>' + m(out.tv) + '</code> 를 붙입니다.'
-    + '<br>합이 기업가치 <code>' + m(out.ev_total) + '</code>, 여기서 <b>순차입금'
-    + ((f.minority || f.preferred) ? ' · 비지배지분 · 우선주' : '')
+    + '<br>합이 기업가치 <code>' + m(out.ev_total) + '</code>, 여기서 <b>' + ((f.nowBasis && f.nowBasis.bs === 'MRQ') ? '최근 분기 ' : '') + '순차입금' + (valN(f).lease ? ' (리스부채 포함)' : '')
+    + ((valN(f).minority || valN(f).preferred) ? ' · 비지배지분' + (valN(f).preferred ? ' · 우선주' : '') : '')
     + '</b>을 빼고 주식 수로 나눈 것이 DCF 값입니다.'
     //  ⚠️ 가정이 아니라 <자료가 있고 없고> 의 문제라 따로 적습니다
     + (out.nwcRatio != null
@@ -11721,7 +11876,7 @@ function valSteps(out){
           + '재무제표에서 못 구했습니다. 매출이 빠르게 크는 회사라면 이 값은 '
           + '<b>실제보다 높게</b> 나옵니다.')
     + (out.stubYears > 0.15
-        ? '<br>마지막 결산이 <b>' + num(out.stubYears, 1) + '년</b> 전이라 그만큼 '
+        ? '<br>' + ((f.nowBasis && f.nowBasis.pnl === 'TTM') ? '최근 4분기가 끝난 날' : '마지막 결산') + '이 <b>' + num(out.stubYears, 1) + '년</b> 전이라 그만큼 '
           + '앞당겨 할인했습니다 (1년차는 이미 상당 부분 지나간 기간입니다).' : '')
     //  ⚠️ 무엇을 썼는지 적어둬야 발표에서 «왜 그 값이냐» 에 답할 수 있습니다
     + '<br>감가상각은 매출의 <b>' + num((out.depRatio || 0) * 100, 1)
@@ -11744,22 +11899,30 @@ function valSteps(out){
     if ($(inputId) && $(inputId).value) return ' (직접 넣은 값)';
     return hm[hk] ? ' (과거 결산 배수 중앙값 · ' + esc(hm.from) + '~' + esc(hm.to) + ')' : ' (과거 배수가 없어 지금 배수)';
   }
-  var bridgeTxt = '<b>순차입금</b>(차입금 − 현금)' + ((f.minority || f.preferred) ? ' · <b>비지배지분</b>' + (f.preferred ? ' · <b>우선주</b>' : '') : '');
-  st.push(['PER 기준',
-    '지배주주 순이익 <code>' + m(f.net) + '</code> × 목표 PER <b>'
-    + (u.per > 0 ? num(u.per, 1) : '—') + '</b> ÷ 주식 수.' + srcOf('vPer', 'per')]);
+  //  (10/8) 배수 방법은 «지금» 값 — 최근 4분기 손익 · 최근 분기 잔액 (valNow)
+  var NW = valN(f), Bz = f.nowBasis || {}, ttmW = Bz.pnl === 'TTM' ? '최근 4분기 ' : '', mrqW = Bz.bs === 'MRQ' ? '최근 분기 ' : '';
+  var bridgeTxt = '<b>' + mrqW + '순차입금</b>(차입금' + (NW.lease ? ' + 리스부채' : '') + ' − 현금)' + ((NW.minority || NW.preferred) ? ' · <b>비지배지분</b>' + (NW.preferred ? ' · <b>우선주</b>' : '') : '');
+  if (out.bank){
+    st.push(['PER 기준', '은행 · 금융지주는 예금 · 차입이 영업 재료라 EV · DCF 대신 <b>PER · PBR</b> 로 봅니다. ' + ttmW + 'EPS <code>' + (NW.eps != null ? (cur === '원' ? num(NW.eps, 0) + '원' : '$' + num(NW.eps, 2)) : '—') + '</code> × 목표 PER <b>' + (u.per > 0 ? num(u.per, 1) : '—') + '</b>.' + srcOf('vPer', 'per')]);
+  } else st.push(['PER 기준',
+    (NW.eps != null && NW.eps > 0
+      ? ttmW + 'EPS <code>' + (cur === '원' ? num(NW.eps, 0) + '원' : '$' + num(NW.eps, 2)) + '</code> × 목표 PER <b>'
+      : ttmW + '지배주주 순이익 <code>' + m(NW.net) + '</code> ÷ 주식 수 × 목표 PER <b>')
+    + (u.per > 0 ? num(u.per, 1) : '—') + '</b>.' + srcOf('vPer', 'per')]);
   st.push(['PBR 기준',
-    '자본(지배주주 몫) <code>' + m(f.eq) + '</code> × 목표 PBR <b>'
+    mrqW + '자본(지배주주 몫) <code>' + m(NW.eq) + '</code> × 목표 PBR <b>'
     + (u.pbr > 0 ? num(u.pbr, 2) : '—') + '</b> ÷ 주식 수.' + srcOf('vPbr', 'pbr')]);
-  st.push(['EV/EBITDA 기준',
-    'EBITDA <code>' + m(u.ebitda) + '</code> (영업이익 + 감가상각) × 배수 <b>'
-    + (u.ev > 0 ? num(u.ev, 1) + '배' : '—') + '</b> 로 기업가치를 구하고, '
-    + '거기서 ' + bridgeTxt + '을 빼면 주주 몫입니다.' + srcOf('vEv', 'ev')]);
-  st.push(['EV/매출 기준',
-    '매출 <code>' + m(f.rev) + '</code> × 배수 <b>'
-    + (u.evRev > 0 ? num(u.evRev, 2) + '배' : '—') + '</b> 로 기업가치를 구하고 '
-    + bridgeTxt + '을 뺍니다.' + srcOf('vEvRev', 'evRev') + '<br>적자이거나 이익 변동성이 큰 기업은 PER 의 설명력이 낮습니다. '
-    + '매출은 남아 있어서 성장주 · 초기기업에 이 배수를 씁니다.']);
+  if (!out.bank){
+    st.push(['EV/EBITDA 기준',
+      ttmW + 'EBITDA <code>' + m(u.ebitda) + '</code> (영업이익 + 감가상각) × 배수 <b>'
+      + (u.ev > 0 ? num(u.ev, 1) + '배' : '—') + '</b> 로 기업가치를 구하고, '
+      + '거기서 ' + bridgeTxt + '을 빼면 주주 몫입니다.' + srcOf('vEv', 'ev')]);
+    st.push(['EV/매출 기준',
+      ttmW + '매출 <code>' + m(NW.rev) + '</code> × 배수 <b>'
+      + (u.evRev > 0 ? num(u.evRev, 2) + '배' : '—') + '</b> 로 기업가치를 구하고 '
+      + bridgeTxt + '을 뺍니다.' + srcOf('vEvRev', 'evRev') + '<br>적자이거나 이익 변동성이 큰 기업은 PER 의 설명력이 낮습니다. '
+      + '매출은 남아 있어서 성장주 · 초기기업에 이 배수를 씁니다.']);
+  }
   var im2 = out.imply;
   st.push(['역산 DCF',
     '앞의 것들은 "얼마가 맞나" 를 묻습니다. 이건 거꾸로 묻습니다 — '
@@ -11844,7 +12007,7 @@ function valCsv(){
      : '아니오 (풀어서 나온 값)')]);
   var mm = valMultiples(), ww = valWacc();
   rows.push([]);
-  rows.push(['현재 배수', '']);
+  rows.push(['현재 배수', (mm.basis ? '손익 ' + mm.basis.pnlLabel + ' · 잔액 ' + mm.basis.bsLabel : '')]);
   [['시가총액',mm.mcap],['EV',mm.ev],['순차입금',mm.netDebt],['PER',mm.per],
    ['PBR',mm.pbr],['PSR',mm.psr],['EV/EBITDA',mm.evEbitda],['EV/EBIT',mm.evEbit],
    ['EV/매출',mm.evRev],['EV/FCF (무차입)',mm.evFcf],['PEG',mm.peg],['ROIC(%)',mm.roic]]
@@ -16103,7 +16266,7 @@ async function mkFetchSnap(){
   if (curTab !== 'market') return;
   mkHead();
   if (MK.view === 'heat') mkHeatRender();
-  else if (MK.view === 'world'){ mkMapPaint(); if (MK.ctryOpen && MK.ctryTab === 'fx') mkCfxRender(); else if (MK.ctryOpen && MK.ctryTab === 'ov') mkCtryRender(); else if (MK.ctryOpen && MK.ctryTab !== 'stk') mkCtryHeadSet(); }
+  else if (MK.view === 'world'){ mkGlanceRender(); mkClockRender(); mkMapPaint(); if (MK.ctryOpen && MK.ctryTab === 'fx') mkCfxRender(); else if (MK.ctryOpen && MK.ctryTab === 'ov') mkCtryRender(); else if (MK.ctryOpen && MK.ctryTab !== 'stk') mkCtryHeadSet(); }
   else if (MK.view === 'fx') mkFxLive();
 }
 async function mkFetchCountry(cc){
@@ -16130,7 +16293,7 @@ function mkRender(){
   ['heat', 'world', 'fx'].forEach(function(v){ var el = $('mkV-' + v); if (el) el.classList.toggle('hidden', MK.view !== v); });
   mkHead();
   if (MK.view === 'heat') mkHeatRender();
-  if (MK.view === 'world'){ mkMapInit(); mkCtryRender(); mkNewsRender(); mkNewsGet(); }
+  if (MK.view === 'world'){ mkGlanceRender(); mkClockRender(); mkMapInit(); mkCtryRender(); mkNewsRender(); mkNewsGet(); }
   if (MK.view === 'fx'){ mkFxRender(); if (!mkFxReady() && !MK.fxBusy) mkFxLoad(); }
   setTimeout(function(){ [mkMapChart, mkLineChart, mkFxChart, mkCfxChart].forEach(function(c){ try { if (c && c.getDom() && c.getDom().clientWidth) c.resize(); } catch(e){} }); }, 30);
 }
@@ -16237,7 +16400,9 @@ function mkHead(){
     : esc(MK.err ? T('받지 못함', 'failed') : T('로딩 중…', 'Loading…'))) + '</span>';
   st.title = MK.err ? MK.err : T('학회원이 몇 명이 보든 서버가 창구마다 한 벌만 받아 나눠 씁니다 · 지수 · 환율 · 국채는 1분마다 새로 받음', 'Shared server cache');
 }
-function mkClock(){ var a = $('mkAgo'); if (a && MK.at) a.textContent = mkAgo(MK.at); if (MK.at && Date.now() - MK.at > 35000) mkHead(); else if (MK.slowShown !== mkSlow()){ MK.slowShown = mkSlow(); mkHead(); } }
+function mkClock(){ var a = $('mkAgo'); if (a && MK.at) a.textContent = mkAgo(MK.at); if (MK.at && Date.now() - MK.at > 35000) mkHead(); else if (MK.slowShown !== mkSlow()){ MK.slowShown = mkSlow(); mkHead(); }
+  //  시장 시계는 1분마다 (장이 열리고 닫히는 순간이 보이게)
+  if (MK.view === 'world' && Date.now() - (MK.clockAt || 0) > 60000){ MK.clockAt = Date.now(); try { mkClockRender(); } catch(e){} } }
 
 /* ── 전체 화면 · 화면 켜두기 ── */
 function mkFull(){
@@ -16393,9 +16558,11 @@ function mkMapSize(box){
   var fullWide = full && (window.innerWidth || 1000) > 900;
   if (col) col.style.height = '';
   if (fullWide && col){
-    var top = Math.max(0, box.getBoundingClientRect().top), avail = Math.max(320, H - top - 14);
+    //  (10/8) 지도 위 «세계 한눈에» · 시장 시계 줄이 생겨서 — 칸(col) 꼭대기부터 재고 그 두 줄 높이도 띠에 넣습니다
+    var top = Math.max(0, col.getBoundingClientRect().top), avail = Math.max(320, H - top - 14);
     col.style.height = Math.round(avail) + 'px';
     var band = 0, ch = $('mkCtryChips'), nb = $('mkNews5');
+    [$('mkGlance'), $('mkClock')].forEach(function(el){ if (el && el.offsetHeight) band += el.offsetHeight + 6; });
     if (ch && ch.offsetHeight) band += ch.offsetHeight + 8;
     var nat = 0; if (nb && !nb.classList.contains('hidden')) Array.prototype.forEach.call(nb.children, function(c){ nat += c.offsetHeight; });
     band += Math.max(nat ? nat + 30 : 0, 112);
@@ -16409,9 +16576,61 @@ function mkMapSize(box){
   mkDrawerApply();                      //  옮겨 둔 자리가 있으면 그 자리 · 높이 (없으면 손대지 않음)
   return { mapW: Math.round(mapW), mapH: Math.round(mapW / MK_MAP_RATIO), h: h };
 }
+/*  (10/8 학회장: «월드맵에 더 유용한 정보 · 로딩이 느려») ─────────────────────────────────────────
+    ① 지도 위 «세계 한눈에» 12칸 — 지도 스냅샷에 이미 있는 값(새 요청 없음): 주요 지수 · 환율 · 금리 · 원자재 · 코인
+    ② 시장 시계 — 어느 장이 열려 있나 (거래소 현지 시간 기준 · 지수가 실시간이면 그걸로 확인 · 공휴일은 반영 안 함)
+    ③ 지도는 값이 바뀐 것만 다시 칠함 (예전엔 10초마다 지도를 통째로 다시 그렸음) · 세계지도 파일은 터미널을 열 때 미리 받아 둠  */
+var MK_GLANCE = [['idx', 'GSPC.INDX'], ['idx', 'NDX.INDX'], ['idx', 'KS11.INDX'], ['idx', 'N225.INDX'], ['idx', 'HSI.INDX'], ['idx', 'STOXX50E.INDX'],
+                 ['fx', 'USDKRW.FOREX'], ['fx', 'USDJPY.FOREX'], ['fx', 'DXY.INDX'], ['rate', 'US10Y.GBOND'], ['cmd', /WTI/], ['cmd', /^금/], ['crypto', 'BTC/USD'], ['idx', 'VIX.INDX']];
+function mkGlanceRender(){
+  var box = $('mkGlance'); if (!box) return;
+  var d = MK.snap; if (!d || !d.groups){ box.innerHTML = ''; return; }
+  var G = {}; d.groups.forEach(function(g){ G[g.k] = g.items || []; });
+  var html = MK_GLANCE.map(function(x){
+    var list = G[x[0]] || [], it = list.filter(function(i){ return x[1] instanceof RegExp ? x[1].test(String(i.n || '')) : i.s === x[1]; })[0];
+    if (!it || it.p == null) return '';
+    var nm = String(it.n || it.s).replace(/\s*\((?:24시간|GLD|USO)\)\s*/g, '').replace(/^WTI 원유$/, 'WTI');
+    var val = mkPx(it.p, it.s) + (it.unit === 'bp' ? '%' : '');
+    var tip = it.n + ' · ' + val + (it.c != null ? ' · ' + mkChg(it.c, it.unit) : '') + (it.at ? ' · ' + mkHhmmss(Date.parse(it.at)) : '') + (it.cl ? ' · 장 닫힘 (마지막 값)' : '');
+    return '<div class="mk-gl' + (it.cl ? ' closed' : '') + '" title="' + esc(tip) + '"><div class="n">' + esc(nm) + '</div><div class="v">' + esc(val)
+         + '<span class="c ' + (it.c > 0 ? 'up' : it.c < 0 ? 'down' : '') + '">' + esc(mkChg(it.c, it.unit)) + '</span>' + (it.cl ? '<i class="mk-tag">닫힘</i>' : '') + '</div></div>';
+  }).join('');
+  if (box.__html !== html){ box.__html = html; box.innerHTML = html; }
+}
+//  거래소 정규장 (현지 시간 · 월~금) — 지수가 실시간으로 오면 그쪽이 우선 (공휴일 · 반일장은 모름)
+var MK_MKT_HOURS = [['KR', '한국', 'Asia/Seoul', 9 * 60, 15 * 60 + 30], ['JP', '일본', 'Asia/Tokyo', 9 * 60, 15 * 60 + 30], ['CN', '중국', 'Asia/Shanghai', 9 * 60 + 30, 15 * 60],
+                    ['HK', '홍콩', 'Asia/Hong_Kong', 9 * 60 + 30, 16 * 60], ['IN', '인도', 'Asia/Kolkata', 9 * 60 + 15, 15 * 60 + 30], ['AU', '호주', 'Australia/Sydney', 10 * 60, 16 * 60],
+                    ['GB', '영국', 'Europe/London', 8 * 60, 16 * 60 + 30], ['DE', '독일', 'Europe/Berlin', 9 * 60, 17 * 60 + 30], ['US', '미국', 'America/New_York', 9 * 60 + 30, 16 * 60],
+                    ['BR', '브라질', 'America/Sao_Paulo', 10 * 60, 17 * 60]];
+function mkLocalMin(tz){
+  try {
+    var p = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12: false, weekday: 'short', hour: '2-digit', minute: '2-digit' }).formatToParts(new Date());
+    var o = {}; p.forEach(function(x){ o[x.type] = x.value; });
+    return { min: (Number(o.hour) % 24) * 60 + Number(o.minute), wd: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(o.weekday) };
+  } catch(e){ return null; }
+}
+function mkClockRender(){
+  var box = $('mkClock'); if (!box) return;
+  var html = '<span class="lab">장 시계</span>' + MK_MKT_HOURS.map(function(m){
+    var lm = mkLocalMin(m[2]); if (!lm) return '';
+    var sc = MK.snap && MK.snap.ctry && MK.snap.ctry[m[0]], live = !!(sc && sc.idx && sc.idx.c != null && !sc.idx.cl);
+    var weekday = lm.wd >= 1 && lm.wd <= 5, open = live || (weekday && lm.min >= m[3] && lm.min < m[4]);
+    var soon = !open && weekday && lm.min < m[3] && m[3] - lm.min <= 60;
+    var hh = function(x){ return String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0'); };
+    var tip = m[1] + ' 정규장 ' + hh(m[3]) + '~' + hh(m[4]) + ' (현지) · 지금 현지 ' + hh(lm.min) + (live ? ' · 지수 실시간' : '') + ' · 공휴일은 반영하지 않습니다';
+    return '<span class="mc' + (open ? ' open' : soon ? ' soon' : '') + '" title="' + esc(tip) + '"><i></i>' + esc(m[1]) + ' ' + esc(open ? '열림' : soon ? hh(m[3]) + ' 개장' : '닫힘') + '</span>';
+  }).join('');
+  if (box.__html !== html){ box.__html = html; box.innerHTML = html; }
+}
+//  세계지도 파일(cdn · 약 100KB)을 터미널을 열 때 미리 받아 둡니다 — 마켓 맵을 처음 눌렀을 때 «로딩 중» 이 길지 않게
+(function(){
+  var warm = function(){ try { fetch(MK_WORLD_JS, { mode: 'cors', cache: 'force-cache' }).catch(function(){}); } catch(e){} };
+  if (window.requestIdleCallback) requestIdleCallback(warm, { timeout: 8000 }); else setTimeout(warm, 4000);
+})();
 function mkMapPaint(){
   var box = $('mkMapBox'); if (!box || typeof echarts === 'undefined' || !(echarts.getMap && echarts.getMap('world'))) return;
   var wrap = $('mkWorld'); if (wrap) wrap.classList.toggle('open', !!MK.ctryOpen);
+  mkGlanceRender(); mkClockRender();
   var sz = mkMapSize(box);
   mkMapChart = chartOn(box, mkMapChart); if (!mkMapChart) return;
   try { if (Math.abs(mkMapChart.getHeight() - box.clientHeight) > 1 || Math.abs(mkMapChart.getWidth() - box.clientWidth) > 1) mkMapChart.resize(); } catch(e){}
@@ -16424,6 +16643,19 @@ function mkMapPaint(){
                                        itemStyle: MK.ctryOpen && MK.cc === cc ? { borderWidth: 2.4 } : undefined });
   });
   var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  //  (10/8) 바뀐 게 없으면 지도를 다시 그리지 않음 · 값만 바뀌었으면 값만 바꿈 (지도 통째로 다시 그리는 건 크기 · 테마 · 고른 나라가 바뀔 때만)
+  var sigFull = [sz.mapW, sz.mapH, dark, MK.ctryOpen ? MK.cc : ''].join('|');
+  var sigData = data.map(function(x){ return x.cc + ':' + x.value + ':' + x.live; }).join(',') + '#' + marks.map(function(x){ return x.cc + ':' + x.value[2]; }).join(',');
+  if (mkMapChart.__sigFull === sigFull){
+    if (mkMapChart.__sigData !== sigData){
+      mkMapChart.__sigData = sigData;
+      mkMapChart.__axNoKeep = true;
+      mkMapChart.setOption({ series: [{ data: data }, { data: marks }] });
+    }
+    mkChipsRender();
+    return;
+  }
+  mkMapChart.__sigFull = sigFull; mkMapChart.__sigData = sigData;
   mkMapChart.__axNoKeep = true;
   mkMapChart.setOption({
     animation: false,
@@ -16458,12 +16690,16 @@ function mkMapPaint(){
       mkPickCountry(cc);
     });
   }
-  var lg = $('mkCtryChips');
-  if (lg) lg.innerHTML = MK_LINES.concat(Object.keys(MK_CC_CUR).filter(function(c){ return MK_LINES.indexOf(c) < 0 && MK_CC[c] && mkCtryPairs(c).length; })).map(function(cc){
+  mkChipsRender();
+}
+function mkChipsRender(){
+  var lg = $('mkCtryChips'); if (!lg) return;
+  var html = MK_LINES.concat(Object.keys(MK_CC_CUR).filter(function(c){ return MK_LINES.indexOf(c) < 0 && MK_CC[c] && mkCtryPairs(c).length; })).map(function(cc){
     var ch = mkCtryChg(cc);
     var on = MK.ctryOpen && MK.cc === cc;
     return '<button type="button" class="mk-chip' + (on ? ' on' : '') + '" onclick="mkPickCountry(\'' + cc + '\')"' + (on ? ' aria-pressed="true"' : '') + '>' + esc(MK_CC[cc][0])
          + (ch ? ' <b class="' + (ch.c > 0 ? 'up' : ch.c < 0 ? 'down' : '') + '">' + esc(mkChg(ch.c)) + '</b>' : '') + '</button>'; }).join('');
+  if (lg.__html !== html){ lg.__html = html; lg.innerHTML = html; }
 }
 function mkCtryFamSet(f){ MK.ctryFam = f === '24h' ? '24h' : 'close'; mkCtryRender(); }
 function mkPickCountry(cc){
@@ -16787,30 +17023,37 @@ function mkAiRender(){
     통화 하나하나를 «1달러당 몇 단위» (FRED H.10 일별) 로 모아 두고, 아무 두 통화의 쌍을 그 둘로 만듭니다.
     원화 기준(그 통화/원) 하나 + 달러 기준(관례대로 유로 · 파운드 · 호주 · 뉴질랜드는 «그 통화/달러», 나머지는 «달러/그 통화») 하나.
     금리차는 OECD 3개월 금리(월) — 없는 통화는 금리차를 빼고 맞추고 그렇다고 적습니다.                                       */
+/*  (10/8 학회장: «환율 모델링 개선 · 더 정확한 모델링») — 세 가지를 더했습니다 (같은 걷기 검증으로 재서 남긴 것만):
+      · 실질환율(PPP) 괴리: 두 나라 소비자물가를 반영한 실질환율이 5년 평균에서 몇 표준편차 떨어졌나 (cpi = FRED OECD 소비자물가)
+      · 달러지수 1개월 흐름 (DTWEXBGS) · 위험회피(VIX · 로그)
+    검증(2026-10 · 최근 3년 걷기): 달러/원 3개월 R² 0% → 10~12% · 방향 적중 33% → 62~65% · 엔 3개월 방향 46% → 61~64% ·
+    1주 · 1개월은 여전히 거의 예측 불가(모형이 스스로 «반영 0%» 로 둠). 유가 · 장기금리차 변화는 도움이 안 돼 넣지 않았습니다.    */
 var MK_CUR = {
-  USD: { n: '달러', rate: 'US' },
-  KRW: { n: '원', fred: 'DEXKOUS', rate: 'KR' },
-  JPY: { n: '엔', fred: 'DEXJPUS', rate: 'JP', mul: 100 },
-  CNY: { n: '위안', fred: 'DEXCHUS', rate: 'CN' },
-  EUR: { n: '유로', fred: 'DEXUSEU', inv: true, rate: 'EZ' },
-  GBP: { n: '파운드', fred: 'DEXUSUK', inv: true, rate: 'GB' },
-  AUD: { n: '호주달러', fred: 'DEXUSAL', inv: true, rate: 'AU' },
-  NZD: { n: '뉴질랜드달러', fred: 'DEXUSNZ', inv: true, rate: 'NZ' },
-  CHF: { n: '스위스프랑', fred: 'DEXSZUS', rate: 'CH' },
-  CAD: { n: '캐나다달러', fred: 'DEXCAUS', rate: 'CA' },
-  SEK: { n: '스웨덴크로나', fred: 'DEXSDUS', rate: 'SE' },
-  NOK: { n: '노르웨이크로네', fred: 'DEXNOUS', rate: 'NO' },
-  DKK: { n: '덴마크크로네', fred: 'DEXDNUS', rate: 'DK' },
-  MXN: { n: '멕시코페소', fred: 'DEXMXUS', rate: 'MX' },
-  BRL: { n: '헤알', fred: 'DEXBZUS', rate: 'BR' },
-  INR: { n: '루피', fred: 'DEXINUS', rate: 'IN' },
-  ZAR: { n: '랜드', fred: 'DEXSFUS', rate: 'ZA' },
+  USD: { n: '달러', rate: 'US', cpi: 'CPIAUCSL' },
+  KRW: { n: '원', fred: 'DEXKOUS', rate: 'KR', cpi: 'KORCPIALLMINMEI' },
+  JPY: { n: '엔', fred: 'DEXJPUS', rate: 'JP', mul: 100, cpi: 'JPNCPIALLMINMEI' },
+  CNY: { n: '위안', fred: 'DEXCHUS', rate: 'CN', cpi: 'CHNCPIALLMINMEI' },
+  EUR: { n: '유로', fred: 'DEXUSEU', inv: true, rate: 'EZ', cpi: 'CP0000EZ19M086NEST' },
+  GBP: { n: '파운드', fred: 'DEXUSUK', inv: true, rate: 'GB', cpi: 'GBRCPIALLMINMEI' },
+  AUD: { n: '호주달러', fred: 'DEXUSAL', inv: true, rate: 'AU', cpi: 'AUSCPIALLQINMEI' },
+  NZD: { n: '뉴질랜드달러', fred: 'DEXUSNZ', inv: true, rate: 'NZ', cpi: 'NZLCPIALLQINMEI' },
+  CHF: { n: '스위스프랑', fred: 'DEXSZUS', rate: 'CH', cpi: 'CHECPIALLMINMEI' },
+  CAD: { n: '캐나다달러', fred: 'DEXCAUS', rate: 'CA', cpi: 'CANCPIALLMINMEI' },
+  SEK: { n: '스웨덴크로나', fred: 'DEXSDUS', rate: 'SE', cpi: 'SWECPIALLMINMEI' },
+  NOK: { n: '노르웨이크로네', fred: 'DEXNOUS', rate: 'NO', cpi: 'NORCPIALLMINMEI' },
+  DKK: { n: '덴마크크로네', fred: 'DEXDNUS', rate: 'DK', cpi: 'DNKCPIALLMINMEI' },
+  MXN: { n: '멕시코페소', fred: 'DEXMXUS', rate: 'MX', cpi: 'MEXCPIALLMINMEI' },
+  BRL: { n: '헤알', fred: 'DEXBZUS', rate: 'BR', cpi: 'BRACPIALLMINMEI' },
+  INR: { n: '루피', fred: 'DEXINUS', rate: 'IN', cpi: 'INDCPIALLMINMEI' },
+  ZAR: { n: '랜드', fred: 'DEXSFUS', rate: 'ZA', cpi: 'ZAFCPIALLMINMEI' },
   TWD: { n: '대만달러', fred: 'DEXTAUS' },
   SGD: { n: '싱가포르달러', fred: 'DEXSIUS' },
   HKD: { n: '홍콩달러', fred: 'DEXHKUS' },
   THB: { n: '바트', fred: 'DEXTHUS' },
   MYR: { n: '링깃', fred: 'DEXMAUS' }
 };
+//  모든 쌍이 같이 쓰는 자료 — 달러지수(광의 · 일별) · VIX (일별)
+var MK_FX_COMMON = [['DTWEXBGS', 'D'], ['VIXCLS', 'D']];
 var MK_CC_CUR = { US: 'USD', KR: 'KRW', JP: 'JPY', CN: 'CNY', HK: 'HKD', TW: 'TWD', IN: 'INR', GB: 'GBP', DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR', BE: 'EUR',
   AT: 'EUR', IE: 'EUR', GR: 'EUR', CH: 'CHF', SE: 'SEK', NO: 'NOK', DK: 'DKK', AU: 'AUD', NZ: 'NZD', CA: 'CAD', MX: 'MXN', BR: 'BRL', ZA: 'ZAR', SG: 'SGD', TH: 'THB', MY: 'MYR' };
 var MK_CUR_FIRST = { EUR: 1, GBP: 1, AUD: 1, NZD: 1 };
@@ -16872,6 +17115,21 @@ function mkRateFn(cc){
   if (!pts.length) return null;
   return function(d){ var ym = String(d).slice(0, 7), v = null; for (var i = 0; i < pts.length; i++){ if (pts[i][0] <= ym) v = pts[i][1]; else break; } return v; };
 }
+//  날짜 → 그날까지 알려진 마지막 값 (일별 자료 · 이진 탐색)
+function mkDailyFn(key){
+  var pts = (MK.fxRaw[key] || []).filter(function(p){ return p && isFinite(p.v) && p.v > 0; }).map(function(p){ return [String(p.d).slice(0, 10), Number(p.v)]; }).sort();
+  if (!pts.length) return null;
+  return function(d){ var lo = 0, hi = pts.length - 1, v = null; d = String(d).slice(0, 10); while (lo <= hi){ var mid = (lo + hi) >> 1; if (pts[mid][0] <= d){ v = pts[mid][1]; lo = mid + 1; } else hi = mid - 1; } return v; };
+}
+//  월(또는 분기) 자료 → 그날 알려진 마지막 값. 소비자물가는 그 달 값이 다음 달에 나오므로 한 달 늦춰 봅니다 (미래 값을 미리 아는 것처럼 되지 않게)
+function mkMonthlyFn(key, lagM){
+  var pts = (MK.fxRaw[key] || []).filter(function(p){ return p && isFinite(p.v) && p.v > 0; }).map(function(p){
+    var ym = String(p.d).slice(0, 7);
+    if (lagM){ var y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7)) - 1 + lagM; ym = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 7); }
+    return [ym, Number(p.v)]; }).sort();
+  if (!pts.length) return null;
+  return function(d){ var ym = String(d).slice(0, 7), lo = 0, hi = pts.length - 1, v = null; while (lo <= hi){ var mid = (lo + hi) >> 1; if (pts[mid][0] <= ym){ v = pts[mid][1]; lo = mid + 1; } else hi = mid - 1; } return v; };
+}
 //  통화쌍 모형 — 필요한 자료를 받고 (없으면) 맞춰서 MK.fx[k] 에 둡니다
 //  못 받아 생긴 오류(soft)는 1분 지나면 지워서 다음 갱신 때 다시 받게
 function mkFxPurgeSoft(pairs){
@@ -16881,10 +17139,13 @@ function mkFxPurgeSoft(pairs){
 async function mkFxEnsure(pairs){
   var need = pairs.filter(function(P){ return !(MK.fx && MK.fx[P.k]); });
   if (!need.length) return;
-  var curs = {}, rates = {};
-  need.forEach(function(P){ [P.b, P.q].forEach(function(c){ if (c !== 'USD') curs[c] = 1; if (MK_CUR[c].rate) rates[MK_CUR[c].rate] = 1; }); });
+  var curs = {}, rates = {}, cpis = {};
+  need.forEach(function(P){ [P.b, P.q].forEach(function(c){ if (c !== 'USD') curs[c] = 1; if (MK_CUR[c].rate) rates[MK_CUR[c].rate] = 1; if (MK_CUR[c].cpi) cpis[MK_CUR[c].cpi] = 1; }); });
   await Promise.all(Object.keys(curs).map(function(c){ return mkFxFred(MK_CUR[c].fred, 'D'); })
     .concat(Object.keys(rates).map(function(r){ return mkFxFred(MK_FX_RATE_CODE(r), 'M'); }))
+    //  (10/8) 소비자물가(실질환율) · 달러지수 · VIX — 없어도 모형은 돌아갑니다 (그 요인만 0)
+    .concat(Object.keys(cpis).map(function(c){ return mkFxFred(c, /Q[A-Z]*$/.test(c) || /ALLQ/.test(c) ? 'Q' : 'M').catch(function(){ return []; }); }))
+    .concat(MK_FX_COMMON.map(function(x){ return mkFxFred(x[0], x[1]).catch(function(){ return []; }); }))
     .concat([mkFxHomeGet()]));
   if (!MK.fx) MK.fx = {};
   for (var i = 0; i < need.length; i++){
@@ -16909,7 +17170,11 @@ function mkFxCompute(P){
   }
   var rb = MK_CUR[P.b].rate ? mkRateFn(MK_CUR[P.b].rate) : null, rq = MK_CUR[P.q].rate ? mkRateFn(MK_CUR[P.q].rate) : null;
   var carry = (rb && rq) ? function(d){ var a = rq(d), b = rb(d); return (a == null || b == null) ? null : (a - b); } : null;
-  var M = mkFxModel(ser.map(function(p){ return p.d; }), ser.map(function(p){ return p.v; }), carry);
+  //  (10/8) 실질환율(두 나라 물가) · 달러지수 · VIX
+  var cpiKey = function(c){ var k = MK_CUR[c].cpi; return k ? k + '|' + (/ALLQ/.test(k) ? 'Q' : 'M') : null; };
+  var ext = { dxy: mkDailyFn('DTWEXBGS|D'), vix: mkDailyFn('VIXCLS|D'),
+              cpiB: cpiKey(P.b) ? mkMonthlyFn(cpiKey(P.b), 1) : null, cpiQ: cpiKey(P.q) ? mkMonthlyFn(cpiKey(P.q), 1) : null };
+  var M = mkFxModel(ser.map(function(p){ return p.d; }), ser.map(function(p){ return p.v; }), carry, { ext: ext });
   M.hist = ser.slice(-320).map(function(p){ return [Date.parse(p.d + 'T00:00:00Z'), p.v]; });
   M.rq = rq ? rq(M.lastD) : null; M.rb = rb ? rb(M.lastD) : null;
   return M;
@@ -16958,14 +17223,20 @@ function mkRidge(X, y, lam){
 /*  환율 한 쌍 — 날짜 · 값 · 금리차 함수(따옴 − 기준, %) → 1주 · 1개월 · 3개월 예측
     특징: 금리차 (연 %) · 모멘텀 1/3/6개월 (로그 변화) · 1년 평균 회귀 (z) · 최근 3개월 변동성
     걷기 검증: 마지막 3년(최대 756일)을 21일마다 다시 맞추며 그날 기준 과거만 써서 예측 → 랜덤워크(변화 0)와 비교  */
-var MK_FX_FEAT = ['금리차', '모멘텀 1개월', '모멘텀 3개월', '모멘텀 6개월', '1년 평균 회귀', '변동성'];
+var MK_FX_FEAT = ['금리차', '모멘텀 1개월', '모멘텀 3개월', '모멘텀 6개월', '1년 평균 회귀', '변동성', '달러지수 1개월', 'VIX', '실질환율 괴리'];
 //  요인 묶음 — 모멘텀 1/3/6개월은 서로 닮아 하나씩 보면 +33% · -30% 처럼 크게 엇갈려 보였습니다. 합쳐서 «모멘텀» 하나로
-var MK_FX_GRP = ['금리차', '모멘텀', '모멘텀', '모멘텀', '평균 회귀', '변동성'];
+var MK_FX_GRP = ['금리차', '모멘텀', '모멘텀', '모멘텀', '평균 회귀', '변동성', '달러지수', '위험회피', '실질환율'];
 function mkFxModel(dates, vals, carry, opt){
   opt = opt || {};
+  var ext = opt.ext || {};
   var N = vals.length, L = vals.map(function(v){ return Math.log(v); });
   var ret = []; for (var i = 1; i < N; i++) ret.push(L[i] - L[i - 1]);
-  var F = new Array(N).fill(null), carryOk = 0, mean1y = null;
+  /*  (10/8) 실질환율 로그 = ln(명목) + ln(기준통화 나라 물가) − ln(따옴 통화 나라 물가). 그 값이 최근 5년(1,260일 · 21일마다 표본) 평균에서
+      몇 표준편차 떨어졌나 = «물가로 보면 지금 비싼가 싼가». 두 나라 물가가 다 있을 때만 (없으면 요인 0 · 그렇다고 적음).  */
+  var R = new Array(N).fill(null), realOk = 0;
+  if (ext.cpiB && ext.cpiQ) for (var tr = 0; tr < N; tr++){ var cb = ext.cpiB(dates[tr]), cq = ext.cpiQ(dates[tr]); if (cb && cq){ R[tr] = L[tr] + Math.log(cb) - Math.log(cq); realOk++; } }
+  var useReal = realOk > (N - 252) * 0.6;
+  var F = new Array(N).fill(null), carryOk = 0, mean1y = null, dxyOk = 0, vixOk = 0;
   for (var t = 252; t < N; t++){
     var w = L.slice(t - 251, t + 1), m = w.reduce(function(a, b){ return a + b; }, 0) / w.length;
     var sd = Math.sqrt(w.reduce(function(a, b){ return a + (b - m) * (b - m); }, 0) / w.length) || 1e-9;
@@ -16973,20 +17244,35 @@ function mkFxModel(dates, vals, carry, opt){
     var vol = Math.sqrt(r63.reduce(function(a, b){ return a + (b - m63) * (b - m63); }, 0) / 63) * Math.sqrt(252);
     var cr = carry ? carry(dates[t]) : null;
     if (cr != null) carryOk++;
-    F[t] = [cr == null ? 0 : cr / 100, L[t] - L[t - 21], L[t] - L[t - 63], L[t] - L[t - 126], (L[t] - m) / sd, vol];
+    var dx = 0, x = ext.dxy ? ext.dxy(dates[t]) : null, x21 = ext.dxy ? ext.dxy(dates[t - 21]) : null;
+    if (x && x21){ dx = Math.log(x / x21); dxyOk++; }
+    var lv = 0, vv = ext.vix ? ext.vix(dates[t]) : null;
+    if (vv){ lv = Math.log(vv); vixOk++; }
+    var rz = 0, rzOk = !useReal;
+    if (useReal && R[t] != null && t >= 1260){
+      var rr = []; for (var k = t - 1259; k <= t; k += 21) if (R[k] != null) rr.push(R[k]);
+      if (rr.length > 30){ var rm = rr.reduce(function(a, b){ return a + b; }, 0) / rr.length, rs = Math.sqrt(rr.reduce(function(a, b){ return a + (b - rm) * (b - rm); }, 0) / rr.length) || 1e-9; rz = (R[t] - rm) / rs; rzOk = true; }
+    }
     if (t === N - 1) mean1y = Math.exp(m);
+    //  실질환율을 쓰는 쌍은 그 값을 셀 수 있는 날(5년 자료가 쌓인 뒤)만 표본으로 (검증한 방식 그대로) — 마지막 날은 늘 둡니다
+    if (!rzOk && t !== N - 1) continue;
+    F[t] = [cr == null ? 0 : cr / 100, L[t] - L[t - 21], L[t] - L[t - 63], L[t] - L[t - 126], (L[t] - m) / sd, vol, dx, lv, rz];
   }
-  var useCarry = carry && carryOk > (N - 252) * 0.6;
+  var useCarry = carry && carryOk > (N - 252) * 0.6, useDxy = dxyOk > (N - 252) * 0.6, useVix = vixOk > (N - 252) * 0.6;
   var ew = 0, lam = 0.94; ret.slice(-500).forEach(function(r, i){ ew = i === 0 ? r * r : lam * ew + (1 - lam) * r * r; });
   var sdD = Math.sqrt(ew);
-  var lamR = opt.lambda != null ? opt.lambda : 0.05;
+  //  리지 벌점 0.05 → 0.2 (10/8) — 요인이 9개가 되어 조금 더 눌러 둡니다 (걷기 검증에서 1개월 · 3개월 성적이 더 좋았음)
+  var lamR = opt.lambda != null ? opt.lambda : 0.2;
   var x0raw = F[N - 1];
-  var res = { last: vals[N - 1], lastD: dates[N - 1], sdD: sdD, h: {}, carryOk: !!useCarry, n: N, mean1y: mean1y,
-              x0: x0raw ? { carry: useCarry ? x0raw[0] * 100 : null, m1: x0raw[1], m3: x0raw[2], m6: x0raw[3], z: x0raw[4], vol: x0raw[5] } : null };
+  var res = { last: vals[N - 1], lastD: dates[N - 1], sdD: sdD, h: {}, carryOk: !!useCarry, realOk: !!useReal, dxyOk: !!useDxy, vixOk: !!useVix, n: N, mean1y: mean1y,
+              x0: x0raw ? { carry: useCarry ? x0raw[0] * 100 : null, m1: x0raw[1], m3: x0raw[2], m6: x0raw[3], z: x0raw[4], vol: x0raw[5],
+                            dxy: useDxy ? x0raw[6] : null, vix: useVix ? Math.exp(x0raw[7]) : null, rz: useReal ? x0raw[8] : null } : null };
+  //  쓰지 않는 요인은 0 으로 (자료가 없는 통화쌍 · 없는 기간)
+  var ZERO = [!useCarry, false, false, false, false, false, !useDxy, !useVix, !useReal];
   MK_FX_H.forEach(function(H){
     var h = H[0], S = [];
     for (var t2 = 252; t2 + h < N; t2++) if (F[t2]) S.push(t2);
-    var X = function(t){ var f = F[t].slice(); if (!useCarry) f[0] = 0; return f; };
+    var X = function(t){ var f = F[t].slice(); for (var z = 0; z < ZERO.length; z++) if (ZERO[z]) f[z] = 0; return f; };
     var Y = function(t){ return L[t + h] - L[t]; };
     var T0 = Math.max(252 + 500, N - h - 756);
     var pr = [], ac = [];
@@ -17068,6 +17354,10 @@ function mkFxWhy(P, M, h, a){
     '모멘텀': '최근 1 · 3 · 6개월 ' + pp(X.m1) + ' · ' + pp(X.m3) + ' · ' + pp(X.m6),
     '평균 회귀': '1년 평균 ' + mkFxFmt(M.mean1y, P.k) + ' 대비 지금 ' + pp(M.last / M.mean1y - 1) + ' (표준편차 ' + (X.z >= 0 ? '+' : '') + X.z.toFixed(1) + '배)',
     '변동성': '최근 3개월 변동성 연 ' + (X.vol * 100).toFixed(1) + '%',
+    //  (10/8) 새 요인 셋 — 실질환율(물가 반영) · 달러지수 · VIX
+    '실질환율': X.rz != null ? '물가를 반영한 실질환율이 5년 평균보다 ' + (X.rz >= 0 ? '높음' : '낮음') + ' (표준편차 ' + (X.rz >= 0 ? '+' : '') + X.rz.toFixed(1) + '배 · ' + (X.rz >= 0 ? B + ' 가 물가 대비 비싼 쪽 → 되돌림 압력' : B + ' 가 물가 대비 싼 쪽 → 되돌림 압력') + ')' : null,
+    '달러지수': X.dxy != null ? '달러지수(광의) 최근 1개월 ' + pp(X.dxy) : null,
+    '위험회피': X.vix != null ? 'VIX ' + X.vix.toFixed(1) + (X.vix >= 25 ? ' (불안 · 안전통화 선호 국면)' : X.vix <= 15 ? ' (차분한 시장)' : ' (보통)') : null,
     '과거 평균 흐름': '맞춘 기간(2008~)의 ' + Hn + ' 평균 변화 ' + pp(r.b0)
   };
   var weak = r.w < 0.05;
@@ -17081,6 +17371,7 @@ function mkFxWhy(P, M, h, a){
       .forEach(function(c){ out.push('<b>' + esc(c.k) + '</b>' + esc(txt[c.k] + ' → 기여 ' + pp(c.v))); });
   }
   if (!M.carryOk && out.length < 4) out.push('<b>' + esc(T('금리차', 'Carry')) + '</b>' + esc(T('이 통화쌍은 OECD 3개월 금리가 없어 빼고 맞췄습니다', 'No OECD rate - left out')));
+  if (!M.realOk && out.length < 4) out.push('<b>' + esc(T('실질환율', 'PPP')) + '</b>' + esc(T('이 통화쌍은 소비자물가 자료가 없어 실질환율 요인을 빼고 맞췄습니다', 'No CPI data - left out')));
   out.push('<b>' + esc(T('믿을 만한가', 'Track record')) + '</b>' + esc('최근 3년 걷기 검증 ' + r.n + '번: 랜덤워크(변화 0) 대비 R² ' + (r.r2c * 100).toFixed(1) + '% · 방향 적중 '
      + (r.hit != null ? Math.round(r.hit * 100) + '%' : '-') + ' → 모형 예측의 ' + Math.round(r.w * 100) + '% 반영'
      + (weak ? ' (랜덤워크를 못 이겨 «지금 값 유지» 가 답)' : '')));
@@ -17137,10 +17428,11 @@ function mkFxRender(liveOnly){
         }).join('');
   }
   if (why) why.innerHTML = mkFxWhyHtml(P, M, a);
-  if (note) note.innerHTML = esc(T('모형: 리지 회귀 (금리차 · 1/3/6개월 모멘텀 · 1년 평균 회귀 · 변동성) 를 최근 3년 걷기 검증으로 랜덤워크(변화 0)와 겨뤄, 표본 밖에서 이긴 만큼만 섞습니다 (못 이기면 «지금 값 유지» 에 가깝게). '
-      + '범위 = EWMA 변동성 (λ 0.94) 의 68% · 95%. 자료: FRED 일별 환율 · OECD 3개월 금리(월) · 지금 값 10초마다. ',
-      'Ridge on carry, momentum, mean reversion; blended with a random walk by out-of-sample skill. Bands from EWMA volatility.'))
+  if (note) note.innerHTML = esc(T('모형: 리지 회귀 (금리차 · 1/3/6개월 모멘텀 · 1년 평균 회귀 · 변동성 · 실질환율(물가) 괴리 · 달러지수 1개월 · VIX) 를 최근 3년 걷기 검증으로 랜덤워크(변화 0)와 겨뤄, 표본 밖에서 이긴 만큼만 섞습니다 (못 이기면 «지금 값 유지» 에 가깝게). '
+      + '범위 = EWMA 변동성 (λ 0.94) 의 68% · 95%. 자료: FRED 일별 환율 · 달러지수 · VIX · OECD 3개월 금리 · 소비자물가(월 · 한 달 늦춰 봄) · 지금 값 10초마다. ',
+      'Ridge on carry, momentum, mean reversion, PPP real-rate gap, dollar index, VIX; blended with a random walk by out-of-sample skill. Bands from EWMA volatility.'))
     + (M.carryOk ? '' : '<b>' + esc(T('이 통화는 금리 자료가 모자라 금리차를 빼고 맞췄습니다. ', 'No carry data for this pair. ')) + '</b>')
+    + (M.realOk ? '' : '<b>' + esc(T('이 통화는 소비자물가 자료가 없어 실질환율 요인을 빼고 맞췄습니다. ', 'No CPI data for this pair. ')) + '</b>')
     + esc(T('환율 예측은 통계적 확률 범위일 뿐 투자 권유가 아닙니다 · 마지막 자료 ', 'Statistical ranges, not advice · last data ') + M.lastD + T(' · 맞춘 시각 ', ' · fitted ') + mkHhmmss(MK.fxAt || Date.now()));
   mkFxChart = mkFxChartDraw('mkFxBox', mkFxChart, P, M, a, !!lvP && a !== M.last, false);
 }
@@ -30579,8 +30871,9 @@ async function renderCoStatement(group){
         var made = r.derived && r.derived[y.key];
         var madeWhy = made === 'q4' ? '4분기는 따로 공시하지 않아 «연간 - 3분기 누적» 으로 계산한 값입니다' + (ru.ps ? ' (주당 값은 근사치)' : '')
                     : made === 'ytd' ? '10-Q 는 누적(YTD)만 실어 «이번 누적 - 앞 누적» 으로 계산한 분기 값입니다'
-                    : made === 'sum' ? '여러 차입금 계정(유동성장기부채 · 단기차입금 · CP)을 더한 값입니다'
+                    : made === 'sum' ? (r.name === '리스부채' ? '운용리스 · 금융리스 (유동 · 비유동)를 더한 값입니다' : '여러 차입금 계정(유동성장기부채 · 단기차입금 · CP)을 더한 값입니다')
                     : made === 'ltd_total' ? '회사가 장기차입금을 <총액>(유동분 포함)으로만 적은 기간입니다 - 단기차입금과 일부 겹칠 수 있습니다'
+                    : made === 'eps_sum' ? '회사가 주당이익을 계속영업 · 중단영업으로 나눠 적어 둘을 더한 값입니다'
                     : '회사가 직접 내지 않아 다른 계정에서 계산한 값입니다';
         var dd = '';
         if (prev != null && !ru.ps && Number(prev) !== 0){
@@ -30623,8 +30916,11 @@ async function renderCoStatement(group){
               + esc(String(r.name).replace(/'/g, "\\'")) + '\')">▸</button>'
               + '<span class="fs-kids">' + opts.kids + '</span>';
       }
+      //  (10/8) 공시 원래 이름이 다르거나(«차입금» → 단기차입금) 같은 계정의 다른 줄을 이어 붙인 줄은 이름에 마우스를 올리면 보입니다
+      var nmTip = (r.kr_name && String(r.kr_name).replace(/\s+/g, '') !== String(r.name).replace(/\s+/g, '') ? '공시 이름: ' + r.kr_name : '')
+                + (r.merged ? (r.kr_name ? ' · ' : '') + '같은 계정이 보고서마다 다른 줄로 와서 ' + r.merged + '개 줄을 이어 붙였습니다' : '');
       return '<tr class="' + cls + '" onclick="toggleFinSeries(\'' + esc(group) + '\',' + r.__i + ')">'
-        + '<td>' + caret + '<span class="fs-nm">' + esc(r.name) + '</span>'
+        + '<td>' + caret + '<span class="fs-nm"' + (nmTip ? ' title="' + esc(nmTip) + '"' : '') + '>' + esc(r.name) + '</span>'
         + (function(){
             var ru = coRowUnit(r, years, u);
             //  표 기본 단위와 다를 때만 적습니다 — 다 붙이면 시끄럽습니다
@@ -30909,7 +31205,8 @@ function coRatioValues(full, ratio, quarter){
     else if (ratio === '영업이익률') val = pc(v('영업이익', k), v('매출액', k));
     else if (ratio === '순이익률') val = pc(v('당기순이익', k), v('매출액', k));
     else if (ratio === '순차입금비율'){
-      var debt = ['단기차입금', '유동성장기부채', '유동성사채', '장기차입금', '사채'].map(function(nm){ return v(nm, k); });
+      //  (10/8) 리스부채 포함 (트레이딩뷰 · FnGuide 의 총차입금과 같은 기준 · 밸류에이션 탭과 같게)
+      var debt = ['단기차입금', '유동성장기부채', '유동성사채', '장기차입금', '사채', '리스부채', '유동리스부채', '비유동리스부채'].map(function(nm){ return v(nm, k); });
       /*  ⚠️ (10/7 점검) 빠진 조각을 0 으로 더하면 숫자가 그럴듯하게 틀립니다 — 장기차입금을 일반 태그로 안 적는 은행(JPM)은
           단기차입금만 잡혀 −76.9% (실제 +43%), 그 분기만 현금 줄이 빈 애플은 10.2% (앞 분기 34.9%) 로 찍혔습니다.
           미국 회사는 그 기간 장기차입금 · 현금성자산이 둘 다 있어야 셉니다 (없으면 빈칸).                         */
