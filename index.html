@@ -77,24 +77,22 @@
   :root[data-theme="dark"] .kind-tag.put,:root[data-theme="dark"] .pill.KR,:root[data-theme="dark"] .vc-step .pw.hi{background:rgba(239,107,94,.16);color:#f29084}
   :root[data-theme="dark"] .ai-tone.up,:root[data-theme="dark"] .kind-tag.call{background:rgba(92,192,138,.16);color:#6fd49a}
   :root[data-theme="dark"] .sym-tag.scan,:root[data-theme="dark"] .by-tag.auto{background:rgba(127,155,230,.18);color:#a9bdf4}
-  :root[data-theme="dark"] .ai-card.ok{background:rgba(31,138,112,.10)}
-  :root[data-theme="dark"] .ai-card.risk{background:rgba(192,57,43,.10)}
-  :root[data-theme="dark"] .ai-card.risk.lo{background:rgba(217,164,65,.10)}
+  :root[data-theme="dark"] .ai-card.ok,:root[data-theme="dark"] .ai-card.risk,:root[data-theme="dark"] .ai-card.risk.lo{background:var(--card)}
   :root[data-theme="dark"] .ann-t.on,:root[data-theme="dark"] #annBtn.on{background:#3d7fd6;border-color:#3d7fd6}
   :root[data-theme="dark"] .pie-wrap{background:linear-gradient(180deg,#1c2130 0%,#171b25 100%)}
   /*  AI 보고서 — 다크 한 벌. 강세 = 민트(#5fd0aa) · 약세 = 연한 빨강(#f29084) · 주의 = 호박(#e3b95f) ·
       강조 = 연한 남색(#b4c2ea). 밝은 바탕에서 쓰던 진한 색을 그대로 두면 바탕에 묻힙니다.          */
-  :root[data-theme="dark"] .ai-bull{border-left-color:#5fd0aa}
-  :root[data-theme="dark"] .ai-bear{border-left-color:#f29084}
+  :root[data-theme="dark"] .ai-bull{border-left-color:var(--up)}
+  :root[data-theme="dark"] .ai-bear{border-left-color:var(--down)}
   :root[data-theme="dark"] .ai-card.ok{border-left-color:#5fd0aa}
   :root[data-theme="dark"] .ai-card.risk{border-left-color:#f29084}
   :root[data-theme="dark"] .ai-card.risk.lo{border-left-color:#e3b95f}
   :root[data-theme="dark"] .ai-card p .ai-num,:root[data-theme="dark"] .ai-li span .ai-num{color:#b4c2ea}
   :root[data-theme="dark"] .ai-hl{background:linear-gradient(transparent 58%, rgba(127,155,230,.38) 58%)}
-  :root[data-theme="dark"] .ai-vs.neg{background:rgba(239,107,94,.18);color:#f29084}
-  :root[data-theme="dark"] .ai-vs.odd{outline-color:#f29084}
-  :root[data-theme="dark"] .ai-verdict.neg{border-color:rgba(242,144,132,.55)}
-  :root[data-theme="dark"] .ai-verdict.pos{border-color:rgba(95,208,170,.55)}
+  :root[data-theme="dark"] .ai-vs{background:rgba(239,107,94,.16);color:#f29084} :root[data-theme="dark"] .ai-vs.neg{background:rgba(91,156,240,.18);color:#8fbaf5}
+  :root[data-theme="dark"] .ai-vs.odd{outline-color:#e0b45a}
+  :root[data-theme="dark"] .ai-verdict.neg{border-color:rgba(91,156,240,.55)}
+  :root[data-theme="dark"] .ai-verdict.pos{border-color:rgba(239,107,94,.55)}
   :root[data-theme="dark"] .ai-sector{color:var(--scd,var(--sc,inherit))}
   :root[data-theme="dark"] .vc-step.here,:root[data-theme="dark"] .vc-box.here{background:#26365f;border-color:#5b78c8;box-shadow:0 4px 14px rgba(0,0,0,.35)}
   :root[data-theme="dark"] .vc-step.here .pw,:root[data-theme="dark"] .vc-here{background:rgba(255,255,255,.14)}
@@ -401,6 +399,9 @@
   /*  주식분석 › 시장 히트맵 (10/8 · 마켓 맵에서 옮김) — 머리 줄 · 전체 화면  */
   /*  산업분석 › 나라별 병목 모니터 (10/8)  */
   .bn-title{font-size:15px;font-weight:700;color:var(--primary);margin-left:6px}
+  .sec-tools{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:8px}
+  .sec-tools .nf-chips{margin:0}
+  #secTable th.sec-th{cursor:pointer;user-select:none;white-space:nowrap} #secTable th.sec-th:hover{color:var(--accent)}
   /*  산업분석 고유 색 (10/8) — 청록. 수급 신호(병목 빨강 · 과잉 파랑)는 그대로, «중립» · 틀 · 강조만 청록  */
   :root{--ind:#0e7c6b;--ind-soft:rgba(14,124,107,.07);--ind-line:rgba(14,124,107,.32);--ind-mid:#0e7c6b}
   :root[data-theme="dark"]{--ind:#3cc4a8;--ind-soft:rgba(60,196,168,.08);--ind-line:rgba(60,196,168,.35);--ind-mid:#3cc4a8}
@@ -413,6 +414,17 @@
   #pane-industry .note.info{background:var(--ind-soft);border-color:var(--ind-line)}
   #pane-industry .bn-ctry.px-seg button.on{background:var(--ind);color:#fff;border-color:var(--ind)}
   #pane-industry .bn-title{color:var(--ind)}
+  /*  종목 태그 — 유망 빨강 · 불리 파랑 · 중립 회색 (작게 · 누르면 가격 차트)  */
+  .bn-tag{display:inline-flex;align-items:center;border:1px solid var(--border);background:transparent;border-radius:999px;font-size:11.5px;font-weight:600;padding:1px 9px;margin:2px 4px 2px 0;cursor:pointer;color:var(--text-sub);line-height:1.6;transition:transform .12s ease,background .12s ease}
+  .bn-tag:hover{transform:translateY(-1px)}
+  .bn-tag.pos{color:var(--up);border-color:rgba(192,57,43,.45);background:rgba(192,57,43,.06)} .bn-tag.pos:hover{background:rgba(192,57,43,.12)}
+  .bn-tag.neg{color:var(--down);border-color:rgba(27,95,168,.45);background:rgba(27,95,168,.06)} .bn-tag.neg:hover{background:rgba(27,95,168,.12)}
+  :root[data-theme="dark"] .bn-tag.pos{border-color:rgba(239,107,94,.5);background:rgba(239,107,94,.08)} :root[data-theme="dark"] .bn-tag.neg{border-color:rgba(91,156,240,.5);background:rgba(91,156,240,.08)}
+  .bn-tagrow td{padding-top:2px !important;padding-bottom:8px !important;border-top:0 !important;background:var(--accent-soft)}
+  .bn-tagrow .k,.bn-tagstrip .k{font-size:10.5px;font-weight:700;color:var(--text-sub);margin-right:6px;letter-spacing:.02em}
+  .bn-tagstrip{display:flex;flex-wrap:wrap;align-items:center;gap:0;margin:0 0 12px;padding:8px 12px;border:1px solid var(--border);border-radius:10px}
+  .bn-tagstrip .k.pos{color:var(--up)} .bn-tagstrip .k.neg{color:var(--down);margin-left:8px}
+  .bn-tagstrip .k.pos:first-child{margin-left:0}
   .bn-pulse{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 12px}
   .bn-pulse:empty{display:none}
   .bn-pulse .pc{border:1px solid var(--border);border-radius:10px;padding:9px 12px;min-width:0;background:var(--card)}
@@ -462,10 +474,68 @@
   .mk-tag{position:absolute;top:5px;right:6px;font-style:normal;font-size:9px;font-weight:700;opacity:.75}
   /*  세계지도: 나라를 안 고르면 지도만 넓게 · 고르면 오른쪽에 나라 칸 (지도는 비율 그대로 · 높이는 mkMapSize 가 px 로)  */
   .mk-world{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
-  .mk-world.open{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
-  .mk-world:not(.open) .mk-ctry{display:none}
+  .mk-world.open{grid-template-columns:minmax(0,1.05fr) 14px minmax(0,1fr);column-gap:0}
+  .mk-world:not(.open) .mk-ctry,.mk-world:not(.open) .mk-split{display:none}
   .mk-map{height:380px;width:100%}
-  .mk-ctry{border-left:1px solid var(--border);padding-left:14px}
+  .mk-ctry{padding-left:10px;position:relative}
+  /*  (10/8) 지도 | 나라 칸 사이 막대 — 끌어서 폭 조절 (가운데 선 · 손잡이 점 세 개)  */
+  .mk-split{position:relative;cursor:col-resize;touch-action:none;user-select:none}
+  .mk-split::before{content:'';position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--border);transform:translateX(-50%)}
+  .mk-split::after{content:'';position:absolute;top:50%;left:50%;width:6px;height:34px;border-radius:4px;transform:translate(-50%,-50%);
+    background:radial-gradient(circle,var(--text-sub) 1.2px,transparent 1.6px) 0 0/6px 9px repeat-y;opacity:.55;transition:opacity .15s}
+  .mk-split:hover::before,.mk-split.on::before{background:var(--accent);width:2px}
+  .mk-split:hover::after,.mk-split.on::after{opacity:1}
+  body.mk-resizing,body.mk-resizing *{cursor:col-resize !important;user-select:none !important}
+  .mk-rsz{display:none}
+  /*  나라 탭 줄  */
+  .mk-cctabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px}
+  .mk-cctabs:empty{display:none}
+  .mk-cct{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:999px;background:var(--card);overflow:hidden;transition:border-color .15s,box-shadow .15s}
+  .mk-cct .go{border:0;background:transparent;padding:3px 4px 3px 10px;font-size:12.5px;font-weight:600;color:var(--text);cursor:pointer;white-space:nowrap}
+  .mk-cct .go b{font-size:11.5px;margin-left:2px;font-variant-numeric:tabular-nums}
+  .mk-cct .x{border:0;background:transparent;color:var(--text-sub);padding:3px 9px 3px 4px;cursor:pointer;font-size:14px;line-height:1}
+  .mk-cct .x:hover{color:var(--text)}
+  .mk-cct.on{border-color:var(--primary-fill);box-shadow:0 0 0 2px rgba(44,62,107,.12)}
+  .mk-cct-cmp{border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:999px;padding:3px 12px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .mk-cct-cmp.on,.mk-cct-cmp:hover{background:var(--accent);color:#fff}
+  .mk-cct-hint{font-size:11px}
+  /*  실시간 타일  */
+  .mk-ltiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:2px 0 10px}
+  .mk-lt{border:1px solid var(--border);border-radius:10px;padding:8px 10px 6px;background:var(--card);min-width:0;transition:border-color .2s}
+  .mk-lt .k{font-size:11px;color:var(--text-sub);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mk-lt .v{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-top:2px}
+  .mk-lt .v b{font-size:17px;font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+  .mk-lt .v .c{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+  .mk-lt .sp{height:22px;margin-top:2px} .mk-lt .sp svg{width:100%;height:22px;display:block}
+  .mk-lt.closed{opacity:.82} .mk-lt.perp{border-color:rgba(183,121,31,.45)}
+  .mk-ltag{font-style:normal;font-size:9.5px;font-weight:700;margin-left:5px;padding:0 4px;border-radius:3px;background:var(--bg-sub);color:var(--text-sub)}
+  .mk-ltag.live{background:rgba(31,138,112,.12);color:#1f8a70} .mk-ltag.pf{background:rgba(183,121,31,.14);color:#a8691a}
+  :root[data-theme="dark"] .mk-ltag.live{color:#5fd0aa} :root[data-theme="dark"] .mk-ltag.pf{color:#e0b45a}
+  .mk-lchart-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:2px 0 2px} .mk-lchart-h b{font-size:13px}
+  .mk-lchart{height:240px;width:100%} .mk-lchart.empty{height:0}
+  .mk-movers{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:8px}
+  .mk-movers:empty{display:none}
+  .mk-movers .k{font-size:11px;font-weight:700;color:var(--text-sub);margin-right:2px}
+  .mk-mv{border:1px solid var(--border);background:var(--card);border-radius:999px;font-size:11.5px;padding:2px 9px;cursor:pointer;color:var(--text);white-space:nowrap}
+  .mk-mv b{font-variant-numeric:tabular-nums} .mk-mv.up b{color:var(--up)} .mk-mv.down b{color:var(--down)}
+  .mk-mv:hover{border-color:var(--accent)}
+  .mk-mchip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--text-sub);white-space:nowrap}
+  .mk-mchip i{width:7px;height:7px;border-radius:50%;background:var(--border)}
+  .mk-mchip.open{color:#1f8a70} .mk-mchip.open i{background:#1f8a70;box-shadow:0 0 0 2px rgba(31,138,112,.18);animation:mcPulse 2.4s ease-in-out infinite}
+  .mk-mchip.pre,.mk-mchip.post,.mk-mchip.lunch{color:#a8691a} .mk-mchip.pre i,.mk-mchip.post i,.mk-mchip.lunch i{background:#b7791f}
+  :root[data-theme="dark"] .mk-mchip.open{color:#5fd0aa} :root[data-theme="dark"] .mk-mchip.pre,:root[data-theme="dark"] .mk-mchip.post,:root[data-theme="dark"] .mk-mchip.lunch{color:#e0b45a}
+  @media (prefers-reduced-motion: reduce){ .mk-mchip.open i{animation:none} }
+  /*  비교  */
+  .mk-cmp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin:2px 0 10px}
+  .mk-cmpc{border:1px solid var(--border);border-top:3px solid var(--cc);border-radius:10px;padding:8px 10px;background:var(--card);cursor:pointer;min-width:0;transition:transform .15s,box-shadow .15s}
+  .mk-cmpc:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(20,30,60,.10)}
+  .mk-cmpc .h{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px} .mk-cmpc .h b{font-size:13.5px}
+  .mk-cmpc .h .dot{width:8px;height:8px;border-radius:50%;background:var(--cc);flex:none}
+  .mk-cmpc .r{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:baseline;font-size:12px;padding:2px 0;border-top:1px dashed var(--border)}
+  .mk-cmpc .r .l{color:var(--text-sub);min-width:0;word-break:keep-all;overflow-wrap:anywhere;line-height:1.35}
+  .mk-cmpc .r .l .mk-ltag{margin-left:4px}
+  .mk-cmpc .r.none{grid-template-columns:minmax(0,1fr)} .mk-cmpc .r.none .l{white-space:normal}
+  .mk-cmpc .r b{font-variant-numeric:tabular-nums} .mk-cmpc .r .c{font-variant-numeric:tabular-nums;font-weight:700;font-size:11.5px}
   .mk-ctry-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
   .mk-ctabs button[disabled]{opacity:.4;cursor:not-allowed}
   .mk-x{margin-left:auto;width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text-sub);font-size:18px;line-height:1;cursor:pointer}
@@ -483,6 +553,7 @@
   #pane-market .up{color:var(--up)} #pane-market .down{color:var(--down)}
   .mk-ctry-top .mk-ctabs{flex:0 1 auto;flex-wrap:wrap;min-width:0}
   .mk-ctry-top .mk-x{flex:none}
+  .mk-cmp-ttl{flex:1 1 auto;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap} .mk-cmp-ttl b{font-size:15px}
   .mk-rets{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;margin:0 0 4px;font-variant-numeric:tabular-nums}
   .mk-rets span{white-space:nowrap} .mk-rets .st-hint{flex-basis:100%}
   .mk-ovchart{height:200px;width:100%}
@@ -545,6 +616,12 @@
     .mk-full #mkV-world .mk-ctry{position:absolute;top:0;bottom:auto;max-height:100%;right:0;left:auto;width:clamp(440px,38%,680px);z-index:5;background:var(--card);border:1px solid var(--border);border-radius:12px;
       box-shadow:0 14px 36px rgba(20,30,60,.20);padding:12px 16px;overflow-y:auto;min-height:0}
     .mk-full #mkV-world .mk-world.left .mk-ctry{right:auto;left:0}
+    .mk-full #mkV-world .mk-split{display:none}
+    /*  (10/8) 서랍 안쪽 가장자리를 끌면 폭 조절  */
+    .mk-full #mkV-world .mk-rsz{display:block;position:absolute;top:10px;bottom:10px;left:-1px;width:9px;cursor:ew-resize;touch-action:none;z-index:2;border-radius:6px}
+    .mk-full #mkV-world .mk-world.left .mk-ctry:not(.moved) .mk-rsz{left:auto;right:-1px}
+    .mk-full #mkV-world .mk-rsz::after{content:'';position:absolute;top:50%;left:3px;width:3px;height:40px;border-radius:3px;background:var(--border);transform:translateY(-50%);transition:background .15s}
+    .mk-full #mkV-world .mk-rsz:hover::after,.mk-full #mkV-world .mk-rsz.on::after{background:var(--accent)}
     /*  (10/7 학회장: «이 분석 탭 드래그해서 위치 자유자재로») — 손잡이(⋮⋮)나 탭 줄 빈 곳을 끌어 옮김 · 손잡이 두 번 누르면 제자리  */
     .mk-full #mkV-world .mk-drag{display:inline-flex;align-items:center;justify-content:center;flex:none;width:20px;height:28px;margin-left:-6px;
       cursor:grab;color:var(--text-sub);border-radius:6px;user-select:none;touch-action:none;font-size:14px;line-height:1;letter-spacing:-3px}
@@ -569,13 +646,22 @@
   .mk-gl .c.up{color:var(--up,#c0392b)} .mk-gl .c.down{color:var(--down,#1b5fa8)}
   .mk-gl.na .v{color:var(--text-sub);font-weight:500}
   .mk-gl i.mk-tag{position:static;margin-left:4px;vertical-align:middle}
+  .mk-gl i.mk-tag.pf{font-size:8.5px;padding:0 3px;border-radius:3px;background:rgba(183,121,31,.14);color:#a8691a;opacity:1;vertical-align:1px}
+  :root[data-theme="dark"] .mk-gl i.mk-tag.pf{color:#e0b45a}
   .mk-clock{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:11px;color:var(--text-sub);margin:0 0 6px;line-height:1.5}
   .mk-clock:empty{display:none}
   .mk-clock .lab{font-weight:700;color:var(--text)}
   .mk-clock .mc{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-variant-numeric:tabular-nums}
   .mk-clock .mc i{width:7px;height:7px;border-radius:50%;background:var(--border);display:inline-block;flex:none}
-  .mk-clock .mc.open i{background:#1f8a70;box-shadow:0 0 0 2px rgba(31,138,112,.18)}
-  .mk-clock .mc.soon i{background:#b7791f}
+  .mk-clock .mc.open i{background:#1f8a70;box-shadow:0 0 0 2px rgba(31,138,112,.18);animation:mcPulse 2.4s ease-in-out infinite}
+  @keyframes mcPulse{0%,100%{box-shadow:0 0 0 2px rgba(31,138,112,.18)}50%{box-shadow:0 0 0 4px rgba(31,138,112,.06)}}
+  @media (prefers-reduced-motion: reduce){ .mk-clock .mc.open i{animation:none} }
+  .mk-clock .mc.soon i,.mk-clock .mc.pre i,.mk-clock .mc.post i{background:#b7791f}
+  .mk-clock .mc.pre,.mk-clock .mc.post{color:#a8691a;font-weight:600}
+  :root[data-theme="dark"] .mk-clock .mc.pre,:root[data-theme="dark"] .mk-clock .mc.post{color:#e0b45a}
+  .mk-clock .mc.lunch i{background:#d7b46a}
+  .mk-clock .mc.hol i{background:transparent;border:1px solid var(--text-sub)}
+  .mk-clock .mc.hol{color:var(--text-sub)}
   .mk-clock .mc.open{color:var(--text);font-weight:600}
   @media(min-width:901px){
     /*  전체 화면에서는 한 줄짜리 칸 (이름 · 값 나란히) — 지도가 작아지지 않게 세로를 아낍니다  */
@@ -650,7 +736,7 @@
   .mk-full .mk-heat{gap:8px} .mk-full .mk-gh{margin-bottom:3px} .mk-full .mk-gh .st-hint{font-size:10.5px}
   .mk-full .mk-tiles{grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:4px} .mk-full .mk-secs{gap:4px 10px} .mk-full .mk-sectiles{gap:4px}
   .mk-full .mk-sectiles .mk-tile{width:118px} .mk-full .mk-tile{padding:4px 7px} .mk-full .mk-tile .n{font-size:11px} .mk-full .mk-tile .v{margin-top:0}
-  @media(max-width:900px){ .mk-world.open,.mk-fx{grid-template-columns:minmax(0,1fr)} .mk-ctry{border-left:none;padding-left:0;border-top:1px solid var(--border);padding-top:12px} }
+  @media(max-width:900px){ .mk-world.open,.mk-fx{grid-template-columns:minmax(0,1fr)} .mk-ctry{border-left:none;padding-left:0;border-top:1px solid var(--border);padding-top:12px} .mk-world .mk-split{display:none !important} }
   @media(max-width:600px){ .mk-ov-grid{grid-template-columns:minmax(0,1fr)} .mk-sect .o{display:none} }
   /*  휴대폰: 나라를 누르면 지도 아래 칸으로 내려가는데, 받는 동안 칸이 짧으면 페이지 끝에 걸려 덜 내려갔습니다 — 칸 높이를 미리 잡아 둠  */
   @media(max-width:900px){ .mk-world.open .mk-ctry{min-height:560px} }
@@ -774,8 +860,9 @@
   .ai-side h4 b{font-size:1.05rem;font-variant-numeric:tabular-nums}
   .ai-side table{min-width:0;font-size:13px}
   .ai-side th,.ai-side td{padding:7px 9px}
-  .ai-bull{border-left:3px solid #1f8a70}
-  .ai-bear{border-left:3px solid #c0392b}
+  /*  (10/8 학회장: «강세 약세가 갑자기 초록 · 빨강이라 어색 · 배경은 똑같이 · 태그만 컬러코딩») — 터미널 규칙: 강세 · 상승 = 빨강 · 약세 · 하락 = 파랑  */
+  .ai-bull{border-left:3px solid var(--up)}
+  .ai-bear{border-left:3px solid var(--down)}
 
   /*  ── 읽히는 카드 ──
       왼쪽 라벨 + 오른쪽 줄글 두 칸은 근거 숫자가 길어지면 무너집니다.
@@ -784,8 +871,8 @@
   .ai-cards{display:flex;flex-direction:column;gap:9px}
   .ai-card{border:1px solid var(--border);border-left:3px solid var(--border);
            border-radius:9px;padding:10px 12px;background:var(--white)}
-  .ai-card.ok  {border-left-color:#1f8a70;background:#f6fbf9}
-  .ai-card.risk{border-left-color:#c0392b;background:#fdf7f6}
+  .ai-card.ok  {border-left-color:#1f8a70}
+  .ai-card.risk{border-left-color:#c0392b}
   .ai-card.risk.hi {border-left-width:4px}
   .ai-card.risk.lo {border-left-color:#d9a441;background:#fffdf6}
   .ai-card-h{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
@@ -814,22 +901,22 @@
   /*  목표가 옆 «현재가 대비» 딱지 — 이 숫자는 터미널이 계산합니다  */
   .ai-vs{display:inline-block;margin-left:7px;font-size:11px;font-weight:600;
          padding:1px 6px;border-radius:999px;vertical-align:middle;
-         background:rgba(31,138,112,.13);color:#1f8a70}
+         background:rgba(192,57,43,.10);color:#c0392b}
   .ai-g{display:inline-block;font-size:10.5px;font-weight:700;padding:0 5px;border-radius:4px;background:var(--bg-sub);color:var(--text-sub);vertical-align:middle}
-  .ai-g.up{background:rgba(31,138,112,.14);color:#1f8a70} .ai-g.dn{background:rgba(192,57,43,.12);color:#c0392b}
-  :root[data-theme="dark"] .ai-g.up{background:rgba(92,192,138,.18);color:#6fd49a} :root[data-theme="dark"] .ai-g.dn{background:rgba(239,107,94,.18);color:#f29084}
+  .ai-g.up{background:rgba(192,57,43,.10);color:#c0392b} .ai-g.dn{background:rgba(27,95,168,.10);color:#1b5fa8}
+  :root[data-theme="dark"] .ai-g.up{background:rgba(239,107,94,.16);color:#f29084} :root[data-theme="dark"] .ai-g.dn{background:rgba(91,156,240,.18);color:#8fbaf5}
   .ai-vtab td{vertical-align:top} .ai-vtab .ai-calc{margin-top:5px}
   .ai-cmp th,.ai-cmp td{padding:8px 10px} .ai-cmp th.ai-cb,.ai-cmp th.ai-cu{text-align:center}
-  .ai-cmp .ai-cb{background:rgba(192,57,43,.045)} .ai-cmp .ai-cu{background:rgba(31,138,112,.05)}
-  .ai-cmp thead .ai-cb{color:#c0392b} .ai-cmp thead .ai-cu{color:#1f8a70}
-  :root[data-theme="dark"] .ai-cmp .ai-cb{background:rgba(239,107,94,.07)} :root[data-theme="dark"] .ai-cmp .ai-cu{background:rgba(92,192,138,.07)}
-  :root[data-theme="dark"] .ai-cmp thead .ai-cb{color:#f29084} :root[data-theme="dark"] .ai-cmp thead .ai-cu{color:#5fd0aa}
+  /*  열 배경은 표 바탕 그대로 (강세 · 약세 칸을 물들이지 않음) — 머리 글자와 태그만 색 · 강세/약세 사이에 옅은 세로선 하나  */
+  .ai-cmp thead .ai-cu{color:var(--up)} .ai-cmp thead .ai-cb{color:var(--down)}
+  .ai-cmp thead tr:first-child th.ai-cu,.ai-cmp thead tr:first-child th.ai-cb{border-bottom:2px solid currentColor}
+  .ai-cmp tbody tr:not(.ai-sum-row) > .ai-cb:nth-child(6),.ai-cmp thead tr:first-child th.ai-cb,.ai-cmp thead tr + tr > th.ai-cb:nth-child(4),.ai-cmp tr.ai-sum-row > .ai-cb:nth-child(5){border-left:1px solid var(--border)}
   .ai-cmp tr.ai-det td{padding-top:2px;padding-bottom:14px;border-top:0} .ai-cmp tr.ai-det .ai-calc{margin:0 0 4px}
   /*  (10/8) 계산 단계 카드 — 강세 · 약세 나란히 (좁으면 위아래) · 단계마다 한 줄 · 결과는 오른쪽 굵게  */
   .ai-steps2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;white-space:normal}
   @media(max-width:900px){ .ai-steps2{grid-template-columns:1fr} }
   .ai-calc-card{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--card);min-width:0}
-  .ai-calc-card.bull{border-left:3px solid #1f8a70} .ai-calc-card.bear{border-left:3px solid #c0392b}
+  .ai-calc-card.bull{border-left:3px solid var(--up)} .ai-calc-card.bear{border-left:3px solid var(--down)}
   .ai-calc-card.empty{border-left-width:1px}
   .ai-steps-m{display:none}
   @media(max-width:700px){
@@ -854,27 +941,24 @@
   @media(max-width:520px){ .ai-steps{grid-template-columns:minmax(0,1fr) auto} .ai-steps .lab{grid-column:1/-1;padding-bottom:0} .ai-steps li + li > .lab ~ *{border-top:0} .ai-steps .eq{display:none} }
   .ai-cmp tr.ai-sum-row td{border-top:2px solid var(--border);font-size:14px}
   .ai-dl{display:inline-block;font-size:10px;font-weight:800;padding:0 5px;border-radius:4px;margin-right:4px;vertical-align:1px}
-  .ai-dl.bull{background:rgba(31,138,112,.14);color:#1f8a70} .ai-dl.bear{background:rgba(192,57,43,.12);color:#c0392b}
-  :root[data-theme="dark"] .ai-dl.bull{background:rgba(92,192,138,.18);color:#6fd49a} :root[data-theme="dark"] .ai-dl.bear{background:rgba(239,107,94,.18);color:#f29084}
+  .ai-dl.bull{background:rgba(192,57,43,.10);color:#c0392b} .ai-dl.bear{background:rgba(27,95,168,.10);color:#1b5fa8}
+  :root[data-theme="dark"] .ai-dl.bull{background:rgba(239,107,94,.16);color:#f29084} :root[data-theme="dark"] .ai-dl.bear{background:rgba(91,156,240,.18);color:#8fbaf5}
   .ai-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
   .ai-sum-t{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--bg)}
   .ai-sum-t .k{font-size:11px;font-weight:700;color:var(--text-sub);letter-spacing:.02em}
   .ai-sum-t .v{font-size:19px;font-weight:800;margin-top:3px;letter-spacing:-.3px;font-variant-numeric:tabular-nums;color:var(--text)}
   .ai-sum-t .s{font-size:11.5px;color:var(--text-sub);margin-top:3px;line-height:1.45}
-  .ai-sum-t.bull{border-left:3px solid #1f8a70} .ai-sum-t.bear{border-left:3px solid #c0392b}
-  .ai-sum-t.pos .v{color:#1f8a70} .ai-sum-t.neg .v{color:#c0392b}
-  :root[data-theme="dark"] .ai-sum-t.bull{border-left-color:#5fd0aa} :root[data-theme="dark"] .ai-sum-t.bear{border-left-color:#f29084}
-  :root[data-theme="dark"] .ai-sum-t.pos .v{color:#5fd0aa} :root[data-theme="dark"] .ai-sum-t.neg .v{color:#f29084}
+  .ai-sum-t.bull{border-left:3px solid var(--up)} .ai-sum-t.bear{border-left:3px solid var(--down)}
+  .ai-sum-t.pos .v{color:var(--up)} .ai-sum-t.neg .v{color:var(--down)}
   .ai-band{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:11.5px;flex-wrap:wrap}
-  .ai-band .lo{color:#c0392b;font-weight:700;white-space:nowrap} .ai-band .hi{color:#1f8a70;font-weight:700;white-space:nowrap}
-  :root[data-theme="dark"] .ai-band .lo{color:#f29084} :root[data-theme="dark"] .ai-band .hi{color:#5fd0aa}
-  .ai-band .bar{flex:1 1 160px;height:8px;border-radius:999px;position:relative;background:linear-gradient(90deg,rgba(192,57,43,.45),rgba(31,138,112,.45))}
+  .ai-band .lo{color:var(--down);font-weight:700;white-space:nowrap} .ai-band .hi{color:var(--up);font-weight:700;white-space:nowrap}
+  .ai-band .bar{flex:1 1 160px;height:8px;border-radius:999px;position:relative;background:linear-gradient(90deg,rgba(27,95,168,.45),rgba(192,57,43,.45))}
   .ai-band .dot{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--white);border:3px solid var(--primary);transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.25)}
   .ai-now{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;
           background:var(--bg-sub);color:var(--text-sub);border:1px solid var(--border);vertical-align:middle;white-space:nowrap}
-  .ai-vs.neg{background:rgba(192,57,43,.13);color:#c0392b}
-  /*  앞뒤가 안 맞는 것(강세인데 아래·약세인데 위)은 테두리로 눈에 띄게  */
-  .ai-vs.odd{outline:1.5px solid #c0392b;outline-offset:1px}
+  .ai-vs.neg{background:rgba(27,95,168,.10);color:#1b5fa8}
+  /*  앞뒤가 안 맞는 것(강세인데 아래·약세인데 위)은 테두리로 눈에 띄게 (호박색 — 상승/하락 색과 안 헷갈리게)  */
+  .ai-vs.odd{outline:1.5px solid #b7791f;outline-offset:1px}
   /*  고른 지표 설명 — 목록 바로 아래에 붙습니다  */
   /*  접속 현황 — 색만으로 구분하지 않게 글자를 같이 씁니다  */
   /*  ⚠️ 되돌릴 수 없는 버튼은 다른 버튼과 <다르게> 보여야 합니다.
@@ -914,8 +998,8 @@
            font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
   .ai-verdict{margin:0 0 12px;padding:10px 13px;border-radius:8px;font-size:14px;line-height:1.7;
               background:var(--bg);border:1px solid var(--border)}
-  .ai-verdict.neg{border-color:rgba(192,57,43,.35)}
-  .ai-verdict.pos{border-color:rgba(31,138,112,.35)}
+  .ai-verdict.neg{border-color:rgba(27,95,168,.35)}
+  .ai-verdict.pos{border-color:rgba(192,57,43,.35)}
   .ai-fx summary{cursor:pointer;font-weight:600;font-size:13px}
   .ai-fx td,.ai-fx th{font-size:13px}
   .ai-fx td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -4892,15 +4976,33 @@
               <div id="mkMapBox" class="mk-map"></div>
               <div class="mk-chips" id="mkCtryChips"></div>
               <div class="mk-news5" id="mkNews5" aria-live="polite"></div>
-              <p class="st-hint" style="margin:8px 0 0;line-height:1.6">지도 색 = 그 나라 대표 지수(열려 있으면 · 1~15분 지연) 또는 미국 상장 나라 ETF 의 전 거래일 종가 대비 등락 · 나라를 누르면 옆에 그 나라 개요(지수 · 경제 · 금리) · 주요 기업 오늘 선 · 업종 · 환율 모델 · 시황 · 시각은 이 기기 시간 · 휠로 확대 · 끌어서 이동</p>
+              <p class="st-hint" style="margin:8px 0 0;line-height:1.6">지도 색 = 그 나라 대표 지수(현물 장중 · 1~15분 지연) · 현물 장이 닫혔으면 24시간 무기한 선물 · 없으면 미국 상장 나라 ETF 의 등락 · 나라를 누르면 그 나라로 확대되고 옆 칸에 실시간 · 개요 · 주요 기업 · 업종 · 환율 모델 · 시황 · 여러 나라를 누르면 탭으로 쌓이고 «비교» 로 한 번에 · 가운데 막대를 끌면 칸 폭 조절 · 휠로 확대 · 끌어서 이동</p>
             </div>
+            <!--  (10/8 학회장: «탭 사이즈 조절할 수 있게») — 지도 | 나라 칸 사이 막대를 끌어 폭 조절 · 두 번 누르면 원래대로  -->
+            <div class="mk-split" id="mkSplit" role="separator" aria-orientation="vertical" aria-label="지도 · 나라 칸 폭 조절" title="끌어서 폭 조절 · 두 번 누르면 원래대로"></div>
             <aside class="mk-ctry" id="mkCtry" aria-label="고른 나라">
+              <span class="mk-rsz" id="mkRsz" aria-hidden="true" title="끌어서 칸 폭 조절 · 두 번 누르면 원래대로"></span>
+              <!--  (10/8 학회장: «나라 몇 개 더 고르면 멀티플 탭으로 · 한 번에 비교») — 누른 나라가 탭으로 쌓임 (5개까지) · «비교»  -->
+              <div class="mk-cctabs" id="mkCcTabs" role="tablist" aria-label="고른 나라"></div>
               <div class="mk-ctry-top">
                 <span class="mk-drag" id="mkCtryDrag" title="끌어서 옮기기 · 두 번 누르면 제자리" aria-hidden="true">⋮⋮</span>
                 <span class="px-seg mk-ctabs" id="mkCtryTabs" role="group" aria-label="보기"></span>
+                <span class="mk-cmp-ttl hidden" id="mkCmpTtl"></span>
                 <button type="button" class="mk-x" onclick="mkCtryClose()" aria-label="나라 칸 닫기" title="닫기 (지도를 넓게)">×</button>
               </div>
               <div class="mk-ctry-head" id="mkCtryHead"></div>
+              <!--  (10/8 학회장: «나라 클릭하면 실시간으로 데이터 계속 켜 놓고 · 주식 · 국채금리 · ETF · 토스 · HTS 실시간 추이처럼») — 10초마다 숫자가 굴러가고 선이 이어짐  -->
+              <div id="mkCtryLive" class="hidden">
+                <div class="mk-ltiles" id="mkLiveTiles"></div>
+                <div class="mk-lchart-h"><b>실시간 추이</b><span class="st-hint" id="mkLiveNote"></span></div>
+                <div id="mkLiveBox" class="mk-lchart"></div>
+                <div class="mk-movers" id="mkLiveMov"></div>
+              </div>
+              <div id="mkCtryCmp" class="hidden">
+                <div class="mk-cmp-grid" id="mkCmpGrid"></div>
+                <div class="mk-lchart-h"><b>등락 추이 비교</b><span class="st-hint" id="mkCmpNote"></span></div>
+                <div id="mkCmpBox" class="mk-lchart"></div>
+              </div>
               <div id="mkCtryOv" class="hidden">
                 <div class="mk-rets" id="mkOvRets"></div>
                 <div id="mkOvBox" class="mk-ovchart"></div>
@@ -5034,10 +5136,12 @@
             <button id="secMkt-usi" onclick="secSet('mkt','usi')">🇺🇸 산업 ETF</button>
             <button id="secMkt-kr" onclick="secSet('mkt','kr')">🇰🇷 한국 섹터</button>
           </div>
-          <span class="st-hint" style="flex:none">정렬·막대</span>
+          <span class="st-hint" style="flex:none">기간</span>
           <div class="nf-chips" id="secPeriods"></div>
           <span class="st-hint grow" id="secNote"></span>
         </div>
+        <!--  (10/8 학회장: «필터링 기능 · 상승에서 하락 순 등») — 정렬 · 보기 (머리글 눌러도 정렬)  -->
+        <div class="sec-tools" id="secTools"></div>
         <!--  ── 바이낸스: 분류 · 찾기 · 실시간 히트맵 (10/5) ──  -->
         <div id="bnHeatBox" class="hidden" style="margin-top:8px">
           <div id="bnFilterSec"></div>
@@ -5091,6 +5195,7 @@
           병목이 해소되는 산업은 가격 경쟁이 시작됩니다. 점수는 «지금 값이 2015년 이후 자료 중 몇 번째인가» 라서, 역사 평균이 바뀐 지표(예: 구조적으로 가동률이 낮아진 업종)는 조심해서 읽으세요.
         </div>
         <div class="bn-pulse" id="bnPulse"></div>
+        <div id="bnTagStrip"></div>
         <div id="bnChart" style="height:300px"></div>
         <div id="bnNote" class="st-hint" style="margin:4px 0 8px"></div>
         <div id="bnTable"></div>
@@ -5270,6 +5375,12 @@
           if (typeof themeChartOpt === 'function') oo = themeChartOpt(oo, dom);
           var r = _set.call(c, oo, a, b);
           if (snap && snap.length) axZoomApply(c, snap);
+          //  (10/8) lazyUpdate = 아직 안 그림 (곧 resize 가 한 번에 그림) — 이름표 벌리기 · 접기는 그 resize 뒤에 (지금 하면 자료가 없어 터짐)
+          if (a && typeof a === 'object' && a.lazyUpdate && !c.__spreading){
+            if (chartHasEndLabels(o)){ c.__spreadDy = {}; c.__spreadOn = true; }
+            if (o && o.series){ c.__dcOrig = {}; c.__dcOn = chartHasDataLabels(o); }
+            return r;
+          }
           //  (10/8 학회장: «차트 서로 가리게 하면 안 된다 · 모든 차트 설정 이렇게») — 선 끝 이름표끼리 겹치면 위아래로 벌림
           if (!c.__spreading && chartHasEndLabels(o)){ c.__spreadDy = {}; c.__spreadOn = true; chartSpreadEnds(c, _set); }
           else if (!c.__spreading && c.__spreadOn && o && o.series) c.__spreadDy = {};
@@ -16382,8 +16493,12 @@ async function bnListFetch(){
 
 var SEC_PERIODS = [['1w','1주',5],['1m','1개월',21],['3m','3개월',63],['ytd','YTD',0],['1y','1년',252]];
 var SEC_KEY = 'safe_sec_v1', SECQ_KEY = 'safe_secq_v1';
-var secState = { mkt:'us', per:'3m' };
-try { var _ss = JSON.parse(localStorage.getItem(SEC_KEY) || '{}'); if (SEC_SETS[_ss.mkt]) secState.mkt = _ss.mkt; if (SEC_PERIODS.some(function(p){ return p[0] === _ss.per; })) secState.per = _ss.per; } catch(e){}
+var secState = { mkt:'us', per:'3m', sort:'up', only:'all' };
+//  정렬: up 오른 순 · down 내린 순 · rel 벤치 대비 · hi 52주 고점에 가까운 순 · lo 고점에서 먼 순 · name 이름 / 보기: all · up 오른 것만 · down 내린 것만 · beat 벤치보다 나은 것
+var SEC_SORTS = [['up', '상승률 높은 순'], ['down', '하락률 큰 순'], ['rel', '벤치 대비'], ['hi', '52주 고점 근처'], ['lo', '고점 대비 낙폭'], ['name', '이름']];
+var SEC_ONLY = [['all', '전체'], ['up', '오른 것'], ['down', '내린 것'], ['beat', '벤치보다 강한 것']];
+try { var _ss = JSON.parse(localStorage.getItem(SEC_KEY) || '{}'); if (SEC_SETS[_ss.mkt]) secState.mkt = _ss.mkt; if (SEC_PERIODS.some(function(p){ return p[0] === _ss.per; })) secState.per = _ss.per;
+      if (SEC_SORTS.some(function(p){ return p[0] === _ss.sort; })) secState.sort = _ss.sort; if (SEC_ONLY.some(function(p){ return p[0] === _ss.only; })) secState.only = _ss.only; } catch(e){}
 var secMem = {}, secRun = 0, secChart = null;
 
 //  시세는 2년치 — 1년 수익률 + YTD 에 넉넉합니다. 해가 바뀔 때만 바뀌는 start 라 서버 보관함을 같이 씁니다.
@@ -16459,9 +16574,18 @@ async function secLoad(src, sym, run){
 
 var secRenderSoon = throttleFn(function(){ renderSectors(); }, 600);
 function secSet(k, v){
+  if (k === 'sort' && !SEC_SORTS.some(function(p){ return p[0] === v; })) return;
+  if (k === 'only' && !SEC_ONLY.some(function(p){ return p[0] === v; })) return;
   secState[k] = v;
   try { localStorage.setItem(SEC_KEY, JSON.stringify(secState)); } catch(e){}
   if (k === 'mkt') loadSectors(); else renderSectors();
+}
+//  머리글 누르기 — 그 기간 · 오른 순 → 한 번 더 누르면 내린 순
+function secSortHead(k){
+  if (secState.per === k && secState.sort === 'up') secState.sort = 'down';
+  else { secState.per = k; secState.sort = 'up'; }
+  try { localStorage.setItem(SEC_KEY, JSON.stringify(secState)); } catch(e){}
+  renderSectors();
 }
 function secAll(set){
   return [[set.bench[0], set.bench[1], secBSrc(set)]].concat(set.items.map(function(it){ return [it[0], it[1], set.src]; }));
@@ -16656,16 +16780,33 @@ function renderSectors(){
     var s = secCached(secKey(set.src, it[0])) || secMem[secKey(set.src, it[0])] || null;
     return { sym: it[0], name: secNm(it), src: set.src, s: s && !s.err ? s : null, err: s && s.err };
   });
-  //  고른 기간으로 정렬 (자료 없는 건 뒤로)
-  rows.sort(function(a, b){
-    var x = a.s && a.s.r[per] != null ? a.s.r[per] : -Infinity, y = b.s && b.s.r[per] != null ? b.s.r[per] : -Infinity;
-    return y - x; });
   var perName = (SEC_PERIODS.filter(function(p){ return p[0] === per; })[0] || [])[1] || per;
+  /*  (10/8) 정렬 · 보기 — 고른 기간 기준 (자료 없는 건 늘 뒤로) · 보기는 표와 막대에 같이  */
+  var srt = secState.sort || 'up', only = secState.only || 'all';
+  var rv = function(r){ return r.s && r.s.r[per] != null ? r.s.r[per] : null; };
+  var relOf = function(r){ var v = rv(r); return v != null && bR && bR[per] != null ? v - bR[per] : null; };
+  var keyOf = function(r){ return srt === 'rel' ? relOf(r) : (srt === 'hi' || srt === 'lo') ? (r.s ? r.s.dd : null) : rv(r); };
+  var nAll = rows.length;
+  if (only !== 'all') rows = rows.filter(function(r){ var v = rv(r); if (v == null) return false;
+    return only === 'up' ? v > 0 : only === 'down' ? v < 0 : (relOf(r) != null && relOf(r) > 0); });
+  rows.sort(function(a, b){
+    if (srt === 'name') return String(a.name).localeCompare(String(b.name), 'ko');
+    var x = keyOf(a), y = keyOf(b);
+    if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1;
+    return (srt === 'down' || srt === 'lo') ? x - y : y - x; });
+  var tools = $('secTools');
+  if (tools) tools.innerHTML = '<span class="st-hint">정렬</span><span class="nf-chips">' + SEC_SORTS.map(function(p){
+      return '<span class="nf-chip' + (p[0] === srt ? ' on' : '') + '" onclick="secSet(\'sort\',\'' + p[0] + '\')">' + esc(p[1]) + '</span>'; }).join('') + '</span>'
+    + '<span class="st-hint">보기</span><span class="nf-chips">' + SEC_ONLY.map(function(p){
+      return '<span class="nf-chip' + (p[0] === only ? ' on' : '') + '" onclick="secSet(\'only\',\'' + p[0] + '\')">' + esc(p[1]) + '</span>'; }).join('') + '</span>'
+    + (only !== 'all' ? '<span class="st-hint">' + esc(perName + ' 기준 ' + rows.length + ' / ' + nAll + '개') + '</span>' : '');
   var firstCol = /^(us|usi|kr)$/.test(secState.mkt) ? '섹터' : '종목';
-  var head = '<tr><th>' + firstCol + '</th><th style="text-align:right">1주</th><th style="text-align:right">1개월</th><th style="text-align:right">3개월</th>'
-           + '<th style="text-align:right">YTD</th><th style="text-align:right">1년</th>'
-           + '<th style="text-align:right" title="' + esc(perName) + ' 수익률 - 벤치마크 수익률">벤치 대비<br><span style="font-weight:400">' + esc(perName) + '</span></th>'
-           + '<th style="text-align:right" title="최근 1년 최고 종가 대비">52주 고점</th><th style="width:110px">3개월 추세</th><th>기준일</th></tr>';
+  //  머리글을 누르면 그 기간으로 정렬 (한 번 더 누르면 반대로) — HTS 처럼
+  var arrow = function(on){ return on ? (srt === 'down' || srt === 'lo' ? ' ▲' : ' ▼') : ''; };
+  var hp = function(k, nm){ var on = per === k && (srt === 'up' || srt === 'down'); return '<th class="sec-th" style="text-align:right" onclick="secSortHead(\'' + k + '\')" title="누르면 이 기간으로 정렬">' + esc(nm) + arrow(on) + '</th>'; };
+  var head = '<tr><th class="sec-th" onclick="secSet(\'sort\',\'name\')" title="이름순">' + firstCol + (srt === 'name' ? ' ▲' : '') + '</th>' + hp('1w', '1주') + hp('1m', '1개월') + hp('3m', '3개월') + hp('ytd', 'YTD') + hp('1y', '1년')
+           + '<th class="sec-th" style="text-align:right" onclick="secSet(\'sort\',\'rel\')" title="' + esc(perName) + ' 수익률 - 벤치마크 수익률 · 누르면 정렬">벤치 대비' + arrow(srt === 'rel') + '<br><span style="font-weight:400">' + esc(perName) + '</span></th>'
+           + '<th class="sec-th" style="text-align:right" onclick="secSet(\'sort\',\'' + (srt === 'hi' ? 'lo' : 'hi') + '\')" title="최근 1년 최고 종가 대비 · 누르면 정렬">52주 고점' + arrow(srt === 'hi' || srt === 'lo') + '</th><th style="width:110px">3개월 추세</th><th>기준일</th></tr>';
   var line = function(r, isBench){
     var s = r.s;
     var pick = ' data-src="' + esc(r.src) + '" data-sym="' + esc(r.sym) + '" onclick="secRowPick(this)" style="cursor:pointer' + (isBench ? ';background:var(--accent-soft)' + (s ? ';font-weight:600' : '') : '') + '" title="누르면 아래 가격 차트에 올립니다"';
@@ -16675,7 +16816,7 @@ function renderSectors(){
            + (on ? ' <span class="mtm-dot soon" style="display:inline-block;vertical-align:1px" title="가격 차트에 올라가 있음"></span>' : '')
            + (s && s.stale ? ' <span class="mtm-badge stale">낡음</span>' : '') + '</td>';
     if (!s) return '<tr' + pick + '>' + nm
-         + '<td colspan="9" style="color:var(--text-sub)">' + esc(r.err ? '받지 못했습니다 — ' + r.err : '받는 중…') + '</td></tr>';
+         + '<td colspan="9" style="color:var(--text-sub)">' + esc(r.err ? '받지 못했습니다' : '로딩 중…') + '</td></tr>';
     var rel = (bR && !isBench && s.r[per] != null && bR[per] != null) ? s.r[per] - bR[per] : null;
     return '<tr' + pick + '>' + nm
       + secCell(s.r['1w']) + secCell(s.r['1m']) + secCell(s.r['3m']) + secCell(s.r['ytd']) + secCell(s.r['1y'])
@@ -16701,7 +16842,7 @@ function renderSectors(){
   if (isBn) return;
   var box = $('secChart'); if (!box || typeof echarts === 'undefined') return;
   var data = rows.filter(function(r){ return r.s && r.s.r[per] != null; });
-  if (bench && !bench.err && bench.r[per] != null) data.push({ sym: set.bench[0], name: secNm(set.bench), s: bench, bench: true });
+  if (bench && !bench.err && bench.r[per] != null && only === 'all') data.push({ sym: set.bench[0], name: secNm(set.bench), s: bench, bench: true });
   data.sort(function(a, b){ return b.s.r[per] - a.s.r[per]; });
   secChart = chartOn(box, secChart); if (!secChart) return;
   var bv = bench && !bench.err ? bench.r[per] : null;
@@ -16754,9 +16895,11 @@ function secCsv(){
       이긴 만큼만 섞습니다 (못 이기면 «지금 값 유지» 쪽으로). 범위 = EWMA 변동성(λ 0.94) 68% · 95%.
    ⚠️ 이 화면을 보고 있을 때만 받습니다 (다른 탭 · 창을 내리면 멈춤 · «일시정지»). 전체 화면에서는 화면 꺼짐 막기를 시도합니다.  */
 var MK = { view: 'world', snap: null, err: '', at: 0, busy: false, timer: null, clock: null, paused: false,
-           cc: 'KR', ctry: null, ctryErr: '', ctryBusy: false, ctryAt: 0, ctryOpen: false, ctryTab: 'ov', ctryFxPair: null, info: {}, brief: {}, secPer: 'm1',
+           cc: 'KR', ctry: null, ctryErr: '', ctryBusy: false, ctryAt: 0, ctryOpen: false, ctryTab: 'live', ctryFxPair: null, info: {}, brief: {}, secPer: 'm1',
+           //  (10/8) 여러 나라 탭 · 비교 · 칸 폭 · 실시간 틱 · 나라별 선 보관 · 지도 확대 자리
+           ccList: [], cmpOn: false, split: null, drawerW: null, tk: {}, tkAt: null, ctryC: {}, ctryCAt: {}, ctryCBusy: {}, mapView: null,
            fxPair: 'USDKRW', fx: null, fxErr: '', fxBusy: false, fxAt: 0, fxH: 21, fxRaw: {}, fxRates: {}, fxHome: undefined, fxP: {}, wake: null };
-var MK_KEY = 'safe_mkt_v1';
+var MK_KEY = 'safe_mkt_v1', MK_CC_MAX = 5;
 var mkMapChart = null, mkLineChart = null, mkFxChart = null, mkCfxChart = null, mkOvChart = null, mkMapReady = null;
 //  (10/8) 히트맵은 주식분석 탭으로 옮김 · «환율 예측» → «환율 모델» (학회장: «더 프로페셔널하게»)
 var MK_VIEWS = [['world', '세계지도'], ['fx', '환율 모델']];
@@ -16787,13 +16930,20 @@ function mkLoadPrefs(){
     if ([5, 21, 63].indexOf(p.h) >= 0) MK.fxH = p.h;
     //  전체 화면 나라 칸을 옮겨 둔 자리 (지도 칸 안의 비율 · 0~1)
     if (p.dp && isFinite(p.dp.x) && isFinite(p.dp.y) && p.dp.x >= 0 && p.dp.x <= 1 && p.dp.y >= 0 && p.dp.y <= 1) MK.drawerPos = { x: +p.dp.x, y: +p.dp.y };
+    //  (10/8) 여러 나라 탭 · 비교 · 칸 폭
+    if (Array.isArray(p.cl)) MK.ccList = p.cl.filter(mkCtryOk).filter(function(c, i, a){ return a.indexOf(c) === i; }).slice(0, MK_CC_MAX);
+    if (MK.ctryOpen && MK.ccList.indexOf(MK.cc) < 0) MK.ccList.push(MK.cc);
+    MK.cmpOn = p.cmp === true && MK.ccList.length >= 2;
+    if (isFinite(p.spl) && p.spl >= 0.3 && p.spl <= 0.78) MK.split = +p.spl;
+    if (isFinite(p.dw) && p.dw >= 320 && p.dw <= 1600) MK.drawerW = +p.dw;
   } catch(e){}
 }
-function mkSavePrefs(){ try { localStorage.setItem(MK_KEY, JSON.stringify({ view: MK.view, cc: MK.cc, fx: MK.fxPair, open: !!MK.ctryOpen, tab: MK.ctryTab, h: MK.fxH, sp: MK.secPer, dp: MK.drawerPos || null })); } catch(e){} }
+function mkSavePrefs(){ try { localStorage.setItem(MK_KEY, JSON.stringify({ view: MK.view, cc: MK.cc, fx: MK.fxPair, open: !!MK.ctryOpen, tab: MK.ctryTab, h: MK.fxH, sp: MK.secPer, dp: MK.drawerPos || null,
+  cl: MK.ccList, cmp: !!MK.cmpOn, spl: MK.split, dw: MK.drawerW })); } catch(e){} }
 //  누를 수 있는 나라 = 지도에 색이 있는 나라 전부 (10/7 — 개요 · 업종 · 시황은 어느 나라나 · 주요 기업 · 환율은 있는 나라만)
 function mkCtryOk(cc){ return !!cc && !!MK_CC[cc]; }
 //  나라 칸 탭 — [키, 이름]
-var MK_CTABS = [['ov', '개요'], ['stk', '주요 기업'], ['sec', '업종'], ['fx', '환율 모델'], ['ai', '시황 · 유망 산업']];
+var MK_CTABS = [['live', '실시간'], ['ov', '개요'], ['stk', '주요 기업'], ['sec', '업종'], ['fx', '환율 모델'], ['ai', '시황 · 유망 산업']];
 var MK_SEC_PER = [['d1', '1일'], ['w1', '1주'], ['m1', '1개월'], ['m3', '3개월'], ['ytd', '연초 이후']];
 function mkTabOk(t, cc){ return t === 'stk' ? MK_LINES.indexOf(cc) >= 0 : t === 'fx' ? mkCtryPairs(cc).length > 0 : MK_CTABS.some(function(x){ return x[0] === t; }); }
 function initMarket(){
@@ -16885,7 +17035,9 @@ async function mkTick(){
   MK.tickAt = Date.now();
   var jobs = [mkFetchSnap()];
   if (curTab !== 'market'){ await Promise.all(jobs); return; }          //  주식분석(히트맵)은 스냅샷만
-  if (MK.view === 'world' && MK.cc && MK.ctryOpen && MK.ctryTab === 'stk' && MK_LINES.indexOf(MK.cc) >= 0) jobs.push(mkFetchCountry(MK.cc));
+  if (MK.view === 'world' && MK.cc && MK.ctryOpen && !MK.cmpOn && (MK.ctryTab === 'stk' || MK.ctryTab === 'live') && MK_LINES.indexOf(MK.cc) >= 0) jobs.push(mkFetchCountry(MK.cc));
+  //  «비교» — 고른 나라들의 선을 20초마다 (나라 하나씩 돌아가며 · 서버도 보관해 둠)
+  if (MK.view === 'world' && MK.ctryOpen && MK.cmpOn) MK.ccList.forEach(function(c){ if (MK_LINES.indexOf(c) >= 0 && Date.now() - (MK.ctryCAt[c] || 0) > 20000) mkFetchCountry(c); });
   if (MK.view === 'world') mkNewsGet();
   //  개요 · 업종 자료는 10분마다 (서버도 보관해 둠)
   if (MK.view === 'world' && MK.cc && MK.ctryOpen && (MK.ctryTab === 'ov' || MK.ctryTab === 'sec')) mkInfoGet(MK.cc);
@@ -16898,7 +17050,7 @@ async function mkTick(){
 async function mkFetchSnap(){
   if (MK.busy) return; MK.busy = true;
   var apply = function(d){
-    if (d && Array.isArray(d.groups)){ MK.snap = d; MK.err = ''; MK.at = Date.now(); MK.snapAt = d.at || d.fetched_at || null; }
+    if (d && Array.isArray(d.groups)){ MK.snap = d; MK.err = ''; MK.at = Date.now(); MK.snapAt = d.at || d.fetched_at || null; mkTickPush(d); }
     else MK.err = (d && d.error) || T('시장 스냅샷을 받지 못했습니다.', 'No market snapshot.');
   };
   try {
@@ -16914,18 +17066,22 @@ function mkPaintAll(){
   if (curTab === 'stocks'){ mkHead(); mkHeatRender(); return; }
   if (curTab !== 'market') return;
   mkHead();
-  if (MK.view === 'world'){ mkGlanceRender(); mkClockRender(); mkMapPaint(); if (MK.ctryOpen && MK.ctryTab === 'fx') mkCfxRender(); else if (MK.ctryOpen && MK.ctryTab === 'ov') mkCtryRender(); else if (MK.ctryOpen && MK.ctryTab !== 'stk') mkCtryHeadSet(); }
+  if (MK.view === 'world'){ mkGlanceRender(); mkClockRender(); mkMapPaint();
+    if (MK.ctryOpen && MK.cmpOn){ mkCcTabsRender(); mkCmpRender(); }
+    else if (MK.ctryOpen && MK.ctryTab === 'live'){ mkCcTabsRender(); mkCtryHeadSet(); mkLiveRender(); }
+    else if (MK.ctryOpen && MK.ctryTab === 'fx') mkCfxRender(); else if (MK.ctryOpen && MK.ctryTab === 'ov') mkCtryRender(); else if (MK.ctryOpen && MK.ctryTab !== 'stk') mkCtryHeadSet(); }
   else if (MK.view === 'fx') mkFxLive();
 }
 async function mkFetchCountry(cc){
-  if (MK.ctryBusy) return; MK.ctryBusy = true;
+  //  (10/8) 나라마다 따로 보관 — 탭을 오가거나 «비교» 에서 여러 나라를 볼 때 바로 그림 (받는 중에도 마지막 값)
+  if (MK.ctryCBusy[cc]) return; MK.ctryCBusy[cc] = true;
+  if (cc === MK.cc) MK.ctryBusy = true;
   try {
     var d = await edge({ source: 'mkt_country', cc: cc });
-    if (cc !== MK.cc) return;
-    if (d && Array.isArray(d.lines)){ MK.ctry = d; MK.ctryErr = ''; MK.ctryAt = Date.now(); }
-    else { MK.ctryErr = (d && d.error) || T('그 나라 시세를 받지 못했습니다.', 'No data.'); if (!MK.ctry || MK.ctry.cc !== cc) MK.ctry = null; }
-  } catch(e){ MK.ctryErr = String(e && e.message || e); }
-  finally { MK.ctryBusy = false; }
+    if (d && Array.isArray(d.lines)){ MK.ctryC[cc] = d; MK.ctryCAt[cc] = Date.now(); if (cc === MK.cc){ MK.ctry = d; MK.ctryErr = ''; MK.ctryAt = Date.now(); } }
+    else if (cc === MK.cc){ MK.ctryErr = (d && d.error) || T('그 나라 시세를 받지 못했습니다.', 'No data.'); if (!MK.ctry || MK.ctry.cc !== cc) MK.ctry = null; }
+  } catch(e){ if (cc === MK.cc) MK.ctryErr = String(e && e.message || e); }
+  finally { MK.ctryCBusy[cc] = false; if (cc === MK.cc) MK.ctryBusy = false; }
   if (curTab === 'market' && MK.view === 'world') mkCtryRender();
 }
 
@@ -16973,6 +17129,11 @@ function mkDrawerSide(cc){
   //  (10/7) 학회원이 끌어서 옮겨 둔 자리가 있으면 그 자리 그대로 (누른 나라에 따라 좌우로 안 바꿈)
   if (MK.drawerPos && mkDrawerFree()){ mkDrawerApply(); return; }
   var left = false;
+  //  (10/8) 지도를 나라로 확대해 두면 화면 위치로는 못 정함 → 나라 경도로 (동쪽 25도 넘으면 왼쪽 서랍 · 예전 «지도 폭 56% 오른쪽» 과 같은 선)
+  if (document.body.classList.contains('mk-full-on') && (window.innerWidth || 1000) > 900 && MK_GEO[cc]){
+    left = MK_GEO[cc][0] > 25;
+    MK.drawerLeft = left; var wr0 = $('mkWorld'); if (wr0) wr0.classList.toggle('left', left); return;
+  }
   try {
     if (document.body.classList.contains('mk-full-on') && (window.innerWidth || 1000) > 900 && mkMapChart){
       var geo = mkMapChart.getModel().getComponent('geo').coordinateSystem, pt = null;
@@ -17201,13 +17362,35 @@ function mkMapInit(){
       document.head.appendChild(s);
     });
   }
+  /*  ⚠️ (10/8 점검) 지도 파일을 받는 동안 mkMapInit 이 두 번 불리면(탭 열기 + «세계지도» 단추) 기다리는 쪽도 둘이 되어,
+      둘째가 첫째가 만든 차트의 캔버스를 innerHTML 로 지웠습니다 → 차트는 살아 있는데 화면은 하얗게. 기다리는 쪽은 하나만 · 지울 땐 차트도 같이 정리.  */
+  if (MK.mapWait) return;
+  MK.mapWait = true;
   box.innerHTML = '<div class="mk-empty">' + esc(T('로딩 중…', 'Loading…')) + '</div>';
-  mkMapReady.then(function(){ box.innerHTML = ''; mkMapChart = null; mkMapPaint(); }, function(e){ mkMapReady = null; box.innerHTML = '<div class="mk-empty">' + esc(e.message) + ' <button type="button" class="btn-sm" onclick="mkMapInit()">' + esc(T('다시', 'Retry')) + '</button></div>'; });
+  mkMapReady.then(function(){
+    MK.mapWait = false;
+    var old = echarts.getInstanceByDom && echarts.getInstanceByDom(box); if (old){ try { old.dispose(); } catch(e){} }
+    box.innerHTML = ''; mkMapChart = null; mkMapPaint();
+  }, function(e){ MK.mapWait = false; mkMapReady = null; box.innerHTML = '<div class="mk-empty">' + esc(e.message) + ' <button type="button" class="btn-sm" onclick="mkMapInit()">' + esc(T('다시', 'Retry')) + '</button></div>'; });
 }
 //  나라 하나의 지금 등락: 그 나라 지수가 열려 있으면 지수 · 아니면 미국 상장 나라 ETF (장중이면) · 그것도 아니면 마지막 장
+/*  (10/8 학회장: «장 시간은 그대로 · 장 마감이면 장 마감 · 실시간 지수는 무기한 선물에서 끌고 와서 — 주말 · 휴일에도 실시간으로»)
+    그 나라 지수의 바이낸스 24시간 무기한(지수 칸의 «(24시간)»)이 30분 안에 체결됐으면 그 값. 현물 장이 열려 있을 때는 현물 지수가 먼저.  */
+function mkPerpOf(cc, nm){
+  var g = MK.snap && MK.snap.groups && MK.snap.groups.filter(function(x){ return x.k === 'idx'; })[0];
+  var it = g && (g.items || []).filter(function(x){ return x.src === 'bn' && x.cc === cc && x.p != null && (!nm || String(x.n).indexOf(nm) === 0); })[0];
+  return it && !it.cl ? it : null;
+}
+function mkSpotOpen(cc){
+  var m = MK_MKT.filter(function(x){ return x.k === cc; })[0]; if (!m) return null;
+  var st = mkMktState(m); return st ? (st.st === 'open' || st.st === 'lunch') : null;
+}
 function mkCtryChg(cc){
-  var m = MK.snap && MK.snap.ctry && MK.snap.ctry[cc]; if (!m) return null;
-  if (m.idx && m.idx.c != null && !m.idx.cl) return { c: m.idx.c, by: m.idx.n, live: true };
+  var m = MK.snap && MK.snap.ctry && MK.snap.ctry[cc];
+  var pf = mkPerpOf(cc), open = mkSpotOpen(cc);
+  if (!m && !pf) return null; m = m || {};
+  if (m.idx && m.idx.c != null && !m.idx.cl && open !== false) return { c: m.idx.c, by: m.idx.n, live: true };
+  if (pf && pf.c != null) return { c: pf.c, by: String(pf.n).replace(/\s*\(24시간\)/, '') + T(' · 24시간 선물 (24시간 전 대비)', ' · 24h perp'), live: true, perp: true };
   if (m.c != null && !m.cl) return { c: m.c, by: m.etf + ' (ETF)', live: true };
   if (m.idx && m.idx.c != null) return { c: m.idx.c, by: m.idx.n + T(' · 마지막 장', ' · last session'), live: false };
   if (m.c != null) return { c: m.c, by: m.etf + T(' (ETF · 마지막 장)', ' (ETF · last)'), live: false };
@@ -17250,7 +17433,8 @@ function mkMapSize(box){
     ① 지도 위 «세계 한눈에» 12칸 — 지도 스냅샷에 이미 있는 값(새 요청 없음): 주요 지수 · 환율 · 금리 · 원자재 · 코인
     ② 시장 시계 — 어느 장이 열려 있나 (거래소 현지 시간 기준 · 지수가 실시간이면 그걸로 확인 · 공휴일은 반영 안 함)
     ③ 지도는 값이 바뀐 것만 다시 칠함 (예전엔 10초마다 지도를 통째로 다시 그렸음) · 세계지도 파일은 터미널을 열 때 미리 받아 둠  */
-var MK_GLANCE = [['idx', 'GSPC.INDX'], ['idx', 'NDX.INDX'], ['idx', 'KS11.INDX'], ['idx', 'N225.INDX'], ['idx', 'HSI.INDX'], ['idx', 'STOXX50E.INDX'],
+//  [묶음, 기호, (지수면) 나라 — 현물 장이 닫히면 그 나라 24시간 선물로]
+var MK_GLANCE = [['idx', 'GSPC.INDX', 'US', 'S&P 500'], ['idx', 'NDX.INDX', 'US', '나스닥 100'], ['idx', 'KS11.INDX', 'KR', '코스피'], ['idx', 'N225.INDX', 'JP', '닛케이'], ['idx', 'HSI.INDX', 'HK', '항셍'], ['idx', 'STOXX50E.INDX', 'DE', '유로스톡스'],
                  ['fx', 'USDKRW.FOREX'], ['fx', 'USDJPY.FOREX'], ['fx', 'DXY.INDX'], ['rate', 'US10Y.GBOND'], ['cmd', /WTI/], ['cmd', /^금/], ['crypto', 'BTC/USD'], ['idx', 'VIX.INDX']];
 function mkGlanceRender(){
   var box = $('mkGlance'); if (!box) return;
@@ -17258,37 +17442,137 @@ function mkGlanceRender(){
   var G = {}; d.groups.forEach(function(g){ G[g.k] = g.items || []; });
   var html = MK_GLANCE.map(function(x){
     var list = G[x[0]] || [], it = list.filter(function(i){ return x[1] instanceof RegExp ? x[1].test(String(i.n || '')) : i.s === x[1]; })[0];
+    //  지수: 현물 장이 닫혔으면(장 마감 · 휴장 · 주말 · 프리/애프터) 같은 나라 24시간 선물로 — 주말에도 실시간
+    var perp = false;
+    if (x[0] === 'idx' && x[2]){ var pf = mkPerpOf(x[2], x[3]); if (pf && (mkSpotOpen(x[2]) === false || !it || it.p == null || it.cl)){ it = pf; perp = true; } }
     if (!it || it.p == null) return '';
     var nm = String(it.n || it.s).replace(/\s*\((?:24시간|GLD|USO)\)\s*/g, '').replace(/^WTI 원유$/, 'WTI');
     var val = mkPx(it.p, it.s) + (it.unit === 'bp' ? '%' : '');
-    var tip = it.n + ' · ' + val + (it.c != null ? ' · ' + mkChg(it.c, it.unit) : '') + (it.at ? ' · ' + mkHhmmss(Date.parse(it.at)) : '') + (it.cl ? ' · 장 닫힘 (마지막 값)' : '');
-    return '<div class="mk-gl' + (it.cl ? ' closed' : '') + '" title="' + esc(tip) + '"><div class="n">' + esc(nm) + '</div><div class="v"><span data-lv="gp:' + esc(it.s) + '" data-tw>' + esc(val) + '</span>'
-         + '<span class="c ' + (it.c > 0 ? 'up' : it.c < 0 ? 'down' : '') + '" data-lv="gc:' + esc(it.s) + '">' + esc(mkChg(it.c, it.unit)) + '</span>' + (it.cl ? '<i class="mk-tag">닫힘</i>' : '') + '</div></div>';
+    var tip = it.n + ' · ' + val + (it.c != null ? ' · ' + mkChg(it.c, it.unit) : '') + (it.at ? ' · ' + mkHhmmss(Date.parse(it.at)) : '')
+            + (perp ? ' · 현물 장이 닫혀 24시간 무기한 선물 값 (24시간 전 대비)' : it.cl ? ' · 장 마감 (마지막 값)' : '');
+    return '<div class="mk-gl' + (it.cl ? ' closed' : '') + (perp ? ' perp' : '') + '" title="' + esc(tip) + '"><div class="n">' + esc(nm) + (perp ? '<i class="mk-tag pf">24h</i>' : '') + '</div><div class="v"><span data-lv="gp:' + esc(x[1] instanceof RegExp ? it.s : x[1]) + '" data-tw>' + esc(val) + '</span>'
+         + '<span class="c ' + (it.c > 0 ? 'up' : it.c < 0 ? 'down' : '') + '" data-lv="gc:' + esc(x[1] instanceof RegExp ? it.s : x[1]) + '">' + esc(mkChg(it.c, it.unit)) + '</span>' + (it.cl ? '<i class="mk-tag">마감</i>' : '') + '</div></div>';
   }).join('');
   lvSwap(box, html);          //  (10/8 모션) 값이 바뀐 칸만 물들고 숫자가 굴러감
 }
-//  거래소 정규장 (현지 시간 · 월~금) — 지수가 실시간으로 오면 그쪽이 우선 (공휴일 · 반일장은 모름)
-var MK_MKT_HOURS = [['KR', '한국', 'Asia/Seoul', 9 * 60, 15 * 60 + 30], ['JP', '일본', 'Asia/Tokyo', 9 * 60, 15 * 60 + 30], ['CN', '중국', 'Asia/Shanghai', 9 * 60 + 30, 15 * 60],
-                    ['HK', '홍콩', 'Asia/Hong_Kong', 9 * 60 + 30, 16 * 60], ['IN', '인도', 'Asia/Kolkata', 9 * 60 + 15, 15 * 60 + 30], ['AU', '호주', 'Australia/Sydney', 10 * 60, 16 * 60],
-                    ['GB', '영국', 'Europe/London', 8 * 60, 16 * 60 + 30], ['DE', '독일', 'Europe/Berlin', 9 * 60, 17 * 60 + 30], ['US', '미국', 'America/New_York', 9 * 60 + 30, 16 * 60],
-                    ['BR', '브라질', 'America/Sao_Paulo', 10 * 60, 17 * 60]];
-function mkLocalMin(tz){
+/*  ── 장 시계 (10/8 다시 씀 · 학회장: «오후 10시인데 한국 · 아시아 장이 열렸다고 함 · 휴일/프리마켓/애프터마켓/열림 정확하게») ──────────
+    ⚠️ 예전에는 «지수가 실시간이면 열림» 이라고 봤습니다. 아시아 지수 칸에는 24시간 도는 바이낸스 무기한 값이 들어와서
+       «닫힘 아님» 으로 왔고, 그걸 그대로 «열림» 으로 읽었습니다 (오후 10시에 한국 열림). 이제 <거래소 시간표 + 휴장일> 로만 판단합니다.
+    상태: 열림(정규장) · 점심 휴장 · 프리마켓 · 애프터마켓 · 장 마감 · 휴장(공휴일 이름) · 주말. 반일장 · 늦게 여는 날도 반영.
+    휴장일 출처 (2026-10 확인): KRX(기사 · 거래소 공지) · NYSE 공지(2026~2027) · JPX 달력(2026~2027) · SZSE 거래 달력(중국 2026) ·
+      홍콩 정부 공휴일(2026) · NSE(인도 2026) · ASX 거래 달력(2026~2027) · 영국 은행 휴일 · 독일 FWB 달력(2026~2027) · B3 공지(2026).
+    ⚠️ 해가 바뀌면 그 해 휴장일을 MK_MKT 의 hol 에 더해 주세요 (자료가 없는 해는 주말만 보고, 칸 설명에 그렇게 적습니다).          */
+var MK_MKT = [
+  { k: 'KR', n: '한국', tz: 'Asia/Seoul', reg: [[540, 930]], pre: [480, 540], post: [930, 1200],
+    preN: '프리마켓 (NXT 08:00~08:50 · 장 시작 동시호가 08:30~09:00)', postN: '애프터마켓 (NXT 15:30~20:00 · KRX 시간외 15:40~18:00)', holY: 2026,
+    hol: { '2026-01-01': '신정', '2026-02-16': '설날 연휴', '2026-02-17': '설날', '2026-02-18': '설날 연휴', '2026-03-02': '3·1절 대체공휴일', '2026-05-01': '노동절',
+           '2026-05-05': '어린이날', '2026-05-25': '부처님오신날 대체공휴일', '2026-06-03': '지방선거', '2026-07-17': '제헌절', '2026-08-17': '광복절 대체공휴일',
+           '2026-09-24': '추석 연휴', '2026-09-25': '추석', '2026-10-05': '개천절 대체공휴일', '2026-10-09': '한글날', '2026-12-25': '성탄절', '2026-12-31': '연말 휴장' },
+    sp: { '2026-01-02': { reg: [[600, 930]], why: '새해 개장식 · 10시 개장' }, '2026-11-19': { reg: [[600, 990]], pre: null, post: [990, 1200], why: '수능일 · 10시 개장 · 16:30 마감 (예정)' } } },
+  { k: 'JP', n: '일본', tz: 'Asia/Tokyo', reg: [[540, 690], [750, 930]], holY: 2027,
+    hol: { '2026-01-01': '설날', '2026-01-02': '연초 휴장', '2026-01-12': '성인의 날', '2026-02-11': '건국기념일', '2026-02-23': '천황 탄생일', '2026-03-20': '춘분',
+           '2026-04-29': '쇼와의 날', '2026-05-04': '녹색의 날', '2026-05-05': '어린이날', '2026-05-06': '헌법기념일 대체휴일', '2026-07-20': '바다의 날', '2026-08-11': '산의 날',
+           '2026-09-21': '경로의 날', '2026-09-22': '국민의 휴일', '2026-09-23': '추분', '2026-10-12': '스포츠의 날', '2026-11-03': '문화의 날', '2026-11-23': '근로감사의 날', '2026-12-31': '연말 휴장',
+           '2027-01-01': '설날', '2027-01-11': '성인의 날', '2027-02-11': '건국기념일', '2027-02-23': '천황 탄생일', '2027-03-22': '춘분 대체휴일', '2027-04-29': '쇼와의 날',
+           '2027-05-03': '헌법기념일', '2027-05-04': '녹색의 날', '2027-05-05': '어린이날', '2027-07-19': '바다의 날', '2027-08-11': '산의 날', '2027-09-20': '경로의 날',
+           '2027-09-23': '추분', '2027-10-11': '스포츠의 날', '2027-11-03': '문화의 날', '2027-11-23': '근로감사의 날', '2027-12-31': '연말 휴장' } },
+  { k: 'CN', n: '중국', tz: 'Asia/Shanghai', reg: [[570, 690], [780, 900]], pre: [555, 570], preN: '개장 동시호가 (09:15~09:25)', holY: 2026,
+    hol: { '2026-01-01': '신정', '2026-01-02': '신정 연휴', '2026-02-16': '춘절 연휴', '2026-02-17': '춘절', '2026-02-18': '춘절 연휴', '2026-02-19': '춘절 연휴', '2026-02-20': '춘절 연휴',
+           '2026-02-23': '춘절 연휴', '2026-04-06': '청명절', '2026-05-01': '노동절', '2026-05-04': '노동절 연휴', '2026-05-05': '노동절 연휴', '2026-06-19': '단오',
+           '2026-09-25': '중추절', '2026-10-01': '국경절', '2026-10-02': '국경절 연휴', '2026-10-05': '국경절 연휴', '2026-10-06': '국경절 연휴', '2026-10-07': '국경절 연휴' } },
+  { k: 'HK', n: '홍콩', tz: 'Asia/Hong_Kong', reg: [[570, 720], [780, 960]], pre: [540, 570], post: [960, 970], preN: '개장 전 경매 (09:00~09:30)', postN: '마감 경매 (16:00~16:10)', holY: 2026,
+    hol: { '2026-01-01': '신정', '2026-02-17': '설날', '2026-02-18': '설날 연휴', '2026-02-19': '설날 연휴', '2026-04-03': '성금요일', '2026-04-06': '청명절 다음 날',
+           '2026-04-07': '부활절 월요일 다음 날', '2026-05-01': '노동절', '2026-05-25': '석가탄신일 다음 날', '2026-06-19': '단오', '2026-07-01': '홍콩 특구 기념일',
+           '2026-10-01': '국경절', '2026-10-19': '중양절 다음 날', '2026-12-25': '성탄절' },
+    sp: { '2026-02-16': { reg: [[570, 720]], post: [720, 730], why: '설 전날 · 오전장만' }, '2026-12-24': { reg: [[570, 720]], post: [720, 730], why: '성탄 전날 · 오전장만' },
+          '2026-12-31': { reg: [[570, 720]], post: [720, 730], why: '연말 · 오전장만' } } },
+  { k: 'IN', n: '인도', tz: 'Asia/Kolkata', reg: [[555, 930]], pre: [540, 555], post: [940, 960], preN: '프리오픈 (09:00~09:15)', postN: '장 마감 후 거래 (15:40~16:00)', holY: 2026,
+    hol: { '2026-01-15': '지방선거', '2026-01-26': '공화국의 날', '2026-03-03': '홀리', '2026-03-26': '람 나바미', '2026-03-31': '마하비르 자얀티', '2026-04-03': '성금요일',
+           '2026-04-14': '암베드카르 탄생일', '2026-05-01': '마하라슈트라의 날', '2026-05-28': '바크리드', '2026-06-26': '무하람', '2026-09-14': '가네시 차투르티',
+           '2026-10-02': '간디 탄생일', '2026-10-20': '두세라', '2026-11-10': '디왈리', '2026-11-24': '구루 나나크 탄생일', '2026-12-25': '성탄절' } },
+  { k: 'AU', n: '호주', tz: 'Australia/Sydney', reg: [[600, 960]], pre: [420, 600], post: [960, 972], preN: '프리오픈 (07:00~10:00)', postN: '마감 단일가 (16:00~16:12)', holY: 2027,
+    hol: { '2026-01-01': '신정', '2026-01-26': '호주의 날', '2026-04-03': '성금요일', '2026-04-06': '부활절 월요일', '2026-06-08': '국왕 탄신일', '2026-12-25': '성탄절', '2026-12-28': '박싱 데이',
+           '2027-01-01': '신정', '2027-01-26': '호주의 날', '2027-03-26': '성금요일', '2027-03-29': '부활절 월요일', '2027-06-14': '국왕 탄신일', '2027-12-27': '성탄절 대체', '2027-12-28': '박싱 데이 대체' },
+    sp: { '2026-12-24': { reg: [[600, 850]], post: [850, 862], why: '성탄 전날 · 14:10 조기 마감' }, '2026-12-31': { reg: [[600, 850]], post: [850, 862], why: '연말 · 14:10 조기 마감' },
+          '2027-12-24': { reg: [[600, 850]], post: [850, 862], why: '성탄 전날 · 14:10 조기 마감' }, '2027-12-31': { reg: [[600, 850]], post: [850, 862], why: '연말 · 14:10 조기 마감' } } },
+  { k: 'GB', n: '영국', tz: 'Europe/London', reg: [[480, 990]], pre: [470, 480], post: [990, 995], preN: '개장 경매 (07:50~08:00)', postN: '마감 경매 (16:30~16:35)', holY: 2027,
+    hol: { '2026-01-01': '신정', '2026-04-03': '성금요일', '2026-04-06': '부활절 월요일', '2026-05-04': '5월 초 은행 휴일', '2026-05-25': '봄 은행 휴일', '2026-08-31': '여름 은행 휴일',
+           '2026-12-25': '성탄절', '2026-12-28': '박싱 데이 대체',
+           '2027-01-01': '신정', '2027-03-26': '성금요일', '2027-03-29': '부활절 월요일', '2027-05-03': '5월 초 은행 휴일', '2027-05-31': '봄 은행 휴일', '2027-08-30': '여름 은행 휴일',
+           '2027-12-27': '성탄절 대체', '2027-12-28': '박싱 데이 대체' },
+    sp: { '2026-12-24': { reg: [[480, 750]], post: null, why: '성탄 전날 · 12:30 조기 마감' }, '2026-12-31': { reg: [[480, 750]], post: null, why: '연말 · 12:30 조기 마감' },
+          '2027-12-24': { reg: [[480, 750]], post: null, why: '성탄 전날 · 12:30 조기 마감' }, '2027-12-31': { reg: [[480, 750]], post: null, why: '연말 · 12:30 조기 마감' } } },
+  { k: 'DE', n: '독일', tz: 'Europe/Berlin', reg: [[540, 1050]], post: [1050, 1055], postN: '마감 경매 (17:30~17:35)', holY: 2027,
+    hol: { '2026-01-01': '신정', '2026-04-03': '성금요일', '2026-04-06': '부활절 월요일', '2026-05-01': '노동절', '2026-12-24': '성탄 전날', '2026-12-25': '성탄절', '2026-12-31': '연말',
+           '2027-01-01': '신정', '2027-03-26': '성금요일', '2027-03-29': '부활절 월요일', '2027-12-24': '성탄 전날', '2027-12-31': '연말' } },
+  { k: 'US', n: '미국', tz: 'America/New_York', reg: [[570, 960]], pre: [240, 570], post: [960, 1200], preN: '프리마켓 (04:00~09:30)', postN: '애프터마켓 (16:00~20:00)', holY: 2027,
+    hol: { '2026-01-01': '신정', '2026-01-19': '마틴 루서 킹 데이', '2026-02-16': '대통령의 날', '2026-04-03': '성금요일', '2026-05-25': '메모리얼 데이', '2026-06-19': '준틴스',
+           '2026-07-03': '독립기념일 대체', '2026-09-07': '노동절', '2026-11-26': '추수감사절', '2026-12-25': '성탄절',
+           '2027-01-01': '신정', '2027-01-18': '마틴 루서 킹 데이', '2027-02-15': '대통령의 날', '2027-03-26': '성금요일', '2027-05-31': '메모리얼 데이', '2027-06-18': '준틴스 대체',
+           '2027-07-05': '독립기념일 대체', '2027-09-06': '노동절', '2027-11-25': '추수감사절', '2027-12-24': '성탄절 대체' },
+    sp: { '2026-11-27': { reg: [[570, 780]], post: [780, 1020], why: '추수감사절 다음 날 · 13:00 조기 마감' }, '2026-12-24': { reg: [[570, 780]], post: [780, 1020], why: '성탄 전날 · 13:00 조기 마감' },
+          '2027-11-26': { reg: [[570, 780]], post: [780, 1020], why: '추수감사절 다음 날 · 13:00 조기 마감' } } },
+  //  B3 는 미국 서머타임에 맞춰 마감이 바뀝니다 (서머타임 중 17:00 · 아니면 18:00 · 마감 동시호가 포함)
+  { k: 'BR', n: '브라질', tz: 'America/Sao_Paulo', reg: [[600, 1020]], usDst: true, holY: 2026,
+    hol: { '2026-01-01': '신정', '2026-02-16': '카니발', '2026-02-17': '카니발', '2026-04-03': '성금요일', '2026-04-21': '티라덴치스', '2026-05-01': '노동절', '2026-06-04': '성체축일',
+           '2026-09-07': '독립기념일', '2026-10-12': '성모 발현일', '2026-11-02': '위령의 날', '2026-11-20': '흑인 의식의 날', '2026-12-24': '성탄 전날', '2026-12-25': '성탄절', '2026-12-31': '연말' },
+    sp: { '2026-02-18': { reg: [[780, 1080]], why: '재의 수요일 · 13시 개장' } } }
+];
+//  호환: 예전 이름 (다른 곳 · 시험이 씀)
+var MK_MKT_HOURS = MK_MKT.map(function(m){ return [m.k, m.n, m.tz, m.reg[0][0], m.reg[m.reg.length - 1][1]]; });
+function mkLocalMin(tz, at){
   try {
-    var p = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12: false, weekday: 'short', hour: '2-digit', minute: '2-digit' }).formatToParts(new Date());
+    var p = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12: false, weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(at || new Date());
     var o = {}; p.forEach(function(x){ o[x.type] = x.value; });
-    return { min: (Number(o.hour) % 24) * 60 + Number(o.minute), wd: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(o.weekday) };
+    return { min: (Number(o.hour) % 24) * 60 + Number(o.minute), wd: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(o.weekday), d: o.year + '-' + o.month + '-' + o.day };
   } catch(e){ return null; }
+}
+//  시간대의 지금 UTC 차이(분) — 한국 시간으로 바꿔 보여 주려고
+function mkTzOff(tz, at){
+  try {
+    var d = at || new Date(), p = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(d), o = {};
+    p.forEach(function(x){ o[x.type] = x.value; });
+    return Math.round((Date.UTC(+o.year, +o.month - 1, +o.day, (+o.hour) % 24, +o.minute) - Math.floor(d.getTime() / 60000) * 60000) / 60000);
+  } catch(e){ return 0; }
+}
+function mkMin2(x){ x = ((x % 1440) + 1440) % 1440; return String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0'); }
+//  그날 시간표 (반일장 · 늦게 여는 날 · 서머타임 마감 반영)
+function mkMktDay(m, d, at){
+  var sp = (m.sp || {})[d] || {}, day = { reg: sp.reg || m.reg, pre: 'pre' in sp ? sp.pre : m.pre, post: 'post' in sp ? sp.post : m.post, why: sp.why || '' };
+  if (m.usDst && !sp.reg){ var dst = mkTzOff('America/New_York', at) === -240; day.reg = [[600, dst ? 1020 : 1080]]; }
+  return day;
+}
+/*  지금 상태 → { st: open|lunch|pre|post|closed|hol|wknd, t: 칩 글자, tip: 설명 }  */
+function mkMktState(m, at){
+  var lm = mkLocalMin(m.tz, at); if (!lm) return null;
+  var y = +lm.d.slice(0, 4), hol = (m.hol || {})[lm.d], noData = y > (m.holY || 0);
+  var day = mkMktDay(m, lm.d, at), min = lm.min, R = day.reg, first = R[0][0], last = R[R.length - 1][1];
+  var kst = mkTzOff('Asia/Seoul', at) - mkTzOff(m.tz, at), toK = function(x){ return mkMin2(x + kst); };
+  var seg = function(a, b){ return mkMin2(a) + '~' + mkMin2(b) + (m.k === 'KR' ? '' : ' (한국 ' + toK(a) + '~' + toK(b) + ')'); };
+  var tip = [m.n + ' · 현지 ' + lm.d + ' ' + mkMin2(min)];
+  tip.push('정규장 ' + R.map(function(r){ return seg(r[0], r[1]); }).join(' · ') + (R.length > 1 ? ' (사이 점심 휴장)' : ''));
+  if (day.pre) tip.push((m.preN || '프리마켓') + (m.k === 'KR' || !m.preN ? ' ' + seg(day.pre[0], day.pre[1]) : ' · 한국 ' + toK(day.pre[0]) + '~' + toK(day.pre[1])));
+  if (day.post) tip.push((m.postN || '애프터마켓') + (m.k === 'KR' || !m.postN ? ' ' + seg(day.post[0], day.post[1]) : ' · 한국 ' + toK(day.post[0]) + '~' + toK(day.post[1])));
+  if (day.why) tip.push('오늘: ' + day.why);
+  if (noData) tip.push(y + '년 휴장일 자료가 아직 없어 주말만 반영합니다');
+  var r;
+  if (lm.wd === 0 || lm.wd === 6) r = { st: 'wknd', t: '주말' };
+  else if (hol) r = { st: 'hol', t: '휴장', why: hol };
+  else if (R.some(function(x){ return min >= x[0] && min < x[1]; })) r = { st: 'open', t: '열림' };
+  else if (min >= first && min < last) r = { st: 'lunch', t: '점심 휴장' };
+  else if (day.pre && min >= day.pre[0] && min < day.pre[1]) r = { st: 'pre', t: m.k === 'CN' || m.k === 'HK' || m.k === 'GB' || m.k === 'IN' || m.k === 'AU' ? '개장 전' : '프리마켓' };
+  else if (day.post && min >= day.post[0] && min < day.post[1]) r = { st: 'post', t: m.k === 'HK' || m.k === 'GB' || m.k === 'DE' || m.k === 'AU' ? '마감 경매' : '애프터마켓' };
+  else if (min < first){ var gap = first - min; r = { st: 'closed', t: gap <= 60 ? mkMin2(first) + ' 개장' : '개장 전', soon: gap <= 60 }; }
+  else r = { st: 'closed', t: '장 마감' };
+  if (hol) tip.splice(1, 0, '오늘 휴장 · ' + hol);
+  r.tip = tip.join('\n'); r.n = m.n; r.k = m.k;
+  return r;
 }
 function mkClockRender(){
   var box = $('mkClock'); if (!box) return;
-  var html = '<span class="lab">장 시계</span>' + MK_MKT_HOURS.map(function(m){
-    var lm = mkLocalMin(m[2]); if (!lm) return '';
-    var sc = MK.snap && MK.snap.ctry && MK.snap.ctry[m[0]], live = !!(sc && sc.idx && sc.idx.c != null && !sc.idx.cl);
-    var weekday = lm.wd >= 1 && lm.wd <= 5, open = live || (weekday && lm.min >= m[3] && lm.min < m[4]);
-    var soon = !open && weekday && lm.min < m[3] && m[3] - lm.min <= 60;
-    var hh = function(x){ return String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0'); };
-    var tip = m[1] + ' 정규장 ' + hh(m[3]) + '~' + hh(m[4]) + ' (현지) · 지금 현지 ' + hh(lm.min) + (live ? ' · 지수 실시간' : '') + ' · 공휴일은 반영하지 않습니다';
-    return '<span class="mc' + (open ? ' open' : soon ? ' soon' : '') + '" title="' + esc(tip) + '"><i></i>' + esc(m[1]) + ' ' + esc(open ? '열림' : soon ? hh(m[3]) + ' 개장' : '닫힘') + '</span>';
+  var html = '<span class="lab">장 시계</span>' + MK_MKT.map(function(m){
+    var s = mkMktState(m); if (!s) return '';
+    return '<span class="mc ' + s.st + (s.soon ? ' soon' : '') + '" title="' + esc(s.tip) + '"><i></i>' + esc(m.n) + ' ' + esc(s.t + (s.why ? ' · ' + s.why : '')) + '</span>';
   }).join('');
   if (box.__html !== html){ box.__html = html; box.innerHTML = html; }
 }
@@ -17297,25 +17581,35 @@ function mkClockRender(){
   var warm = function(){ try { fetch(MK_WORLD_JS, { mode: 'cors', cache: 'force-cache' }).catch(function(){}); } catch(e){} };
   if (window.requestIdleCallback) requestIdleCallback(warm, { timeout: 8000 }); else setTimeout(warm, 4000);
 })();
+//  고른 나라 테두리 — «비교» 중이면 고른 나라 모두 (비교 카드 · 선 색과 같은 색)
+function mkMapRegions(dark){
+  if (!MK.ctryOpen) return [];
+  if (MK.cmpOn) return MK.ccList.map(function(c, i){ return MK_CC[c] && MK_CC[c][1] ? { name: MK_CC[c][1], itemStyle: { borderColor: mkCmpPal()[i % 5], borderWidth: 1.8 } } : null; }).filter(Boolean);
+  return MK_CC[MK.cc] && MK_CC[MK.cc][1] ? [{ name: MK_CC[MK.cc][1], itemStyle: { borderColor: dark ? '#eef1f7' : '#1a1f36', borderWidth: 1.6 } }] : [];
+}
 function mkMapPaint(){
   var box = $('mkMapBox'); if (!box || typeof echarts === 'undefined' || !(echarts.getMap && echarts.getMap('world'))) return;
   var wrap = $('mkWorld'); if (wrap) wrap.classList.toggle('open', !!MK.ctryOpen);
   mkGlanceRender(); mkClockRender();
   var sz = mkMapSize(box);
   mkMapChart = chartOn(box, mkMapChart); if (!mkMapChart) return;
-  try { if (Math.abs(mkMapChart.getHeight() - box.clientHeight) > 1 || Math.abs(mkMapChart.getWidth() - box.clientWidth) > 1) mkMapChart.resize(); } catch(e){}
+  //  (10/8 빠르기) 칸 폭이 바뀌었으면 — 새 옵션을 먼저 넣어 두고(바로 안 그림) 크기 맞춤에서 한 번만 그립니다 (두 번 그리면 2배 느림)
+  var needRs = false; try { needRs = Math.abs(mkMapChart.getHeight() - box.clientHeight) > 1 || Math.abs(mkMapChart.getWidth() - box.clientWidth) > 1; } catch(e){}
+  var rsNow = function(){ if (needRs){ needRs = false; try { mkMapChart.resize(); } catch(e){} } };
   var data = [], marks = [];
   Object.keys(MK_CC).forEach(function(cc){
     var ch = mkCtryChg(cc), nm = MK_CC[cc][1];
     var it = { name: nm, cc: cc, value: ch ? Math.round(ch.c * 100) / 100 : null, by: ch ? ch.by : '', live: ch ? ch.live : false };
     if (nm) data.push(it);
-    else if (MK_MARK[cc]) marks.push({ name: MK_CC[cc][0], cc: cc, value: MK_MARK[cc].concat([it.value]), by: it.by, label: { position: MK_MARK_POS[cc] || 'right' },
-                                       itemStyle: MK.ctryOpen && MK.cc === cc ? { borderWidth: 2.4 } : undefined });
+    else if (MK_MARK[cc]){ var mSel = MK.ctryOpen && (MK.cmpOn ? MK.ccList.indexOf(cc) >= 0 : MK.cc === cc);
+      marks.push({ name: MK_CC[cc][0], cc: cc, value: MK_MARK[cc].concat([it.value]), by: it.by, label: { position: MK_MARK_POS[cc] || 'right', show: mSel && !MK.cmpOn ? true : undefined },
+                   itemStyle: mSel ? { borderWidth: 2.4, borderColor: MK.cmpOn ? mkCmpPal()[MK.ccList.indexOf(cc) % 5] : undefined } : undefined }); }
   });
   var dark = document.documentElement.getAttribute('data-theme') === 'dark';
   //  (10/8) 바뀐 게 없으면 지도를 다시 그리지 않음 · 값만 바뀌었으면 값만 바꿈 (지도 통째로 다시 그리는 건 크기 · 테마 · 고른 나라가 바뀔 때만)
-  var sigFull = [sz.mapW, sz.mapH, dark, MK.ctryOpen ? MK.cc : ''].join('|');
+  var sigFull = [sz.mapW, sz.mapH, dark, MK.ctryOpen ? MK.cc : '', MK.ctryOpen && MK.cmpOn ? 'cmp:' + MK.ccList.join(',') : ''].join('|');
   var sigData = data.map(function(x){ return x.cc + ':' + x.value + ':' + x.live; }).join(',') + '#' + marks.map(function(x){ return x.cc + ':' + x.value[2]; }).join(',');
+  var regs = mkMapRegions(dark), symSz = Math.max(6, Math.min(13, Math.round(sz.mapW / 75))), markLab = !(MK.mapView && MK.mapView.zoom > 1.6);
   if (mkMapChart.__sigFull === sigFull){
     if (mkMapChart.__sigData !== sigData){
       mkMapChart.__sigData = sigData;
@@ -17323,10 +17617,27 @@ function mkMapPaint(){
       //  (10/8 모션) 값이 바뀐 나라의 색이 0.7초에 걸쳐 스르르 바뀝니다 (처음 그릴 때는 바로)
       mkMapChart.setOption({ animation: MOTION_OK, animationDurationUpdate: 700, animationEasingUpdate: 'cubicOut', series: [{ data: data }, { data: marks }] });
     }
+    rsNow();
     mkChipsRender();
     return;
   }
-  mkMapChart.__sigFull = sigFull; mkMapChart.__sigData = sigData;
+  //  (10/8 빠르기) 테마가 같고 이미 그려 둔 지도면 — 고른 나라 테두리 · 칸 크기만 바꿔 끼움 (통째로 다시 그리면 2배 넘게 느림)
+  //   ⚠️ 테두리는 «지난번에 칠한 나라는 원래 색으로 되돌리기» 를 같이 넣어야 남지 않습니다
+  if (mkMapChart.__drawnDark === dark){
+    var names = regs.map(function(r){ return r.name; });
+    (mkMapChart.__regNames || []).forEach(function(n){ if (names.indexOf(n) < 0) regs.push({ name: n, itemStyle: { borderColor: dark ? '#3a4152' : '#c9cfdc', borderWidth: 0.5 } }); });
+    mkMapChart.__regNames = names; mkMapChart.__sigFull = sigFull; mkMapChart.__sigData = sigData;
+    mkMapChart.__axNoKeep = true;
+    var g0 = { layoutCenter: ['50%', Math.round(sz.mapH / 2 + 2)], layoutSize: sz.mapW, regions: regs };
+    //  ⚠️ center: undefined 를 넘기면 지도가 안 그려집니다 — 확대해 둔 자리가 있을 때만
+    if (MK.mapView && MK.mapView.center){ g0.center = MK.mapView.center; g0.zoom = MK.mapView.zoom; }
+    mkMapChart.setOption({ geo: g0, series: [{ data: data }, { data: marks, symbolSize: symSz, label: { show: markLab } }] }, needRs ? { lazyUpdate: true } : undefined);
+    rsNow();
+    if (!MK.mapView){ var hv0 = mkMapCur(); if (hv0) MK.mapHome = hv0.center; }
+    mkChipsRender();
+    return;
+  }
+  mkMapChart.__sigFull = sigFull; mkMapChart.__sigData = sigData; mkMapChart.__drawnDark = dark; mkMapChart.__regNames = regs.map(function(r){ return r.name; });
   mkMapChart.__axNoKeep = true;
   mkMapChart.setOption({
     animation: false,
@@ -17340,21 +17651,29 @@ function mkMapPaint(){
                  text: ['+3%', '-3%'], textStyle: { fontSize: 10.5, color: dark ? '#aeb7ca' : '#5a6278' }, inRange: { color: ['#1b5fa8', '#9db8e0', dark ? '#3a4152' : '#eef0f5', '#e8a39b', '#c0392b'] }, seriesIndex: 0 },
     //  지도는 칸에 꽉 (위 · 아래 여백은 색 막대 자리) · 남극은 잘라 보이게 가운데를 조금 위로
     //  지도 본래 비율 그대로: 가운데 · 폭(px) 만 정함 (위아래좌우를 다 주면 칸 모양으로 늘어납니다)
-    geo: { map: 'world', roam: true, zoom: 1, scaleLimit: { min: 1, max: 8 }, layoutCenter: ['50%', Math.round(sz.mapH / 2 + 2)], layoutSize: sz.mapW,
+    //  (10/8) 나라를 눌러 확대해 둔 자리 · 손으로 옮긴 자리는 다시 그려도 그대로
+    geo: { map: 'world', roam: true, zoom: MK.mapView ? MK.mapView.zoom : 1, scaleLimit: { min: 1, max: 8 }, layoutCenter: ['50%', Math.round(sz.mapH / 2 + 2)], layoutSize: sz.mapW,
            //  고른 나라는 굵은 테두리
-           regions: MK.ctryOpen && MK_CC[MK.cc] && MK_CC[MK.cc][1] ? [{ name: MK_CC[MK.cc][1], itemStyle: { borderColor: dark ? '#eef1f7' : '#1a1f36', borderWidth: 1.6 } }] : [],
+           //  (10/8) «비교» 중이면 고른 나라 모두 테두리 (비교 카드 · 선 색과 같은 색)
+           regions: regs,
            itemStyle: { areaColor: dark ? '#232a3a' : '#e7eaf1', borderColor: dark ? '#3a4152' : '#c9cfdc', borderWidth: 0.5 },
            emphasis: { label: { show: false }, itemStyle: { areaColor: null, borderColor: '#1a1f36', borderWidth: 1.2 } }, select: { disabled: true } },
     series: [
       { type: 'map', geoIndex: 0, data: data },
       //  점 크기는 지도 폭에 맞춤 — 휴대폰(지도 폭 340px)에서 홍콩 · 대만 점이 겹쳤습니다
-      { type: 'scatter', coordinateSystem: 'geo', data: marks, symbolSize: Math.max(6, Math.min(13, Math.round(sz.mapW / 75))), z: 5,
+      { type: 'scatter', coordinateSystem: 'geo', data: marks, symbolSize: symSz, z: 5,
         itemStyle: { borderColor: '#1a1f36', borderWidth: 1, color: function(p){ var v = (p.data.value || [])[2]; return v == null ? '#b5bccb' : v > 0 ? '#c0392b' : '#1b5fa8'; } },
-        label: { show: true, position: 'right', fontSize: 10.5, formatter: function(p){ return p.data.name; } } }
+        //  (10/8) 나라로 확대해 둔 동안은 고른 나라 점의 이름표만 (나머지 점 이름은 화면 가장자리에서 잘림)
+        label: { show: markLab, position: 'right', fontSize: 10.5, formatter: function(p){ return p.data.name; } } }
     ]
-  }, true);
+  }, needRs ? { notMerge: true, lazyUpdate: true } : true);
+  rsNow();
+  //  ⚠️ geo 에 center: undefined 를 넘기면 지도가 통째로 안 그려집니다 — 확대해 둔 자리가 있을 때만 따로 넣음
+  if (MK.mapView && MK.mapView.center){ try { mkMapChart.__axNoKeep = true; mkMapChart.setOption({ geo: { center: MK.mapView.center, zoom: MK.mapView.zoom } }); } catch(e){} }
+  if (!MK.mapView){ var hv = mkMapCur(); if (hv) MK.mapHome = hv.center; }
   if (!mkMapChart.__mkClick){
     mkMapChart.__mkClick = 1;
+    mkMapChart.on('georoam', function(){ MK.mapAnim = (MK.mapAnim || 0) + 1; MK.mapView = mkMapCur(); clearTimeout(MK.markT); MK.markT = setTimeout(mkMarkLabels, 120); });
     mkMapChart.on('click', function(p){
       var cc = p && p.data && p.data.cc; if (!cc) return;
       if (!mkCtryOk(cc)){ toast(esc((MK_CC[cc] || [cc])[0] + T(' - 아직 이 나라는 주식 선 · 환율 자료가 없습니다 (지도 색은 나라 ETF)', ': no data yet')), 2600); return; }
@@ -17362,6 +17681,283 @@ function mkMapPaint(){
     });
   }
   mkChipsRender();
+}
+
+/* ══════════ 나라 칸 «실시간» · 여러 나라 탭 · «비교» · 지도 확대 · 칸 폭 조절 (10/8) ══════════
+   학회장: «나라 클릭하면 그 나라로 줌인 · 정보 칸이 나라를 안 덮게 · 탭 사이즈 조절» · «나라 몇 개 더 고르면 멀티플 탭으로 · 한 번에 비교» ·
+           «그 나라의 주식 움직임 · 국채금리 · ETF 를 실시간으로 계속 켜 놓고 · 토스 · HTS 실시간 추이처럼 · interactive».
+   · 실시간: 지도 스냅샷(10초)에 이미 있는 값만 씀 (새 요청 없음) — 대표 지수 · 24시간 선물 · 나라 ETF · 국채 · 환율 + 그 나라 주요 기업 선(10초).
+     숫자는 굴러가고(data-tw) 바뀐 칸은 잠깐 물듦 · 선은 5분 선에 10초마다 새 점을 이어 붙임 (화면을 연 동안 쌓은 틱).
+   · 지도: 나라를 누르면 0.7초 동안 그 나라로 확대 (움직임 줄이기 설정이면 바로) · 전체 화면 서랍이 덮는 쪽은 비켜서 가운데.     */
+var mkLiveChart = null, mkCmpChart = null;
+//  [경도, 위도, 폭(도)] — 확대할 자리 (지도 파일의 나라 중심은 해외 영토가 섞여 어긋나서 직접 적음)
+var MK_GEO = { US: [-97, 39, 55], KR: [127.8, 36.2, 7], JP: [137.5, 37, 18], CN: [104, 35, 48], TW: [121, 23.7, 4], HK: [114.17, 22.3, 2.5], IN: [79, 22, 30],
+  GB: [-2.5, 54, 11], DE: [10.4, 51.2, 10], FR: [2.5, 46.6, 11], IT: [12.6, 42.4, 12], ES: [-3.7, 40.2, 11], CH: [8.2, 46.8, 5], NL: [5.3, 52.2, 4.5],
+  SE: [16, 62, 16], DK: [10, 56, 6], NO: [10, 64, 20], AT: [14.5, 47.6, 7], BE: [4.5, 50.6, 4], IE: [-8, 53.3, 6], GR: [22.5, 39, 9], PL: [19.4, 52, 11],
+  TR: [35, 39, 20], IL: [35, 31.4, 5], SA: [45, 24, 22], AE: [54, 24, 7], QA: [51.2, 25.3, 3], AU: [134, -26, 42], NZ: [172.5, -41, 16], CA: [-98, 58, 60],
+  MX: [-102, 23.5, 30], BR: [-52, -12, 42], AR: [-64, -37, 32], CL: [-71, -36, 30], PE: [-75, -9.5, 16], CO: [-73, 4, 16], ZA: [24, -29, 16],
+  SG: [103.82, 1.35, 3], TH: [101, 14, 13], ID: [117, -2.5, 42], VN: [106, 16, 15], PH: [122, 12, 13], MY: [109, 3.8, 16] };
+//  나라 → 국채 · 환율 (지도 스냅샷의 기호)
+var MK_BOND_OF = { US: ['US10Y.GBOND', 'US2Y.GBOND'], KR: ['KR10Y.GBOND', 'KR3Y.GBOND'], JP: ['JP10Y.GBOND'], CN: ['CN10Y.GBOND'], DE: ['DE10Y.GBOND'], GB: ['UK10Y.GBOND'],
+  FR: ['FR10Y.GBOND'], IT: ['IT10Y.GBOND'], AU: ['AU10Y.GBOND'] };
+var MK_FX_OF = { US: ['USDKRW.FOREX', 'DXY.INDX'], KR: ['USDKRW.FOREX'], JP: ['JPYKRW.FOREX', 'USDJPY.FOREX'], CN: ['CNYKRW.FOREX', 'USDCNH.FOREX'], HK: ['USDCNH.FOREX'],
+  GB: ['GBPUSD.FOREX'], AU: ['AUDUSD.FOREX'], CH: ['USDCHF.FOREX'], CA: ['USDCAD.FOREX'] };
+['DE', 'FR', 'IT', 'ES', 'NL', 'AT', 'BE', 'IE', 'GR'].forEach(function(c){ MK_FX_OF[c] = ['EURKRW.FOREX', 'EURUSD.FOREX']; });
+function mkSnapItem(k, sym){
+  var g = MK.snap && MK.snap.groups && MK.snap.groups.filter(function(x){ return x.k === k; })[0];
+  return g ? ((g.items || []).filter(function(i){ return i.s === sym; })[0] || null) : null;
+}
+function mkIdxOf(cc){
+  var g = MK.snap && MK.snap.groups && MK.snap.groups.filter(function(x){ return x.k === 'idx'; })[0];
+  return g ? ((g.items || []).filter(function(i){ return i.src !== 'bn' && i.cc === cc && i.p != null; })[0] || null) : null;
+}
+//  10초 스냅샷마다 값 쌓기 (화면을 연 동안 · 3시간치) — 닫힌 값은 안 쌓음 (같은 값이 줄줄이 붙지 않게)
+function mkTickPush(d){
+  var t = Date.parse(d && d.at || '') || Date.now(); if (MK.tkAt === t) return; MK.tkAt = t;
+  var add = function(key, p, c){ if (p == null || !isFinite(p)) return; var a = MK.tk[key] || (MK.tk[key] = []), L = a[a.length - 1];
+    if (L && L[0] >= t) return; a.push([t, +p, c == null || !isFinite(c) ? null : +c]); if (a.length > 1080) a.splice(0, a.length - 1080); };
+  (d.groups || []).forEach(function(g){ (g.items || []).forEach(function(i){ if (i.p != null && !i.cl) add(i.s, i.p, i.c); }); });
+  Object.keys(d.ctry || {}).forEach(function(c){ var x = d.ctry[c]; if (x && x.p != null && !x.cl) add('etf:' + c, x.p, x.c); });
+}
+//  장 상태 칩 (시간표가 있는 나라만)
+function mkMktChip(cc){
+  var m = MK_MKT.filter(function(x){ return x.k === cc; })[0]; if (!m) return '';
+  var st = mkMktState(m); if (!st) return '';
+  return '<span class="mk-mchip ' + st.st + '" title="' + esc(st.tip) + '"><i></i>' + esc(st.t + (st.why ? ' · ' + st.why : '')) + '</span>';
+}
+function mkFlag(cc){ try { return String.fromCodePoint.apply(null, String(cc).toUpperCase().split('').map(function(ch){ return 0x1F1E6 + ch.charCodeAt(0) - 65; })); } catch(e){ return ''; } }
+//  나라 탭 줄 — [🇰🇷 한국 +0.8% ×] … [비교]
+function mkCcTabsRender(){
+  var box = $('mkCcTabs'); if (!box) return;
+  if (!MK.ctryOpen || !MK.ccList.length){ box.innerHTML = ''; return; }
+  var html = MK.ccList.map(function(c){
+    var ch = mkCtryChg(c), on = !MK.cmpOn && MK.cc === c;
+    return '<span class="mk-cct' + (on ? ' on' : '') + '" role="tab" aria-selected="' + (on ? 'true' : 'false') + '">'
+      + '<button type="button" class="go" onclick="mkPickCountry(\'' + c + '\')">' + mkFlag(c) + ' ' + esc((MK_CC[c] || [c])[0])
+      + (ch ? ' <b class="' + (ch.c > 0 ? 'up' : ch.c < 0 ? 'down' : '') + '" data-lv="ct:' + c + '">' + esc(mkChg(ch.c)) + '</b>' : '') + '</button>'
+      + '<button type="button" class="x" onclick="mkCcRemove(\'' + c + '\')" aria-label="' + esc((MK_CC[c] || [c])[0] + T(' 탭 닫기', ' close')) + '">×</button></span>';
+  }).join('') + (MK.ccList.length >= 2 ? '<button type="button" class="mk-cct-cmp' + (MK.cmpOn ? ' on' : '') + '" onclick="mkCmpSet(' + (MK.cmpOn ? 'false' : 'true') + ')" aria-pressed="' + (MK.cmpOn ? 'true' : 'false') + '">⇆ ' + esc(T('비교', 'Compare')) + '</button>'
+                                           : '<span class="st-hint mk-cct-hint">' + esc(T('지도에서 나라를 더 누르면 탭으로 쌓이고 한 번에 비교', 'Click more countries to compare')) + '</span>');
+  lvSwap(box, html);
+}
+//  타일 하나 — 이름 · 값(굴러감) · 등락 · 작은 선(화면을 연 동안의 틱)
+function mkLiveTile(key, lab, it, o){
+  o = o || {};
+  if (!it || it.p == null) return '';
+  var tk = (MK.tk[o.tk || it.s] || []).slice(-90).map(function(x){ return x[1]; });
+  var val = mkPx(it.p, it.s) + (it.unit === 'bp' ? '%' : ''), cls = it.c > 0 ? 'up' : it.c < 0 ? 'down' : '';
+  return '<div class="mk-lt' + (o.closed ? ' closed' : '') + (o.perp ? ' perp' : '') + '" title="' + esc(o.tip || '') + '"><div class="k">' + esc(lab) + (o.tag ? '<i class="mk-ltag ' + (o.tagc || '') + '">' + esc(o.tag) + '</i>' : '') + '</div>'
+    + '<div class="v"><b data-lv="lt:' + esc(key) + '" data-tw>' + esc(val) + '</b><span class="c ' + cls + '" data-lv="ltc:' + esc(key) + '">' + esc(mkChg(it.c, it.unit)) + '</span></div>'
+    + (tk.length > 2 ? '<div class="sp">' + mcSpark(tk, 140, 22) + '</div>' : '<div class="sp none"></div>') + '</div>';
+}
+function mkLiveRender(){
+  var cc = MK.cc, tiles = $('mkLiveTiles'); if (!tiles || !MK.ctryOpen || MK.cmpOn || MK.ctryTab !== 'live') return;
+  var open = mkSpotOpen(cc), sc = MK.snap && MK.snap.ctry && MK.snap.ctry[cc], idx = mkIdxOf(cc), pf = null;
+  var g = MK.snap && MK.snap.groups && MK.snap.groups.filter(function(x){ return x.k === 'idx'; })[0];
+  if (g) pf = (g.items || []).filter(function(i){ return i.src === 'bn' && i.cc === cc && i.p != null; })[0] || null;
+  var html = '';
+  if (idx) html += mkLiveTile('i:' + cc, idx.n, idx, { closed: open === false || idx.cl, tag: open === false || idx.cl ? T('마감', 'closed') : T('현물', 'spot'), tagc: open === false || idx.cl ? '' : 'live',
+                                                     tip: idx.n + T(' · 현물 지수 (1~15분 지연) · 전 거래일 종가 대비', ' · spot index') });
+  if (pf) html += mkLiveTile('p:' + cc, String(pf.n).replace(/\s*\(24시간\)/, ''), pf, { perp: true, closed: pf.cl, tag: T('24h 선물', '24h perp'), tagc: pf.cl ? '' : 'pf',
+                                                     tip: T('24시간 무기한 선물 · 24시간 전 대비 · 주말 · 휴일에도 움직임 (체결이 30분 넘게 없으면 쉬는 중)', '24h perpetual') });
+  if (sc && sc.etf && sc.p != null) html += mkLiveTile('e:' + cc, sc.etf + ' ETF', { s: sc.etf, p: sc.p, c: sc.c, cl: sc.cl }, { tk: 'etf:' + cc, closed: sc.cl, tag: sc.cl ? T('마감', 'closed') : T('미국 장중', 'US live'), tagc: sc.cl ? '' : 'live',
+                                                     tip: T('미국에 상장된 나라 ETF · 전 거래일 종가 대비', 'Country ETF listed in the US') });
+  (MK_BOND_OF[cc] || []).forEach(function(b){ var it = mkSnapItem('rate', b); if (it) html += mkLiveTile('b:' + b, it.n, it, { closed: it.cl, tag: it.src === 'fred_m' ? T('월평균', 'monthly') : '', tip: it.n + T(' 금리(%) · 변화 = 전일 대비 bp', ' yield') }); });
+  (MK_FX_OF[cc] || []).forEach(function(f){ var it = mkSnapItem('fx', f); if (it) html += mkLiveTile('f:' + f, it.n, it, { closed: it.cl, tip: it.n + T(' · 전일 종가 대비', ' vs prior close') }); });
+  if (!html) html = '<div class="mk-wait">' + esc(MK.snap ? T('이 나라는 실시간 시세 칸이 아직 없습니다 - 개요 · 업종 탭을 보세요', 'No live quotes for this country yet') : T('로딩 중…', 'Loading…')) + '</div>';
+  lvSwap(tiles, html);
+  mkLiveChartDraw(cc, idx, pf, sc);
+  mkMoversRender(cc);
+}
+//  선 하나 = 5분 선(서버 · 그날) + 화면을 연 뒤 10초 틱(등락 %) 이어 붙임
+function mkLiveSeries(base, tkKey){
+  var pts = (base || []).slice(), last = pts.length ? pts[pts.length - 1][0] : 0;
+  (MK.tk[tkKey] || []).forEach(function(x){ if (x[2] != null && x[0] > last + 1000) pts.push([x[0], Math.round(x[2] * 100) / 100]); });
+  return pts;
+}
+function mkLiveChartDraw(cc, idx, pf, sc){
+  var box = $('mkLiveBox'); if (!box || typeof echarts === 'undefined') return;
+  var d = MK.ctryC[cc] || (MK.ctry && MK.ctry.cc === cc ? MK.ctry : null), lines = d && d.lines || [];
+  var etfL = lines.filter(function(l){ return l.sec === '나라 ETF'; })[0], pfL = lines.filter(function(l){ return l.basis === '24h' && l.sec === '지수'; })[0];
+  var dk = document.documentElement.getAttribute('data-theme') === 'dark', S = [];
+  if (pf || pfL) S.push({ n: (pfL ? String(pfL.n) : String(pf.n)).replace(/\s*\(24시간\)/, '') + T(' 24h 선물', ' 24h perp'), pts: mkLiveSeries(pfL && pfL.pts, pf ? pf.s : (pfL && pfL.s)), col: dk ? '#e0b45a' : '#b7791f', w: 2.4 });
+  if (sc && sc.etf) S.push({ n: sc.etf + ' ETF', pts: mkLiveSeries(etfL && etfL.pts, 'etf:' + cc), col: dk ? '#e8ebf2' : '#1a1f36', w: 2 });
+  if (idx && mkSpotOpen(cc)) S.push({ n: idx.n, pts: mkLiveSeries(null, idx.s), col: dk ? '#ef6b5e' : '#c0392b', w: 2 });
+  S = S.filter(function(x){ return x.pts.length > 1; });
+  var note = $('mkLiveNote');
+  if (note) note.textContent = S.length ? T('그날 5분 선 + 실시간 이어 붙임 · ETF = 전 거래일 종가 대비 · 24h 선물 = 24시간 전 대비', '5-min line + live ticks')
+                                        : (MK_LINES.indexOf(cc) >= 0 ? T('로딩 중…', 'Loading…') : T('화면을 켜 두면 선이 이어집니다', 'Keep this open to build the line'));
+  box.classList.toggle('empty', !S.length);
+  if (!S.length){ if (mkLiveChart) mkLiveChart.clear(); return; }
+  mkLiveChart = chartOn(box, mkLiveChart); if (!mkLiveChart) return;
+  var key = cc + '|' + S.map(function(x){ return x.n; }).join(','), first = mkLiveChart.__k !== key; mkLiveChart.__k = key;
+  var narrow = (box.clientWidth || 600) < 520, endW = 0;
+  if (!narrow) S.forEach(function(x){ var lv = x.pts[x.pts.length - 1][1]; endW = Math.max(endW, annTextW(x.n + ' ' + mkChg(lv), 10.5, 'Pretendard') * 1.08 + 16); });
+  mkLiveChart.__axNoKeep = true;
+  mkLiveChart.setOption({
+    animation: MOTION_OK && !first, animationDuration: 0, animationDurationUpdate: 650, animationEasingUpdate: 'cubicOut',
+    grid: { left: 8, right: narrow ? 12 : Math.min(220, Math.max(80, endW)), top: 12, bottom: 6, containLabel: true },
+    tooltip: { trigger: 'axis', confine: true, valueFormatter: function(v){ return mkChg(v); } },
+    xAxis: { type: 'time', axisLabel: { hideOverlap: true, formatter: function(v){ var t = new Date(v); return String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); } }, splitLine: { show: false } },
+    yAxis: { type: 'value', scale: true, axisLabel: { formatter: function(v){ return (v > 0 ? '+' : '') + v + '%'; } }, splitLine: { show: true, lineStyle: { opacity: .5 } } },
+    series: S.map(function(x, i){ return { name: x.n, type: 'line', showSymbol: false, data: x.pts, color: x.col, lineStyle: { width: x.w }, z: 4 - i,
+      //  마지막 점에 숨 쉬는 점 하나 (실시간 느낌)
+      markPoint: MOTION_OK ? { silent: true, symbol: 'circle', symbolSize: 7, itemStyle: { color: x.col, shadowBlur: 8, shadowColor: x.col }, data: [{ coord: x.pts[x.pts.length - 1], value: '' }], label: { show: false } } : undefined,
+      endLabel: narrow ? { show: false } : { show: true, fontSize: 10.5, fontWeight: 700, color: x.col, distance: 8, formatter: function(p){ return x.n + ' ' + mkChg(p.value[1]); } } }; })
+  }, { replaceMerge: ['series'] });
+}
+//  주요 기업 — 오른 셋 · 내린 셋 (누르면 주식분석 › 가격 차트)
+function mkMoversRender(cc){
+  var box = $('mkLiveMov'); if (!box) return;
+  var d = MK.ctryC[cc] || (MK.ctry && MK.ctry.cc === cc ? MK.ctry : null);
+  var L = (d && d.lines || []).filter(function(l){ return l.sec !== '나라 ETF' && l.sec !== '지수' && l.c != null; }).slice().sort(function(a, b){ return b.c - a.c; });
+  if (!L.length){ box.innerHTML = ''; return; }
+  var chip = function(l){ var src = /USDT$/.test(l.s) ? 'quote_bn' : 'quote_us';
+    return '<button type="button" class="mk-mv ' + (l.c > 0 ? 'up' : l.c < 0 ? 'down' : '') + '" onclick="mkPick(\'' + src + '\',\'' + esc(l.s) + '\')" title="' + esc(l.n + ' · ' + l.s + T(' · 누르면 주식분석 › 가격 차트', ' · open price chart')) + '">'
+      + esc(String(l.n).replace(/\s*\(24시간\)/, '')) + ' <b data-lv="mv:' + esc(l.s) + '">' + esc(mkChg(l.c)) + '</b></button>'; };
+  var up = L.filter(function(l){ return l.c > 0; }).slice(0, 3), dn = L.filter(function(l){ return l.c < 0; }).slice(-3).reverse();
+  lvSwap(box, '<span class="k">' + esc(T('주요 기업', 'Movers')) + '</span>' + up.map(chip).join('') + dn.map(chip).join('')
+    + '<span class="st-hint">' + esc(d.live ? T('미국 장중', 'US live') : T('지난 미국 장', 'last US session')) + '</span>');
+}
+//  «비교» — 나라 카드 + 등락 추이 한 차트
+function mkCmpPal(){ return document.documentElement.getAttribute('data-theme') === 'dark' ? ['#5b9cf0', '#ef6b5e', '#e0b45a', '#3cc4a8', '#b784d4'] : ['#2a5aa8', '#c0392b', '#b7791f', '#0e7c6b', '#7d3c98']; }
+function mkCmpRender(){
+  var grid = $('mkCmpGrid'); if (!grid || !MK.cmpOn) return;
+  var PAL = mkCmpPal();
+  var row = function(lab, it, unit, key, tag){ if (!it || it.p == null) return '';
+    return '<div class="r"><span class="l">' + esc(lab) + (tag ? '<i class="mk-ltag pf">' + esc(tag) + '</i>' : '') + '</span><b data-lv="cp:' + esc(key) + '" data-tw>' + esc(mkPx(it.p, it.s) + (unit === 'bp' ? '%' : '')) + '</b><span class="c ' + (it.c > 0 ? 'up' : it.c < 0 ? 'down' : '') + '" data-lv="cc:' + esc(key) + '">' + esc(mkChg(it.c, unit)) + '</span></div>'; };
+  var html = MK.ccList.map(function(cc, i){
+    var idx = mkIdxOf(cc), pf = mkPerpOf(cc), open = mkSpotOpen(cc), sc = MK.snap && MK.snap.ctry && MK.snap.ctry[cc];
+    var main = (open === false && pf) ? pf : idx || pf;
+    var b0 = (MK_BOND_OF[cc] || []).map(function(b){ return mkSnapItem('rate', b); }).filter(Boolean)[0], f0 = (MK_FX_OF[cc] || []).map(function(f){ return mkSnapItem('fx', f); }).filter(Boolean)[0];
+    var rows = (main ? row(String(main.n).replace(/\s*\(24시간\)/, ''), main, '', 'm' + cc, main === pf ? '24h' : '') : '')
+      + (sc && sc.etf && sc.p != null ? row(sc.etf + ' ETF', { s: sc.etf, p: sc.p, c: sc.c }, '', 'e' + cc) : '')
+      + row(b0 ? b0.n : '', b0, 'bp', 'b' + cc) + row(f0 ? f0.n : '', f0, '', 'f' + cc);
+    return '<div class="mk-cmpc" style="--cc:' + PAL[i % PAL.length] + '" onclick="mkPickCountry(\'' + cc + '\')" title="' + esc(T('누르면 이 나라 실시간 보기', 'Open this country')) + '">'
+      + '<div class="h"><span class="dot"></span><b>' + mkFlag(cc) + ' ' + esc((MK_CC[cc] || [cc])[0]) + '</b>' + mkMktChip(cc) + '</div>'
+      + (rows || '<div class="r none"><span class="l">' + esc(MK.snap ? T('실시간 시세가 아직 없습니다', 'No live quotes yet') : T('로딩 중…', 'Loading…')) + '</span></div>')
+      + '</div>';
+  }).join('');
+  lvSwap(grid, html);
+  //  차트: 나라마다 선 하나 (현물 장이 닫혔고 24h 선물이 있으면 선물 · 아니면 나라 ETF) — 그날 5분 선 + 10초 틱
+  var box = $('mkCmpBox'); if (!box || typeof echarts === 'undefined') return;
+  var S = MK.ccList.map(function(cc, i){
+    var d = MK.ctryC[cc], lines = d && d.lines || [], pf = mkPerpOf(cc), open = mkSpotOpen(cc);
+    var pfL = lines.filter(function(l){ return l.basis === '24h' && l.sec === '지수'; })[0], etfL = lines.filter(function(l){ return l.sec === '나라 ETF'; })[0];
+    var usePf = (pf || pfL) && (open === false || !etfL);
+    var pts = usePf ? mkLiveSeries(pfL && pfL.pts, pf ? pf.s : pfL && pfL.s) : mkLiveSeries(etfL && etfL.pts, 'etf:' + cc);
+    return { n: (MK_CC[cc] || [cc])[0] + (usePf ? T(' (24h 선물)', ' (24h)') : T(' (ETF)', ' (ETF)')), pts: pts, col: PAL[i % PAL.length] };
+  }).filter(function(x){ return x.pts.length > 1; });
+  var note = $('mkCmpNote');
+  if (note) note.textContent = S.length ? T('나라마다 선 하나 · 현물 장이 닫혔으면 24시간 선물(24시간 전 대비) · 아니면 미국 상장 나라 ETF(전 거래일 종가 대비) · 실시간 이어 붙임', 'One line per country')
+                                        : T('로딩 중…', 'Loading…');
+  box.classList.toggle('empty', !S.length);
+  if (!S.length){ if (mkCmpChart) mkCmpChart.clear(); return; }
+  mkCmpChart = chartOn(box, mkCmpChart); if (!mkCmpChart) return;
+  var narrow = (box.clientWidth || 600) < 520, endW = 0;
+  if (!narrow) S.forEach(function(x){ endW = Math.max(endW, annTextW(x.n + ' ' + mkChg(x.pts[x.pts.length - 1][1]), 10.5, 'Pretendard') * 1.08 + 16); });
+  var key = S.map(function(x){ return x.n; }).join(','), first = mkCmpChart.__k !== key; mkCmpChart.__k = key;
+  mkCmpChart.__axNoKeep = true;
+  mkCmpChart.setOption({
+    animation: MOTION_OK && !first, animationDuration: 0, animationDurationUpdate: 650, animationEasingUpdate: 'cubicOut',
+    grid: { left: 8, right: narrow ? 12 : Math.min(240, Math.max(80, endW)), top: narrow ? 30 : 12, bottom: 6, containLabel: true },
+    legend: narrow ? { top: 0, left: 'center', itemWidth: 12, itemHeight: 6, textStyle: { fontSize: 10.5 } } : undefined,
+    tooltip: { trigger: 'axis', confine: true, valueFormatter: function(v){ return mkChg(v); } },
+    xAxis: { type: 'time', axisLabel: { hideOverlap: true, formatter: function(v){ var t = new Date(v); return String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); } }, splitLine: { show: false } },
+    yAxis: { type: 'value', scale: true, axisLabel: { formatter: function(v){ return (v > 0 ? '+' : '') + v + '%'; } }, splitLine: { show: true, lineStyle: { opacity: .5 } } },
+    series: S.map(function(x){ return { name: x.n, type: 'line', showSymbol: false, data: x.pts, color: x.col, lineStyle: { width: 2 },
+      endLabel: narrow ? { show: false } : { show: true, fontSize: 10.5, fontWeight: 700, color: x.col, distance: 8, formatter: function(p){ return x.n + ' ' + mkChg(p.value[1]); } } }; })
+  }, { replaceMerge: ['series'] });
+}
+/*  ── 지도 확대 (모션) ── 그 나라 자리 · 폭으로 확대 배율을 정하고 0.7초 동안 스르르 (움직임 줄이기면 바로)  */
+function mkMapViewFor(cc){
+  var G = MK_GEO[cc]; if (!G || !mkMapChart) return null;
+  //  작은 나라도 이웃이 보이게 6.5배까지만
+  var z = Math.max(1.4, Math.min(6.5, 0.42 * 360 / G[2])), c = [G[0], G[1]];
+  try {
+    //  전체 화면 서랍이 지도 한쪽을 덮으면 그만큼 비켜서 (보이는 칸의 가운데에 그 나라)
+    var d = $('mkCtry');
+    if (document.body.classList.contains('mk-full-on') && (window.innerWidth || 1000) > 900 && d && d.offsetWidth){
+      var g = mkMapChart.getModel().getComponent('geo').coordinateSystem, z0 = g.getZoom ? g.getZoom() : 1;
+      var a = mkMapChart.convertToPixel({ geoIndex: 0 }, [0, 0]), b = mkMapChart.convertToPixel({ geoIndex: 0 }, [10, 0]);
+      var ppd = Math.abs(b[0] - a[0]) / 10 / (z0 || 1) * z, shift = d.offsetWidth / 2 / (ppd || 1);
+      c[0] += MK.drawerLeft ? -shift : shift;
+    }
+  } catch(e){}
+  return { center: c, zoom: z };
+}
+function mkMapCur(){
+  try { var g = mkMapChart.getModel().getComponent('geo').coordinateSystem; return { center: g.getCenter().slice(), zoom: g.getZoom() }; } catch(e){ return null; }
+}
+function mkMapAnim(to, done){
+  if (!mkMapChart || !to) return;
+  var from = mkMapCur(); MK.mapAnim = (MK.mapAnim || 0) + 1; var run = MK.mapAnim;
+  //  (10/8 빠르기) 한 장면마다 setOption 을 부르면 옵션 전체를 다시 처리해서 30ms 넘게 걸립니다 (모션이 뚝뚝) —
+  //   지도를 손으로 끌 때와 같은 «geoRoam» 동작으로 옮기고 키우면 변환만 바꿔 1~2ms (조용히 · georoam 알림 없이)
+  var put = function(v){
+    MK.mapView = v;
+    try {
+      var gc = mkMapChart.getModel().getComponent('geo').coordinateSystem, cur = gc.getCenter(), z0 = gc.getZoom() || 1;
+      var pc = mkMapChart.convertToPixel({ geoIndex: 0 }, cur), pd = mkMapChart.convertToPixel({ geoIndex: 0 }, v.center);
+      if (!pc || !pd || !isFinite(pd[0]) || !isFinite(pd[1])) throw new Error('px');
+      mkMapChart.dispatchAction({ type: 'geoRoam', componentType: 'geo', geoIndex: 0, dx: pc[0] - pd[0], dy: pc[1] - pd[1] }, { silent: true });
+      mkMapChart.dispatchAction({ type: 'geoRoam', componentType: 'geo', geoIndex: 0, zoom: v.zoom / z0, originX: pc[0], originY: pc[1] }, { silent: true });
+    } catch(e){ try { mkMapChart.__axNoKeep = true; mkMapChart.setOption({ geo: { center: v.center, zoom: v.zoom } }); } catch(x){} }
+  };
+  if (!MOTION_OK || !from){ put(to); if (done) done(); return; }
+  var t0 = performance.now(), T0 = 700, ease = function(x){ return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+  //  확대는 로그 공간에서 (멀리서 다가오는 느낌이 고르게)
+  var lz0 = Math.log(from.zoom || 1), lz1 = Math.log(to.zoom || 1);
+  var step = function(now){
+    if (run !== MK.mapAnim) return;
+    var k = Math.min(1, (now - t0) / T0), e = ease(k);
+    put({ center: [from.center[0] + (to.center[0] - from.center[0]) * e, from.center[1] + (to.center[1] - from.center[1]) * e], zoom: Math.exp(lz0 + (lz1 - lz0) * e) });
+    if (k < 1) requestAnimationFrame(step); else if (done) done();
+  };
+  requestAnimationFrame(step);
+}
+function mkMapZoomTo(cc, anim){ var v = mkMapViewFor(cc); if (!v) return; if (anim) mkMapAnim(v, mkMarkLabels); else { MK.mapView = v; mkMarkLabels(); } }
+//  확대 정도에 따라 점(대만 · 홍콩 · 싱가포르) 이름표 — 확대해 두면 고른 나라 것만
+function mkMarkLabels(){
+  if (!mkMapChart) return;
+  try { mkMapChart.__axNoKeep = true; mkMapChart.setOption({ series: [{}, { label: { show: !(MK.mapView && MK.mapView.zoom > 1.6) } }] }); } catch(e){}
+}
+function mkMapZoomHome(){
+  if (!mkMapChart) { MK.mapView = null; return; }
+  mkMapAnim({ center: MK.mapHome || [0, 13.9], zoom: 1 }, function(){ MK.mapView = null; mkMarkLabels(); });
+}
+/*  ── 칸 폭 조절 ── 일반 화면: 지도 | 막대 | 나라 칸 (막대를 끌면 비율) · 전체 화면: 서랍 안쪽 가장자리를 끌면 폭 · 두 번 누르면 원래대로  */
+function mkSplitApply(){
+  var wr = $('mkWorld'), d = $('mkCtry'); if (!wr) return;
+  var full = document.body.classList.contains('mk-full-on'), wide = (window.innerWidth || 1000) > 900;
+  wr.style.gridTemplateColumns = (MK.split && MK.ctryOpen && wide && !full) ? 'minmax(0,' + MK.split.toFixed(3) + 'fr) 14px minmax(0,' + (1 - MK.split).toFixed(3) + 'fr)' : '';
+  if (d) d.style.width = (full && wide && MK.drawerW) ? Math.min(MK.drawerW, Math.max(320, (wr.clientWidth || 1200) - 120)) + 'px' : '';
+}
+function mkAfterResize(){
+  try { if (mkMapChart) mkMapChart.resize(); } catch(e){}
+  mkMapPaint();
+  [mkLineChart, mkOvChart, mkCfxChart, mkLiveChart, mkCmpChart].forEach(function(c){ try { if (c) c.resize(); } catch(e){} });
+  if (MK.ctryOpen && !MK.cmpOn && MK.cc) mkMapZoomTo(MK.cc, false), mkMapAnim(MK.mapView);
+}
+function mkSplitInit(){
+  var sp = $('mkSplit'), rz = $('mkRsz');
+  var drag = function(el, onMove){
+    if (!el || el.__on) return; el.__on = 1;
+    el.addEventListener('pointerdown', function(e){
+      if (e.button != null && e.button !== 0) return;
+      e.preventDefault(); e.stopPropagation();
+      try { el.setPointerCapture(e.pointerId); } catch(x){}
+      var raf = 0; el.classList.add('on'); document.body.classList.add('mk-resizing');
+      var mv = function(ev){ onMove(ev); mkSplitApply(); if (!raf) raf = requestAnimationFrame(function(){ raf = 0; try { if (mkMapChart) mkMapChart.resize(); } catch(x){} }); };
+      var up = function(){ el.removeEventListener('pointermove', mv); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
+        el.classList.remove('on'); document.body.classList.remove('mk-resizing'); mkSavePrefs(); mkAfterResize(); };
+      el.addEventListener('pointermove', mv); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+    });
+  };
+  drag(sp, function(ev){ var r = $('mkWorld').getBoundingClientRect(); MK.split = Math.max(0.32, Math.min(0.75, (ev.clientX - r.left) / (r.width || 1))); });
+  drag(rz, function(ev){ var d = $('mkCtry'), r = d.getBoundingClientRect();
+    MK.drawerW = Math.round(Math.max(320, Math.min(1600, MK.drawerLeft && !d.classList.contains('moved') ? ev.clientX - r.left : r.right - ev.clientX))); });
+  [sp, rz].forEach(function(el){ if (el && !el.__dbl){ el.__dbl = 1; el.addEventListener('dblclick', function(){ if (el === sp) MK.split = null; else MK.drawerW = null; mkSplitApply(); mkSavePrefs(); mkAfterResize(); }); } });
 }
 function mkChipsRender(){
   var lg = $('mkCtryChips'); if (!lg) return;
@@ -17376,31 +17972,53 @@ function mkCtryFamSet(f){ MK.ctryFam = f === '24h' ? '24h' : 'close'; mkCtryRend
 function mkPickCountry(cc){
   if (!mkCtryOk(cc)) return;
   var first = !MK.ctryOpen;
-  if (MK.cc !== cc){ MK.cc = cc; MK.ctry = null; MK.ctryErr = ''; MK.ctryFxPair = null; }
+  if (MK.cc !== cc){ MK.cc = cc; MK.ctry = MK.ctryC[cc] || null; MK.ctryErr = ''; MK.ctryFxPair = null; }
   MK.ctryOpen = true;
+  //  (10/8) 누른 나라는 탭으로 쌓임 (5개까지 · 넘으면 가장 오래된 것부터) · 고르면 «비교» 에서 그 나라로
+  if (MK.ccList.indexOf(cc) < 0){ MK.ccList.push(cc); while (MK.ccList.length > MK_CC_MAX) MK.ccList.splice(MK.ccList[0] === cc ? 1 : 0, 1); }
+  MK.cmpOn = false;
   mkDrawerSide(cc);
   //  고른 탭이 이 나라에 없으면(주식 선 · 통화쌍이 없는 나라) 개요로
   if (!mkTabOk(MK.ctryTab, cc)) MK.ctryTab = 'ov';
   mkSavePrefs();
+  mkSplitApply();
   mkMapPaint(); mkCtryRender();
-  //  옆 칸이 열리면 지도 칸 폭이 바뀝니다 — 자리 잡은 뒤 한 번 더 맞춤
-  if (first) requestAnimationFrame(function(){ mkMapPaint(); [mkLineChart, mkOvChart, mkCfxChart].forEach(function(c){ try { if (c) c.resize(); } catch(e){} }); });
+  //  옆 칸이 열리면 지도 칸 폭이 바뀝니다 — 자리 잡은 뒤 한 번 더 맞춤 · 그다음 그 나라로 스르르 확대 (10/8 모션)
+  //   (지도 칸 크기는 위 mkMapPaint 가 이미 맞춤 — 확대는 바로 시작 · 한 프레임 뒤에는 나머지 차트 크기만)
+  mkMapZoomTo(cc, true);
+  if (first) requestAnimationFrame(function(){ mkMapPaint(); [mkLineChart, mkOvChart, mkCfxChart, mkLiveChart].forEach(function(c){ try { if (c) c.resize(); } catch(e){} }); });
   mkCtryLoad();
   var p = $('mkCtry'); if (p && window.innerWidth <= 900 && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function mkCtryClose(){
-  MK.ctryOpen = false; mkSavePrefs();
-  mkMapPaint(); requestAnimationFrame(function(){ mkMapPaint(); });
+  MK.ctryOpen = false; MK.cmpOn = false; mkSavePrefs(); mkSplitApply();
+  mkMapPaint(); requestAnimationFrame(function(){ mkMapPaint(); mkMapZoomHome(); });
 }
 function mkCtryTabSet(t){
   if (!mkTabOk(t, MK.cc)) return;
+  MK.cmpOn = false;
   MK.ctryTab = t; mkSavePrefs(); mkCtryRender(); mkCtryLoad();
+}
+//  나라 탭 하나 닫기 — 지금 보던 나라면 남은 마지막 나라로 · 하나도 없으면 칸 닫기
+function mkCcRemove(cc){
+  var i = MK.ccList.indexOf(cc); if (i < 0) return;
+  MK.ccList.splice(i, 1);
+  if (!MK.ccList.length){ mkCtryClose(); return; }
+  if (MK.ccList.length < 2) MK.cmpOn = false;
+  if (MK.cc === cc && !MK.cmpOn){ mkPickCountry(MK.ccList[MK.ccList.length - 1]); return; }
+  mkSavePrefs(); mkCtryRender();
+}
+function mkCmpSet(on){
+  if (on && MK.ccList.length < 2) return;
+  MK.cmpOn = !!on; mkSavePrefs(); mkCtryRender(); mkMapPaint();
+  if (MK.cmpOn){ MK.ccList.forEach(function(c){ if (MK_LINES.indexOf(c) >= 0 && !MK.ctryC[c]) mkFetchCountry(c); }); mkMapZoomHome(); }
+  else if (MK.cc) mkMapZoomTo(MK.cc, true);
 }
 //  지금 탭에 필요한 것만 받습니다 (개요 · 업종 = 서버 보관 자료 · 업종(미국 · 한국 밖) = 웹 검색 · 시황 = AI · 하루 한 번)
 function mkCtryLoad(){
   if (!MK.ctryOpen || !MK.cc) return;
   var cc = MK.cc, t = MK.ctryTab;
-  if (t === 'stk' && MK_LINES.indexOf(cc) >= 0 && (!MK.ctry || MK.ctry.cc !== cc)) mkFetchCountry(cc);
+  if ((t === 'stk' || t === 'live') && MK_LINES.indexOf(cc) >= 0 && (!MK.ctry || MK.ctry.cc !== cc)){ if (MK.ctryC[cc]) MK.ctry = MK.ctryC[cc]; mkFetchCountry(cc); }
   if (t === 'ov' || t === 'sec') mkInfoGet(cc);
   if (t === 'sec' && cc !== 'US' && cc !== 'KR') mkBriefGet(cc, 'pplx');
   if (t === 'ai') mkBriefGet(cc, 'brief');
@@ -17444,7 +18062,8 @@ async function mkBriefGet(cc, part){
 }
 //  개요 · 업종 · 시황 탭의 머리 (10초마다 지수 값만 고칠 때도 이것만 부름 — 표 · 글을 다시 그리지 않게)
 function mkCtryHeadSet(){
-  var head = $('mkCtryHead'), c1 = MK.cc; if (!head || !MK.ctryOpen || MK.ctryTab === 'stk' || MK.ctryTab === 'fx') return;
+  var head = $('mkCtryHead'), c1 = MK.cc; if (!head || !MK.ctryOpen || MK.cmpOn || MK.ctryTab === 'stk' || MK.ctryTab === 'fx') return;
+  if (MK.ctryTab === 'live'){ lvSwap(head, mkCtryHeadKv(c1, null) + mkMktChip(c1)); return; }
   var hint = MK.ctryTab === 'ov' ? T('지수 1년 · IMF 경제 전망 · 금리 · 환율', 'Index · IMF outlook · rates · FX')
            : MK.ctryTab === 'sec' ? (c1 === 'US' ? T('SPDR 섹터 ETF · 전 거래일 종가 기준', 'SPDR sector ETFs') : c1 === 'KR' ? T('KODEX 섹터 ETF · 종가 기준 (하루 늦음)', 'KODEX sector ETFs')
                                    : T('업종 흐름 · 지난 1주', 'Sector moves · past week'))
@@ -17466,14 +18085,29 @@ function mkCtryRender(){
   var head = $('mkCtryHead'), box = $('mkLineBox'), list = $('mkCtryList'); if (!head || !box) return;
   var wrap = $('mkWorld'); if (wrap) wrap.classList.toggle('open', !!MK.ctryOpen);
   if (!MK.ctryOpen) return;
-  if (!mkTabOk(MK.ctryTab, MK.cc)) MK.ctryTab = 'ov';
+  if (!mkTabOk(MK.ctryTab, MK.cc)) MK.ctryTab = 'live';
+  if (MK.ccList.indexOf(MK.cc) < 0) MK.ccList.push(MK.cc);
+  mkCcTabsRender(); mkSplitInit(); mkSplitApply();
+  //  «비교» — 고른 나라들을 한 화면에 (나라 칸의 보기 탭은 숨김)
+  var tabsRow = $('mkCtryTabs'), ttl = $('mkCmpTtl'); if (tabsRow) tabsRow.classList.toggle('hidden', !!MK.cmpOn);
+  //  «비교» 제목은 보기 탭 자리(닫기 단추 옆)에 — 빈 줄이 생기지 않게
+  if (ttl){ ttl.classList.toggle('hidden', !MK.cmpOn); ttl.innerHTML = MK.cmpOn ? '<b>' + esc(T('나라 비교', 'Compare')) + '</b><span class="st-hint">' + esc(MK.ccList.map(function(c){ return (MK_CC[c] || [c])[0]; }).join(' · ') + T(' · 실시간', ' · live')) + '</span>' : ''; }
+  head.classList.toggle('hidden', !!MK.cmpOn);
+  if (MK.cmpOn){
+    [['live', 'mkCtryLive'], ['stk', 'mkCtryStk'], ['fx', 'mkCtryFx'], ['ov', 'mkCtryOv'], ['sec', 'mkCtrySec'], ['ai', 'mkCtryAi']].forEach(function(x){ var el = $(x[1]); if (el) el.classList.add('hidden'); });
+    var cm = $('mkCtryCmp'); if (cm) cm.classList.remove('hidden');
+    head.innerHTML = '';
+    mkCmpRender(); return;
+  }
+  var cmBox = $('mkCtryCmp'); if (cmBox) cmBox.classList.add('hidden');
   var tabs = $('mkCtryTabs');
   if (tabs) tabs.innerHTML = MK_CTABS.map(function(o){
     var ok = mkTabOk(o[0], MK.cc);
     return '<button type="button"' + (MK.ctryTab === o[0] ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"')
       + (ok ? '' : ' disabled title="' + esc(o[0] === 'stk' ? T('이 나라는 미국 상장 주요 기업 목록이 아직 없습니다', 'No company list yet') : T('이 나라 통화는 FRED 일별 환율이 없습니다', 'No FX data')) + '"')
       + ' onclick="mkCtryTabSet(\'' + o[0] + '\')">' + esc(o[1]) + '</button>'; }).join('');
-  [['stk', 'mkCtryStk'], ['fx', 'mkCtryFx'], ['ov', 'mkCtryOv'], ['sec', 'mkCtrySec'], ['ai', 'mkCtryAi']].forEach(function(x){ var el = $(x[1]); if (el) el.classList.toggle('hidden', MK.ctryTab !== x[0]); });
+  [['live', 'mkCtryLive'], ['stk', 'mkCtryStk'], ['fx', 'mkCtryFx'], ['ov', 'mkCtryOv'], ['sec', 'mkCtrySec'], ['ai', 'mkCtryAi']].forEach(function(x){ var el = $(x[1]); if (el) el.classList.toggle('hidden', MK.ctryTab !== x[0]); });
+  if (MK.ctryTab === 'live'){ mkCtryHeadSet(); mkLiveRender(); return; }
   if (MK.ctryTab === 'fx'){
     var cc0 = MK.cc, nm0 = (MK_CC[cc0] || [cc0])[0];
     head.innerHTML = '<b>' + esc(nm0) + '</b><span class="st-hint">' + esc(T('그 나라 통화 · 원화와 달러 기준 · 1주 · 1개월 · 3개월 모델 방향과 근거', 'Currency vs KRW and USD')) + '</span>';
@@ -18296,12 +18930,14 @@ function secRowPick(tr){
   else if (secPxAdd(src, sym)) secPxToast(secPx.picks.length - 1, true);
   secPxShow(); renderSectors();
 }
-function secPxAdd(src, sym){
+function secPxAdd(src, sym, nm0){
   var i = secPxIdx(src, sym);
   if (i >= 0){ secPx.act = i; return false; }
   if (secPx.picks.length >= 6){ warn('stkWarn', '가격 차트에는 6개까지 올릴 수 있습니다 - 칩의 × 로 하나 빼고 넣어 주세요.'); return false; }
   warn('stkWarn', '');
   var nm = secPxNameOf(src, sym);
+  //  목록에 없는 종목(산업분석 태그 등)은 넘겨 준 이름으로
+  if (nm0 && nm[0] === sym) nm = [nm0, nm0];
   secPx.picks.push({ src: src, sym: sym, ko: nm[0], en: nm[1] });
   secPx.act = secPx.picks.length - 1;
   return true;
@@ -19127,6 +19763,90 @@ function bnPulse(rows, nameOf, unit){
     + '<div class="pc loose"><div class="k">공급 과잉 (30 이하)</div><div class="v">' + lo.length + '<span style="font-size:12px;font-weight:600">' + unit + '</span></div><div class="n" title="' + esc(nm(lo)) + '">' + esc(nm(lo)) + '</div></div>'
     + '<div class="pc avg"><div class="k">평균 수급 긴장도</div><div class="v" style="color:' + bnSignal(avg).c + '">' + avg + '</div><div class="n">' + esc(bnSignal(avg).t + ' · ' + ok.length + unit + ' 평균') + '</div></div>';
 }
+
+/*  ── 산업 → 종목 태그 (10/8 학회장: «병목 신호로 그 산업 · 지표에 맞는 각 나라 주식 전망 · 설명은 길어지니 빼고 · 유망 빨강 · 불리 파랑 태그») ──────
+    학회장 선택: 생산자 · 수요자 둘 다 · 이름은 «유망».
+      p = 그 산업을 <만드는> 기업 — 공급 병목(70 이상)이면 가격 결정력 ↑ → 유망(빨강) · 공급 과잉(30 이하)이면 → 불리(파랑)
+      b = 그 산업 제품을 <사서 쓰는> 기업(원가 부담) — 반대: 병목이면 불리 · 과잉이면 유망
+      그 사이(중립)는 회색. 태그를 누르면 주식분석 › 가격 차트로. 설명 글은 붙이지 않고 마우스를 올리면 한 줄.
+    미국 · 한국은 산업별 · 다른 나라는 제조업 수요 · 공급 묶음이라 그 나라 대표 제조 기업(미국 상장)과 나라 ETF.
+    ⚠️ 종목은 학회 자료용 «대표 예시» 입니다 (모든 수혜 · 피해주가 아님). 바꾸려면 여기만 고치면 됩니다.            */
+var BN_TAGS = {
+  'mfg':    { p: [['US', 'CAT', '캐터필러'], ['US', 'HON', '허니웰'], ['US', 'ETN', '이튼'], ['US', 'EMR', '에머슨']] },
+  'semi':   { p: [['US', 'MU', '마이크론'], ['US', 'AMAT', '어플라이드머티어리얼즈'], ['US', 'LRCX', '램리서치'], ['US', 'TXN', '텍사스인스트루먼트']], b: [['US', 'AAPL', '애플'], ['US', 'DELL', '델'], ['US', 'HPQ', 'HP']] },
+  'auto':   { p: [['US', 'GM', 'GM'], ['US', 'F', '포드'], ['US', 'TSLA', '테슬라'], ['US', 'APTV', '앱티브']], b: [['US', 'CAR', '에이비스버짓']] },
+  'steel':  { p: [['US', 'NUE', '뉴코어'], ['US', 'STLD', '스틸다이내믹스'], ['US', 'FCX', '프리포트맥모란'], ['US', 'AA', '알코아']], b: [['US', 'WHR', '월풀'], ['US', 'F', '포드']] },
+  'chem':   { p: [['US', 'DOW', '다우'], ['US', 'LYB', '라이온델바젤'], ['US', 'DD', '듀폰'], ['US', 'CE', '셀라니즈']], b: [['US', 'PG', 'P&G'], ['US', 'KMB', '킴벌리클라크']] },
+  'mach':   { p: [['US', 'CAT', '캐터필러'], ['US', 'DE', '디어'], ['US', 'PH', '파커하니핀'], ['US', 'CMI', '커민스']], b: [['US', 'URI', '유나이티드렌탈']] },
+  'build':  { p: [['US', 'VMC', '벌컨머티리얼즈'], ['US', 'MLM', '마틴마리에타'], ['US', 'DHI', 'DR호튼'], ['US', 'LEN', '레나']] },
+  'logi':   { p: [['US', 'UPS', 'UPS'], ['US', 'FDX', '페덱스'], ['US', 'UNP', '유니언퍼시픽'], ['US', 'ODFL', '올드도미니언']], b: [['US', 'TGT', '타깃'], ['US', 'DG', '달러제너럴']] },
+  'energy': { p: [['US', 'XOM', '엑슨모빌'], ['US', 'CVX', '셰브론'], ['US', 'COP', '코노코필립스'], ['US', 'OXY', '옥시덴탈']], b: [['US', 'DAL', '델타항공'], ['US', 'UAL', '유나이티드항공']] },
+  'util':   { p: [['US', 'VST', '비스트라'], ['US', 'CEG', '컨스텔레이션'], ['US', 'NRG', 'NRG'], ['US', 'NEE', '넥스트에라']], b: [['US', 'EQIX', '에퀴닉스'], ['US', 'DLR', '디지털리얼티']] },
+  'retail': { p: [['US', 'WMT', '월마트'], ['US', 'COST', '코스트코'], ['US', 'TGT', '타깃'], ['US', 'AMZN', '아마존']] },
+  'health': { p: [['US', 'HCA', 'HCA'], ['US', 'UHS', '유니버설헬스']], b: [['US', 'UNH', '유나이티드헬스'], ['US', 'CI', '시그나']] },
+  'leisure':{ p: [['US', 'MAR', '메리어트'], ['US', 'HLT', '힐튼'], ['US', 'BKNG', '부킹'], ['US', 'RCL', '로열캐리비안']] },
+  'KR:mfg':  { p: [['KR', '005930', '삼성전자'], ['KR', '005380', '현대차'], ['KR', '000270', '기아'], ['KR', '005490', 'POSCO홀딩스']] },
+  'KR:semi': { p: [['KR', '000660', 'SK하이닉스'], ['KR', '005930', '삼성전자'], ['KR', '042700', '한미반도체'], ['KR', '000990', 'DB하이텍']], b: [['KR', '066570', 'LG전자']] },
+  'KR:elec': { p: [['KR', '373220', 'LG에너지솔루션'], ['KR', '006400', '삼성SDI'], ['KR', '267260', 'HD현대일렉트릭'], ['KR', '010120', 'LS ELECTRIC'], ['KR', '298040', '효성중공업']], b: [['KR', '005380', '현대차'], ['KR', '000270', '기아']] },
+  'KR:auto': { p: [['KR', '005380', '현대차'], ['KR', '000270', '기아'], ['KR', '012330', '현대모비스']] },
+  'KR:ship': { p: [['KR', '009540', 'HD한국조선해양'], ['KR', '329180', 'HD현대중공업'], ['KR', '042660', '한화오션'], ['KR', '010140', '삼성중공업']], b: [['KR', '011200', 'HMM']] },
+  'KR:steel':{ p: [['KR', '005490', 'POSCO홀딩스'], ['KR', '004020', '현대제철']], b: [['KR', '009540', 'HD한국조선해양'], ['KR', '042660', '한화오션']] },
+  'KR:chem': { p: [['KR', '051910', 'LG화학'], ['KR', '011170', '롯데케미칼'], ['KR', '011780', '금호석유화학']] },
+  'KR:oil':  { p: [['KR', '010950', 'S-Oil'], ['KR', '096770', 'SK이노베이션'], ['KR', '078930', 'GS']], b: [['KR', '003490', '대한항공']] },
+  'KR:mach': { p: [['KR', '241560', '두산밥캣'], ['KR', '034020', '두산에너빌리티']] }
+};
+//  다른 나라 — 제조업 수요 · 공급 묶음 (dem · sup 같은 목록)
+var BN_TAGS_CTRY = {
+  JP: [['US', 'TM', '도요타'], ['US', 'HMC', '혼다'], ['US', 'SONY', '소니'], ['US', 'EWJ', '일본 ETF']],
+  CN: [['US', 'NIO', '니오'], ['US', 'LI', '리오토'], ['US', 'XPEV', '샤오펑'], ['US', 'MCHI', '중국 ETF']],
+  DE: [['US', 'EWG', '독일 ETF']], FR: [['US', 'STLA', '스텔란티스'], ['US', 'EWQ', '프랑스 ETF']], IT: [['US', 'STLA', '스텔란티스'], ['US', 'EWI', '이탈리아 ETF']],
+  GB: [['US', 'RIO', '리오틴토'], ['US', 'EWU', '영국 ETF']], IN: [['US', 'RDY', '닥터레디스'], ['US', 'INDA', '인도 ETF']]
+};
+function bnTagsOf(key){
+  if (BN_TAGS[key]) return BN_TAGS[key];
+  var m = /^([A-Z]{2}):(dem|sup)$/.exec(key || '');
+  return m && BN_TAGS_CTRY[m[1]] ? { p: BN_TAGS_CTRY[m[1]] } : null;
+}
+//  점수 → 생산자 · 수요자 쪽 (유망 / 불리 / 중립)
+function bnTagSide(score, buyer){
+  if (score == null) return 'mid';
+  if (score >= 70) return buyer ? 'neg' : 'pos';
+  if (score <= 30) return buyer ? 'pos' : 'neg';
+  return 'mid';
+}
+function bnTagHtml(t, side, why){
+  var src = t[0] === 'KR' ? 'quote_kr' : 'quote_us';
+  var lab = side === 'pos' ? '유망' : side === 'neg' ? '불리' : '중립';
+  return '<button type="button" class="bn-tag ' + side + '" onclick="bnTagGo(\'' + src + '\',\'' + esc(t[1]) + '\',\'' + esc(t[2]) + '\')" title="' + esc(lab + ' · ' + why + ' · 누르면 주식분석 › 가격 차트') + '">' + esc(t[2]) + '</button>';
+}
+//  묶음 하나의 태그 줄 — 유망 먼저 · 불리 · 중립
+function bnTagsRow(key, score, gname){
+  var T0 = bnTagsOf(key); if (!T0) return '';
+  var sig = bnSignal(score).t, sp = bnTagSide(score, false), sb = bnTagSide(score, true);
+  var whyP = gname + ' 수급 긴장도 ' + (score == null ? '-' : score) + ' (' + sig + ') · 만드는 기업', whyB = gname + ' 수급 긴장도 ' + (score == null ? '-' : score) + ' (' + sig + ') · 사서 쓰는 기업 (원가)';
+  var items = (T0.p || []).map(function(t){ return { t: t, s: sp, w: whyP }; }).concat((T0.b || []).map(function(t){ return { t: t, s: sb, w: whyB }; }));
+  var ord = { pos: 0, neg: 1, mid: 2 };
+  items.sort(function(a, b){ return ord[a.s] - ord[b.s]; });
+  return items.map(function(x){ return bnTagHtml(x.t, x.s, x.w); }).join('');
+}
+function bnTagGo(src, sym, nm){
+  showTab('stocks');
+  if (typeof secPxAdd === 'function'){ secPxAdd(src, sym, nm); secPxShow(); if (typeof renderSectors === 'function') renderSectors(); stkPxReveal(); }
+}
+//  위 «한눈에» — 병목 · 과잉 묶음에서 나온 유망 · 불리만 모아 (같은 종목은 한 번)
+function bnTagStrip(rows, keyOf, nameOf){
+  var pos = [], neg = [], seen = {};
+  rows.forEach(function(r){
+    if (r.score == null || (r.score > 30 && r.score < 70)) return;
+    var T0 = bnTagsOf(keyOf(r)); if (!T0) return;
+    var add = function(list, buyer){ (list || []).forEach(function(t){ var k = t[0] + t[1]; if (seen[k]) return; seen[k] = 1;
+      var sd = bnTagSide(r.score, buyer), w = nameOf(r) + ' ' + r.score + ' (' + bnSignal(r.score).t + ') · ' + (buyer ? '사서 쓰는 기업' : '만드는 기업');
+      (sd === 'pos' ? pos : neg).push(bnTagHtml(t, sd, w)); }); };
+    add(T0.p, false); add(T0.b, true);
+  });
+  if (!pos.length && !neg.length) return '<div class="bn-tagstrip"><span class="k">종목</span><span class="st-hint">지금은 공급 병목 · 과잉 신호가 없어 유망 · 불리로 갈린 종목이 없습니다</span></div>';
+  return '<div class="bn-tagstrip">' + (pos.length ? '<span class="k pos">유망</span>' + pos.join('') : '') + (neg.length ? '<span class="k neg">불리</span>' + neg.join('') : '') + '</div>';
+}
 function renderBottleneck(){
   var box = $('bnTable'); if (!box) return;
   bnCtryRender();
@@ -19142,6 +19862,9 @@ function renderBottleneck(){
           + (r.miss ? ' · 로딩 중' : '') + (r.errs ? ' · ' + r.errs + '개 받지 못함' : '') + '</span>'
           + '<button type="button" class="bn-ic" onclick="icFromBn(\'' + esc(r.key) + '\')" title="이 묶음의 지표를 아래 «산업 지표 차트» 에 시계열로 올립니다">차트로 ↓</button></td><td></td><td></td><td></td>'
           + '<td>' + bnBar(r.score) + '</td><td><b style="color:' + sg.c + '">' + sg.t + '</b></td></tr>';
+    //  (10/8) 종목 태그 — 유망 빨강 · 불리 파랑 · 중립 회색
+    var tg = bnTagsRow(r.key, r.score, r.g.n);
+    if (tg) html += '<tr class="bn-tagrow"><td colspan="6"><span class="k">종목</span>' + tg + '</td></tr>';
     r.g.ind.forEach(function(i){
       var k = bnK(i), s = bnCached(k), er = bnMem[k] && bnMem[k].err;
       var t = bnTight(i, s), sgi = bnSignal(t);
@@ -19158,6 +19881,7 @@ function renderBottleneck(){
   html += '</table></div>';
   box.innerHTML = html;
   bnPulse(order, function(r){ return r.g.n; }, C.k === 'US' || C.k === 'KR' ? '개 산업' : '개 묶음');
+  var ts = $('bnTagStrip'); if (ts) ts.innerHTML = bnTagStrip(order, function(r){ return r.key; }, function(r){ return r.g.n; });
   bnDrawBars(order, function(r){ return r.g.n; }, function(r){ return esc(C.n + ' · ' + r.g.n) + '<br>수급 긴장도 ' + r.score + ' (지표 ' + r.have + '개 평균) · ' + bnSignal(r.score).t; });
 }
 function renderBnCompare(){
@@ -19186,6 +19910,7 @@ function renderBnCompare(){
   html += '</table></div><p class="st-hint" style="margin:8px 0 0;line-height:1.6">줄을 누르면 그 나라 병목 모니터로 · 칸 아래 작은 숫자 = 기준 월 · 2015년 이후 백분위 · 중국은 산업생산 · 가동률, 영국은 가동률 공개 월간 자료가 없어 나머지 칸으로만 평균합니다.</p>';
   box.innerHTML = html;
   bnPulse(order, function(r){ return r.c.n; }, '개 나라');
+  var ts2 = $('bnTagStrip'); if (ts2) ts2.innerHTML = bnTagStrip(order, function(r){ return r.c.k === 'US' ? 'mfg' : r.c.k === 'KR' ? 'KR:mfg' : r.c.k + ':dem'; }, function(r){ return r.c.n + ' 제조업'; });
   bnDrawBars(order, function(r){ return r.c.f + ' ' + r.c.n; }, function(r){
     return esc(r.c.n) + '<br>종합 긴장도 ' + r.score + ' (' + r.have + '개 잣대 평균) · ' + bnSignal(r.score).t
       + BN_CMP_COLS.map(function(c){ var x = r.cols[c[0]]; return x && x.t != null ? '<br>' + esc(c[1]) + ' ' + Math.round(x.t) : ''; }).join('');
@@ -19202,7 +19927,9 @@ function bnScreenLines(){
   }
   var C = bnCountry();
   return '[병목 모니터 · ' + C.n + ' (2015년 이후 백분위 · 70 이상 공급 병목 · 30 이하 공급 과잉)]\n' + bnScores().map(function(r){
-    return '- ' + r.g.n + ': ' + (r.score == null ? '-' : r.score) + ' (' + bnSignal(r.score).t + ') · ' + r.g.ind.map(function(i){
+    var T0 = bnTagsOf(r.key), sp = bnTagSide(r.score, false), sb = bnTagSide(r.score, true), nm = function(l){ return (l || []).map(function(t){ return t[2]; }).join('·'); };
+    var tagTxt = T0 ? ' [종목 · 만드는 기업 ' + ({ pos: '유망', neg: '불리', mid: '중립' })[sp] + ': ' + nm(T0.p) + (T0.b ? ' / 사서 쓰는 기업 ' + ({ pos: '유망', neg: '불리', mid: '중립' })[sb] + ': ' + nm(T0.b) : '') + ']' : '';
+    return '- ' + r.g.n + ': ' + (r.score == null ? '-' : r.score) + ' (' + bnSignal(r.score).t + ')' + tagTxt + ' · ' + r.g.ind.map(function(i){
       var s = bnCached(bnK(i)); if (!s) return null;
       return i.l + ' ' + num(s.v, Math.abs(s.v) >= 100 ? 1 : 2) + (s.yoy != null ? ' (전년비 ' + (s.yoy > 0 ? '+' : '') + s.yoy.toFixed(1) + '%)' : '') + ' ' + s.d.slice(0, 7);
     }).filter(Boolean).join(' · ');
@@ -30109,11 +30836,11 @@ function aiDrawTargets(box, sec){
     series: [
       { type: 'bar', stack: 'ff', data: base, barWidth: 16, itemStyle: { color: 'transparent' },
         //  투명 바닥의 오른쪽 끝 = 약세 값 — 그 자리에 «약세 $x» 를 적습니다
-        label: { show: true, position: 'insideRight', fontSize: 10.5, fontWeight: 700, color: '#c0392b', distance: 6,
+        label: { show: true, position: 'insideRight', fontSize: 10.5, fontWeight: 700, color: aiDk() ? '#8fbaf5' : '#1b5fa8', distance: 6,
                  formatter: function(p){ var r = p.data.r; return r.lo != null && r.hi != null ? fmt(Math.min(r.lo, r.hi)) : ''; } },
         emphasis: { disabled: true }, tooltip: { show: false } },
       { type: 'bar', stack: 'ff', data: span, barWidth: 16,
-        label: { show: true, position: 'right', fontSize: 10.5, fontWeight: 700, color: '#1f8a70', distance: 6,
+        label: { show: true, position: 'right', fontSize: 10.5, fontWeight: 700, color: aiDk() ? '#f29084' : '#c0392b', distance: 6,
                  formatter: function(p){ var r = p.data.r; return r.lo != null && r.hi != null ? fmt(Math.max(r.lo, r.hi)) : fmt(r.hi != null ? r.hi : r.lo); } },
         markLine: ml.length ? { symbol: 'none', silent: true, label: { fontSize: 10.5, fontWeight: 700, rotate: 0,
                   backgroundColor: 'rgba(255,255,255,.92)', padding: [2, 5], borderRadius: 3 }, data: ml } : undefined }
@@ -30618,6 +31345,8 @@ function aiExecSummary(sec, px, cur){
   }
   return '<div class="ai-sum">' + out + '</div>' + band;
 }
+//  다크 화면인가 (차트 글자 색을 다크용으로)
+function aiDk(){ return document.documentElement.getAttribute('data-theme') === 'dark'; }
 function aiVsChip(target, px, side){
   var r = aiVsPx(target, px);
   if (!r) return '';
