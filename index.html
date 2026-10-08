@@ -631,6 +631,18 @@
     border-radius:9px;background:var(--white);cursor:pointer;font-size:.86rem;text-align:left}
   .co-hit:hover{border-color:var(--accent);background:var(--accent-soft)}
   .co-hit .code{font-size:11px;color:var(--text-sub)}
+  /*  최근 본 기업 (10/8) — 검색 결과 아래 작은 칩 줄 */
+  .co-recent{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+  .co-recent .lab{font-size:11px;font-weight:700;color:var(--text-sub);margin-right:2px}
+  .co-recent .chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px 4px 5px;border:1px solid var(--border);border-radius:20px;
+    background:var(--card);color:var(--text);font-size:12.5px;cursor:pointer;line-height:1.3}
+  .co-recent .chip:hover{border-color:var(--accent);background:var(--accent-soft)}
+  /*  설정 › 실시간 상태 (10/8) */
+  .ad-live{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+  .ad-live .it{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--card)}
+  .ad-live .it .n{font-size:11.5px;color:var(--text-sub);font-weight:700;display:flex;align-items:center;gap:6px}
+  .ad-live .it .v{font-size:13.5px;margin-top:4px;font-variant-numeric:tabular-nums}
+  .ad-live .it .s{font-size:11.5px;color:var(--text-sub);margin-top:2px}
   .steps{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
   .step{flex:1 1 190px;display:flex;gap:9px;align-items:flex-start;padding:11px 13px;
     border:1px solid var(--border);border-radius:10px;background:var(--bg)}
@@ -1693,6 +1705,25 @@
   td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
   td.pos{color:var(--up);font-weight:600} td.neg{color:var(--down);font-weight:600}
   .empty{padding:36px;text-align:center;color:var(--text-sub);font-size:.9rem}
+  /*  ── 스켈레톤 (10/8 클릭하면 바로) — 글자 «로딩 중» 대신 <자리 모양> 을 먼저 보여 줍니다 (증권사 앱 방식) ── */
+  @keyframes skSh{0%{background-position:-400px 0}100%{background-position:400px 0}}
+  .sk{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--border) 25%,var(--bg) 50%,var(--border) 75%);background-size:800px 100%;animation:skSh 1.3s linear infinite}
+  .sk-row td{padding:11px 10px} .sk-row .sk{width:70%} .sk-row td.num .sk{width:55%;margin-left:auto}
+  .sk-tile{min-height:72px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--card)} .sk-tile .sk+.sk{margin-top:10px}
+  .sk-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  @media (prefers-reduced-motion:reduce){.sk{animation:none}}
+  /*  숫자가 바뀔 때 — 오른 쪽은 빨강 · 내린 쪽은 파랑으로 잠깐 물들었다 돌아옵니다 (토스 · 트레이딩뷰 방식). 숫자 자체는 tabular-nums 라 폭이 안 흔들립니다 */
+  @keyframes tkUp{0%{background:rgba(198,40,40,.22)}100%{background:transparent}}
+  @keyframes tkDn{0%{background:rgba(42,90,168,.22)}100%{background:transparent}}
+  .tk-up{animation:tkUp 1.1s ease-out;border-radius:4px} .tk-dn{animation:tkDn 1.1s ease-out;border-radius:4px}
+  /*  탭 · 화면이 바뀔 때 살짝 떠오르며 나타남 (120ms · 눈에 띄지 않을 만큼) */
+  @keyframes paneIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .pane-in{animation:paneIn .18s ease-out}
+  /*  실시간 점 — 숨 쉬듯 */
+  @keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(31,138,112,.45)}70%{box-shadow:0 0 0 6px rgba(31,138,112,0)}100%{box-shadow:0 0 0 0 rgba(31,138,112,0)}}
+  .live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);animation:livePulse 2s ease-out infinite;vertical-align:middle}
+  .live-dot.off{background:var(--text-sub);animation:none}
+  @media (prefers-reduced-motion:reduce){.tk-up,.tk-dn,.pane-in,.live-dot{animation:none}}
 
   .pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:20px}
   .pill.officer{background:var(--accent-soft);color:var(--primary)}
@@ -1907,7 +1938,7 @@
       <button class="tab on" data-tab="home" data-group="home" onclick="showTab('home')">홈</button>
       <button class="tab" data-tab="research" data-group="macro" onclick="showGroup('macro')">매크로 경제</button>
       <button class="tab" data-tab="trading" data-group="invest" onclick="showGroup('invest')">모의투자</button>
-      <button class="tab" data-tab="industry" data-group="analysis" onclick="showGroup('analysis')">분석</button>
+      <button class="tab" data-tab="industry" data-group="analysis" onmouseenter="tabPre('analysis')" onclick="showGroup('analysis')">분석</button>
       <button class="tab" data-tab="links" data-group="links" onclick="showTab('links')">자료실</button>
       <button class="tab hidden" id="tabAdmin" data-tab="admin" data-group="admin" onclick="showTab('admin')">설정</button>
     </div>
@@ -1939,7 +1970,7 @@
         </h2>
         <div id="evWarn"></div>
         <div id="evDday"></div>
-        <div id="evList"><div class="empty" style="padding:18px">불러오는 중…</div></div>
+        <div id="evList"><div class="empty" style="padding:18px">로딩 중…</div></div>
         <!--  임원진 편집칸 — 평소엔 접혀 있습니다 -->
         <div id="evForm" class="hidden" style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
           <div class="row">
@@ -2059,7 +2090,7 @@
           </p>
         </div>
 
-        <div id="mdBody"><div class="empty">불러오는 중…</div></div>
+        <div id="mdBody"><div class="empty">로딩 중…</div></div>
       </div>
 
     </div>
@@ -2707,7 +2738,7 @@
               <button class="btn-sm admin-only hidden" onclick="mtEditEnd()">종료 시각 바꾸기</button>
             </span>
           </h2>
-          <div id="mtClock" class="mt-clock"><span class="empty">불러오는 중…</span></div>
+          <div id="mtClock" class="mt-clock"><span class="empty">로딩 중…</span></div>
         </div>
 
         <div class="card">
@@ -2720,7 +2751,7 @@
               <button class="btn-sm" onclick="mtLoadLeague()">새로고침</button>
             </span>
           </h2>
-          <div id="mtTeams"><div class="empty" style="padding:22px">불러오는 중…</div></div>
+          <div id="mtTeams"><div class="empty" style="padding:22px">로딩 중…</div></div>
         </div>
       </div>
 
@@ -3267,7 +3298,7 @@
         <h2><span id="soClockLabel">대회 시간</span>
           <span class="tools"><span id="soWhen" class="st-hint"></span></span>
         </h2>
-        <div id="soClock" class="mt-clock"><span class="empty">불러오는 중…</span></div>
+        <div id="soClock" class="mt-clock"><span class="empty">로딩 중…</span></div>
         <div id="soJoinBox" class="so-join"></div>
       </div>
 
@@ -3350,7 +3381,7 @@
             <button class="btn-sm" onclick="soLoadBoard()">새로고침</button>
           </span>
         </h2>
-        <div id="soBoard"><div class="empty" style="padding:22px">불러오는 중…</div></div>
+        <div id="soBoard"><div class="empty" style="padding:22px">로딩 중…</div></div>
       </div>
 
       <div class="card admin-only hidden" id="soAdminCard">
@@ -3399,6 +3430,8 @@
           <button class="btn-sm btn-solid" onclick="searchCompany()">검색</button>
         </div>
         <div id="coResults"></div>
+        <!--  (10/8) 최근 본 기업 — 토스처럼 한 번에 다시 엽니다 (브라우저에만 저장)  -->
+        <div id="coRecent" class="co-recent hidden"></div>
       </div>
 
       <!--  회사 이름·요약은 기업을 고른 뒤에 나옵니다.  -->
@@ -4112,7 +4145,7 @@
             </span>
           </h2>
           <div class="scroll"><table id="dkTopTable">
-            <tr><td class="empty">불러오는 중…</td></tr></table></div>
+            <tr><td class="empty">로딩 중…</td></tr></table></div>
         </div>
 
         <div class="card">
@@ -4300,7 +4333,7 @@
         </div>
         <div class="msg" id="linkMsg"></div>
       </div>
-      <div id="linksBody"><div class="empty">불러오는 중…</div></div>
+      <div id="linksBody"><div class="empty">로딩 중…</div></div>
     </div>
 
     <!-- ════ 접속 기록 ════ -->
@@ -4544,7 +4577,7 @@
         <h2>AI 리포트 비용
           <span class="tools"><button class="btn-sm" onclick="loadAiSpend()">새로고침</button></span>
         </h2>
-        <div id="aiSpendBody"><div class="empty">불러오는 중…</div></div>
+        <div id="aiSpendBody"><div class="empty">로딩 중…</div></div>
       </div>
 
 <!--  ⚠️ AI 리포트가 앞뒤 안 맞는지 한 번에 훑습니다.
@@ -4587,7 +4620,7 @@
           <button id="avTab-who"   onclick="avTab('who')">사람별</button>
           <button id="avTab-code"  onclick="avTab('code')">회사별</button>
         </div>
-        <div id="aiViewBody"><div class="empty">불러오는 중…</div></div>
+        <div id="aiViewBody"><div class="empty">로딩 중…</div></div>
       </div>
         </div>
 
@@ -4684,6 +4717,11 @@
         </div>
 
         <div id="adPane-etc" class="hidden">
+      <!--  (10/8 학회장: «초 · 카운트다운은 학회원 화면에서 빼고, 잘 돌아가고 있다는 것만 설정에서») -->
+      <div class="card admin-only hidden">
+        <h2>실시간 상태 <span class="tools"><span class="st-hint" id="adLiveHint"></span></span></h2>
+        <div id="adLive" class="ad-live"><div class="empty" style="padding:14px">마켓 맵을 한 번 열면 여기에 상태가 보입니다.</div></div>
+      </div>
       <!--  ⚠️ 학회장: «모든 항목 각각 맞는 지표에 해당되고 그 지표에
             해당되는 수치만 딱 정확하게 나오는지 확인하고, 그 수치들을
             팩트체크해줘. 이게 너무 중요해. 우리 경제보고서에 쓸 거라서».
@@ -4743,7 +4781,7 @@
         <p>누가 언제 터미널에 들어왔는지 확인합니다. IP나 위치는 저장하지 않습니다.</p>
       </div>
       <div class="note"><b>부원들에게 미리 알려주세요.</b> 학회원 개개인의 활동을 임원진이 보는 기능입니다.</div>
-      <div id="accessBody"><div class="empty">불러오는 중…</div></div>
+      <div id="accessBody"><div class="empty">로딩 중…</div></div>
         </div>
       </div>
 
@@ -5989,6 +6027,8 @@ function showTab(name){
   ALL_PANES.forEach(function(t){
     var p = $('pane-'+t); if (p) p.classList.toggle('hidden', t !== name);
   });
+  //  (10/8 모션) 다른 칸으로 바뀔 때 살짝 떠오르며 나타남 — 같은 칸을 다시 누른 건 그대로
+  if (!again && MOTION_OK){ var np = $('pane-' + name); if (np){ np.classList.remove('pane-in'); void np.offsetWidth; np.classList.add('pane-in'); setTimeout(function(){ np.classList.remove('pane-in'); }, 260); } }
   var g = groupOf(name);
   document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('on', b.dataset.group === g); });
   navCenter(document.querySelector('.tabs-in'), document.querySelector('.tab.on'));
@@ -6113,14 +6153,145 @@ var EC_TTL = {
   },
   'company-data': {
     kr_div: 60, kr_major: 60, kr_elest: 60, kr_main: 60, eod_full: 30, filing_text: 60,
-    f13_search: 60, f13_filings: 60, f13_holdings: 60, congress_index: 30, congress_ptr: 60, dart_recent: 3
+    f13_search: 60, f13_filings: 60, f13_holdings: 60, congress_index: 30, congress_ptr: 60, dart_recent: 3,
+    //  (10/8 클릭하면 바로) 재무제표 · 요약 · 공시 목록도 — 서버가 하루에 한 번만 새로 만드니 6시간은 그대로 씁니다
+    kr_fin_full: 360, us_fin_full: 360, kr_fin: 360, us_fin: 360, kr_fin_q: 360, us_fin_q: 360, kr_list: 10, us_list: 10
   }
 };
-var ecMem = {}, ecFly = {}, EC_MAX = 160, ecStat = { hit: 0, join: 0, miss: 0 };
+var ecMem = {}, ecFly = {}, EC_MAX = 160, ecStat = { hit: 0, join: 0, miss: 0, disk: 0, stale: 0 };
 function ecTtl(fn, body){
   var t = EC_TTL[fn], k = body && (body.source || body.action);
   if (!t || !k || body.force || !t[k]) return 0;
   return t[k] * 60000;
+}
+/*  ── 클릭하면 바로 (10/8) ────────────────────────────────────────────────────────────────
+    학회장: «토스증권 같은 증권사 웹처럼 클릭하면 바로 나오게».
+    증권사 앱이 빠른 이유는 서버가 빨라서가 아니라 <마지막으로 본 값을 기기에 두고 먼저 그린 뒤> 새 값은 뒤에서 받기 때문입니다.
+    ① 받은 답을 브라우저 보관함(IndexedDB · 새로고침 · 재접속해도 남음)에 둡니다. 같은 것을 다시 열면 서버를 기다리지 않고
+       바로 그리고, 아래 EC_TTL(분) 이 지난 것이면 뒤에서 새로 받아 <바뀐 경우에만> 다시 그립니다 (stale-while-revalidate).
+    ② 서버가 «refreshing» (묵은 값 먼저 · 뒤에서 새로 계산) 으로 답하면 몇 초 뒤 한 번 더 받아 바뀌면 다시 그립니다.
+    ③ 보관하는 것은 아래 EC_KEEP 의 <읽기 전용 공개 자료> 뿐 — 주문 · 계정 · 팀 대회 · AI 답은 절대 남기지 않습니다.
+    ④ 받은 d 에 d.__fresh(Promise) 가 달려 오면 «뒤에서 새 값이 오는 중» 입니다 — ecOnFresh(d, fn) 으로 받아 다시 그립니다.
+    EC_KEEP 값 = 묵은 값을 <먼저 보여 주는> 최대 시간(분). 그보다 오래된 것은 서버를 기다립니다.                          */
+var EC_KEEP = {
+  'company-data': { kr_fin_full: 60 * 24 * 14, us_fin_full: 60 * 24 * 14, kr_fin: 60 * 24 * 14, us_fin: 60 * 24 * 14, kr_fin_q: 60 * 24 * 14, us_fin_q: 60 * 24 * 14,
+                    kr_list: 60 * 24 * 7, us_list: 60 * 24 * 7, kr_div: 60 * 24 * 30, kr_major: 60 * 24 * 30, kr_elest: 60 * 24 * 30, kr_main: 60 * 24 * 30,
+                    eod_full: 60 * 24 * 7, f13_search: 60 * 24 * 30, f13_filings: 60 * 24 * 30, f13_holdings: 60 * 24 * 365, congress_index: 60 * 24 * 7,
+                    dart_recent: 120, filing_text: 60 * 24 * 365 },
+  'market-data':  { fred: 60 * 24 * 3, ecos: 60 * 24 * 3, bond: 60 * 24 * 3, bls: 60 * 24 * 3, bea: 60 * 24 * 3, wb: 60 * 24 * 7,
+                    fred_items: 60 * 24 * 7, fred_search: 60 * 24, fred_report: 60 * 24 * 3, ecos_report: 60 * 24 * 3,
+                    us_curve: 60 * 24 * 3, kr_curve: 60 * 24 * 3, macro_calendar: 60 * 24,
+                    quote_us: 60 * 24 * 3, quote_kr: 60 * 24 * 3, quote_crypto: 60 * 24, home_fx: 60 * 24, news_feed: 360,
+                    universe_crypto: 60 * 24 * 7, crypto_currencies: 60 * 24 * 7, darkpool: 60 * 24 * 3, darkpool_top: 60 * 24 * 3, opt_expirations: 60 * 24,
+                    mkt_snap: 60, mkt_country: 60, mkt_info: 60 * 24 * 3, mkt_news: 360, mkt_brief: 60 * 24 * 3, bars_bulk: 60 * 24, bn_list: 60 * 24 * 3 }
+};
+//  ⚠️ 보관하지 않는 몸통 — 날짜가 «오늘» 로 바뀌는 요청(start 가 오늘 기준)은 열쇠가 날마다 달라져 그냥 쌓이기만 합니다 (prune 이 치웁니다)
+function ecKeepMs(fn, body){
+  var t = EC_KEEP[fn], k = body && (body.source || body.action);
+  if (!t || !k || body.force || !t[k]) return 0;
+  return t[k] * 60000;
+}
+var ecDbP = null;
+function ecDb(){
+  if (ecDbP) return ecDbP;
+  ecDbP = new Promise(function(res){
+    try {
+      if (!window.indexedDB){ res(null); return; }
+      var rq = indexedDB.open('safe_edge_v1', 1);
+      rq.onupgradeneeded = function(){ try { var st = rq.result.createObjectStore('r'); st.createIndex('at', 'at'); } catch(e){} };
+      rq.onsuccess = function(){ var db = rq.result; db.onversionchange = function(){ try { db.close(); } catch(e){} ecDbP = null; }; res(db); };
+      rq.onerror = function(){ res(null); };
+      rq.onblocked = function(){ res(null); };
+      //  (사파리) open 이 영영 안 끝나는 일이 있어 2초 넘으면 보관함 없이 갑니다
+      setTimeout(function(){ res(null); }, 2000);
+    } catch(e){ res(null); }
+  });
+  return ecDbP;
+}
+function ecDiskGet(k){
+  return ecDb().then(function(db){
+    if (!db) return null;
+    return new Promise(function(res){
+      try {
+        var rq = db.transaction('r', 'readonly').objectStore('r').get(k);
+        rq.onsuccess = function(){ var v = rq.result; res(v && v.d && typeof v.at === 'number' ? v : null); };
+        rq.onerror = function(){ res(null); };
+      } catch(e){ res(null); }
+    });
+  }).catch(function(){ return null; });
+}
+function ecDiskPut(k, d){
+  ecDb().then(function(db){
+    if (!db) return;
+    try { db.transaction('r', 'readwrite').objectStore('r').put({ at: Date.now(), d: d }, k); } catch(e){}
+  }).catch(function(){});
+}
+//  한가할 때 한 번 — 30일 지난 것을 치웁니다 (보관함이 끝없이 크지 않게)
+function ecDiskPrune(){
+  ecDb().then(function(db){
+    if (!db) return;
+    try {
+      var st = db.transaction('r', 'readwrite').objectStore('r');
+      var rq = st.index('at').openCursor(IDBKeyRange.upperBound(Date.now() - 30 * 864e5));
+      rq.onsuccess = function(){ var c = rq.result; if (c){ c.delete(); c.continue(); } };
+    } catch(e){}
+  }).catch(function(){});
+}
+(function(){ var go = function(){ ecDiskPrune(); }; if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 20000 }); else setTimeout(go, 12000); })();
+//  새 값이 뒤에서 오는 자료 — d.__fresh (JSON 에 안 섞이게 숨긴 속성)
+function ecAttachFresh(d, p){
+  try { Object.defineProperty(d, '__fresh', { value: p, enumerable: false, configurable: true, writable: true }); } catch(e){}
+  return d;
+}
+//  ecOnFresh(d, fn) — 뒤에서 새 값이 와서 <바뀌었으면> fn(새 값). 아니면 아무 일도 없음
+function ecOnFresh(d, fn){
+  if (!d || !d.__fresh || typeof d.__fresh.then !== 'function') return;
+  //  새 값에도 또 «뒤에 올 값» 이 달려 있을 수 있어(서버 refreshing) 이어서 기다립니다
+  d.__fresh.then(function(nd){ if (nd) { try { fn(nd); } catch(e){} ecOnFresh(nd, fn); } }, function(){});
+}
+//  같은 자료인가 — «언제 받았나 · 캐시였나» 같은 꼬리표는 빼고 알맹이만 견줍니다 (안 바뀌었으면 다시 안 그리게)
+var EC_META = { cached: 1, refreshing: 1, fetched_at: 1, age_sec: 1, until: 1, build: 1, at: 1, as_of: 1, live_at: 1, made_at: 1 };
+function ecSameData(a, b){
+  try {
+    var strip = function(x){ if (!x || typeof x !== 'object' || Array.isArray(x)) return x; var o = {}; Object.keys(x).forEach(function(k){ if (!EC_META[k]) o[k] = x[k]; }); return o; };
+    return JSON.stringify(strip(a)) === JSON.stringify(strip(b));
+  } catch(e){ return false; }
+}
+//  서버가 «refreshing» 으로 답했으면 — 5초 · 8초 · 12초 뒤에 다시 받아 새 값이 왔는지 봅니다 (최대 세 번)
+function ecRepoll(fn, body, k, ttl, prev, n){
+  var waits = [5000, 8000, 12000];
+  if (n >= waits.length) return Promise.resolve(null);
+  return new Promise(function(res){ setTimeout(res, waits[n]); }).then(function(){
+    return edgeCall0(fn, body).then(function(d){
+      if (d && d.refreshing) return ecRepoll(fn, body, k, ttl, prev, n + 1);
+      ecStore(fn, body, k, d, ttl);
+      return ecSameData(prev, d) ? null : d;
+    }, function(){ return null; });
+  });
+}
+//  받은 답을 메모리 · 보관함에 넣습니다 (쓸 만한 것만). 서버가 «refreshing»(묵은 값 먼저) 으로 준 것은
+//  메모리에는 안 두고(새 값을 다시 받아야 하니), 보관함에는 <제 주기로 새로 받는 자료>(EC_TTL 없음 · 마켓 맵 등)만 둡니다
+function ecStore(fn, body, k, d, ttl){
+  if (!d || typeof d !== 'object' || d.error || d.stale || d.partial) return;
+  if (Array.isArray(d.points) && !d.points.length) return;
+  if (ttl && !d.refreshing) ecPut(k, d, ttl);
+  if (ecKeepMs(fn, body) && (!d.refreshing || !ttl)) ecDiskPut(k, d);
+}
+//  서버에서 새로 받아 넣고, 쓰던 값과 <다르면> 새 값을 돌려줍니다 (같으면 null → 다시 안 그림)
+function ecRefresh(fn, body, k, ttl, prev){
+  if (ecFly[k]) return ecFly[k].then(function(d){ return ecSameData(prev, d) ? null : ecCopy(d); }, function(){ return null; });
+  var p = edgeCall0(fn, body).then(function(d){
+    delete ecFly[k];
+    ecStore(fn, body, k, d, ttl);
+    if (d && d.refreshing && ttl){
+      //  서버도 묵은 값을 먼저 줬으면 — 그 값이 쓰던 값과 다르면 일단 그리고, 뒤의 새 값은 다시 기다립니다
+      var later = ecRepoll(fn, body, k, ttl, d, 0);
+      return ecSameData(prev, d) ? later : ecAttachFresh(ecCopy(d), later);
+    }
+    return ecSameData(prev, d) ? null : ecCopy(d);
+  }, function(){ delete ecFly[k]; return null; });
+  ecFly[k] = p.then(function(d){ return d || prev; });
+  return p;
 }
 function ecCopy(d){
   //  받은 쪽이 고쳐 써도 보관본이 안 바뀌게 복사해서 줍니다
@@ -6128,7 +6299,7 @@ function ecCopy(d){
   catch(e){ try { return JSON.parse(JSON.stringify(d)); } catch(e2){ return d; } }
 }
 function ecKeep(d){
-  return !!d && typeof d === 'object' && !d.stale && !d.error && !d.partial
+  return !!d && typeof d === 'object' && !d.stale && !d.error && !d.partial && !d.refreshing
       && !(Array.isArray(d.points) && !d.points.length);
 }
 function ecPut(k, d, ttl){
@@ -6144,6 +6315,14 @@ function ecForget(srcs){
   if (!srcs){ ecMem = {}; return; }
   var re = new RegExp('"(source|action)":"(' + srcs.join('|') + ')"');
   Object.keys(ecMem).forEach(function(k){ if (re.test(k)) delete ecMem[k]; });
+  //  브라우저 보관함의 그 자료도 같이 비웁니다 (10/8) — «새로 받기» 를 눌렀는데 묵은 값이 먼저 보이지 않게
+  ecDb().then(function(db){
+    if (!db) return;
+    try {
+      var st = db.transaction('r', 'readwrite').objectStore('r'), rq = st.openCursor();
+      rq.onsuccess = function(){ var c = rq.result; if (!c) return; if (re.test(String(c.key))) c.delete(); c.continue(); };
+    } catch(e){}
+  }).catch(function(){});
 }
 /*  localStorage 보관함 — 푼 것(JSON.parse)을 기억해 두고, 저장된 글이 그대로면 다시 풀지 않습니다 (10/7).
     다른 창 · 다른 코드가 글을 바꾸면 글이 달라지니 저절로 다시 풉니다.                                  */
@@ -6160,6 +6339,74 @@ function throttleFn(fn, ms){
   f.flush = function(){ if (tm){ clearTimeout(tm); tm = null; } last = Date.now(); fn(); };
   return f;
 }
+//  (10/8 클릭하면 바로) 상단 탭에 마우스를 올리면 그 탭의 첫 화면 자료를 미리 받아 둡니다 (한 번만 · 한가할 때)
+var tabPreDone = {};
+function tabPre(g){
+  if (tabPreDone[g] || !me) return; tabPreDone[g] = true;
+  var go = function(){
+    try {
+      if (g === 'analysis'){ edge({ source: 'mkt_snap' }).catch(function(){}); edge({ source: 'mkt_news' }).catch(function(){}); }
+    } catch(e){}
+  };
+  if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 1500 }); else setTimeout(go, 200);
+}
+/*  ── 스켈레톤 · 모션 도우미 (10/8) ───────────────────────────────────────────
+    skelRows(n, cols) — 표의 자리 n줄 · skelTiles(n) — 타일 n개 (받는 동안 «로딩 중» 글자 대신 자리 모양)
+    tickFlash(el, dir) — 숫자가 바뀐 칸을 잠깐 물들임 (dir > 0 빨강 · < 0 파랑)
+    tweenText(el, from, to, fmt, ms) — 숫자가 from 에서 to 로 굴러감 (reduced-motion 이면 바로)                   */
+function skelRows(n, cols){
+  var row = '<tr class="sk-row"><td><span class="sk"></span></td>' + Array.apply(null, Array(Math.max(1, (cols || 4) - 1))).map(function(){ return '<td class="num"><span class="sk"></span></td>'; }).join('') + '</tr>';
+  return Array.apply(null, Array(n || 6)).map(function(){ return row; }).join('');
+}
+function skelTiles(n){
+  return '<div class="sk-tiles">' + Array.apply(null, Array(n || 4)).map(function(){ return '<div class="sk-tile"><span class="sk" style="width:45%"></span><span class="sk" style="width:70%;height:18px"></span><span class="sk" style="width:35%"></span></div>'; }).join('') + '</div>';
+}
+var MOTION_OK = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+function tickFlash(el, dir){
+  if (!el || !dir || !MOTION_OK) return;
+  var c = dir > 0 ? 'tk-up' : 'tk-dn';
+  el.classList.remove('tk-up', 'tk-dn'); void el.offsetWidth; el.classList.add(c);
+  setTimeout(function(){ el.classList.remove(c); }, 1200);
+}
+function tweenText(el, from, to, fmt, ms){
+  if (!el) return;
+  if (!MOTION_OK || from == null || !isFinite(from) || !isFinite(to) || from === to){ el.textContent = fmt(to); return; }
+  var t0 = performance.now(), dur = ms || 500;
+  if (el.__tw) cancelAnimationFrame(el.__tw);
+  el.textContent = fmt(from);                 //  옛 값에서 출발 (첫 프레임 전에도)
+  var step = function(t){
+    var k = Math.min(1, (t - t0) / dur); k = 1 - Math.pow(1 - k, 3);          //  ease-out
+    el.textContent = fmt(from + (to - from) * k);
+    if (k < 1) el.__tw = requestAnimationFrame(step); else el.__tw = null;
+  };
+  el.__tw = requestAnimationFrame(step);
+}
+/*  숫자 칸이 바뀌면 잠깐 물들이기 · 굴리기 (10/8 모션)
+    값 요소에 data-lv="열쇠" 를 달고 innerHTML 대신 lvSwap(box, html) 로 바꾸면, 같은 열쇠의 글이 달라진 칸만
+    오른 쪽 빨강 · 내린 쪽 파랑으로 잠깐 물들고, data-tw 가 있으면 숫자가 옛 값에서 새 값으로 굴러갑니다.
+    글이 그대로면(값이 안 바뀜) 아무 일도 없습니다 — 10초마다 전부 깜빡이지 않게.                          */
+function lvNum(t){ var m = String(t || '').replace(/,/g, '').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; }
+function lvSwap(box, html){
+  if (!box) return false;
+  if (box.__html === html) return false;
+  var old = {}, had = !!box.__html;
+  if (MOTION_OK && had) box.querySelectorAll('[data-lv]').forEach(function(e){ old[e.getAttribute('data-lv')] = e.textContent; });
+  box.__html = html; box.innerHTML = html;
+  if (!MOTION_OK || !had) return true;
+  box.querySelectorAll('[data-lv]').forEach(function(e){
+    var k = e.getAttribute('data-lv'); if (!(k in old) || old[k] === e.textContent) return;
+    var a = lvNum(old[k]), b = lvNum(e.textContent), dir = isFinite(a) && isFinite(b) ? (b > a ? 1 : b < a ? -1 : 0) : 0;
+    if (dir) tickFlash(e, dir);
+    if (e.hasAttribute('data-tw') && isFinite(a) && isFinite(b) && a !== b){
+      //  글의 앞뒤(부호 · 단위)는 새 글 그대로 두고 숫자만 굴립니다
+      var txt = e.textContent, m = txt.replace(/,/g, '').match(/-?\d+(?:\.\d+)?/), dp = m && m[0].indexOf('.') >= 0 ? m[0].split('.')[1].length : 0;
+      var i0 = txt.search(/[-\d]/), pre = i0 > 0 ? txt.slice(0, i0) : '', num0 = txt.slice(i0).match(/^[-\d.,]+/), suf = txt.slice(i0 + (num0 ? num0[0].length : 0));
+      if (pre === '-' || pre === '+') pre = '';
+      tweenText(e, a, b, function(v){ return pre + num(v, dp) + suf; }, 600);
+    }
+  });
+  return true;
+}
 function lsRead(c){
   var raw = null;
   try { raw = localStorage.getItem(c.key); } catch(e){}
@@ -6174,19 +6421,32 @@ function lsWrite(c, m){
   catch(e){ c.obj = null; c.raw = null; }       //  못 썼으면(꽉 참) 다음에 저장된 글을 다시 읽습니다 (예전과 같음)
 }
 async function edgeCall(fn, body, _retry){
-  var ttl = _retry ? 0 : ecTtl(fn, body);
-  if (!ttl) return edgeCall0(fn, body, _retry);
+  var ttl = _retry ? 0 : ecTtl(fn, body), keep = _retry ? 0 : ecKeepMs(fn, body);
+  if (!ttl && !keep) return edgeCall0(fn, body, _retry);
   var k = fn + '|' + JSON.stringify(body);
   var hit = ecMem[k];
   if (hit && hit.exp > Date.now()){ ecStat.hit++; return ecCopy(hit.d); }
   if (hit) delete ecMem[k];
-  if (ecFly[k]){ ecStat.join++; return ecFly[k].then(ecCopy); }
+  if (ecFly[k] && !keep){ ecStat.join++; return ecFly[k].then(ecCopy); }
+  //  브라우저 보관함 — 있으면 <먼저> 주고, 오래된 것이면 뒤에서 새로 받습니다 (클릭하면 바로)
+  if (keep){
+    var disk = await ecDiskGet(k);
+    if (disk && Date.now() - disk.at < keep && disk.d && typeof disk.d === 'object' && !disk.d.error){
+      var age = Date.now() - disk.at;
+      if (ttl && age < ttl && !ecFly[k]){ ecStat.disk++; ecPut(k, disk.d, ttl - age); return ecCopy(disk.d); }
+      ecStat.stale++;
+      return ecAttachFresh(ecCopy(disk.d), ecRefresh(fn, body, k, ttl, disk.d));
+    }
+    if (ecFly[k]){ ecStat.join++; return ecFly[k].then(ecCopy); }
+  }
   ecStat.miss++;
   var p = edgeCall0(fn, body);
   ecFly[k] = p;
   try {
     var d = await p;
-    if (ecKeep(d)) ecPut(k, d, ttl);
+    ecStore(fn, body, k, d, ttl);
+    //  서버가 «묵은 값 먼저» 로 답했으면 새 값을 뒤에서 기다립니다 (제 주기로 새로 받는 자료는 그 주기에 맡김)
+    if (d && d.refreshing && ttl) ecAttachFresh(d, ecRepoll(fn, body, k, ttl, d, 0));
     return d;
   } finally { delete ecFly[k]; }
 }
@@ -7357,7 +7617,7 @@ async function dtRun(){
   var need = keys.filter(function(k){
     return !dtSeries[k] || dtSeries[k].start !== start; });
   if (need.length){
-    $('dtStatus').textContent = '불러오는 중… (0/' + need.length + ')';
+    $('dtStatus').textContent = '로딩 중… (0/' + need.length + ')';
     var done = 0;
     //  FRED 는 분당 횟수 제한이 있어서, 한꺼번에 다 부르면 뒤쪽이 거절당합니다.
     //  거절당하면 그 항목은 선이 아예 안 그려집니다 — 두 개씩 나눠 부릅니다.
@@ -7377,7 +7637,7 @@ async function dtRun(){
           dtSeries[k] = { start:start, points:[], name:x.name, err:e.message };
         }
         done++;
-        $('dtStatus').textContent = '불러오는 중… (' + done + '/' + need.length + ')';
+        $('dtStatus').textContent = '로딩 중… (' + done + '/' + need.length + ')';
       }));
     }
   }
@@ -8155,7 +8415,7 @@ async function seedFxTable(){
       한 번 받으면 <창을 닫을 때까지> 다시 안 받았습니다. 아침에 켜놓고
       오후에 본 환율은 <어제 것> 이었습니다.
 
-   ⚠️ 저절로 받을 때는 «불러오는 중…» 으로 화면을 비우지 않습니다.
+   ⚠️ 저절로 받을 때는 «로딩 중…» 으로 화면을 비우지 않습니다.
       30분마다 타일이 사라졌다 나타나면 읽던 사람이 놀랍니다.        */
 var FX_MS = 30 * 60 * 1000;
 var fxTimer = null, fxGotAt = 0;
@@ -8167,13 +8427,15 @@ async function loadHomeFx(force, quiet){
   if (!$('homeFxTiles')) return;
   if (homeFx && !force){ renderHomeFx(); return; }
   if (!quiet)
-    $('homeFxTiles').innerHTML = '<div class="empty" style="padding:22px">불러오는 중…</div>';
+    $('homeFxTiles').innerHTML = '<div class="empty" style="padding:22px">로딩 중…</div>';
   try {
     homeFx = await edge({ source:'home_fx', days:400 });
     fxGotAt = Date.now();
     renderHomeFx();
     fxAuto();
     seedFxTable();               // 모의투자에서 쓸 환율 보관함도 같이 채워둡니다
+    //  (10/8 클릭하면 바로) 보관함의 환율을 먼저 그렸고 새 값이 오면 바꿔 그립니다
+    ecOnFresh(homeFx, function(nd){ homeFx = nd; fxGotAt = Date.now(); renderHomeFx(); seedFxTable(); });
   } catch(e){
     //  ⚠️ 저절로 받다 실패한 것이면 <이미 있는 값> 을 지우지 않습니다.
     //     인터넷이 잠깐 끊겼다고 멀쩡한 화면을 비울 이유가 없습니다.
@@ -8392,15 +8654,23 @@ async function nfLoad(force){
   nfBusy = true;
   var kind = nfKind;
   if (!nfData[kind]) $('nfList').innerHTML =
-    '<div class="empty" style="padding:22px">불러오는 중…</div>';
+    '<div class="empty" style="padding:22px">로딩 중…</div>';
   try {
     var d;
     if (kind === 'dart') d = await edgeCo({ action:'dart_recent', limit:60 });
     else d = await edge({ source:'news_feed', kind: kind });
-    nfData[kind] = d;
-    warn('nfWarn','');
-    if (d.failed && d.failed.length)
-      warn('nfWarn', '받지 못한 곳: ' + esc(d.failed.join(', ')), 'info');
+    var show = function(x){
+      nfData[kind] = x;
+      warn('nfWarn','');
+      //  (10/8 학회장: «있으면 있는 대로 · 못 찾으면 못 찾는 대로») 4초 안에 온 매체만 먼저 — 늦는 매체는 뒤에 더해짐 · 못 받은 곳은 적음
+      var msg = [];
+      if (x.pending) msg.push('일부 매체(' + x.pending + '곳)는 아직 받는 중 - 잠시 뒤 더해집니다');
+      if (x.failed && x.failed.length) msg.push('받지 못한 곳: ' + x.failed.join(', '));
+      if (msg.length) warn('nfWarn', esc(msg.join(' · ')), 'info');
+    };
+    show(d);
+    //  보관함의 목록을 먼저 보였거나 서버가 일부만 먼저 줬으면 — 다 모인 목록이 오면 같은 칸을 보고 있을 때 바꿔 그림
+    ecOnFresh(d, function(nd){ show(nd); if (kind === nfKind) nfRender(); });
   } catch(e){
     warn('nfWarn', esc(e.message));
   }
@@ -9143,6 +9413,13 @@ function aicActClean(a){
     a.view = a.tab === 'market' && /^(heat|world|fx)$/.test(String(a.view || '')) ? a.view : null;
     a.country = a.tab === 'market' && MK_CC[String(a.country || '')] ? String(a.country) : null;
     if (a.country) a.view = 'world';
+    //  (10/8 학회장: «세이피는 터미널 전체를 돌아다니고 경로를 제시하고 이동시킬 수 있어야») — 화면 안쪽 칸까지
+    a.part = a.country && MK_CTABS.some(function(x){ return x[0] === a.part; }) ? String(a.part) : null;             //  나라 칸: 개요 · 주요 기업 · 업종 · 환율 · 시황
+    a.pair = a.tab === 'market' && MK_FX_PAIRS.some(function(x){ return x.k === a.pair; }) ? String(a.pair) : null;   //  환율 예측 통화쌍
+    if (a.pair && !a.country) a.view = 'fx';
+    a.curve = a.tab === 'research' && /^(us|kr)$/.test(String(a.curve || '')) ? String(a.curve) : null;              //  일드커브 (미국 · 한국)
+    a.fs_period = a.tab === 'company' && a.fs_period === 'quarter' ? 'quarter' : null;                                 //  재무제표 분기
+    a.ai_view = a.tab === 'ai' && /^(new|lib)$/.test(String(a.ai_view || '')) ? String(a.ai_view) : null;              //  AI 분석: 새 리포트 · 보관함
     return a;
   }
   return null;
@@ -9166,6 +9443,11 @@ function aicActWhere(a){
     if (a.flow) s += ' › ' + (a.flow === 'dark' ? '다크풀' : '미 의회 거래');
     if (a.view) s += ' › ' + ((MK_VIEWS.filter(function(v){ return v[0] === a.view; })[0] || [])[1] || a.view);
     if (a.country) s += ' › ' + ((MK_CC[a.country] || [])[0] || a.country);
+    if (a.part) s += ' › ' + ((MK_CTABS.filter(function(x){ return x[0] === a.part; })[0] || [])[1] || a.part);
+    if (a.pair) s += ' › ' + (((MK_FX_PAIRS.filter(function(x){ return x.k === a.pair; })[0] || {}).n) || a.pair);
+    if (a.curve) s += ' › ' + (a.curve === 'kr' ? '한국 일드커브' : '미국 일드커브');
+    if (a.fs_period) s += ' › 분기';
+    if (a.ai_view) s += ' › ' + (a.ai_view === 'lib' ? '보관함' : '새 리포트');
   }
   return s;
 }
@@ -9420,13 +9702,22 @@ async function aicActApply(i, j, auto){
       //  5판: 화면 안쪽까지 한 번에 — 기업(회사 · 칸 · 재무제표) · AI 리포트 · 옵션 티커 · 자금흐름 칸
       if (a.tab === 'company'){
         if (a.company && !coSameCo(co, a.company)){ coHits = [a.company]; await pickCompany(0); }
+        //  (10/8) 분기 재무제표 — 기간 손잡이를 분기로 (coView.period) · 요약 타일 · 표 다시
+        if (a.fs_period === 'quarter' && typeof coView !== 'undefined' && coView.period !== 'quarter' && typeof setCoPeriod === 'function'){ var cp = $('coPeriod'); if (cp) cp.value = 'quarter'; setCoPeriod('quarter'); }
         if (a.statement){ coShow('fin'); coFsShow(a.statement); }
         else if (a.sub) coShow(a.sub);
       }
       if (a.tab === 'ai' && a.report_id){ aiShow('lib'); await aiOpen(a.report_id); }
+      else if (a.tab === 'ai' && a.ai_view) aiShow(a.ai_view);
       if (a.tab === 'deriv' && a.symbol){ if (dvMkt !== 'stock') dvMarket('stock'); await dvPick(a.symbol); }
       if (a.tab === 'flow' && a.flow) flowShow(a.flow);
-      if (a.tab === 'market'){ if (a.view) mkSetView(a.view); if (a.country) mkPickCountry(a.country); }
+      if (a.tab === 'market'){
+        if (a.view) mkSetView(a.view);
+        if (a.country){ mkPickCountry(a.country); if (a.part && mkTabOk(a.part, a.country)) mkCtryTabSet(a.part); if (a.part === 'fx' && a.pair && typeof mkCfxSet === 'function') mkCfxSet(a.pair); }
+        else if (a.pair) mkFxSet(a.pair);
+      }
+      //  (10/8) 일드커브 — 매크로 차트 자리를 커브로 바꾸고 시장(미국 · 한국)을 맞춤
+      if (a.tab === 'research' && a.curve){ if (ycMarket !== a.curve) ycSetMarket(a.curve, true); if (typeof ycToMain === 'function') ycToMain(); }
     }
     aicUndo[i + '.' + j] = snap;
     a.done = true; aicSave(); aicRender();
@@ -9749,7 +10040,7 @@ async function loadEcon(){
   var from = ecIso(new Date(ecCursor.getFullYear(), ecCursor.getMonth(), -6));
   var last = new Date(ecCursor.getFullYear(), ecCursor.getMonth() + 1, 7);
   $('ecTitle').textContent = ecCursor.getFullYear() + '년 ' + (ecCursor.getMonth()+1) + '월';
-  $('ecCal').innerHTML = '<div class="empty" style="padding:18px">불러오는 중…</div>';
+  $('ecCal').innerHTML = '<div class="empty" style="padding:18px">로딩 중…</div>';
   $('ecBody').innerHTML = '';
   warn('ecWarn','');
   try {
@@ -10357,7 +10648,7 @@ async function valLoadInner(force){
   var gen = valGen, me = co;
   var stale = function(){ return gen !== valGen || co !== me; };
   valBusy = true;
-  $('valTiles').innerHTML = '<div class="empty" style="padding:22px">재무제표를 불러오는 중…</div>';
+  if (!(valData && valData.key === valCoKey(co))) $('valTiles').innerHTML = skelTiles(6);
   warn('valWarn','');
   try {
     //  연간 재무제표가 뼈대 (DCF 의 과거 비율) · 분기 재무제표로 «지금» 값(최근 4분기 손익 · 최근 분기 잔액)을 냅니다 — 둘을 같이 받음
@@ -10366,6 +10657,9 @@ async function valLoadInner(force){
                                   edgeCo({ action: act, code: code, period: 'quarter' }).catch(function(){ return null; })]);
     var d = both[0], dq = both[1] && both[1].statements ? both[1] : null;
     if (stale()) return;
+    //  (10/8 클릭하면 바로) 보관함의 표로 먼저 계산했고 새 표가 뒤에 오면 — 같은 회사를 보고 있을 때 다시 계산합니다
+    var refetch = function(){ if (stale()) return; valData = null; if ($('coPane-val') && !$('coPane-val').classList.contains('hidden')) valLoad(true); };
+    ecOnFresh(d, refetch); if (dq) ecOnFresh(dq, refetch);
     var f = valPull(d, dq);
     /*  ⚠️ (10/6 점검) 국내 «우선주» 줄은 우선주 <자본금(액면)> 입니다 — 시장가치가 아니라 빼면 엉뚱합니다.
         국내 EPS · 지배주주 순이익 · 자본은 보통주 + 우선주 주주 몫이라, 우선주는 <주식 수에 더해서> 맞춥니다 (아래).  */
@@ -12047,7 +12341,7 @@ var coProf = null;
 
 async function loadProfile(){
   if (!co){ warn('profWarn','먼저 기업을 선택해주세요.'); return; }
-  $('profBody').innerHTML = '<div class="empty" style="padding:26px">불러오는 중…</div>';
+  $('profBody').innerHTML = '<div class="empty" style="padding:26px">로딩 중…</div>';
   warn('profWarn','');
   try {
     //  이름을 같이 보냅니다 — 예비 창구(Perplexity)가 종목을 찾는 데 씁니다
@@ -12072,6 +12366,8 @@ async function loadProfile(){
     }
     coProf = d;
     renderProfile(d);
+    //  (10/8 클릭하면 바로) 보관함의 개요를 먼저 그렸고 새 것이 오면 같은 회사일 때 바꿔 그립니다
+    ecOnFresh(d, function(nd){ if (co === meP && nd.found){ coProf = nd; renderProfile(nd); } });
   } catch(e){
     $('profBody').innerHTML = '';
     warn('profWarn', esc(e.message));
@@ -12415,7 +12711,7 @@ async function dvLoadCoins(){
 }
 
 async function dvLoadCrypto(){
-  warn('dvWarn','코인 옵션을 불러오는 중…','info');
+  warn('dvWarn','로딩 중…','info');
   try {
     var d = await edge({ source:'opt_crypto', code: $('dvCur').value,
                          expiration: (dv && dv.symbol === $('dvCur').value) ? $('dvExp').value : '' });
@@ -12435,7 +12731,7 @@ async function dvLoadCrypto(){
 async function dvLoadExp(){
   var sym = $('dvSym').value.trim();
   if (!sym){ warn('dvWarn','티커를 입력해주세요.'); return; }
-  warn('dvWarn','만기를 불러오는 중…','info');
+  warn('dvWarn','로딩 중…','info');
   try {
     var d = await edge({ source:'opt_expirations', code: sym, provider: dvProvSel });
     var ex = d.expirations || [];
@@ -12457,7 +12753,7 @@ async function dvLoadChain(){
   var sym = $('dvSym').value.trim();
   var exp = $('dvExp').value;
   if (!sym || !exp) return;
-  warn('dvWarn','옵션을 불러오는 중…','info');
+  warn('dvWarn','로딩 중…','info');
   try {
     var d = await edge({ source:'opt_chain', code: sym, expiration: exp,
                          pct: Number($('dvStrikes').value), provider: dvProvSel });
@@ -12715,7 +13011,7 @@ async function dvFind(){
   //  'NVIDIA' 처럼 회사 이름을 쓴 경우까지 티커로 오해하지 않도록,
   //  대소문자가 섞였거나 한글이면 이름 검색을 먼저 돌립니다.
   if (/^[A-Z][A-Z.]{0,4}$/.test(q)){ return dvPick(q); }
-  warn('dvWarn','회사를 찾는 중…','info');
+  warn('dvWarn','로딩 중…','info');
   try {
     var r = await sb.rpc('company_search', { q: q });
     if (r.error) throw new Error(r.error.message);
@@ -13912,7 +14208,7 @@ async function f13Search(){
     return;
   }
   warn('f13Warn','');
-  $('f13Hits').innerHTML = '<div class="empty" style="padding:14px">찾는 중…</div>';
+  $('f13Hits').innerHTML = '<div class="empty" style="padding:14px">로딩 중…</div>';
   try {
     var d = await edgeCo({ action:'f13_search', code:q });
     var hits = d.hits || [];
@@ -13965,7 +14261,7 @@ async function f13Load(){
   var cur = f13.filings[k]; if (!cur) return;
   var prev = $('f13Diff').checked ? f13.filings[k+1] : null;
 
-  $('f13Table').innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  $('f13Table').innerHTML = '<tr><td class="empty">로딩 중…</td></tr>';
   $('f13Tiles').innerHTML = '';
   warn('f13Warn','');
   try {
@@ -14102,7 +14398,7 @@ async function drillSearch(){
   if (!q){ warn('drillWarn','찾을 이름을 입력해주세요.'); return; }
   show('drillBox');
   $('drillTitle').textContent = '"' + q + '" 검색 결과';
-  $('drillSub').textContent = '찾는 중…';
+  $('drillSub').textContent = '로딩 중…';
   $('drillList').innerHTML = '';
   warn('drillWarn','');
   try {
@@ -16257,12 +16553,20 @@ async function mkTick(){
 }
 async function mkFetchSnap(){
   if (MK.busy) return; MK.busy = true;
+  var apply = function(d){
+    if (d && Array.isArray(d.groups)){ MK.snap = d; MK.err = ''; MK.at = Date.now(); MK.snapAt = d.at || d.fetched_at || null; }
+    else MK.err = (d && d.error) || T('시장 스냅샷을 받지 못했습니다.', 'No market snapshot.');
+  };
   try {
     var d = await edge({ source: 'mkt_snap' });
-    if (d && Array.isArray(d.groups)){ MK.snap = d; MK.err = ''; MK.at = Date.now(); }
-    else MK.err = (d && d.error) || T('시장 스냅샷을 받지 못했습니다.', 'No market snapshot.');
+    apply(d);
+    //  (10/8 클릭하면 바로) 처음 열 때 브라우저 보관함의 마지막 스냅샷을 먼저 그리고, 새 것이 오면 바로 바꿔 그립니다
+    ecOnFresh(d, function(nd){ apply(nd); mkPaintAll(); });
   } catch(e){ MK.err = String(e && e.message || e); }
   MK.busy = false;
+  mkPaintAll();
+}
+function mkPaintAll(){
   if (curTab !== 'market') return;
   mkHead();
   if (MK.view === 'heat') mkHeatRender();
@@ -16395,12 +16699,17 @@ function mkHead(){
   var slow = mkSlow(), stale = MK.at && Date.now() - MK.at > (slow ? 95000 : 35000);
   var cls = MK.paused ? 'off' : (MK.err && !MK.snap) || stale ? 'warn' : MK.at ? '' : 'off';
   st.className = 'mk-live ' + cls;
-  st.innerHTML = '<i></i><span>' + (MK.paused ? esc(T('일시정지', 'Paused'))
-    : MK.at ? esc((slow ? T('자리 비움 · 1분마다', 'idle · every 1 min') : T('10초마다', 'every 10s')) + ' · ' + mkHhmmss(MK.at) + ' · ') + '<span id="mkAgo">' + esc(mkAgo(MK.at)) + '</span>'
-    : esc(MK.err ? T('받지 못함', 'failed') : T('로딩 중…', 'Loading…'))) + '</span>';
-  st.title = MK.err ? MK.err : T('학회원이 몇 명이 보든 서버가 창구마다 한 벌만 받아 나눠 씁니다 · 지수 · 환율 · 국채는 1분마다 새로 받음', 'Shared server cache');
+  /*  (10/8 학회장: «카운트다운 · 초 보이는 것 없이 그냥 계속 실시간 반영 · 잘 돌아가는 건 설정에만»)
+      점 하나와 «실시간» 만 보입니다. 몇 초마다 · 마지막 갱신 시각 · 자리 비움은 설정 › 실시간 상태에만 적습니다.  */
+  var txt = MK.paused ? T('일시정지', 'Paused')
+          : MK.at ? (stale ? T('다시 연결 중', 'Reconnecting') : T('실시간', 'LIVE'))
+          : MK.err ? T('받지 못함', 'Failed') : T('로딩 중…', 'Loading…');
+  var h = '<i></i><span>' + esc(txt) + '</span>';
+  if (st.__html !== h){ st.__html = h; st.innerHTML = h; }
+  st.title = MK.err ? MK.err : (slow ? T('자리를 비워 1분마다 새로 받는 중 - 마우스를 움직이면 바로 돌아옵니다', 'Idle') : T('숫자와 지도가 저절로 새로 그려집니다', 'Live'));
+  if (typeof adLiveRender === 'function') adLiveRender();
 }
-function mkClock(){ var a = $('mkAgo'); if (a && MK.at) a.textContent = mkAgo(MK.at); if (MK.at && Date.now() - MK.at > 35000) mkHead(); else if (MK.slowShown !== mkSlow()){ MK.slowShown = mkSlow(); mkHead(); }
+function mkClock(){ if (MK.at && Date.now() - MK.at > 35000) mkHead(); else if (MK.slowShown !== mkSlow()){ MK.slowShown = mkSlow(); mkHead(); }
   //  시장 시계는 1분마다 (장이 열리고 닫히는 순간이 보이게)
   if (MK.view === 'world' && Date.now() - (MK.clockAt || 0) > 60000){ MK.clockAt = Date.now(); try { mkClockRender(); } catch(e){} } }
 
@@ -16502,7 +16811,7 @@ function mkHeatRender(){
       html += '<div class="mk-tile' + (na ? ' na' : '') + (x.cl ? ' closed' : '') + (pick ? ' pick' : '') + '" style="background:' + col.bg + (col.fg ? ';color:' + col.fg : '') + '"' + pick
             + ' title="' + esc(tip) + '" data-s="' + esc(x.s) + '">'
             + '<div class="n">' + esc(x.n) + '</div>'
-            + '<div class="v"><span>' + (na ? '-' : esc(mkPx(x.p, x.s) + (x.unit === 'bp' ? '%' : ''))) + '</span><b>' + esc(mkChg(x.c, x.unit)) + '</b></div>'
+            + '<div class="v"><span data-lv="hp:' + esc(x.s) + '">' + (na ? '-' : esc(mkPx(x.p, x.s) + (x.unit === 'bp' ? '%' : ''))) + '</span><b data-lv="hc:' + esc(x.s) + '">' + esc(mkChg(x.c, x.unit)) + '</b></div>'
             + (x.cl || x.src === 'fred_m' ? '<i class="mk-tag">' + esc(x.src === 'fred_m' ? T('월간', 'mo') : T('닫힘', 'closed')) + '</i>' : '')
             + '</div>';
     });
@@ -16510,7 +16819,7 @@ function mkHeatRender(){
   });
   if (d.errors && d.errors.length) html += '<p class="st-hint" style="color:var(--danger)">' + esc(T('받지 못한 창구: ', 'Failed: ') + d.errors.join(' · ')) + '</p>';
   if (d.notes && d.notes.length) html += '<p class="st-hint">' + esc(d.notes.join(' · ')) + '</p>';
-  box.innerHTML = html;
+  lvSwap(box, html);          //  (10/8 모션) 바뀐 칸만 잠깐 물듦
 }
 //  타일을 누르면 산업분석 가격 차트에 올려 둡니다 (이 화면은 그대로 · 띄워 둔 화면을 깨지 않게)
 function mkPick(src, sym){
@@ -16592,10 +16901,10 @@ function mkGlanceRender(){
     var nm = String(it.n || it.s).replace(/\s*\((?:24시간|GLD|USO)\)\s*/g, '').replace(/^WTI 원유$/, 'WTI');
     var val = mkPx(it.p, it.s) + (it.unit === 'bp' ? '%' : '');
     var tip = it.n + ' · ' + val + (it.c != null ? ' · ' + mkChg(it.c, it.unit) : '') + (it.at ? ' · ' + mkHhmmss(Date.parse(it.at)) : '') + (it.cl ? ' · 장 닫힘 (마지막 값)' : '');
-    return '<div class="mk-gl' + (it.cl ? ' closed' : '') + '" title="' + esc(tip) + '"><div class="n">' + esc(nm) + '</div><div class="v">' + esc(val)
-         + '<span class="c ' + (it.c > 0 ? 'up' : it.c < 0 ? 'down' : '') + '">' + esc(mkChg(it.c, it.unit)) + '</span>' + (it.cl ? '<i class="mk-tag">닫힘</i>' : '') + '</div></div>';
+    return '<div class="mk-gl' + (it.cl ? ' closed' : '') + '" title="' + esc(tip) + '"><div class="n">' + esc(nm) + '</div><div class="v"><span data-lv="gp:' + esc(it.s) + '" data-tw>' + esc(val) + '</span>'
+         + '<span class="c ' + (it.c > 0 ? 'up' : it.c < 0 ? 'down' : '') + '" data-lv="gc:' + esc(it.s) + '">' + esc(mkChg(it.c, it.unit)) + '</span>' + (it.cl ? '<i class="mk-tag">닫힘</i>' : '') + '</div></div>';
   }).join('');
-  if (box.__html !== html){ box.__html = html; box.innerHTML = html; }
+  lvSwap(box, html);          //  (10/8 모션) 값이 바뀐 칸만 물들고 숫자가 굴러감
 }
 //  거래소 정규장 (현지 시간 · 월~금) — 지수가 실시간으로 오면 그쪽이 우선 (공휴일 · 반일장은 모름)
 var MK_MKT_HOURS = [['KR', '한국', 'Asia/Seoul', 9 * 60, 15 * 60 + 30], ['JP', '일본', 'Asia/Tokyo', 9 * 60, 15 * 60 + 30], ['CN', '중국', 'Asia/Shanghai', 9 * 60 + 30, 15 * 60],
@@ -16650,7 +16959,8 @@ function mkMapPaint(){
     if (mkMapChart.__sigData !== sigData){
       mkMapChart.__sigData = sigData;
       mkMapChart.__axNoKeep = true;
-      mkMapChart.setOption({ series: [{ data: data }, { data: marks }] });
+      //  (10/8 모션) 값이 바뀐 나라의 색이 0.7초에 걸쳐 스르르 바뀝니다 (처음 그릴 때는 바로)
+      mkMapChart.setOption({ animation: MOTION_OK, animationDurationUpdate: 700, animationEasingUpdate: 'cubicOut', series: [{ data: data }, { data: marks }] });
     }
     mkChipsRender();
     return;
@@ -16698,8 +17008,8 @@ function mkChipsRender(){
     var ch = mkCtryChg(cc);
     var on = MK.ctryOpen && MK.cc === cc;
     return '<button type="button" class="mk-chip' + (on ? ' on' : '') + '" onclick="mkPickCountry(\'' + cc + '\')"' + (on ? ' aria-pressed="true"' : '') + '>' + esc(MK_CC[cc][0])
-         + (ch ? ' <b class="' + (ch.c > 0 ? 'up' : ch.c < 0 ? 'down' : '') + '">' + esc(mkChg(ch.c)) + '</b>' : '') + '</button>'; }).join('');
-  if (lg.__html !== html){ lg.__html = html; lg.innerHTML = html; }
+         + (ch ? ' <b class="' + (ch.c > 0 ? 'up' : ch.c < 0 ? 'down' : '') + '" data-lv="cc:' + cc + '">' + esc(mkChg(ch.c)) + '</b>' : '') + '</button>'; }).join('');
+  lvSwap(lg, html);           //  (10/8 모션) 바뀐 나라만 잠깐 물듦
 }
 function mkCtryFamSet(f){ MK.ctryFam = f === '24h' ? '24h' : 'close'; mkCtryRender(); }
 function mkPickCountry(cc){
@@ -16779,7 +17089,7 @@ function mkCtryHeadSet(){
                                    : T('업종 흐름 · 지난 1주', 'Sector moves · past week'))
            //  (10/7 학회장: «AI 로 찾고 있어요 · 가격 이런 거 쓰지 마 · 없어 보여») — 만드는 방법 · 업체 이름은 화면에 안 적습니다
            : '';
-  head.innerHTML = mkCtryHeadKv(c1, null) + '<span class="st-hint">' + esc(hint) + '</span>';
+  lvSwap(head, mkCtryHeadKv(c1, null) + '<span class="st-hint">' + esc(hint) + '</span>');
 }
 //  나라 칸 머리: 이름 · 대표 지수(지금) · 나라 ETF — 주식 탭은 그 나라 선 자료의 ETF · 나머지는 지도 스냅샷
 function mkCtryHeadKv(cc, d){
@@ -16787,8 +17097,8 @@ function mkCtryHeadKv(cc, d){
   var e = d && d.etf && d.etf.p != null ? { s: d.etf.s, p: d.etf.p, c: d.etf.c } : (sc && sc.etf && sc.c != null ? { s: sc.etf, p: sc.p, c: sc.c } : null);
   var cls = function(v){ return v > 0 ? 'up' : v < 0 ? 'down' : ''; };
   return '<b>' + esc(nm) + '</b>'
-    + (idx && idx.p != null ? '<span class="mk-kv">' + esc(idx.n) + ' <b>' + esc(mkPx(idx.p)) + '</b> <b class="' + cls(idx.c) + '">' + esc(mkChg(idx.c)) + '</b>' + (idx.cl ? '<i class="mk-tag">' + esc(T('닫힘', 'closed')) + '</i>' : '') + '</span>' : '')
-    + (e ? '<span class="mk-kv">' + esc(e.s) + (e.p != null ? ' <b>' + esc(mkPx(e.p)) + '</b>' : '') + ' <b class="' + cls(e.c) + '">' + esc(mkChg(e.c)) + '</b></span>' : '');
+    + (idx && idx.p != null ? '<span class="mk-kv">' + esc(idx.n) + ' <b data-lv="kp:' + esc(cc) + '" data-tw>' + esc(mkPx(idx.p)) + '</b> <b class="' + cls(idx.c) + '" data-lv="kc:' + esc(cc) + '">' + esc(mkChg(idx.c)) + '</b>' + (idx.cl ? '<i class="mk-tag">' + esc(T('닫힘', 'closed')) + '</i>' : '') + '</span>' : '')
+    + (e ? '<span class="mk-kv">' + esc(e.s) + (e.p != null ? ' <b data-lv="ep:' + esc(cc) + '" data-tw>' + esc(mkPx(e.p)) + '</b>' : '') + ' <b class="' + cls(e.c) + '" data-lv="ec:' + esc(cc) + '">' + esc(mkChg(e.c)) + '</b></span>' : '');
 }
 var MK_SEC_PAL = ['#2a5aa8', '#c0392b', '#1f8a70', '#b26a00', '#7d3c98', '#d35400', '#16a085', '#8e44ad', '#2c3e50', '#e67e22', '#27ae60', '#c2185b', '#5d6d7e', '#0097a7'];
 function mkCtryRender(){
@@ -16845,8 +17155,10 @@ function mkCtryRender(){
   var endW = 0;
   if (!narrow) lines.forEach(function(l){ endW = Math.max(endW, annTextW(l.n + ' ' + mkChg(l.c), 10.5, 'Pretendard') * 1.08 + 14); });
   mkLineChart.__axNoKeep = true;
+  //  (10/8 모션) 10초마다 새 점이 붙을 때 선이 스르르 이어집니다 (처음은 바로 · 같은 이름의 선끼리 이어 그림)
+  var mkLineFirst = !mkLineChart.__drawn || mkLineChart.__cc !== MK.cc + '|' + fam; mkLineChart.__drawn = true; mkLineChart.__cc = MK.cc + '|' + fam;
   mkLineChart.setOption({
-    animation: false,
+    animation: MOTION_OK && !mkLineFirst, animationDuration: 0, animationDurationUpdate: 650, animationEasingUpdate: 'cubicOut',
     grid: { left: 8, right: narrow ? 14 : Math.min(240, Math.max(90, endW)), top: 14, bottom: 8, containLabel: true },
     tooltip: { trigger: 'axis', confine: true, order: 'valueDesc', valueFormatter: function(v){ return mkChg(v); } },
     xAxis: { type: 'time', axisLabel: { hideOverlap: true, formatter: function(v){ var t = new Date(v); return String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); } }, splitLine: { show: false } },
@@ -16861,7 +17173,7 @@ function mkCtryRender(){
                //  0% 기준선은 첫 선에 한 번만
                markLine: i === 0 ? { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: '#8a94ad', type: 'solid', width: 1, opacity: .6 }, data: [{ yAxis: 0 }] } : undefined };
     })
-  }, true);
+  }, mkLineFirst ? true : { replaceMerge: ['series'] });
   /*  선 끝 이름표를 위아래로 벌립니다 (13px 간격 · 격자 안) — ECharts 의 자동 밀어내기(moveOverlap)는 열 개가 넘으면 포개졌습니다  */
   if (!narrow && lines.length > 1){
     try {
@@ -16878,11 +17190,11 @@ function mkCtryRender(){
       if (moved){ mkLineChart.__axNoKeep = true; mkLineChart.setOption({ series: upd }); }
     } catch(e){}
   }
-  if (list) list.innerHTML = sorted.map(function(l){
+  if (list) lvSwap(list, sorted.map(function(l){
     return '<div class="mk-li" title="' + esc(l.s + (l.at ? ' · ' + mkHhmmss(Date.parse(l.at)) : '')) + '"><i style="background:' + colOf[l.s] + (l.basis === '24h' ? ';background:repeating-linear-gradient(90deg,' + colOf[l.s] + ' 0 4px,transparent 4px 6px)' : '') + '"></i>'
          + '<span class="nm">' + esc(l.n) + '</span><span class="sec">' + esc(l.sec) + '</span>'
-         + '<b class="' + (l.c > 0 ? 'up' : l.c < 0 ? 'down' : '') + '">' + esc(mkChg(l.c)) + '</b></div>'; }).join('')
-    + (d.lines.length > all.length ? '<div class="st-hint">' + esc((d.lines.length - all.length) + T('개는 아직 선이 없습니다 (받지 못함)', ' without data')) + '</div>' : '');
+         + '<b class="' + (l.c > 0 ? 'up' : l.c < 0 ? 'down' : '') + '" data-lv="li:' + esc(l.s) + '">' + esc(mkChg(l.c)) + '</b></div>'; }).join('')
+    + (d.lines.length > all.length ? '<div class="st-hint">' + esc((d.lines.length - all.length) + T('개는 아직 선이 없습니다 (받지 못함)', ' without data')) + '</div>' : ''));   //  (10/8 모션) 바뀐 종목만 물듦
 }
 
 /* ── 나라 칸 «개요 · 업종 · 시황 · 유망 산업» (10/7) ──
@@ -17415,8 +17727,9 @@ function mkFxRender(liveOnly){
   if (!M || M.err){ if (sum) sum.innerHTML = '<div class="mk-empty">' + esc((M && M.err) || '-') + '</div>'; if (why) why.innerHTML = ''; return; }
   var a = mkFxAnchor(P, M), lvP = mkFxLiveOf(P);
   if (sum){
-    sum.innerHTML = '<div class="mk-fx-now"><span class="st-hint">' + esc(P.n + (lvP ? T(' · 지금 (약 1분 지연)', ' · now') : T(' · 마지막 종가 ', ' · last close ') + M.lastD)) + '</span>'
-      + '<b>' + esc(mkFxFmt(a, P.k)) + '</b>' + (lvP && lvP.c != null ? '<span class="' + (lvP.c > 0 ? 'up' : lvP.c < 0 ? 'down' : '') + '">' + esc(mkChg(lvP.c)) + '</span>' : '') + '</div>'
+    //  (10/8 모션) 지금 값이 바뀌면 숫자가 굴러가고 잠깐 물듭니다 (10초마다 전부 다시 그리지 않음)
+    lvSwap(sum, '<div class="mk-fx-now"><span class="st-hint">' + esc(P.n + (lvP ? T(' · 지금 (약 1분 지연)', ' · now') : T(' · 마지막 종가 ', ' · last close ') + M.lastD)) + '</span>'
+      + '<b data-lv="fx:' + esc(P.k) + '" data-tw>' + esc(mkFxFmt(a, P.k)) + '</b>' + (lvP && lvP.c != null ? '<span class="' + (lvP.c > 0 ? 'up' : lvP.c < 0 ? 'down' : '') + '" data-lv="fxc:' + esc(P.k) + '">' + esc(mkChg(lvP.c)) + '</span>' : '') + '</div>'
       + MK_FX_H.map(function(H){
           var r = M.h[H[0]]; if (!r) return '';
           var md = a * Math.exp(r.mu), pc = (Math.exp(r.mu) - 1) * 100;
@@ -17425,7 +17738,7 @@ function mkFxRender(liveOnly){
                + '<span class="' + (pc > 0.05 ? 'up' : pc < -0.05 ? 'down' : '') + '">' + esc(mkPct2(pc)) + '</span>'
                + '<div class="st-hint">68% ' + esc(mkFxFmt(l68, P.k) + ' ~ ' + mkFxFmt(h68, P.k)) + '<br>95% ' + esc(mkFxFmt(l95, P.k) + ' ~ ' + mkFxFmt(h95, P.k)) + '</div>'
                + '<div class="st-hint">' + mkFxQual(r) + '</div></div>';
-        }).join('');
+        }).join(''));
   }
   if (why) why.innerHTML = mkFxWhyHtml(P, M, a);
   if (note) note.innerHTML = esc(T('모형: 리지 회귀 (금리차 · 1/3/6개월 모멘텀 · 1년 평균 회귀 · 변동성 · 실질환율(물가) 괴리 · 달러지수 1개월 · VIX) 를 최근 3년 걷기 검증으로 랜덤워크(변화 0)와 겨뤄, 표본 밖에서 이긴 만큼만 섞습니다 (못 이기면 «지금 값 유지» 에 가깝게). '
@@ -21139,9 +21452,7 @@ function rangeLabel(){
 }
 
 async function loadSeries(s){
-  try {
-    var d = await edge({ source:s.source, code:s.code, item_code:s.item_code,
-                         cycle:s.cycle, start:fetchStart() });
+  function apply(d){
     s.points = krwJo(d.points || [], s.unit, d.unit, s.code);     //  목록 단위가 «조원» 이면 조원으로
     if (d.unit && !s.unit) s.unit = d.unit;
     /*  ⚠️ «언제까지 저장된 값을 쓰는지» 를 들고 다닙니다. 학회원이
@@ -21159,6 +21470,13 @@ async function loadSeries(s){
     if (!s.points.length) warn('researchWarn','"'+esc(s.label)+'" 에 해당 기간 데이터가 없습니다.');
     else if (d.note) warn('researchWarn', '<b>' + esc(s.label) + '</b> — ' + esc(d.note), 'info');
     renderSeriesList(); drawChart();
+  }
+  try {
+    var d = await edge({ source:s.source, code:s.code, item_code:s.item_code,
+                         cycle:s.cycle, start:fetchStart() });
+    apply(d);
+    //  (10/8 클릭하면 바로) 보관함의 값을 먼저 그렸고 새 값이 뒤에 오면 — 그 선이 아직 올라가 있을 때만 바꿔 그립니다
+    ecOnFresh(d, function(nd){ if (series.indexOf(s) >= 0) apply(nd); });
   } catch(e){
     warn('researchWarn', esc(e.message));
     s.points = [];
@@ -23566,8 +23884,8 @@ async function dkLoad(){
   if (!sym){ warn('flowWarn','티커를 입력해주세요. 미국 주식만 조회됩니다.'); return; }
   warn('flowWarn','');
   $('dkBody').classList.remove('hidden');
-  $('dkTiles').innerHTML = '<div class="empty">불러오는 중…</div>';
-  $('dkVenue').innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  $('dkTiles').innerHTML = '<div class="empty">로딩 중…</div>';
+  $('dkVenue').innerHTML = '<tr><td class="empty">로딩 중…</td></tr>';
   try {
     var d = await edge({ source:'darkpool', code:sym, weeks:Number($('dkWeeks').value) });
     dkData = d;
@@ -23695,7 +24013,7 @@ function dkVenues(d){
 
 async function dkTop(){
   var t = $('dkTopTable');
-  t.innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  t.innerHTML = '<tr><td class="empty">로딩 중…</td></tr>';
   try {
     var d = await edge({ source:'darkpool_top', tier:$('dkTier').value, limit:60 });
     if (!d.rows || !d.rows.length){
@@ -23751,7 +24069,7 @@ function dkPlainText(){
 /* ── 미 의회 거래 ─────────────────────────────── */
 async function cgLoad(){
   var t = $('cgTable');
-  t.innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  t.innerHTML = '<tr><td class="empty">로딩 중…</td></tr>';
   $('cgNote').textContent = '';
   cgOpen = {};
   try {
@@ -25122,7 +25440,7 @@ async function mtOpenSymChart(mk, sym){
   var p = ((mtAcc && mtAcc.positions) || []).filter(function(x){
     return x.market === mk && x.symbol === sym; })[0] || {};
   $('mtChartName').textContent = (p.name || sym) + ' 주가 추이';
-  $('mtChartNote').textContent = '불러오는 중…';
+  $('mtChartNote').textContent = '로딩 중…';
   warn('mtTvWarn', '');
   mtAvgBar(p, mk);
   mtSymPts = null;
@@ -25736,7 +26054,7 @@ async function mtWhyNotFound(q, box){
        기록에 «AI 검색» 이라고 그대로 남깁니다. 숨기면 안 됩니다.     */
 async function krFindOne(q){
   var b = $('krFindBtn'), m = $('krFindMsg');
-  if (b){ b.disabled = true; b.textContent = '찾는 중…'; }
+  if (b){ b.disabled = true; b.textContent = '로딩 중…'; }
   try {
     var d = await edge({ source: 'kr_symbol_add', symbol: q });
     if (!d || !d.ok){
@@ -26210,7 +26528,7 @@ function soTick(){
   var ev = soSt && soSt.event;
   if (!ev){
     box.className = 'mt-clock';
-    box.innerHTML = '<span class="empty">' + (soSt ? '열린 대회가 없습니다.' : '불러오는 중…') + '</span>';
+    box.innerHTML = '<span class="empty">' + (soSt ? '열린 대회가 없습니다.' : '로딩 중…') + '</span>';
     return;
   }
   var ph = soPhaseNow();
@@ -26748,7 +27066,7 @@ function mtRenderAutoBar(){
   var el = $('mtAutoBar'); if (!el) return;
   var a = mtAcc && mtAcc.auto;
   if (!a){ el.className = 'auto-bar off'; el.innerHTML =
-    '<div class="ab-state"><span class="ab-dot"></span>불러오는 중…</div>'; return; }
+    '<div class="ab-state"><span class="ab-dot"></span>로딩 중…</div>'; return; }
 
   var ivName = { '5m':'5분', '15m':'15분', '30m':'30분', '2h':'2시간',
                  '4h':'4시간', '1d':'하루', '1w':'일주일' }[a.interval] || a.interval;
@@ -27270,7 +27588,7 @@ async function aiLoadBudget(){
 
 async function aiSearch(){
   var q = $('aiQ').value.trim(); if (!q) return;
-  $('aiHits').innerHTML = '<div class="empty" style="padding:12px">찾는 중…</div>';
+  $('aiHits').innerHTML = '<div class="empty" style="padding:12px">로딩 중…</div>';
   var r = await sb.rpc('company_search', { q: q });
   if (r.error){ warn('aiWarn', esc(errMsg(r.error))); $('aiHits').innerHTML = ''; return; }
   aiHits = r.data || [];
@@ -28043,7 +28361,7 @@ function avTab(m){
 
 async function loadAiViews(){
   var box = $('aiViewBody'); if (!box) return;
-  box.innerHTML = '<div class="empty">불러오는 중…</div>';
+  box.innerHTML = '<div class="empty">로딩 중…</div>';
   try {
     var r = await sb.rpc('ai_view_log_list', {
       p_days:  Number(($('avDays') || {}).value) || 30,
@@ -28294,7 +28612,7 @@ async function aiLibLoad(off){
   var t = $('aiList'); if (!t) return;
   aiLib.off = Math.max(0, off || 0);
   var qEl = $('aiLibQ'); if (qEl) aiLib.q = qEl.value.trim();
-  t.innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  t.innerHTML = '<tr><td class="empty">로딩 중…</td></tr>';
   try {
     var sortEl = $('aiLibSort'), dEl = $('aiLibDepth');
     aiLib.sort = (sortEl && sortEl.value) || 'new';
@@ -30570,6 +30888,7 @@ function coRatio(a, b){
 
 async function initCompany(){
   f13Quick();
+  coRecentRender();
   //  기업을 고르기 전 기본 화면은 13F 입니다 (다른 탭은 볼 자료가 없습니다)
   coShow('f13');
   if (isOfficer()){
@@ -30634,7 +30953,7 @@ async function syncCorps(){
 async function searchCompany(){
   var q = $('coQ').value.trim();
   if (!q){ return; }
-  $('coResults').innerHTML = '<div class="empty" style="padding:12px">찾는 중…</div>';
+  $('coResults').innerHTML = '<div class="empty" style="padding:12px">로딩 중…</div>';
   var r = await sb.rpc('company_search', { q: q });
   if (r.error){ warn('coWarn', esc(errMsg(r.error))); $('coResults').innerHTML = ''; return; }
   coHits = r.data || [];
@@ -30644,7 +30963,8 @@ async function searchCompany(){
     return;
   }
   $('coResults').innerHTML = '<div class="co-hits">' + coHits.map(function(x, i){
-    return '<button class="co-hit" onclick="pickCompany(' + i + ')">'
+    //  (10/8) 마우스를 올리면 재무제표를 미리 받아 둡니다 — 누르는 순간 바로 나오게
+    return '<button class="co-hit" onmouseenter="coPrefetch(coHits[' + i + '], true)" onfocus="coPrefetch(coHits[' + i + '], true)" onclick="pickCompany(' + i + ')">'
       + '<span class="pill ' + esc(x.market) + '">' + esc(x.market) + '</span>'
       + '<b>' + esc(x.name) + '</b><span class="code">' + esc(x.sub) + '</span></button>';
   }).join('') + '</div>';
@@ -30676,7 +30996,7 @@ async function pickCompany(i){
   $('coName').innerHTML = esc(co.name)
     + ' <span style="font-size:12px;color:var(--text-sub);font-weight:400">'
     + esc(co.market) + ' · ' + esc(co.sub) + '</span>';
-  $('coTiles').innerHTML = '<div class="empty">불러오는 중…</div>';
+  $('coTiles').innerHTML = '<div class="empty">로딩 중…</div>';
   $('coFinTable').innerHTML = ''; $('coDiscTable').innerHTML = '';
   $('coDivTable').innerHTML = ''; $('coMajorTable').innerHTML = ''; $('coElestTable').innerHTML = '';
   coFin = null; coFull = null; coFullCache = {}; coProf = null;
@@ -30690,11 +31010,59 @@ async function pickCompany(i){
   warn('coFinWarn','');
   coFsShow('손익계산서');
   coShow('fin');
+  coRecentPush(co);
 
-  await loadCoFin();
+  //  (10/8 클릭하면 바로) 요약이 끝나길 기다렸다가 주가 · 공시 · 지분을 받던 것을 <한꺼번에> 받습니다
+  var pf = loadCoFin();
   loadCoPrice();
   loadCoDisc();
   loadCoOwn();
+  await pf;
+  //  다음에 누를 만한 것(분기 재무제표 · 밸류에이션 재료)을 한가할 때 미리 받아 둡니다 — 눌렀을 때 바로 나오게
+  coPrefetch(co);
+}
+
+/*  ── 최근 본 기업 (10/8 클릭하면 바로) ────────────────────────────────────────
+    토스처럼 검색창 아래에 최근 본 기업을 두고 한 번에 다시 엽니다 (브라우저에 8개 · 이름 · 코드만 저장).  */
+var CO_RECENT_KEY = 'safe_co_recent_v1';
+function coRecentList(){
+  try { var a = JSON.parse(localStorage.getItem(CO_RECENT_KEY) || '[]'); return Array.isArray(a) ? a.filter(function(x){ return x && x.name && x.market; }) : []; } catch(e){ return []; }
+}
+function coRecentPush(c){
+  if (!c || !c.name) return;
+  var keep = { name: c.name, market: c.market, sub: c.sub || '', code: c.code || '', corp_code: c.corp_code || '', cik: c.cik || '' };
+  var a = coRecentList().filter(function(x){ return !(x.market === keep.market && (x.code || x.name) === (keep.code || keep.name)); });
+  a.unshift(keep);
+  try { localStorage.setItem(CO_RECENT_KEY, JSON.stringify(a.slice(0, 8))); } catch(e){}
+  coRecentRender();
+}
+function coRecentRender(){
+  var box = $('coRecent'); if (!box) return;
+  var a = coRecentList();
+  box.classList.toggle('hidden', !a.length);
+  if (!a.length){ box.innerHTML = ''; return; }
+  box.innerHTML = '<span class="lab">최근 본 기업</span>' + a.map(function(x, i){
+    return '<button type="button" class="chip" onmouseenter="coRecentPre(' + i + ')" onfocus="coRecentPre(' + i + ')" onclick="coRecentOpen(' + i + ')">'
+      + '<span class="pill ' + esc(x.market) + '">' + esc(x.market) + '</span>' + esc(x.name) + '</button>';
+  }).join('');
+}
+function coRecentOpen(i){ var a = coRecentList(); if (!a[i]) return; coHits = [a[i]]; pickCompany(0); }
+function coRecentPre(i){ var a = coRecentList(); if (a[i]) coPrefetch(a[i], true); }
+//  미리 받기 — 보관함에만 넣고 화면은 건드리지 않습니다 (실패해도 조용히)
+var coPreDone = {};
+function coPrefetch(c, light){
+  if (!c) return;
+  var key = c.market === 'KR' ? c.corp_code : c.cik; if (!key) return;
+  var act = c.market === 'KR' ? 'kr_fin_full' : 'us_fin_full', sum = c.market === 'KR' ? 'kr_fin' : 'us_fin';
+  var tag = c.market + '|' + key + (light ? '|l' : '|f');
+  if (coPreDone[tag]) return; coPreDone[tag] = true;
+  var go = function(){
+    var jobs = light
+      ? [{ action: sum, code: key }, { action: act, code: key, period: 'annual' }]
+      : [{ action: act, code: key, period: 'quarter' }, { action: c.market === 'KR' ? 'kr_fin_q' : 'us_fin_q', code: key }];
+    jobs.forEach(function(b){ edgeCo(b).catch(function(){}); });
+  };
+  if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 2500 }); else setTimeout(go, 400);
 }
 
 /* ── 재무제표 ── */
@@ -30727,6 +31095,15 @@ async function loadCoFull(){
   //  기다리는 사이 다른 회사를 열었으면 그 회사 보관함에 넣지 않습니다
   if (co !== me) return d;
   coFullCache[per] = d; coFull = d;
+  //  (10/8 클릭하면 바로) 보관함의 묵은 표를 먼저 그렸고 새 표가 뒤에 오면 — 같은 회사를 보고 있을 때만 바꿔 그립니다
+  ecOnFresh(d, function(nd){
+    if (co !== me) return;
+    coFullCache[per] = nd; if (coFull === d || (coView.period === 'quarter' ? 'quarter' : 'annual') === per) coFull = nd;
+    if (coFsTab !== 'summary' && $('coPane-fin') && !$('coPane-fin').classList.contains('hidden')) renderCoStatement(coFsTab);
+    if (typeof renderCoFinChart === 'function' && coFinSeries.length) renderCoFinChart();
+    //  밸류에이션은 같은 표를 쓰니 다음에 열 때 다시 계산하게 비워 둡니다 (보고 있으면 바로)
+    if (typeof valData !== 'undefined' && valData){ valData = null; if ($('coPane-val') && !$('coPane-val').classList.contains('hidden')) valLoad(true); }
+  });
   return coFull;
 }
 /* 기간 구분 열쇠 — 실적 추이 행과 재무제표 열을 같은 이름으로 맞춥니다 */
@@ -30824,7 +31201,8 @@ function coFsToggleGroup(group, name){
 
 async function renderCoStatement(group){
   var tb = $('coFinTable');
-  tb.innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
+  //  (10/8) 표가 이미 손에 있으면 «로딩 중» 을 거치지 않고 바로 그립니다 (깜빡임 없이)
+  if (!coFullCache[coView.period === 'quarter' ? 'quarter' : 'annual']) tb.innerHTML = skelRows(8, 6);
   warn('coFsWarn','');
   var me = co;
   try {
@@ -31005,11 +31383,10 @@ function toggleFinSeries(group, idx){
 
 async function loadCoFin(){
   var key = (co.market === 'KR') ? co.corp_code : co.cik;
-  var q = coView.period === 'quarter';
+  var q = coView.period === 'quarter', me = co, per = coView.period;
   var act = co.market === 'KR' ? (q ? 'kr_fin_q' : 'kr_fin') : (q ? 'us_fin_q' : 'us_fin');
-  $('coTiles').innerHTML = '<div class="empty">불러오는 중…</div>';
-  try {
-    var d = await edgeCo({ action: act, code: key });
+  $('coTiles').innerHTML = skelTiles(4);
+  function apply(d){
     /* 손익이 하나도 없는 구간은 빈 칸만 만들어서 제외합니다 */
     coFin = (d.rows || []).filter(function(r){
       return r.revenue != null || r.op != null || r.net != null;
@@ -31028,7 +31405,15 @@ async function loadCoFin(){
       return;
     }
     renderCoTiles(); renderCoFinChart(); renderCoFinTable();
+  }
+  try {
+    var d = await edgeCo({ action: act, code: key });
+    if (co !== me || coView.period !== per) return;
+    apply(d);
+    //  (10/8 클릭하면 바로) 묵은 요약을 먼저 그렸고 새 것이 뒤에 오면 같은 회사 · 같은 기간을 볼 때만 바꿔 그립니다
+    ecOnFresh(d, function(nd){ if (co === me && coView.period === per) apply(nd); });
   } catch(e){
+    if (co !== me) return;
     $('coTiles').innerHTML = '<div class="empty">' + esc(e.message) + '</div>';
   }
 }
@@ -31291,7 +31676,7 @@ async function coCmpAdd(){
   var q = String(($('coCmpCo') || {}).value || '').trim();
   if (!q){ warn('coFinWarn', '비교할 회사 이름 · 종목코드 · 티커를 넣어주세요.'); return; }
   var what = ($('coCmpAcct') || {}).value || '__same';
-  warn('coFinWarn', '찾는 중…', 'info');
+  warn('coFinWarn', '로딩 중…', 'info');
   try {
     var r = await sb.rpc('company_search', { q: q });
     if (r.error) throw new Error(r.error.message);
@@ -32036,9 +32421,8 @@ async function loadCoPrice(){
   coPriceChart = chartOn('coPriceBox', coPriceChart); if (!coPriceChart) return;
   coPricePts = [];
   coPriceChart.clear();
-  try {
-    var d = await edge({ source: quoteSource(co.market),
-                         code: co.code, start: coFrom() });
+  var me = co;
+  function apply(d){
     coPricePts = d.points || [];
     if (!coPricePts.length){
       coPriceChart.setOption({ backgroundColor: theme.bg,
@@ -32047,7 +32431,16 @@ async function loadCoPrice(){
       return;
     }
     drawCoPrice();
+  }
+  try {
+    var d = await edge({ source: quoteSource(co.market),
+                         code: co.code, start: coFrom() });
+    if (co !== me) return;
+    apply(d);
+    //  (10/8 클릭하면 바로) 어제까지의 주가를 먼저 그리고, 새 값이 오면 같은 회사일 때만 바꿔 그립니다
+    ecOnFresh(d, function(nd){ if (co === me) apply(nd); });
   } catch(e){
+    if (co !== me) return;
     coPriceChart.setOption({ backgroundColor: theme.bg,
       title:{ text: e.message, left:'center', top:'45%',
         textStyle:{ fontSize:12.5, fontWeight:'normal', color:'#c62828' } } });
@@ -32056,10 +32449,9 @@ async function loadCoPrice(){
 
 /* ── 공시 ── */
 async function loadCoDisc(){
-  $('coDiscTable').innerHTML = '<tr><td class="empty">불러오는 중…</td></tr>';
-  try {
-    var key = (co.market === 'KR') ? co.corp_code : co.cik;
-    var d = await edgeCo({ action: co.market === 'KR' ? 'kr_list' : 'us_list', code: key });
+  $('coDiscTable').innerHTML = skelRows(6, 3);
+  var me = co;
+  function apply(d){
     var rows = d.rows || [];
     if (!rows.length){ $('coDiscTable').innerHTML = '<tr><td class="empty">최근 공시가 없습니다.</td></tr>'; return; }
     $('coDiscTable').innerHTML =
@@ -32069,7 +32461,15 @@ async function loadCoDisc(){
             + '<td><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a></td>'
             + '<td>' + esc(x.filer || '') + '</td></tr>';
         }).join('') + '</tbody>';
+  }
+  try {
+    var key = (co.market === 'KR') ? co.corp_code : co.cik;
+    var d = await edgeCo({ action: co.market === 'KR' ? 'kr_list' : 'us_list', code: key });
+    if (co !== me) return;
+    apply(d);
+    ecOnFresh(d, function(nd){ if (co === me) apply(nd); });
   } catch(e){
+    if (co !== me) return;
     $('coDiscTable').innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>';
   }
 }
@@ -32084,10 +32484,10 @@ async function loadCoOwn(){
     $('coElestTable').innerHTML = note;
     return;
   }
-  var cc = co.corp_code;
-
-  try {
-    var dv = await edgeCo({ action:'kr_div', code: cc });
+  var cc = co.corp_code, me = co;
+  $('coDivTable').innerHTML = skelRows(3, 5); $('coMajorTable').innerHTML = skelRows(4, 6); $('coElestTable').innerHTML = skelRows(4, 6);
+  //  (10/8 클릭하면 바로) 셋을 차례로 받던 것을 <한꺼번에> 받고, 보관함의 값은 먼저 그립니다
+  function drawDiv(dv){
     var r1 = dv.rows || [];
     $('coDivTable').innerHTML = r1.length
       ? '<thead><tr><th>항목</th><th>주식 종류</th><th class="num">당기</th><th class="num">전기</th><th class="num">전전기</th></tr></thead><tbody>'
@@ -32095,10 +32495,8 @@ async function loadCoOwn(){
             + '<td class="num">' + esc(x.thstrm || '') + '</td><td class="num">' + esc(x.frmtrm || '') + '</td>'
             + '<td class="num">' + esc(x.lwfr || '') + '</td></tr>'; }).join('') + '</tbody>'
       : '<tr><td class="empty">배당 공시가 없습니다.</td></tr>';
-  } catch(e){ $('coDivTable').innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>'; }
-
-  try {
-    var mj = await edgeCo({ action:'kr_major', code: cc });
+  }
+  function drawMajor(mj){
     var r2 = mj.rows || [];
     $('coMajorTable').innerHTML = r2.length
       ? '<thead><tr><th style="width:110px">날짜</th><th>보고자</th><th class="num">보유주식</th>'
@@ -32108,10 +32506,8 @@ async function loadCoOwn(){
             + '<td class="num">' + (x.rate ? esc(String(x.rate).replace(/%$/, '')) + '%' : '') + '</td><td>' + esc(x.reason || '') + '</td></tr>'; }).join('')
         + '</tbody>'
       : '<tr><td class="empty">대량보유 공시가 없습니다.</td></tr>';
-  } catch(e){ $('coMajorTable').innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>'; }
-
-  try {
-    var el = await edgeCo({ action:'kr_elest', code: cc });
+  }
+  function drawElest(el){
     var r3 = el.rows || [];
     $('coElestTable').innerHTML = r3.length
       ? '<thead><tr><th style="width:110px">날짜</th><th>보고자</th><th>직위</th>'
@@ -32121,7 +32517,14 @@ async function loadCoOwn(){
             + '<td class="num">' + esc(x.qty_chg || '') + '</td><td class="num">' + (x.rate ? esc(String(x.rate).replace(/%$/, '')) + '%' : '') + '</td></tr>'; }).join('')
         + '</tbody>'
       : '<tr><td class="empty">임원·주요주주 공시가 없습니다.</td></tr>';
-  } catch(e){ $('coElestTable').innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>'; }
+  }
+  function one(action, draw, tbl){
+    return edgeCo({ action: action, code: cc }).then(function(d){
+      if (co !== me) return;
+      draw(d); ecOnFresh(d, function(nd){ if (co === me) draw(nd); });
+    }, function(e){ if (co === me) $(tbl).innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>'; });
+  }
+  await Promise.all([one('kr_div', drawDiv, 'coDivTable'), one('kr_major', drawMajor, 'coMajorTable'), one('kr_elest', drawElest, 'coElestTable')]);
 }
 
 /*  ══════════ 미국 일드커브 ══════════════════════════════════
@@ -32548,6 +32951,8 @@ async function loadYC(force){
     if (ycData.failed && ycData.failed.length)
       warn('ycWarn', '받지 못한 만기: ' + esc(ycData.failed.join(', ')), 'info');
     ycDraw();
+    //  (10/8 클릭하면 바로) 보관함의 커브를 먼저 그렸고 새 것이 오면 같은 시장을 보고 있을 때 바꿔 그립니다
+    ecOnFresh(ycData, function(nd){ if (ycMarket !== mk) return; ycData = nd; ycCacheBy[mk] = nd; ycDraw(); });
   } catch(e){
     warn('ycWarn', esc(e.message || String(e)));
   }
@@ -34117,7 +34522,7 @@ async function autoUniverse(mk){
   }
   var id = mk === 'CRYPTO' ? 'uniCcBtn' : 'uniUsBtn';
   var b = $(id), label = b.textContent;
-  b.disabled = true; b.textContent = '불러오는 중…';
+  b.disabled = true; b.textContent = '로딩 중…';
   warn('autoUniMsg','');
   try {
     var src = mk === 'CRYPTO' ? 'universe_crypto' : 'universe_us';
@@ -34475,7 +34880,7 @@ async function delLink(id){
 /* ══════════ 접속 기록 ══════════ */
 async function loadAccess(){
   var box = $('accessBody');
-  box.innerHTML = '<div class="empty">불러오는 중…</div>';
+  box.innerHTML = '<div class="empty">로딩 중…</div>';
   var r = await sb.rpc('access_summary');
   if (r.error){ box.innerHTML = '<div class="empty" style="color:var(--danger)">'+esc(errMsg(r.error))+'</div>'; return; }
   var d = r.data || {}, recent = d.recent || [], byMember = d.by_member || [];
@@ -34542,6 +34947,31 @@ function adTab(which){
     되돌리기 쪽에서 <한 번만 쓰는 지시> 를 남겨둡니다.               */
 var adForce = null;
 
+/*  ── 설정 › 실시간 상태 (10/8) ──────────────────────────────────────────────
+    학회원 화면의 마켓 맵에는 점 하나(«실시간»)만 보입니다. 몇 초마다 · 마지막 갱신 · 자리 비움 · 서버 캐시 · 브라우저 보관함 성적은 여기에만.  */
+function adLiveRender(){
+  var box = $('adLive'); if (!box || !isOfficer() || curTab !== 'admin') return;
+  var dot = function(ok){ return '<span class="live-dot' + (ok ? '' : ' off') + '"></span>'; };
+  var ago = function(t){ return t ? mkAgo(t) + ' (' + mkHhmmss(t) + ')' : '-'; };
+  var mkOk = !!(MK.at && Date.now() - MK.at < (mkSlow() ? 95000 : 35000)) && !MK.paused;
+  var items = [
+    { n: '마켓 맵 (지수 · 환율 · 국채 · 지도)', ok: mkOk, v: MK.paused ? '일시정지' : MK.at ? (mkSlow() ? '자리 비움 · 1분마다' : '10초마다 · 정상') : (MK.err ? '받지 못함' : '아직 안 엶'),
+      s: '마지막 갱신 ' + ago(MK.at) + (MK.snapAt ? ' · 서버 스냅샷 ' + mkHhmmss(Date.parse(MK.snapAt)) : '') + (MK.err ? ' · ' + MK.err : '') },
+    { n: '나라 선 (오늘)', ok: !!(MK.ctryAt && Date.now() - MK.ctryAt < 120000), v: MK.ctryAt ? (MK.cc || '') + ' · ' + ago(MK.ctryAt) : '열린 나라 없음', s: MK.ctryErr || '10초마다 (나라 칸이 열려 있을 때)' },
+    { n: '주요 뉴스 5', ok: !!(MK.news && MK.news.at && !MK.news.err), v: MK.news && MK.news.at ? ago(MK.news.at) : '-', s: '5분마다 (서버는 매시간 고름)' + (MK.news && MK.news.err ? ' · ' + MK.news.err : '') },
+    { n: '환율 예측 자료', ok: !!(MK.fxHomeAt && Date.now() - MK.fxHomeAt < 1200000), v: MK.fxHomeAt ? ago(MK.fxHomeAt) : '-', s: '지금 값 10분마다 · 모형 자료는 하루' },
+    { n: '브라우저 보관함 (클릭하면 바로)', ok: true, v: '바로 ' + (ecStat.hit + ecStat.disk) + ' · 먼저 보여주고 새로 ' + ecStat.stale + ' · 서버 ' + ecStat.miss, s: '메모리 ' + Object.keys(ecMem).length + '개 · 같은 요청 합침 ' + ecStat.join }
+  ];
+  var html = items.map(function(x){ return '<div class="it"><div class="n">' + dot(x.ok) + esc(x.n) + '</div><div class="v">' + esc(x.v) + '</div><div class="s">' + esc(x.s) + '</div></div>'; }).join('');
+  if (box.__html !== html){ box.__html = html; box.innerHTML = html; }
+  var hint = $('adLiveHint'); if (hint) hint.textContent = '학회원 화면에는 점 하나만 보입니다 · ' + mkHhmmss(Date.now());
+}
+var adLiveTimer = null;
+function adLiveStart(){
+  adLiveRender();
+  if (adLiveTimer) return;
+  adLiveTimer = setInterval(function(){ if (curTab !== 'admin'){ clearInterval(adLiveTimer); adLiveTimer = null; return; } adLiveRender(); }, 5000);
+}
 function adTabInit(){
   var v = adForce;
   adForce = null;
@@ -34564,6 +34994,7 @@ async function loadAdmin(){
   loadAiSpend();
   loadAiViews();
   loadTradableStat();
+  adLiveStart();
   loadPresence(); presTick();
   rsInit();
   var s = await sb.from('app_settings').select('current_gen').eq('id',1).maybeSingle();
