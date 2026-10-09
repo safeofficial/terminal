@@ -190,6 +190,13 @@
     cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
   .tab:hover{color:var(--primary)}
   .tab.on{color:var(--primary);border-bottom-color:var(--primary)}
+  /*  (10/8 5단계 모션) 위 탭 밑줄이 눌린 탭으로 미끄러져 감 — 처음 자리 잡을 때는 바로 · 움직임 줄이기면 바로  */
+  .tabs-in{position:relative}
+  .tabs-in .nav-ink{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--primary);border-radius:2px 2px 0 0;pointer-events:none;transform:translateX(0)}
+  .tabs-in.ink-ready .nav-ink{transition:transform .34s cubic-bezier(.2,.8,.2,1),width .34s cubic-bezier(.2,.8,.2,1)}
+  .tabs-in.has-ink .tab.on{border-bottom-color:transparent}
+  .btn-sm:active:not(:disabled){transform:translateY(1px)}
+  @media (prefers-reduced-motion: reduce){ .tabs-in.ink-ready .nav-ink{transition:none} .btn-sm:active:not(:disabled){transform:none} }
   /*  하위 탭 — 상단 탭 바로 아래 한 줄 (모의투자: 팀/개인 · 분석: 산업/기업/AI/파생/자금 · 매크로: 팀별)  */
   .subtabs{background:var(--bg);border-bottom:1px solid var(--border)}
   .subtabs-in{max-width:1560px;margin:0 auto;padding:6px 24px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
@@ -617,6 +624,12 @@
       box-shadow:0 14px 36px rgba(20,30,60,.20);padding:12px 16px;overflow-y:auto;min-height:0}
     .mk-full #mkV-world .mk-world.left .mk-ctry{right:auto;left:0}
     .mk-full #mkV-world .mk-split{display:none}
+    /*  (10/8 4단계) 원자재 · 밸류체인 층은 서랍 대신 옆 칸 — 어느 쪽에 띄워도 생산국(미주 · 동아시아 · 호주)을 덮어서  */
+    .mk-full #mkV-world .mk-world.res{display:grid;grid-template-columns:minmax(0,1fr) clamp(360px,31%,540px);column-gap:14px;align-items:start}
+    .mk-full #mkV-world .mk-world.res .mk-ctry{position:relative !important;top:auto !important;left:auto !important;right:auto !important;transform:none !important;width:auto !important;
+      box-shadow:none}
+    .mk-full #mkV-world .mk-world.res .mk-rsz{display:none}
+    .mk-full #mkV-world .mk-world.res .mk-rb{grid-template-columns:20px minmax(0,1.5fr) minmax(0,1.25fr) 50px 58px;gap:6px}
     /*  (10/8) 서랍 안쪽 가장자리를 끌면 폭 조절  */
     .mk-full #mkV-world .mk-rsz{display:block;position:absolute;top:10px;bottom:10px;left:-1px;width:9px;cursor:ew-resize;touch-action:none;z-index:2;border-radius:6px}
     .mk-full #mkV-world .mk-world.left .mk-ctry:not(.moved) .mk-rsz{left:auto;right:-1px}
@@ -673,6 +686,90 @@
   .mk-chip{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:3px 9px;font-size:11.5px;cursor:pointer;color:var(--text)}
   .mk-chip.on{border-color:var(--primary-fill);background:var(--accent-soft);font-weight:700}
   .mk-chip b{font-weight:600;margin-left:2px;font-variant-numeric:tabular-nums}
+  /*  전체 화면 세이피 단추 (10/8)  */
+  .mk-aic-btn i{font-style:normal;color:var(--accent);margin-right:2px}
+  .mk-aic-btn.on{background:var(--accent-soft);border-color:var(--primary-fill);font-weight:700}
+  /*  나라 칸 › 산업 지표 (10/8)  */
+  .mk-ind-lg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11px;color:var(--text-sub);margin:2px 0 8px}
+  .mk-ind-lg span{display:inline-flex;align-items:center;gap:5px} .mk-ind-lg i{width:10px;height:6px;border-radius:3px;display:inline-block}
+  .mk-ind-lg i.hi{background:var(--up)} .mk-ind-lg i.mid{background:var(--ind-mid);opacity:.6} .mk-ind-lg i.lo{background:var(--down)}
+  .mk-ind-g{border:1px solid var(--border);border-radius:10px;padding:9px 11px 10px;margin-bottom:8px;background:var(--card)}
+  .mk-ind-g .h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:5px}
+  .mk-ind-g .h b{font-size:13px;word-break:keep-all} .mk-ind-g .h .sg{font-size:11.5px;font-weight:700;white-space:nowrap}
+  .mk-ind-rows{display:flex;flex-wrap:wrap;gap:3px 12px;margin-top:6px;font-size:11.5px;line-height:1.5}
+  .mk-ind-rows .r{white-space:nowrap} .mk-ind-rows .r b{font-variant-numeric:tabular-nums}
+  .mk-ind-rows .up{color:var(--up);font-weight:600} .mk-ind-rows .down{color:var(--down);font-weight:600}
+  .mk-ind-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+  .mk-ind-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px;line-height:1.5}
+  .mk-ind-foot .st-hint{flex:1 1 220px;min-width:0;word-break:keep-all}
+  @media (max-width:560px){ .mk-ind-rows .r{white-space:normal} }
+  /*  ── 원자재 · 밸류체인 지도 층 (10/8 4단계) ── 원자재 = 호박색 · 밸류체인 = 산업분석 청록  */
+  :root{--res:#b7791f;--res-soft:rgba(183,121,31,.08);--res-line:rgba(183,121,31,.4)}
+  :root[data-theme="dark"]{--res:#e0b45a;--res-soft:rgba(224,180,90,.09);--res-line:rgba(224,180,90,.42)}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--res:#e0b45a;--res-soft:rgba(224,180,90,.09);--res-line:rgba(224,180,90,.42)} }
+  .mk-laybar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:6px 0 6px}
+  .mk-laybar .mk-lseg{flex:none}
+  .mk-lchips{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
+  .mk-lchip{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:3px 10px;font-size:11.5px;cursor:pointer;color:var(--text);transition:border-color .2s,background .2s}
+  .mk-lchip:hover{border-color:var(--res-line)}
+  .mk-lchip.on{border-color:var(--res);background:var(--res-soft);font-weight:700;color:var(--res)}
+  .mk-lchip.lvc:hover{border-color:var(--ind-line)} .mk-lchip.lvc.on{border-color:var(--ind);background:var(--ind-soft);color:var(--ind)}
+  .mk-lchip b{font-weight:600;margin-left:3px;font-variant-numeric:tabular-nums}
+  .mk-lchip b.up{color:var(--up)} .mk-lchip b.down{color:var(--down)}
+  .mk-res{display:none}
+  .mk-world.res .mk-res{display:block}
+  .mk-world.res .mk-ctry > :not(.mk-res):not(.mk-rsz){display:none !important}
+  .mk-world.res .mk-chips, .mk-world.res .mk-mapcol > p.st-hint{display:none}
+  .mk-res-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .mk-res-t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px}
+  .mk-res-t .k{font-size:11px;color:var(--text-sub);letter-spacing:.02em}
+  .mk-res-t b{font-size:16px;line-height:1.3;word-break:keep-all}
+  .mk-world.res .mk-res-t b{color:var(--res)} .mk-world.res .mk-res.is-vc .mk-res-t b{color:var(--ind)}
+  .mk-res-px{font-size:12px;white-space:nowrap;display:flex;align-items:baseline;gap:5px}
+  .mk-res-px .n{color:var(--text-sub)} .mk-res-px b{font-variant-numeric:tabular-nums}
+  .mk-res-px b.up{color:var(--up)} .mk-res-px b.down{color:var(--down)}
+  .mk-vflow{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:6px;margin:2px 0 10px}
+  .mk-vst{text-align:left;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:7px 9px;display:flex;flex-direction:column;gap:3px;cursor:pointer;font:inherit;color:inherit;
+          min-width:0;transition:border-color .2s,background .2s,transform .2s}
+  .mk-vst:hover{border-color:var(--ind-line);transform:translateY(-1px)}
+  .mk-vst.on{border-color:var(--ind);background:var(--ind-soft);box-shadow:inset 0 0 0 1px var(--ind)}
+  .mk-vst .t{font-weight:700;font-size:12.5px;line-height:1.3;word-break:keep-all}
+  .mk-vst .t i{font-style:normal;font-weight:500;font-size:10.5px;color:var(--text-sub);margin-left:4px}
+  .mk-vst .w{font-size:11.5px;line-height:1.35;word-break:keep-all} .mk-vst .w b{font-variant-numeric:tabular-nums}
+  .mk-vst .kr{font-size:11px;color:var(--text-sub)} .mk-vst .kr b{color:var(--text);font-variant-numeric:tabular-nums} .mk-vst .kr em{font-style:normal}
+  .mk-res-what{font-size:12.5px;margin:2px 0 6px;line-height:1.55;word-break:keep-all}
+  .mk-res-kpi{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:12px;margin-bottom:8px;line-height:1.4}
+  .mk-conc{border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;border:1px solid var(--border);color:var(--text-sub)}
+  .mk-conc.hi{border-color:var(--res);color:var(--res);background:var(--res-soft)}
+  .mk-conc.md{border-color:var(--res-line);color:var(--res)}
+  .mk-res-kpi .krl{font-weight:700} .mk-res-kpi .krl.none{font-weight:500;color:var(--text-sub)}
+  .mk-res-sel{font-size:12.5px;padding:6px 9px;border-radius:8px;background:var(--bg-sub);margin-bottom:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;line-height:1.4}
+  .mk-res-sel .btn-sm{margin-left:auto}
+  .mk-res-bars{display:flex;flex-direction:column;gap:1px}
+  .mk-rb{display:grid;grid-template-columns:20px minmax(0,1.25fr) minmax(0,2fr) 52px 70px;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;border:0;background:none;
+         font:inherit;color:inherit;text-align:left;cursor:pointer;font-size:12.5px;line-height:1.3;transition:background .15s}
+  .mk-rb:hover{background:var(--bg-sub)}
+  .mk-rb.on{background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+  .mk-rb.kr .nm{font-weight:700}
+  .mk-rb .rk{color:var(--text-sub);font-variant-numeric:tabular-nums;text-align:right;font-size:11.5px}
+  .mk-rb .nm{min-width:0;display:flex;align-items:center;gap:5px;word-break:keep-all;overflow-wrap:anywhere}
+  .mk-rb .nm .fl{font-style:normal;flex:none;line-height:1} .mk-rb .nm > span{min-width:0}
+  .mk-rb .bar{height:8px;border-radius:4px;background:var(--bg-sub);overflow:hidden}
+  .mk-rb .bar i{display:block;height:100%;width:0;border-radius:4px;transition:width .7s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--k, 0) * 22ms)}
+  .mk-res.grown .mk-rb .bar i{width:var(--w)}
+  .mk-rb.rest{cursor:default;color:var(--text-sub)} .mk-rb.rest:hover{background:none} .mk-rb.rest .bar i{background:var(--border)}
+  .mk-rb .pc{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+  .mk-rb .v{text-align:right;color:var(--text-sub);font-variant-numeric:tabular-nums;font-size:11.5px;white-space:nowrap}
+  .mk-res-notes{margin:10px 0 4px;padding-left:16px;font-size:12px;line-height:1.6;color:var(--text-sub)}
+  .mk-res-src{font-size:11px;color:var(--text-sub);margin-top:6px;line-height:1.5;word-break:keep-all}
+  @keyframes mkVin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  .mk-res.grown .mk-vst{animation:mkVin .38s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i, 0) * 45ms)}
+  @media (prefers-reduced-motion: reduce){ .mk-rb .bar i{transition:none} .mk-res.grown .mk-vst{animation:none} .mk-vst:hover{transform:none} }
+  @media (max-width:560px){
+    .mk-rb{grid-template-columns:18px minmax(0,1.2fr) minmax(0,1.3fr) 50px;gap:6px}
+    .mk-rb .v{display:none}
+    .mk-vflow{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
   .mk-ctry{min-width:0;display:flex;flex-direction:column}
   .mk-ctry-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;font-size:12.5px;margin-bottom:6px}
   .mk-ctry-head > b{font-size:15px}
@@ -1382,6 +1479,12 @@
   input[type=range]{accent-color:var(--primary-fill)}
   /*  (10/6 점검) 휴대폰 · 태블릿(마우스 없음)에서는 휠 · Shift · 끌기 안내를 숨깁니다  */
   @media (hover:none){ .mouse-hint{display:none!important} }
+  /*  ── 매크로 차트 다듬기 (10/8 5단계) ──  */
+  #chartTitle .mc-period{font-weight:500;color:var(--text-sub);font-size:.86em;margin-left:2px}
+  .mc-hints{display:flex;gap:6px 16px;flex-wrap:wrap;margin-top:8px;font-size:11.5px;align-items:center}
+  .mc-hints span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  .mc-hints kbd{font:inherit;font-size:10.5px;font-weight:700;line-height:1;padding:3px 6px;border:1px solid var(--border);border-bottom-width:2px;border-radius:5px;background:var(--card);color:var(--text)}
+
   /* ── 달력 ── */
   .cal-more{font-size:10px;color:var(--text-sub)}
   .v-num{font-size:12px;font-weight:600;color:var(--primary);min-width:52px;text-align:right}
@@ -2668,12 +2771,13 @@
               <div id="ycMainOut"></div>
             </div>
             <!--  ⚠️ 안 보이는 기능은 없는 기능입니다. 어떻게 쓰는지 적어둡니다. -->
-            <div class="st-hint mouse-hint" id="chartHints" style="margin-top:6px;display:flex;gap:14px;flex-wrap:wrap">
-              <span>🖱 <b>휠</b> — 좌우(기간) 확대·축소</span>
-              <span>↕ <b>축 위에서 휠</b> — 그 축만 확대·축소</span>
-              <span>⇧ <b>Shift + 휠</b> — 위아래(값) 전부</span>
-              <span>✋ <b>끌기</b> — 보는 자리 옮기기</span>
-              <span>↕ <b>선 위에서 끌기</b> — 그 선만 위아래로 (더블클릭 = 원위치)</span>
+            <!--  (10/8 5단계 · 학회장: «매크로 차트 더 세련되게») — 이모지 안내 → 키 모양 칩 한 줄  -->
+            <div class="st-hint mouse-hint mc-hints" id="chartHints">
+              <span><kbd>휠</kbd>기간 확대 · 축소</span>
+              <span><kbd>축 위 휠</kbd>그 축만</span>
+              <span><kbd>Shift</kbd><kbd>휠</kbd>값 전체</span>
+              <span><kbd>끌기</kbd>보는 자리 옮기기</span>
+              <span><kbd>선 끌기</kbd>그 선만 위아래 · 더블클릭 = 원위치</span>
             </div>
             <div id="chartMsg" style="font-size:12px;color:var(--text-sub);margin-top:10px"></div>
           </div>
@@ -4961,9 +5065,11 @@
         <div class="mk-top">
           <h2 class="mk-title">마켓 맵</h2>
           <span class="px-seg mk-views" id="mkViews" role="group" aria-label="보기"></span>
-          <span class="mk-live off" id="mkLive" aria-live="polite"><i></i>받는 중…</span>
+          <span class="mk-live off" id="mkLive" aria-live="polite"><i></i>로딩 중…</span>
           <span class="mk-tools">
             <button type="button" class="btn-sm" id="mkPauseBtn" onclick="mkPause()" aria-pressed="false">일시정지</button>
+            <!--  (10/8 학회장: «세이피도 월드맵 풀스크린에서 쓸 수 있게») — 전체 화면에서만 보이는 세이피 단추 (떠 있는 단추는 뉴스 · 지도를 가려서)  -->
+            <button type="button" class="btn-sm mk-aic-btn hidden" id="mkAicBtn" onclick="aicDock(!aicOpen)" aria-pressed="false" title="세이피에게 지금 보는 지도를 같이 보내고 물어봅니다 · 나라 · 층 · 비교도 바로 바꿔 줌"><i>✦</i> 세이피</button>
             <button type="button" class="btn-sm" id="mkFullBtn" onclick="mkFull()" aria-pressed="false">전체 화면</button>
           </span>
         </div>
@@ -4973,15 +5079,19 @@
               <!--  (10/8 학회장: «월드맵에 더 유용한 정보») — 지도 위 한 줄: 세계 핵심 시세 12개 (지도 스냅샷에서 · 새 요청 없음) + 어느 장이 열려 있나  -->
               <div class="mk-glance" id="mkGlance" aria-label="세계 핵심 시세"></div>
               <div class="mk-clock" id="mkClock" aria-label="시장 시계"></div>
+              <!--  (10/8 학회장: «월드 맵에도 원자재나 밸류체인 등의 분석») — 지도 층: 시장 · 원자재 9종 · 밸류체인 3개  -->
+              <div class="mk-laybar" id="mkLayBar"></div>
               <div id="mkMapBox" class="mk-map"></div>
               <div class="mk-chips" id="mkCtryChips"></div>
               <div class="mk-news5" id="mkNews5" aria-live="polite"></div>
-              <p class="st-hint" style="margin:8px 0 0;line-height:1.6">지도 색 = 그 나라 대표 지수(현물 장중 · 1~15분 지연) · 현물 장이 닫혔으면 24시간 무기한 선물 · 없으면 미국 상장 나라 ETF 의 등락 · 나라를 누르면 그 나라로 확대되고 옆 칸에 실시간 · 개요 · 주요 기업 · 업종 · 환율 모델 · 시황 · 여러 나라를 누르면 탭으로 쌓이고 «비교» 로 한 번에 · 가운데 막대를 끌면 칸 폭 조절 · 휠로 확대 · 끌어서 이동</p>
+              <p class="st-hint" style="margin:8px 0 0;line-height:1.6">지도 색 = 그 나라 대표 지수(현물 장중 · 1~15분 지연) · 현물 장이 닫혔으면 24시간 무기한 선물 · 없으면 미국 상장 나라 ETF 의 등락 · 나라를 누르면 그 나라로 확대되고 옆 칸에 실시간 · 개요 · 주요 기업 · 업종 · 환율 모델 · 시황 · 여러 나라를 누르면 탭으로 쌓이고 «비교» 로 한 번에 · 지도 위 «원자재 · 밸류체인» 을 고르면 나라별 세계 생산 비중 지도 · 가운데 막대를 끌면 칸 폭 조절 · 휠로 확대 · 끌어서 이동</p>
             </div>
             <!--  (10/8 학회장: «탭 사이즈 조절할 수 있게») — 지도 | 나라 칸 사이 막대를 끌어 폭 조절 · 두 번 누르면 원래대로  -->
             <div class="mk-split" id="mkSplit" role="separator" aria-orientation="vertical" aria-label="지도 · 나라 칸 폭 조절" title="끌어서 폭 조절 · 두 번 누르면 원래대로"></div>
             <aside class="mk-ctry" id="mkCtry" aria-label="고른 나라">
               <span class="mk-rsz" id="mkRsz" aria-hidden="true" title="끌어서 칸 폭 조절 · 두 번 누르면 원래대로"></span>
+              <!--  원자재 · 밸류체인 칸 (지도 층을 고르면 나라 칸 대신)  -->
+              <div class="mk-res" id="mkRes"></div>
               <!--  (10/8 학회장: «나라 몇 개 더 고르면 멀티플 탭으로 · 한 번에 비교») — 누른 나라가 탭으로 쌓임 (5개까지) · «비교»  -->
               <div class="mk-cctabs" id="mkCcTabs" role="tablist" aria-label="고른 나라"></div>
               <div class="mk-ctry-top">
@@ -5014,6 +5124,8 @@
                 <div id="mkSecBody"></div>
               </div>
               <div id="mkCtryAi" class="hidden"><div id="mkAiBody" aria-live="polite"></div></div>
+              <!--  (10/8 학회장: «나라 산업 지표들도 나라 클릭하면 나오게») — 산업분석 병목 모니터의 그 나라 판  -->
+              <div id="mkCtryInd" class="hidden"><div id="mkIndBody" aria-live="polite"></div></div>
               <div id="mkCtryStk">
                 <span class="px-seg mk-fam hidden" id="mkCtryFam" role="group" aria-label="선 종류"></span>
                 <div class="mk-ctry-body">
@@ -6349,6 +6461,20 @@ function showGroup(g){
   } catch(e){}
 })();
 /*  (10/6 점검) 휴대폰에서 탭 줄이 옆으로 넘치면 켜진 칸이 화면 밖에 남았습니다 — 켜진 칸을 가운데로  */
+//  위 탭 밑줄 (미끄러지는 막대) — 눌린 탭 자리 · 폭에 맞춤
+function navInk(){
+  try {
+    var box = document.querySelector('.tabs-in'), on = box && box.querySelector('.tab.on'); if (!box || !on) return;
+    var ink = box.querySelector('.nav-ink');
+    if (!ink){ ink = document.createElement('span'); ink.className = 'nav-ink'; ink.setAttribute('aria-hidden', 'true'); box.appendChild(ink); }
+    if (!on.offsetWidth) return;
+    ink.style.width = on.offsetWidth + 'px'; ink.style.transform = 'translateX(' + on.offsetLeft + 'px)';
+    box.classList.add('has-ink');
+    if (!box.classList.contains('ink-ready')) requestAnimationFrame(function(){ box.classList.add('ink-ready'); });
+  } catch(e){}
+}
+window.addEventListener('resize', function(){ navInk(); });
+try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(navInk); } catch(e){}
 function navCenter(box, el){
   try {
     if (!box || !el || box.scrollWidth <= box.clientWidth + 2) return;
@@ -6422,6 +6548,7 @@ function showTab(name){
   var g = groupOf(name);
   document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('on', b.dataset.group === g); });
   navCenter(document.querySelector('.tabs-in'), document.querySelector('.tab.on'));
+  navInk();
   renderSubTabs(name);
 
   /*  ⚠️ 되돌리기와 «맨 위로» 를 <먼저> 합니다.
@@ -9226,9 +9353,11 @@ function dkLayout(){
     var cut = Math.min(need - vw, ww[k] - 300);
     if (cut > 0){ ww[k] -= cut; need -= cut; }
   });
+  //  (10/8) 월드맵 전체 화면에서는 세이피 서랍을 나라 칸 <반대쪽> 에 (나라 칸 · 고른 나라를 가리지 않게 · 기억한 쪽은 그대로)
+  var mkFs = document.body.classList.contains('mk-full-on') && typeof MK !== 'undefined' && typeof mkAsideOn === 'function' && mkAsideOn();
   open.forEach(function(k){
     var d = $(DK[k].el); if (!d) return;
-    var side = DK[k].side;
+    var side = (mkFs && k === 'aic') ? ((MK.drawerLeft && !mkResOn()) ? 'right' : 'left') : DK[k].side;
     place[k] = side;
     d.style.width = ww[k] + 'px';
     d.style[side] = used[side] + 'px'; d.style[side === 'left' ? 'right' : 'left'] = 'auto';
@@ -9319,6 +9448,7 @@ async function aicInit(){
   //  SQL 을 안 돌렸거나 꺼져 있으면 단추를 숨깁니다 (임원진에게는 설정 화면에서 안내)
   if (f) f.classList.toggle('hidden', !(aicStatus && aicStatus.on) || aicOpen);
   if (nb) nb.classList.toggle('hidden', !(aicStatus && aicStatus.on));
+  var mb = $('mkAicBtn'); if (mb) mb.classList.toggle('hidden', !(aicStatus && aicStatus.on) || !document.body.classList.contains('mk-full-on'));
   //  (10/6 점검) 밸류에이션 탭의 «✦ AI 비서» 카드도 비서가 꺼져 있으면 숨깁니다 (눌러도 오류만 나던 것)
   var vc = $('valAiCard'); if (vc) vc.classList.toggle('hidden', !(aicStatus && aicStatus.on));
   //  없앤 밸류노트가 이 브라우저에 남긴 칸을 지웁니다 (함께 쓰는 PC 에 남지 않게)
@@ -9339,10 +9469,13 @@ function aicDock(open){
   if (d) d.classList.toggle('hidden', !aicOpen);
   if (f) f.classList.toggle('hidden', aicOpen || !(aicStatus && aicStatus.on));
   document.body.classList.toggle('aic-on', aicOpen);
+  if (typeof mkAicBtnSet === 'function') mkAicBtnSet();
   //  10/5: PC 에서는 뉴스 서랍과 같이 (나란히) — 휴대폰에서만 번갈아
   if (aicOpen) DK.aic.at = Date.now();
   if (aicOpen && dkMobile() && typeof nfOpen !== 'undefined' && nfOpen && typeof nfDock === 'function') nfDock(false);
   dkLayout();
+  //  (10/8) 월드맵 전체 화면에서 세이피를 열고 닫으면 — 고른 나라가 두 서랍 사이 가운데 오도록 지도를 다시 맞춤
+  if (document.body.classList.contains('mk-full-on') && typeof MK !== 'undefined' && MK.ctryOpen && !MK.cmpOn && MK.cc && typeof mkMapZoomTo === 'function' && !(typeof mkResOn === 'function' && mkResOn())) mkMapZoomTo(MK.cc, true);
   try { localStorage.setItem(AIC_OPEN_KEY, aicOpen ? '1' : '0'); } catch(e){}
   if (aicOpen){ aicRender(); setTimeout(function(){ var q = $('aicQ'); if (q) q.focus(); }, 30); }
 }
@@ -9431,6 +9564,13 @@ function aicSuggestions(){
   if (curTab === 'company' && typeof co !== 'undefined' && co) return [(co.name || co.code) + ' 밸류에이션 점검해줘 - 멀티플 · DCF 가정 추천하고 작성자 뷰 · 투자의견까지', (co.name || co.code) + ' 대차대조표 중심으로 자산 · 부채 · 자본 추이 차트 만들고 분석해줘', (co.name || co.code) + ' PER 밴드로 지금이 싼지 비싼지 보여줘'];
   if (curTab === 'company') return ['삼성전자랑 SK하이닉스 대차대조표 중심으로 비교 차트 만들어줘 (부채비율도)', '엔비디아 재무제표 열어서 최근 4분기 매출 · 영업이익 보여줘'];
   if (curTab === 'trading') return ['우리 팀 포트폴리오를 점검해줘 - 쏠림 · 위험 · 손익'];
+  //  (10/8) 마켓 맵 — 지도를 직접 움직이는 말 (나라 · 비교 · 층 · 산업 지표)
+  if (curTab === 'market' && typeof MK !== 'undefined'){
+    if (typeof mkResOn === 'function' && mkResOn()){ var L0 = MK.layD || mkLayerData(); return [L0.title + (L0.stage ? ' ' + L0.stage : '') + ' 지도를 읽어 줘 - 어느 나라에 쏠렸고 한국은 어디쯤인지', '2차전지 밸류체인에서 중국 비중이 큰 단계를 지도로 보여줘', '구리 생산국 지도 보여주고 칠레 · 페루 쪽 위험 정리해줘']; }
+    var nm0 = MK.ctryOpen && MK.cc ? (MK_CC[MK.cc] || [MK.cc])[0] : '';
+    return (nm0 ? [nm0 + ' 지금 시장 상황을 세 줄로 정리해줘', nm0 + ' 산업 지표에서 병목인 곳과 유망 기업 알려줘'] : ['일본 시장 열어서 지금 상황 정리해줘'])
+      .concat(['한국 · 일본 · 대만을 지도에서 비교해줘', '반도체 메모리 밸류체인 지도 보여줘']);
+  }
   return ['인플레이션 추이가 잘 보이게 차트 만들어줘', '미국 2년물과 SOFR 최근 흐름을 비교해줘', '버크셔 해서웨이 최근 13F 에서 뭐가 바뀌었어?'];
 }
 function aicRender(){
@@ -9561,13 +9701,31 @@ function aicScreen(){
         var it = g.items.filter(function(x){ return x.p != null; });
         if (it.length) out.push('[' + g.n + '] ' + (g.basis || '') + '\n' + it.map(function(x){ return '- ' + x.n + ' ' + mkPx(x.p, x.s) + (x.unit === 'bp' ? '%' : '') + ' ' + mkChg(x.c, x.unit) + (x.cl ? ' (닫힘)' : '') + (x.src === 'fred_m' ? ' (월간)' : ''); }).join('\n'));
       });
-      if (MK.view === 'world' && MK.ctryOpen && MK.cc){
+      if (MK.view === 'world' && MK.ctryOpen && MK.cc && !(typeof mkResOn === 'function' && mkResOn())){
         var aNm = (MK_CC[MK.cc] || [MK.cc])[0], aInf = MK.info[MK.cc] && MK.info[MK.cc].d, aBr = MK.brief[MK.cc] || {};
         out.push('[세계지도 › ' + aNm + ' 칸] 보는 탭 ' + ((MK_CTABS.filter(function(t){ return t[0] === MK.ctryTab; })[0] || [])[1] || MK.ctryTab));
         if (aInf && aInf.idx && aInf.idx.r) out.push('[' + aNm + ' ' + aInf.idx.n + ' 수익률] 1주 ' + mkPct(aInf.idx.r.w1) + ' · 1개월 ' + mkPct(aInf.idx.r.m1) + ' · 3개월 ' + mkPct(aInf.idx.r.m3) + ' · 연초 이후 ' + mkPct(aInf.idx.r.ytd) + ' (' + aInf.idx.r.at + ')');
         if (aInf && aInf.imf && aInf.imf.rows) out.push('[' + aNm + ' IMF 전망] ' + aInf.imf.rows.filter(function(r){ return /NGDP_RPCH|PCPIPCH|LUR/.test(r.k); }).map(function(r){ return r.n + ' ' + Object.keys(r.v).map(function(y){ return y + ' ' + r.v[y]; }).join(' / '); }).join(' · '));
         if (aBr.brief) out.push('[' + aNm + ' 시황 (AI 요약 · ' + aBr.day + ')] ' + aBr.brief.market.join(' / ') + (aBr.brief.picks && aBr.brief.picks.length ? ' · 유망 산업: ' + aBr.brief.picks.map(function(p){ return p.name + '(' + p.why + ')'; }).join(', ') : ''));
         if (aBr.pplx && aBr.pplx.sectors && aBr.pplx.sectors.length) out.push('[' + aNm + ' 업종 (웹 검색 참고값)] ' + aBr.pplx.sectors.map(function(x){ return x.n + ' 1주 ' + mkPct(x.w1) + ' · 1개월 ' + mkPct(x.m1); }).join(' · '));
+        //  (10/8) 나라 칸 › 실시간 · 산업 지표 · 비교 — 세이피가 지금 지도 화면을 읽고 답하게
+        var aLive = []; var aIdx = typeof mkIdxOf === 'function' ? mkIdxOf(MK.cc) : null, aPf = typeof mkPerpOf === 'function' ? mkPerpOf(MK.cc) : null, aSc = MK.snap && MK.snap.ctry && MK.snap.ctry[MK.cc];
+        if (aIdx) aLive.push(aIdx.n + ' ' + mkPx(aIdx.p, aIdx.s) + ' ' + mkChg(aIdx.c) + (aIdx.cl ? ' (장 마감)' : ''));
+        if (aPf) aLive.push(String(aPf.n).replace(/\s*\(24시간\)/, '') + ' 24시간 선물 ' + mkPx(aPf.p, aPf.s) + ' ' + mkChg(aPf.c));
+        if (aSc && aSc.etf && aSc.p != null) aLive.push(aSc.etf + ' ETF ' + mkPx(aSc.p, aSc.etf) + ' ' + mkChg(aSc.c));
+        if (aLive.length) out.push('[' + aNm + ' 실시간] ' + aLive.join(' · '));
+        if (typeof mkIndOk === 'function' && mkIndOk(MK.cc)){
+          var aC = BN_COUNTRIES.filter(function(x){ return x.k === MK.cc; })[0], aS = mkIndScores(aC).filter(function(x){ return x.score != null; });
+          if (aS.length) out.push('[' + aNm + ' 산업 지표 (수급 긴장도 0~100 · 2015년 이후 백분위 · 70 이상 공급 병목 · 30 이하 공급 과잉)] ' + aS.map(function(x){ return x.g.n + ' ' + x.score + ' (' + bnSignal(x.score).t + ')'; }).join(' · '));
+        }
+        if (MK.cmpOn && MK.ccList.length > 1) out.push('[나라 비교 중] ' + MK.ccList.map(function(c){ var ch = mkCtryChg(c); return ((MK_CC[c] || [c])[0]) + (ch ? ' ' + mkChg(ch.c) + ' (' + ch.by + ')' : ''); }).join(' · '));
+      }
+      //  (10/8) 원자재 · 밸류체인 층 — 지금 지도에 칠해진 표 그대로 (출처 · 연도 포함)
+      if (MK.view === 'world' && typeof mkResOn === 'function' && mkResOn()){
+        var aL = MK.layD || mkLayerData();
+        out.push('[세계지도 층 › ' + (MK.lay === 'vc' ? '밸류체인 › ' : '원자재 › ') + aL.title + (aL.stage ? ' › ' + aL.stage : '') + '] ' + aL.what + ' · ' + aL.yr + ' · ' + aL.basis + ' · 출처 ' + aL.src + '\n'
+          + aL.rows.slice(0, 12).map(function(r){ return r.rk + '. ' + mkNm(r.cc) + ' ' + mkLayerPct(r) + (r.v != null ? ' (' + mkNumFmt(r.v) + ' ' + aL.unit + ')' : r.vt ? ' (' + r.vt + ')' : ''); }).join(' · ')
+          + (aL.rest ? ' · ' + aL.rest.label + ' ' + (Math.round(aL.rest.s * 10) / 10) + '%' : '') + (aL.notes.length ? '\n메모: ' + aL.notes.join(' / ') : ''));
       }
       if (MK.view === 'world' && MK.ctry && MK.ctry.lines)
         out.push('[' + ((MK_CC[MK.ctry.cc] || [])[0] || MK.ctry.cc) + ' 주요 기업 · ' + (MK.ctry.live ? '미국 장중' : '지난 미국 장 ' + (MK.ctry.day || '')) + '] ' + MK.ctry.lines.map(function(l){ return l.n + ' ' + mkChg(l.c); }).join(' · '));
@@ -9826,6 +9984,15 @@ function aicActClean(a){
     a.part = a.country && MK_CTABS.some(function(x){ return x[0] === a.part; }) ? String(a.part) : null;             //  나라 칸: 개요 · 주요 기업 · 업종 · 환율 · 시황
     a.pair = a.tab === 'market' && MK_FX_PAIRS.some(function(x){ return x.k === a.pair; }) ? String(a.pair) : null;   //  환율 예측 통화쌍
     if (a.pair && !a.country) a.view = 'fx';
+    //  (10/8 4단계) 세계지도 층 — res:구리 · vc:반도체 (+ 단계) · 나라를 같이 주면 나라 칸이 먼저 (층은 버림)
+    var ly = a.tab === 'market' && !a.country && typeof MK_RES !== 'undefined' ? String(a.layer || '').split(':') : [];
+    a.layer = (ly[0] === 'res' && MK_RES.some(function(r){ return r.k === ly[1]; })) || (ly[0] === 'vc' && MK_VC.some(function(r){ return r.k === ly[1]; })) ? ly[0] + ':' + ly[1] : null;
+    a.stage = a.layer && ly[0] === 'vc' && mkVcOf(ly[1]).st.some(function(x){ return x[0] === a.stage; }) ? String(a.stage) : null;
+    if (a.layer){ a.view = 'world'; a.pair = null; }
+    //  (10/8) 여러 나라 «비교» — 2~5개 · 지도에 있는 나라만 (나라 하나 · 층과 같이 오면 비교가 먼저)
+    a.compare = a.tab === 'market' && Array.isArray(a.compare) ? a.compare.map(function(c){ return String(c || '').toUpperCase(); }).filter(function(c, i, arr){ return MK_CC[c] && arr.indexOf(c) === i; }).slice(0, 5) : null;
+    if (a.compare && a.compare.length < 2) a.compare = null;
+    if (a.compare){ a.view = 'world'; a.layer = null; a.stage = null; a.country = null; a.part = null; a.pair = null; }
     a.curve = a.tab === 'research' && /^(us|kr)$/.test(String(a.curve || '')) ? String(a.curve) : null;              //  일드커브 (미국 · 한국)
     a.fs_period = a.tab === 'company' && a.fs_period === 'quarter' ? 'quarter' : null;                                 //  재무제표 분기
     a.ai_view = a.tab === 'ai' && /^(new|lib)$/.test(String(a.ai_view || '')) ? String(a.ai_view) : null;              //  AI 분석: 새 리포트 · 보관함
@@ -9855,6 +10022,10 @@ function aicActWhere(a){
     if (a.flow) s += ' › ' + (a.flow === 'dark' ? '다크풀' : '미 의회 거래');
     if (a.view) s += ' › ' + ((MK_VIEWS.filter(function(v){ return v[0] === a.view; })[0] || [])[1] || a.view);
     if (a.country) s += ' › ' + ((MK_CC[a.country] || [])[0] || a.country);
+    if (a.compare) s += ' › ' + a.compare.map(function(c){ return (MK_CC[c] || [c])[0]; }).join(' · ') + ' 비교';
+    if (a.layer){ var l2 = a.layer.split(':');
+      if (l2[0] === 'res') s += ' › 원자재 › ' + mkResOf(l2[1]).n;
+      else { var v2 = mkVcOf(l2[1]); s += ' › 밸류체인 › ' + v2.n + (a.stage ? ' › ' + ((v2.st.filter(function(x){ return x[0] === a.stage; })[0] || [])[1] || '') : ''); } }
     if (a.part) s += ' › ' + ((MK_CTABS.filter(function(x){ return x[0] === a.part; })[0] || [])[1] || a.part);
     if (a.pair) s += ' › ' + (((MK_FX_PAIRS.filter(function(x){ return x.k === a.pair; })[0] || {}).n) || a.pair);
     if (a.curve) s += ' › ' + (a.curve === 'kr' ? '한국 일드커브' : '미국 일드커브');
@@ -10126,7 +10297,14 @@ async function aicActApply(i, j, auto){
       if (a.tab === 'flow' && a.flow) flowShow(a.flow);
       if (a.tab === 'market'){
         if (a.view) mkSetView(a.view);
-        if (a.country){ mkPickCountry(a.country); if (a.part && mkTabOk(a.part, a.country)) mkCtryTabSet(a.part); if (a.part === 'fx' && a.pair && typeof mkCfxSet === 'function') mkCfxSet(a.pair); }
+        if (a.compare && a.compare.length > 1){ a.compare.forEach(function(c){ mkPickCountry(c); }); mkCmpSet(true); }
+        else if (a.country){ mkPickCountry(a.country); if (a.part && mkTabOk(a.part, a.country)) mkCtryTabSet(a.part); if (a.part === 'fx' && a.pair && typeof mkCfxSet === 'function') mkCfxSet(a.pair); }
+        else if (a.layer && typeof mkResSet === 'function'){
+          //  (10/8 4단계) 세계지도 층 — res:구리 · vc:반도체(+ 단계)
+          var ly = String(a.layer).split(':');
+          if (ly[0] === 'res') mkResSet(ly[1]);
+          else if (ly[0] === 'vc'){ mkVcSet(ly[1]); if (a.stage && mkVcOf(ly[1]).st.some(function(x){ return x[0] === a.stage; })) mkVcStSet(a.stage); }
+        }
         else if (a.pair) mkFxSet(a.pair);
       }
       //  (10/8) 일드커브 — 매크로 차트 자리를 커브로 바꾸고 시장(미국 · 한국)을 맞춤
@@ -16898,6 +17076,8 @@ var MK = { view: 'world', snap: null, err: '', at: 0, busy: false, timer: null, 
            cc: 'KR', ctry: null, ctryErr: '', ctryBusy: false, ctryAt: 0, ctryOpen: false, ctryTab: 'live', ctryFxPair: null, info: {}, brief: {}, secPer: 'm1',
            //  (10/8) 여러 나라 탭 · 비교 · 칸 폭 · 실시간 틱 · 나라별 선 보관 · 지도 확대 자리
            ccList: [], cmpOn: false, split: null, drawerW: null, tk: {}, tkAt: null, ctryC: {}, ctryCAt: {}, ctryCBusy: {}, mapView: null,
+           //  (10/8 4단계) 지도 층: 시장 · 원자재 · 밸류체인
+           lay: 'mkt', res: 'cu', vc: 'semi', vcSt: 'all', resSel: null, layD: null,
            fxPair: 'USDKRW', fx: null, fxErr: '', fxBusy: false, fxAt: 0, fxH: 21, fxRaw: {}, fxRates: {}, fxHome: undefined, fxP: {}, wake: null };
 var MK_KEY = 'safe_mkt_v1', MK_CC_MAX = 5;
 var mkMapChart = null, mkLineChart = null, mkFxChart = null, mkCfxChart = null, mkOvChart = null, mkMapReady = null;
@@ -16936,16 +17116,23 @@ function mkLoadPrefs(){
     MK.cmpOn = p.cmp === true && MK.ccList.length >= 2;
     if (isFinite(p.spl) && p.spl >= 0.3 && p.spl <= 0.78) MK.split = +p.spl;
     if (isFinite(p.dw) && p.dw >= 320 && p.dw <= 1600) MK.drawerW = +p.dw;
+    //  (10/8 4단계) 지도 층
+    if (p.ly === 'res' || p.ly === 'vc') MK.lay = p.ly;
+    if (MK_RES.some(function(r){ return r.k === p.rs; })) MK.res = p.rs;
+    if (MK_VC.some(function(r){ return r.k === p.vc; })){ MK.vc = p.vc; if (mkVcOf(p.vc).st.some(function(x){ return x[0] === p.vs; })) MK.vcSt = p.vs; else MK.vcSt = mkVcOf(p.vc).st[0][0]; }
   } catch(e){}
 }
 function mkSavePrefs(){ try { localStorage.setItem(MK_KEY, JSON.stringify({ view: MK.view, cc: MK.cc, fx: MK.fxPair, open: !!MK.ctryOpen, tab: MK.ctryTab, h: MK.fxH, sp: MK.secPer, dp: MK.drawerPos || null,
-  cl: MK.ccList, cmp: !!MK.cmpOn, spl: MK.split, dw: MK.drawerW })); } catch(e){} }
+  cl: MK.ccList, cmp: !!MK.cmpOn, spl: MK.split, dw: MK.drawerW, ly: MK.lay, rs: MK.res, vc: MK.vc, vs: MK.vcSt })); } catch(e){} }
 //  누를 수 있는 나라 = 지도에 색이 있는 나라 전부 (10/7 — 개요 · 업종 · 시황은 어느 나라나 · 주요 기업 · 환율은 있는 나라만)
 function mkCtryOk(cc){ return !!cc && !!MK_CC[cc]; }
 //  나라 칸 탭 — [키, 이름]
-var MK_CTABS = [['live', '실시간'], ['ov', '개요'], ['stk', '주요 기업'], ['sec', '업종'], ['fx', '환율 모델'], ['ai', '시황 · 유망 산업']];
+//  (10/8 학회장: «나라를 고르면 무조건 개요부터 · 개요 보는 동안 다른 칸 미리 로딩» · «나라 산업 지표도») — 개요가 맨 앞 · 산업 지표 탭 추가
+var MK_CTABS = [['ov', '개요'], ['live', '실시간'], ['stk', '주요 기업'], ['sec', '업종'], ['ind', '산업 지표'], ['fx', '환율 모델'], ['ai', '시황 · 유망 산업']];
 var MK_SEC_PER = [['d1', '1일'], ['w1', '1주'], ['m1', '1개월'], ['m3', '3개월'], ['ytd', '연초 이후']];
-function mkTabOk(t, cc){ return t === 'stk' ? MK_LINES.indexOf(cc) >= 0 : t === 'fx' ? mkCtryPairs(cc).length > 0 : MK_CTABS.some(function(x){ return x[0] === t; }); }
+function mkTabOk(t, cc){ return t === 'stk' ? MK_LINES.indexOf(cc) >= 0 : t === 'fx' ? mkCtryPairs(cc).length > 0 : t === 'ind' ? mkIndOk(cc) : MK_CTABS.some(function(x){ return x[0] === t; }); }
+//  산업 지표 = 산업분석 › 병목 모니터에 자료가 있는 나라 (미국 · 한국 · 일본 · 중국 · 독일 · 프랑스 · 이탈리아 · 영국 · 인도)
+function mkIndOk(cc){ return typeof BN_COUNTRIES !== 'undefined' && BN_COUNTRIES.some(function(c){ return c.k === cc; }); }
 function initMarket(){
   if (!MK.inited){ MK.inited = true; mkLoadPrefs(); }
   mkRender();
@@ -17035,14 +17222,14 @@ async function mkTick(){
   MK.tickAt = Date.now();
   var jobs = [mkFetchSnap()];
   if (curTab !== 'market'){ await Promise.all(jobs); return; }          //  주식분석(히트맵)은 스냅샷만
-  if (MK.view === 'world' && MK.cc && MK.ctryOpen && !MK.cmpOn && (MK.ctryTab === 'stk' || MK.ctryTab === 'live') && MK_LINES.indexOf(MK.cc) >= 0) jobs.push(mkFetchCountry(MK.cc));
+  if (MK.view === 'world' && MK.cc && MK.ctryOpen && !MK.cmpOn && !mkResOn() && (MK.ctryTab === 'stk' || MK.ctryTab === 'live') && MK_LINES.indexOf(MK.cc) >= 0) jobs.push(mkFetchCountry(MK.cc));
   //  «비교» — 고른 나라들의 선을 20초마다 (나라 하나씩 돌아가며 · 서버도 보관해 둠)
-  if (MK.view === 'world' && MK.ctryOpen && MK.cmpOn) MK.ccList.forEach(function(c){ if (MK_LINES.indexOf(c) >= 0 && Date.now() - (MK.ctryCAt[c] || 0) > 20000) mkFetchCountry(c); });
+  if (MK.view === 'world' && MK.ctryOpen && MK.cmpOn && !mkResOn()) MK.ccList.forEach(function(c){ if (MK_LINES.indexOf(c) >= 0 && Date.now() - (MK.ctryCAt[c] || 0) > 20000) mkFetchCountry(c); });
   if (MK.view === 'world') mkNewsGet();
   //  개요 · 업종 자료는 10분마다 (서버도 보관해 둠)
-  if (MK.view === 'world' && MK.cc && MK.ctryOpen && (MK.ctryTab === 'ov' || MK.ctryTab === 'sec')) mkInfoGet(MK.cc);
+  if (MK.view === 'world' && MK.cc && MK.ctryOpen && !mkResOn() && (MK.ctryTab === 'ov' || MK.ctryTab === 'sec')) mkInfoGet(MK.cc);
   //  띄워 둔 화면: 한국 날짜가 바뀌면 그날 업종(검색) · 시황을 새로 (같은 날이면 아무것도 안 물음)
-  if (MK.view === 'world' && MK.cc && MK.ctryOpen && (MK.ctryTab === 'ai' || (MK.ctryTab === 'sec' && MK.cc !== 'US' && MK.cc !== 'KR'))) mkCtryLoad();
+  if (MK.view === 'world' && MK.cc && MK.ctryOpen && !mkResOn() && (MK.ctryTab === 'ai' || (MK.ctryTab === 'sec' && MK.cc !== 'US' && MK.cc !== 'KR'))) mkCtryLoad();
   if (MK.view === 'fx') mkFxPurgeSoft(MK_FX_PAIRS);
   if (MK.view === 'fx' && !mkFxReady() && !MK.fxBusy) jobs.push(mkFxLoad());
   await Promise.all(jobs);
@@ -17066,7 +17253,8 @@ function mkPaintAll(){
   if (curTab === 'stocks'){ mkHead(); mkHeatRender(); return; }
   if (curTab !== 'market') return;
   mkHead();
-  if (MK.view === 'world'){ mkGlanceRender(); mkClockRender(); mkMapPaint();
+  if (MK.view === 'world'){ mkGlanceRender(); mkClockRender(); mkMapPaint(); mkLayBarRender();
+    if (mkResOn()){ mkResRender(); return; }
     if (MK.ctryOpen && MK.cmpOn){ mkCcTabsRender(); mkCmpRender(); }
     else if (MK.ctryOpen && MK.ctryTab === 'live'){ mkCcTabsRender(); mkCtryHeadSet(); mkLiveRender(); }
     else if (MK.ctryOpen && MK.ctryTab === 'fx') mkCfxRender(); else if (MK.ctryOpen && MK.ctryTab === 'ov') mkCtryRender(); else if (MK.ctryOpen && MK.ctryTab !== 'stk') mkCtryHeadSet(); }
@@ -17228,7 +17416,7 @@ function mkFull(){
   var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
   if (fsEl || card.classList.contains('mk-full')){ mkFullExit(); return; }
   var req = card.requestFullscreen || card.webkitRequestFullscreen;
-  var done = function(){ card.classList.add('mk-full'); document.body.classList.add('mk-full-on'); mkFullBtn(); mkWake(true); setTimeout(mkResize, 60); };
+  var done = function(){ card.classList.add('mk-full'); document.body.classList.add('mk-full-on'); mkAicIn(true); mkFullBtn(); mkWake(true); setTimeout(mkResize, 60); };
   if (req){
     try { var p = req.call(card); if (p && p.then) p.then(done, function(){ done(); }); else done(); } catch(e){ done(); }
   } else done();            //  아이폰 사파리처럼 요소 전체 화면이 없으면 화면을 덮는 칸으로
@@ -17238,12 +17426,30 @@ function mkFullExit(){
   try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen(); } catch(e){}
   if (card) card.classList.remove('mk-full');
   document.body.classList.remove('mk-full-on');
+  mkAicIn(false);
   mkFullBtn(); mkWake(false); setTimeout(mkResize, 60);
 }
+/*  ── 세이피를 전체 화면 안으로 (10/8) ──
+    ⚠️ 브라우저 전체 화면은 <그 칸 안의 것만> 보입니다 — 화면 맨 끝에 붙어 있던 세이피 서랍은 전체 화면에서 아예 안 보였습니다.
+       전체 화면에 들어갈 때 서랍을 지도 칸 안으로 옮기고, 나올 때 제자리로 돌려놓습니다 (대화 · 입력 중인 글은 그대로).
+    · 서랍은 나라 칸 반대쪽에 (나라 칸을 가리지 않게) · 단추는 지도 위 도구줄 («전체 화면 끝» 옆)  */
+function mkAicIn(on){
+  var d = $('aicDock'), card = $('mkCard'); if (!d || !card) return;
+  if (on){
+    if (!mkAicIn.home){ mkAicIn.home = document.createComment('aicDock home'); d.parentNode.insertBefore(mkAicIn.home, d); }
+    if (d.parentNode !== card) card.appendChild(d);
+  } else if (mkAicIn.home && mkAicIn.home.parentNode && d.parentNode === card){
+    mkAicIn.home.parentNode.insertBefore(d, mkAicIn.home);
+  }
+  var b = $('mkAicBtn'); if (b) b.classList.toggle('hidden', !(on && aicStatus && aicStatus.on));
+  mkAicBtnSet();
+  try { dkLayout(); } catch(e){}
+}
+function mkAicBtnSet(){ var b = $('mkAicBtn'); if (b){ b.setAttribute('aria-pressed', aicOpen ? 'true' : 'false'); b.classList.toggle('on', !!aicOpen); } }
 ['fullscreenchange', 'webkitfullscreenchange'].forEach(function(ev){
   document.addEventListener(ev, function(){
     var card = $('mkCard'); if (!card) return;
-    if (!(document.fullscreenElement || document.webkitFullscreenElement) && card.classList.contains('mk-full') && !card.__fake){ card.classList.remove('mk-full'); document.body.classList.remove('mk-full-on'); mkFullBtn(); mkWake(false); setTimeout(mkResize, 60); }
+    if (!(document.fullscreenElement || document.webkitFullscreenElement) && card.classList.contains('mk-full') && !card.__fake){ card.classList.remove('mk-full'); document.body.classList.remove('mk-full-on'); mkAicIn(false); mkFullBtn(); mkWake(false); setTimeout(mkResize, 60); }
   });
 });
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && document.body.classList.contains('mk-full-on')) mkFullExit(); });
@@ -17415,7 +17621,7 @@ function mkMapSize(box){
     var top = Math.max(0, col.getBoundingClientRect().top), avail = Math.max(320, H - top - 14);
     col.style.height = Math.round(avail) + 'px';
     var band = 0, ch = $('mkCtryChips'), nb = $('mkNews5');
-    [$('mkGlance'), $('mkClock')].forEach(function(el){ if (el && el.offsetHeight) band += el.offsetHeight + 6; });
+    [$('mkGlance'), $('mkClock'), $('mkLayBar')].forEach(function(el){ if (el && el.offsetHeight) band += el.offsetHeight + 6; });
     if (ch && ch.offsetHeight) band += ch.offsetHeight + 8;
     var nat = 0; if (nb && !nb.classList.contains('hidden')) Array.prototype.forEach.call(nb.children, function(c){ nat += c.offsetHeight; });
     band += Math.max(nat ? nat + 30 : 0, 112);
@@ -17425,7 +17631,8 @@ function mkMapSize(box){
   var h = Math.round(mapW / MK_MAP_RATIO + MK_MAP_LEG);
   if (Math.abs((parseFloat(box.style.height) || 0) - h) > 1) box.style.height = h + 'px';
   //  전체 화면 서랍은 지도 칸 높이까지만 (아래 칩 · 주요 뉴스를 가리지 않게 · 길면 서랍 안에서 스크롤)
-  var drw = $('mkCtry'); if (drw) drw.style.maxHeight = fullWide ? h + 'px' : '';
+  //  (10/8 4단계) 원자재 · 밸류체인 칸은 지도 옆에 붙은 칸이라 화면 높이까지
+  var drw = $('mkCtry'); if (drw) drw.style.maxHeight = fullWide ? (mkResOn() && avail ? Math.round(avail) : h) + 'px' : '';
   mkDrawerApply();                      //  옮겨 둔 자리가 있으면 그 자리 · 높이 (없으면 손대지 않음)
   return { mapW: Math.round(mapW), mapH: Math.round(mapW / MK_MAP_RATIO), h: h };
 }
@@ -17582,21 +17789,87 @@ function mkClockRender(){
   if (window.requestIdleCallback) requestIdleCallback(warm, { timeout: 8000 }); else setTimeout(warm, 4000);
 })();
 //  고른 나라 테두리 — «비교» 중이면 고른 나라 모두 (비교 카드 · 선 색과 같은 색)
-function mkMapRegions(dark){
+//  고른 나라 테두리 (선택) — 원자재 · 밸류체인 층이면 고른 줄의 나라(EU 면 27개국) · 비교면 비교 나라 모두
+function mkMapSelRegions(dark){
+  if (mkResOn()){
+    if (!MK.resSel) return [];
+    var bc = dark ? MK_INK_D : '#1a1f36';
+    return (MK.resSel === 'EU' ? MK_EU27 : [MK.resSel]).map(function(c){ var nm = mkMapNm(c); return nm ? { name: nm, itemStyle: { borderColor: bc, borderWidth: 1.6 } } : null; }).filter(Boolean);
+  }
   if (!MK.ctryOpen) return [];
   if (MK.cmpOn) return MK.ccList.map(function(c, i){ return MK_CC[c] && MK_CC[c][1] ? { name: MK_CC[c][1], itemStyle: { borderColor: mkCmpPal()[i % 5], borderWidth: 1.8 } } : null; }).filter(Boolean);
-  return MK_CC[MK.cc] && MK_CC[MK.cc][1] ? [{ name: MK_CC[MK.cc][1], itemStyle: { borderColor: dark ? '#eef1f7' : '#1a1f36', borderWidth: 1.6 } }] : [];
+  return MK_CC[MK.cc] && MK_CC[MK.cc][1] ? [{ name: MK_CC[MK.cc][1], itemStyle: { borderColor: dark ? MK_INK_D : '#1a1f36', borderWidth: 1.6 } }] : [];
+}
+/*  ── 마우스를 올린 나라 색 (10/8 학회장: «나라 색이랑 단어 색이랑 너무 안 어울려 · 컬러 팔레트 잘 정하자») ──
+    ECharts 기본은 노란 칠 + 진한 빨강 영문 이름(«Brazil»)이라 지도 팔레트와 따로 놉니다.
+    → 그 나라 <자기 색> 을 다크면 밝게 · 라이트면 조금 진하게 + 테두리만 굵게 · 이름표는 안 띄움(이름은 풍선말에 한글로).
+    ⚠️ 지도 시리즈의 자료 단위 emphasis 는 geo 를 빌려 쓰면 무시됩니다 — geo.regions 에 나라마다 넣어야 먹습니다 (10/8 확인).  */
+//  ⚠️ 다크 테두리 흰색은 rgba 로 — '#eef1f7' 같은 밝은 색은 다크 바꿈표(themeWalk)가 어두운 색으로 바꿔 버려 테두리가 안 보였습니다
+var MK_INK_D = 'rgba(236,240,247,0.95)';
+var MK_WORLD_NM = null;
+function mkWorldNames(){
+  if (MK_WORLD_NM && MK_WORLD_NM.length) return MK_WORLD_NM;
+  try { var m = echarts.getMap('world'), gj = m && (m.geoJson || m.geoJSON);
+        MK_WORLD_NM = gj && gj.features ? gj.features.map(function(f){ return f.properties && f.properties.name; }).filter(Boolean) : []; } catch(e){ MK_WORLD_NM = []; }
+  return MK_WORLD_NM;
+}
+function mkRgbOf(c){
+  var s = String(c || '').trim(), m;
+  if (/^#[0-9a-f]{6}$/i.test(s)) return [parseInt(s.slice(1, 3), 16), parseInt(s.slice(3, 5), 16), parseInt(s.slice(5, 7), 16)];
+  if ((m = s.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i))) return [+m[1], +m[2], +m[3]];
+  return null;
+}
+function mkMixAny(a, b, t){ var x = mkRgbOf(a), y = mkRgbOf(b); if (!x || !y) return a; return 'rgb(' + x.map(function(v, i){ return Math.round(v + (y[i] - v) * t); }).join(',') + ')'; }
+//  색 막대(visualMap)와 같은 계산으로 그 값의 색
+function mkVisColor(v, vis){
+  var c = vis.inRange.color, n = c.length, t = Math.max(0, Math.min(1, (v - vis.min) / ((vis.max - vis.min) || 1))) * (n - 1), i = Math.min(n - 2, Math.floor(t));
+  return mkMixAny(c[i], c[i + 1], t - i);
+}
+function mkMapRegions(dark, data){
+  var vis = mkMapVisual(dark), byNm = {}, sel = {};
+  (data || []).forEach(function(d){ if (d && d.name) byNm[d.name] = d.value; });
+  mkMapSelRegions(dark).forEach(function(r){ sel[r.name] = r.itemStyle; });
+  var base = dark ? '#232a3a' : '#e7eaf1', bline = dark ? '#3a4152' : '#c9cfdc', ink = dark ? MK_INK_D : '#1a1f36';
+  var lift = function(c){ return dark ? mkMixAny(c, '#ffffff', 0.24) : mkMixAny(c, '#1a1f36', 0.13); };
+  return mkWorldNames().map(function(nm){
+    var v = byNm[nm], fill = (v != null && isFinite(v)) ? mkVisColor(v, vis) : base, hov = lift(fill);
+    return { name: nm, itemStyle: sel[nm] || { borderColor: bline, borderWidth: 0.5 },
+             emphasis: { label: { show: false }, itemStyle: { areaColor: hov, color: hov, borderColor: ink, borderWidth: sel[nm] ? Math.max(1.6, sel[nm].borderWidth) : 1.2 } } };
+  });
+}
+//  지도 색 막대 — 시장 = 등락 -3%~+3% (파랑 · 빨강) · 원자재 · 밸류체인 = 세계 비중 0~최대 (한 가지 색 진하기)
+function mkMapVisual(dark){
+  if (mkResOn()){
+    var L = MK.layD || (MK.layD = mkLayerData()), P = mkLayerPal(L.hue, dark), mx = mkLayerMax(L);
+    return { type: 'continuous', min: 0, max: mx, calculable: false, orient: 'horizontal', left: 10, bottom: 6, itemWidth: 10, itemHeight: 120,
+             text: [mx + '%', '0%'], textStyle: { fontSize: 10.5, color: dark ? '#aeb7ca' : '#5a6278' }, inRange: { color: P }, seriesIndex: 0 };
+  }
+  return { type: 'continuous', min: -3, max: 3, calculable: false, orient: 'horizontal', left: 10, bottom: 6, itemWidth: 10, itemHeight: 120,
+           //  (10/8) 다크는 가운데(보합)가 바탕에 묻히고 끝으로 갈수록 밝고 진하게 — 예전 다크는 ±1.5% 파스텔이 ±3% 보다 밝아 따로 놀았습니다
+           text: ['+3%', '-3%'], textStyle: { fontSize: 10.5, color: dark ? '#aeb7ca' : '#5a6278' },
+           inRange: { color: dark ? ['#4a8be0', '#2f5288', '#2c3446', '#8a3f3c', '#e5675b'] : ['#1b5fa8', '#9db8e0', '#eef0f5', '#e8a39b', '#c0392b'] }, seriesIndex: 0 };
+}
+function mkMarkColor(p){
+  var v = (p.data.value || [])[2];
+  if (mkResOn()){ var L = MK.layD || mkLayerData(); return v == null ? '#b5bccb' : mkLayerColor(v, L, document.documentElement.getAttribute('data-theme') === 'dark'); }
+  //  점 나라(대만 · 홍콩 · 싱가포르)도 지도와 같은 색 막대에서 (작은 등락은 옅게)
+  return v == null ? '#b5bccb' : mkVisColor(v, mkMapVisual(document.documentElement.getAttribute('data-theme') === 'dark'));
 }
 function mkMapPaint(){
   var box = $('mkMapBox'); if (!box || typeof echarts === 'undefined' || !(echarts.getMap && echarts.getMap('world'))) return;
-  var wrap = $('mkWorld'); if (wrap) wrap.classList.toggle('open', !!MK.ctryOpen);
-  mkGlanceRender(); mkClockRender();
+  var wrap = $('mkWorld'); if (wrap){ wrap.classList.toggle('open', mkAsideOn()); wrap.classList.toggle('res', mkResOn()); }
+  mkGlanceRender(); mkClockRender(); mkLayBarRender(); if (mkResOn()) mkResRender();
   var sz = mkMapSize(box);
   mkMapChart = chartOn(box, mkMapChart); if (!mkMapChart) return;
   //  (10/8 빠르기) 칸 폭이 바뀌었으면 — 새 옵션을 먼저 넣어 두고(바로 안 그림) 크기 맞춤에서 한 번만 그립니다 (두 번 그리면 2배 느림)
   var needRs = false; try { needRs = Math.abs(mkMapChart.getHeight() - box.clientHeight) > 1 || Math.abs(mkMapChart.getWidth() - box.clientWidth) > 1; } catch(e){}
   var rsNow = function(){ if (needRs){ needRs = false; try { mkMapChart.resize(); } catch(e){} } };
   var data = [], marks = [];
+  if (mkResOn()){
+    //  (10/8 4단계) 원자재 · 밸류체인 층 = 세계 비중 (고른 나라 점은 굵게)
+    var LD = mkLayerMapData(MK.layD || (MK.layD = mkLayerData()));
+    data = LD.data; marks = LD.marks.map(function(m){ var on = MK.resSel && (MK.resSel === m.rcc); if (on){ m.itemStyle = { borderWidth: 2.4 }; m.label.show = true; } return m; });
+  } else
   Object.keys(MK_CC).forEach(function(cc){
     var ch = mkCtryChg(cc), nm = MK_CC[cc][1];
     var it = { name: nm, cc: cc, value: ch ? Math.round(ch.c * 100) / 100 : null, by: ch ? ch.by : '', live: ch ? ch.live : false };
@@ -17607,15 +17880,16 @@ function mkMapPaint(){
   });
   var dark = document.documentElement.getAttribute('data-theme') === 'dark';
   //  (10/8) 바뀐 게 없으면 지도를 다시 그리지 않음 · 값만 바뀌었으면 값만 바꿈 (지도 통째로 다시 그리는 건 크기 · 테마 · 고른 나라가 바뀔 때만)
-  var sigFull = [sz.mapW, sz.mapH, dark, MK.ctryOpen ? MK.cc : '', MK.ctryOpen && MK.cmpOn ? 'cmp:' + MK.ccList.join(',') : ''].join('|');
+  var sigFull = [sz.mapW, sz.mapH, dark, MK.ctryOpen ? MK.cc : '', MK.ctryOpen && MK.cmpOn ? 'cmp:' + MK.ccList.join(',') : '', mkResOn() ? MK.layD.key + ':' + (MK.resSel || '') : 'mkt'].join('|');
   var sigData = data.map(function(x){ return x.cc + ':' + x.value + ':' + x.live; }).join(',') + '#' + marks.map(function(x){ return x.cc + ':' + x.value[2]; }).join(',');
-  var regs = mkMapRegions(dark), symSz = Math.max(6, Math.min(13, Math.round(sz.mapW / 75))), markLab = !(MK.mapView && MK.mapView.zoom > 1.6);
+  var regs = mkMapRegions(dark, data), symSz = Math.max(6, Math.min(13, Math.round(sz.mapW / 75))), markLab = !(MK.mapView && MK.mapView.zoom > 1.6);
   if (mkMapChart.__sigFull === sigFull){
     if (mkMapChart.__sigData !== sigData){
       mkMapChart.__sigData = sigData;
       mkMapChart.__axNoKeep = true;
       //  (10/8 모션) 값이 바뀐 나라의 색이 0.7초에 걸쳐 스르르 바뀝니다 (처음 그릴 때는 바로)
-      mkMapChart.setOption({ animation: MOTION_OK, animationDurationUpdate: 700, animationEasingUpdate: 'cubicOut', series: [{ data: data }, { data: marks }] });
+      //  (10/8) 마우스를 올렸을 때 색도 새 값의 색에서 (regions)
+      mkMapChart.setOption({ animation: MOTION_OK, animationDurationUpdate: 700, animationEasingUpdate: 'cubicOut', geo: { regions: regs }, series: [{ data: data }, { data: marks }] });
     }
     rsNow();
     mkChipsRender();
@@ -17631,7 +17905,9 @@ function mkMapPaint(){
     var g0 = { layoutCenter: ['50%', Math.round(sz.mapH / 2 + 2)], layoutSize: sz.mapW, regions: regs };
     //  ⚠️ center: undefined 를 넘기면 지도가 안 그려집니다 — 확대해 둔 자리가 있을 때만
     if (MK.mapView && MK.mapView.center){ g0.center = MK.mapView.center; g0.zoom = MK.mapView.zoom; }
-    mkMapChart.setOption({ geo: g0, series: [{ data: data }, { data: marks, symbolSize: symSz, label: { show: markLab } }] }, needRs ? { lazyUpdate: true } : undefined);
+    //  층이 바뀌면 색 막대도 (나라 색은 0.7초에 걸쳐 스르르 바뀜)
+    mkMapChart.setOption({ animation: MOTION_OK, animationDurationUpdate: 700, animationEasingUpdate: 'cubicOut', visualMap: mkMapVisual(dark), geo: g0,
+                           series: [{ data: data }, { data: marks, symbolSize: symSz, label: { show: markLab } }] }, needRs ? { lazyUpdate: true } : undefined);
     rsNow();
     if (!MK.mapView){ var hv0 = mkMapCur(); if (hv0) MK.mapHome = hv0.center; }
     mkChipsRender();
@@ -17642,13 +17918,15 @@ function mkMapPaint(){
   mkMapChart.setOption({
     animation: false,
     tooltip: { trigger: 'item', confine: true, formatter: function(p){
+      if (mkResOn()) return mkLayerTip(p);
       var d = p.data || {}, cc = d.cc, ko = cc && MK_CC[cc] ? MK_CC[cc][0] : p.name;
       var v = p.seriesType === 'scatter' ? (d.value || [])[2] : d.value;
-      return '<b>' + esc(ko) + '</b>' + (v != null ? ' <span style="color:' + (v > 0 ? '#c0392b' : v < 0 ? '#1b5fa8' : 'inherit') + '">' + mkChg(v) + '</span>' : ' -')
+      //  (10/8) 다크면 등락 색도 다크 팔레트(밝은 빨강 · 파랑) — 어두운 풍선말에서 진한 빨강 · 남색은 안 읽힘
+      var dk0 = document.documentElement.getAttribute('data-theme') === 'dark';
+      return '<b>' + esc(ko) + '</b>' + (v != null ? ' <span style="font-weight:700;color:' + (v > 0 ? (dk0 ? '#ef6b5e' : '#c0392b') : v < 0 ? (dk0 ? '#5b9cf0' : '#1b5fa8') : 'inherit') + '">' + mkChg(v) + '</span>' : ' -')
            + (d.by ? '<br><span style="opacity:.75">' + esc(d.by) + '</span>' : '')
            + (mkCtryOk(cc) ? '<br><span style="opacity:.75">' + esc(T('누르면 옆에 개요 · ', 'Click: overview · ') + (MK_LINES.indexOf(cc) >= 0 ? T('주요 기업 · ', 'companies · ') : '') + T('업종 · ', 'sectors · ') + (mkCtryPairs(cc).length ? T('환율 · ', 'FX · ') : '') + T('시황', 'brief')) + '</span>' : ''); } },
-    visualMap: { type: 'continuous', min: -3, max: 3, calculable: false, orient: 'horizontal', left: 10, bottom: 6, itemWidth: 10, itemHeight: 120,
-                 text: ['+3%', '-3%'], textStyle: { fontSize: 10.5, color: dark ? '#aeb7ca' : '#5a6278' }, inRange: { color: ['#1b5fa8', '#9db8e0', dark ? '#3a4152' : '#eef0f5', '#e8a39b', '#c0392b'] }, seriesIndex: 0 },
+    visualMap: mkMapVisual(dark),
     //  지도는 칸에 꽉 (위 · 아래 여백은 색 막대 자리) · 남극은 잘라 보이게 가운데를 조금 위로
     //  지도 본래 비율 그대로: 가운데 · 폭(px) 만 정함 (위아래좌우를 다 주면 칸 모양으로 늘어납니다)
     //  (10/8) 나라를 눌러 확대해 둔 자리 · 손으로 옮긴 자리는 다시 그려도 그대로
@@ -17657,12 +17935,12 @@ function mkMapPaint(){
            //  (10/8) «비교» 중이면 고른 나라 모두 테두리 (비교 카드 · 선 색과 같은 색)
            regions: regs,
            itemStyle: { areaColor: dark ? '#232a3a' : '#e7eaf1', borderColor: dark ? '#3a4152' : '#c9cfdc', borderWidth: 0.5 },
-           emphasis: { label: { show: false }, itemStyle: { areaColor: null, borderColor: '#1a1f36', borderWidth: 1.2 } }, select: { disabled: true } },
+           emphasis: { label: { show: false }, itemStyle: { areaColor: dark ? '#2f3850' : '#d5dbe8', color: dark ? '#2f3850' : '#d5dbe8', borderColor: dark ? MK_INK_D : '#1a1f36', borderWidth: 1.2 } }, select: { disabled: true } },
     series: [
-      { type: 'map', geoIndex: 0, data: data },
+      { type: 'map', geoIndex: 0, data: data, emphasis: { label: { show: false } }, select: { disabled: true } },
       //  점 크기는 지도 폭에 맞춤 — 휴대폰(지도 폭 340px)에서 홍콩 · 대만 점이 겹쳤습니다
       { type: 'scatter', coordinateSystem: 'geo', data: marks, symbolSize: symSz, z: 5,
-        itemStyle: { borderColor: '#1a1f36', borderWidth: 1, color: function(p){ var v = (p.data.value || [])[2]; return v == null ? '#b5bccb' : v > 0 ? '#c0392b' : '#1b5fa8'; } },
+        itemStyle: { borderColor: '#1a1f36', borderWidth: 1, color: mkMarkColor },
         //  (10/8) 나라로 확대해 둔 동안은 고른 나라 점의 이름표만 (나머지 점 이름은 화면 가장자리에서 잘림)
         label: { show: markLab, position: 'right', fontSize: 10.5, formatter: function(p){ return p.data.name; } } }
     ]
@@ -17675,7 +17953,10 @@ function mkMapPaint(){
     mkMapChart.__mkClick = 1;
     mkMapChart.on('georoam', function(){ MK.mapAnim = (MK.mapAnim || 0) + 1; MK.mapView = mkMapCur(); clearTimeout(MK.markT); MK.markT = setTimeout(mkMarkLabels, 120); });
     mkMapChart.on('click', function(p){
-      var cc = p && p.data && p.data.cc; if (!cc) return;
+      var cc = p && p.data && p.data.cc;
+      //  (10/8 4단계) 원자재 · 밸류체인 층: 옆 칸 막대에서 그 나라 (확대는 막대를 누를 때)
+      if (mkResOn()){ var nm0 = p && p.name, hit = cc || Object.keys(MK_NM2).concat(Object.keys(MK_CC)).filter(function(c){ return mkMapNm(c) === nm0; })[0]; if (hit) mkResPick(hit, false); return; }
+      if (!cc) return;
       if (!mkCtryOk(cc)){ toast(esc((MK_CC[cc] || [cc])[0] + T(' - 아직 이 나라는 주식 선 · 환율 자료가 없습니다 (지도 색은 나라 ETF)', ': no data yet')), 2600); return; }
       mkPickCountry(cc);
     });
@@ -17871,17 +18152,24 @@ function mkCmpRender(){
 }
 /*  ── 지도 확대 (모션) ── 그 나라 자리 · 폭으로 확대 배율을 정하고 0.7초 동안 스르르 (움직임 줄이기면 바로)  */
 function mkMapViewFor(cc){
-  var G = MK_GEO[cc]; if (!G || !mkMapChart) return null;
+  var G = mkGeoOf(cc); if (!G || !mkMapChart) return null;
   //  작은 나라도 이웃이 보이게 6.5배까지만
   var z = Math.max(1.4, Math.min(6.5, 0.42 * 360 / G[2])), c = [G[0], G[1]];
   try {
-    //  전체 화면 서랍이 지도 한쪽을 덮으면 그만큼 비켜서 (보이는 칸의 가운데에 그 나라)
-    var d = $('mkCtry');
-    if (document.body.classList.contains('mk-full-on') && (window.innerWidth || 1000) > 900 && d && d.offsetWidth){
-      var g = mkMapChart.getModel().getComponent('geo').coordinateSystem, z0 = g.getZoom ? g.getZoom() : 1;
-      var a = mkMapChart.convertToPixel({ geoIndex: 0 }, [0, 0]), b = mkMapChart.convertToPixel({ geoIndex: 0 }, [10, 0]);
-      var ppd = Math.abs(b[0] - a[0]) / 10 / (z0 || 1) * z, shift = d.offsetWidth / 2 / (ppd || 1);
-      c[0] += MK.drawerLeft ? -shift : shift;
+    //  전체 화면 서랍(나라 칸) · 세이피 서랍이 지도 양쪽을 덮으면 — <안 덮인 칸의 가운데> 에 그 나라 (10/8 세이피를 전체 화면에서 쓰게 되면서 둘 다 셈)
+    var d = $('mkCtry'), box = $('mkMapBox');
+    if (document.body.classList.contains('mk-full-on') && (window.innerWidth || 1000) > 900 && box && !mkResOn()){
+      var br = box.getBoundingClientRect(), Lc = br.left, Rc = br.right;
+      var cov = function(el){ if (!el || el.classList.contains('hidden') || !el.offsetWidth) return; var r = el.getBoundingClientRect(); if (r.bottom < br.top || r.top > br.bottom) return;
+        if (r.left - br.left < br.right - r.right){ if (r.right > Lc) Lc = Math.min(br.right, r.right); } else if (r.left < Rc) Rc = Math.max(br.left, r.left); };
+      if (d && d.offsetWidth) cov(d);
+      if (typeof aicOpen !== 'undefined' && aicOpen) cov($('aicDock'));
+      if (Rc - Lc > 160){
+        var g = mkMapChart.getModel().getComponent('geo').coordinateSystem, z0 = g.getZoom ? g.getZoom() : 1;
+        var a = mkMapChart.convertToPixel({ geoIndex: 0 }, [0, 0]), b = mkMapChart.convertToPixel({ geoIndex: 0 }, [10, 0]);
+        var ppd = Math.abs(b[0] - a[0]) / 10 / (z0 || 1) * z, want = (Lc + Rc) / 2 - br.left, mid = br.width / 2;
+        c[0] += (mid - want) / (ppd || 1);
+      }
     }
   } catch(e){}
   return { center: c, zoom: z };
@@ -17930,14 +18218,15 @@ function mkMapZoomHome(){
 function mkSplitApply(){
   var wr = $('mkWorld'), d = $('mkCtry'); if (!wr) return;
   var full = document.body.classList.contains('mk-full-on'), wide = (window.innerWidth || 1000) > 900;
-  wr.style.gridTemplateColumns = (MK.split && MK.ctryOpen && wide && !full) ? 'minmax(0,' + MK.split.toFixed(3) + 'fr) 14px minmax(0,' + (1 - MK.split).toFixed(3) + 'fr)' : '';
+  wr.style.gridTemplateColumns = (MK.split && mkAsideOn() && wide && !full) ? 'minmax(0,' + MK.split.toFixed(3) + 'fr) 14px minmax(0,' + (1 - MK.split).toFixed(3) + 'fr)' : '';
   if (d) d.style.width = (full && wide && MK.drawerW) ? Math.min(MK.drawerW, Math.max(320, (wr.clientWidth || 1200) - 120)) + 'px' : '';
 }
 function mkAfterResize(){
   try { if (mkMapChart) mkMapChart.resize(); } catch(e){}
   mkMapPaint();
   [mkLineChart, mkOvChart, mkCfxChart, mkLiveChart, mkCmpChart].forEach(function(c){ try { if (c) c.resize(); } catch(e){} });
-  if (MK.ctryOpen && !MK.cmpOn && MK.cc) mkMapZoomTo(MK.cc, false), mkMapAnim(MK.mapView);
+  if (mkResOn()){ if (MK.resSel && mkGeoOf(MK.resSel)) mkMapZoomTo(MK.resSel, false), mkMapAnim(MK.mapView); }
+  else if (MK.ctryOpen && !MK.cmpOn && MK.cc) mkMapZoomTo(MK.cc, false), mkMapAnim(MK.mapView);
 }
 function mkSplitInit(){
   var sp = $('mkSplit'), rz = $('mkRsz');
@@ -17959,6 +18248,287 @@ function mkSplitInit(){
     MK.drawerW = Math.round(Math.max(320, Math.min(1600, MK.drawerLeft && !d.classList.contains('moved') ? ev.clientX - r.left : r.right - ev.clientX))); });
   [sp, rz].forEach(function(el){ if (el && !el.__dbl){ el.__dbl = 1; el.addEventListener('dblclick', function(){ if (el === sp) MK.split = null; else MK.drawerW = null; mkSplitApply(); mkSavePrefs(); mkAfterResize(); }); } });
 }
+/*  ── 원자재 · 밸류체인 지도 (10/8 학회장: «월드 맵에도 원자재나 밸류체인 등의 분석도 볼 수 있었으면») ─────────
+    학회장 선택: 원자재 9종 + 밸류체인 3개(반도체 · 2차전지 · 태양광) · 출처와 연도를 함께.
+    지도 위 «시장 · 원자재 · 밸류체인» 을 고르면 지도 색이 «세계 생산 비중» 으로 바뀌고, 옆 칸에 순위 막대 · 한국 위치 ·
+    상위 3개국 집중도 · 메모 · 출처. 실시간 시세가 있는 원자재(원유 · 가스 · 구리 · 니켈 · 리튬 · 밀)는 24시간 선물 값을 같이.
+
+    ⚠️ 숫자는 모두 원자료에서 그대로 옮겼습니다 (10/8 확인):
+       · 광물 = USGS «Mineral Commodity Summaries 2026» 의 World Mine Production 표 (2025 추정치 · e)
+       · 원유 · 가스 = Energy Institute «Statistical Review of World Energy 2026» (2025) — 나라별 값은 Our World in Data 정리본.
+         원유는 에너지 환산(TWh) 비중 = 나라 합계 대비 (부피 기준 비중은 메모에 따로) · 가스는 십억 ㎥ (세계 4,196.5)
+       · 밀 = USDA WASDE 2026년 9월 (2025/26 추정)
+       · 반도체 = SIA · BCG «Emerging Resilience in the Semiconductor Supply Chain» (2024년 5월) Exhibit 2 · 2022년 부가가치 %
+         (장비 줄은 한국 · 대만 · 중국 · 기타 칸이 원문에서 섞여 읽혀 «그 외 8%» 로 묶음)
+       · 2차전지 = IEA «Global EV Outlook 2026» (2025) — 중국 비중만 밝힘 · 리튬 채굴은 USGS
+       · 태양광 = IEA PVPS (2025년 11월 · 2024년 생산) · 2025 모듈 추정은 IEA PVPS 2026년 4월 발표
+    ⚠️ 지도에 모양이 없는 대만은 점(지도 점 나라)으로 · EU 는 27개국을 같은 색으로 (값은 EU 합계)  */
+var MK_EU27 = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'];
+//  지도 칸(MK_CC)에 없는 나라 — [국문, 지도 이름, 경도, 위도, 폭(도)]
+var MK_NM2 = { RU: ['러시아', 'Russia', 100, 62, 120], IR: ['이란', 'Iran', 53.7, 32.4, 20], IQ: ['이라크', 'Iraq', 43.7, 33.2, 10], KW: ['쿠웨이트', 'Kuwait', 47.6, 29.3, 2.5],
+  KZ: ['카자흐스탄', 'Kazakhstan', 67, 48, 35], NG: ['나이지리아', 'Nigeria', 8, 9.5, 12], LY: ['리비아', 'Libya', 17.5, 27, 18], DZ: ['알제리', 'Algeria', 2.6, 28, 22],
+  VE: ['베네수엘라', 'Venezuela', -66.6, 7, 13], AO: ['앙골라', 'Angola', 17.9, -12.3, 15], OM: ['오만', 'Oman', 57, 21, 9], GY: ['가이아나', 'Guyana', -58.9, 4.9, 5],
+  AZ: ['아제르바이잔', 'Azerbaijan', 47.6, 40.3, 5], EG: ['이집트', 'Egypt', 30, 26.5, 12], EC: ['에콰도르', 'Ecuador', -78.2, -1.5, 6], TM: ['투르크메니스탄', 'Turkmenistan', 59.5, 39, 12],
+  UZ: ['우즈베키스탄', 'Uzbekistan', 64.5, 41.4, 14], TT: ['트리니다드 토바고', 'Trinidad and Tobago', -61.2, 10.5, 1.5], PK: ['파키스탄', 'Pakistan', 69.3, 30, 15],
+  BD: ['방글라데시', 'Bangladesh', 90.3, 23.7, 6], CD: ['콩고민주공화국', 'Dem. Rep. Congo', 23.6, -2.9, 20], ZM: ['잠비아', 'Zambia', 27.8, -13.1, 12],
+  ZW: ['짐바브웨', 'Zimbabwe', 29.8, -19, 8], ML: ['말리', 'Mali', -4, 17.5, 16], PT: ['포르투갈', 'Portugal', -8.2, 39.6, 5], NC: ['뉴칼레도니아', 'New Caledonia', 165.6, -21.3, 4],
+  MG: ['마다가스카르', 'Madagascar', 46.9, -19, 9], CU: ['쿠바', 'Cuba', -79.5, 21.5, 10], PG: ['파푸아뉴기니', 'Papua New Guinea', 145, -6.3, 12], MM: ['미얀마', 'Myanmar', 96, 20, 12],
+  UA: ['우크라이나', 'Ukraine', 31.2, 49, 18], MR: ['모리타니', 'Mauritania', -10.9, 20.3, 13], BG: ['불가리아', 'Bulgaria'], HR: ['크로아티아', 'Croatia'], CY: ['키프로스', 'Cyprus'],
+  CZ: ['체코', 'Czech Rep.'], EE: ['에스토니아', 'Estonia'], FI: ['핀란드', 'Finland'], HU: ['헝가리', 'Hungary'], LV: ['라트비아', 'Latvia'], LT: ['리투아니아', 'Lithuania'],
+  LU: ['룩셈부르크', 'Luxembourg'], MT: ['몰타', 'Malta'], RO: ['루마니아', 'Romania'], SK: ['슬로바키아', 'Slovakia'], SI: ['슬로베니아', 'Slovenia'],
+  EU: ['EU (27개국)', '', 10, 50, 30], OT: ['그 외', ''] };
+function mkNm(cc){ return (MK_CC[cc] || MK_NM2[cc] || [cc])[0]; }
+function mkMapNm(cc){ return (MK_CC[cc] || MK_NM2[cc] || ['', ''])[1] || ''; }
+function mkGeoOf(cc){ if (MK_GEO[cc]) return MK_GEO[cc]; var x = MK_NM2[cc]; return x && x.length >= 5 ? [x[2], x[3], x[4]] : null; }
+function mkFlag2(cc){ return cc === 'OT' ? '' : mkFlag(cc); }
+
+//  원자재 9종 — rows: [나라, 값] (세계 합계 world 로 비중) · share: [나라, 비중] (값 없이 비중만)
+var MK_RES = [
+  { k: 'oil', n: '원유', what: '석유 생산 (원유 · NGL 포함)', basis: '에너지 환산 비중', yr: '2025', src: 'Energy Institute 세계 에너지 통계 2026 (나라별 값: Our World in Data)', px: ['WTI 원유', '브렌트유', 'WTI 원유 (USO)'],
+    share: [['US', 18.9], ['SA', 11.4], ['RU', 11.1], ['CA', 6.4], ['IR', 5.2], ['CN', 4.6], ['IQ', 4.6], ['BR', 4.3], ['AE', 4.0], ['KW', 2.9], ['KZ', 2.1], ['NO', 2.0], ['MX', 1.9], ['NG', 1.8],
+            ['QA', 1.6], ['AR', 1.5], ['LY', 1.4], ['DZ', 1.4], ['VE', 1.2], ['AO', 1.1], ['OM', 1.0], ['CO', 0.8], ['GY', 0.8], ['IN', 0.7], ['GB', 0.7], ['ID', 0.6], ['AZ', 0.6], ['EG', 0.6], ['MY', 0.5], ['EC', 0.5]],
+    notes: ['부피(천 배럴/일) 기준: 미국 21,065 (20.9%) · 사우디 11,408 (11.3%) · 러시아 10,737 (10.7%) · 세계 100,590', '미국은 가스에서 나오는 액체(NGL) 비중이 커서 부피 비중이 에너지 비중보다 큽니다'] },
+  { k: 'gas', n: '천연가스', what: '천연가스 생산', unit: '십억 ㎥', world: 4196.5, yr: '2025', src: 'Energy Institute 세계 에너지 통계 2026 (나라별 값: Our World in Data)', px: ['천연가스', '천연가스 (UNG)'],
+    rows: [['US', 1073.7], ['RU', 609.4], ['IR', 264.8], ['CN', 264.1], ['CA', 206.2], ['QA', 183.5], ['AU', 148.6], ['SA', 133.8], ['NO', 120.6], ['DZ', 98.0], ['MY', 80.2], ['TM', 72.4], ['ID', 71.8],
+           ['AE', 58.6], ['NG', 50.8], ['OM', 45.6], ['AR', 45.2], ['EG', 40.8], ['UZ', 40.0], ['KZ', 38.4], ['AZ', 37.8], ['MX', 34.8], ['IN', 31.2], ['VE', 31.0], ['GB', 29.9], ['TH', 29.4], ['BR', 26.6], ['IL', 25.9], ['PK', 24.9], ['TT', 23.8]] },
+  { k: 'cu', n: '구리', what: '구리 광산 생산 (구리 함량)', unit: '천 t', world: 23000, yr: '2025 추정', src: 'USGS 광물 원자재 요약 2026', px: ['구리', '구리 (CPER)'],
+    rows: [['CL', 5300], ['CD', 3200], ['PE', 2700], ['CN', 1800], ['RU', 1300], ['US', 1000], ['ZM', 940], ['AU', 730], ['ID', 710], ['KZ', 710], ['MX', 690], ['CA', 500], ['PL', 410], ['IN', 23]],
+    notes: ['정련(제련) 생산은 중국 14,000천 t - 세계 29,000천 t 의 약 48%'] },
+  { k: 'li', n: '리튬', what: '리튬 광산 생산 (리튬 함량)', unit: 't', world: 290000, yr: '2025 추정', src: 'USGS 광물 원자재 요약 2026', px: ['리튬'],
+    rows: [['AU', 92000], ['CN', 62000], ['CL', 56000], ['ZW', 28000], ['AR', 23000], ['BR', 12000], ['ML', 9400], ['CA', 5600], ['PT', 380]],
+    notes: ['미국 생산량은 회사 자료 보호로 비공개 - 세계 합계에서 빠짐'] },
+  { k: 'ni', n: '니켈', what: '니켈 광산 생산 (니켈 함량)', unit: 't', world: 3900000, yr: '2025 추정', src: 'USGS 광물 원자재 요약 2026', px: ['니켈'],
+    rows: [['ID', 2600000], ['PH', 270000], ['RU', 200000], ['CA', 140000], ['NC', 140000], ['CN', 120000], ['BR', 70000], ['AU', 45000], ['US', 10000]] },
+  { k: 'co', n: '코발트', what: '코발트 광산 생산 (코발트 함량)', unit: 't', world: 310000, yr: '2025 추정', src: 'USGS 광물 원자재 요약 2026', px: [],
+    rows: [['CD', 230000], ['ID', 44000], ['RU', 7700], ['MG', 3900], ['AU', 3700], ['PH', 3700], ['CA', 3500], ['PG', 2800], ['CN', 2000], ['CU', 2000], ['TR', 1900], ['US', 300]],
+    notes: ['정련 코발트는 중국이 세계 최대 생산국'] },
+  { k: 'ree', n: '희토류', what: '희토류 광산 생산 (산화물 환산)', unit: 't', world: 390000, yr: '2025 추정', src: 'USGS 광물 원자재 요약 2026', px: [],
+    rows: [['CN', 270000], ['US', 51000], ['AU', 29000], ['MM', 22000], ['TH', 4800], ['IN', 2900], ['MG', 2700], ['RU', 2600], ['BR', 2000], ['NG', 1500], ['VN', 150], ['MY', 110]],
+    notes: ['중국 270,000 t 은 정부 생산 할당량 (기록되지 않은 생산은 빠짐)', '미얀마 · 태국 · 마다가스카르 등은 중국 수입 자료로 추정한 값'] },
+  { k: 'fe', n: '철광석', what: '철광석 생산 (사용 가능 광석)', unit: '백만 t', world: 2600, yr: '2025 추정', src: 'USGS 광물 원자재 요약 2026', px: [],
+    rows: [['AU', 980], ['BR', 420], ['IN', 310], ['CN', 290], ['IR', 93], ['RU', 86], ['CA', 69], ['ZA', 66], ['UA', 52], ['US', 38], ['KZ', 35], ['SE', 26], ['PE', 21], ['CL', 19], ['TR', 18], ['MR', 15], ['MX', 7.7]] },
+  { k: 'wheat', n: '밀', what: '밀 생산', unit: '백만 t', world: 843.99, yr: '2025/26 추정', src: 'USDA 세계 농산물 수급 전망 (WASDE) 2026년 9월', px: ['밀'],
+    rows: [['EU', 145.14], ['CN', 140.07], ['IN', 117.95], ['RU', 90.30], ['US', 54.01], ['CA', 40.56], ['AU', 35.99], ['AR', 27.89], ['UA', 24.10], ['KZ', 19.33]],
+    notes: ['EU 는 27개국 합계 (지도에서 EU 나라는 같은 색)'] }
+];
+//  밸류체인 3개 — 단계마다 [키, 이름, 산업 안 비중(%), 비중 표 { 나라: % } , 덧붙임]
+var MK_VC = [
+  { k: 'semi', n: '반도체', yr: '2022', src: 'SIA · BCG «Emerging Resilience in the Semiconductor Supply Chain» (2024) · 2022년 부가가치 비중',
+    notes: ['설계 · 장비 · 소재 = 회사 본사(매출) 기준 · 웨이퍼 제조 · 조립 · 테스트 = 공장(설비) 위치 기준', '그 외 = 이스라엘 · 싱가포르 등 나머지 나라'],
+    st: [['all', '전체', 100, { US: 38, EU: 11, JP: 12, KR: 12, TW: 11, CN: 11, OT: 5 }],
+         ['logic', '설계 (로직)', 30, { US: 65, EU: 9, JP: 4, KR: 3, TW: 11, CN: 5, OT: 4 }],
+         ['mem', '메모리', 9, { US: 25, JP: 7, KR: 60, TW: 4, CN: 3 }],
+         ['dao', '아날로그 · 전력 등', 17, { US: 41, EU: 17, JP: 18, KR: 4, TW: 5, CN: 9, OT: 6 }],
+         ['eq', '장비', 12, { US: 47, EU: 18, JP: 26, OT: 8 }, { ot: '그 외 (한국 · 대만 · 중국 등)' }],
+         ['mat', '소재', 5, { US: 9, EU: 6, JP: 12, KR: 18, TW: 28, CN: 18, OT: 10 }],
+         ['fab', '웨이퍼 제조', 19, { US: 10, EU: 8, JP: 17, KR: 17, TW: 18, CN: 24, OT: 7 }],
+         ['atp', '조립 · 테스트', 6, { US: 3, EU: 3, JP: 6, KR: 9, TW: 28, CN: 30, OT: 20 }]] },
+  { k: 'bat', n: '2차전지', yr: '2025', src: 'IEA 세계 전기차 전망 2026 (2025) · 리튬 채굴은 USGS 광물 원자재 요약 2026',
+    notes: ['양극재 · 음극재 · 셀 · 전기차는 IEA 가 중국 비중만 밝힘 - 나머지 나라는 «그 외» 로 묶음'],
+    st: [['li', '리튬 채굴', null, 'res:li'],
+         ['cam', '양극재', null, { CN: 85 }, { txt: { CN: '약 85%' } }],
+         ['aam', '음극재', null, { CN: 90 }, { txt: { CN: '90% 이상' } }],
+         ['cell', '배터리 셀', null, { CN: 80 }, { txt: { CN: '80% 이상' } }],
+         ['ev', '전기차 생산', null, { CN: 70 }]] },
+  { k: 'pv', n: '태양광', yr: '2024', src: 'IEA PVPS (2025년 11월 · 2024년 생산)',
+    notes: ['2025 추정 (IEA PVPS 2026년 4월): 모듈 중국 약 80% · 인도 5% · 베트남 · 미국 각 3%'],
+    st: [['poly', '폴리실리콘', null, { CN: 94 }, { world: '세계 1,957,000 t' }],
+         ['wafer', '웨이퍼', null, { CN: 96.5 }, { world: '세계 804 GW' }],
+         ['cell', '셀', null, { CN: 90 }, { world: '세계 753 GW' }],
+         ['mod', '모듈', null, { CN: 86.4, IN: 3.3, US: 3.2, VN: 2.8, TH: 1.4, MY: 1.0 },
+          { world: '세계 726 GW', val: { CN: '627 GW', IN: '24 GW', US: '23 GW', VN: '약 20 GW', TH: '약 10 GW', MY: '약 7 GW' } }]] }
+];
+function mkResOn(){ return MK.lay === 'res' || MK.lay === 'vc'; }
+function mkAsideOn(){ return !!MK.ctryOpen || mkResOn(); }
+function mkResOf(k){ return MK_RES.filter(function(r){ return r.k === k; })[0] || MK_RES[2]; }
+function mkVcOf(k){ return MK_VC.filter(function(r){ return r.k === k; })[0] || MK_VC[0]; }
+function mkNumFmt(v){ if (v == null || !isFinite(v)) return ''; return (+v).toLocaleString('en-US', { maximumFractionDigits: 2 }); }
+//  지금 고른 것 → 한 벌의 표: { key, title, what, unit, yr, src, rows: [{ cc, v, s, vt, st }], rest: { s, label }, notes, px, hue }
+function mkLayerData(){
+  var out;
+  if (MK.lay === 'res'){
+    var R = mkResOf(MK.res), rows;
+    if (R.share) rows = R.share.map(function(x){ return { cc: x[0], s: x[1] }; });
+    else rows = R.rows.map(function(x){ return { cc: x[0], v: x[1], s: x[1] / R.world * 100 }; });
+    out = { key: 'res:' + R.k, title: R.n, what: R.what, unit: R.unit || '', yr: R.yr, src: R.src, rows: rows, notes: R.notes || [], px: R.px || [], hue: 'res',
+            basis: R.basis || (T('세계 ', 'World ') + mkNumFmt(R.world) + ' ' + (R.unit || '')) };
+  } else {
+    var V = mkVcOf(MK.vc), S = V.st.filter(function(s){ return s[0] === MK.vcSt; })[0] || V.st[0];
+    if (typeof S[3] === 'string'){
+      var r0 = mkResOf(S[3].slice(4));
+      out = { key: 'vc:' + V.k + ':' + S[0], title: V.n, stage: S[1], what: r0.what, unit: r0.unit, yr: r0.yr, src: r0.src, notes: (r0.notes || []).concat(V.notes || []), px: r0.px || [], hue: 'vc',
+              rows: r0.rows.map(function(x){ return { cc: x[0], v: x[1], s: x[1] / r0.world * 100 }; }), basis: T('세계 ', 'World ') + mkNumFmt(r0.world) + ' ' + r0.unit };
+    } else {
+      var ex = S[4] || {};
+      out = { key: 'vc:' + V.k + ':' + S[0], title: V.n, stage: S[1], what: V.n + ' ' + S[1] + (S[2] != null && S[2] < 100 ? T(' (산업 부가가치의 ' + S[2] + '%)', ' (' + S[2] + '% of value added)') : ''), unit: '', yr: V.yr, src: V.src,
+              notes: V.notes || [], px: [], hue: 'vc', basis: ex.world || (V.k === 'semi' ? T('부가가치 비중', 'Share of value added') : T('세계 생산 비중', 'Share of world output')),
+              rows: Object.keys(S[3]).filter(function(c){ return c !== 'OT'; }).map(function(c){ return { cc: c, s: S[3][c], st: ex.txt && ex.txt[c], vt: ex.val && ex.val[c] }; }) };
+      if (S[3].OT != null) out.restFix = { s: S[3].OT, label: ex.ot || T('그 외', 'Other') };
+    }
+  }
+  out.rows.sort(function(a, b){ return b.s - a.s; });
+  out.rows.forEach(function(r, i){ r.rk = i + 1; });
+  var sum = out.rows.reduce(function(a, r){ return a + r.s; }, 0);
+  out.rest = out.restFix || (sum < 99.5 ? { s: Math.max(0, 100 - sum), label: T('그 외', 'Other') } : null);
+  out.top3 = out.rows.slice(0, 3).reduce(function(a, r){ return a + r.s; }, 0);
+  out.max = out.rows.length ? out.rows[0].s : 0;
+  out.lang = isEn() ? 'en' : 'ko';
+  return out;
+}
+//  나라 → 그 나라 줄 (EU 회원국이면 EU 줄)
+function mkLayerRowOf(L, cc){
+  var r = L.rows.filter(function(x){ return x.cc === cc; })[0];
+  if (!r && MK_EU27.indexOf(cc) >= 0) r = L.rows.filter(function(x){ return x.cc === 'EU'; })[0];
+  return r || null;
+}
+function mkLayerPct(r){ return r.st || ((r.s >= 10 ? r.s.toFixed(1) : r.s.toFixed(1)) + '%'); }
+//  지도 색 (흐린 → 진한) · 원자재 = 호박색 · 밸류체인 = 청록 (산업분석 색과 같은 계열)
+function mkLayerPal(hue, dark){
+  return hue === 'vc' ? (dark ? ['#20383a', '#2c7f73', '#43d1b4'] : ['#d9f0ea', '#3aa58f', '#0b5e51'])
+                      : (dark ? ['#3a3222', '#a8782a', '#f0c46a'] : ['#f7ebd0', '#d39a3a', '#8a5310']);
+}
+function mkLayerMax(L){ var m = L.max || 1; return m > 60 ? 100 : m > 30 ? Math.ceil(m / 10) * 10 : Math.max(5, Math.ceil(m / 5) * 5); }
+function mkHexMix(a, b, t){ var p = function(h){ return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]; }, x = p(a), y = p(b);
+  return 'rgb(' + x.map(function(v, i){ return Math.round(v + (y[i] - v) * t); }).join(',') + ')'; }
+function mkLayerColor(v, L, dark){
+  var P = mkLayerPal(L.hue, dark), t = Math.max(0, Math.min(1, v / mkLayerMax(L)));
+  return t < .5 ? mkHexMix(P[0], P[1], t * 2) : mkHexMix(P[1], P[2], (t - .5) * 2);
+}
+//  지도 자료 (나라 모양 + 점 나라)
+function mkLayerMapData(L){
+  var data = [], marks = [];
+  L.rows.forEach(function(r){
+    var add = function(cc){ var nm = mkMapNm(cc);
+      if (nm) data.push({ name: nm, cc: cc, rcc: r.cc, value: Math.round(r.s * 10) / 10 });
+      else if (MK_MARK[cc]) marks.push({ name: mkNm(cc), cc: cc, rcc: r.cc, value: MK_MARK[cc].concat([Math.round(r.s * 10) / 10]), label: { position: MK_MARK_POS[cc] || 'right' } }); };
+    if (r.cc === 'EU') MK_EU27.forEach(add); else add(r.cc);
+  });
+  return { data: data, marks: marks };
+}
+function mkLayerTip(p){
+  var L = MK.layD || mkLayerData(), d = p.data || {}, r = d.rcc ? L.rows.filter(function(x){ return x.cc === d.rcc; })[0] : null;
+  var nm = d.cc ? mkNm(d.cc) : p.name;
+  if (!r) return '<b>' + esc(nm || p.name) + '</b><br><span style="opacity:.75">' + esc(T('출처 목록에 없음', 'Not in source list')) + '</span>';
+  return '<b>' + esc(nm) + '</b>' + (r.cc === 'EU' && d.cc !== 'EU' ? ' <span style="opacity:.75">· EU 합계</span>' : '') + ' ' + esc(mkLayerPct(r)) + ' · ' + r.rk + T('위', '') + '<br>'
+       + (r.v != null ? '<span style="opacity:.75">' + esc(mkNumFmt(r.v) + ' ' + L.unit) + '</span><br>' : r.vt ? '<span style="opacity:.75">' + esc(r.vt) + '</span><br>' : '')
+       + '<span style="opacity:.75">' + esc(L.title + (L.stage ? ' · ' + L.stage : '') + ' · ' + L.yr) + '</span>';
+}
+//  실시간 값 (24시간 선물 → 없으면 ETF)
+function mkLayerPx(L){
+  var g = MK.snap && MK.snap.groups && MK.snap.groups.filter(function(x){ return x.k === 'cmd'; })[0], items = g && g.items || [];
+  for (var i = 0; i < (L.px || []).length; i++){
+    var want = L.px[i], it = items.filter(function(x){ return x.p != null && (String(x.n).replace(/\s*\(24시간\)/, '') === want); })[0];
+    if (it) return it;
+  }
+  return null;
+}
+//  ── 고르기 ──
+function mkLayerSet(ly){
+  ly = ly === 'res' || ly === 'vc' ? ly : 'mkt';
+  if (MK.lay === ly) return;
+  MK.lay = ly; MK.resSel = null; mkSavePrefs();
+  mkLayerApply(true);
+}
+function mkResSet(k){ MK.res = mkResOf(k).k; MK.lay = 'res'; MK.resSel = null; mkSavePrefs(); mkLayerApply(true); }
+function mkVcSet(k){ var V = mkVcOf(k); if (MK.vc !== V.k) MK.vcSt = V.st[0][0]; MK.vc = V.k; MK.lay = 'vc'; MK.resSel = null; mkSavePrefs(); mkLayerApply(true); }
+function mkVcStSet(s){ MK.vcSt = s; MK.resSel = null; mkSavePrefs(); mkLayerApply(false); }
+function mkLayerApply(home){
+  MK.layD = mkResOn() ? mkLayerData() : null;
+  var wr = $('mkWorld'); if (wr){ wr.classList.toggle('res', mkResOn()); wr.classList.toggle('open', mkAsideOn()); }
+  mkSplitApply();
+  mkLayBarRender(); mkResRender();
+  if (!mkResOn()){ mkCtryRender(); }
+  mkMapPaint();
+  if (aicOpen && document.body.classList.contains('mk-full-on')) try { dkLayout(); } catch(e){}
+  //  층을 바꾸면 지도는 전체로 (시장으로 돌아오면 보던 나라로 다시 확대)
+  requestAnimationFrame(function(){
+    try { if (mkMapChart) mkMapChart.resize(); } catch(e){}
+    mkMapPaint();
+    if (mkResOn()){ if (home) mkMapZoomHome(); }
+    else if (MK.ctryOpen && !MK.cmpOn && MK.cc) mkMapZoomTo(MK.cc, true); else mkMapZoomHome();
+  });
+}
+//  막대 · 지도에서 나라 고르기 — 막대에서 누르면 그 나라로 확대 (한 번 더 누르면 전체)
+function mkResPick(cc, zoom){
+  var L = MK.layD || mkLayerData(); if (!cc) return;
+  var r = mkLayerRowOf(L, cc), key = r ? r.cc : cc;
+  var again = MK.resSel === key;
+  MK.resSel = again && zoom ? null : key;
+  mkResRender(); mkMapPaint();
+  if (zoom){ if (MK.resSel && mkGeoOf(key)) mkMapZoomTo(key, true); else mkMapZoomHome(); }
+  var row = document.querySelector('#mkResBars .mk-rb[data-cc="' + key + '"]');
+  if (row && row.scrollIntoView && !zoom) row.scrollIntoView({ block: 'nearest', behavior: MOTION_OK ? 'smooth' : 'auto' });
+}
+//  ── 지도 위 줄: 시장 · 원자재 · 밸류체인 + 고르는 칩 ──
+function mkLayBarRender(){
+  var box = $('mkLayBar'); if (!box) return;
+  var seg = [['mkt', T('시장', 'Markets')], ['res', T('원자재', 'Commodities')], ['vc', T('밸류체인', 'Value chains')]].map(function(o){
+    var on = (MK.lay || 'mkt') === o[0];
+    return '<button type="button"' + (on ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + ' onclick="mkLayerSet(\'' + o[0] + '\')">' + esc(o[1]) + '</button>'; }).join('');
+  var chips = '';
+  if (MK.lay === 'res') chips = MK_RES.map(function(R){
+    var on = MK.res === R.k, px = mkLayerPx({ px: R.px });
+    return '<button type="button" class="mk-lchip' + (on ? ' on' : '') + '" onclick="mkResSet(\'' + R.k + '\')"' + (on ? ' aria-pressed="true"' : '') + '>' + esc(R.n)
+      + (px && px.c != null ? ' <b class="' + (px.c > 0 ? 'up' : px.c < 0 ? 'down' : '') + '" data-lv="lc:' + R.k + '">' + esc(mkChg(px.c)) + '</b>' : '') + '</button>'; }).join('');
+  else if (MK.lay === 'vc') chips = MK_VC.map(function(V){
+    var on = MK.vc === V.k;
+    return '<button type="button" class="mk-lchip lvc' + (on ? ' on' : '') + '" onclick="mkVcSet(\'' + V.k + '\')"' + (on ? ' aria-pressed="true"' : '') + '>' + esc(V.n) + '</button>'; }).join('');
+  lvSwap(box, '<span class="px-seg mk-lseg" role="group" aria-label="' + esc(T('지도 보기', 'Map layer')) + '">' + seg + '</span>' + (chips ? '<span class="mk-lchips">' + chips + '</span>' : ''));
+}
+//  ── 옆 칸 ──
+function mkResRender(){
+  var box = $('mkRes'); if (!box) return;
+  if (!mkResOn()){ box.innerHTML = ''; box.__k = ''; return; }
+  if (!MK.layD || MK.layD.lang !== (isEn() ? 'en' : 'ko')) MK.layD = mkLayerData();
+  mkSplitInit(); mkSplitApply();
+  var L = MK.layD, dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  box.classList.toggle('is-vc', MK.lay === 'vc');
+  var V = MK.lay === 'vc' ? mkVcOf(MK.vc) : null;
+  //  단계 흐름 (밸류체인만) — 단계마다 1위 나라 · 한국
+  var flow = '';
+  if (V) flow = '<div class="mk-vflow" role="group" aria-label="' + esc(T('단계', 'Stages')) + '">' + V.st.map(function(S, i){
+    var tbl = typeof S[3] === 'string' ? (function(){ var r0 = mkResOf(S[3].slice(4)), o = {}; r0.rows.forEach(function(x){ o[x[0]] = x[1] / r0.world * 100; }); return o; })() : S[3];
+    var ks = Object.keys(tbl).filter(function(c){ return c !== 'OT'; }).sort(function(a, b){ return tbl[b] - tbl[a]; }), top = ks[0], ex = S[4] || {};
+    var kr = tbl.KR != null ? tbl.KR : null, on = MK.vcSt === S[0];
+    return '<button type="button" class="mk-vst' + (on ? ' on' : '') + '" style="--i:' + i + '" onclick="mkVcStSet(\'' + S[0] + '\')"' + (on ? ' aria-pressed="true"' : '') + '>'
+      + '<span class="t">' + esc(S[1]) + (S[2] != null && S[2] < 100 ? '<i>' + S[2] + '%</i>' : '') + '</span>'
+      + (top ? '<span class="w">' + mkFlag2(top) + ' ' + esc(mkNm(top)) + ' <b>' + esc((ex.txt && ex.txt[top]) || ((Math.round(tbl[top] * 10) / 10) + '%')) + '</b></span>' : '')
+      + '<span class="kr">' + esc(T('한국 ', 'Korea ')) + (kr != null ? '<b>' + (Math.round(kr * 10) / 10) + '%</b>' : '<em>' + esc(T('자료 없음', 'n/a')) + '</em>') + '</span></button>'; }).join('') + '</div>';
+  //  한국 위치 · 집중도
+  var kr = mkLayerRowOf(L, 'KR');
+  var krTxt = kr ? T('한국 ', 'Korea ') + mkLayerPct(kr) + ' · ' + kr.rk + T('위', '') : T('한국: 출처 목록에 없음', 'Korea: not in source list');
+  var conc = L.rows.length >= 3 ? T('상위 3개국 ', 'Top 3 ') + Math.round(L.top3) + '%' : (L.rows[0] ? T('1위 ', 'Top ') + mkNm(L.rows[0].cc) + ' ' + mkLayerPct(L.rows[0]) : '');
+  var lvl = L.max >= 50 ? ['hi', T('한 나라 쏠림 큼', 'Highly concentrated')] : L.top3 >= 60 ? ['md', T('소수 나라 집중', 'Concentrated')] : ['lo', T('여러 나라에 분산', 'Diversified')];
+  //  막대 (나라 줄 + 그 외)
+  var mx = Math.max(L.max, L.rest ? L.rest.s : 0) || 1;
+  var bars = L.rows.map(function(r, k){
+    var sel = MK.resSel === r.cc, w = Math.max(1.5, r.s / mx * 100);
+    return '<button type="button" class="mk-rb' + (sel ? ' on' : '') + (r.cc === 'KR' ? ' kr' : '') + '" style="--k:' + k + '" data-cc="' + r.cc + '" onclick="mkResPick(\'' + r.cc + '\', true)" title="' + esc(mkNm(r.cc) + T(' · 누르면 지도에서 확대 (한 번 더 = 전체)', ' · click to zoom')) + '">'
+      + '<span class="rk">' + r.rk + '</span><span class="nm"><i class="fl">' + mkFlag2(r.cc) + '</i><span>' + esc(mkNm(r.cc)) + '</span></span>'
+      + '<span class="bar"><i style="--w:' + w.toFixed(1) + '%;background:' + mkLayerColor(r.s, L, dark) + '"></i></span>'
+      + '<span class="pc">' + esc(mkLayerPct(r)) + '</span><span class="v">' + esc(r.v != null ? mkNumFmt(r.v) : (r.vt || '')) + '</span></button>';
+  }).join('') + (L.rest && L.rest.s >= 0.5 ? '<div class="mk-rb rest"><span class="rk"></span><span class="nm">' + esc(L.rest.label) + '</span><span class="bar"><i style="--w:' + Math.max(1.5, L.rest.s / mx * 100).toFixed(1) + '%"></i></span><span class="pc">' + Math.round(L.rest.s * 10) / 10 + '%</span><span class="v"></span></div>' : '');
+  var sel = MK.resSel ? (L.rows.filter(function(x){ return x.cc === MK.resSel; })[0] || { cc: MK.resSel, none: true }) : null;
+  var key = L.key + '|' + (MK.resSel || '') + '|' + dark + '|' + (isEn() ? 'en' : 'ko');
+  //  막대는 고른 것이 바뀔 때만 다시 그림 (실시간 값만 따로 갱신 → 막대가 다시 자라지 않음)
+  if (box.__k !== key){
+    box.__k = key;
+    box.innerHTML = '<div class="mk-res-top"><div class="mk-res-t"><span class="k">' + esc(MK.lay === 'vc' ? T('밸류체인', 'Value chain') : T('원자재', 'Commodity')) + '</span><b>' + esc(L.title + (L.stage ? ' · ' + L.stage : '')) + '</b></div>'
+      + '<span class="mk-res-px" id="mkResPx"></span><button type="button" class="mk-x" onclick="mkLayerSet(\'mkt\')" aria-label="' + esc(T('시장 지도로', 'Back to markets')) + '" title="' + esc(T('시장 지도로 돌아가기', 'Back to markets')) + '">×</button></div>'
+      + flow
+      + '<div class="mk-res-what">' + esc(L.what) + '<span class="st-hint"> · ' + esc(L.yr + ' · ' + L.basis) + '</span></div>'
+      + '<div class="mk-res-kpi"><span class="mk-conc ' + lvl[0] + '">' + esc(lvl[1]) + '</span><span>' + esc(conc) + '</span><span class="krl' + (kr ? '' : ' none') + '">' + mkFlag('KR') + ' ' + esc(krTxt) + '</span></div>'
+      + (sel ? '<div class="mk-res-sel">' + mkFlag2(sel.cc) + ' <b>' + esc(mkNm(sel.cc)) + '</b> ' + esc(sel.none ? T('출처 목록에 없음', 'not in source list') : mkLayerPct(sel) + ' · ' + sel.rk + T('위', '')) + (sel.none ? '' : sel.v != null ? ' · ' + esc(mkNumFmt(sel.v) + ' ' + L.unit) : sel.vt ? ' · ' + esc(sel.vt) : '')
+               + (mkCtryOk(sel.cc) ? ' <button type="button" class="btn-sm" onclick="mkPickCountry(\'' + sel.cc + '\')">' + esc(T('이 나라 시장 보기', 'Open market')) + '</button>' : '') + '</div>' : '')
+      + '<div class="mk-res-bars" id="mkResBars">' + bars + '</div>'
+      + (L.notes.length ? '<ul class="mk-res-notes">' + L.notes.map(function(n){ return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>' : '')
+      + '<div class="mk-res-src">' + esc(T('출처: ', 'Source: ') + L.src) + '</div>';
+    //  막대가 0 에서 자람 (움직임 줄이기면 바로)
+    if (MOTION_OK){ box.classList.remove('grown'); void box.offsetWidth; requestAnimationFrame(function(){ box.classList.add('grown'); }); } else box.classList.add('grown');
+  }
+  var pxBox = $('mkResPx'), px = mkLayerPx(L);
+  if (pxBox) lvSwap(pxBox, px ? '<span class="n">' + esc(String(px.n).replace(/\s*\(24시간\)/, '') + (px.src === 'bn' ? ' 24h' : '')) + '</span> <b data-lv="rp:' + esc(px.s) + '" data-tw>' + esc(mkPx(px.p, px.s)) + '</b> <b class="' + (px.c > 0 ? 'up' : px.c < 0 ? 'down' : '') + '" data-lv="rc:' + esc(px.s) + '">' + esc(mkChg(px.c)) + '</b>' : '');
+}
 function mkChipsRender(){
   var lg = $('mkCtryChips'); if (!lg) return;
   var html = MK_LINES.concat(Object.keys(MK_CC_CUR).filter(function(c){ return MK_LINES.indexOf(c) < 0 && MK_CC[c] && mkCtryPairs(c).length; })).map(function(cc){
@@ -17971,7 +18541,11 @@ function mkChipsRender(){
 function mkCtryFamSet(f){ MK.ctryFam = f === '24h' ? '24h' : 'close'; mkCtryRender(); }
 function mkPickCountry(cc){
   if (!mkCtryOk(cc)) return;
+  //  (10/8 4단계) 원자재 · 밸류체인 층에서 나라를 열면 시장 층으로
+  if (mkResOn()){ MK.lay = 'mkt'; MK.layD = null; MK.resSel = null; var w0 = $('mkWorld'); if (w0) w0.classList.remove('res'); mkLayBarRender(); mkResRender(); }
   var first = !MK.ctryOpen;
+  //  (10/8 학회장: «나라를 고르면 무조건 개요부터 · 개요가 가장 빨리 나오니까») — 다른 나라를 고르면 개요 (같은 나라를 다시 누르면 보던 탭 그대로)
+  if (MK.cc !== cc || first) MK.ctryTab = 'ov';
   if (MK.cc !== cc){ MK.cc = cc; MK.ctry = MK.ctryC[cc] || null; MK.ctryErr = ''; MK.ctryFxPair = null; }
   MK.ctryOpen = true;
   //  (10/8) 누른 나라는 탭으로 쌓임 (5개까지 · 넘으면 가장 오래된 것부터) · 고르면 «비교» 에서 그 나라로
@@ -17988,6 +18562,9 @@ function mkPickCountry(cc){
   mkMapZoomTo(cc, true);
   if (first) requestAnimationFrame(function(){ mkMapPaint(); [mkLineChart, mkOvChart, mkCfxChart, mkLiveChart].forEach(function(c){ try { if (c) c.resize(); } catch(e){} }); });
   mkCtryLoad();
+  mkPrefetchSoon(cc);
+  //  전체 화면에서 세이피 서랍이 열려 있으면 나라 칸 반대쪽으로 다시 맞춤
+  if (aicOpen && document.body.classList.contains('mk-full-on')) try { dkLayout(); } catch(e){}
   var p = $('mkCtry'); if (p && window.innerWidth <= 900 && p.scrollIntoView) p.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function mkCtryClose(){
@@ -18022,7 +18599,96 @@ function mkCtryLoad(){
   if (t === 'ov' || t === 'sec') mkInfoGet(cc);
   if (t === 'sec' && cc !== 'US' && cc !== 'KR') mkBriefGet(cc, 'pplx');
   if (t === 'ai') mkBriefGet(cc, 'brief');
+  if (t === 'ind') mkIndLoad(cc);
 }
+/*  ── 미리 받기 (10/8 학회장: «개요 보는 시간에 다른 칸들 로딩되면 클릭했을 때 로딩 시간이 단축») ──
+    개요 요청을 먼저 보내고 0.35초 뒤(그 나라에 머무르고 있으면) 나머지 칸 자료를 뒤에서 받아 둡니다.
+    · 실시간 · 주요 기업 = 나라 선 · 산업 지표 = 병목 지표 · 환율 모델 = 환율 자료 + 모형 (화면이 한가할 때 계산)
+    · 업종 검색 · 시황(돈이 드는 것)은 <서버에 오늘 만들어 둔 것이 있을 때만> 가져옴 — 미리 받기 때문에 새로 만들지는 않음 (비용 그대로)
+    ⚠️ 지도를 훑으며 나라를 빨리 바꾸면 지나간 나라는 받지 않음 · 화면이 안 보이면(다른 창) 안 받음  */
+function mkPrefetchSoon(cc){
+  clearTimeout(MK.pfT);
+  MK.pfT = setTimeout(function(){
+    if (MK.cc !== cc || !MK.ctryOpen || document.hidden || curTab !== 'market') return;
+    MK.pfDone = MK.pfDone || {};
+    var day = mkKstDay(); if (MK.pfDone[cc] === day + ':' + Math.floor(Date.now() / 600e3)) return;
+    MK.pfDone[cc] = day + ':' + Math.floor(Date.now() / 600e3);
+    mkInfoGet(cc);
+    if (MK_LINES.indexOf(cc) >= 0 && !(MK.ctryC[cc] && Date.now() - (MK.ctryCAt[cc] || 0) < 60e3)) mkFetchCountry(cc);
+    if (mkIndOk(cc)) mkIndLoad(cc);
+    mkBriefPeek(cc, 'brief');
+    if (cc !== 'US' && cc !== 'KR') mkBriefPeek(cc, 'pplx');
+    var pairs = mkCtryPairs(cc);
+    if (pairs.length){ var go = function(){ if (MK.cc === cc && !MK.fxP['ctry' + cc]) MK.fxP['ctry' + cc] = mkFxEnsure(pairs).then(function(){ delete MK.fxP['ctry' + cc]; if (MK.cc === cc && MK.ctryTab === 'fx') mkCfxRender(); }, function(){ delete MK.fxP['ctry' + cc]; }); };
+      if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 1500 }); else setTimeout(go, 300); }
+  }, 350);
+}
+//  업종 검색 · 시황 — 서버에 오늘 것이 있으면 받아 두기만 (없으면 아무것도 안 만듦)
+async function mkBriefPeek(cc, part){
+  var day = mkKstDay(), e = MK.brief[cc];
+  if (!e || e.day !== day) e = MK.brief[cc] = { day: day };
+  if ((part === 'pplx' ? e.pplx : e.brief) || e.busy || e['pk' + part]) return;
+  e['pk' + part] = 1;
+  try {
+    var d = await edge({ source: 'mkt_brief_peek', cc: cc, part: part });
+    if (!d || d.error) return;
+    if (d.pplx && !e.pplx){ e.pplx = d.pplx; e.pplxErr = ''; e.tp = Date.now(); }
+    if (part === 'brief' && d.brief && !e.brief){ e.brief = d.brief; e.why = ''; e.tb = Date.now(); }
+    if (MK.cc === cc && (MK.ctryTab === 'sec' || MK.ctryTab === 'ai')) mkCtryRender();
+  } catch(x){ /* 미리 받기는 조용히 — 탭을 열면 원래 길로 받음 */ }
+}
+/*  ── 산업 지표 탭 (10/8) ── 산업분석 › 병목 모니터와 같은 자료 · 같은 계산(2015년 이후 백분위 · 수급 긴장도) · 같은 기업 태그
+    산업분석 탭에서 고른 나라(bnCtry)는 건드리지 않고 이 나라 것만 따로 받습니다 (받은 값은 같은 보관함이라 두 화면이 서로 빨라짐)  */
+function mkIndLoad(cc){
+  MK.indBusy = MK.indBusy || {};
+  if (MK.indBusy[cc]) return;
+  var c = BN_COUNTRIES.filter(function(x){ return x.k === cc; })[0]; if (!c) return;
+  var seen = {}, need = [];
+  c.g.forEach(function(g){ g.ind.forEach(function(i){ var k = bnK(i); if (!seen[k] && !bnCached(k) && !(bnMem[k] && bnMem[k].err)){ seen[k] = 1; need.push(i); } }); });
+  if (!need.length) return;
+  MK.indBusy[cc] = true;
+  var redraw = throttleFn(function(){ if (MK.cc === cc && MK.ctryTab === 'ind' && MK.ctryOpen) mkIndRender(); }, 500);
+  (async function(){
+    for (var j = 0; j < need.length; j += 4){ await Promise.all(need.slice(j, j + 4).map(function(i){ return bnLoad(i); })); redraw(); }
+    MK.indBusy[cc] = false; redraw.flush && redraw.flush();
+    if (MK.cc === cc && MK.ctryTab === 'ind' && MK.ctryOpen) mkIndRender();
+  })();
+}
+function mkIndScores(c){
+  return c.g.map(function(g){
+    var ts = [], miss = 0, rows = [];
+    g.ind.forEach(function(i){
+      var k = bnK(i), s = bnCached(k);
+      if (!s){ if (!(bnMem[k] && bnMem[k].err)) miss++; return; }
+      var t = bnTight(i, s); if (t != null) ts.push(t);
+      rows.push({ i: i, s: s, t: t });
+    });
+    return { g: g, key: bnGroupKey(c, g), score: ts.length ? Math.round(ts.reduce(function(a, b){ return a + b; }, 0) / ts.length) : null, miss: miss, rows: rows };
+  });
+}
+function mkIndRender(){
+  var box = $('mkIndBody'); if (!box) return;
+  var cc = MK.cc, c = BN_COUNTRIES.filter(function(x){ return x.k === cc; })[0];
+  if (!c){ box.innerHTML = '<div class="mk-empty">' + esc(T('이 나라는 산업 지표 자료가 아직 없습니다 - 산업분석은 미국 · 한국 · 일본 · 중국 · 독일 · 프랑스 · 이탈리아 · 영국 · 인도', 'No industry data for this country yet')) + '</div>'; return; }
+  var S = mkIndScores(c), wait = (MK.indBusy && MK.indBusy[cc]) || S.some(function(x){ return x.miss; });
+  if (!S.some(function(x){ return x.rows.length; })){ box.innerHTML = '<div class="mk-empty">' + esc(wait ? T('로딩 중…', 'Loading…') : T('자료를 받지 못했습니다.', 'No data.')) + '</div>'; return; }
+  var fmtV = function(i, s){ var v = s.v, u = i.u || ''; var n = Math.abs(v) >= 1000 ? Math.round(v).toLocaleString('ko-KR') : (Math.round(v * 10) / 10).toLocaleString('ko-KR');
+    return n + (u === '%' ? '%' : ''); };
+  var html = '<div class="mk-ind-lg"><span><i class="hi"></i>' + esc(T('70 이상 공급 병목', '≥70 bottleneck')) + '</span><span><i class="mid"></i>' + esc(T('중립', 'neutral')) + '</span><span><i class="lo"></i>' + esc(T('30 이하 공급 과잉', '≤30 glut')) + '</span></div>'
+    + S.map(function(x){
+      var sg = bnSignal(x.score), tags = typeof bnTagsRow === 'function' ? bnTagsRow(x.key, x.score, x.g.n) : '';
+      return '<div class="mk-ind-g"><div class="h"><b>' + esc(x.g.n) + '</b><span class="sg" style="color:' + sg.c + '">' + esc(sg.t) + '</span></div>'
+        + bnBar(x.score)
+        + '<div class="mk-ind-rows">' + x.rows.map(function(r){
+            return '<span class="r" title="' + esc(bnSrcName(r.i) + ' · ' + (r.i.u || '')) + '">' + esc(r.i.l) + ' <b>' + esc(fmtV(r.i, r.s)) + '</b>'
+              + (r.s.yoy != null && r.i.m !== 'lvl' ? ' <span class="' + (r.s.yoy > 0 ? 'up' : r.s.yoy < 0 ? 'down' : '') + '">' + esc((r.s.yoy > 0 ? '+' : '') + (Math.round(r.s.yoy * 10) / 10) + '%') + '</span>' : '')
+              + ' <span class="st-hint">' + esc(String(r.s.d).slice(0, 7)) + '</span></span>'; }).join('') + (x.miss ? '<span class="r st-hint">' + esc(T('로딩 중…', 'Loading…')) + '</span>' : '') + '</div>'
+        + (tags ? '<div class="mk-ind-tags">' + tags + '</div>' : '') + '</div>'; }).join('')
+    + '<div class="mk-ind-foot"><span class="st-hint">' + esc(T('수급 긴장도 = 2015년 이후 역사적 백분위 (0~100) · 자료 ', 'Tightness = percentile since 2015 · ') + c.src + (c.note ? ' · ' + c.note : '')) + '</span>'
+    + '<button type="button" class="btn-sm" onclick="mkIndOpen(\'' + cc + '\')">' + esc(T('산업분석에서 자세히', 'Open in Industry')) + '</button></div>';
+  lvSwap(box, html);
+}
+function mkIndOpen(cc){ showTab('industry'); if (typeof bnCtrySet === 'function') bnCtrySet(cc); var el = $('bnCtry'); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'start' }); }
 function mkKstDay(){ return new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10); }
 //  개요 · 업종 자료 (지수 1년 · IMF · 금리 · 섹터 ETF) — 10분 지나면 다시
 async function mkInfoGet(cc, force){
@@ -18067,6 +18733,7 @@ function mkCtryHeadSet(){
   var hint = MK.ctryTab === 'ov' ? T('지수 1년 · IMF 경제 전망 · 금리 · 환율', 'Index · IMF outlook · rates · FX')
            : MK.ctryTab === 'sec' ? (c1 === 'US' ? T('SPDR 섹터 ETF · 전 거래일 종가 기준', 'SPDR sector ETFs') : c1 === 'KR' ? T('KODEX 섹터 ETF · 종가 기준 (하루 늦음)', 'KODEX sector ETFs')
                                    : T('업종 흐름 · 지난 1주', 'Sector moves · past week'))
+           : MK.ctryTab === 'ind' ? T('산업 수급 긴장도 · 2015년 이후 백분위', 'Industry tightness · percentile since 2015')
            //  (10/7 학회장: «AI 로 찾고 있어요 · 가격 이런 거 쓰지 마 · 없어 보여») — 만드는 방법 · 업체 이름은 화면에 안 적습니다
            : '';
   lvSwap(head, mkCtryHeadKv(c1, null) + '<span class="st-hint">' + esc(hint) + '</span>');
@@ -18083,9 +18750,9 @@ function mkCtryHeadKv(cc, d){
 var MK_SEC_PAL = ['#2a5aa8', '#c0392b', '#1f8a70', '#b26a00', '#7d3c98', '#d35400', '#16a085', '#8e44ad', '#2c3e50', '#e67e22', '#27ae60', '#c2185b', '#5d6d7e', '#0097a7'];
 function mkCtryRender(){
   var head = $('mkCtryHead'), box = $('mkLineBox'), list = $('mkCtryList'); if (!head || !box) return;
-  var wrap = $('mkWorld'); if (wrap) wrap.classList.toggle('open', !!MK.ctryOpen);
-  if (!MK.ctryOpen) return;
-  if (!mkTabOk(MK.ctryTab, MK.cc)) MK.ctryTab = 'live';
+  var wrap = $('mkWorld'); if (wrap){ wrap.classList.toggle('open', mkAsideOn()); wrap.classList.toggle('res', mkResOn()); }
+  if (!MK.ctryOpen || mkResOn()) return;
+  if (!mkTabOk(MK.ctryTab, MK.cc)) MK.ctryTab = 'ov';
   if (MK.ccList.indexOf(MK.cc) < 0) MK.ccList.push(MK.cc);
   mkCcTabsRender(); mkSplitInit(); mkSplitApply();
   //  «비교» — 고른 나라들을 한 화면에 (나라 칸의 보기 탭은 숨김)
@@ -18094,7 +18761,7 @@ function mkCtryRender(){
   if (ttl){ ttl.classList.toggle('hidden', !MK.cmpOn); ttl.innerHTML = MK.cmpOn ? '<b>' + esc(T('나라 비교', 'Compare')) + '</b><span class="st-hint">' + esc(MK.ccList.map(function(c){ return (MK_CC[c] || [c])[0]; }).join(' · ') + T(' · 실시간', ' · live')) + '</span>' : ''; }
   head.classList.toggle('hidden', !!MK.cmpOn);
   if (MK.cmpOn){
-    [['live', 'mkCtryLive'], ['stk', 'mkCtryStk'], ['fx', 'mkCtryFx'], ['ov', 'mkCtryOv'], ['sec', 'mkCtrySec'], ['ai', 'mkCtryAi']].forEach(function(x){ var el = $(x[1]); if (el) el.classList.add('hidden'); });
+    [['live', 'mkCtryLive'], ['stk', 'mkCtryStk'], ['fx', 'mkCtryFx'], ['ov', 'mkCtryOv'], ['sec', 'mkCtrySec'], ['ai', 'mkCtryAi'], ['ind', 'mkCtryInd']].forEach(function(x){ var el = $(x[1]); if (el) el.classList.add('hidden'); });
     var cm = $('mkCtryCmp'); if (cm) cm.classList.remove('hidden');
     head.innerHTML = '';
     mkCmpRender(); return;
@@ -18106,7 +18773,7 @@ function mkCtryRender(){
     return '<button type="button"' + (MK.ctryTab === o[0] ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"')
       + (ok ? '' : ' disabled title="' + esc(o[0] === 'stk' ? T('이 나라는 미국 상장 주요 기업 목록이 아직 없습니다', 'No company list yet') : T('이 나라 통화는 FRED 일별 환율이 없습니다', 'No FX data')) + '"')
       + ' onclick="mkCtryTabSet(\'' + o[0] + '\')">' + esc(o[1]) + '</button>'; }).join('');
-  [['live', 'mkCtryLive'], ['stk', 'mkCtryStk'], ['fx', 'mkCtryFx'], ['ov', 'mkCtryOv'], ['sec', 'mkCtrySec'], ['ai', 'mkCtryAi']].forEach(function(x){ var el = $(x[1]); if (el) el.classList.toggle('hidden', MK.ctryTab !== x[0]); });
+  [['live', 'mkCtryLive'], ['stk', 'mkCtryStk'], ['fx', 'mkCtryFx'], ['ov', 'mkCtryOv'], ['sec', 'mkCtrySec'], ['ai', 'mkCtryAi'], ['ind', 'mkCtryInd']].forEach(function(x){ var el = $(x[1]); if (el) el.classList.toggle('hidden', MK.ctryTab !== x[0]); });
   if (MK.ctryTab === 'live'){ mkCtryHeadSet(); mkLiveRender(); return; }
   if (MK.ctryTab === 'fx'){
     var cc0 = MK.cc, nm0 = (MK_CC[cc0] || [cc0])[0];
@@ -18115,7 +18782,7 @@ function mkCtryRender(){
   }
   if (MK.ctryTab !== 'stk'){
     mkCtryHeadSet();
-    if (MK.ctryTab === 'ov') mkOvRender(); else if (MK.ctryTab === 'sec') mkSecRender(); else mkAiRender();
+    if (MK.ctryTab === 'ov') mkOvRender(); else if (MK.ctryTab === 'sec') mkSecRender(); else if (MK.ctryTab === 'ind') mkIndRender(); else mkAiRender();
     return;
   }
   var cc = MK.cc, d = MK.ctry && MK.ctry.cc === cc ? MK.ctry : null;
@@ -24695,7 +25362,15 @@ function drawChart(){
       ⚠️ 축 숫자가 그 선의 값인 척하지 않게 — 보이는 축 · 눈금 · 축 이름 계산에서 통째로 뺍니다.
          값은 풍선말(원래 값) · 선 끝 이름표(마지막 값)로 읽고, 범례에 «(따로 눈금)» 을 붙입니다.
       크기(×k) = 위아래로 늘이기 · 줄이기 · 위치 = 선을 끌어서 (dy, 0~100 칸).                       */
-  var isOwn = function(s){ return !!(s && s.own) && s.type !== 'bar'; };
+  /*  ⚠️ (10/8 찾은 버그) 지수화(시작=100) 중에 첫 값이 0 이하인 지표(무역수지 같은 음수)는 100 으로 못 바꿔 원래 값을 그리는데,
+      지수화 화면엔 축이 하나뿐이라 «1번 축» 을 찾다가 차트가 통째로 멈췄습니다 — 그런 지표는 «따로 눈금» 으로 (범례에 표시 · 끝에 마지막 값)  */
+  var normBad = {};
+  if (norm){
+    norms.forEach(function(x){ var b0 = x.pts[0] && x.pts[0].v; if (!(isFinite(b0) && b0 > 0)) normBad[x.s.key] = 1; });
+    //  다 지수화를 못 하면(그것만 올렸으면) 따로 눈금 없이 원래 값을 그 축 하나에 그대로
+    if (!norms.some(function(x){ return !normBad[x.s.key]; })) normBad = {};
+  }
+  var isOwn = function(s){ return (!!(s && s.own) && s.type !== 'bar') || !!(s && normBad[s.key]); };
   var normsVis = norms.filter(function(x){ return !isOwn(x.s); });
   var nAxis = Math.max(2, axisCount(normsVis.map(function(x){ return x.s; })));
   var HID = norm ? 1 : nAxis, hasOwn = normsVis.length < norms.length;
@@ -24894,7 +25569,20 @@ function drawChart(){
          세면 범례가 축 이름 위에 그대로 얹힙니다. 폭을 넉넉히 빼서
          재고(모자라게 세느니 넘치게), 줄 높이와 이름 자리도 키웁니다. */
   var firstVisI = -1; norms.some(function(x, i){ if (!isOwn(x.s)){ firstVisI = i; return true; } return false; });
-  var lgRows = legendRows(lgNames, boxWidth('chartBox') - 44, 12);
+  /*  (10/8 5단계 · 학회장: «매크로 경제 차트를 더 세련되게») — 범례에 <그린 자료의 마지막 값> 을 굵게 (트레이딩뷰 · 블룸버그처럼)
+      ⚠️ 축 이름(좌 · 우)과 단위는 그대로 · 값은 지수화 중이면 100 기준 값 · 백만달러는 조 · 억 말로               */
+  var lgVal = {};
+  norms.forEach(function(x, i){
+    var p = x.pts, lv = null;
+    for (var k = p.length - 1; k >= 0; k--) if (p[k].v != null && isFinite(p[k].v)){ lv = p[k].v; break; }
+    if (lv == null) return;
+    var b0 = p[0] && p[0].v, nOk = norm && isFinite(b0) && b0 > 0;
+    if (nOk) lv = lv / b0 * 100;
+    var u = nOk ? '' : unitOf(x.s);
+    lgVal[lgNames[i]] = (!nOk && isMusd(u)) ? musdWords(lv)
+      : Number(lv).toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + (!u || u === '지수' ? '' : (u === '%' || u === '%p' || u === 'bp') ? u : ' ' + unitDisp(u));
+  });
+  var lgRows = legendRows(lgNames.map(function(n){ return n + (lgVal[n] ? '   ' + lgVal[n] + '  ' : ''); }), boxWidth('chartBox') - 44, 12, 14);
   var topPad = 12 + lgRows * 22 + 26 + legendGap();   // 범례 + 축 이름 자리 (+ 내가 더 띄운 만큼)
 
   var opt = {
@@ -24905,24 +25593,33 @@ function drawChart(){
     textStyle:{ color:th.text_color, fontFamily:"Inter, 'Noto Sans KR', sans-serif" },
     grid:{ left: norm ? 58 : pad.left, right: norm ? 26 : pad.right,
            top: topPad, bottom:64 },
-    legend:{ top:8, textStyle:{ color:th.text_color, fontSize:12 },
-      itemWidth:18, itemHeight:3, data: lgNames },
-    tooltip:{ trigger:'axis',
-      axisPointer:{ type:'line', label:{ formatter:function(p){ return fmtDateKoU(p.value); } } },
+    legend:{ top:8, textStyle:{ color:th.text_color, fontSize:12,
+        rich:{ n:{ color:th.text_color, fontSize:12 }, v:{ color:th.text_color, fontSize:12, fontWeight:700, padding:[0, 0, 0, 6] } } },
+      //  ⚠️ itemGap 은 줄과 줄 사이에도 쓰여서 키우면 범례가 축 이름(%)까지 내려옵니다 — 기본(10) 그대로
+      icon:'roundRect', itemWidth:14, itemHeight:4, data: lgNames,
+      formatter: function(n){ var v = lgVal[n]; var e = function(t){ return String(t).replace(/[{}|]/g, ' '); }; return v ? '{n|' + e(n) + '}{v|' + e(v) + '}' : n; } },
+    //  (10/8 5단계) 풍선말 = 흰 카드 · 날짜 머리 · 줄마다 색 막대 · 이름 · 값(오른쪽 맞춤 · 고정폭 숫자)
+    tooltip:{ trigger:'axis', confine:true, backgroundColor:'#ffffff', borderColor:'#e2e6f0', borderWidth:1, padding:[8, 11],
+      textStyle:{ color:'#1a1f36', fontSize:12 }, extraCssText:'box-shadow:0 10px 28px rgba(20,30,60,.16);border-radius:9px;',
+      axisPointer:{ type:'line', lineStyle:{ color:'#8a93a8', width:1, type:[4, 3] },
+        label:{ backgroundColor:'#1a2b4c', color:'#fff', borderRadius:4, padding:[3, 6], fontSize:11, formatter:function(p){ return fmtDateKoU(p.value); } } },
       formatter:function(ps){
         if (!ps || !ps.length) return '';
-        var head = '<div style="font-size:11px;opacity:.7;margin-bottom:4px">'
+        var head = '<div style="font-size:11px;font-weight:700;color:#5a6278;margin-bottom:6px;letter-spacing:.01em">'
                  + fmtDateKoU(ps[0].value[0]) + '</div>';
-        return head + ps.map(function(p){
+        return head + '<div style="display:grid;grid-template-columns:auto 1fr auto;column-gap:8px;row-gap:3px;align-items:center">' + ps.map(function(p){
           /*  ⚠️ 위아래로 옮긴 선은 <그려진 높이> 가 아니라 <원래 값> 을
               적습니다. 셋째 칸에 원래 값을 같이 실어 둡니다 (dyInfo 참고). */
           var v = (p.value.length > 2 && p.value[2] !== undefined) ? p.value[2] : p.value[1];
-          return p.marker + ' ' + p.seriesName + ' &nbsp;<b>'
+          var c = typeof p.color === 'string' ? p.color : '#8a93a8';
+          return '<span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:' + esc(c) + '"></span>'
+               + '<span style="color:#3a4258;white-space:nowrap">' + esc(p.seriesName) + '</span>'
+               + '<b style="text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap">'
                + (v == null ? '-'
                   : musdBy[p.seriesName] ? musdWords(v)
                   : Number(v).toLocaleString('ko-KR',{maximumFractionDigits:2}))
                + '</b>';
-        }).join('<br>');
+        }).join('') + '</div>';
       } },
     /*  ⚠️ 가로축 눈금은 <우리가 정해서> 넘깁니다 (xtSpec 주석 참고).
         customValues 를 못 알아듣는 ECharts 를 만나도, formatter 가
@@ -25010,9 +25707,14 @@ function drawChart(){
     dataZoom:[
       { type:'inside', zoomOnMouseWheel:true, moveOnMouseMove:true,
         moveOnMouseWheel:false },
-      { type:'slider', show:true, height:18, bottom:16,
-        borderColor:th.grid, fillerColor:'rgba(107,140,218,.15)',
-        handleStyle:{ color:th.axis_left },
+      //  (10/8 5단계) 아래 손잡이 — 얇은 띠 · 둥근 손잡이 · 고른 구간만 옅은 남색 (자료 모양은 아주 옅게)
+      { type:'slider', show:true, height:16, bottom:18, borderColor:'transparent', backgroundColor:'rgba(140,150,170,.10)',
+        fillerColor:'rgba(42,90,168,.13)', borderRadius:8,
+        dataBackground:{ lineStyle:{ color:'rgba(42,90,168,.35)', width:1 }, areaStyle:{ color:'rgba(42,90,168,.08)' } },
+        selectedDataBackground:{ lineStyle:{ color:'rgba(42,90,168,.6)', width:1 }, areaStyle:{ color:'rgba(42,90,168,.16)' } },
+        handleIcon:'path://M-3,-7 L3,-7 Q5,-7 5,-5 L5,5 Q5,7 3,7 L-3,7 Q-5,7 -5,5 L-5,-5 Q-5,-7 -3,-7 Z', handleSize:'110%',
+        handleStyle:{ color:'#ffffff', borderColor:th.axis_left, borderWidth:1.2, shadowBlur:4, shadowColor:'rgba(20,30,60,.18)' },
+        moveHandleSize:0, emphasis:{ handleStyle:{ borderColor:th.axis_left, borderWidth:1.6 } },
         textStyle:{ color:th.text_color, fontSize:10 } }
     ].concat((function(){
       //  Y 축 개수만큼 세로 확대·축소를 답니다
@@ -25041,12 +25743,13 @@ function drawChart(){
             찍습니다. 한 군데(srcSpanOff)에서 만들어 둘 다 씁니다.      */
         name: lgNames[i],
         type: isBar ? 'bar' : 'line',
-        yAxisIndex: ownM[s.key] ? HID : (norm && normOk) ? 0 : (Number(s.axis) || 0),
+        //  지수화 화면은 축이 하나 — 지수화를 못 한 선도 0번 축 (없는 1번 축을 찾다 멈추지 않게)
+        yAxisIndex: ownM[s.key] ? HID : norm ? 0 : (Number(s.axis) || 0),
         showSymbol:false,
         /*  ⚠️ 폭은 여기서 안 정합니다 — applyBarProps 가 <막대가 몇 개인지>
             세어보고 한 번에 붙입니다. 여기서 계열마다 60% 를 주면
             3개일 때 180% 가 되어 옆 칸을 침범합니다.                    */
-        lineStyle:{ color:s.color, width:s.width },
+        lineStyle:{ color:s.color, width:s.width, cap:'round', join:'round' },
         itemStyle:{ color:s.color },
         //  ⚠️ 날짜는 <세계시 자정 숫자> 로 넘깁니다 (tsOf 주석 참고)
         data: (function(){
@@ -25089,6 +25792,29 @@ function drawChart(){
   //  ⚠️ 막대가 여럿이면 칸을 나눠 쓰게 합니다 (barProps 주석 참고).
   //     예전에는 계열마다 60% 를 줘서 3개만 얹어도 옆 칸을 침범했습니다.
   applyBarProps(opt.series);
+  /*  (10/8 5단계 · 학회장: «밤티 안 나게») — 막대가 화면에서 4px 보다 촘촘하면 사이 틈이 바코드 무늬가 됩니다.
+      그때만 틈 없이 붙여(폭 100%) 면처럼 그리고 살짝 옅게 — 성글면 학회원이 고른 «봉 너비» 그대로.  */
+  (function(){
+    var bars = opt.series.filter(function(o){ return o.type === 'bar'; }); if (!bars.length) return;
+    var nMax = 0; norms.forEach(function(x){ if (x.s.type === 'bar') nMax = Math.max(nMax, x.pts.length); });
+    if (!nMax || xtW / nMax >= 4) return;
+    //  ⚠️ 시간축 막대의 «칸» 은 가장 짧은 간격(2월 28일)이라 100% 로는 31일 달 사이에 틈이 남습니다 — 111% (31 ÷ 28) 로 덮음 (한 붓이라 겹쳐도 진해지지 않음)
+    if (bars.length === 1){ bars[0].barWidth = '111%'; delete bars[0].barMaxWidth; }
+    else { bars[0].barCategoryGap = '0%'; bars[0].barGap = '0%'; }
+    //  ⚠️ 막대마다 따로 칠하면 붙인 자리마다 반 픽셀 이음매(줄무늬)가 남습니다 — «large» 로 한 붓에 칠하면 이음매 없이 면이 됩니다
+    bars.forEach(function(o){ o.large = true; o.largeThreshold = 0; o.itemStyle = Object.assign({}, o.itemStyle, { opacity: .62 }); });
+  })();
+  /*  (10/8 5단계 · 모션) 새로 올린 선만 왼쪽에서 오른쪽으로 0.65초 그려짐 — 기간 · 변환 · 끌기로 다시 그릴 때는 그대로(바로).
+      움직임 줄이기 설정이면 없음 · 점이 3,000개 넘는 선은 ECharts 가 알아서 건너뜀 (느려지지 않게)  */
+  (function(){
+    var keys = norms.map(function(x){ return x.s.key; }), prev = chart.__mcKeys;
+    chart.__mcKeys = keys;
+    var isNew = function(k){ return !prev || prev.indexOf(k) < 0; };
+    var fresh = MOTION_OK && keys.some(isNew);
+    opt.animation = !!fresh;
+    if (fresh){ opt.animationDuration = 650; opt.animationEasing = 'cubicOut'; opt.animationDurationUpdate = 0; opt.animationThreshold = 3000;
+                opt.series.forEach(function(o, i){ o.animation = isNew(norms[i] && norms[i].s.key); }); }
+  })();
   /*  ⚠️ 풍선말이 떠 있는 채로 차트를 새로 그리면, ECharts 가 이미 사라진
       풍선말의 크기를 재려다 오류를 냅니다 (getSize → offsetWidth of null).
       마우스를 차트에 올려둔 채 설정을 바꾸면 실제로 납니다. 먼저 내립니다. */
@@ -25189,13 +25915,15 @@ function drawChart(){
         if (!hi || d > hi) hi = d;
       });
     });
-    el.textContent = (lo && hi)
-      ? (T('차트 · ', 'Chart · ') + fmtYm(lo) + (isEn() ? ' – ' : ' ~ ') + fmtYm(hi))
-      : T('차트', 'Chart');
+    //  (10/8 5단계) 제목은 굵게 · 기간은 옅게 한 단계 작게 (글은 그대로 — «차트 · 2005년 1월 ~ 2026년 9월»)
+    el.innerHTML = (lo && hi)
+      ? esc(T('차트', 'Chart')) + '<span class="mc-period">' + esc(' · ' + fmtYm(lo) + (isEn() ? ' – ' : ' ~ ') + fmtYm(hi)) + '</span>'
+      : esc(T('차트', 'Chart'));
   })();
 
   $('chartMsg').innerHTML = esc(norms.length + '개 지표 · ' + rangeLabel()
     + (hasOwn ? ' · 따로 눈금 ' + (norms.length - normsVis.length) + '개' : '')
+    + (Object.keys(normBad).length ? ' · 첫 값이 0 이하라 지수화할 수 없는 지표는 따로 눈금' : '')
     + (norm ? ' · 지수화' : (nAxis > 2 ? ' · 축 ' + nAxis + '개'
                             : (usedRight ? ' · 좌우 축 분리 (눈금 맞춤)' : '')))
     + (bands.length ? ' · 침체 ' + bands.length + '구간 음영' : '')
