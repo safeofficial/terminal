@@ -1216,7 +1216,6 @@
   .mk-plv{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--card);color:var(--text-sub);border-radius:999px;padding:4px 11px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
   .mk-plv .dot{width:7px;height:7px;border-radius:50%;background:var(--text-sub);opacity:.55} .mk-plv:hover{border-color:var(--port-line)}
   .mk-plv.on{border-color:var(--port);background:var(--port-soft);color:var(--port)} .mk-plv.on .dot{background:#22c55e;opacity:1}
-  .mk-stt.on .dot{background:linear-gradient(90deg,#2563eb 50%,#dc2626 50%)}
   .mk-port-zone{margin-top:7px;padding:6px 8px;border-radius:8px;background:var(--port-soft);display:flex;flex-direction:column;gap:3px;font-size:12px}
   .mk-port-zone .z{line-height:1.55} .mk-port-zone .k{display:inline-block;font-weight:700;min-width:84px;margin-right:4px} .mk-port-zone b{font-size:14px;font-variant-numeric:tabular-nums;margin-right:1px}
   .mk-port-zone .m{display:block;color:var(--text-sub);font-size:11.5px;line-height:1.45} .mk-port-zone .st-hint{margin-top:1px}
@@ -1236,6 +1235,33 @@
   .mk-shipcard .r .v i{display:block;font-style:normal;font-size:10.5px;color:var(--text-sub)}
   .mk-shipcard .n{margin-top:5px;font-size:10.5px;color:var(--text-sub);line-height:1.4}
   @media (max-width:600px){ #mkMapBox > .mk-shipcard{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-width:none;max-height:72%;overflow:auto} #mkMapBox.ship-on > .mk-ovleg{display:none} }
+  /*  (10/10 7차) 물류 «주간 분석» (GFW) — 보기 전환 · 점 종류 단추 · 요약 · 지역 줄 배지 · 오래 머문 배 · 카드 · 읽는 법  */
+  .mk-pmode button{font-size:12px;padding:4px 12px}
+  .mk-gt .dot{border-radius:50%} .mk-gt.on.gs .dot{background:linear-gradient(90deg,#2563eb 50%,#dc2626 50%);opacity:1}
+  .mk-gt.gd .dot{border-radius:1px;transform:rotate(45deg) scale(.85)} .mk-gt.on.gd .dot{background:#7e22ce;opacity:1}
+  .mk-gt.gx .dot{border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)} .mk-gt.on.gx .dot{background:#c2410c;opacity:1}
+  :root[data-theme="dark"] .mk-gt.on.gd .dot{background:#c084fc} :root[data-theme="dark"] .mk-gt.on.gx .dot{background:#fbbf24}
+  .mk-gfw-sum{border:1px solid var(--port-line);background:var(--port-soft);border-radius:10px;padding:8px 11px 7px;margin:0 0 10px}
+  .mk-gfw-sum .h{font-weight:700;font-size:12.5px;margin-bottom:3px} .mk-gfw-sum .h .st-hint{font-weight:400}
+  .mk-gfw-sum ul{margin:0;padding-left:17px;display:flex;flex-direction:column;gap:3px} .mk-gfw-sum li{font-size:12px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
+  .mk-prow .nm em.gd,.mk-prow .nm em.gx{font-style:normal;display:inline-flex;align-items:center;gap:3px;margin-left:4px;font-size:10.5px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .mk-prow .nm em.gd{color:#7e22ce} .mk-prow .nm em.gd i{width:6px;height:6px;background:#7e22ce;transform:rotate(45deg)}
+  .mk-prow .nm em.gx{color:#c2410c} .mk-prow .nm em.gx i{width:7px;height:6px;background:#c2410c;clip-path:polygon(50% 0,100% 100%,0 100%)}
+  :root[data-theme="dark"] .mk-prow .nm em.gd{color:#c084fc} :root[data-theme="dark"] .mk-prow .nm em.gd i{background:#c084fc} :root[data-theme="dark"] .mk-prow .nm em.gx{color:#fbbf24} :root[data-theme="dark"] .mk-prow .nm em.gx i{background:#fbbf24}
+  .mk-prow .nm em.al{font-style:normal;margin-left:4px;font-size:10px;color:var(--text-sub);border:1px solid var(--border);border-radius:4px;padding:0 3px;white-space:nowrap}
+  .mk-prow.none{grid-template-columns:18px minmax(0,1fr) auto;opacity:.7}
+  .mk-res-what.gp{margin-top:12px}
+  .mk-gfw-top{margin-top:8px;padding-top:7px;border-top:1px dashed var(--port-line)} .mk-gfw-top .h{font-weight:700;font-size:12px;margin-bottom:3px} .mk-gfw-top .h .st-hint{font-weight:400}
+  .mk-gfw-top .sh{display:grid;grid-template-columns:9px minmax(0,1fr) auto auto;align-items:center;gap:7px;width:100%;padding:3px 4px;border:0;background:none;border-radius:6px;font:inherit;color:inherit;text-align:left;font-size:12px}
+  button.sh:hover{background:var(--bg-sub)} .mk-gfw-top .sh b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600} .mk-gfw-top .sh span{color:var(--text-sub);font-size:11px;white-space:nowrap} .mk-gfw-top .sh em{font-style:normal;font-variant-numeric:tabular-nums;font-size:11.5px;white-space:nowrap}
+  .mk-gfw-top .sh .c{width:8px;height:8px;border-radius:50%;background:#1d4ed8} .mk-gfw-top .sh .c.tk{background:#c0392b}
+  :root[data-theme="dark"] .mk-gfw-top .sh .c{background:#60a5fa} :root[data-theme="dark"] .mk-gfw-top .sh .c.tk{background:#f87171}
+  .mk-gfw-err{margin-top:6px;overflow-wrap:anywhere}
+  .mk-shipcard .h .ty i.dk{background:#7e22ce;transform:rotate(45deg) scale(.9)} .mk-shipcard .h .ty i.gx{background:#c2410c;border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}
+  :root[data-theme="dark"] .mk-shipcard .h .ty i.dk{background:#c084fc} :root[data-theme="dark"] .mk-shipcard .h .ty i.gx{background:#fbbf24}
+  .mk-ovleg .d.gd{background:#7e22ce;border-radius:1px;transform:rotate(45deg) scale(.78)} .mk-ovleg .d.gx{background:#c2410c;border:0;border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}
+  :root[data-theme="dark"] .mk-ovleg .d.gd{background:#c084fc} :root[data-theme="dark"] .mk-ovleg .d.gx{background:#fbbf24}
+  @media (max-width:560px){ .mk-gfw-top .sh{grid-template-columns:9px minmax(0,1fr) auto} .mk-gfw-top .sh span{display:none} }
   .mk-rsx{margin:4px 0 12px}
   .mk-rsx-h{margin:12px 0 6px;font-size:12.5px} .mk-rsx-h b{font-size:13px}
   .mk-rsrrg{height:260px;width:100%;border:1px solid var(--border);border-radius:10px}
@@ -1279,7 +1305,7 @@
   #mkMapBox > .mk-ovleg{position:absolute;right:10px;bottom:8px;z-index:6;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;max-width:min(430px,calc(100% - 190px));padding:5px 10px;border-radius:9px;
     background:color-mix(in srgb, var(--card) 86%, transparent);border:1px solid var(--border);font-size:11.5px;pointer-events:none;backdrop-filter:blur(3px)}
   .mk-ovleg .e{display:inline-flex;align-items:center;gap:5px;font-weight:700;white-space:nowrap}
-  .mk-ovleg .t{flex-basis:100%;color:var(--text-sub);font-size:10.5px;line-height:1.35}
+  .mk-ovleg .t{flex-basis:100%;color:var(--text-sub);font-size:10.5px;line-height:1.35} .mk-ovleg.z .t{display:none}
   .mk-ovleg .d{display:inline-block;width:10px;height:10px;border-radius:50%;border:1px solid rgba(0,0,0,.25)}
   .mk-ovleg .d.ex{background:#d97706} .mk-ovleg .d.im{background:#0369a1;border-radius:2px;transform:rotate(45deg) scale(.85)}
   .mk-ovleg .d.up{background:var(--up)} .mk-ovleg .d.dn{background:var(--down)} .mk-ovleg .d.pt{background:#0e7c6b}
@@ -11029,6 +11055,9 @@ function aicActClean(a){
     a.cp = a.tab === 'market' && Number.isInteger(a.cp) && a.cp >= 1 && a.cp <= 28 ? a.cp : null;
     //  (10/10) 항구 (확대 · 둘레의 실시간 배)
     a.pt = a.tab === 'market' && /^port\d{1,5}$/.test(String(a.pt || '')) ? String(a.pt) : null;
+    //  (10/10 7차) 물류 «주간 분석» (GFW) · 지역
+    a.greg = a.tab === 'market' && /^(gulf|gom|red|blk|bal|mal|ecs|cape|usg)$/.test(String(a.greg || '')) ? String(a.greg) : null;
+    a.pmode = a.tab === 'market' && /^(weekly|live)$/.test(String(a.pmode || '')) ? String(a.pmode) : a.greg ? 'weekly' : null;
     //  (10/9 3차) 주식분석 › 스크리너 프리셋 · 시장
     a.preset = a.tab === 'stocks' && typeof STK_PRESETS !== 'undefined' && STK_PRESETS.some(function(x){ return x[0] === a.preset; }) ? String(a.preset) : null;
     a.smkt = a.tab === 'stocks' && (a.smkt === 'US' || a.smkt === 'KR') ? a.smkt : null;
@@ -11043,7 +11072,7 @@ function aicActClean(a){
     //  (10/8 4단계) 세계지도 층 — res:구리 · vc:반도체 (+ 단계) · 나라를 같이 주면 나라 칸이 먼저 (층은 버림)
     var ly = a.tab === 'market' && !a.country && typeof MK_RES !== 'undefined' ? String(a.layer || '').split(':') : [];
     a.layer = (ly[0] === 'res' && MK_RES.some(function(r){ return r.k === ly[1]; })) || (ly[0] === 'vc' && MK_VC.some(function(r){ return r.k === ly[1]; })) || (ly[0] === 'mac' && typeof MK_MAC !== 'undefined' && MK_MAC.some(function(m){ return m[0] === ly[1]; })) || (ly[0] === 'port' && ly[1] === 'all') ? ly[0] + ':' + ly[1] : null;
-    if ((a.cp || a.pt) && !a.country) a.layer = 'port:all';
+    if ((a.cp || a.pt || a.pmode) && !a.country) a.layer = 'port:all';
     a.stage = a.layer && ly[0] === 'vc' && mkVcOf(ly[1]).st.some(function(x){ return x[0] === a.stage; }) ? String(a.stage) : null;
     if (a.layer){ a.view = 'world'; a.pair = null; }
     //  (10/8) 여러 나라 «비교» — 2~5개 · 지도에 있는 나라만 (나라 하나 · 층과 같이 오면 비교가 먼저)
@@ -11095,7 +11124,8 @@ function aicActWhere(a){
     if (a.tabs) s += ' › ' + a.tabs.map(function(x){ return mkTabNm(x.id); }).join(' + ') + (a.tabs.length > 1 ? ' (동시에)' : '');
     if (a.proj) s += ' › ' + ((MK_PROJS.filter(function(x){ return x[0] === a.proj; })[0] || [])[1] || '');
     if (a.layer){ var l2 = a.layer.split(':');
-      if (l2[0] === 'port') s += a.pt ? ' › 물류 · 항구' + (mkPrtOf(a.pt) ? ' › ' + mkPrtOf(a.pt).p.n : '') : ' › 물류 · 해협' + (a.cp && MK.ports && MK.ports.d ? ' › ' + ((MK.ports.d.cps.filter(function(c){ return c.id === a.cp; })[0] || {}).n || '') : '');
+      if (l2[0] === 'port' && a.pmode === 'weekly') s += ' › 물류 · 주간 분석' + (a.greg ? ' › ' + ({ gulf: '페르시아만', gom: '오만만', red: '홍해', blk: '흑해', bal: '발트해 동부', mal: '말라카 · 싱가포르', ecs: '중국 동부 연안', cape: '희망봉', usg: '미국 걸프 연안' })[a.greg] : '');
+      else if (l2[0] === 'port') s += a.pt ? ' › 물류 · 항구' + (mkPrtOf(a.pt) ? ' › ' + mkPrtOf(a.pt).p.n : '') : ' › 물류 · 해협' + (a.cp && MK.ports && MK.ports.d ? ' › ' + ((MK.ports.d.cps.filter(function(c){ return c.id === a.cp; })[0] || {}).n || '') : '');
       else if (l2[0] === 'mac') s += (mkRsIs(l2[1]) ? ' › 자금 흐름 › ' : ' › 거시 › ') + mkMacOf(l2[1])[1];
       else if (l2[0] === 'res') s += ' › 원자재 › ' + mkResOf(l2[1]).n;
       else { var v2 = mkVcOf(l2[1]); s += ' › 밸류체인 › ' + v2.n + (a.stage ? ' › ' + ((v2.st.filter(function(x){ return x[0] === a.stage; })[0] || [])[1] || '') : ''); } }
@@ -11385,7 +11415,9 @@ async function aicActApply(i, j, auto){
           //  (10/8 4단계) 세계지도 층 — res:구리 · vc:반도체(+ 단계)
           var ly = String(a.layer).split(':');
           if (ly[0] === 'res') mkResSet(ly[1]);
-          else if (ly[0] === 'port'){ mkPortSet(); var pk = a.pt || a.cp; if (pk) setTimeout(function(){ if (MK.portSel !== pk) mkPortPick(pk); }, 300); }
+          else if (ly[0] === 'port'){ mkPortSet();
+            if (a.pmode && typeof mkPortModeSet === 'function' && mkGfwOn()){ if (mkPortMode() !== (a.pmode === 'weekly' ? 'gfw' : 'live')) mkPortModeSet(a.pmode === 'weekly' ? 'gfw' : 'live'); if (a.greg) mkGfwRegPickK(a.greg, 0); }
+            else { var pk = a.pt || a.cp; if (pk) setTimeout(function(){ if (MK.portSel !== pk) mkPortPick(pk); }, 300); } }
           else if (ly[0] === 'mac') mkMacSet(ly[1]);
           else if (ly[0] === 'vc'){ mkVcSet(ly[1]); if (a.stage && mkVcOf(ly[1]).st.some(function(x){ return x[0] === a.stage; })) mkVcStSet(a.stage); }
         }
@@ -18794,7 +18826,7 @@ function mkLoadPrefs(){
     //  (10/8 4단계) 지도 층
     if (p.ly === 'res' || p.ly === 'vc' || p.ly === 'mac' || p.ly === 'port') MK.lay = p.ly;
     if (isFinite(p.pt) && p.pt >= 1 && p.pt <= 28) MK.portSel = +p.pt; else if (/^port\d+$/.test(String(p.pt || ''))) MK.portSel = String(p.pt);
-    if (p.ptb === 'pt') MK.portTab = 'pt'; if (p.plv === 1) MK.portLive = true; if (p.stt === 1) MK.shipTrade = true;
+    if (p.ptb === 'pt') MK.portTab = 'pt'; if (p.plv === 1) MK.portLive = true; if (p.pmd === 'gfw') MK.portMode = 'gfw'; if (typeof p.gsh === 'string') MK.gfwShow = p.gsh;
     if (MK_MAC.some(function(m){ return m[0] === p.mc; })) MK.mac = p.mc;
     if (MK_PROJS.some(function(x){ return x[0] === p.pj; })) MK.proj = p.pj;
     if (Array.isArray(p.rot) && p.rot.length >= 2 && isFinite(p.rot[0]) && isFinite(p.rot[1])) MK.rot = [+p.rot[0] % 360, Math.max(-75, Math.min(75, +p.rot[1])), 0];
@@ -18822,7 +18854,7 @@ function mkLoadPrefs(){
 }
 function mkSavePrefs(){ try { LSX.setItem(MK_KEY, JSON.stringify({ view: MK.view, cc: MK.cc, fx: MK.fxPair, open: !!MK.ctryOpen, tab: MK.ctryTab, h: MK.fxH, sp: MK.secPer, dp: MK.drawerPos || null,
   cl: MK.ccList, cmp: !!MK.cmpOn, spl: MK.split, dw: MK.drawerW, ly: MK.lay, rs: MK.res, vc: MK.vc, vs: MK.vcSt, tb: MK.tabs, vsb: MK.vcStBy, pp: MK.pops, pf: MK.pfree,
-  mc: MK.mac, pj: MK.proj, rot: MK.rot ? MK.rot.map(function(x){ return Math.round(x * 100) / 100; }) : null, spn: MK.spin !== false, fw: MK.flow !== false, pt: MK.portSel || null, ptb: MK.portTab || 'cp', plv: MK.portLive ? 1 : 0, stt: MK.shipTrade ? 1 : 0 })); } catch(e){} }
+  mc: MK.mac, pj: MK.proj, rot: MK.rot ? MK.rot.map(function(x){ return Math.round(x * 100) / 100; }) : null, spn: MK.spin !== false, fw: MK.flow !== false, pt: MK.portSel || null, ptb: MK.portTab || 'cp', plv: MK.portLive ? 1 : 0, pmd: MK.portMode === 'gfw' ? 'gfw' : 'live', gsh: MK.gfwShow || 'sdx' })); } catch(e){} }
 /*  ── (10/9) 하나로 합친 탭 ── 'c:KR' 나라 · 'r:cu' 원자재 · 'v:semi' 밸류체인 · 8개까지 (넘으면 가장 오래된 것부터 · 지금 연 것은 안 빠짐)
     탭을 누르면 그 층으로 바뀜 (나라 = 시장 층 · 원자재 · 밸류체인) · × = 그 탭만 닫고 남은 마지막 탭으로 · 나라 탭이 둘 이상이면 «비교»  */
 function mkTabOf(id){
@@ -20013,7 +20045,7 @@ function stkPxReveal(){ var c = $('pxCard'); if (c && c.scrollIntoView) setTimeo
 function mkFeatLoad(){
   if (MK.feat || MK.featBusy || typeof edge !== 'function') return; MK.featBusy = true;
   edge({ source: 'feat' }).then(function(d){ MK.feat = d && typeof d === 'object' && !d.error ? d : { psd: false, ais: false }; }, function(){ MK.feat = { psd: false, ais: false }; })
-    .then(function(){ MK.featBusy = false; if (typeof mkPsdSync === 'function') mkPsdSync(); if (MK.lay === 'port') mkAisAllLoad(); });
+    .then(function(){ MK.featBusy = false; if (typeof mkPsdSync === 'function') mkPsdSync(); if (MK.lay === 'port'){ mkAisAllLoad(); if (typeof mkPortMode === 'function' && mkPortMode() === 'gfw') mkGfwLoad(); var bxF = $('mkRes'); if (bxF) bxF.__k = ''; if (mkResOn()) mkResRender(); if (typeof mkOvPaint === 'function') mkOvPaint(); } });
 }
 function mkMapInit(){
   var box = $('mkMapBox'); if (!box || typeof echarts === 'undefined') return;
@@ -20462,6 +20494,10 @@ function mkMapPaint0(){
         var od = p.data || {};
         //  (10/10 5차) 배를 누르면 그 배 카드 (실은 것 · 가는 곳 · 도착 예정)
         if (p.seriesId === 'ovShip' && od.s){ mkShipPick(od.s); return; }
+        //  (10/10 7차) 주간 분석: 배 · 다크 · 끊김 점 → 카드 · 지역 네모 → 그 지역 · 나라 입항 → 그 나라 줄
+        if (p.seriesId === 'ovShip' && od.g){ mkGfwPick(od.g.t, od.g.i); return; }
+        if (od.kind === 'greg'){ mkGfwRegPick(od.i != null ? od.i : od.id); return; }
+        if (od.kind === 'gport'){ mkGfwPortPick(od.id); return; }
         if (od.kind === 'flow' && od.fr) mkFlowPick(od.fr);
         else if ((od.kind === 'ex' || od.kind === 'im') && od.cc){ if (mkResOn()) mkResPick(od.cc, false); }
         else if (od.kind === 'rs' && (od.cc || od.to)) mkMacPick(od.cc || od.to);
@@ -21421,7 +21457,7 @@ function mkOvData(){
   else if (MK.lay === 'vc' && typeof mkVcfOv === 'function') mkVcfOv(D, C);
   //  고른 곳 물결
   if (MK.focus && MK.focus.until > Date.now() && mkOvXY(MK.focus.xy)) D.focus.push({ value: MK.focus.xy, itemStyle: { color: C.foc } });
-  D.sig = [MK.lay, D.a.length, D.b.length, D.nodes.length, D.focus.length, D.ships.length, D.leg, (D.a[0] && D.a[0].fr) || '', MK.flowCc || '', MK.portSel || '', (D.ships[0] && D.ships[0].value.join(',')) || '', MK.lay === 'vc' ? MK.vc + '/' + MK.vcSt : ''].join(':');
+  D.sig = [MK.lay, D.a.length, D.b.length, D.nodes.length, D.focus.length, D.ships.length, D.leg, (D.a[0] && D.a[0].fr) || '', MK.flowCc || '', MK.portSel || '', (D.ships[0] && D.ships[0].value.join(',')) || '', MK.lay === 'vc' ? MK.vc + '/' + MK.vcSt : '', MK.lay === 'port' ? mkPortMode() + '/' + (MK.gfwSel != null ? MK.gfwSel : '') + '/' + (MK.gfwPortSel || '') + '/' + (MK.gfwShow || '') + '/' + (MK.gfw && MK.gfw.d ? MK.gfw.d.at : '') : ''].join(':');
   return D;
 }
 //  지도 그림 2~7 (전체 옵션)
@@ -21462,15 +21498,19 @@ function mkOvLegend(D){
     : D.leg === 'rs' ? '<span class="e"><i class="d dn"></i>' + esc(T('상대강도 하락', 'RS falling')) + '</span><span class="ar"><i class="ln rs"></i></span><span class="e"><i class="d up tri"></i>' + esc(T('상대강도 상승', 'RS rising')) + '</span><span class="t">' + esc(T('최근 4주 · 나라 ETF 상대강도 변화로 본 흐름 (추정 · 실제 자금 집계 아님)', '4-week relative-strength shift (estimate)')) + '</span>'
     : D.leg === 'esr' ? '<span class="e"><i class="d ex"></i>' + esc(T('미국', 'US')) + '</span><span class="ar"><i class="ln"></i></span><span class="e"><i class="d im"></i>' + esc(T('사는 나라', 'Buyers')) + '</span><span class="t">' + esc(T('선 굵기 = 이번 판매연도 누적 약정 · USDA 주간 수출 판매 (실제 기록)', 'Width = commitments this MY · USDA weekly export sales')) + '</span>'
     : D.leg === 'vcf' ? '<span class="e"><i class="d ex"></i>' + esc(T('앞 단계 나라', 'Upstream')) + '</span><span class="ar"><i class="ln"></i></span><span class="e"><i class="d im"></i>' + esc(T('다음 단계 나라', 'Downstream')) + '</span><span class="t">' + esc(T('고른 단계로 들어오고 나가는 흐름 · 추정 모식도 (단계 비중 × 거리 · 실제 거래 기록 아님)', 'Flows into and out of this stage · schematic estimate')) + '</span>'
+    : D.leg === 'gfw' ? '<span class="e"><span class="dd"><i class="d sh cg"></i><i class="d sh tk"></i></span>' + esc(T('무역선 (4~5일 전 위치)', 'Trade ships (4-5 days ago)')) + '</span>'
+      + '<span class="e"><i class="d gd"></i>' + esc(T('다크 선박 (레이더 · AIS 없음)', 'Dark vessel (radar, no AIS)')) + '</span><span class="e"><i class="d gx"></i>' + esc(T('AIS 끊김 (의도 추정)', 'AIS gap (likely intentional)')) + '</span>'
+      + '<span class="t">' + esc(T('점선 네모 = 지역 · 작은 네모 = 나라 입항 (색 = 전년 대비 · 빨강 늘어남 · 파랑 줄어듦) · 점을 누르면 배 정보 · Powered by Global Fishing Watch', 'Boxes = areas · small squares = port calls (color = y/y) · click a dot · Powered by Global Fishing Watch')) + '</span>'
     : D.leg === 'port' ? '<span class="e"><i class="d pt"></i>' + esc(T('해협 (크기 = 하루 통과)', 'Chokepoint (size = daily transits)')) + '</span>' + (mkPrtList().length ? '<span class="e"><i class="d pq"></i>' + esc(T('항구 (크기 = 하루 입항)', 'Port (size = daily calls)')) + '</span>' : '')
       + '<span class="e"><span class="dd"><i class="d dn"></i><i class="d up"></i></span>' + esc(T('전년 대비 줄어듦 · 늘어남', 'Down · up y/y')) + '</span>'
-      + (MK.aisAll && MK.aisAll.d ? '<span class="e"><span class="dd"><i class="d sh cg"></i><i class="d sh tk"></i>' + (MK.shipTrade ? '' : '<i class="d sh ps"></i><i class="d sh ot"></i>') + '</span>'
-        + esc(MK.shipTrade ? T('무역선 (화물 · 유조선)', 'Trade ships (cargo · tanker)') : mkAisStore() ? T('배 (화물 · 유조선 · 여객 · 그 외)', 'Ships (cargo · tanker · passenger · other)') : T('실시간 배 (화물 · 유조선 · 여객 · 그 외)', 'Live ships (cargo · tanker · passenger · other)')) + '</span>' : '')
-      + '<span class="t">' + esc(T('선 = 주요 항로 (모식도) · ', 'Lines = main lanes (schematic) · ') + (MK.aisAll && MK.aisAll.d ? (mkAisStore() ? T('점 = 배 마지막 위치 (AIS · 최근 24시간 · 흐릴수록 오래됨) · ', 'dots = last AIS positions (24 h · fainter = older) · ')
-        : T('작은 점 = 실시간 배 (AIS · ', 'dots = live ships (AIS · ') + mkHm(MK.aisAll.d.at) + T(' 수신 · 육상 수신소가 닿는 연안 위주) · ', ' · coastal coverage) · ')) : '') + T('해협 · 항구를 누르면 확대', 'click to zoom in')) + '</span>' : '';
+      + (MK.aisAll && MK.aisAll.d ? '<span class="e"><span class="dd"><i class="d sh cg"></i><i class="d sh tk"></i></span>' + esc(T('무역선 (화물선 · 유조선)', 'Trade ships (cargo · tanker)')) + '</span>' : '')
+      + '<span class="t">' + esc(T('선 = 주요 항로 (모식도) · ', 'Lines = main lanes (schematic) · ') + (MK.aisAll && MK.aisAll.d ? (mkAisStore() ? T('점 = 무역선 마지막 위치 (AIS · 최근 24시간 · 흐릴수록 오래됨) · ', 'dots = last AIS fix of trade ships (24 h · fainter = older) · ')
+        : T('작은 점 = 실시간 무역선 (AIS · ', 'dots = live trade ships (AIS · ') + mkHm(MK.aisAll.d.at) + T(' 수신 · 육상 수신소가 닿는 연안 위주) · ', ' · coastal coverage) · ')) : '') + T('해협 · 항구를 누르면 확대', 'click to zoom in')) + '</span>' : '';
   if (!html){ if (el) el.remove(); if (typeof mkShipCard === 'function') mkShipCard(); return; }
   if (!el){ el = document.createElement('div'); el.className = 'mk-ovleg'; el.setAttribute('aria-hidden', 'true'); box.appendChild(el); }
   if (el.__h !== html){ el.__h = html; el.innerHTML = html; }
+  //  (10/10 7차) 확대해 둔 동안엔 읽는 법 설명 줄을 접어 지도를 덜 가림 (기호만)
+  el.classList.toggle('z', ((MK.mapView && MK.mapView.zoom) || 1) >= 3);
   if (typeof mkShipCard === 'function') mkShipCard();
 }
 //  덧그림 풍선말
@@ -21482,11 +21522,15 @@ function mkOvTip(p){
     if (d.kind === 'rs' && typeof mkRsTip === 'function') return mkRsTip(d.cc);
     if (d.kind === 'cp' && typeof mkPortTip === 'function') return mkPortTip(d.id);
     if (d.kind === 'pt' && typeof mkPrtTip === 'function') return mkPrtTip(d.id);
+    if (d.kind === 'greg' && typeof mkGfwRegTip === 'function') return mkGfwRegTip(d.id);
+    if (d.kind === 'gport' && typeof mkGfwPortTip === 'function') return mkGfwPortTip(d.id);
     if ((d.kind === 'vcA' || d.kind === 'vcB') && typeof mkVcfTip === 'function') return mkVcfTip(d);
     if ((d.kind === 'esrUS' || d.kind === 'esrB') && typeof mkEsrTip === 'function') return mkEsrTip(d);
     return esc(p.name || '');
   }
+  if (p.seriesId === 'ovShip' && d.g && typeof mkGfwTip === 'function') return mkGfwTip(d);
   if (p.seriesId === 'ovShip' && typeof mkShipTip === 'function') return mkShipTip(d);
+  if (d.kind === 'greg' && typeof mkGfwRegTip === 'function') return mkGfwRegTip(d.i != null ? d.i : d.id);
   if (d.kind === 'rs' && typeof mkRsFlowTip === 'function') return mkRsFlowTip(d);
   if (d.kind === 'vcf' && typeof mkVcfTip === 'function') return mkVcfTip(d);
   if (d.kind === 'esr' && typeof mkEsrTip === 'function') return mkEsrTip(d);
@@ -21553,7 +21597,7 @@ function mkPrtTip(id){
   var x = mkPrtOf(id); if (!x) return '';
   return '<b>' + mkFlag2(x.p.cc) + ' ' + esc(x.p.n) + '</b> ' + esc(T('하루 입항 ', 'Port calls ') + Math.round(x.a7) + T('척 (최근 7일)', '/day (7d)'))
     + (x.yoy7 != null ? '<br><span style="font-weight:700;color:' + mkPortCol(x.yoy7, document.documentElement.getAttribute('data-theme') === 'dark') + '">' + esc(T('전년 같은 때 대비 ', 'vs last year ') + (x.yoy7 > 0 ? '+' : '') + x.yoy7.toFixed(0) + '%') + '</span>' : '')
-    + '<br><span style="opacity:.75">' + esc(x.p.memo) + '</span><br><span style="opacity:.75">' + esc(T('누르면 확대 · 둘레의 실시간 배', 'Click: zoom in · live ships')) + '</span>';
+    + '<br><span style="opacity:.75">' + esc(x.p.memo) + '</span><br><span style="opacity:.75">' + esc(T('누르면 확대 · 둘레의 무역선', 'Click: zoom in · trade ships')) + '</span>';
 }
 function mkPortCol(yoy, dark){
   if (yoy == null) return dark ? '#8a93a8' : '#7a8296';
@@ -21565,6 +21609,8 @@ function mkPortCol(yoy, dark){
 }
 //  지도 덧그림 (mkOvData 가 부름)
 function mkPortOv(D, C, dark){
+  //  (10/10 7차) 주간 분석 (GFW) 이면 그쪽 그림만
+  if (mkPortMode() === 'gfw'){ mkGfwOv(D, C, dark); return; }
   var L = mkPortList(); D.leg = 'port';
   if (!L.length){ mkPortLoad(); return; }
   var by = {}; L.forEach(function(x){ by[x.cp.id] = x; });
@@ -21628,7 +21674,7 @@ function mkAisArea(id){ var A = MK.aisAll; if (!A || !A.d || !A.d.areas) return 
    · 닻 내리고 기다리는 배는 신호가 드물어 한 번 들어서는 놓침 → 쌓아 두면 걸프 안 대기 선박까지 보임
    · 오래된 위치일수록 흐리게 (1시간 안 그대로 · 6시간 안 0.62 · 그 넘으면 0.42) · 풍선 · 카드에 «n시간 전 · 지금은 다른 곳일 수 있음»
    · 30분 넘은 위치는 속도 · 방향대로 밀지 않음 (그사이 멈췄거나 방향을 바꿨을 수 있음)
-   · «무역선만» (화물 · 유조선) 단추 — 어선 · 여객선 · 예인선 등을 빼고 봄 (고른 배는 늘 보임)  */
+   · 학회장: «어선 · 여객선 · 예인선은 굳이 필요 없음» → 무역선(화물선 · 유조선)만 (서버가 무역선만 보냄 · 예전 서버 값이 와도 여기서 한 번 더 거름)  */
 function mkAisStore(){ var A = MK.aisAll; return !!(A && A.d && A.d.src === 'store'); }
 function mkShipAge(s){ var A = MK.aisAll; return (+s[9] || 0) + (A && A.at ? Math.max(0, (Date.now() - A.at) / 1000) : 0); }
 function mkShipAgeTxt(sec){ var mn = Math.floor(sec / 60); return mn < 1 ? T('방금', 'just now') : mn < 60 ? mn + T('분 전', ' min ago') : Math.floor(mn / 60) + T('시간 전', ' h ago'); }
@@ -21636,8 +21682,7 @@ function mkShipFade(sec){ return sec <= 3600 ? 1 : sec <= 6 * 3600 ? 0.62 : 0.42
 //  밀어 그릴 시간 (시간 단위 · 15분까지) — 서버가 잰 나이가 30분 넘으면 밀지 않음 (받은 묶음 안에선 늘 같은 판단 → 튀지 않음)
 function mkShipDt(s){ return (+s[9] || 0) > 1800 ? 0 : Math.min(0.25, mkShipAge(s) / 3600); }
 function mkShipIsTrade(s){ var t = +s[7] || 0; return t >= 70 && t <= 89; }
-function mkShipShow(s){ return !MK.shipTrade || mkShipIsTrade(s) || MK.shipSel === s[0]; }
-function mkShipTradeSet(on){ MK.shipTrade = !!on; mkSavePrefs(); var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); if (mkMapChart && MK.lay === 'port') mkOvPaint(); if (typeof mkSatDraw === 'function') mkSatDraw(); }
+function mkShipShow(s){ return mkShipIsTrade(s) || MK.shipSel === s[0]; }
 //  호르무즈 양쪽 대기 구역 (페르시아만 안 · 오만만 정박지) — 서버가 겹쳐 셈
 function mkAisZoneHtml(){
   var A = MK.aisAll, z = A && A.d && A.d.areas; if (!z || (!z.gulf && !z.gom)) return '';
@@ -21690,7 +21735,7 @@ function mkShipsData(D, C){
 function mkShipRepaint(){
   if (!mkMapChart || MK.lay !== 'port') return;
   var D = { a: [], b: [], fx: [], nodes: [], focus: [], ships: [] };
-  mkShipsData(D, null);
+  if (mkPortMode() === 'gfw') mkGfwPts(D); else mkShipsData(D, null);
   try { mkMapChart.__axNoKeep = true; mkMapChart.setOption({ series: [{}, {}, {}, {}, {}, {}, {}, { data: D.ships }] }, { silent: true }); } catch(e){}
 }
 function mkShipTy(ty){ return ty >= 80 && ty <= 89 ? ['tk', T('유조선', 'Tanker')] : ty >= 70 && ty <= 79 ? ['cg', T('화물선', 'Cargo')] : ty >= 60 && ty <= 69 ? ['ps', T('여객선', 'Passenger')] : ty === 31 || ty === 32 || ty === 52 ? ['tg', T('예인선', 'Tug')] : ty === 30 ? ['fs', T('어선', 'Fishing')] : ty ? ['ot', T('기타', 'Other')] : ['un', T('종류 미상', 'Unknown')]; }
@@ -21772,6 +21817,14 @@ function mkShipCardHtml(s){
 function mkShipCard(){
   var box = $('mkMapBox'); if (!box) return;
   var el = box.querySelector('.mk-shipcard');
+  //  (10/10 7차) 주간 분석 (GFW) — 배 · 다크 · 끊김 카드
+  if (MK.lay === 'port' && mkPortMode() === 'gfw'){
+    var gh = MK.gfwPick ? mkGfwCardHtml() : '';
+    if (!gh){ if (el) el.remove(); box.classList.remove('ship-on'); return; }
+    if (!el){ el = document.createElement('div'); el.className = 'mk-shipcard'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', T('고른 배', 'Selected ship')); box.appendChild(el); }
+    if (el.__h !== gh){ el.__h = gh; el.innerHTML = gh; }
+    box.classList.add('ship-on'); return;
+  }
   var s = MK.shipSel ? (mkShipFind(MK.shipSel) || MK.shipSelS) : null;
   if (!s || MK.lay !== 'port'){ if (el) el.remove(); box.classList.remove('ship-on'); return; }
   MK.shipSelS = s;
@@ -21786,6 +21839,8 @@ function mkShipTick(){
   MK.shipT = setInterval(function(){
     if (MK.lay !== 'port'){ clearInterval(MK.shipT); MK.shipT = null; return; }
     if (document.hidden || curTab !== 'market') return;
+    //  (10/10 7차) 주간 분석(4~5일 전 자료)은 움직이지 않음
+    if (mkPortMode() === 'gfw') return;
     var A = MK.aisAll;
     if (A && A.d && Date.now() - A.got > 180000) mkAisAllLoad();
     if (!A || !A.d || !MOTION_OK) return;
@@ -21801,10 +21856,10 @@ function mkPortTip(id){
   var cp = x.cp;
   return '<b>' + esc(cp.n) + '</b> ' + esc(T('하루 ', '') + Math.round(x.a7) + T('척 (최근 7일 평균)', ' ships/day (7d)'))
     + (x.yoy7 != null ? '<br><span style="font-weight:700;color:' + mkPortCol(x.yoy7, document.documentElement.getAttribute('data-theme') === 'dark') + '">' + esc(T('전년 같은 때 대비 ', 'vs last year ') + (x.yoy7 > 0 ? '+' : '') + x.yoy7.toFixed(0) + '%') + '</span>' : '')
-    + '<br><span style="opacity:.75">' + esc(cp.memo) + '</span><br><span style="opacity:.75">' + esc(T('누르면 확대 · 둘레의 실시간 배', 'Click: zoom in · live ships')) + '</span>';
+    + '<br><span style="opacity:.75">' + esc(cp.memo) + '</span><br><span style="opacity:.75">' + esc(T('누르면 확대 · 둘레의 무역선', 'Click: zoom in · trade ships')) + '</span>';
 }
 //  층 열기 · 해협 고르기
-function mkPortSet(){ MK.satOn = false; MK.lay = 'port'; MK.cmpOn = false; MK.resSel = null; MK.flowCc = null; MK.macSel = null; mkTabAdd('p:all'); mkSavePrefs(); mkPortLoad(); mkAisAllLoad(); mkLayerApply(true); mkShipTick(); }
+function mkPortSet(){ MK.satOn = false; MK.lay = 'port'; MK.cmpOn = false; MK.resSel = null; MK.flowCc = null; MK.macSel = null; mkTabAdd('p:all'); mkSavePrefs(); mkPortLoad(); mkAisAllLoad(); if (mkPortMode() === 'gfw') mkGfwLoad(); mkLayerApply(true); mkShipTick(); }
 function mkPortPick(id){
   id = mkPortIsP(id) ? id : +id;
   if (MK.portSel === id){ MK.portSel = null; mkSavePrefs(); var b0 = $('mkRes'); if (b0) b0.__k = ''; mkResRender(); mkMapPaint(); mkMapZoomHome(); mkShipTick(); return; }
@@ -21828,36 +21883,47 @@ var mkPortChart = null;
 function mkPortRender(box){
   var P = MK.ports || {}, d = P.d, dark = document.documentElement.getAttribute('data-theme') === 'dark';
   mkPortLoad();
-  var A = MK.aisAll || null, tab = mkPortTabOf();
-  var key = 'port|' + (d ? d.asof + ':' + d.cps.length + ':' + (d.prt ? d.prt.length + ':' + (d.pAsof || '') : '0') : P.err ? 'e' : 'w') + '|' + tab + '|' + (MK.portLive ? 'lv' : '') + '|' + (MK.portSel != null ? MK.portSel : '') + '|' + dark + '|' + (isEn() ? 'en' : 'ko') + '|' + (A ? (A.d ? A.d.at + ':' + A.d.ships.length : A.err ? 'e' : 'b') : '') + '|' + !!(MK.feat && MK.feat.ais);
+  var A = MK.aisAll || null, tab = mkPortTabOf(), gm = mkPortMode() === 'gfw', Gf = MK.gfw || {};
+  var key = 'port|' + (d ? d.asof + ':' + d.cps.length + ':' + (d.prt ? d.prt.length + ':' + (d.pAsof || '') : '0') : P.err ? 'e' : 'w') + '|' + tab + '|' + (MK.portLive ? 'lv' : '') + '|' + (MK.portSel != null ? MK.portSel : '') + '|' + dark + '|' + (isEn() ? 'en' : 'ko') + '|' + (A ? (A.d ? A.d.at + ':' + A.d.ships.length : A.err ? 'e' : 'b') : '') + '|' + !!(MK.feat && MK.feat.ais)
+    + '|' + mkPortMode() + ':' + mkGfwOn() + ':' + (Gf.d ? Gf.d.at : Gf.pend ? 'p' : Gf.err ? 'e' : Gf.busy ? 'b' : '') + ':' + (MK.gfwSel != null ? MK.gfwSel : '') + ':' + (MK.gfwPortSel || '') + ':' + (MK.gfwShow || '');
   if (box.__k === key) return;
   box.__k = key;
   box.classList.remove('is-vc', 'is-mac'); box.classList.add('is-port');
-  var top = '<div class="mk-res-top"><span class="mk-drag" id="mkResDrag" title="' + esc(T('끌어서 옮기기 (지도 위 어디든) · 두 번 누르면 제자리', 'Drag to move · double-click to dock')) + '" aria-hidden="true">⋮⋮</span><div class="mk-res-t"><span class="k">' + esc(T('물류', 'Shipping')) + '</span><b>' + esc(tab === 'pt' ? T('항구 입항', 'Port calls') : T('해협 통과량', 'Chokepoint transits')) + '</b></div>'
+  var top = '<div class="mk-res-top"><span class="mk-drag" id="mkResDrag" title="' + esc(T('끌어서 옮기기 (지도 위 어디든) · 두 번 누르면 제자리', 'Drag to move · double-click to dock')) + '" aria-hidden="true">⋮⋮</span><div class="mk-res-t"><span class="k">' + esc(T('물류', 'Shipping')) + '</span><b>' + esc(gm ? T('주간 분석 (4~5일 전)', 'Weekly analysis (4-5 days lag)') : tab === 'pt' ? T('항구 입항', 'Port calls') : T('해협 통과량', 'Chokepoint transits')) + '</b></div>'
     + '<span class="mk-res-px"></span><button type="button" class="mk-x" onclick="mkLayerSet(\'mkt\')" aria-label="' + esc(T('시장 지도로', 'Back to markets')) + '" title="' + esc(T('시장 지도로 돌아가기', 'Back to markets')) + '">×</button></div>';
-  if (!d){ box.innerHTML = top + '<div class="mk-wait">' + esc(P.err ? mkErrTxt(P.err) : T('로딩 중…', 'Loading…')) + '</div>'; return; }
+  if (!d && !gm){ box.innerHTML = top + '<div class="mk-wait">' + esc(P.err ? mkErrTxt(P.err) : T('로딩 중…', 'Loading…')) + '</div>'; return; }
   box.innerHTML = top + mkPortBodyHtml(true, dark);
-  if (MK.portSel != null) mkPortChartDraw(dark);
+  if (gm){ if (MK.gfwSel != null) mkGfwChartDraw(dark); }
+  else if (MK.portSel != null) mkPortChartDraw(dark);
   if (MOTION_OK){ box.classList.remove('grown'); requestAnimationFrame(function(){ requestAnimationFrame(function(){ box.classList.add('grown'); }); }); } else box.classList.add('grown');
 }
 //  (10/10) 해협 28 | 항구 18 — 고른 곳(해협이든 항구든)은 어느 칸에서나 위에
 function mkPortBodyHtml(btn, dark){
+  //  (10/10 7차) «실시간 배 | 주간 분석» — GFW 열쇠가 있을 때만
+  var gOn = mkGfwOn(), gm = mkPortMode() === 'gfw';
+  var modeSeg = btn && gOn ? '<span class="px-seg mk-pmode" role="group" aria-label="' + esc(T('물류 보기', 'Shipping view')) + '">'
+    + '<button type="button" class="' + (gm ? '' : 'on') + '" aria-pressed="' + !gm + '" onclick="mkPortModeSet(\'live\')">' + esc(T('실시간 배', 'Live ships')) + '</button>'
+    + '<button type="button" class="' + (gm ? 'on' : '') + '" aria-pressed="' + gm + '" onclick="mkPortModeSet(\'gfw\')" title="' + esc(T('위성 · 육상 AIS · 위성 레이더 · 약 4~5일 늦은 자료로 본 지역 · 나라별 흐름', 'Satellite AIS & radar · 4-5 days lag')) + '">' + esc(T('주간 분석', 'Weekly')) + '</button></span>' : '';
+  if (gm){
+    var tg = function(k, cls, nm){ var on = mkGfwShow(k); return '<button type="button" class="mk-plv mk-gt ' + cls + (on ? ' on' : '') + '" aria-pressed="' + on + '" onclick="mkGfwShowSet(\'' + k + '\')"><i class="dot" aria-hidden="true"></i>' + esc(nm) + '</button>'; };
+    return (btn ? '<div class="mk-port-tabs">' + modeSeg + tg('s', 'gs', T('무역선', 'Ships')) + tg('d', 'gd', T('다크 선박', 'Dark')) + tg('x', 'gx', T('AIS 끊김', 'AIS gaps')) + '<span class="st-hint">' + esc(T('점을 누르면 배 정보 · 지역을 누르면 추이', 'Click a dot for details · an area for trend')) + '</span></div>' : '')
+      + mkGfwBodyHtml(btn, dark);
+  }
   var d = MK.ports.d, tab = mkPortTabOf(), hasP = !!(d.prt && d.prt.length);
   //  (10/10 5차 «배가 있는 곳만 표시해도 좋을 듯») — 실시간 배가 잡힌 곳만 보기 (옆 칸 줄 · 지도 점)
   var liveOk = mkPortLiveOn() !== null, liveOn = mkPortLiveOn() === true;
-  var seg = btn && (hasP || liveOk) ? '<div class="mk-port-tabs">' + (hasP ? '<span class="px-seg" role="group" aria-label="' + esc(T('해협 · 항구', 'Chokepoints · ports')) + '">'
+  var seg = btn && (hasP || liveOk || modeSeg) ? '<div class="mk-port-tabs">' + modeSeg + (hasP ? '<span class="px-seg" role="group" aria-label="' + esc(T('해협 · 항구', 'Chokepoints · ports')) + '">'
     + '<button type="button" class="' + (tab === 'cp' ? 'on' : '') + '" aria-pressed="' + (tab === 'cp') + '" onclick="mkPortTabSet(\'cp\')">' + esc(T('해협 ', 'Chokepoints ') + d.cps.length) + '</button>'
     + '<button type="button" class="' + (tab === 'pt' ? 'on' : '') + '" aria-pressed="' + (tab === 'pt') + '" onclick="mkPortTabSet(\'pt\')">' + esc(T('항구 ', 'Ports ') + d.prt.length) + '</button></span>' : '')
-    + (liveOk ? '<button type="button" class="mk-plv' + (liveOn ? ' on' : '') + '" aria-pressed="' + liveOn + '" onclick="mkPortLiveSet(' + !liveOn + ')"><i class="dot" aria-hidden="true"></i>' + esc(mkAisStore() ? T('배 잡힌 곳만', 'Only with ships') : T('실시간 배 있는 곳만', 'Only with live ships')) + '</button>'
-      //  (10/10 6차) «무역선만» — 지도 위 배를 화물선 · 유조선만
-      + '<button type="button" class="mk-plv mk-stt' + (MK.shipTrade ? ' on' : '') + '" aria-pressed="' + !!MK.shipTrade + '" onclick="mkShipTradeSet(' + !MK.shipTrade + ')" title="' + esc(T('지도 위 배를 화물선 · 유조선만 (어선 · 여객선 · 예인선 등 빼고)', 'Show only cargo ships and tankers')) + '"><i class="dot" aria-hidden="true"></i>' + esc(T('무역선만', 'Trade ships only')) + '</button>' : '')
+    + (liveOk ? '<button type="button" class="mk-plv' + (liveOn ? ' on' : '') + '" aria-pressed="' + liveOn + '" onclick="mkPortLiveSet(' + !liveOn + ')"><i class="dot" aria-hidden="true"></i>' + esc(T('무역선 있는 곳만', 'Only with trade ships')) + '</button>' : '')
     + '<span class="st-hint">' + esc(T('누르면 그곳으로 확대 · 배를 누르면 실은 것 · 가는 곳', 'Click to zoom · click a ship for cargo & destination')) + '</span></div>' : '';
   var selH = '';
   if (MK.portSel != null){
     if (mkPortIsP(MK.portSel)){ var sp = mkPrtOf(MK.portSel); if (sp) selH = mkPrtSelHtml(sp, btn); }
     else { var sc = mkPortOf(MK.portSel); if (sc) selH = mkCpSelHtml(sc, btn); }
   }
-  return seg + mkPortAisTop() + (tab === 'pt' ? mkPrtBodyHtml(btn, dark, selH) : mkCpBodyHtml(btn, dark, selH));
+  var offG = btn && !gOn && typeof isOfficer === 'function' && isOfficer() ? '<div class="st-hint">' + esc(T('(임원진) «주간 분석» (지역 · 나라별 무역선 · 다크 선박 · AIS 끊김)은 Supabase Secrets 에 GFW_API_TOKEN 을 넣고 terminal-GFW.sql 을 실행하면 켜집니다', '(officers) add GFW_API_TOKEN to enable weekly analysis')) + '</div>' : '';
+  return seg + mkPortAisTop() + (tab === 'pt' ? mkPrtBodyHtml(btn, dark, selH) : mkCpBodyHtml(btn, dark, selH)) + offG;
 }
 function mkCpSelHtml(sel, btn){
   var cp = sel.cp;
@@ -21888,11 +21954,11 @@ function mkCpBodyHtml(btn, dark, selH){
       + '<span class="v">' + Math.round(x.a7 || 0) + '<i>' + esc(T('척', '/d')) + '</i></span>'
       + '<span class="y ' + mkUd(x.yoy7) + '">' + (x.yoy7 != null ? (x.yoy7 > 0 ? '+' : '') + Math.round(x.yoy7) + '%' : '-') + '</span>'
       + mkSpark(sp, 64, 18, x.ly) + '</' + tag + '>';
-  }).join('') || '<div class="st-hint mk-plv-none">' + esc(mkAisStore() ? T('최근 24시간 배가 잡힌 곳이 없습니다', 'No ships in the last 24 h') : T('지금 실시간 배가 잡힌 곳이 없습니다', 'No live ships right now')) + '</div>';
+  }).join('') || '<div class="st-hint mk-plv-none">' + esc(mkAisStore() ? T('최근 24시간 무역선이 잡힌 곳이 없습니다', 'No trade ships in the last 24 h') : T('지금 실시간 무역선이 잡힌 곳이 없습니다', 'No live trade ships right now')) + '</div>';
   return '<div class="mk-res-what">' + esc(T('세계 주요 해협 ' + L.length + '곳 · 하루 통과 선박 (최근 7일 평균) · 전년 같은 때 대비', L.length + ' chokepoints · daily transits (7d avg) · vs last year')) + '<span class="st-hint"> · ' + esc(d.asof + T(' 기준 · 주 1회 갱신 (5~11일 늦음)', ' · weekly update')) + '</span></div>'
     + kpi + al + (selH || '')
     + '<div class="mk-prows" id="' + (btn ? 'mkResBars' : '') + '">' + '<div class="mk-prow h" aria-hidden="true"><span></span><span>' + esc(T('해협', 'Chokepoint')) + '</span><span>' + esc(T('하루 통과 (7일)', 'Daily (7d)')) + '</span><span></span><span>' + esc(T('전년비', 'y/y')) + '</span><span>' + esc(T('90일', '90d')) + '</span></div>' + rows + '</div>'
-    + '<div class="mk-res-src">' + esc(T('출처: IMF PortWatch (UN Global Platform · 위성 AIS 기반 · portwatch.imf.org) · 항로는 모식도 · 실시간 배 위치는 육상 AIS 수신 (먼바다는 빠질 수 있음)', 'Sources: UN Global Platform; IMF PortWatch (portwatch.imf.org) · lanes are schematic · live ships: terrestrial AIS')) + '</div>';
+    + '<div class="mk-res-src">' + esc(T('출처: IMF PortWatch (UN Global Platform · 위성 AIS 기반 · portwatch.imf.org) · 항로는 모식도 · 무역선 위치는 육상 AIS 수신 (먼바다는 빠질 수 있음)', 'Sources: UN Global Platform; IMF PortWatch (portwatch.imf.org) · lanes are schematic · trade ships: terrestrial AIS')) + '</div>';
 }
 //  고른 해협 · 항구 180일 (배 종류별 쌓기) + 전년 평균 선
 function mkPortChartDraw(dark){
@@ -21944,7 +22010,7 @@ function mkLfReady(){
   });
   return MK.lfP;
 }
-function mkSatCan(){ return typeof curTab !== 'undefined' && curTab === 'market' && MK.view === 'world' && MK.lay === 'port' && !MK.satFail; }
+function mkSatCan(){ return typeof curTab !== 'undefined' && curTab === 'market' && MK.view === 'world' && MK.lay === 'port' && !MK.satFail && mkPortMode() !== 'gfw'; }
 function mkSatWant(){ return mkSatCan() && MK.satOn === true; }
 function mkSatOn(){ return !!(SAT.map && SAT.el && SAT.el.classList.contains('on') && mkSatWant()); }
 //  지도 칸과 맞추기 (mkMapPaint 끝 · 단추)
@@ -22106,7 +22172,7 @@ function mkSatHead(nIn){
   if (MK.feat && MK.feat.ais){
     if (A && A.d){ var c = I ? mkAisArea(MK.portSel) : null;
       h += '<div class="g">' + (c ? '<span><i class="dot" aria-hidden="true"></i>' + esc(T('이 둘레 ', 'Area ') + c.n + T('척', '')) + '</span><span>' + esc(T('항해 ', 'Underway ') + c.mv) + '</span><span>' + esc(T('대기 ', 'Waiting ') + c.an) + '</span><span>' + esc(T('접안 ', 'Moored ') + c.mr) + '</span>'
-        : '<span><i class="dot" aria-hidden="true"></i>' + esc((mkAisStore() ? T('화면 안 배 ', 'Ships in view ') : T('화면 안 실시간 배 ', 'Live ships in view ')) + nIn + T('척', '')) + '</span>') + '</div>'; }
+        : '<span><i class="dot" aria-hidden="true"></i>' + esc((mkAisStore() ? T('화면 안 무역선 ', 'Trade ships in view ') : T('화면 안 실시간 무역선 ', 'Live trade ships in view ')) + nIn + T('척', '')) + '</span>') + '</div>'; }
     else if (!A || A.busy) h += '<div class="g"><span>' + esc(T('로딩 중…', 'Loading…')) + '</span></div>';
   }
   if (hd.__h !== h){ hd.__h = h; hd.innerHTML = h; }
@@ -22114,10 +22180,10 @@ function mkSatHead(nIn){
 }
 function mkSatLeg(){
   var el = SAT.el && SAT.el.querySelector('.mk-sat-leg'); if (!el) return;
-  var h = '<div class="r">' + [['cg', T('화물', 'Cargo')], ['tk', T('유조선', 'Tanker')], ['ps', T('여객', 'Passenger')], ['ot', T('그 외', 'Other')]]
+  var h = '<div class="r">' + [['cg', T('화물선', 'Cargo')], ['tk', T('유조선', 'Tanker')]]
       .map(function(o){ return '<span><i class="c" style="background:' + mkShipCol(o[0], true) + '"></i>' + esc(o[1]) + '</span>'; }).join('') + '</div>'
     + '<div class="r"><span><i class="s mv"></i>' + esc(T('항해 중', 'Underway')) + '</span><span><i class="s an"></i>' + esc(T('닻 내림 · 대기', 'Anchored')) + '</span><span><i class="s mr"></i>' + esc(T('접안', 'Moored')) + '</span></div>'
-    + '<div class="n">' + esc(T('바탕 = 구름 없는 위성 합성 사진 (실시간 사진 아님) · 배 = ', 'Base = cloudless mosaic (not live) · ships = ') + (mkAisStore() ? T('AIS 마지막 위치 (최근 24시간 · 흐릴수록 오래됨)', 'last AIS fix (24 h · fainter = older)') : T('실시간 AIS', 'live AIS')) + T(' · 배를 누르면 실은 것 · 가는 곳', ' · click a ship')) + '</div>';
+    + '<div class="n">' + esc(T('바탕 = 구름 없는 위성 합성 사진 (실시간 사진 아님) · 배 = ', 'Base = cloudless mosaic (not live) · ships = ') + (mkAisStore() ? T('무역선 AIS 마지막 위치 (최근 24시간 · 흐릴수록 오래됨)', 'last AIS fix of trade ships (24 h · fainter = older)') : T('실시간 AIS 무역선', 'live AIS trade ships')) + T(' · 배를 누르면 실은 것 · 가는 곳', ' · click a ship')) + '</div>';
   if (el.__h !== h){ el.__h = h; el.innerHTML = h; }
 }
 function mkSatHit(e, tap){
@@ -22156,14 +22222,14 @@ function mkPortTabSet(t){ t = t === 'pt' ? 'pt' : 'cp'; if (MK.portTab === t) re
 function mkPortLiveOn(){ return MK.aisAll && MK.aisAll.d && MK.feat && MK.feat.ais ? !!MK.portLive : null; }
 function mkPortLiveSet(on){ MK.portLive = !!on; mkSavePrefs(); var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); mkOvPaint(); }
 //  줄 이름 옆 «● 42척» (그 둘레에 지금 잡힌 배)
-function mkPortLiveBadge(id){ if (mkPortLiveOn() === null) return ''; var n = mkAisArea(id).n; return n ? ' <em class="lv" title="' + esc(mkAisStore() ? T('최근 24시간 이 둘레에 잡힌 배 (마지막 위치)', 'Ships seen here in the last 24 h') : T('지금 이 둘레에 잡힌 실시간 배', 'Live ships around now')) + '"><i aria-hidden="true"></i>' + n + T('척', '') + '</em>' : ''; }
+function mkPortLiveBadge(id){ if (mkPortLiveOn() === null) return ''; var n = mkAisArea(id).n; return n ? ' <em class="lv" title="' + esc(mkAisStore() ? T('최근 24시간 이 둘레에 잡힌 무역선 (마지막 위치)', 'Trade ships seen here in the last 24 h') : T('지금 이 둘레에 잡힌 실시간 무역선', 'Live trade ships around now')) + '"><i aria-hidden="true"></i>' + n + T('척', '') + '</em>' : ''; }
 //  실시간 배 (고른 해협 · 항구 둘레 · 지도 위 배와 같은 자료)
 function mkPortLiveHtml(id){
   var A = MK.aisAll, off = typeof isOfficer === 'function' && isOfficer();
   if (!(MK.feat && MK.feat.ais)) return off ? '<div class="st-hint">' + esc(T('(임원진) 실시간 배 위치는 Supabase Secrets 에 AISSTREAM_API_KEY 를 넣으면 켜집니다', '(officers) add AISSTREAM_API_KEY')) + '</div>' : '';
   if (A && A.d){
     var c = mkAisArea(id), sto = mkAisStore();
-    return '<div class="mk-port-live"><div class="h"><i class="dot" aria-hidden="true"></i>' + esc(sto ? T('배 (이 둘레 · 최근 24시간)', 'Ships (this area · last 24 h)') : T('실시간 배 (이 둘레)', 'Live ships (this area)')) + '<span class="st-hint">' + esc(' · ' + mkHm(A.d.at) + (sto ? T(' 기준 · 5분마다 모음', ' · collected every 5 min') : T(' 수신 · 3분마다', ' · every 3 min'))) + '</span></div>'
+    return '<div class="mk-port-live"><div class="h"><i class="dot" aria-hidden="true"></i>' + esc(sto ? T('무역선 (이 둘레 · 최근 24시간)', 'Trade ships (this area · last 24 h)') : T('실시간 무역선 (이 둘레)', 'Live trade ships (this area)')) + '<span class="st-hint">' + esc(' · ' + mkHm(A.d.at) + (sto ? T(' 기준 · 5분마다 모음', ' · collected every 5 min') : T(' 수신 · 3분마다', ' · every 3 min'))) + '</span></div>'
       + '<div class="g"><span><b>' + c.n + '</b>' + esc(T('척 잡힘', ' ships')) + '</span><span><b>' + c.mv + '</b>' + esc(T('척 항해 중', ' underway')) + '</span><span><b>' + c.an + '</b>' + esc(T('척 닻 내림 · 대기', ' anchored / waiting')) + '</span><span><b>' + c.mr + '</b>' + esc(T('척 접안', ' moored')) + '</span>'
       + (sto && c.h1 != null ? '<span><b>' + c.h1 + '</b>' + esc(T('척 1시간 안 신호', ' within 1 h')) + '</span>' : '') + '</div>'
       + (+id === 6 ? mkAisZoneHtml() : '')
@@ -22176,13 +22242,13 @@ function mkPortLiveHtml(id){
 //  옆 칸 맨 위 — 지도 위 실시간 배 (모두)
 function mkPortAisTop(){
   var A = MK.aisAll; if (!(MK.feat && MK.feat.ais) || !A || !A.d) return '';
-  var shown = A.d.ships.length, n = A.d.n || shown;
-  if (MK.shipTrade) shown = A.d.ships.filter(mkShipIsTrade).length;
-  if (mkAisStore()) return '<div class="mk-port-ais"><i class="dot" aria-hidden="true"></i>' + esc(T('최근 24시간 잡힌 배 ', 'Ships seen in last 24 h ')) + '<b>' + num(n, 0) + '</b>' + esc(T('척', ''))
-    + '<span class="st-hint">' + esc(T(' (지도 표시 ', ' (on map ') + num(shown, 0) + T('척', '') + (MK.shipTrade ? T(' · 무역선만', ' · trade only') : '') + ')') + '</span>'
-    + '<span class="st-hint">' + esc(' · ' + T('배마다 마지막 위치 · ', 'last position per ship · ') + mkHm(A.d.at) + T(' 기준 · 5분마다 모음 · 육상 수신소 기준이라 먼바다는 빠질 수 있음', ' · every 5 min · coastal receivers')) + '</span></div>';
-  return '<div class="mk-port-ais"><i class="dot" aria-hidden="true"></i>' + esc(T('지도 위 실시간 배 ', 'Live ships on map ')) + '<b>' + num(n, 0) + '</b>' + esc(T('척', ''))
-    + (n > shown ? '<span class="st-hint">' + esc(T(' (표시 ', ' (shown ') + num(shown, 0) + T('척', '') + (MK.shipTrade ? T(' · 무역선만', ' · trade only') : '') + ')') + '</span>' : '')
+  //  무역선만 (예전 서버 값이면 여기서 세어 맞춤)
+  var shown = A.d.ships.filter(mkShipIsTrade).length, n = A.d.trade ? (A.d.n || shown) : shown;
+  if (mkAisStore()) return '<div class="mk-port-ais"><i class="dot" aria-hidden="true"></i>' + '<span>' + esc(T('최근 24시간 잡힌 무역선 ', 'Trade ships seen in last 24 h ')) + '<b>' + num(n, 0) + '</b>' + esc(T('척', '')) + '</span>'
+    + (n > shown ? '<span class="st-hint">' + esc(T(' (지도 표시 ', ' (on map ') + num(shown, 0) + T('척)', ')')) + '</span>' : '')
+    + '<span class="st-hint">' + esc(' · ' + T('화물선 · 유조선 · 배마다 마지막 위치 · ', 'cargo · tanker · last position per ship · ') + mkHm(A.d.at) + T(' 기준 · 5분마다 모음 · 육상 수신소 기준이라 먼바다는 빠질 수 있음', ' · every 5 min · coastal receivers')) + '</span></div>';
+  return '<div class="mk-port-ais"><i class="dot" aria-hidden="true"></i>' + '<span>' + esc(T('지도 위 실시간 무역선 ', 'Live trade ships on map ')) + '<b>' + num(n, 0) + '</b>' + esc(T('척', '')) + '</span>'
+    + (n > shown ? '<span class="st-hint">' + esc(T(' (표시 ', ' (shown ') + num(shown, 0) + T('척)', ')')) + '</span>' : '')
     + '<span class="st-hint">' + esc(' · ' + mkHm(A.d.at) + T(' 수신 · 3분마다 · 육상 수신소 기준이라 먼바다는 빠질 수 있음', ' · every 3 min · coastal receivers')) + '</span></div>';
 }
 function mkPrtSelHtml(sel, btn){
@@ -22216,15 +22282,19 @@ function mkPrtBodyHtml(btn, dark, selH){
       + '<span class="v">' + Math.round(x.a7 || 0) + '<i>' + esc(T('척', '/d')) + '</i></span>'
       + '<span class="y ' + mkUd(x.yoy7) + '">' + (x.yoy7 != null ? (x.yoy7 > 0 ? '+' : '') + Math.round(x.yoy7) + '%' : '-') + '</span>'
       + mkSpark(sp, 64, 18, x.ly) + '</' + tag + '>';
-  }).join('') || '<div class="st-hint mk-plv-none">' + esc(mkAisStore() ? T('최근 24시간 배가 잡힌 곳이 없습니다', 'No ships in the last 24 h') : T('지금 실시간 배가 잡힌 곳이 없습니다', 'No live ships right now')) + '</div>';
+  }).join('') || '<div class="st-hint mk-plv-none">' + esc(mkAisStore() ? T('최근 24시간 무역선이 잡힌 곳이 없습니다', 'No trade ships in the last 24 h') : T('지금 실시간 무역선이 잡힌 곳이 없습니다', 'No live trade ships right now')) + '</div>';
   return '<div class="mk-res-what">' + esc(T('세계 주요 항구 ' + L.length + '곳 · 하루 입항 (최근 7일 평균) · 전년 같은 때 대비', L.length + ' major ports · daily port calls (7d avg) · vs last year')) + '<span class="st-hint"> · ' + esc((d.pAsof || d.asof) + T(' 기준 · 주 1회 갱신 (5~11일 늦음)', ' · weekly update')) + '</span></div>'
     + kpi + al + (selH || '')
     + '<div class="mk-prows" id="' + (btn ? 'mkResBars' : '') + '"><div class="mk-prow h" aria-hidden="true"><span></span><span>' + esc(T('항구', 'Port')) + '</span><span>' + esc(T('하루 입항 (7일)', 'Daily (7d)')) + '</span><span></span><span>' + esc(T('전년비', 'y/y')) + '</span><span>' + esc(T('90일', '90d')) + '</span></div>' + rows + '</div>'
-    + '<div class="mk-res-src">' + esc(T('출처: IMF PortWatch (UN Global Platform · 위성 AIS 기반 · portwatch.imf.org) · 수입 · 수출 t 는 입항 배의 크기 · 흘수로 낸 추정 · 실시간 배 위치는 육상 AIS 수신 (먼바다는 빠질 수 있음)', 'Sources: IMF PortWatch (portwatch.imf.org) · tonnage estimated · live ships: terrestrial AIS')) + '</div>';
+    + '<div class="mk-res-src">' + esc(T('출처: IMF PortWatch (UN Global Platform · 위성 AIS 기반 · portwatch.imf.org) · 수입 · 수출 t 는 입항 배의 크기 · 흘수로 낸 추정 · 무역선 위치는 육상 AIS 수신 (먼바다는 빠질 수 있음)', 'Sources: IMF PortWatch (portwatch.imf.org) · tonnage estimated · trade ships: terrestrial AIS')) + '</div>';
 }
 //  세이피 화면 요약 — 물류 층 (해협 · 항구 · 고른 곳 · 실시간 배)
 function mkPortScreenLine(){
   var out = [], aP = mkPortList(), aQ = mkPrtList();
+  //  (10/10 7차) 주간 분석을 보고 있으면 그 내용 먼저 (실시간 배 줄은 뺌)
+  if (mkPortMode() === 'gfw'){ var gl = mkGfwScreenLine(); if (gl) out.push(gl); else out.push('[물류 · 주간 분석] 자료를 불러오는 중');
+    if (aP.length) out.push('[물류 · 해협 통과량 (IMF PortWatch · 하루 평균 척수 · 최근 7일 · 전년 같은 때 대비)] ' + aP.slice(0, 14).map(function(x){ return x.cp.n + ' ' + Math.round(x.a7) + '척' + (x.yoy7 != null ? ' (' + (x.yoy7 > 0 ? '+' : '') + Math.round(x.yoy7) + '%)' : ''); }).join(' · '));
+    return out.join('\n'); }
   if (aP.length) out.push('[물류 · 해협 통과량 (IMF PortWatch · 하루 평균 척수 · 최근 7일 · 전년 같은 때 대비)] ' + aP.slice(0, 14).map(function(x){ return x.cp.n + ' ' + Math.round(x.a7) + '척' + (x.yoy7 != null ? ' (' + (x.yoy7 > 0 ? '+' : '') + Math.round(x.yoy7) + '%)' : ''); }).join(' · '));
   if (aQ.length) out.push('[물류 · 항구 입항 (IMF PortWatch · 하루 평균 입항 척수 · 최근 7일 · 전년 같은 때 대비)] ' + aQ.map(function(x){ return x.p.n + ' ' + Math.round(x.a7) + '척' + (x.yoy7 != null ? ' (' + (x.yoy7 > 0 ? '+' : '') + Math.round(x.yoy7) + '%)' : ''); }).join(' · '));
   var id = MK.portSel;
@@ -22232,15 +22302,349 @@ function mkPortScreenLine(){
     if (mkPortIsP(id)){ var s = mkPrtOf(id); if (s) out.push('고른 항구: ' + s.p.n + ' · 30일 평균 입항 ' + Math.round(s.a30) + '척' + (s.yoy != null ? ' (전년 대비 ' + (s.yoy > 0 ? '+' : '') + Math.round(s.yoy) + '%)' : '') + ' · 수입 ' + mkTonKo(s.im30) + '/일 · 수출 ' + mkTonKo(s.ex30) + '/일 (추정) · 컨테이너 ' + Math.round(s.mix.ct) + '% · 유조선 ' + Math.round(s.mix.tk) + '% · 벌크 ' + Math.round(s.mix.db) + '%'); }
     else { var c = mkPortOf(id); if (c) out.push('고른 해협: ' + c.cp.n + ' · 30일 평균 ' + Math.round(c.a30) + '척 · 유조선 ' + Math.round(c.mix.tk) + '% · 컨테이너 ' + Math.round(c.mix.ct) + '% · 벌크 ' + Math.round(c.mix.db) + '%'); }
     var k = MK.aisAll && MK.aisAll.d ? mkAisArea(id) : null, sto = mkAisStore();
-    if (k) out.push((sto ? '고른 곳 둘레 배 (AIS · 최근 24시간 배마다 마지막 위치 · ' + mkHm(MK.aisAll.d.at) + ' 기준): ' : '고른 곳 둘레 실시간 배 (AIS · ' + mkHm(MK.aisAll.d.at) + ' 수신): ') + k.n + '척 · 항해 중 ' + k.mv + ' · 닻 내림 · 대기 ' + k.an + ' · 접안 ' + k.mr + (sto && k.h1 != null ? ' · 1시간 안 신호 ' + k.h1 + '척' : ''));
+    if (k) out.push((sto ? '고른 곳 둘레 무역선 (화물선 · 유조선 · AIS · 최근 24시간 배마다 마지막 위치 · ' + mkHm(MK.aisAll.d.at) + ' 기준): ' : '고른 곳 둘레 실시간 무역선 (AIS · ' + mkHm(MK.aisAll.d.at) + ' 수신): ') + k.n + '척 · 항해 중 ' + k.mv + ' · 닻 내림 · 대기 ' + k.an + ' · 접안 ' + k.mr + (sto && k.h1 != null ? ' · 1시간 안 신호 ' + k.h1 + '척' : ''));
     var zz = +id === 6 && MK.aisAll && MK.aisAll.d && MK.aisAll.d.areas, zf = function(c, nm){ return c ? nm + ' ' + c[0] + '척 (항해 ' + c[1] + ' · 대기 ' + c[2] + ' · 접안 ' + c[3] + (c[4] != null ? ' · 1시간 안 ' + c[4] : '') + ')' : ''; };
     if (zz && (zz.gulf || zz.gom)) out.push('호르무즈 양쪽 대기 구역 (겹쳐 셈 · 항구 둘레 포함): ' + [zf(zz.gulf, '페르시아만 안'), zf(zz.gom, '오만만 정박지')].filter(Boolean).join(' · '));
   }
   //  (10/10 5차) 눌러 둔 배 (카드)
   var sv = MK.shipSel ? (mkShipFind(MK.shipSel) || MK.shipSelS) : null;
   if (sv){ var sd = mkShipDest(sv[11]), sc = mkShipCargo(sv); out.push('고른 배: ' + (sv[6] || '이름 없음') + ' · ' + mkShipTy(sv[7])[1] + ' · 실은 것(선종 · 이름으로 추정) ' + sc[0] + ' · 가는 곳 ' + (sd ? (sd[0] || sd[1]) + (sd[0] ? ' (AIS 입력 ' + sd[1] + ')' : '') : '입력 안 함') + (sv[12] ? ' · 도착 예정 ' + sv[12] + ' UTC' : '') + ' · ' + mkShipSt(sv)[1] + (mkShipSt(sv)[0] === 'mv' ? ' ' + (+sv[4]).toFixed(1) + '노트' : '') + ' · 위치 신호 ' + mkShipAgeTxt(mkShipAge(sv))); }
-  if (typeof mkSatOn === 'function' && mkSatOn()) out.push('지금 위성 사진(구름 없는 합성 · 실시간 아님) 위에 실시간 배를 보는 중');
-  if (MK.aisAll && MK.aisAll.d) out.push((mkAisStore() ? '최근 24시간 잡힌 배 (AIS · 육상 수신소 기준 · 5분마다 모아 배마다 마지막 위치 · 오래된 위치는 지금과 다를 수 있음 · ' + mkHm(MK.aisAll.d.at) + ' 기준): ' : '지도 위 실시간 배 (AIS · 육상 수신소 기준 · ' + mkHm(MK.aisAll.d.at) + ' 수신): ') + (MK.aisAll.d.n || MK.aisAll.d.ships.length) + '척' + (MK.shipTrade ? ' · 지금 지도는 무역선(화물 · 유조선)만 보는 중' : ''));
+  if (typeof mkSatOn === 'function' && mkSatOn()) out.push('지금 위성 사진(구름 없는 합성 · 실시간 아님) 위에 무역선을 보는 중');
+  if (MK.aisAll && MK.aisAll.d){ var tn = MK.aisAll.d.trade ? (MK.aisAll.d.n || MK.aisAll.d.ships.length) : MK.aisAll.d.ships.filter(mkShipIsTrade).length;
+    out.push((mkAisStore() ? '최근 24시간 잡힌 무역선 (화물선 · 유조선만 · AIS · 육상 수신소 기준 · 5분마다 모아 배마다 마지막 위치 · 오래된 위치는 지금과 다를 수 있음 · ' + mkHm(MK.aisAll.d.at) + ' 기준): ' : '지도 위 실시간 무역선 (화물선 · 유조선만 · AIS · 육상 수신소 기준 · ' + mkHm(MK.aisAll.d.at) + ' 수신): ') + tn + '척'); }
+  return out.join('\n');
+}
+/* ══════════ (10/10 7차) 물류 층 «주간 분석» — 학회장: «어선보다 경제적으로 중요한 배 위주로 · 간단한 분석 · 요약 · 월드맵에 · 배 하나하나 · 로딩 빠르게»
+   자료: Global Fishing Watch (위성 · 육상 AIS · SAR 레이더 · 약 4~5일 늦음) — 서버가 5분마다 조금씩 모아 두고 화면은 한 번에 읽음 (한 번 · 30분 보관)
+   · 지도: 지역 9곳 네모 (색 = 전년 대비 하루 평균 무역선) · 무역선 점 (자료 끝 6시간 · 파랑 화물 · 빨강 유조선) · ◆ 다크 선박 · ▲ AIS 끊김 · 작은 네모 = 나라 입항 (색 = 전년 대비)
+   · 옆 칸: «요약» (숫자로 쓴 몇 줄 · 해석은 «신호 · 추정» 으로) · 지역 9곳 · 고른 지역 120일 그림 · 오래 머문 배 · 나라 14개 입항
+   · 배 · 점을 누르면 카드 (이름 · 국적 · IMO · MMSI · 머문 시간 · 언제 · 실시간 AIS 에도 있으면 지금 상태)
+   ⚠️ 출처 줄 «Powered by Global Fishing Watch» 는 사용 조건(CC BY-NC 4.0)이라 지우면 안 됨  */
+var MK_GFW_ANCH = { gulf: [[47.6, 30.6], 'left'], gom: [[61.5, 24.2], 'right'], red: [[32.2, 21], 'left'], blk: [[34.6, 47], 'top'], bal: [[24.6, 60.9], 'top'],
+  mal: [[98, 4.2], 'left'], ecs: [[124.5, 30.6], 'right'], cape: [[21.5, -37.5], 'bottom'], usg: [[-92.8, 25.5], 'bottom'] };
+var MK_GFW_EN = { gulf: 'Persian Gulf', gom: 'Gulf of Oman', red: 'Red Sea · Bab el-Mandeb', blk: 'Black Sea', bal: 'Eastern Baltic', mal: 'Malacca · Singapore', ecs: 'East China coast', cape: 'Cape of Good Hope', usg: 'US Gulf Coast' };
+var MK_GFW_PORT = { CHN: [121.6, 31.3], KOR: [129.07, 35.08], USA: [-118.25, 33.74], JPN: [139.8, 35.5], SGP: [103.83, 1.26], TWN: [120.27, 22.6], IND: [72.95, 18.95],
+  NLD: [4.1, 51.95], DEU: [9.95, 53.55], ARE: [55.06, 25.01], SAU: [39.17, 21.5], RUS: [30.2, 59.9], BRA: [-46.3, -23.95], AUS: [118.6, -20.3] };
+var MK_I3 = {}; ('PAN:PA,LBR:LR,MHL:MH,HKG:HK,SGP:SG,MLT:MT,BHS:BS,GRC:GR,CHN:CN,CYP:CY,NOR:NO,JPN:JP,IDN:ID,KOR:KR,IND:IN,GBR:GB,DNK:DK,PRT:PT,ITA:IT,DEU:DE,NLD:NL,USA:US,RUS:RU,TUR:TR,VNM:VN,MYS:MY,THA:TH,PHL:PH,TWN:TW,SAU:SA,ARE:AE,IRN:IR,IRQ:IQ,KWT:KW,QAT:QA,OMN:OM,BHR:BH,EGY:EG,BEL:BE,FRA:FR,ESP:ES,SWE:SE,FIN:FI,CMR:CM,COM:KM,GAB:GA,TZA:TZ,TGO:TG,SLE:SL,KNA:KN,VCT:VC,ATG:AG,BLZ:BZ,CYM:KY,BMU:BM,TUV:TV,PLW:PW,MNG:MN,GNQ:GQ,SYR:SY,LBY:LY,UKR:UA,GEO:GE,MDA:MD,ZAF:ZA,BRA:BR,AUS:AU,CAN:CA,MEX:MX,PAK:PK,BGD:BD,LKA:LK,NGA:NG,KEN:KE,DJI:DJ,YEM:YE,ERI:ER,SDN:SD,JOR:JO,ISR:IL,LBN:LB,ROU:RO,BGR:BG,HRV:HR,POL:PL,LTU:LT,LVA:LV,EST:EE,ISL:IS,IRL:IE,CHE:CH,AUT:AT,LUX:LU,GIB:GI,IMN:IM,FRO:FO,CUW:CW,BRB:BB,JAM:JM,TTO:TT,HND:HN,BOL:BO,ARG:AR,CHL:CL,PER:PE,COL:CO,ECU:EC,VEN:VE,URY:UY,NZL:NZ,PNG:PG,FJI:FJ,VUT:VU,KIR:KI,NRU:NR,COK:CK,WSM:WS,TON:TO,SLB:SB,MDV:MV,MUS:MU,SYC:SC,MDG:MG,MOZ:MZ,AGO:AO,COG:CG,COD:CD,GHA:GH,CIV:CI,SEN:SN,MAR:MA,DZA:DZ,TUN:TN,MRT:MR,LCA:LC,DMA:DM,GRD:GD,KHM:KH,MMR:MM,PRK:KP,BRN:BN,MAC:MO,STP:ST,CPV:CV,GNB:GW,GIN:GN,AZE:AZ,KAZ:KZ,TKM:TM')
+  .split(',').forEach(function(x){ var p = x.split(':'); MK_I3[p[0]] = p[1]; });
+var MK_FLAG_KO = { MH: '마셜제도', KN: '세인트키츠네비스', TV: '투발루', CK: '쿡제도', GI: '지브롤터', HK: '홍콩', MO: '마카오', NR: '나우루', KM: '코모로', MV: '몰디브', MU: '모리셔스', SC: '세이셸', CW: '퀴라소', LC: '세인트루시아', GD: '그레나다', DM: '도미니카', ST: '상투메프린시페', CV: '카보베르데', TO: '통가', WS: '사모아', KI: '키리바시', BH: '바레인', SG: '싱가포르', MT: '몰타' };
+function mkGfwFlag(i3){ var a2 = MK_I3[i3]; if (!a2) return i3 || T('국적 미상', 'Unknown flag'); var nm = !isEn() && MK_FLAG_KO[a2] ? MK_FLAG_KO[a2] : mkNm(a2); return nm === a2 ? (MK_FLAG_KO[a2] || i3) : nm; }
+function mkGfwFl(i3){ var a2 = MK_I3[i3]; return a2 ? mkFlag2(a2) : ''; }
+function mkGfwOn(){ return !!(MK.feat && MK.feat.gfw); }
+function mkPortMode(){ return mkGfwOn() && MK.portMode === 'gfw' ? 'gfw' : 'live'; }
+function mkGfwRegNm(r){ return isEn() ? (MK_GFW_EN[r.k] || r.n) : r.n; }
+function mkGfwShow(k){ var s = MK.gfwShow || 'sdx'; return s.indexOf(k) >= 0; }
+function mkGfwShowSet(k){ var s = MK.gfwShow || 'sdx'; s = s.indexOf(k) >= 0 ? s.replace(k, '') : s + k; MK.gfwShow = s || '-'; if (MK.gfwPick && MK.gfwPick.t === k) MK.gfwPick = null; mkSavePrefs(); var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); mkOvPaint(); mkShipCard(); }
+function mkPortModeSet(m){
+  MK.portMode = m === 'gfw' ? 'gfw' : 'live'; MK.gfwPick = null; MK.shipSel = null; MK.shipSelS = null; MK.satOn = false;
+  mkSavePrefs(); if (MK.portMode === 'gfw') mkGfwLoad();
+  var bx = $('mkRes'); if (bx) bx.__k = '';
+  mkResRender(); mkMapPaint(); mkOvPaint(); mkShipCard(); mkShipTick(); mkChipsRender();
+}
+function mkGfwLoad(force){
+  var G = MK.gfw || (MK.gfw = {});
+  if (!mkGfwOn() || typeof edge !== 'function' || G.busy) return;
+  if (!force && G.d && Date.now() - G.got < 30 * 60000) return;
+  if (!force && G.err && Date.now() - (G.errAt || 0) < 60000) return;
+  G.busy = true;
+  edge({ source: 'gfw' }).then(function(d){
+    G.busy = false;
+    if (d && Array.isArray(d.regs)){ G.d = d; G.got = Date.now(); G.err = ''; G.errs = d.errs || {}; G.pend = false; }
+    else if (d && d.pending){ G.pend = true; G.errs = d.errs || {}; G.err = 'pending'; G.errAt = Date.now(); }
+    else { G.err = (d && (d.error || (d.off ? 'off' : ''))) || 'x'; G.errAt = Date.now(); }
+  }, function(e){ G.busy = false; G.err = String(e && e.message || e); G.errAt = Date.now(); })
+    .then(function(){
+      //  아직 모으는 중이면 1분 뒤 한 번 더 (주간 분석을 보고 있을 때만)
+      if (G.pend){ clearTimeout(G.rt); G.rt = setTimeout(function(){ if (MK.lay === 'port' && mkPortMode() === 'gfw') mkGfwLoad(true); }, 61000); }
+      if (MK.lay === 'port' && mkPortMode() === 'gfw'){ var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); mkOvPaint(); mkShipCard(); mkChipsRender(); }
+    });
+}
+//  숫자 묶음
+function mkGfwAvg(a){ var x = (a || []).filter(function(v){ return v != null && isFinite(v); }); return x.length ? x.reduce(function(p, v){ return p + v; }, 0) / x.length : null; }
+function mkGfwSum(a){ return (a || []).reduce(function(p, v){ return p + (+v || 0); }, 0); }
+function mkGfwPct(a, b){ return a != null && b ? (a / b - 1) * 100 : null; }
+function mkGfwSg(v){ if (v == null || !isFinite(v)) return '-'; var r = Math.round(v); return (r > 0 ? '+' : '') + (r === 0 ? 0 : r) + '%'; }
+function mkGfwStat(i){
+  var d = MK.gfw && MK.gfw.d, r = d && d.regs[i]; if (!r || !r.v) return null;
+  var r7 = mkGfwAvg(r.v.slice(-7)), r30 = mkGfwAvg(r.v.slice(-30)), p30 = mkGfwAvg(r.v.slice(-60, -30)), ly7 = r.ly ? mkGfwAvg(r.ly.slice(-7)) : null, ly30 = r.ly ? mkGfwAvg(r.ly.slice(-30)) : null;
+  var w = r.sar && r.sar.w || [], dk4 = w.length >= 4 ? mkGfwSum(w.slice(-4)) : null, dkp = w.length >= 8 ? mkGfwSum(w.slice(-8, -4)) : null;
+  var gp = d.gaps && d.gaps.g ? d.gaps.g.filter(function(x){ return x[7] === i; }).length : null;
+  return { r: r, r7: r7, r30: r30, ly7: ly7, ly30: ly30, yoy7: mkGfwPct(r7, ly7), yoy30: mkGfwPct(r30, ly30), mom: mkGfwPct(r30, p30), dk4: dk4, dkp: dkp, dkChg: dkp ? mkGfwPct(dk4, dkp) : null, gp: gp };
+}
+function mkGfwPStat(p){
+  var r4 = mkGfwSum(p.v.slice(-4)) / 4, l4 = p.ly ? mkGfwSum(p.ly.slice(-4)) / 4 : null, r12 = mkGfwSum(p.v.slice(-12)) / 12, l12 = p.ly ? mkGfwSum(p.ly.slice(-12)) / 12 : null;
+  return { r4: r4, l4: l4, yoy4: mkGfwPct(r4, l4), yoy12: mkGfwPct(r12, l12) };
+}
+//  유조선? — 우리 AIS 선종 (80~89) → 이름 (LNG · LPG · TANKER …) 추정 → 아니면 화물 (GFW 분류 cargo)
+function mkGfwKind(r){
+  var ty = r[9], nm = String(r[3] || '').toUpperCase();
+  if (ty >= 80 && ty <= 89) return ['tk', T('유조선', 'Tanker'), T('AIS 선종', 'AIS type')];
+  if (ty >= 70 && ty <= 79) return ['cg', T('화물선', 'Cargo'), T('AIS 선종', 'AIS type')];
+  if (/\b(LNG|LPG|VLGC|GAS|TANKER|CRUDE|OIL|CHEM|CHEMICAL|PETRO|PRODUCT|VLCC|SUEZMAX|AFRAMAX)\b/.test(nm)) return ['tk', T('유조선 · 가스선 (이름으로 추정)', 'Tanker (by name)'), T('이름', 'name')];
+  return ['cg', T('화물선 · 유조선', 'Cargo / tanker'), T('GFW 분류 «cargo»', 'GFW class «cargo»')];
+}
+//  지도 덧그림 (mkPortOv 가 부름)
+function mkGfwOv(D, C, dark){
+  D.leg = 'gfw';
+  MK_LANES.forEach(function(ln){ mkOvRuns(ln.c).forEach(function(r){ D.a.push({ coords: r, kind: 'lane', n: ln.n, lineStyle: { width: 1, color: C.lane, opacity: 0.2 } }); }); });
+  var d = MK.gfw && MK.gfw.d; if (!d){ mkGfwLoad(); return; }
+  d.regs.forEach(function(r, i){
+    var s = mkGfwStat(i); if (!s) return;
+    var b = r.b, sel = MK.gfwSel === i, col = mkPortCol(s.yoy7, dark), an = MK_GFW_ANCH[r.k] || [[b[1], b[2]], 'top'];
+    D.a.push({ coords: [[b[1], b[0]], [b[3], b[0]], [b[3], b[2]], [b[1], b[2]], [b[1], b[0]]], kind: 'greg', i: i, n: r.n, lineStyle: { width: sel ? 2.6 : 1.5, color: col, opacity: sel ? 1 : 0.85, type: sel ? 'solid' : 'dashed' } });
+    if (!mkOvXY(an[0])) return;
+    D.nodes.push({ name: mkGfwRegNm(r), kind: 'greg', id: i, value: an[0], symbol: 'roundRect', symbolSize: sel ? 11 : 8, itemStyle: { color: col, borderColor: sel ? C.foc : C.ink, borderWidth: sel ? 2 : 1 },
+      label: { show: true, position: an[1], formatter: mkGfwRegNm(r) + ' ' + Math.round(s.r7) + T('척', '') + (s.yoy7 != null ? ' (' + mkGfwSg(s.yoy7) + ')' : ''), color: col } });
+  });
+  (d.ports || []).forEach(function(p){
+    var xy = MK_GFW_PORT[p.c]; if (!xy || !mkOvXY(xy)) return;
+    var s = mkGfwPStat(p), sel = MK.gfwPortSel === p.c, col = mkPortCol(s.yoy4, dark);
+    D.nodes.push({ name: mkGfwFlag(p.c), kind: 'gport', id: p.c, value: xy, symbol: 'rect', symbolSize: sel ? 11 : 8, itemStyle: { color: col, borderColor: sel ? C.foc : C.ink, borderWidth: sel ? 2 : 1 },
+      label: { show: sel || (s.yoy4 != null && Math.abs(s.yoy4) >= 15), position: 'right', formatter: mkGfwFlag(p.c) + T(' 입항 ', ' calls ') + mkGfwSg(s.yoy4), color: col } });
+  });
+  mkGfwPts(D);
+}
+//  점 (무역선 · 다크 · 끊김) — 확대해 두었으면 화면 안만
+function mkGfwPts(D){
+  var d = MK.gfw && MK.gfw.d; if (!d || !mkMapChart) return;
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark', z = (MK.mapView && MK.mapView.zoom) || 1, mid = z >= 4, big = z >= 12, bb = null;
+  if (mid && !mkGlobeOn()) try { var g = mkMapChart.getModel().getComponent('geo').coordinateSystem, w = mkMapChart.getWidth(), h = mkMapChart.getHeight(), p0 = g.pointToData([0, 0]), p1 = g.pointToData([w, h]);
+    bb = [Math.min(p0[0], p1[0]) - 0.5, Math.max(p0[0], p1[0]) + 0.5, Math.min(p0[1], p1[1]) - 0.5, Math.max(p0[1], p1[1]) + 0.5]; } catch(e){ bb = null; }
+  var pk = MK.gfwPick, edge0 = dark ? 'rgba(8,12,22,.75)' : 'rgba(255,255,255,.9)', dc = dark ? '#c084fc' : '#7e22ce', xc = dark ? '#fbbf24' : '#c2410c';
+  var add = function(t, i, la, lo, it){
+    var sel = pk && pk.t === t && pk.i === i;
+    if (bb && !sel && (lo < bb[0] || lo > bb[1] || la < bb[2] || la > bb[3])) return;
+    if (!mkOvXY([lo, la])) return;
+    it.value = [lo, la]; it.g = { t: t, i: i };
+    if (sel){ it.symbolSize += 6; it.itemStyle.borderColor = dark ? '#ffffff' : '#111827'; it.itemStyle.borderWidth = 2; it.itemStyle.opacity = 1; if (D.focus) D.focus.push({ value: [lo, la], itemStyle: { color: dark ? '#ffffff' : '#111827' } }); }
+    D.ships.push(it);
+  };
+  if (mkGfwShow('d')) (d.dark || []).forEach(function(r, i){ add('d', i, r[1], r[2], { symbol: 'diamond', symbolSize: big ? 11 : mid ? 8 : 5.6, itemStyle: { color: dc, opacity: 0.85, borderColor: edge0, borderWidth: 0.6 } }); });
+  if (mkGfwShow('s')) (d.ships || []).forEach(function(r, i){ var k = mkGfwKind(r)[0];
+    add('s', i, r[1], r[2], { symbol: 'circle', symbolSize: big ? 8 : mid ? 5.6 : 3.6, itemStyle: { color: mkShipCol(k, dark), opacity: 0.88, borderColor: edge0, borderWidth: mid ? 0.8 : 0.5 } }); });
+  if (mkGfwShow('x') && d.gaps && d.gaps.g) d.gaps.g.forEach(function(r, i){ add('x', i, r[0], r[1], { symbol: 'triangle', symbolSize: big ? 12 : mid ? 9 : 6.4, itemStyle: { color: xc, opacity: 0.92, borderColor: edge0, borderWidth: 0.7 } }); });
+}
+function mkGfwRegTip(i){
+  var d = MK.gfw && MK.gfw.d, r = d && d.regs[i], s = mkGfwStat(i); if (!r || !s) return '';
+  return '<b>' + esc(mkGfwRegNm(r)) + '</b> ' + esc(T('무역선 하루 평균 ', 'trade ships/day ') + Math.round(s.r7) + T('척 (최근 7일)', ' (7d)'))
+    + (s.yoy7 != null ? '<br><span style="font-weight:700;color:' + mkPortCol(s.yoy7, document.documentElement.getAttribute('data-theme') === 'dark') + '">' + esc(T('전년 같은 때 대비 ', 'vs last year ') + mkGfwSg(s.yoy7)) + '</span>' : '')
+    + (s.dk4 != null ? '<br>' + esc(T('다크 선박 4주 ', 'Dark 4 wks ') + num(s.dk4, 0) + T('건', '')) : '') + (s.gp != null ? ' · ' + esc(T('AIS 끊김 60일 ', 'AIS gaps ') + s.gp + T('건', '')) : '')
+    + '<br><span style="opacity:.75">' + esc(T('누르면 그 지역으로 · 추이 그림 · 오래 머문 배', 'Click: zoom · trend · ships')) + '</span>';
+}
+function mkGfwPortTip(c){
+  var d = MK.gfw && MK.gfw.d, p = d && (d.ports || []).filter(function(x){ return x.c === c; })[0]; if (!p) return '';
+  var s = mkGfwPStat(p);
+  return '<b>' + (MK_I3[c] ? mkFlag2(MK_I3[c]) + ' ' : '') + esc(mkGfwFlag(c)) + '</b> ' + esc(T('무역선 입항 주 ', 'port calls ') + Math.round(s.r4) + T('건 (최근 4주 평균)', '/wk (4w avg)'))
+    + (s.yoy4 != null ? '<br><span style="font-weight:700;color:' + mkPortCol(s.yoy4, document.documentElement.getAttribute('data-theme') === 'dark') + '">' + esc(T('전년 같은 때 대비 ', 'vs last year ') + mkGfwSg(s.yoy4)) + '</span>' : '')
+    + (p.all ? '<br><span style="opacity:.75">' + esc(T('선종을 나눌 수 없어 모든 배', 'All vessel types')) + '</span>' : '');
+}
+function mkGfwRow(t, i){ var d = MK.gfw && MK.gfw.d; if (!d) return null; return t === 's' ? (d.ships || [])[i] : t === 'd' ? (d.dark || [])[i] : t === 'x' ? (d.gaps && d.gaps.g || [])[i] : null; }
+function mkGfwPick(t, i){ if (!mkGfwRow(t, i)) return; MK.gfwPick = { t: t, i: i }; mkShipCard(); if (mkMapChart && MK.lay === 'port') mkOvPaint(); }
+function mkGfwPickZoom(t, i){ var r = mkGfwRow(t, i); if (!r) return; mkGfwPick(t, i); var la = t === 'x' ? r[0] : r[1], lo = t === 'x' ? r[1] : r[2]; mkMapZoomTo([lo, la, 1.6], true); }
+function mkGfwClose(){ MK.gfwPick = null; mkShipCard(); if (mkMapChart && MK.lay === 'port') mkOvPaint(); }
+function mkGfwRegPick(i){
+  if (MK.gfwSel === i){ MK.gfwSel = null; var b0 = $('mkRes'); if (b0) b0.__k = ''; mkResRender(); mkOvPaint(); mkMapZoomHome(); mkChipsRender(); return; }
+  var d = MK.gfw && MK.gfw.d, r = d && d.regs[i]; if (!r) return;
+  MK.gfwSel = i; var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); mkOvPaint(); mkChipsRender();
+  var b = r.b; mkMapZoomTo([(b[1] + b[3]) / 2, (b[0] + b[2]) / 2, Math.max(b[2] - b[0], (b[3] - b[1]) * 0.7) * 1.15], true);
+  var bs = $('mkRes'), sh = bs && bs.querySelector('.mk-port-sel'); if (sh && sh.scrollIntoView) sh.scrollIntoView({ block: 'nearest', behavior: MOTION_OK ? 'smooth' : 'auto' });
+}
+//  세이피가 지역을 고를 때 — 자료가 오기 전이면 잠깐 기다렸다가 (최대 8초)
+function mkGfwRegPickK(k, n){
+  var d = MK.gfw && MK.gfw.d, i = -1; if (d) d.regs.forEach(function(r, j){ if (r.k === k) i = j; });
+  if (i >= 0){ if (MK.gfwSel !== i) mkGfwRegPick(i); return; }
+  if ((n || 0) < 16 && mkPortMode() === 'gfw') setTimeout(function(){ mkGfwRegPickK(k, (n || 0) + 1); }, 500);
+}
+function mkGfwPortPick(c){ MK.gfwPortSel = MK.gfwPortSel === c ? null : c; var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); mkOvPaint();
+  var bs = $('mkRes'), sh = bs && bs.querySelector('.mk-gport.on'); if (sh && sh.scrollIntoView) sh.scrollIntoView({ block: 'nearest', behavior: MOTION_OK ? 'smooth' : 'auto' }); }
+//  «약 n일 전» (UTC 시각 글 → 지금까지)
+function mkGfwAgo(iso){ var t = Date.parse(String(iso || '').replace(' ', 'T') + (/Z$/.test(iso || '') || String(iso || '').length <= 10 ? '' : 'Z')); if (!isFinite(t)) return ''; var h = (Date.now() - t) / 3600000; return h < 48 ? Math.max(1, Math.round(h)) + T('시간 전', ' h ago') : Math.round(h / 24) + T('일 전', ' days ago'); }
+function mkGfwHrs(h){ return h == null ? T('아직 다시 켜지 않음', 'still off') : h >= 48 ? (Math.round(h / 24 * 10) / 10) + T('일', ' days') : (Math.round(h * 10) / 10) + T('시간', ' h'); }
+//  풍선
+function mkGfwTip(d){
+  var g = d && d.g; if (!g) return ''; var r = mkGfwRow(g.t, g.i), D0 = MK.gfw && MK.gfw.d; if (!r || !D0) return '';
+  if (g.t === 's'){ var k = mkGfwKind(r), rg = D0.regs[r[0]];
+    return '<b>' + esc(r[3] || T('이름 없음', 'Unnamed')) + '</b> · ' + esc(k[1]) + '<br>' + mkGfwFl(r[4]) + ' ' + esc(mkGfwFlag(r[4]) + (rg ? ' · ' + mkGfwRegNm(rg) : ''))
+      + '<br><span style="opacity:.75">' + esc(T('그 6시간 중 ', 'In window: ') + mkGfwHrs(r[7]) + T(' 머묾 · ', ' · ') + mkGfwAgo(r[8]) + T(' 위치 (위성 · AIS)', ' (satellite AIS)')) + '</span>'; }
+  if (g.t === 'd'){ var rd = D0.regs[r[0]];
+    return '<b>' + esc(T('다크 선박 (AIS 없음)', 'Dark vessel (no AIS)')) + '</b><br>' + esc((rd ? mkGfwRegNm(rd) + ' · ' : '') + r[3] + T(' 위성 레이더 탐지', ' radar detection') + (r[4] > 1 ? T(' · 그 칸 ', ' · ') + r[4] + T('척', '') : '')) + '<br><span style="opacity:.75">' + esc(T('누르면 자세히', 'Click for details')) + '</span>'; }
+  var rx = D0.regs[r[7]];
+  return '<b>' + esc(r[4] || T('이름 없음', 'Unnamed')) + '</b> · ' + esc(T('AIS 끊김 (의도 추정)', 'AIS gap (likely intentional)')) + '<br>' + mkGfwFl(r[5]) + ' ' + esc(mkGfwFlag(r[5]) + (rx ? ' · ' + mkGfwRegNm(rx) : ''))
+    + '<br><span style="opacity:.75">' + esc(String(r[2]).replace('T', ' ') + ' UTC · ' + mkGfwHrs(r[3])) + '</span>';
+}
+//  카드 (mkShipCard 가 부름)
+function mkGfwCardHtml(){
+  var pk = MK.gfwPick, r = pk && mkGfwRow(pk.t, pk.i), D0 = MK.gfw && MK.gfw.d; if (!r || !D0) return '';
+  var row = function(k, v, sub){ return '<div class="r"><span class="k">' + esc(k) + '</span><span class="v">' + v + (sub ? '<i>' + esc(sub) + '</i>' : '') + '</span></div>'; };
+  var x = '<button type="button" class="x" onclick="mkGfwClose()" aria-label="' + esc(T('닫기', 'Close')) + '">×</button>';
+  if (pk.t === 's'){
+    var k = mkGfwKind(r), rg = D0.regs[r[0]], live = null;
+    //  실시간 AIS 에도 같은 배(MMSI)가 있으면 지금 상태
+    if (r[6] && MK.aisAll && MK.aisAll.d && MK.aisAll.d.ships) for (var q = 0; q < MK.aisAll.d.ships.length; q++) if (MK.aisAll.d.ships[q][0] === r[6]){ live = MK.aisAll.d.ships[q]; break; }
+    var lv = live ? mkShipSt(live)[1] + (mkShipSt(live)[0] === 'mv' ? ' ' + (+live[4] || 0).toFixed(1) + T('노트', ' kn') : '') + ' · ' + T('위치 신호 ', 'fix ') + mkShipAgeTxt(mkShipAge(live)) : '';
+    var ds = live && live[11] ? mkShipDest(live[11]) : null;
+    return '<div class="h"><b>' + esc(r[3] || T('이름 없음', 'Unnamed')) + '</b><span class="ty"><i class="' + k[0] + '"></i>' + esc(k[1]) + '</span>' + x + '</div>'
+      + row(T('국적', 'Flag'), mkGfwFl(r[4]) + ' <b>' + esc(mkGfwFlag(r[4])) + '</b>', r[4] || '')
+      + row(T('지역', 'Area'), '<b>' + esc(rg ? mkGfwRegNm(rg) : '-') + '</b>', '')
+      + row(T('머문 시간', 'Time in area'), '<b>' + esc(mkGfwHrs(r[7])) + '</b>', T('자료 끝 6시간 중', 'of the 6-h window'))
+      + row(T('마지막 위치', 'Last fix'), esc(String(r[8]).replace('T', ' ') + ' UTC'), mkGfwAgo(r[8]))
+      + (r[5] || r[6] ? row(T('번호', 'IDs'), esc([r[5] ? 'IMO ' + r[5] : '', r[6] ? 'MMSI ' + r[6] : ''].filter(Boolean).join(' · ')), '') : '')
+      + (live ? row(T('지금 (실시간)', 'Now (live)'), esc(lv), ds ? T('가는 곳 ', 'to ') + (ds[0] || ds[1]) : '') : '')
+      + '<div class="n">' + esc(T('위성 · 육상 AIS (약 4~5일 늦음 · 지금 위치 아님) · 종류: ', 'Satellite & terrestrial AIS (4-5 days old) · type: ') + k[2] + ' · Powered by Global Fishing Watch') + '</div>';
+  }
+  if (pk.t === 'd'){
+    var rd = D0.regs[r[0]], nf = rd && rd.sar ? rd.sar.nf : 0;
+    return '<div class="h"><b>' + esc(T('다크 선박', 'Dark vessel')) + '</b><span class="ty"><i class="dk"></i>' + esc(T('위성 레이더 탐지 · AIS 없음', 'Radar · no AIS')) + '</span>' + x + '</div>'
+      + row(T('지역', 'Area'), '<b>' + esc(rd ? mkGfwRegNm(rd) : '-') + '</b>', '')
+      + row(T('탐지한 날', 'Date'), '<b>' + esc(r[3]) + '</b>', 'UTC · ' + mkGfwAgo(r[3]))
+      + row(T('그 칸에서', 'In this cell'), '<b>' + esc(r[4] + T('척', '')) + '</b>', T('약 10km 칸', '~10 km cell'))
+      + row(T('위치', 'Position'), esc(r[1].toFixed(2) + ', ' + r[2].toFixed(2)), '')
+      + '<div class="n">' + esc(T('위성 레이더(SAR)에 잡혔는데 AIS 신호와 맞지 않는 배 · 15m 이상 · ', 'Radar detection not matched to AIS · 15 m+ · ') + (nf ? T('비어선 가능성 높음 (GFW 분류)', 'likely non-fishing') : T('어선일 수도 있음', 'may include fishing'))
+        + T(' · 제재 회피 · 안전상 끈 배 등 이유는 여러 가지 · Powered by Global Fishing Watch', ' · Powered by Global Fishing Watch')) + '</div>';
+  }
+  var rx = D0.regs[r[7]];
+  return '<div class="h"><b>' + esc(r[4] || T('이름 없음', 'Unnamed')) + '</b><span class="ty"><i class="gx"></i>' + esc(T('AIS 끊김 (의도 추정)', 'AIS gap (likely intentional)')) + '</span>' + x + '</div>'
+    + row(T('국적', 'Flag'), mkGfwFl(r[5]) + ' <b>' + esc(mkGfwFlag(r[5])) + '</b>', r[5] || '')
+    + row(T('지역', 'Area'), '<b>' + esc(rx ? mkGfwRegNm(rx) : '-') + '</b>', '')
+    + row(T('끊긴 때', 'Went dark'), esc(String(r[2]).replace('T', ' ') + ' UTC'), mkGfwAgo(r[2]))
+    + row(T('끊긴 길이', 'Gap'), '<b>' + esc(mkGfwHrs(r[3])) + '</b>', '')
+    + (r[6] ? row('MMSI', esc(r[6]), '') : '')
+    + '<div class="n">' + esc(T('무역선이 AIS 를 일부러 끈 것으로 추정되는 사건 (GFW 시험 단계 자료) · 제재 회피 · 해적 위험 회피 등 이유는 여러 가지 · Powered by Global Fishing Watch', 'Likely intentional AIS disabling (GFW prototype) · Powered by Global Fishing Watch')) + '</div>';
+}
+//  요약 — 숫자로 쓴 몇 줄 (해석은 «신호 · 추정»)
+function mkGfwSummary(){
+  var d = MK.gfw && MK.gfw.d; if (!d) return [];
+  var out = [], S = d.regs.map(function(r, i){ return mkGfwStat(i); }), by = {}; d.regs.forEach(function(r, i){ by[r.k] = S[i]; });
+  var nm = function(s){ return mkGfwRegNm(s.r); };
+  //  ① 호르무즈: 통과(PortWatch)는 크게 줄었는데 걸프 안 무역선은 그대로면 → 걸프 안에 머무는 중
+  var hz = typeof mkPortOf === 'function' ? mkPortOf(6) : null, gu = by.gulf, go = by.gom;
+  if (gu && gu.r7 != null){
+    var t1 = T('페르시아만 안 무역선 하루 평균 ', 'Persian Gulf: ') + Math.round(gu.r7) + T('척', ' ships/day') + (gu.yoy7 != null ? T(' (전년 대비 ', ' (y/y ') + mkGfwSg(gu.yoy7) + ')' : '');
+    if (hz && hz.yoy7 != null && hz.yoy7 <= -30 && (gu.yoy7 == null || gu.yoy7 >= -15)) t1 += T(' · 호르무즈 통과는 ', ' · Hormuz transits ') + mkGfwSg(hz.yoy7) + T(' → 걸프 안에 배가 머무는 중 (통항 차질 신호)', ' → ships staying inside (disruption signal)');
+    else if (go && go.yoy7 != null && go.yoy7 >= 20) t1 += T(' · 오만만(호르무즈 바깥) ', ' · Gulf of Oman ') + mkGfwSg(go.yoy7) + T(' → 바깥에서 대기하는 배가 늘어남', ' → more ships waiting outside');
+    out.push(t1);
+  }
+  //  ② 홍해 ↔ 희망봉 (우회)
+  var rd = by.red, cp = by.cape;
+  if (rd && cp && rd.yoy7 != null && cp.yoy7 != null && rd.yoy7 <= -15 && cp.yoy7 >= 10) out.push(T('홍해 무역선 ', 'Red Sea ') + mkGfwSg(rd.yoy7) + T(' · 희망봉 ', ' · Cape ') + mkGfwSg(cp.yoy7) + T(' (전년 대비) → 홍해를 피해 희망봉으로 돌아가는 흐름 (운임 · 운항 일수 상승 요인)', ' y/y → rerouting around the Cape'));
+  //  ③ 가장 크게 바뀐 지역 (위에서 말한 곳 빼고)
+  var used = { gulf: 1 }; if (out.length > 1){ used.red = 1; used.cape = 1; }
+  var mv = S.filter(function(s){ return s && s.yoy7 != null && !used[s.r.k]; }).sort(function(a, b){ return Math.abs(b.yoy7) - Math.abs(a.yoy7); })[0];
+  if (mv && Math.abs(mv.yoy7) >= 10) out.push(nm(mv) + T(' 무역선 하루 평균 ', ': ') + Math.round(mv.r7) + T('척 · 전년 대비 ', ' ships/day · y/y ') + mkGfwSg(mv.yoy7) + (mv.mom != null && Math.abs(mv.mom) >= 3 ? T(' · 직전 30일 대비 ', ' · vs prior 30d ') + mkGfwSg(mv.mom) : ''));
+  //  ④ 다크 선박이 크게 는 곳
+  var dk = S.filter(function(s){ return s && s.dk4 != null && s.dk4 >= 10 && s.dkChg != null && s.dkChg >= 30; }).sort(function(a, b){ return b.dkChg - a.dkChg; })[0];
+  if (dk) out.push(nm(dk) + T(' 다크 선박 (AIS 없이 레이더에만 잡힌 배) 최근 4주 ', ' dark vessels (4 wks) ') + num(dk.dk4, 0) + T('건 · 직전 4주 대비 ', ' · vs prior 4 wks ') + mkGfwSg(dk.dkChg) + T(' → 감시 회피 · 제재 회피 늘어나는 신호', ' → rising evasion signal'));
+  //  ⑤ AIS 끊김
+  if (d.gaps && d.gaps.g && d.gaps.g.length){ var gc = {}; d.gaps.g.forEach(function(x){ gc[x[7]] = (gc[x[7]] || 0) + 1; });
+    var top = Object.keys(gc).sort(function(a, b){ return gc[b] - gc[a]; })[0], rg = d.regs[+top];
+    out.push(T('무역선 AIS 끊김 (의도 추정) 60일 ', 'Intentional AIS gaps (60 d): ') + num(d.gaps.total || d.gaps.g.length, 0) + T('건 · 가장 많은 곳 ', ' · most in ') + (rg ? mkGfwRegNm(rg) : '-') + ' ' + gc[top] + T('건', '')); }
+  //  ⑥ 나라별 입항 (무역 선행 신호)
+  var P = (d.ports || []).map(function(p){ return { p: p, s: mkGfwPStat(p) }; }).filter(function(x){ return x.s.yoy4 != null; }).sort(function(a, b){ return b.s.yoy4 - a.s.yoy4; });
+  if (P.length >= 2){
+    var up = P.filter(function(x){ return x.s.yoy4 >= 5; }).slice(0, 2), dn = P.filter(function(x){ return x.s.yoy4 <= -5; }).slice(-2).reverse();
+    var f = function(x){ return mkGfwFlag(x.p.c) + ' ' + mkGfwSg(x.s.yoy4); };
+    if (up.length || dn.length) out.push(T('무역선 입항 (최근 4주 · 전년 대비) ', 'Port calls (4 wks, y/y): ') + (up.length ? T('늘어남 ', 'up ') + up.map(f).join(' · ') : '') + (up.length && dn.length ? ' / ' : '') + (dn.length ? T('줄어듦 ', 'down ') + dn.map(f).join(' · ') : '') + T(' → 수입 · 수출 물량 선행 신호', ' → leading trade signal'));
+  }
+  return out;
+}
+//  옆 칸 (주간 분석)
+function mkGfwBodyHtml(btn, dark){
+  var G = MK.gfw || {}, d = G.d, off = typeof isOfficer === 'function' && isOfficer(), tag = btn ? 'button' : 'div';
+  var errH = off && G.errs && Object.keys(G.errs).length ? '<div class="st-hint mk-gfw-err">' + esc(T('(임원진) 받지 못한 것: ', '(officers) failed: ') + Object.keys(G.errs).slice(0, 6).map(function(k){ return k + ' - ' + G.errs[k]; }).join(' / ')) + '</div>' : '';
+  if (!d){
+    if (!G.busy && !G.d && !G.pend && !G.err) mkGfwLoad();
+    return '<div class="mk-wait">' + esc(G.err && G.err !== 'pending' && !G.busy && off ? mkErrTxt(G.err) : T('로딩 중…', 'Loading…')) + '</div>'
+      + (off && G.pend ? '<div class="st-hint">' + esc(T('(임원진) 예약이 자료를 모으는 중입니다 · 처음엔 30분~1시간 (terminal-GFW.sql 실행 필요)', '(officers) collecting · first fill takes 30-60 min')) + '</div>' : '') + errH;
+  }
+  var S = d.regs.map(function(r, i){ return mkGfwStat(i); }), end = (d.regs.filter(function(r){ return r.v; })[0] || {}), endD = end.d0 ? mkGfwAddD(end.d0, end.v.length - 1) : '';
+  var sum = mkGfwSummary();
+  var sumH = sum.length ? '<div class="mk-gfw-sum"><div class="h">' + esc(T('요약', 'Summary')) + '<span class="st-hint">' + esc(T(' · 숫자는 자료 그대로 · 해석은 신호 · 추정', ' · figures as reported · interpretation = signal')) + '</span></div><ul>' + sum.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>' : '';
+  //  지역 9곳
+  var mx = Math.max.apply(null, S.map(function(s){ return s && s.r7 || 0; }).concat([1]));
+  var rows = d.regs.map(function(r, i){
+    var s = S[i]; if (!s) return '<div class="mk-prow none"><span class="rk">' + (i + 1) + '</span><span class="nm">' + esc(mkGfwRegNm(r)) + '</span><span class="st-hint">' + esc(T('자료 없음', 'No data')) + '</span></div>';
+    var sp = r.v.slice(-90).map(function(v){ return { v: v }; });
+    return '<' + tag + (btn ? ' type="button" onclick="mkGfwRegPick(' + i + ')"' : '') + ' class="mk-prow' + (MK.gfwSel === i ? ' on' : '') + '" style="--k:' + i + '">'
+      + '<span class="rk">' + (i + 1) + '</span><span class="nm">' + esc(mkGfwRegNm(r))
+      + (s.dk4 ? ' <em class="gd" title="' + esc(T('다크 선박 · 최근 4주', 'Dark vessels · 4 wks')) + '"><i aria-hidden="true"></i>' + num(s.dk4, 0) + '</em>' : '')
+      + (s.gp ? ' <em class="gx" title="' + esc(T('AIS 끊김 · 60일', 'AIS gaps · 60 d')) + '"><i aria-hidden="true"></i>' + s.gp + '</em>' : '') + '</span>'
+      + '<span class="bar"><i style="--w:' + Math.max(1.5, (s.r7 || 0) / mx * 100).toFixed(1) + '%;background:' + mkPortCol(s.yoy7, dark) + '"></i></span>'
+      + '<span class="v">' + num(Math.round(s.r7 || 0), 0) + '<i>' + esc(T('척', '')) + '</i></span>'
+      + '<span class="y ' + mkUd(s.yoy7) + '">' + mkGfwSg(s.yoy7) + '</span>'
+      + mkSpark(sp, 64, 18, s.ly30) + '</' + tag + '>';
+  }).join('');
+  //  고른 지역
+  var selH = '';
+  if (MK.gfwSel != null && S[MK.gfwSel]){
+    var s0 = S[MK.gfwSel], r0 = s0.r, top = (d.ships || []).map(function(x, i){ return [x, i]; }).filter(function(x){ return x[0][0] === MK.gfwSel; }).sort(function(a, b){ return b[0][7] - a[0][7]; }).slice(0, 8);
+    selH = '<div class="mk-port-sel gfw"><div class="t"><b>' + esc(mkGfwRegNm(r0)) + '</b>' + (btn ? '<button type="button" class="mk-x sm" onclick="mkGfwRegPick(' + MK.gfwSel + ')" aria-label="' + esc(T('지역 선택 풀기', 'Clear')) + '">×</button>' : '') + '</div>'
+      + '<div class="mk-port-kv"><span>' + esc(T('최근 7일', '7d')) + '<b>' + Math.round(s0.r7) + esc(T('척/일', '/d')) + '</b></span><span>' + esc(T('30일', '30d')) + '<b>' + Math.round(s0.r30) + esc(T('척/일', '/d')) + '</b></span>'
+      + (s0.ly7 != null ? '<span>' + esc(T('작년 같은 7일', 'LY 7d')) + '<b>' + Math.round(s0.ly7) + esc(T('척/일', '/d')) + '</b></span><span>' + esc(T('전년 대비', 'y/y')) + '<b class="' + mkUd(s0.yoy7) + '">' + mkGfwSg(s0.yoy7) + '</b></span>' : '')
+      + (s0.mom != null ? '<span>' + esc(T('직전 30일 대비', 'vs prior 30d')) + '<b class="' + mkUd(s0.mom) + '">' + mkGfwSg(s0.mom) + '</b></span>' : '')
+      + (s0.dk4 != null ? '<span>' + esc(T('다크 선박 4주', 'Dark 4 wks')) + '<b>' + num(s0.dk4, 0) + (s0.dkChg != null ? '<em class="' + mkUd(s0.dkChg) + '">' + mkGfwSg(s0.dkChg) + '</em>' : '') + '</b></span>' : '')
+      + (s0.gp != null ? '<span>' + esc(T('AIS 끊김 60일', 'AIS gaps 60d')) + '<b>' + s0.gp + T('건', '') + '</b></span>' : '') + '</div>'
+      + (btn ? '<div class="mk-port-ch" id="mkGfwCh"></div>' : '')
+      + (top.length ? '<div class="mk-gfw-top"><div class="h">' + esc(T('오래 머문 무역선', 'Longest-staying ships')) + '<span class="st-hint">' + esc(T(' · 자료 끝 6시간 · ', ' · last 6 h of data · ') + (r0.ns != null ? T('모두 ', 'total ') + num(r0.ns, 0) + T('척', '') : '')) + '</span></div>'
+        + top.map(function(x){ var r = x[0], k = mkGfwKind(r);
+          return '<' + tag + (btn ? ' type="button" onclick="mkGfwPickZoom(\'s\',' + x[1] + ')"' : '') + ' class="sh"><i class="c ' + k[0] + '" aria-hidden="true"></i><b>' + esc(r[3] || T('이름 없음', 'Unnamed')) + '</b><span>' + mkGfwFl(r[4]) + ' ' + esc(mkGfwFlag(r[4])) + '</span><em>' + esc(mkGfwHrs(r[7])) + '</em></' + tag + '>'; }).join('') + '</div>' : '')
+      + '</div>';
+  }
+  //  나라 14
+  var P = (d.ports || []).map(function(p){ return { p: p, s: mkGfwPStat(p) }; }), pmx = Math.max.apply(null, P.map(function(x){ return x.s.r4 || 0; }).concat([1]));
+  var prow = P.sort(function(a, b){ return (b.s.r4 || 0) - (a.s.r4 || 0); }).map(function(x, i){
+    var p = x.p, s = x.s, sp = p.v.map(function(v){ return { v: v }; }), a2 = MK_I3[p.c];
+    return '<' + tag + (btn ? ' type="button" onclick="mkGfwPortPick(\'' + p.c + '\')"' : '') + ' class="mk-prow mk-gport' + (MK.gfwPortSel === p.c ? ' on' : '') + '" style="--k:' + i + '">'
+      + '<span class="rk">' + (i + 1) + '</span><span class="nm">' + (a2 ? mkFlag2(a2) + ' ' : '') + esc(mkGfwFlag(p.c)) + (p.all ? ' <em class="al" title="' + esc(T('선종을 나눌 수 없어 모든 배', 'All vessel types')) + '">' + esc(T('모든 배', 'all')) + '</em>' : '') + '</span>'
+      + '<span class="bar"><i style="--w:' + Math.max(1.5, s.r4 / pmx * 100).toFixed(1) + '%;background:' + mkPortCol(s.yoy4, dark) + '"></i></span>'
+      + '<span class="v">' + num(Math.round(s.r4), 0) + '<i>' + esc(T('건/주', '/wk')) + '</i></span>'
+      + '<span class="y ' + mkUd(s.yoy4) + '">' + mkGfwSg(s.yoy4) + '</span>'
+      + mkSpark(sp, 64, 18, s.l4) + '</' + tag + '>';
+  }).join('');
+  var gTot = d.gaps ? (d.gaps.total || (d.gaps.g || []).length) : null;
+  return sumH
+    + '<div class="mk-res-what">' + esc(T('지역 9곳 · 하루 평균 머문 무역선 (최근 7일) · 전년 같은 때 대비', '9 areas · trade ships present per day (7d avg) · vs last year')) + '<span class="st-hint"> · ' + esc((endD ? endD + T(' 까지', '') : '') + T(' · 약 4~5일 늦음 · 하루 한 번 갱신', ' · 4-5 days lag · daily')) + '</span></div>'
+    + (selH || '')
+    + '<div class="mk-prows" id="' + (btn ? 'mkResBars' : '') + '"><div class="mk-prow h" aria-hidden="true"><span></span><span>' + esc(T('지역 (◆ 다크 · ▲ 끊김)', 'Area (◆ dark · ▲ gaps)')) + '</span><span>' + esc(T('하루 평균 (7일)', 'Daily (7d)')) + '</span><span></span><span>' + esc(T('전년비', 'y/y')) + '</span><span>' + esc(T('90일', '90d')) + '</span></div>' + rows + '</div>'
+    + (prow ? '<div class="mk-res-what gp">' + esc(T('나라별 무역선 입항 · 최근 4주 주 평균 · 전년 같은 때 대비', 'Trade-ship port calls by country · 4-wk avg · vs last year')) + '<span class="st-hint"> · ' + esc(T('입항 기록이 늦게 잡혀 일주일 전까지 · 입항이 늘면 수입 · 수출 물량 선행 신호', 'to one week ago · leading trade signal')) + '</span></div>'
+      + '<div class="mk-prows"><div class="mk-prow h" aria-hidden="true"><span></span><span>' + esc(T('나라', 'Country')) + '</span><span>' + esc(T('주 평균 (4주)', 'Weekly (4w)')) + '</span><span></span><span>' + esc(T('전년비', 'y/y')) + '</span><span>' + esc(T('16주', '16w')) + '</span></div>' + prow + '</div>' : '')
+    + '<div class="mk-res-src">' + esc(T('출처: Powered by Global Fishing Watch (CC BY-NC 4.0) · 위성 · 육상 AIS · 위성 레이더(SAR) · 무역선 = GFW 분류 «cargo» (화물선 · 유조선 등 · 어선 · 여객선 제외) · 하루 평균 머문 배 = 그날 머문 시간 합 ÷ 24 · 입항 = 보통 · 높은 신뢰도 · AIS 끊김 = GFW 시험 단계 추정'
+      + (gTot != null ? ' (60일 ' + num(gTot, 0) + '건)' : ''), 'Source: Powered by Global Fishing Watch (CC BY-NC 4.0) · satellite & terrestrial AIS · SAR · trade ships = GFW «cargo» class')) + '</div>'
+    + errH;
+}
+function mkGfwAddD(d0, n){ return new Date(Date.parse(d0 + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10); }
+//  고른 지역 120일 그림 (올해 · 작년 같은 때 · 다크 선박 주별)
+var mkGfwChart = null;
+function mkGfwChartDraw(dark){
+  var el = $('mkGfwCh'), d = MK.gfw && MK.gfw.d; if (!el || !d || MK.gfwSel == null || typeof echarts === 'undefined') return;
+  var r = d.regs[MK.gfwSel]; if (!r || !r.v) return;
+  mkGfwChart = chartOn(el, mkGfwChart); if (!mkGfwChart) return;
+  var xs = r.v.map(function(v, i){ return mkGfwAddD(r.d0, i); }), dk = xs.map(function(){ return null; });
+  if (r.sar && r.sar.w) r.sar.w.forEach(function(v, k){ var ix = xs.indexOf(mkGfwAddD(r.sar.d0, k * 7 + 3)); if (ix >= 0) dk[ix] = v; });
+  var col = dark ? ['#5b9cf0', '#e9eef9', '#c084fc'] : ['#2a5aa8', '#1a1f36', '#7e22ce'];
+  var ser = [{ name: T('올해', 'This year'), type: 'line', data: r.v, symbol: 'none', lineStyle: { width: 2, color: col[0] }, z: 4 }];
+  if (r.ly) ser.push({ name: T('작년 같은 때', 'Last year'), type: 'line', data: r.ly, symbol: 'none', lineStyle: { width: 1.3, type: 'dashed', color: col[1], opacity: 0.7 }, z: 3 });
+  if (r.sar) ser.push({ name: T('다크 선박 (주)', 'Dark (weekly)'), type: 'bar', yAxisIndex: 1, data: dk, barWidth: 6, itemStyle: { color: col[2], opacity: 0.7 }, z: 2 });
+  mkGfwChart.__axNoKeep = true;
+  mkGfwChart.setOption({ animation: MOTION_OK, animationDuration: 600, grid: { left: 6, right: 6, top: 30, bottom: 6, containLabel: true },
+    legend: { top: 0, left: 0, itemWidth: 10, itemHeight: 8, textStyle: { fontSize: 10.5 } },
+    tooltip: { trigger: 'axis', confine: true, valueFormatter: function(v){ return v == null ? '-' : (Math.round(v * 10) / 10) + T('척', ''); } },
+    xAxis: { type: 'category', data: xs, axisLabel: { formatter: function(v){ return String(v).slice(5); }, hideOverlap: true, fontSize: 10 } },
+    yAxis: [{ type: 'value', axisLabel: { fontSize: 10 }, splitLine: { lineStyle: { opacity: 0.5 } }, scale: true }, { type: 'value', axisLabel: { fontSize: 10, color: col[2] }, splitLine: { show: false } }], series: ser }, true);
+}
+//  세이피 화면 요약 줄
+function mkGfwScreenLine(){
+  var d = MK.gfw && MK.gfw.d; if (!d) return '';
+  var out = [], end = d.regs.filter(function(r){ return r.v; })[0];
+  out.push('[물류 · 주간 분석 (Global Fishing Watch · 위성 · 육상 AIS · ' + (end ? mkGfwAddD(end.d0, end.v.length - 1) + ' 까지 · ' : '') + '약 4~5일 늦음 · 무역선 = GFW 분류 cargo)] 지역별 하루 평균 머문 무역선 (최근 7일 · 전년 대비 · 다크 선박 4주 · AIS 끊김 60일): '
+    + d.regs.map(function(r, i){ var s = mkGfwStat(i); return s ? r.n + ' ' + Math.round(s.r7) + '척 (' + mkGfwSg(s.yoy7) + (s.dk4 != null ? ' · 다크 ' + s.dk4 : '') + (s.gp != null ? ' · 끊김 ' + s.gp : '') + ')' : null; }).filter(Boolean).join(' · '));
+  var P = (d.ports || []).map(function(p){ var s = mkGfwPStat(p); return mkGfwFlag(p.c) + ' 주 ' + Math.round(s.r4) + '건 (' + mkGfwSg(s.yoy4) + ')'; });
+  if (P.length) out.push('나라별 무역선 입항 (최근 4주 주 평균 · 전년 대비): ' + P.join(' · '));
+  var sm = mkGfwSummary(); if (sm.length) out.push('요약: ' + sm.join(' / '));
+  if (MK.gfwSel != null && d.regs[MK.gfwSel]) out.push('고른 지역: ' + d.regs[MK.gfwSel].n);
+  var pk = MK.gfwPick, r = pk && mkGfwRow(pk.t, pk.i);
+  if (r && pk.t === 's') out.push('고른 배: ' + (r[3] || '이름 없음') + ' · ' + mkGfwFlag(r[4]) + ' · ' + mkGfwKind(r)[1] + ' · ' + (d.regs[r[0]] ? d.regs[r[0]].n : '') + ' · 자료 끝 6시간 중 ' + mkGfwHrs(r[7]) + ' 머묾 · 마지막 위치 ' + r[8] + ' UTC');
+  if (r && pk.t === 'd') out.push('고른 점: 다크 선박 (위성 레이더 · AIS 없음) · ' + (d.regs[r[0]] ? d.regs[r[0]].n : '') + ' · ' + r[3]);
+  if (r && pk.t === 'x') out.push('고른 점: AIS 끊김 (의도 추정) · ' + (r[4] || '이름 없음') + ' · ' + mkGfwFlag(r[5]) + ' · ' + r[2] + ' UTC · ' + mkGfwHrs(r[3]));
   return out.join('\n');
 }
 /* ══════════ (10/9 4차) 마켓 맵 «자금 흐름» 층 — 학회장: «자금 흐름 · 상대적 강도가 어디로 흐르는지 · 글로벌 큰 그림에서 어느 나라로 · 어디가 유망한 나라 · 유망한 기업인지 시장 맵에서» ══════════
@@ -22877,6 +23281,9 @@ function mkLayBarRender(){
       var V = mkVcOf(k), on = MK.vc === V.k;
       return '<button type="button" class="mk-lchip lvc' + (on ? ' on' : '') + '" onclick="mkVcSet(\'' + V.k + '\')"' + (on ? ' aria-pressed="true"' : '') + '>' + esc(V.n) + '</button>'; }).join('') + '</span></span>'; }).join('');
   //  (10/9 3차) 거시 지표 15개 = IMF 전망 · 세계은행 구조 두 갈래
+  else if (MK.lay === 'port' && mkPortMode() === 'gfw') chips = (MK.gfw && MK.gfw.d ? MK.gfw.d.regs : []).map(function(r, i){
+    var x = mkGfwStat(i), on = MK.gfwSel === i; if (!x) return '';
+    return '<button type="button" class="mk-lchip lport' + (on ? ' on' : '') + '" onclick="mkGfwRegPick(' + i + ')"' + (on ? ' aria-pressed="true"' : '') + '>' + esc(mkGfwRegNm(r)) + (x.yoy7 != null ? ' <b class="' + mkUd(x.yoy7) + '">' + mkGfwSg(x.yoy7) + '</b>' : '') + '</button>'; }).join('');
   else if (MK.lay === 'port' && mkPortTabOf() === 'pt') chips = ['port1188', 'port1201', 'port1065', 'port1114', 'port664', 'port824', 'port481', 'port744'].map(function(id){
     var x = mkPrtOf(id), on = MK.portSel === id; if (!x) return '';
     return '<button type="button" class="mk-lchip lport' + (on ? ' on' : '') + '" onclick="mkPortPick(\'' + id + '\')"' + (on ? ' aria-pressed="true"' : '') + '>' + esc(x.p.n) + (x.yoy7 != null ? ' <b class="' + mkUd(x.yoy7) + '">' + (x.yoy7 > 0 ? '+' : '') + Math.round(x.yoy7) + '%</b>' : '') + '</button>'; }).join('');
