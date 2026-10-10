@@ -485,7 +485,8 @@
   .mk-tag{position:absolute;top:5px;right:6px;font-style:normal;font-size:9px;font-weight:700;opacity:.75}
   /*  세계지도: 나라를 안 고르면 지도만 넓게 · 고르면 오른쪽에 나라 칸 (지도는 비율 그대로 · 높이는 mkMapSize 가 px 로)  */
   .mk-world{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
-  .mk-world.open{grid-template-columns:minmax(0,1.05fr) 14px minmax(0,1fr);column-gap:0}
+  /*  (10/10 5차 «창들이 공간을 많이 차지해») — 기본 폭: 지도 1.35 : 옆 칸 1 (끌어서 바꾼 폭은 그대로 기억)  */
+  .mk-world.open{grid-template-columns:minmax(0,1.35fr) 14px minmax(0,1fr);column-gap:0}
   .mk-world:not(.open) .mk-ctry,.mk-world:not(.open) .mk-split{display:none}
   .mk-map{height:380px;width:100%}
   .mk-ctry{padding-left:10px;position:relative}
@@ -637,7 +638,10 @@
   .mk-why .px-seg button{font-size:11.5px;padding:2px 9px}
   /*  나라 칸 «개요 · 업종 · 시황 · 유망 산업» (10/7) — 오름 빨강 · 내림 파랑 (한국식) 은 마켓 맵 전체에  */
   #pane-market .up{color:var(--up)} #pane-market .down{color:var(--down)}
-  .mk-ctry-top .mk-ctabs{flex:0 1 auto;flex-wrap:wrap;min-width:0}
+  .mk-ctry-top .mk-ctabs{flex:0 1 auto;flex-wrap:nowrap;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;scroll-behavior:smooth}
+  .mk-ctry-top .mk-ctabs::-webkit-scrollbar{display:none}
+  .mk-ctabs.short button{padding:5px 8px}
+  .mk-ctabs.ovf{-webkit-mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent)}
   .mk-ctry-top .mk-x{flex:none}
   .mk-cmp-ttl{flex:1 1 auto;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap} .mk-cmp-ttl b{font-size:15px}
   .mk-rets{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;margin:0 0 4px;font-variant-numeric:tabular-nums}
@@ -837,17 +841,17 @@
     /*  (10/9 4차 학회장: «풀 스크린 하단에 뉴스 지워버리고 월드 맵을 extend») — 전체 화면은 뉴스 없이 지도가 아래 끝까지  */
     .mk-full #mkV-world .mk-news5{display:none}
     .mk-full #mkV-world .mk-n5{columns:2;column-gap:32px;font-size:13px}
-    .mk-full #mkV-world .mk-ctry{position:absolute;top:0;bottom:auto;max-height:100%;right:0;left:auto;width:clamp(440px,38%,680px);z-index:5;background:var(--card);border:1px solid var(--border);border-radius:12px;
+    .mk-full #mkV-world .mk-ctry{position:absolute;top:0;bottom:auto;max-height:100%;right:0;left:auto;width:clamp(380px,32%,560px);z-index:5;background:var(--card);border:1px solid var(--border);border-radius:12px;
       box-shadow:0 14px 36px rgba(20,30,60,.20);padding:12px 16px;overflow-y:auto;min-height:0}
     .mk-full #mkV-world .mk-world.left .mk-ctry{right:auto;left:0}
     .mk-full #mkV-world .mk-split{display:none}
     /*  (10/8 4단계) 원자재 · 밸류체인 층은 서랍 대신 옆 칸 — 어느 쪽에 띄워도 생산국(미주 · 동아시아 · 호주)을 덮어서  */
-    .mk-full #mkV-world .mk-world.res{display:grid;grid-template-columns:minmax(0,1fr) clamp(360px,31%,540px);column-gap:14px;align-items:start}
+    .mk-full #mkV-world .mk-world.res{display:grid;grid-template-columns:minmax(0,1fr) clamp(340px,28%,500px);column-gap:14px;align-items:start}
     .mk-full #mkV-world .mk-world.res.pfree{display:block}
     .mk-full #mkV-world .mk-world.res .mk-ctry{position:relative !important;top:auto !important;left:auto !important;right:auto !important;transform:none !important;width:auto !important;
       box-shadow:none}
     .mk-full #mkV-world .mk-world.res .mk-rsz{display:none}
-    .mk-full #mkV-world .mk-world.res .mk-rb{grid-template-columns:20px minmax(0,1.5fr) minmax(0,1.25fr) var(--pcw,50px) var(--vw,58px);gap:6px}
+    .mk-full #mkV-world .mk-world.res .mk-rb{grid-template-columns:26px minmax(0,1.6fr) minmax(0,1.2fr) var(--pcw,50px) var(--vw,58px);gap:6px}
     /*  (10/8) 서랍 안쪽 가장자리를 끌면 폭 조절  */
     .mk-full #mkV-world .mk-rsz{display:block;position:absolute;top:10px;bottom:10px;left:-1px;width:9px;cursor:ew-resize;touch-action:none;z-index:2;border-radius:6px}
     .mk-full #mkV-world .mk-world.left .mk-ctry:not(.moved) .mk-rsz{left:auto;right:-1px}
@@ -1001,7 +1005,26 @@
   .cot-dir .s em{font-style:normal;font-weight:800;text-align:center;border-radius:6px;padding:1px 0;font-variant-numeric:tabular-nums} .cot-dir .s em.up{background:color-mix(in srgb, var(--up) 14%, transparent);color:var(--up)} .cot-dir .s em.down{background:color-mix(in srgb, var(--down) 14%, transparent);color:var(--down)} .cot-dir .s em.n{background:var(--card);color:var(--text-sub)}
   .cot-dir .s span{color:var(--text-sub);line-height:1.45}
   .cot-chh{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:12px 0 6px} .cot-chh b{font-size:13.5px} .cot-chh .px-seg button{font-size:11.5px;padding:2px 10px}
-  .cot-ch{width:100%;height:420px} .cot-ch.s{height:270px} .cot-ch.t{height:200px}
+  .cot-ch{width:100%;height:500px} .cot-ch.s{height:270px} .cot-ch.t{height:200px}
+  /*  (10/10 5차) 쉽게 읽기  */
+  .cot-ex{border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin:2px 0 12px;background:var(--bg-sub)}
+  .cot-exh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:8px} .cot-exh b{font-size:14px}
+  .cot-exs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .cot-exs .st{display:flex;gap:8px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 10px;min-width:0}
+  .cot-exs .no{flex:none;font-weight:800;color:var(--text-sub);font-size:13px;line-height:1.4}
+  .cot-exs .st > div{min-width:0;display:flex;flex-direction:column;gap:3px}
+  .cot-exs .k{font-size:11.5px;color:var(--text-sub)} .cot-exs b{font-size:16px;font-variant-numeric:tabular-nums} .cot-exs b.up{color:var(--up)} .cot-exs b.down{color:var(--down)}
+  .cot-exs p{margin:0;font-size:12px;line-height:1.5} .cot-exs i{font-style:normal;font-size:11.5px;line-height:1.5;color:var(--text-sub)}
+  .cot-exg{position:relative;display:block;height:8px;border-radius:5px;margin:4px 0 14px;background:linear-gradient(90deg,var(--down) 0,color-mix(in srgb, var(--down) 25%, var(--bg-sub)) 20%,var(--bg-sub) 20%,var(--bg-sub) 80%,color-mix(in srgb, var(--up) 25%, var(--bg-sub)) 80%,var(--up) 100%)}
+  .cot-exg i{position:absolute;top:-3px;width:4px;height:14px;margin-left:-2px;border-radius:2px;background:var(--text);box-shadow:0 0 0 2px var(--card)}
+  .cot-exg em{position:absolute;top:10px;font-style:normal;font-size:10px;color:var(--text-sub);white-space:nowrap} .cot-exg em:first-of-type{left:0} .cot-exg em:last-of-type{right:0}
+  .cot-exso{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)}
+  .cot-exso .k{font-weight:800;font-size:12.5px;color:var(--accent)} .cot-exso p{margin:0 0 4px;font-size:13px;line-height:1.6} .cot-exso .sum{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px}
+  .cot-gl{margin-top:8px} .cot-gl summary{cursor:pointer;font-size:12px;color:var(--text-sub);font-weight:600} .cot-gl dl{display:grid;grid-template-columns:minmax(110px,max-content) minmax(0,1fr);gap:4px 12px;margin:8px 0 0;font-size:12px;line-height:1.5}
+  .cot-gl dt{font-weight:700} .cot-gl dd{margin:0;color:var(--text-sub)}
+  #cotDetCard.cot-flash{animation:cotFlash 1.1s ease-out} @keyframes cotFlash{0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent)}100%{box-shadow:0 0 0 12px transparent}}
+  @media (max-width:760px){ .cot-exs{grid-template-columns:minmax(0,1fr)} .cot-gl dl{grid-template-columns:minmax(0,1fr)} .cot-gl dd{margin-bottom:4px} }
+  @media (prefers-reduced-motion: reduce){ #cotDetCard.cot-flash{animation:none} }
   .cot-2,.sent-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
   .cot-note{margin-top:10px;line-height:1.6}
   .sent-top{display:grid;grid-template-columns:minmax(220px,.9fr) minmax(0,2fr);gap:14px;margin-bottom:6px}
@@ -1141,10 +1164,16 @@
   .mk-prow .mk-spark{width:64px;height:18px}
   @media (max-width:560px){ .mk-prow{grid-template-columns:16px minmax(0,1fr) 50px 44px} .mk-prow .bar,.mk-prow .mk-spark{display:none} .mk-prow.h span:nth-child(3),.mk-prow.h span:nth-child(6){display:none} }
   @media (prefers-reduced-motion: reduce){ .mk-prow .bar i{transition:none} .mk-port-al .a i,.mk-port-live .dot{animation:none} }
-  /*  (10/10) 물류 층 · 해협 | 항구 칸 · 위성 보기 (위성 사진 위 실시간 배)  */
+  /*  (10/10) 물류 층 · 해협 | 항구 칸 · 지도 위 실시간 배  */
   .mk-port-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:2px 0 8px} .mk-port-tabs .px-seg button{font-size:12px;padding:4px 12px}
   .mk-port-kv b em{font-style:normal;font-size:11px;font-weight:700;margin-left:4px} .mk-port-kv b em.up{color:var(--up)} .mk-port-kv b em.down{color:var(--down)}
   .mk-ovleg .d.pq{background:#0e7c6b;border-radius:2px}
+  .mk-ovleg .dd{display:inline-flex;align-items:center;gap:2px}
+  .mk-ovleg .d.sh{width:7px;height:7px;border:0} .mk-ovleg .d.sh.cg{background:#1d4ed8} .mk-ovleg .d.sh.tk{background:#c0392b} .mk-ovleg .d.sh.ps{background:#15803d} .mk-ovleg .d.sh.ot{background:#6b7386}
+  :root[data-theme="dark"] .mk-ovleg .d.sh.cg{background:#60a5fa} :root[data-theme="dark"] .mk-ovleg .d.sh.tk{background:#f87171} :root[data-theme="dark"] .mk-ovleg .d.sh.ps{background:#4ade80} :root[data-theme="dark"] .mk-ovleg .d.sh.ot{background:#cbd5e1}
+  .mk-port-ais{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;margin:0 0 8px;font-size:12.5px} .mk-port-ais b{font-size:14px;font-variant-numeric:tabular-nums}
+  .mk-port-ais .dot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:mkLiveDot 1.6s infinite}
+  @media (prefers-reduced-motion: reduce){ .mk-port-ais .dot{animation:none} }
   #mkMapBox > .mk-sat{position:absolute;left:0;top:0;width:100%;height:100%;z-index:6;display:none;background:#0b1a2b}
   #mkMapBox > .mk-sat.on{display:block}
   #mkMapBox.sat-on > .mk-ovleg{display:none}
@@ -1181,7 +1210,28 @@
   .mk-sat-tip .ag{font-size:11px;color:#94a3b8;margin-top:2px}
   @media (max-width:600px){ #mkMapBox.sw-on > .mk-ovleg{top:44px} .mk-sat-hd{max-width:calc(100% - 128px);font-size:10.5px;padding:5px 8px} .mk-sat-hd .t b{font-size:12.5px}
     .mk-sat-leg{max-width:50%;font-size:9.5px;padding:4px 7px} .mk-sat-leg .n{display:none} .mk-sat .mk-sat-map .leaflet-bottom.leaflet-right{max-width:44%} .mk-sat .mk-sat-map .leaflet-control-attribution{font-size:8.5px} .mk-sat .mk-sat-map .leaflet-control-zoom{display:none} #mkMapBox > .mk-sat-sw button{padding:3px 9px;font-size:11.5px} }
+  #mkMapBox.ship-on .mk-sat-hd{display:none}
+  @media (max-width:600px){ #mkMapBox.ship-on .mk-sat-leg{display:none} #mkMapBox.sat-on.ship-on > .mk-shipcard{bottom:74px;max-height:62%} }
   @media (prefers-reduced-motion: reduce){ .mk-sat-hd .dot{animation:none} .mk-sat .mk-sat-cv{transition:none} }
+  .mk-plv{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--card);color:var(--text-sub);border-radius:999px;padding:4px 11px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+  .mk-plv .dot{width:7px;height:7px;border-radius:50%;background:var(--text-sub);opacity:.55} .mk-plv:hover{border-color:var(--port-line)}
+  .mk-plv.on{border-color:var(--port);background:var(--port-soft);color:var(--port)} .mk-plv.on .dot{background:#22c55e;opacity:1}
+  .mk-prow .nm .lv{font-style:normal;display:inline-flex;align-items:center;gap:3px;margin-left:5px;font-size:10.5px;font-weight:700;color:#15803d;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .mk-prow .nm .lv i{width:6px;height:6px;border-radius:50%;background:#22c55e}
+  :root[data-theme="dark"] .mk-prow .nm .lv{color:#4ade80}
+  .mk-plv-none{padding:10px 6px}
+  /*  배 카드 (배를 누르면) — 지도 칸 왼쪽 위 · 휴대폰은 아래  */
+  #mkMapBox > .mk-shipcard{position:absolute;left:10px;top:8px;z-index:9;width:300px;max-width:calc(100% - 140px);padding:9px 11px 8px;border-radius:10px;background:color-mix(in srgb, var(--card) 94%, transparent);border:1px solid var(--border);box-shadow:0 6px 22px rgba(0,0,0,.22);font-size:12px;line-height:1.45;backdrop-filter:blur(4px)}
+  .mk-shipcard .h{display:flex;align-items:center;gap:7px;margin-bottom:5px} .mk-shipcard .h b{font-size:14px;min-width:0;overflow-wrap:anywhere}
+  .mk-shipcard .h .ty{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-sub);white-space:nowrap} .mk-shipcard .h .ty i{width:8px;height:8px;border-radius:2px;background:#6b7386}
+  .mk-shipcard .h .ty i.cg{background:#1d4ed8} .mk-shipcard .h .ty i.tk{background:#c0392b} .mk-shipcard .h .ty i.ps{background:#15803d}
+  :root[data-theme="dark"] .mk-shipcard .h .ty i.cg{background:#60a5fa} :root[data-theme="dark"] .mk-shipcard .h .ty i.tk{background:#f87171} :root[data-theme="dark"] .mk-shipcard .h .ty i.ps{background:#4ade80} :root[data-theme="dark"] .mk-shipcard .h .ty i{background:#cbd5e1}
+  .mk-shipcard .h .x{margin-left:auto;flex:none;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text-sub);font-size:14px;line-height:1;cursor:pointer;font-family:inherit} .mk-shipcard .h .x:hover{color:var(--text);border-color:var(--text-sub)}
+  .mk-shipcard .r{display:grid;grid-template-columns:82px minmax(0,1fr);gap:8px;padding:3px 0;border-top:1px dashed var(--border)}
+  .mk-shipcard .r .k{color:var(--text-sub);font-size:11px;padding-top:1px} .mk-shipcard .r .v{min-width:0;overflow-wrap:anywhere} .mk-shipcard .r .v b{font-size:12.5px}
+  .mk-shipcard .r .v i{display:block;font-style:normal;font-size:10.5px;color:var(--text-sub)}
+  .mk-shipcard .n{margin-top:5px;font-size:10.5px;color:var(--text-sub);line-height:1.4}
+  @media (max-width:600px){ #mkMapBox > .mk-shipcard{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-width:none;max-height:72%;overflow:auto} #mkMapBox.ship-on > .mk-ovleg{display:none} }
   .mk-rsx{margin:4px 0 12px}
   .mk-rsx-h{margin:12px 0 6px;font-size:12.5px} .mk-rsx-h b{font-size:13px}
   .mk-rsrrg{height:260px;width:100%;border:1px solid var(--border);border-radius:10px}
@@ -1348,14 +1398,14 @@
   .mk-res-sel{font-size:12.5px;padding:6px 9px;border-radius:8px;background:var(--bg-sub);margin-bottom:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;line-height:1.4}
   .mk-res-sel .btn-sm{margin-left:auto}
   .mk-res-bars{display:flex;flex-direction:column;gap:1px}
-  .mk-rb{display:grid;grid-template-columns:20px minmax(0,1.25fr) minmax(0,2fr) var(--pcw,52px) var(--vw,70px);align-items:center;gap:8px;padding:4px 6px;border-radius:6px;border:0;background:none;
+  .mk-rb{display:grid;grid-template-columns:26px minmax(0,1.5fr) minmax(0,1.6fr) var(--pcw,52px) var(--vw,70px);align-items:center;gap:8px;padding:4px 6px;border-radius:6px;border:0;background:none;
          font:inherit;color:inherit;text-align:left;cursor:pointer;font-size:12.5px;line-height:1.3;transition:background .15s}
   .mk-rb:hover{background:var(--bg-sub)}
   .mk-rb.on{background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
   .mk-rb.kr .nm{font-weight:700}
-  .mk-rb .rk{color:var(--text-sub);font-variant-numeric:tabular-nums;text-align:right;font-size:11.5px}
+  .mk-rb .rk{color:var(--text-sub);font-variant-numeric:tabular-nums;text-align:right;font-size:11px;white-space:nowrap}
   .mk-rb .nm{min-width:0;display:flex;align-items:center;gap:5px;word-break:keep-all;overflow-wrap:anywhere}
-  .mk-rb .nm .fl{font-style:normal;flex:none;line-height:1} .mk-rb .nm > span{min-width:0}
+  .mk-rb .nm .fl{font-style:normal;flex:none;line-height:1} .mk-rb .nm > span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mk-rb .bar{height:8px;border-radius:4px;background:var(--bg-sub);overflow:hidden}
   .mk-rb .bar i{display:block;height:100%;width:0;border-radius:4px;transition:width .7s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--k, 0) * 22ms)}
   .mk-res.grown .mk-rb .bar i{width:var(--w)}
@@ -1379,7 +1429,7 @@
   .mk-kv{font-variant-numeric:tabular-nums} .mk-kv .mk-tag{position:static;margin-left:4px}
   .mk-ctry-body{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
   .mk-fam{align-self:flex-start;margin:0 0 6px}
-  .mk-lines{height:340px;width:100%}
+  .mk-lines{height:300px;width:100%}
   .mk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:2px 12px;font-size:12px}
   .mk-li{display:flex;align-items:center;gap:6px;min-width:0;padding:2px 0;border-bottom:1px dashed var(--border)}
   .mk-li i{flex:0 0 14px;height:3px;border-radius:2px}
@@ -4809,15 +4859,16 @@
         <button type="button" id="dvV-opt" onclick="dvViewSet('opt')">옵션 · 변동성</button>
       </div>
       <div id="dvPane-cot" class="hidden">
-        <div class="card" id="cotBoardCard">
-          <h2>방향성 보드 <span class="st-hint" style="font-weight:400">선물 23개 · 큰손(투기) 포지션이 어디로 쏠렸나</span></h2>
-          <span class="px-seg cot-gseg" id="cotGseg" role="group" aria-label="묶음"></span>
-          <div id="cotSum"></div>
-          <div class="cot-board" id="cotBoard"><div class="mk-wait">로딩 중…</div></div>
-        </div>
+        <!--  (10/10 5차 학회장: «COT 항목을 누르면 차트랑 설명이 페이지 위에 · 매번 아래로 내려가기 힘들어») — 자세히 칸이 먼저 · 보드는 아래  -->
         <div class="card" id="cotDetCard">
           <h2 id="cotDetT">시장</h2>
           <div id="cotDet"></div>
+        </div>
+        <div class="card" id="cotBoardCard">
+          <h2>방향성 보드 <span class="st-hint" style="font-weight:400">선물 23개 · 큰손(투기) 포지션이 어디로 쏠렸나 · 누르면 위에서 자세히</span></h2>
+          <span class="px-seg cot-gseg" id="cotGseg" role="group" aria-label="묶음"></span>
+          <div id="cotSum"></div>
+          <div class="cot-board" id="cotBoard"><div class="mk-wait">로딩 중…</div></div>
         </div>
       </div>
       <div id="dvPane-sent" class="hidden">
@@ -7804,6 +7855,9 @@ async function edgeCall0(fn, body, _retry){
     return edgeCall0(fn, body, true);
   }
   var d = await r.json().catch(function(){ return {}; });
+  //  (10/10 5차) «준비 중» (서버가 뒤에서 처음 계산하는 중) 은 오류가 아니라 답 — 부르는 쪽(시장 폭 · COT · 나라 상대강도)이 잠시 뒤 다시 물어봄
+  //   예전엔 이것도 오류로 던져서 다시 묻지 않고 «불러오지 못했습니다 - pending» 으로 멈췄음
+  if (r.ok && d && d.error === 'pending') return d;
   if (!r.ok || d.error) {
     if (r.status === 404) throw new Error(fn + ' 함수가 배포되지 않았습니다. Supabase → Edge Functions 에서 배포해주세요.');
     if (r.status === 401) throw new Error('로그인이 끊겼습니다. 다시 로그인해주세요.');
@@ -10969,7 +11023,7 @@ function aicActClean(a){
     if (a.cot && !a.dview) a.dview = 'cot';
     if (a.symbol && !a.dview && a.tab === 'deriv') a.dview = 'opt';
     a.cp = a.tab === 'market' && Number.isInteger(a.cp) && a.cp >= 1 && a.cp <= 28 ? a.cp : null;
-    //  (10/10) 항구 (위성 사진 위 실시간 배)
+    //  (10/10) 항구 (확대 · 둘레의 실시간 배)
     a.pt = a.tab === 'market' && /^port\d{1,5}$/.test(String(a.pt || '')) ? String(a.pt) : null;
     //  (10/9 3차) 주식분석 › 스크리너 프리셋 · 시장
     a.preset = a.tab === 'stocks' && typeof STK_PRESETS !== 'undefined' && STK_PRESETS.some(function(x){ return x[0] === a.preset; }) ? String(a.preset) : null;
@@ -14550,9 +14604,11 @@ function cotRender(){
   cotDetail();
 }
 function cotGroup(g){ DV.cg = g; dvSave(); var b = $('cotBoard'); if (b) b.__k = ''; cotRender(); }
-function cotPick(k, scroll){
+function cotPick(k){
   DV.ck = k; dvSave(); var b = $('cotBoard'); if (b) b.__k = ''; cotRender();
-  if (scroll){ var c = $('cotDetCard'); if (c && c.scrollIntoView) c.scrollIntoView({ behavior: MOTION_OK ? 'smooth' : 'auto', block: 'start' }); }
+  //  (10/10 5차) 누르면 언제나 위의 자세히 칸으로 (이미 보이면 그대로)
+  var c = $('cotDetCard'); if (c && c.getBoundingClientRect().top < 60 || (c && c.getBoundingClientRect().top > (window.innerHeight || 800) * 0.4)) c.scrollIntoView({ behavior: MOTION_OK ? 'smooth' : 'auto', block: 'start' });
+  if (c && MOTION_OK){ c.classList.remove('cot-flash'); requestAnimationFrame(function(){ requestAnimationFrame(function(){ c.classList.add('cot-flash'); }); }); }
 }
 function cotPerSet(p){ DV.per = p; dvSave(); cotDetail(true); }
 //  ── 한 시장 자세히 ──
@@ -14578,7 +14634,7 @@ function cotDetail(redraw){
              ['trend', T('가격 추세', 'Price trend'), r.p != null ? T('13주 ', '13w ') + mkPct(r.r13, 1) + T(' · 26주 평균 ', ' · vs 26w avg ') + (r.sig.trend > 0 ? T('위', 'above') : r.sig.trend < 0 ? T('아래', 'below') : T('근처', 'near')) : T('가격 자료 없음', 'No price')],
              ['analog', T('과거 비슷한 구간', 'Analogs'), r.an && r.an.n >= 8 ? T('COT 지수 ±10 구간 ', 'Index ±10: ') + r.an.n + T('번 · 13주 뒤 중앙값 ', ' cases · 13w median ') + mkPct(r.an.med, 1) + T(' · 오른 확률 ', ' · up ') + r.an.pu + '%' : T('표본이 적어 쓰지 않음', 'Too few cases')]];
   var tile = function(lab, v, cls, sub){ return '<div class="cot-t"><span>' + esc(lab) + '</span><b class="' + (cls || '') + '">' + esc(v) + '</b>' + (sub ? '<i>' + esc(sub) + '</i>' : '') + '</div>'; };
-  box.innerHTML = '<div class="cot-tiles">'
+  box.innerHTML = cotExplainHtml(r) + '<div class="cot-tiles">'
       + tile(cotSpecNm(r) + T(' 순포지션', ' net'), (r.s > 0 ? '+' : '') + num(r.s, 0), mkUd(r.s), T('미결제약정의 ', 'of OI ') + (r.sp > 0 ? '+' : '') + r.sp + '%')
       + tile(T('COT 지수 (3년)', 'COT index (3y)'), String(r.ix), '', cr[1])
       + tile(T('1주 변화', '1w chg'), (r.ch1 > 0 ? '+' : '') + num(r.ch1, 0), mkUd(r.ch1), '')
@@ -14589,7 +14645,7 @@ function cotDetail(redraw){
     + '<div class="cot-dir"><div class="l"><span class="st-hint">' + esc(T('방향성 (교육용)', 'Bias (educational)')) + '</span><em class="cot-bias big ' + b[0] + '">' + esc(b[1]) + '</em>'
       + '<div class="cot-meter" role="img" aria-label="' + esc(T('방향성 점수 ', 'Score ') + r.score) + '"><i class="tk" style="left:' + ((r.score + 4) / 8 * 100).toFixed(1) + '%"></i><span>-4</span><span>0</span><span>+4</span></div></div>'
       + '<div class="r">' + sig.map(function(x){ var v = r.sig[x[0]]; return '<div class="s"><em class="' + (v > 0 ? 'up' : v < 0 ? 'down' : 'n') + '">' + (v > 0 ? '+1' : v < 0 ? '−1' : '0') + '</em><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span></div>'; }).join('') + '</div></div>'
-    + '<div class="cot-chh"><b>' + esc(T('전체 추이', 'Long-run')) + '</b><span class="px-seg">' + [['1y', T('1년', '1Y')], ['3y', T('3년', '3Y')], ['10y', T('10년', '10Y')]].map(function(o){ return '<button type="button"' + (DV.per === o[0] ? ' class="on"' : '') + ' onclick="cotPerSet(\'' + o[0] + '\')">' + esc(o[1]) + '</button>'; }).join('') + '</span><span class="st-hint">' + esc(T('위 = 가격 · 아래 = 참가자별 순포지션(계약) · 막대 = 미결제약정', 'Top = price · bottom = net by trader group · bars = OI')) + '</span></div>'
+    + '<div class="cot-chh"><b>' + esc(T('전체 추이', 'Long-run')) + '</b><span class="px-seg">' + [['1y', T('1년', '1Y')], ['3y', T('3년', '3Y')], ['10y', T('10년', '10Y')]].map(function(o){ return '<button type="button"' + (DV.per === o[0] ? ' class="on"' : '') + ' onclick="cotPerSet(\'' + o[0] + '\')">' + esc(o[1]) + '</button>'; }).join('') + '</span><span class="st-hint">' + esc(T('위 = 가격 (빨간 띠 = 큰손이 많이 산 때 · 파란 띠 = 많이 판 때) · 가운데 = COT 지수 (3년 위치) · 아래 = 참가자별 순포지션(계약) · 막대 = 미결제약정', 'Top = price (red = crowded long, blue = crowded short) · middle = COT index · bottom = net by group')) + '</span></div>'
     + '<div class="cot-ch" id="cotChA"></div>'
     + '<div class="cot-2"><div><div class="cot-chh"><b>' + esc(T('단기 흐름 · 최근 12주', 'Short-term · 12 weeks')) + '</b><span class="st-hint">' + esc(T('참가자별 주간 증감 · 선 = 투기 순포지션', 'Weekly change by group')) + '</span></div><div class="cot-ch s" id="cotChB"></div></div>'
       + '<div><div class="cot-chh"><b>' + esc(T('전망 · 과거 비슷한 포지션 뒤 13주', 'Outlook · 13w after similar positioning')) + '</b><span class="st-hint">' + esc(T('예측이 아니라 과거 분포 · 진한 띠 25~75% · 옅은 띠 10~90%', 'Historical distribution, not a forecast')) + '</span></div><div class="cot-ch s" id="cotChC"></div></div></div>'
@@ -14597,24 +14653,83 @@ function cotDetail(redraw){
   if (A.d) requestAnimationFrame(function(){ cotDrawA(r, A.d); cotDrawB(r, A.d); cotDrawC(r, A.d); });
   else ['cotChA', 'cotChB', 'cotChC'].forEach(function(id){ var el = $(id); if (el) el.innerHTML = '<div class="mk-wait">' + esc(A.err ? mkErrTxt(A.err) : T('로딩 중…', 'Loading…')) + '</div>'; });
 }
+/*  (10/10 5차 학회장: «COT 가 더 직관적으로 · 이게 높고 이게 낮아서 이런 상황이다 · 선물이 어려운 학회원도 · 장기 추이도 잘 보이게»)
+    자세히 칸 맨 위 «쉽게 읽기» — ① 큰손 위치 (COT 지수 높음 · 낮음이 뜻하는 것) ② 최근 4주 흐름 ③ 가격 흐름 → 그래서 (셋을 이어 한두 문장) · 용어 풀이 (접었다 펴기)
+    문장은 규칙으로 만듦 (숫자는 표 · 그림과 같은 값) · 교육용 요약이며 매매 신호가 아님  */
+function cotLvl(ix){
+  return ix >= 90 ? ['xl', T('매우 높음', 'Very high'), T('최근 3년 중 큰손이 가장 많이 산 수준', 'Most long in 3 years'), T('살 사람은 대부분 이미 산 상태 → 더 사 줄 매수가 적어 되돌림(하락)에 약한 자리', 'Few buyers left: vulnerable to pullbacks')]
+    : ix >= 75 ? ['l', T('높음', 'High'), T('3년 범위에서 많이 산 편', 'Long-heavy'), T('상승 기대가 이미 많이 반영됨 → 좋은 소식에도 더 오를 힘이 약할 수 있음', 'Optimism largely priced in')]
+    : ix > 25 ? ['m', T('보통', 'Neutral'), T('3년 범위의 중간', 'Mid-range'), T('한쪽으로 쏠리지 않음 → 포지션만으로는 방향 신호가 약함', 'No crowding: weak signal on its own')]
+    : ix > 10 ? ['s', T('낮음', 'Low'), T('3년 범위에서 많이 판 편', 'Short-heavy'), T('하락 기대가 많이 반영됨 → 나쁜 소식에도 덜 빠지고 반등 여지', 'Pessimism largely priced in')]
+    : ['xs', T('매우 낮음', 'Very low'), T('최근 3년 중 큰손이 가장 많이 판 수준', 'Most short in 3 years'), T('팔 사람은 대부분 이미 판 상태 → 되사기(숏 커버링)로 반등이 나오기 쉬운 자리', 'Short covering can spark rebounds')];
+}
+function cotExplainHtml(r){
+  var lv = cotLvl(r.ix), nm = cotSpecNm(r).replace(/^투기 \((.+)\)$/, '$1').replace(/^Speculators? \((.+)\)$/, '$1'), b = cotBias(r);
+  var fl = r.ch4p > 3 ? ['up', '▲', T('크게 사들임', 'Bought heavily')] : r.ch4p > 1 ? ['up', '▲', T('조금 사들임', 'Bought')] : r.ch4p < -3 ? ['down', '▼', T('크게 줄임 (팔거나 매도를 늘림)', 'Sold heavily')] : r.ch4p < -1 ? ['down', '▼', T('조금 줄임', 'Trimmed')] : ['', '■', T('거의 그대로', 'Little change')];
+  var hasP = r.p != null && r.r13 != null, pr = !hasP ? null : r.r13 > 5 ? ['up', '▲', T('올랐음', 'Up')] : r.r13 < -5 ? ['down', '▼', T('내렸음', 'Down')] : ['', '■', T('큰 변화 없음', 'Flat')];
+  var so = [];
+  if (hasP && r.r13 > 5 && r.ch4p < -1) so.push(T('가격은 올랐는데 큰손은 최근 줄이고 있습니다 → 상승을 이끈 매수세가 약해지는 모습이라 추세가 둔해질 수 있습니다.', 'Price up while specs cut: momentum may fade.'));
+  else if (hasP && r.r13 < -5 && r.ch4p > 1) so.push(T('가격은 내렸는데 큰손은 최근 사들이고 있습니다 → 바닥을 노리는 매수가 들어오는 모습입니다.', 'Price down while specs buy: bottom-fishing.'));
+  else if (hasP && r.r13 > 0 && r.ch4p > 1) so.push(T('가격과 큰손 매수가 같은 방향(위)입니다 → 상승 추세를 받쳐 주는 흐름입니다.', 'Price and buying aligned: supports the uptrend.') + (r.ix >= 80 ? T(' 다만 이미 많이 산 상태라 쏠림 위험도 함께 봐야 합니다.', ' But positioning is crowded.') : ''));
+  else if (hasP && r.r13 < 0 && r.ch4p < -1) so.push(T('가격과 큰손 매도가 같은 방향(아래)입니다 → 하락 흐름이 이어지는 모습입니다.', 'Price and selling aligned: downtrend persists.') + (r.ix <= 20 ? T(' 다만 이미 많이 판 상태라 되사기 반등 가능성도 있습니다.', ' But shorts are crowded.') : ''));
+  else so.push(T('큰손 위치는 «' + lv[1] + '» · 최근 흐름은 «' + fl[2] + '» 입니다 → ', 'Positioning ' + lv[1] + ', flow ' + fl[2] + ' → ') + lv[3] + '.');
+  if (r.an && r.an.n >= 8) so.push(T('과거에 지금처럼 큰손 위치가 비슷했던 ' + r.an.n + '번, 13주 뒤 가격은 중앙값 ' + mkPct(r.an.med, 1) + ' · 오른 비율 ' + r.an.pu + '% 였습니다.', r.an.n + ' similar past cases: 13w median ' + mkPct(r.an.med, 1) + ', up ' + r.an.pu + '%.'));
+  var step = function(no, k, big, cls, txt, sub){ return '<div class="st"><span class="no">' + no + '</span><div><span class="k">' + esc(k) + '</span><b class="' + (cls || '') + '">' + big + '</b><p>' + esc(txt) + '</p>' + (sub ? '<i>' + esc(sub) + '</i>' : '') + '</div></div>'; };
+  var gauge = '<span class="cot-exg ' + lv[0] + '" role="img" aria-label="' + esc(T('COT 지수 ', 'COT index ') + r.ix) + '"><i style="left:' + Math.max(0, Math.min(100, r.ix)) + '%"></i><em>' + esc(T('많이 판', 'short')) + '</em><em>' + esc(T('많이 산', 'long')) + '</em></span>';
+  return '<div class="cot-ex"><div class="cot-exh"><b>' + esc(T('쉽게 읽기', 'Plain reading')) + '</b><span class="st-hint">' + esc(T('큰손 (' + nm + ') 이 지금 어디에 얼마나 걸어 두었나 · 교육용 요약', 'Where speculators (' + nm + ') are positioned · educational')) + '</span></div>'
+    + '<div class="cot-exs">'
+      + step('①', T('큰손 위치 (COT 지수)', 'Positioning (COT index)'), esc(r.ix + ' · ' + lv[1]), lv[0] === 'xl' || lv[0] === 'l' ? 'up' : lv[0] === 'xs' || lv[0] === 's' ? 'down' : '', lv[2] + ' (0 = 3년 중 가장 많이 판 · 100 = 가장 많이 산)', lv[3]).replace('</b><p>', '</b>' + gauge + '<p>')
+      + step('②', T('최근 4주 흐름', '4-week flow'), esc(fl[1] + ' ' + (r.ch4p > 0 ? '+' : '') + r.ch4p + '%p'), fl[0], T('큰손이 ', 'Specs ') + fl[2] + T(' · 4주 동안 순포지션 ', ' · 4w net ') + (r.ch4 > 0 ? '+' : '') + num(r.ch4, 0) + T('계약 (+ = 더 삼 · − = 줄이거나 더 팖)', ' contracts'), '')
+      + (pr ? step('③', T('가격 흐름 (13주)', 'Price (13w)'), esc(pr[1] + ' ' + mkPct(r.r13, 1)), pr[0], T('최근 13주 동안 ', 'Over 13 weeks ') + pr[2] + (r.r4 != null ? T(' · 4주 ', ' · 4w ') + mkPct(r.r4, 1) : ''), '') : '')
+    + '</div>'
+    + '<div class="cot-exso"><span class="k">' + esc(T('그래서', 'So')) + '</span><div>' + so.map(function(t){ return '<p>' + esc(t) + '</p>'; }).join('') + '<p class="sum">' + esc(T('종합: ', 'Overall: ')) + '<em class="cot-bias ' + b[0] + '">' + esc(b[1]) + '</em><span class="st-hint">' + esc(T(' 교육용 요약 · 매매 신호 아님', ' educational, not a trade signal')) + '</span></p></div></div>'
+    + '<details class="cot-gl"><summary>' + esc(T('용어 쉽게 보기', 'Glossary')) + '</summary><dl>'
+      + [[T('큰손 (투기)', 'Speculators'), T('헤지펀드 · CTA 처럼 가격 방향에 걸어 수익을 내려는 쪽 (원자재 = 머니매니저 · 금융 선물 = 레버리지 펀드)', 'Hedge funds / CTAs betting on direction')],
+         [T('실수요 (생산자 · 상업)', 'Commercials'), T('원유 생산자 · 항공사 · 곡물 회사처럼 가격 위험을 피하려는(헤지) 쪽 → 보통 큰손과 반대로 움직임', 'Hedgers; usually opposite to specs')],
+         [T('순포지션', 'Net position'), T('산 계약(롱) − 판 계약(숏) · + 면 오르는 쪽, − 면 내리는 쪽에 더 걸어 둔 것', 'Longs minus shorts')],
+         [T('미결제약정', 'Open interest'), T('아직 청산되지 않은 전체 계약 수 = 그 선물 시장의 크기', 'Total open contracts = market size')],
+         [T('COT 지수 (0~100)', 'COT index'), T('최근 3년 순포지션 범위에서 지금 위치 · 80 이상 = 많이 산 구간 · 20 이하 = 많이 판 구간', 'Position within 3-year range')],
+         [T('왜 «반대로» 읽나', 'Why contrarian'), T('모두가 이미 한쪽에 걸었으면 그 방향으로 더 밀어 줄 사람이 남지 않기 때문 · 그래서 극단(90+ · 10-)은 되돌림을 경계', 'When everyone is in, few are left to push further')]]
+        .map(function(o){ return '<dt>' + esc(o[0]) + '</dt><dd>' + esc(o[1]) + '</dd>'; }).join('') + '</dl></details></div>';
+}
+//  3년 이동 COT 지수 (주마다 · 지난 156주 투기 순포지션 범위에서의 위치) — 52주 미만은 비움
+function cotIxSeries(W){
+  return W.map(function(w, i){ var a = W.slice(Math.max(0, i - 155), i + 1).map(function(x){ return x[2]; }).filter(function(v){ return v != null; }); if (a.length < 52 || w[2] == null) return null;
+    var lo = Math.min.apply(null, a), hi = Math.max.apply(null, a); return hi > lo ? Math.round((w[2] - lo) / (hi - lo) * 100) : 50; });
+}
 function cotCols(dk){ return { s: dk ? '#ef6b5e' : '#c0392b', c: dk ? '#5b9cf0' : '#2a5aa8', w: dk ? '#e0b45a' : '#b7791f', o: dk ? '#8a93a8' : '#9aa3b6', p: dk ? '#e9eef9' : '#1a1f36', oi: dk ? 'rgba(170,180,200,.18)' : 'rgba(90,98,120,.13)' }; }
 function cotGrpNm(r){ var f = cotSpecNm(r) === T('레버리지 펀드', 'Leveraged funds'); return f ? [T('레버리지 펀드', 'Lev. funds'), T('자산운용사', 'Asset managers'), T('딜러', 'Dealers'), T('기타 보고', 'Other')] : [T('머니매니저 (투기)', 'Managed money'), T('생산자 · 상업 (실수요)', 'Producers'), T('스왑 딜러', 'Swap dealers'), T('기타 보고', 'Other')]; }
 function cotDrawA(r, D){
   var el = $('cotChA'); if (!el || typeof echarts === 'undefined') return;
   cotChartA = chartOn(el, cotChartA); if (!cotChartA) return;
   var dk = document.documentElement.getAttribute('data-theme') === 'dark', C = cotCols(dk), nm = cotGrpNm(r);
-  var n = DV.per === '1y' ? 52 : DV.per === '3y' ? 156 : 99999, W = D.w.slice(-n), x = W.map(function(w){ return w[0]; }), hasP = W.some(function(w){ return w[6] != null; });
-  var grids = hasP ? [{ left: 8, right: 10, top: 28, height: '30%', containLabel: true }, { left: 8, right: 10, top: '46%', bottom: 26, containLabel: true }] : [{ left: 8, right: 10, top: 28, bottom: 26, containLabel: true }];
-  var gi = hasP ? 1 : 0;
+  //  (10/10 5차) COT 지수(3년 위치)는 전체 기록으로 계산한 뒤 고른 기간만큼 자름 · 80 이상 = 많이 산 구간 · 20 이하 = 많이 판 구간 → 가격 위에 띠로
+  var IXa = cotIxSeries(D.w);
+  var n = DV.per === '1y' ? 52 : DV.per === '3y' ? 156 : 99999, W = D.w.slice(-n), IX = IXa.slice(-W.length), x = W.map(function(w){ return w[0]; }), hasP = W.some(function(w){ return w[6] != null; });
+  var hiC = dk ? 'rgba(239,107,94,.16)' : 'rgba(192,57,43,.10)', loC = dk ? 'rgba(91,156,240,.18)' : 'rgba(42,90,168,.10)';
+  var zones = function(){ var out = [], st = null, kind = null;
+    IX.forEach(function(v, i){ var k = v == null ? null : v >= 80 ? 'h' : v <= 20 ? 'l' : null;
+      if (k !== kind){ if (kind) out.push([{ xAxis: x[st], itemStyle: { color: kind === 'h' ? hiC : loC } }, { xAxis: x[i - 1] }]); st = i; kind = k; } });
+    if (kind) out.push([{ xAxis: x[st], itemStyle: { color: kind === 'h' ? hiC : loC } }, { xAxis: x[x.length - 1] }]);
+    return out; };
+  var Z = zones();
+  var grids = hasP ? [{ left: 8, right: 12, top: 28, height: '27%', containLabel: true }, { left: 8, right: 12, top: '40%', height: '12%', containLabel: true }, { left: 8, right: 12, top: '58%', bottom: 26, containLabel: true }]
+                   : [{ left: 8, right: 12, top: 28, height: '16%', containLabel: true }, { left: 8, right: 12, top: '30%', bottom: 26, containLabel: true }];
+  var gI = hasP ? 1 : 0, gi = hasP ? 2 : 1;
   var xAx = grids.map(function(g, i){ return { type: 'category', gridIndex: i, data: x, axisLabel: { show: i === grids.length - 1, fontSize: 10, hideOverlap: true }, axisTick: { show: false } }; });
   var yAx = hasP ? [{ gridIndex: 0, type: 'value', scale: true, axisLabel: { fontSize: 10 }, splitLine: { lineStyle: { opacity: 0.4 } } }] : [];
+  yAx.push({ gridIndex: gI, type: 'value', min: 0, max: 100, interval: 50, axisLabel: { fontSize: 9.5 }, splitLine: { show: false } });
   yAx.push({ gridIndex: gi, type: 'value', axisLabel: { fontSize: 10, formatter: function(v){ return Math.abs(v) >= 1000 ? Math.round(v / 1000) + 'k' : v; } }, splitLine: { lineStyle: { opacity: 0.4 } } });
   yAx.push({ gridIndex: gi, type: 'value', show: false });
-  var yi = hasP ? 1 : 0;
+  var yI = hasP ? 1 : 0, yi = yI + 1;
   var line = function(name, i, col, w, area){ return { name: name, type: 'line', xAxisIndex: gi, yAxisIndex: yi, data: W.map(function(v){ return v[i]; }), showSymbol: false, lineStyle: { width: w }, color: col, areaStyle: area ? { opacity: dk ? 0.16 : 0.1 } : undefined, z: 3 }; };
+  var ixS = { name: T('COT 지수 (3년 위치)', 'COT index (3y)'), type: 'line', xAxisIndex: gI, yAxisIndex: yI, data: IX, showSymbol: false, connectNulls: false, lineStyle: { width: 1.6 }, color: dk ? '#c4b5fd' : '#6d28d9', z: 4,
+    markArea: { silent: true, data: [[{ yAxis: 80, itemStyle: { color: hiC } }, { yAxis: 100 }], [{ yAxis: 0, itemStyle: { color: loC } }, { yAxis: 20 }]] },
+    markLine: { silent: true, symbol: 'none', lineStyle: { type: 'dashed', width: 1, opacity: 0.6 }, label: { show: false }, data: [{ yAxis: 80 }, { yAxis: 20 }] } };
   var ser = [{ name: T('미결제약정', 'Open interest'), type: 'bar', xAxisIndex: gi, yAxisIndex: yi + 1, data: W.map(function(v){ return v[1]; }), itemStyle: { color: C.oi }, barCategoryGap: '20%', silent: true, z: 1 },
-             line(nm[0], 2, C.s, 2.2, true), line(nm[1], 3, C.c, 1.6), line(nm[2], 4, C.w, 1.3), line(nm[3], 5, C.o, 1)];
-  if (hasP) ser.unshift({ name: T('가격', 'Price'), type: 'line', xAxisIndex: 0, yAxisIndex: 0, data: W.map(function(v){ return v[6]; }), showSymbol: false, lineStyle: { width: 1.8 }, color: C.p, connectNulls: true });
+             line(nm[0], 2, C.s, 2.2, true), line(nm[1], 3, C.c, 1.6), line(nm[2], 4, C.w, 1.3), line(nm[3], 5, C.o, 1), ixS];
+  if (hasP) ser.unshift({ name: T('가격', 'Price'), type: 'line', xAxisIndex: 0, yAxisIndex: 0, data: W.map(function(v){ return v[6]; }), showSymbol: false, lineStyle: { width: 1.8 }, color: C.p, connectNulls: true, markArea: Z.length ? { silent: true, data: Z } : undefined });
+  else ixS.markArea.data = ixS.markArea.data.concat(Z);
   cotChartA.__axNoKeep = true;
   cotChartA.setOption({ animation: MOTION_OK, animationDuration: 1100, animationEasing: 'cubicOut', grid: grids, xAxis: xAx, yAxis: yAx,
     legend: { type: 'scroll', top: 0, left: 0, right: 0, itemWidth: 12, itemHeight: 8, pageIconSize: 10, textStyle: { fontSize: 10.5 } },
@@ -18675,7 +18790,7 @@ function mkLoadPrefs(){
     //  (10/8 4단계) 지도 층
     if (p.ly === 'res' || p.ly === 'vc' || p.ly === 'mac' || p.ly === 'port') MK.lay = p.ly;
     if (isFinite(p.pt) && p.pt >= 1 && p.pt <= 28) MK.portSel = +p.pt; else if (/^port\d+$/.test(String(p.pt || ''))) MK.portSel = String(p.pt);
-    if (p.sat === 0) MK.satOn = false; if (p.ptb === 'pt') MK.portTab = 'pt';
+    if (p.ptb === 'pt') MK.portTab = 'pt'; if (p.plv === 1) MK.portLive = true;
     if (MK_MAC.some(function(m){ return m[0] === p.mc; })) MK.mac = p.mc;
     if (MK_PROJS.some(function(x){ return x[0] === p.pj; })) MK.proj = p.pj;
     if (Array.isArray(p.rot) && p.rot.length >= 2 && isFinite(p.rot[0]) && isFinite(p.rot[1])) MK.rot = [+p.rot[0] % 360, Math.max(-75, Math.min(75, +p.rot[1])), 0];
@@ -18703,7 +18818,7 @@ function mkLoadPrefs(){
 }
 function mkSavePrefs(){ try { LSX.setItem(MK_KEY, JSON.stringify({ view: MK.view, cc: MK.cc, fx: MK.fxPair, open: !!MK.ctryOpen, tab: MK.ctryTab, h: MK.fxH, sp: MK.secPer, dp: MK.drawerPos || null,
   cl: MK.ccList, cmp: !!MK.cmpOn, spl: MK.split, dw: MK.drawerW, ly: MK.lay, rs: MK.res, vc: MK.vc, vs: MK.vcSt, tb: MK.tabs, vsb: MK.vcStBy, pp: MK.pops, pf: MK.pfree,
-  mc: MK.mac, pj: MK.proj, rot: MK.rot ? MK.rot.map(function(x){ return Math.round(x * 100) / 100; }) : null, spn: MK.spin !== false, fw: MK.flow !== false, pt: MK.portSel || null, sat: MK.satOn === false ? 0 : 1, ptb: MK.portTab || 'cp' })); } catch(e){} }
+  mc: MK.mac, pj: MK.proj, rot: MK.rot ? MK.rot.map(function(x){ return Math.round(x * 100) / 100; }) : null, spn: MK.spin !== false, fw: MK.flow !== false, pt: MK.portSel || null, ptb: MK.portTab || 'cp', plv: MK.portLive ? 1 : 0 })); } catch(e){} }
 /*  ── (10/9) 하나로 합친 탭 ── 'c:KR' 나라 · 'r:cu' 원자재 · 'v:semi' 밸류체인 · 8개까지 (넘으면 가장 오래된 것부터 · 지금 연 것은 안 빠짐)
     탭을 누르면 그 층으로 바뀜 (나라 = 시장 층 · 원자재 · 밸류체인) · × = 그 탭만 닫고 남은 마지막 탭으로 · 나라 탭이 둘 이상이면 «비교»  */
 function mkTabOf(id){
@@ -18847,7 +18962,7 @@ function mkPopOpen(id, at){
   var q = mkPopOf(id);
   if (!q){
     var wasMain = mkTabCur() === id, b = mkWorldRect(), n = MK.pops.length;
-    q = { id: id, w: 420, h: 500, vs: null };
+    q = { id: id, w: 380, h: 440, vs: null };
     if (id.indexOf('v:') === 0) q.vs = id.slice(2) === MK.vc ? MK.vcSt : (MK.vcStBy[id.slice(2)] || mkVcOf(id.slice(2)).st[0][0]);
     if (at){ q.x = at.x - b.left; q.y = at.y - b.top; } else mkPopSpot(q);
     q.z = mkZNext();
@@ -19091,7 +19206,8 @@ function mkWinResize(g, dir, st, ev, minW, minH){
 function mkCtryOk(cc){ return !!cc && !!MK_CC[cc]; }
 //  나라 칸 탭 — [키, 이름]
 //  (10/8 학회장: «나라를 고르면 무조건 개요부터 · 개요 보는 동안 다른 칸 미리 로딩» · «나라 산업 지표도») — 개요가 맨 앞 · 산업 지표 탭 추가
-var MK_CTABS = [['ov', '개요'], ['live', '실시간'], ['stk', '주요 기업'], ['sec', '업종'], ['ind', '산업 지표'], ['fx', '환율 모델'], ['ai', '시황 · 유망 산업']];
+//  (10/10 5차 «탭 줄이 길어 칸을 줄이면 다음 줄로 넘어감») — [열쇠, 이름, 좁을 때 짧은 이름] · 한 줄 유지 (좁으면 짧은 이름 · 그래도 넘치면 옆으로 밀어 보기)
+var MK_CTABS = [['ov', '개요', '개요'], ['live', '실시간', '실시간'], ['stk', '주요 기업', '기업'], ['sec', '업종', '업종'], ['ind', '산업 지표', '지표'], ['fx', '환율 모델', '환율'], ['ai', '시황 · 유망 산업', '시황']];
 var MK_SEC_PER = [['d1', '1일'], ['w1', '1주'], ['m1', '1개월'], ['m3', '3개월'], ['ytd', '연초 이후']];
 function mkTabOk(t, cc){ return t === 'stk' ? MK_LINES.indexOf(cc) >= 0 : t === 'fx' ? mkCtryPairs(cc).length > 0 : t === 'ind' ? mkIndOk(cc) : MK_CTABS.some(function(x){ return x[0] === t; }); }
 //  산업 지표 = 산업분석 › 병목 모니터에 자료가 있는 나라 (미국 · 한국 · 일본 · 중국 · 독일 · 프랑스 · 이탈리아 · 영국 · 인도)
@@ -19795,10 +19911,11 @@ function mkFitFull(){
   var on = document.body.classList.contains('mk-full-on'), H = window.innerHeight || 800, narrow = (window.innerWidth || 1000) <= 900;
   var set = function(id, px){ var el = $(id); if (el) el.style.height = on ? Math.round(px) + 'px' : ''; };
   //  세계지도 높이는 mkMapSize 가 지도 모양(가로 1.94 : 세로 1)에 맞춰 정합니다 (늘리거나 줄이지 않게)
-  set('mkLineBox', Math.max(260, H - (narrow ? 260 : 360)));
-  set('mkFxBox', Math.max(300, H - 420));
-  set('mkCfxBox', Math.max(220, Math.round((H - 420) * 0.55)));
-  set('mkOvBox', Math.max(200, Math.round((H - 420) * 0.42)));
+  //  (10/10 5차 «주요 기업이랑 창들이 공간을 많이 차지해») — 큰 화면에서도 그림이 끝없이 길어지지 않게 위 한도
+  set('mkLineBox', Math.max(260, Math.min(460, H - (narrow ? 260 : 360))));
+  set('mkFxBox', Math.max(300, Math.min(480, H - 420)));
+  set('mkCfxBox', Math.max(220, Math.min(340, Math.round((H - 420) * 0.55))));
+  set('mkOvBox', Math.max(200, Math.min(300, Math.round((H - 420) * 0.42))));
 }
 var mkRzT = 0;
 window.addEventListener('resize', function(){
@@ -19892,7 +20009,7 @@ function stkPxReveal(){ var c = $('pxCard'); if (c && c.scrollIntoView) setTimeo
 function mkFeatLoad(){
   if (MK.feat || MK.featBusy || typeof edge !== 'function') return; MK.featBusy = true;
   edge({ source: 'feat' }).then(function(d){ MK.feat = d && typeof d === 'object' && !d.error ? d : { psd: false, ais: false }; }, function(){ MK.feat = { psd: false, ais: false }; })
-    .then(function(){ MK.featBusy = false; if (typeof mkPsdSync === 'function') mkPsdSync(); if (MK.lay === 'port' && MK.portSel) mkAisLoad(MK.portSel); });
+    .then(function(){ MK.featBusy = false; if (typeof mkPsdSync === 'function') mkPsdSync(); if (MK.lay === 'port') mkAisAllLoad(); });
 }
 function mkMapInit(){
   var box = $('mkMapBox'); if (!box || typeof echarts === 'undefined') return;
@@ -19978,7 +20095,7 @@ function mkMapSize(box){
   //  (10/9 4차 «월드 맵을 extend») 전체 화면 · 넓은 화면: 지도 칸 = 남은 높이 전부 (지도는 비율 그대로 가운데 · 확대 · 이동할 자리가 넓어짐)
   if (fullWide) h = Math.max(h, Math.round(maxH));
   //  (10/10) 좁은 화면의 위성 보기는 지도 칸을 조금 높게 (세계 지도 비율로는 배를 볼 자리가 너무 낮음)
-  if ((window.innerWidth || 1000) <= 600 && typeof mkSatCan === 'function' && mkSatCan() && MK.satOn !== false) h = Math.max(h, Math.min(Math.round(maxH), Math.round(w * 0.9)));
+  if ((window.innerWidth || 1000) <= 600 && typeof mkSatWant === 'function' && mkSatWant()) h = Math.max(h, Math.min(Math.round(maxH), Math.round(w * 0.9)));
   //  (10/9 3차) 지구본은 둥글어서 — 칸을 조금 더 높게 (지름 = 칸 폭의 62% · 높이 상한 안에서)
   var gMapH = 0;
   if (MK.proj === 'globe' && typeof mkProjOn === 'function' && mkProjOn()){ gMapH = Math.round(Math.min(maxH - MK_MAP_LEG, Math.max(mapW / MK_MAP_RATIO, Math.min((w - 8) * (w < 600 ? 0.92 : 0.62), 560)))); h = gMapH + MK_MAP_LEG; }
@@ -20213,14 +20330,17 @@ function mkMarkColor(p){
   //  점 나라(홍콩 · 싱가포르)도 지도와 같은 색 막대에서 (작은 등락은 옅게)
   return v == null ? '#b5bccb' : mkVisColor(v, mkMapVisual(document.documentElement.getAttribute('data-theme') === 'dark'));
 }
-//  (10/10) 지도를 그린 뒤엔 언제나 위성 보기도 맞춤 (그리는 길이 여러 갈래라 겉에서 한 번)
+//  (10/10 5차) 지도를 그린 뒤엔 위성 보기 단추 · 위성 칸도 맞춤 (그리는 길이 여러 갈래라 겉에서 한 번)
 function mkMapPaint(){ mkMapPaint0(); if (typeof mkSatSync === 'function') mkSatSync(); }
 function mkMapPaint0(){
+  //  (10/10 5차) 끌거나 확대하는 동안엔 미뤘다가 멈춘 뒤 한 번 (움직이는 중에 다시 칠하면 덜컹거림)
+  if (MK.roam && MK.roam.on){ MK.roam.due = true; return; }
   var box = $('mkMapBox'); if (!box || typeof echarts === 'undefined' || !(echarts.getMap && echarts.getMap('world'))) return;
   var wrap = $('mkWorld'); if (wrap){ wrap.classList.toggle('open', mkAsideOn()); wrap.classList.toggle('res', mkResOn()); }
   mkGlanceRender(); mkClockRender(); mkLayBarRender(); if (mkResOn()) mkResRender();
   var sz = mkMapSize(box);
   mkMapChart = chartOn(box, mkMapChart); if (!mkMapChart) return;
+  mkWheelBind(box);
   //  (10/9 3차) 지도 모양 (평면 · 둥근 평면 · 지구본) — 투영 · 칸 맞춤
   var pj = mkProjOn(), pjK = pj ? MK.proj : 'flat', lay0 = mkGeoLayout(sz), globe = pjK === 'globe';
   //  (10/8 빠르기) 칸 폭이 바뀌었으면 — 새 옵션을 먼저 넣어 두고(바로 안 그림) 크기 맞춤에서 한 번만 그립니다 (두 번 그리면 2배 느림)
@@ -20329,13 +20449,15 @@ function mkMapPaint0(){
   box.classList.toggle('pj-globe', globe);
   if (!mkMapChart.__mkClick){
     mkMapChart.__mkClick = 1;
-    mkMapChart.on('georoam', function(){ if (mkGlobeOn()) return; MK.mapAnim = (MK.mapAnim || 0) + 1; MK.mapView = mkMapCur(); mkProjOverlay(); clearTimeout(MK.markT); MK.markT = setTimeout(mkMarkLabels, 120); });
+    mkMapChart.on('georoam', function(){ if (mkGlobeOn()) return; mkRoamStart(); MK.mapAnim = (MK.mapAnim || 0) + 1; MK.mapView = mkMapCur(); mkProjOverlay(); clearTimeout(MK.markT); MK.markT = setTimeout(mkMarkLabels, 120); });
     mkMapChart.on('click', function(p){
       //  지구본을 끌어 돌린 직후의 «누름» 은 무시
       if (Date.now() - (MK.globeDragAt || 0) < 320) return;
       //  덧그림: 흐름 선 = 그 수출국의 흐름만 · 수출 · 수입 점 = 그 나라 · 자금 흐름 = 오르는 나라 · 해협 = 그 해협으로
       if (p && p.seriesId && /^ov/.test(p.seriesId)){
         var od = p.data || {};
+        //  (10/10 5차) 배를 누르면 그 배 카드 (실은 것 · 가는 곳 · 도착 예정)
+        if (p.seriesId === 'ovShip' && od.s){ mkShipPick(od.s); return; }
         if (od.kind === 'flow' && od.fr) mkFlowPick(od.fr);
         else if ((od.kind === 'ex' || od.kind === 'im') && od.cc){ if (mkResOn()) mkResPick(od.cc, false); }
         else if (od.kind === 'rs' && (od.cc || od.to)) mkMacPick(od.cc || od.to);
@@ -20496,7 +20618,7 @@ function mkLiveChartDraw(cc, idx, pf, sc){
   if (!S.length){ if (mkLiveChart) mkLiveChart.clear(); return; }
   mkLiveChart = chartOn(box, mkLiveChart); if (!mkLiveChart) return;
   var key = cc + '|' + S.map(function(x){ return x.n; }).join(','), first = mkLiveChart.__k !== key; mkLiveChart.__k = key;
-  var narrow = (box.clientWidth || 600) < 520, endW = 0;
+  var narrow = (box.clientWidth || 600) < 440, endW = 0;
   if (!narrow) S.forEach(function(x){ var lv = x.pts[x.pts.length - 1][1]; endW = Math.max(endW, annTextW(x.n + ' ' + mkChg(lv), 10.5, 'Pretendard') * 1.08 + 16); });
   mkLiveChart.__axNoKeep = true;
   mkLiveChart.setOption({
@@ -20559,7 +20681,7 @@ function mkCmpRender(){
   box.classList.toggle('empty', !S.length);
   if (!S.length){ if (mkCmpChart) mkCmpChart.clear(); return; }
   mkCmpChart = chartOn(box, mkCmpChart); if (!mkCmpChart) return;
-  var narrow = (box.clientWidth || 600) < 520, endW = 0;
+  var narrow = (box.clientWidth || 600) < 440, endW = 0;
   if (!narrow) S.forEach(function(x){ endW = Math.max(endW, annTextW(x.n + ' ' + mkChg(x.pts[x.pts.length - 1][1]), 10.5, 'Pretendard') * 1.08 + 16); });
   var key = S.map(function(x){ return x.n; }).join(','), first = mkCmpChart.__k !== key; mkCmpChart.__k = key;
   mkCmpChart.__axNoKeep = true;
@@ -20637,10 +20759,58 @@ function mkMapAnim(to, done){
   requestAnimationFrame(step);
 }
 function mkMapZoomTo(cc, anim){ if (mkGlobeOn()){ mkGlobeTo(cc, anim); return; } var v = mkMapViewFor(cc); if (!v) return; if (anim) mkMapAnim(v, mkMarkLabels); else { MK.mapView = v; mkMarkLabels(); } }
+/*  (10/10 5차 학회장: «월드맵 줌인 · 줌아웃이 스무스하지 않아 · 갑자기 옆으로 가는 무빙 · 경로가 사이드에서 원위치로 돌아오는 무빙 · 좀 더 스무스하게 드래그 · 줌»)
+    ① 휠 확대 · 축소는 직접: 마우스 자리를 축으로 · 짧게 이어서 부드럽게 · 한도(최대 · 최소)에 닿으면 그 자리에 멈춤
+       (ECharts 기본 휠은 한 칸에 1.1배씩 뚝뚝 · 한도에 닿아도 중심이 계속 밀려 «옆으로 가는» 움직임이 생겼음)
+    ② 끌거나 확대하는 동안엔 꼬리 있는 빛 알갱이 층을 잠시 비움 — 그 층은 예전 그림을 지우지 않고 겹쳐 그리는 잔상 층이라
+       지도가 움직이면 경로 빛이 «옆에서 제자리로 돌아오는» 것처럼 보였음 · 멈추면 다시 흐름
+    ③ 움직이는 동안엔 지도 새로 칠하기(10초마다 값 갱신 등)를 미뤘다가 멈춘 뒤 한 번  */
+function mkRoamStart(){
+  var R = MK.roam || (MK.roam = {}); clearTimeout(R.t);
+  if (!R.on){ R.on = true; if (mkMapChart) try { mkMapChart.__axNoKeep = true; mkMapChart.setOption({ series: [{}, {}, {}, {}, { data: [] }] }, { silent: true }); } catch(e){} }
+  R.t = setTimeout(mkRoamEnd, 260);
+}
+function mkRoamEnd(){
+  var R = MK.roam || {}; clearTimeout(R.t); if (!R.on) return;
+  if (MK.wz && MK.wz.on){ R.t = setTimeout(mkRoamEnd, 120); return; }
+  R.on = false;
+  //  미뤄 둔 새로 칠하기 · 비워 둔 빛 알갱이 층 되살리기 (지도 칠하기는 바뀐 게 없으면 덧그림을 건너뛰므로 덧그림은 따로 한 번 더)
+  if (R.due){ R.due = false; mkMapPaint(); }
+  mkOvPaint();
+}
+function mkWheelBind(box){
+  if (box.__wz) return; box.__wz = 1;
+  box.addEventListener('wheel', function(e){
+    if (!mkMapChart || mkGlobeOn()) return;
+    //  위성 보기 · 떠 있는 카드 · 읽는 법 위에서는 각자 (위성은 Leaflet 이 확대)
+    if (e.target && e.target.closest && e.target.closest('.mk-sat, .mk-shipcard, .mk-ovleg, .mk-sat-sw')) return;
+    var cur = mkMapCur(); if (!cur) return;
+    e.preventDefault(); e.stopPropagation();
+    var Z = MK.wz || (MK.wz = {}), lim = mkScaleLim(false), r = box.getBoundingClientRect();
+    var dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY;
+    dy = Math.max(-240, Math.min(240, dy));                      //  트랙패드 · 휠 모두 한 번에 너무 크게 뛰지 않게
+    var base = Z.on ? Z.to : cur.zoom;
+    Z.to = Math.max(lim.min, Math.min(lim.max, base * Math.exp(-dy * 0.0024)));
+    Z.ox = e.clientX - r.left; Z.oy = e.clientY - r.top;
+    mkRoamStart();
+    if (!Z.on){ Z.on = true; requestAnimationFrame(mkWheelStep); }
+  }, { passive: false, capture: true });
+}
+function mkWheelStep(){
+  var Z = MK.wz; if (!Z) return;
+  var cur = mkMapCur(); if (!cur || !mkMapChart){ Z.on = false; return; }
+  var lc = Math.log(cur.zoom), lt = Math.log(Z.to), next = Math.abs(lt - lc) < 0.003 || !MOTION_OK ? Z.to : Math.exp(lc + (lt - lc) * 0.3);
+  try { mkMapChart.dispatchAction({ type: 'geoRoam', componentType: 'geo', geoIndex: 0, zoom: next / cur.zoom, originX: Z.ox, originY: Z.oy }, { silent: true }); } catch(e){ Z.on = false; return; }
+  MK.mapAnim = (MK.mapAnim || 0) + 1; MK.mapView = mkMapCur(); mkProjOverlay(); mkRoamStart();
+  if (next === Z.to){ Z.on = false; clearTimeout(MK.markT); MK.markT = setTimeout(mkMarkLabels, 60); return; }
+  requestAnimationFrame(mkWheelStep);
+}
 //  확대 정도에 따라 점(홍콩 · 싱가포르) 이름표 — 확대해 두면 고른 나라 것만
 function mkMarkLabels(){
   if (!mkMapChart) return;
   try { mkMapChart.__axNoKeep = true; mkMapChart.setOption({ series: [{}, { label: { show: !(MK.mapView && MK.mapView.zoom > 1.6) } }] }); } catch(e){}
+  //  (10/10 5차) 물류 층: 확대 정도가 바뀌면 배 크기 · 모양 · 화면 안 배만 다시 (끌기 · 휠 · 해협으로 확대 · 전체로)
+  if (MK.lay === 'port' && typeof mkShipRepaint === 'function') mkShipRepaint();
 }
 function mkMapZoomHome(){
   if (!mkMapChart) { MK.mapView = null; return; }
@@ -21040,6 +21210,12 @@ function mkLayerMapData(L){
 function mkLayerTip(p){
   if (p.seriesType === 'lines') return mkFlowTip(p);
   if (MK.lay === 'mac') return mkMacTip(p, MK.layD || mkLayerData());
+  //  (10/10 5차) 물류 층: 나라엔 값이 없음 — «출처 목록에 없음» 대신 이름 · 그 나라 항구
+  if (MK.lay === 'port'){
+    var d0 = p.data || {}, nm0 = p.name, cc0 = d0.cc || Object.keys(MK_NM2).concat(Object.keys(MK_CC)).filter(function(c){ return mkMapNm(c) === nm0; })[0] || Object.keys(MK_A2W).filter(function(c){ return MK_A2W[c] === nm0; })[0];
+    var pq = cc0 ? mkPrtList().filter(function(x){ return x.p.cc === cc0; }) : [];
+    return '<b>' + esc(cc0 ? mkNm(cc0) : mkKoName(nm0)) + '</b>' + pq.map(function(x){ return '<br>' + esc(x.p.n + T(' 하루 입항 ', ' calls ') + Math.round(x.a7) + T('척', '/d')) + (x.yoy7 != null ? ' <span style="opacity:.75">(' + esc((x.yoy7 > 0 ? '+' : '') + Math.round(x.yoy7) + '%') + ')</span>' : ''); }).join('');
+  }
   var L = MK.layD || mkLayerData(), d = p.data || {}, r = d.rcc ? L.rows.filter(function(x){ return x.cc === d.rcc; })[0] : null;
   var nm = d.cc ? mkNm(d.cc) : mkKoName(p.name);
   if (!r) return '<b>' + esc(nm) + '</b><br><span style="opacity:.75">' + esc(T('출처 목록에 없음', 'Not in source list')) + '</span>';
@@ -21251,7 +21427,8 @@ function mkOvSeries(D){
     { id: 'ovNode', type: 'scatter', coordinateSystem: 'geo', zlevel: 1, z: 6, data: D.nodes, label: lab, labelLayout: { hideOverlap: true }, emphasis: { scale: 1.2, label: { show: true } }, animation: false },
     { id: 'ovFocus', type: 'effectScatter', coordinateSystem: 'geo', zlevel: 1, z: 7, silent: true, data: D.focus, symbolSize: 14, showEffectOn: 'render',
       rippleEffect: { brushType: 'stroke', scale: 4.2, period: 1.8, number: 3 }, itemStyle: { color: C.foc, shadowBlur: 10, shadowColor: C.foc }, animation: false },
-    { id: 'ovShip', type: 'scatter', coordinateSystem: 'geo', zlevel: 1, z: 8, data: D.ships, symbol: 'path://M0,-10 L5,8 L0,4 L-5,8 Z', symbolKeepAspect: true, animation: false, label: { show: false } }
+    //  (10/10 5차) 실시간 배는 해협 · 항구 점 밑 (이름표를 가리지 않게) · 수천 척이라 나눠 그리지 않음
+    { id: 'ovShip', type: 'scatter', coordinateSystem: 'geo', zlevel: 1, z: 5, data: D.ships, symbol: 'circle', symbolKeepAspect: true, animation: false, progressive: 0, label: { show: false }, emphasis: { scale: 1.8 } }
   ];
 }
 function mkOvSeriesData(D){ D = D || mkOvData(); return [{ data: D.a }, { data: D.b }, { data: MOTION_OK ? D.fx : [] }, { data: D.nodes }, { data: D.focus }, { data: D.ships }]; }
@@ -21272,10 +21449,14 @@ function mkOvLegend(D){
     : D.leg === 'rs' ? '<span class="e"><i class="d dn"></i>' + esc(T('상대강도 하락', 'RS falling')) + '</span><span class="ar"><i class="ln rs"></i></span><span class="e"><i class="d up tri"></i>' + esc(T('상대강도 상승', 'RS rising')) + '</span><span class="t">' + esc(T('최근 4주 · 나라 ETF 상대강도 변화로 본 흐름 (추정 · 실제 자금 집계 아님)', '4-week relative-strength shift (estimate)')) + '</span>'
     : D.leg === 'esr' ? '<span class="e"><i class="d ex"></i>' + esc(T('미국', 'US')) + '</span><span class="ar"><i class="ln"></i></span><span class="e"><i class="d im"></i>' + esc(T('사는 나라', 'Buyers')) + '</span><span class="t">' + esc(T('선 굵기 = 이번 판매연도 누적 약정 · USDA 주간 수출 판매 (실제 기록)', 'Width = commitments this MY · USDA weekly export sales')) + '</span>'
     : D.leg === 'vcf' ? '<span class="e"><i class="d ex"></i>' + esc(T('앞 단계 나라', 'Upstream')) + '</span><span class="ar"><i class="ln"></i></span><span class="e"><i class="d im"></i>' + esc(T('다음 단계 나라', 'Downstream')) + '</span><span class="t">' + esc(T('고른 단계로 들어오고 나가는 흐름 · 추정 모식도 (단계 비중 × 거리 · 실제 거래 기록 아님)', 'Flows into and out of this stage · schematic estimate')) + '</span>'
-    : D.leg === 'port' ? '<span class="e"><i class="d pt"></i>' + esc(T('해협 (크기 = 하루 통과)', 'Chokepoint (size = daily transits)')) + '</span>' + (mkPrtList().length ? '<span class="e"><i class="d pq"></i>' + esc(T('항구 (크기 = 하루 입항)', 'Port (size = daily calls)')) + '</span>' : '') + '<span class="e"><i class="d dn"></i>' + esc(T('전년보다 줄어듦', 'Down y/y')) + '</span><span class="e"><i class="d up"></i>' + esc(T('늘어남', 'Up y/y')) + '</span><span class="t">' + esc(T('선 = 주요 항로 (모식도) · 해협 · 항구를 누르면 위성 사진 위 실시간 배', 'Lines = main lanes (schematic) · click one for the satellite view')) + '</span>' : '';
-  if (!html){ if (el) el.remove(); return; }
+    : D.leg === 'port' ? '<span class="e"><i class="d pt"></i>' + esc(T('해협 (크기 = 하루 통과)', 'Chokepoint (size = daily transits)')) + '</span>' + (mkPrtList().length ? '<span class="e"><i class="d pq"></i>' + esc(T('항구 (크기 = 하루 입항)', 'Port (size = daily calls)')) + '</span>' : '')
+      + '<span class="e"><span class="dd"><i class="d dn"></i><i class="d up"></i></span>' + esc(T('전년 대비 줄어듦 · 늘어남', 'Down · up y/y')) + '</span>'
+      + (MK.aisAll && MK.aisAll.d ? '<span class="e"><span class="dd"><i class="d sh cg"></i><i class="d sh tk"></i><i class="d sh ps"></i><i class="d sh ot"></i></span>' + esc(T('실시간 배 (화물 · 유조선 · 여객 · 그 외)', 'Live ships (cargo · tanker · passenger · other)')) + '</span>' : '')
+      + '<span class="t">' + esc(T('선 = 주요 항로 (모식도) · ', 'Lines = main lanes (schematic) · ') + (MK.aisAll && MK.aisAll.d ? T('작은 점 = 실시간 배 (AIS · ', 'dots = live ships (AIS · ') + mkHm(MK.aisAll.d.at) + T(' 수신 · 육상 수신소가 닿는 연안 위주) · ', ' · coastal coverage) · ') : '') + T('해협 · 항구를 누르면 확대', 'click to zoom in')) + '</span>' : '';
+  if (!html){ if (el) el.remove(); if (typeof mkShipCard === 'function') mkShipCard(); return; }
   if (!el){ el = document.createElement('div'); el.className = 'mk-ovleg'; el.setAttribute('aria-hidden', 'true'); box.appendChild(el); }
   if (el.__h !== html){ el.__h = html; el.innerHTML = html; }
+  if (typeof mkShipCard === 'function') mkShipCard();
 }
 //  덧그림 풍선말
 function mkOvTip(p){
@@ -21357,7 +21538,7 @@ function mkPrtTip(id){
   var x = mkPrtOf(id); if (!x) return '';
   return '<b>' + mkFlag2(x.p.cc) + ' ' + esc(x.p.n) + '</b> ' + esc(T('하루 입항 ', 'Port calls ') + Math.round(x.a7) + T('척 (최근 7일)', '/day (7d)'))
     + (x.yoy7 != null ? '<br><span style="font-weight:700;color:' + mkPortCol(x.yoy7, document.documentElement.getAttribute('data-theme') === 'dark') + '">' + esc(T('전년 같은 때 대비 ', 'vs last year ') + (x.yoy7 > 0 ? '+' : '') + x.yoy7.toFixed(0) + '%') + '</span>' : '')
-    + '<br><span style="opacity:.75">' + esc(x.p.memo) + '</span><br><span style="opacity:.75">' + esc(T('누르면 위성 사진 위 실시간 배', 'Click: satellite view · live ships')) + '</span>';
+    + '<br><span style="opacity:.75">' + esc(x.p.memo) + '</span><br><span style="opacity:.75">' + esc(T('누르면 확대 · 둘레의 실시간 배', 'Click: zoom in · live ships')) + '</span>';
 }
 function mkPortCol(yoy, dark){
   if (yoy == null) return dark ? '#8a93a8' : '#7a8296';
@@ -21384,11 +21565,13 @@ function mkPortOv(D, C, dark){
   });
   //  해협 점
   var top = L.slice(0, 5).map(function(x){ return x.cp.id; });
+  var lvOnly = mkPortLiveOn() === true;
   L.forEach(function(x){
     var cp = x.cp, xy = [cp.lo, cp.la]; if (!mkOvXY(xy)) return;
     var sel = MK.portSel === cp.id, alert = x.yoy7 != null && x.yoy7 <= -30;
+    if (lvOnly && !sel && !mkAisArea(cp.id).n) return;
     //  고른 해협에 배가 떠 있으면 점은 속이 빈 고리로 (배를 가리지 않게)
-    var hollow = sel && MK.ais && MK.ais[cp.id] && MK.ais[cp.id].d && MK.ais[cp.id].d.ships.length;
+    var hollow = sel && MK.aisAll && MK.aisAll.d && mkAisArea(cp.id).n > 0;
     D.nodes.push({ name: cp.n, id: cp.id, kind: 'cp', value: xy, symbol: hollow ? 'emptyCircle' : 'circle', symbolSize: hollow ? 34 : Math.round(7 + 22 * Math.sqrt((x.a7 || 0) / mx)) + (sel ? 4 : 0),
       itemStyle: { color: mkPortCol(x.yoy7, dark), borderColor: sel ? C.foc : C.ink, borderWidth: sel ? 2.4 : 1.2, opacity: hollow ? 0.55 : 0.95 },
       label: { show: sel || alert || top.indexOf(cp.id) >= 0, position: 'right', formatter: cp.n + ' ' + Math.round(x.a7 || 0) + T('척', '/d') + (x.yoy7 != null ? ' (' + (x.yoy7 > 0 ? '+' : '') + Math.round(x.yoy7) + '%)' : ''), color: mkPortCol(x.yoy7, dark) } });
@@ -21399,46 +21582,195 @@ function mkPortOv(D, C, dark){
   PL.forEach(function(x, i){
     var pp = x.p, xy = [pp.lo, pp.la]; if (!mkOvXY(xy)) return;
     var sel = MK.portSel === pp.id;
+    if (lvOnly && !sel && !mkAisArea(pp.id).n) return;
     D.nodes.push({ name: pp.n, id: pp.id, kind: 'pt', value: xy, symbol: 'roundRect', symbolSize: Math.round(7 + 12 * Math.sqrt((x.a7 || 0) / pmx)) + (sel ? 4 : 0),
       itemStyle: { color: mkPortCol(x.yoy7, dark), borderColor: sel ? C.foc : C.ink, borderWidth: sel ? 2.4 : 1, opacity: 0.95 },
       label: { show: sel || (MK.portTab === 'pt' && i < 6), position: 'left', formatter: pp.n + ' ' + Math.round(x.a7 || 0) + T('척', '/d'), color: mkPortCol(x.yoy7, dark) } });
   });
-  //  배 (고른 해협 · 항구 · AIS)
-  if (MK.portSel){ var A = (MK.ais || {})[MK.portSel]; if (A && A.d && A.d.ships) mkShipsData(A, D, C); }
+  //  (10/10 5차) 실시간 배 — 세계 바다 (고르지 않아도)
+  mkShipsData(D, C);
 }
-//  배 자리 — 받은 뒤 지난 시간만큼 속도 · 방향대로 밀어서 (1초마다 다시 그림)
-function mkShipsData(A, D, C){
-  var dtH = Math.min(0.25, (Date.now() - A.at) / 3600000);
+/* ══════════ (10/10 5차) 물류 층 지도 전체에 실제 배 — 학회장: «위성은 없애도 돼 · 여기 지도에 실제 배들이 보였으면»
+   · 세계 바다의 실시간 AIS 를 서버(market-data · ais_all)가 한 번에 받아 3분 보관 → 물류 층을 켜면 지도에 바로 점으로
+     (해협 28 · 항구 18 둘레는 곳마다 300척까지 · 그 밖 바다는 1° 칸마다 2척 · 옆 칸 «이 둘레» 숫자는 서버가 자르기 전에 센 값)
+   · 세계 전체로 볼 땐 작은 점 (색 = 배 종류) · 확대하면 뱃머리 방향 화살표 (항해) · 점 (닻 내림 · 대기) · 네모 (접안)
+   · 배에 올리면 이름 · 종류 · 속도 · 방향 · 길이 · 목적지 · 위치 신호 n분 전
+   · 확대해 둔 동안만 받은 뒤 지난 시간만큼 속도 · 방향대로 밀어서 다시 그림 (세계 전체로 볼 땐 1초에 움직이는 거리가 화면에서 안 보임)
+   ⚠️ 육상 수신소 기준이라 먼바다는 빠질 수 있음 · 멈춰 있는 배는 신호가 드물어 서버가 최근 20분 안의 것을 이어 붙임  */
+var MK_SHIP_COL = { d: { cg: '#60a5fa', tk: '#f87171', ps: '#4ade80', ot: '#cbd5e1' }, l: { cg: '#1d4ed8', tk: '#c0392b', ps: '#15803d', ot: '#6b7386' } };
+function mkShipCol(ty, dark){ var c = MK_SHIP_COL[dark ? 'd' : 'l']; return c[ty] || c.ot; }
+//  배 자리 — 받은 뒤 지난 시간만큼 속도 · 방향대로 밀어서 (15분까지)
+function mkShipPos(s, dtH){
+  var la = s[1], lo = s[2], cog = s[3], sog = s[4] || 0, mv = sog >= 1 && cog != null && s[8] !== 1 && s[8] !== 5;
+  if (mv){ var dist = sog * dtH / 60; la += dist * Math.cos(cog * Math.PI / 180); lo += dist * Math.sin(cog * Math.PI / 180) / Math.max(0.2, Math.cos(la * Math.PI / 180)); }
+  return [la, lo, mv];
+}
+//  곳마다 [잡힌 배, 항해, 닻 내림 · 대기, 접안] (서버가 자르기 전에 센 값)
+function mkAisArea(id){ var A = MK.aisAll; if (!A || !A.d || !A.d.areas) return null; var c = A.d.areas[String(id)]; return c ? { n: c[0], mv: c[1], an: c[2], mr: c[3] } : { n: 0, mv: 0, an: 0, mr: 0 }; }
+function mkAisAllLoad(force){
+  if (!MK.feat || !MK.feat.ais || typeof edge !== 'function') return;
+  var A = MK.aisAll || (MK.aisAll = {});
+  if (A.busy) return;
+  if (!force && A.d && Date.now() - A.got < 170000) return;
+  if (A.err && Date.now() - (A.errAt || 0) < 60000) return;
+  A.busy = true;
+  edge({ source: 'ais_all' }).then(function(d){
+    A.busy = false;
+    if (d && Array.isArray(d.ships)){
+      A.d = d; A.at = Date.parse(d.at) || Date.now(); A.got = Date.now(); A.err = '';
+      //  서버가 묵은 값을 먼저 줬으면 (뒤에서 새로 듣는 중) 25초 뒤 한 번 더 — 같은 값에는 한 번만
+      if (d.refreshing && A.rtFor !== d.at){ A.rtFor = d.at; clearTimeout(A.rt); A.rt = setTimeout(function(){ if (MK.lay === 'port') mkAisAllLoad(true); }, 25000); }
+    } else { A.err = (d && (d.error || (d.off ? 'off' : ''))) || 'x'; A.errAt = Date.now(); }
+  }, function(e){ A.busy = false; A.err = String(e && e.message || e); A.errAt = Date.now(); })
+    .then(function(){ if (MK.lay === 'port'){ var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); mkOvPaint(); if (typeof mkSatDraw === 'function') mkSatDraw(); } });
+}
+//  지도 덧그림의 배 (mkPortOv 가 부름) — 확대해 두었으면 화면 안 배만
+function mkShipsData(D, C){
+  var A = MK.aisAll; if (!A || !A.d || !A.d.ships || !mkMapChart) return;
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark', z = (MK.mapView && MK.mapView.zoom) || 1, big = z >= 12, mid = z >= 4;
+  var bb = null;
+  if (mid && !mkGlobeOn()) try { var g = mkMapChart.getModel().getComponent('geo').coordinateSystem, w = mkMapChart.getWidth(), h = mkMapChart.getHeight(), p0 = g.pointToData([0, 0]), p1 = g.pointToData([w, h]);
+    bb = [Math.min(p0[0], p1[0]) - 0.5, Math.max(p0[0], p1[0]) + 0.5, Math.min(p0[1], p1[1]) - 0.5, Math.max(p0[1], p1[1]) + 0.5]; } catch(e){ bb = null; }
+  //  (10/10 5차 «지도 버전에서도 배가 잘 보이게») — 점을 키우고 테두리로 바탕과 갈라 놓음
+  var base = (Date.now() - A.at) / 1000, edge0 = dark ? 'rgba(8,12,22,.75)' : 'rgba(255,255,255,.9)';
   A.d.ships.forEach(function(s){
-    var q = mkShipPos(s, dtH), la = q[0], lo = q[1], cog = s[3], sog = s[4] || 0, mv = q[2];
+    var q = mkShipPos(s, Math.min(0.25, (base + (s[9] || 0)) / 3600)), la = q[0], lo = q[1], sel = MK.shipSel === s[0];
+    if (bb && !sel && (lo < bb[0] || lo > bb[1] || la < bb[2] || la > bb[3])) return;
     if (!mkOvXY([lo, la])) return;
-    var ty = s[7], tc = ty >= 80 && ty <= 89 ? '#e5675b' : ty >= 70 && ty <= 79 ? '#3b82f6' : null;
-    D.ships.push({ value: [lo, la], m: s[0], nm: s[6], sog: sog, cog: cog, ty: ty, mv: mv, symbolSize: mv ? 8 : 5, symbolRotate: -(s[5] != null ? s[5] : cog || 0),
-      symbol: mv ? undefined : 'circle', itemStyle: { color: tc || (mv ? C.ship : C.anch), opacity: mv ? 0.95 : 0.6, borderColor: mv ? 'rgba(0,0,0,.35)' : 'transparent', borderWidth: 0.6 } });
+    var st = mkShipSt(s)[0], it = { value: [lo, la], s: s };
+    if (big && st === 'mv'){ it.symbol = 'path://M0,-10 L5,8 L0,4 L-5,8 Z'; it.symbolSize = s[10] >= 250 ? 15 : s[10] >= 120 ? 13 : 11; it.symbolRotate = -(s[5] != null ? s[5] : (s[3] || 0)); }
+    else if (big){ it.symbol = st === 'mr' ? 'rect' : 'circle'; it.symbolSize = st === 'mr' ? 6.5 : 7; }
+    else { it.symbol = 'circle'; it.symbolSize = mid ? (st === 'mv' ? 6.5 : 5) : (st === 'mv' ? 4.2 : 3.4); }
+    if (sel) it.symbolSize += 6;
+    it.itemStyle = { color: mkShipCol(mkShipTy(s[7])[0], dark), opacity: st === 'mv' || sel ? 1 : 0.82, borderColor: sel ? (dark ? '#ffffff' : '#111827') : edge0, borderWidth: sel ? 2 : big ? 1 : 0.6 };
+    D.ships.push(it);
+    if (sel && D.focus) D.focus.push({ value: [lo, la], itemStyle: { color: dark ? '#ffffff' : '#111827' } });
   });
+}
+//  배만 다시 (지도를 옮기거나 확대했을 때 · 1초마다)
+function mkShipRepaint(){
+  if (!mkMapChart || MK.lay !== 'port') return;
+  var D = { a: [], b: [], fx: [], nodes: [], focus: [], ships: [] };
+  mkShipsData(D, null);
+  try { mkMapChart.__axNoKeep = true; mkMapChart.setOption({ series: [{}, {}, {}, {}, {}, {}, {}, { data: D.ships }] }, { silent: true }); } catch(e){}
 }
 function mkShipTy(ty){ return ty >= 80 && ty <= 89 ? ['tk', T('유조선', 'Tanker')] : ty >= 70 && ty <= 79 ? ['cg', T('화물선', 'Cargo')] : ty >= 60 && ty <= 69 ? ['ps', T('여객선', 'Passenger')] : ty === 31 || ty === 32 || ty === 52 ? ['tg', T('예인선', 'Tug')] : ty === 30 ? ['fs', T('어선', 'Fishing')] : ty ? ['ot', T('기타', 'Other')] : ['un', T('종류 미상', 'Unknown')]; }
 function mkShipSt(s){ var st = s[8], sog = s[4] || 0; return st === 5 ? ['mr', T('접안 (부두에 댐)', 'Moored')] : st === 1 || (sog < 0.5 && st !== 0) ? ['an', T('닻 내림 · 대기', 'At anchor')] : sog < 0.5 ? ['an', T('멈춤 · 대기', 'Stopped')] : ['mv', T('항해 중', 'Underway')]; }
 function mkShipTip(d){
-  var tn = mkShipTy(d.ty)[1];
-  return '<b>' + esc(d.nm || T('이름 없음', 'Unnamed')) + '</b> · ' + esc(tn) + '<br>' + esc(d.mv ? T('항해 중 ', 'Underway ') + (+d.sog).toFixed(1) + T('노트 · 방향 ', ' kn · course ') + Math.round(d.cog || 0) + '°' : T('정박 · 대기', 'Anchored / waiting'))
-    + '<br><span style="opacity:.75">' + esc(T('실시간 AIS · 받은 뒤 속도 · 방향대로 움직여 그림', 'Live AIS · dead-reckoned')) + '</span>';
+  var s = d && d.s; if (!s) return '';
+  var ty = mkShipTy(s[7]), st = mkShipSt(s), A = MK.aisAll, mn = Math.floor(((s[9] || 0) + (A && A.at ? (Date.now() - A.at) / 1000 : 0)) / 60);
+  return '<b>' + esc(s[6] || T('이름 없음', 'Unnamed')) + '</b> · ' + esc(ty[1])
+    + '<br>' + esc(st[0] === 'mv' ? T('항해 중 · ', 'Underway · ') + (+s[4] || 0).toFixed(1) + T('노트 · 방향 ', ' kn · course ') + Math.round(s[3] || 0) + '°' : st[1])
+    + (s[10] ? '<br>' + esc(T('길이 ', 'Length ') + Math.round(s[10]) + 'm') : '')
+    + (s[11] ? '<br>' + esc(T('목적지 ', 'Destination ') + String(s[11]).slice(0, 24)) : '')
+    + '<br><span style="opacity:.75">' + esc((mn < 1 ? T('위치 신호: 방금', 'Position: just now') : T('위치 신호: ', 'Position: ') + mn + T('분 전', ' min ago')) + T(' · 실시간 AIS', ' · live AIS')) + '</span>';
+}
+/* ══════════ (10/10 5차) 배를 누르면 — 학회장: «클릭하면 배가 뭘 운반하고 어디로 가는지 간단하게»
+   · AIS 에는 «실은 화물» 칸이 없음 → 선종 코드(유조선 · 화물선 · 여객선 …)와 이름(LNG · LPG · 해운사)으로 <추정> 하고 그렇게 적음
+   · 목적지 · 도착 예정은 선원이 AIS 에 직접 넣는 값 (UN 항구 코드 · 영문 이름 · 비어 있거나 틀릴 수 있음) → 아는 항구는 한국어로 · 원문도 같이
+   · 위험물 등급 (선종 끝자리 1~4 = IMO 위험물 · 오염 물질 X · Y · Z · OS) 이 있으면 같이  */
+var MK_LOCODE = {
+  SGSIN: '싱가포르', CNSHA: '상하이', CNNGB: '닝보', CNSZX: '선전', CNYTN: '선전 (옌톈)', CNSHK: '선전 (서커우)', CNQDG: '칭다오', CNTXG: '톈진', CNTSN: '톈진', CNDLC: '다롄', CNXMN: '샤먼', CNCAN: '광저우', CNNSA: '광저우 (난사)', CNLYG: '롄윈강', CNRZH: '르자오', CNZJG: '장자강', CNNTG: '난퉁', CNJIA: '장인', CNFOC: '푸저우', CNHUA: '황화', CNCFD: '차오페이뎬', CNYIK: '잉커우',
+  HKHKG: '홍콩', TWKHH: '가오슝', TWTXG: '타이중', TWKEL: '지룽', KRPUS: '부산', KRUSN: '울산', KRINC: '인천', KRKAN: '광양', KRPTK: '평택', KRMAS: '마산', KRYOS: '여수', KRDSN: '대산', KRKPO: '포항', KRMOK: '목포',
+  JPTYO: '도쿄', JPYOK: '요코하마', JPNGO: '나고야', JPOSA: '오사카', JPUKB: '고베', JPKOB: '고베', JPHKT: '하카타', JPCHB: '지바', JPKWS: '가와사키', JPMOJ: '모지',
+  MYPKG: '포트클랑', MYTPP: '탄중펠레파스', MYPEN: '페낭', THLCH: '램차방', THBKK: '방콕', VNSGN: '호찌민', VNHPH: '하이퐁', VNCMT: '까이멥', PHMNL: '마닐라', IDJKT: '자카르타', IDTPP: '자카르타 (탄중프리옥)', IDSUB: '수라바야',
+  LKCMB: '콜롬보', INNSA: '나바셰바 (뭄바이)', INMUN: '문드라', INMAA: '첸나이', INCCU: '콜카타', PKKHI: '카라치', BDCGP: '치타공',
+  AEJEA: '제벨알리 (두바이)', AEFJR: '푸자이라', AEKLF: '코르파칸', AEAUH: '아부다비', OMSLL: '살랄라', OMSOH: '소하르', SAJED: '제다', SARTA: '라스타누라', SADMM: '담맘', SAYNB: '얀부', QARLF: '라스라판', QADOH: '도하', KWKWI: '쿠웨이트', KWSAA: '슈아이바', IQUQR: '움카스르', IRBND: '반다르아바스', BHBAH: '바레인',
+  EGPSD: '포트사이드', EGSUZ: '수에즈', EGALY: '알렉산드리아', DJJIB: '지부티', TRIST: '이스탄불', TRMER: '메르신', GRPIR: '피레우스', ITGOA: '제노바', ITTRS: '트리에스테', ITGIT: '조이아타우로', ESALG: '알헤시라스', ESVLC: '발렌시아', ESBCN: '바르셀로나', MTMAR: '마르사실로크', FRMRS: '마르세유', FRLEH: '르아브르',
+  NLRTM: '로테르담', NLAMS: '암스테르담', BEANR: '앤트워프', BEZEE: '제브뤼헤', DEHAM: '함부르크', DEBRV: '브레머하펜', DEWVN: '빌헬름스하펜', GBFXT: '펠릭스토우', GBSOU: '사우샘프턴', GBLGP: '런던 게이트웨이', PLGDN: '그단스크', RULED: '상트페테르부르크', RUPRI: '프리모르스크', RUULU: '우스트루가', RUNVS: '노보로시스크', NOBGO: '베르겐', SEGOT: '예테보리', DKAAR: '오르후스',
+  USLAX: '로스앤젤레스', USLGB: '롱비치', USOAK: '오클랜드', USSEA: '시애틀', USTIW: '타코마', USNYC: '뉴욕', USEWR: '뉴어크', USSAV: '서배너', USCHS: '찰스턴', USHOU: '휴스턴', USCRP: '코퍼스크리스티', USNOL: '뉴올리언스', USMSY: '뉴올리언스', USBAL: '볼티모어', USORF: '노퍽', USMIA: '마이애미', USLCH: '레이크찰스',
+  CAVAN: '밴쿠버', CAPRR: '프린스루퍼트', CAMTR: '몬트리올', MXZLO: '만사니요', MXVER: '베라크루스', PABLB: '발보아 (파나마)', PAONX: '콜론 (파나마)', PAMIT: '만사니요 (파나마)', COCTG: '카르타헤나', BRSSZ: '산투스', BRRIG: '히우그란지', BRPNG: '파라나과', BRTUB: '투바랑', ARBUE: '부에노스아이레스', CLSAI: '산안토니오', PECLL: '카야오',
+  ZADUR: '더반', ZACPT: '케이프타운', NGLOS: '라고스', MAPTM: '탕헤르메드', AUPHE: '포트헤들랜드', AUDAM: '댐피어', AUNTL: '뉴캐슬', AUMEL: '멜버른', AUSYD: '시드니', AUBNE: '브리즈번', AUGLT: '글래드스톤', NZAKL: '오클랜드 (뉴질랜드)'
+};
+var MK_PORT_EN = { SINGAPORE: 'SGSIN', SHANGHAI: 'CNSHA', NINGBO: 'CNNGB', ZHOUSHAN: 'CNNGB', SHENZHEN: 'CNSZX', YANTIAN: 'CNYTN', QINGDAO: 'CNQDG', TIANJIN: 'CNTXG', DALIAN: 'CNDLC', XIAMEN: 'CNXMN', GUANGZHOU: 'CNCAN', HONGKONG: 'HKHKG', KAOHSIUNG: 'TWKHH', BUSAN: 'KRPUS', PUSAN: 'KRPUS', ULSAN: 'KRUSN', INCHEON: 'KRINC', GWANGYANG: 'KRKAN', YEOSU: 'KRYOS', DAESAN: 'KRDSN', TOKYO: 'JPTYO', YOKOHAMA: 'JPYOK', NAGOYA: 'JPNGO', OSAKA: 'JPOSA', KOBE: 'JPUKB',
+  PORTKLANG: 'MYPKG', TANJUNGPELEPAS: 'MYTPP', LAEMCHABANG: 'THLCH', COLOMBO: 'LKCMB', FUJAIRAH: 'AEFJR', JEBELALI: 'AEJEA', DUBAI: 'AEJEA', RASTANURA: 'SARTA', RASLAFFAN: 'QARLF', JEDDAH: 'SAJED', KUWAIT: 'KWKWI', PORTSAID: 'EGPSD', SUEZ: 'EGSUZ', ROTTERDAM: 'NLRTM', ANTWERP: 'BEANR', HAMBURG: 'DEHAM', FELIXSTOWE: 'GBFXT', ALGECIRAS: 'ESALG', VALENCIA: 'ESVLC', PIRAEUS: 'GRPIR', GENOA: 'ITGOA',
+  LOSANGELES: 'USLAX', LONGBEACH: 'USLGB', NEWYORK: 'USNYC', HOUSTON: 'USHOU', SAVANNAH: 'USSAV', VANCOUVER: 'CAVAN', SANTOS: 'BRSSZ', DURBAN: 'ZADUR', PORTHEDLAND: 'AUPHE', BALBOA: 'PABLB', COLON: 'PAONX' };
+//  목적지 원문 → [한국어 이름 또는 null, 원문 정리] · «CNSHA>SGSIN» 은 마지막 항구 · «KR PUS» · «SG SIN» 도
+function mkShipDest(raw){
+  var t = String(raw || '').toUpperCase().replace(/[@_]+/g, ' ').trim(); if (!t) return null;
+  var last = t.split(/>|=>|->|\bTO\b/).pop().trim() || t, sq = last.replace(/[^A-Z]/g, '');
+  var code = /^[A-Z]{5}$/.test(sq) && MK_LOCODE[sq] ? sq : (/^[A-Z]{2} ?[A-Z0-9]{3}\b/.test(last) && MK_LOCODE[last.slice(0, 2) + last.replace(/^[A-Z]{2} ?/, '').slice(0, 3)] ? last.slice(0, 2) + last.replace(/^[A-Z]{2} ?/, '').slice(0, 3) : null);
+  if (!code){ var en = Object.keys(MK_PORT_EN).filter(function(k){ return sq.indexOf(k) === 0; })[0]; if (en) code = MK_PORT_EN[en]; }
+  return [code ? MK_LOCODE[code] : null, t.slice(0, 30)];
+}
+//  실은 것 (선종 · 이름으로 추정) → [이름, 설명]
+var MK_LINER = /^(MSC|MAERSK|EVER|CMA CGM|APL|COSCO|OOCL|ONE |HMM|HYUNDAI|YM |YANG MING|ZIM|HAPAG|WAN HAI|SITC|KMTC|PIL |X-PRESS|SINOKOR|HEUNG-A|PANCON|PAN CONT|TS |SEASPAN|CSCL|NORTHERN|SAN |MOL |NYK |K LINE)/;
+function mkShipCargo(s){
+  var ty = s[7] || 0, nm = String(s[6] || '').toUpperCase(), hz = ty >= 70 && ty <= 89 ? ty % 10 : 0;
+  var hzT = hz >= 1 && hz <= 4 ? T(' · 위험물 · 오염 물질 표시 (IMO ' + ['X', 'Y', 'Z', 'OS'][hz - 1] + ' 등급)', ' · hazardous cargo flag (IMO ' + ['X', 'Y', 'Z', 'OS'][hz - 1] + ')') : '';
+  if (/\bLNG\b/.test(nm)) return [T('LNG (액화천연가스)', 'LNG'), T('이름에 LNG · 가스 운반선', 'LNG carrier by name') + hzT];
+  if (/\bLPG\b|\bVLGC\b|\bGAS\b/.test(nm)) return [T('LPG · 석유가스', 'LPG'), T('이름에 LPG · GAS · 가스 운반선', 'gas carrier by name') + hzT];
+  if (ty >= 80 && ty <= 89) return /CHEM|CHEMICAL/.test(nm) ? [T('화학제품 (액체)', 'Chemicals'), T('유조선 · 이름에 CHEM', 'tanker · CHEM in name') + hzT] : [T('원유 · 석유제품 (액체 화물)', 'Crude / products'), T('선종이 유조선', 'tanker') + hzT];
+  if (ty >= 70 && ty <= 79){
+    if (/HIGHWAY|LEADER|GLOVIS|HOEGH|WALLENIUS|AUTO|CAR |PCTC|\bACE$/.test(nm)) return [T('자동차', 'Vehicles'), T('화물선 · 자동차 운반선 이름', 'car carrier by name') + hzT];
+    if (MK_LINER.test(nm)) return [T('컨테이너', 'Containers'), T('화물선 · 컨테이너 해운사 이름', 'cargo · liner name') + hzT];
+    if (/BULK|ORE|COAL|GRAIN|CAPE |NAVIOS|STAR |MINER/.test(nm)) return [T('철광석 · 석탄 · 곡물 (벌크)', 'Dry bulk'), T('화물선 · 벌크선 이름', 'bulk carrier by name') + hzT];
+    return [T('컨테이너 · 벌크 · 일반 화물', 'General / container / bulk'), T('선종이 화물선 (세부 종류는 AIS 에 없음)', 'cargo ship (subtype not in AIS)') + hzT];
+  }
+  if (ty >= 60 && ty <= 69) return [T('승객 (여객선 · 크루즈)', 'Passengers'), ''];
+  if (ty === 31 || ty === 32 || ty === 52) return [T('없음 (다른 배를 끄는 예인선)', 'None (tug)'), ''];
+  if (ty === 30) return [T('어업', 'Fishing'), ''];
+  if (ty >= 50 && ty <= 59) return [T('없음 (도선 · 관공선 · 구조선 등)', 'None (pilot / official / SAR)'), ''];
+  if (ty) return [T('알 수 없음 (기타 선종)', 'Unknown (other type)'), ''];
+  return [T('알 수 없음 (선박 정보 신호를 아직 못 받음)', 'Unknown (no static data yet)'), ''];
+}
+function mkShipFind(m){ var A = MK.aisAll; if (!A || !A.d) return null; for (var i = 0; i < A.d.ships.length; i++) if (A.d.ships[i][0] === m) return A.d.ships[i]; return null; }
+function mkShipPick(s){ if (!s) return; MK.shipSel = s[0]; MK.shipSelS = s; mkShipCard(); if (mkMapChart && MK.lay === 'port') mkOvPaint(); if (typeof mkSatDraw === 'function') mkSatDraw(); }
+function mkShipClose(){ MK.shipSel = null; MK.shipSelS = null; mkShipCard(); if (mkMapChart && MK.lay === 'port') mkOvPaint(); if (typeof mkSatDraw === 'function') mkSatDraw(); }
+function mkShipCardHtml(s){
+  var ty = mkShipTy(s[7]), st = mkShipSt(s), cg = mkShipCargo(s), ds = mkShipDest(s[11]), A = MK.aisAll, mn = Math.floor(((s[9] || 0) + (A && A.at ? (Date.now() - A.at) / 1000 : 0)) / 60);
+  var row = function(k, v, sub){ return '<div class="r"><span class="k">' + esc(k) + '</span><span class="v">' + v + (sub ? '<i>' + esc(sub) + '</i>' : '') + '</span></div>'; };
+  return '<div class="h"><b>' + esc(s[6] || T('이름 없음', 'Unnamed')) + '</b><span class="ty"><i class="' + ty[0] + '"></i>' + esc(ty[1]) + '</span>'
+    + '<button type="button" class="x" onclick="mkShipClose()" aria-label="' + esc(T('배 정보 닫기', 'Close')) + '">×</button></div>'
+    + row(T('실은 것 (추정)', 'Cargo (est.)'), '<b>' + esc(cg[0]) + '</b>', cg[1])
+    + row(T('가는 곳', 'Destination'), ds ? '<b>' + esc(ds[0] || ds[1]) + '</b>' : esc(T('입력 안 함', 'Not set')), ds && ds[0] ? T('AIS 입력 ', 'AIS: ') + ds[1] : '')
+    + (s[12] ? row(T('도착 예정', 'ETA'), '<b>' + esc(s[12]) + '</b>', T('UTC · 선원 입력', 'UTC · crew input')) : '')
+    + row(T('지금', 'Now'), esc(st[0] === 'mv' ? T('항해 중 · ', 'Underway · ') + (+s[4] || 0).toFixed(1) + T('노트 · 방향 ', ' kn · course ') + Math.round(s[3] || 0) + '°' : st[1]), '')
+    + ((s[10] || s[13]) ? row(T('크기', 'Size'), esc([s[10] ? T('길이 ', 'L ') + Math.round(s[10]) + 'm' : '', s[13] ? T('흘수 ', 'draught ') + (+s[13]).toFixed(1) + 'm' : ''].filter(Boolean).join(' · ')), '') : '')
+    + '<div class="n">' + esc((mn < 1 ? T('위치 신호: 방금', 'Position: just now') : T('위치 신호: ', 'Position: ') + mn + T('분 전', ' min ago')) + ' · MMSI ' + s[0] + T(' · 화물은 AIS 에 없어 선종 · 이름으로 추정 · 목적지 · 도착 예정은 선원이 직접 입력한 값', ' · cargo estimated from type/name · destination & ETA are crew input')) + '</div>';
+}
+function mkShipCard(){
+  var box = $('mkMapBox'); if (!box) return;
+  var el = box.querySelector('.mk-shipcard');
+  var s = MK.shipSel ? (mkShipFind(MK.shipSel) || MK.shipSelS) : null;
+  if (!s || MK.lay !== 'port'){ if (el) el.remove(); box.classList.remove('ship-on'); return; }
+  MK.shipSelS = s;
+  if (!el){ el = document.createElement('div'); el.className = 'mk-shipcard'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', T('고른 배', 'Selected ship')); box.appendChild(el); }
+  var h = mkShipCardHtml(s); if (el.__h !== h){ el.__h = h; el.innerHTML = h; }
+  box.classList.add('ship-on');
+}
+//  배 움직임 · 새로 받기 — 물류 층이면 1초마다 확인 (3분 지나면 새로 받음 · 확대해 둔 동안만 다시 그림)
+function mkShipTick(){
+  clearInterval(MK.shipT); MK.shipT = null;
+  if (MK.lay !== 'port') return;
+  MK.shipT = setInterval(function(){
+    if (MK.lay !== 'port'){ clearInterval(MK.shipT); MK.shipT = null; return; }
+    if (document.hidden || curTab !== 'market') return;
+    var A = MK.aisAll;
+    if (A && A.d && Date.now() - A.got > 180000) mkAisAllLoad();
+    if (!A || !A.d || !MOTION_OK) return;
+    //  위성 보기면 그쪽만 다시 그림
+    if (typeof mkSatOn === 'function' && mkSatOn()){ mkSatDraw(); return; }
+    if (!mkMapChart) return;
+    if (((MK.mapView && MK.mapView.zoom) || 1) < 8) return;
+    mkShipRepaint();
+  }, 1000);
 }
 function mkPortTip(id){
   var x = mkPortOf(id); if (!x) return '';
   var cp = x.cp;
   return '<b>' + esc(cp.n) + '</b> ' + esc(T('하루 ', '') + Math.round(x.a7) + T('척 (최근 7일 평균)', ' ships/day (7d)'))
     + (x.yoy7 != null ? '<br><span style="font-weight:700;color:' + mkPortCol(x.yoy7, document.documentElement.getAttribute('data-theme') === 'dark') + '">' + esc(T('전년 같은 때 대비 ', 'vs last year ') + (x.yoy7 > 0 ? '+' : '') + x.yoy7.toFixed(0) + '%') + '</span>' : '')
-    + '<br><span style="opacity:.75">' + esc(cp.memo) + '</span><br><span style="opacity:.75">' + esc(T('누르면 위성 사진 위 실시간 배', 'Click: satellite view · live ships')) + '</span>';
+    + '<br><span style="opacity:.75">' + esc(cp.memo) + '</span><br><span style="opacity:.75">' + esc(T('누르면 확대 · 둘레의 실시간 배', 'Click: zoom in · live ships')) + '</span>';
 }
 //  층 열기 · 해협 고르기
-function mkPortSet(){ MK.lay = 'port'; MK.cmpOn = false; MK.resSel = null; MK.flowCc = null; MK.macSel = null; mkTabAdd('p:all'); mkSavePrefs(); mkPortLoad(); mkLayerApply(true); mkShipTick(); }
+function mkPortSet(){ MK.satOn = false; MK.lay = 'port'; MK.cmpOn = false; MK.resSel = null; MK.flowCc = null; MK.macSel = null; mkTabAdd('p:all'); mkSavePrefs(); mkPortLoad(); mkAisAllLoad(); mkLayerApply(true); mkShipTick(); }
 function mkPortPick(id){
   id = mkPortIsP(id) ? id : +id;
   if (MK.portSel === id){ MK.portSel = null; mkSavePrefs(); var b0 = $('mkRes'); if (b0) b0.__k = ''; mkResRender(); mkMapPaint(); mkMapZoomHome(); mkShipTick(); return; }
   MK.portSel = id; MK.portTab = mkPortIsP(id) ? 'pt' : 'cp'; mkSavePrefs();
   var bx = $('mkRes'); if (bx) bx.__k = '';
-  mkResRender(); mkMapPaint(); mkPortZoom(id, true); mkAisLoad(id); mkShipTick();
+  mkResRender(); mkMapPaint(); mkPortZoom(id, true); mkAisAllLoad(); mkShipTick();
   //  (10/10) 옆 칸에서 고른 줄이 보이게
   var bs = $('mkRes'), sh = bs && bs.querySelector('.mk-port-sel'); if (sh && sh.scrollIntoView) sh.scrollIntoView({ block: 'nearest', behavior: MOTION_OK ? 'smooth' : 'auto' });
 }
@@ -21448,47 +21780,16 @@ function mkPortZoom(id, anim){
   var span = I.port ? 2.2 : id === 5 ? 9 : id === 7 || id === 26 ? 10 : 5;
   mkMapZoomTo([I.lo, I.la, span], anim);
 }
-//  실시간 배 (해협 하나 · 3분 보관 · 열쇠가 없으면 조용히)
-function mkAisLoad(id){
-  if (!MK.feat || !MK.feat.ais) return;
-  var A = MK.ais || (MK.ais = {}), e = A[id];
-  if (e && (e.busy || (e.d && Date.now() - e.at < 170000) || (e.err && Date.now() - (e.at || 0) < 60000))) return;
-  A[id] = Object.assign(e || {}, { busy: true });
-  edge(mkPortIsP(id) ? { source: 'ais', port: id } : { source: 'ais', cp: id }).then(function(d){
-    if (d && d.ships){ mkAisTrail(id, d); A[id] = { d: d, at: Date.parse(d.at) || Date.now() }; } else A[id] = { err: (d && d.error) || 'off', at: Date.now() }; }, function(){ A[id] = { err: 'x', at: Date.now() }; })
-    .then(function(){ if (MK.lay === 'port' && MK.portSel === id){ var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); mkOvPaint(); if (typeof mkSatDraw === 'function') mkSatDraw(); } });
-}
-//  배마다 지나온 자리 (받을 때마다 · 50m 넘게 움직였을 때만 · 6점까지) — 위성 보기에서 꼬리로
-function mkAisTrail(id, d){
-  var H = (MK.aisTr || (MK.aisTr = {}))[id] || (MK.aisTr[id] = {}), seen = {};
-  d.ships.forEach(function(s){ var k = s[0], h = H[k] || (H[k] = []), L = h[h.length - 1]; seen[k] = 1;
-    if (!L || Math.abs(L[0] - s[2]) + Math.abs(L[1] - s[1]) > 0.0005){ h.push([s[2], s[1]]); if (h.length > 6) h.shift(); } });
-  Object.keys(H).forEach(function(k){ if (!seen[k]) delete H[k]; });
-}
-//  배 움직임 — 물류 층 · 해협을 골랐고 · 화면에 보일 때만 1초마다 (3분 지나면 새로 받음)
-function mkShipTick(){
-  clearInterval(MK.shipT); MK.shipT = null;
-  if (MK.lay !== 'port' || !MK.portSel || !MOTION_OK) return;
-  MK.shipT = setInterval(function(){
-    if (MK.lay !== 'port' || !MK.portSel){ clearInterval(MK.shipT); MK.shipT = null; return; }
-    if (document.hidden || curTab !== 'market') return;
-    var A = (MK.ais || {})[MK.portSel]; if (!A || !A.d) return;
-    if (Date.now() - A.at > 180000) mkAisLoad(MK.portSel);
-    //  (10/10) 위성 보기가 켜져 있으면 그쪽만 다시 그림
-    if (typeof mkSatOn === 'function' && mkSatOn()){ mkSatDraw(); return; }
-    if (!mkMapChart) return;
-    var D = { a: [], b: [], fx: [], nodes: [], focus: [], ships: [] }, C = mkOvCol(document.documentElement.getAttribute('data-theme') === 'dark');
-    mkShipsData(A, D, C);
-    try { mkMapChart.__axNoKeep = true; mkMapChart.setOption({ series: [{}, {}, {}, {}, {}, {}, {}, { data: D.ships }] }, { silent: true, lazyUpdate: true }); } catch(e){}
-  }, 1000);
-}
+
+
+
 //  옆 칸
 var mkPortChart = null;
 function mkPortRender(box){
   var P = MK.ports || {}, d = P.d, dark = document.documentElement.getAttribute('data-theme') === 'dark';
   mkPortLoad();
-  var A = MK.portSel != null ? (MK.ais || {})[MK.portSel] : null, tab = mkPortTabOf();
-  var key = 'port|' + (d ? d.asof + ':' + d.cps.length + ':' + (d.prt ? d.prt.length + ':' + (d.pAsof || '') : '0') : P.err ? 'e' : 'w') + '|' + tab + '|' + (MK.portSel != null ? MK.portSel : '') + '|' + dark + '|' + (isEn() ? 'en' : 'ko') + '|' + (A ? (A.d ? A.d.at + ':' + A.d.ships.length : A.err ? 'e' : 'b') : '') + '|' + !!(MK.feat && MK.feat.ais);
+  var A = MK.aisAll || null, tab = mkPortTabOf();
+  var key = 'port|' + (d ? d.asof + ':' + d.cps.length + ':' + (d.prt ? d.prt.length + ':' + (d.pAsof || '') : '0') : P.err ? 'e' : 'w') + '|' + tab + '|' + (MK.portLive ? 'lv' : '') + '|' + (MK.portSel != null ? MK.portSel : '') + '|' + dark + '|' + (isEn() ? 'en' : 'ko') + '|' + (A ? (A.d ? A.d.at + ':' + A.d.ships.length : A.err ? 'e' : 'b') : '') + '|' + !!(MK.feat && MK.feat.ais);
   if (box.__k === key) return;
   box.__k = key;
   box.classList.remove('is-vc', 'is-mac'); box.classList.add('is-port');
@@ -21502,16 +21803,19 @@ function mkPortRender(box){
 //  (10/10) 해협 28 | 항구 18 — 고른 곳(해협이든 항구든)은 어느 칸에서나 위에
 function mkPortBodyHtml(btn, dark){
   var d = MK.ports.d, tab = mkPortTabOf(), hasP = !!(d.prt && d.prt.length);
-  var seg = hasP && btn ? '<div class="mk-port-tabs"><span class="px-seg" role="group" aria-label="' + esc(T('해협 · 항구', 'Chokepoints · ports')) + '">'
+  //  (10/10 5차 «배가 있는 곳만 표시해도 좋을 듯») — 실시간 배가 잡힌 곳만 보기 (옆 칸 줄 · 지도 점)
+  var liveOk = mkPortLiveOn() !== null, liveOn = mkPortLiveOn() === true;
+  var seg = btn && (hasP || liveOk) ? '<div class="mk-port-tabs">' + (hasP ? '<span class="px-seg" role="group" aria-label="' + esc(T('해협 · 항구', 'Chokepoints · ports')) + '">'
     + '<button type="button" class="' + (tab === 'cp' ? 'on' : '') + '" aria-pressed="' + (tab === 'cp') + '" onclick="mkPortTabSet(\'cp\')">' + esc(T('해협 ', 'Chokepoints ') + d.cps.length) + '</button>'
-    + '<button type="button" class="' + (tab === 'pt' ? 'on' : '') + '" aria-pressed="' + (tab === 'pt') + '" onclick="mkPortTabSet(\'pt\')">' + esc(T('항구 ', 'Ports ') + d.prt.length) + '</button></span>'
-    + '<span class="st-hint">' + esc(T('누르면 위성 사진 위 실시간 배', 'Click one: satellite view · live ships')) + '</span></div>' : '';
+    + '<button type="button" class="' + (tab === 'pt' ? 'on' : '') + '" aria-pressed="' + (tab === 'pt') + '" onclick="mkPortTabSet(\'pt\')">' + esc(T('항구 ', 'Ports ') + d.prt.length) + '</button></span>' : '')
+    + (liveOk ? '<button type="button" class="mk-plv' + (liveOn ? ' on' : '') + '" aria-pressed="' + liveOn + '" onclick="mkPortLiveSet(' + !liveOn + ')"><i class="dot" aria-hidden="true"></i>' + esc(T('실시간 배 있는 곳만', 'Only with live ships')) + '</button>' : '')
+    + '<span class="st-hint">' + esc(T('누르면 그곳으로 확대 · 배를 누르면 실은 것 · 가는 곳', 'Click to zoom · click a ship for cargo & destination')) + '</span></div>' : '';
   var selH = '';
   if (MK.portSel != null){
     if (mkPortIsP(MK.portSel)){ var sp = mkPrtOf(MK.portSel); if (sp) selH = mkPrtSelHtml(sp, btn); }
     else { var sc = mkPortOf(MK.portSel); if (sc) selH = mkCpSelHtml(sc, btn); }
   }
-  return seg + (tab === 'pt' ? mkPrtBodyHtml(btn, dark, selH) : mkCpBodyHtml(btn, dark, selH));
+  return seg + mkPortAisTop() + (tab === 'pt' ? mkPrtBodyHtml(btn, dark, selH) : mkCpBodyHtml(btn, dark, selH));
 }
 function mkCpSelHtml(sel, btn){
   var cp = sel.cp;
@@ -21521,7 +21825,7 @@ function mkCpSelHtml(sel, btn){
     + '<div class="st-hint">' + esc(cp.memo) + '</div>'
     + '<div class="mk-port-kv"><span>' + esc(T('최근 7일', '7d')) + '<b>' + Math.round(sel.a7) + esc(T('척/일', '/d')) + '</b></span><span>' + esc(T('30일', '30d')) + '<b>' + Math.round(sel.a30) + esc(T('척/일', '/d')) + '</b></span>'
     + (sel.ly != null ? '<span>' + esc(T('전년 같은 30일', 'LY 30d')) + '<b>' + Math.round(sel.ly) + esc(T('척/일', '/d')) + '</b></span><span>' + esc(T('전년 대비', 'y/y')) + '<b class="' + mkUd(sel.yoy) + '">' + (sel.yoy > 0 ? '+' : '') + sel.yoy.toFixed(0) + '%</b></span>' : '')
-    + (sel.cap ? '<span>' + esc(T('하루 화물 (추정)', 'Cargo/day (est.)')) + '<b>' + esc(num(sel.cap, 0) + T('천 t', 'k t')) + '</b></span>' : '') + '</div>'
+    + (sel.cap ? '<span title="' + esc(T('그날 지나간 배들의 재화중량톤(DWT) 합 · 실제 실은 화물량이 아니라 실을 수 있는 최대치', 'Sum of deadweight tonnage of vessels transiting')) + '">' + esc(T('하루 통과 DWT 합', 'DWT/day')) + '<b>' + esc(mkTonKo(sel.cap * 1000)) + '</b></span>' : '') + '</div>'
     + mixBar + (btn ? '<div class="mk-port-ch" id="mkPortCh"></div>' : '') + mkPortLiveHtml(cp.id) + '</div>';
 }
 function mkCpBodyHtml(btn, dark, selH){
@@ -21533,19 +21837,20 @@ function mkCpBodyHtml(btn, dark, selH){
     + (yoyAll != null ? '<span class="' + mkUd(yoyAll) + '">' + esc(T('전년 같은 때 대비 ', 'vs LY ') + (yoyAll > 0 ? '+' : '') + yoyAll.toFixed(1) + '%') + '</span>' : '') + '</div>';
   var al = alerts.length ? '<div class="mk-port-al" role="status">' + alerts.map(function(x){ return '<' + tag + (btn ? ' type="button" onclick="mkPortPick(' + x.cp.id + ')"' : '') + ' class="a"><i aria-hidden="true">!</i><b>' + esc(x.cp.n) + '</b> ' + esc(T('하루 ', '') + Math.round(x.a7) + T('척 · 전년 대비 ', '/d · ') + Math.round(x.yoy7) + '%') + '</' + tag + '>'; }).join('') + '</div>' : '';
   var mx = Math.max.apply(null, L.map(function(x){ return x.a7 || 0; }).concat([1]));
-  var rows = L.map(function(x, i){
+  var LV = mkPortLiveOn() === true ? L.filter(function(x){ return mkAisArea(x.cp.id).n > 0 || MK.portSel === x.cp.id; }) : L;
+  var rows = LV.map(function(x, i){
     var cp = x.cp, sp = cp.s.t.slice(-90).map(function(v){ return { v: v }; });
     return '<' + tag + (btn ? ' type="button" onclick="mkPortPick(' + cp.id + ')"' : '') + ' class="mk-prow' + (MK.portSel === cp.id ? ' on' : '') + '" style="--k:' + i + '">'
-      + '<span class="rk">' + (i + 1) + '</span><span class="nm">' + esc(cp.n) + '</span>'
+      + '<span class="rk">' + (i + 1) + '</span><span class="nm">' + esc(cp.n) + mkPortLiveBadge(cp.id) + '</span>'
       + '<span class="bar"><i style="--w:' + Math.max(1.5, (x.a7 || 0) / mx * 100).toFixed(1) + '%;background:' + mkPortCol(x.yoy7, dark) + '"></i></span>'
       + '<span class="v">' + Math.round(x.a7 || 0) + '<i>' + esc(T('척', '/d')) + '</i></span>'
       + '<span class="y ' + mkUd(x.yoy7) + '">' + (x.yoy7 != null ? (x.yoy7 > 0 ? '+' : '') + Math.round(x.yoy7) + '%' : '-') + '</span>'
       + mkSpark(sp, 64, 18, x.ly) + '</' + tag + '>';
-  }).join('');
+  }).join('') || '<div class="st-hint mk-plv-none">' + esc(T('지금 실시간 배가 잡힌 곳이 없습니다', 'No live ships right now')) + '</div>';
   return '<div class="mk-res-what">' + esc(T('세계 주요 해협 ' + L.length + '곳 · 하루 통과 선박 (최근 7일 평균) · 전년 같은 때 대비', L.length + ' chokepoints · daily transits (7d avg) · vs last year')) + '<span class="st-hint"> · ' + esc(d.asof + T(' 기준 · 주 1회 갱신 (5~11일 늦음)', ' · weekly update')) + '</span></div>'
     + kpi + al + (selH || '')
     + '<div class="mk-prows" id="' + (btn ? 'mkResBars' : '') + '">' + '<div class="mk-prow h" aria-hidden="true"><span></span><span>' + esc(T('해협', 'Chokepoint')) + '</span><span>' + esc(T('하루 통과 (7일)', 'Daily (7d)')) + '</span><span></span><span>' + esc(T('전년비', 'y/y')) + '</span><span>' + esc(T('90일', '90d')) + '</span></div>' + rows + '</div>'
-    + '<div class="mk-res-src">' + esc(T('출처: IMF PortWatch (UN Global Platform · 위성 AIS 기반 · portwatch.imf.org) · 항로는 모식도 · 위성 사진: EOX Sentinel-2 cloudless (구름 없는 합성 · 실시간 아님) · 실시간 배 위치는 육상 AIS 수신 (해협 둘레만)', 'Sources: UN Global Platform; IMF PortWatch (portwatch.imf.org) · lanes are schematic · imagery: EOX Sentinel-2 cloudless (not live)')) + '</div>';
+    + '<div class="mk-res-src">' + esc(T('출처: IMF PortWatch (UN Global Platform · 위성 AIS 기반 · portwatch.imf.org) · 항로는 모식도 · 실시간 배 위치는 육상 AIS 수신 (먼바다는 빠질 수 있음)', 'Sources: UN Global Platform; IMF PortWatch (portwatch.imf.org) · lanes are schematic · live ships: terrestrial AIS')) + '</div>';
 }
 //  고른 해협 · 항구 180일 (배 종류별 쌓기) + 전년 평균 선
 function mkPortChartDraw(dark){
@@ -21564,20 +21869,19 @@ function mkPortChartDraw(dark){
     xAxis: { type: 'category', data: s.d, axisLabel: { formatter: function(v){ return String(v).slice(5); }, hideOverlap: true, fontSize: 10 } },
     yAxis: { type: 'value', axisLabel: { fontSize: 10 }, splitLine: { lineStyle: { opacity: 0.5 } } }, series: ser }, true);
 }
-/* ══════════ (10/10) 위성 보기 + 항구 — 학회장: «실제 배들 위치나 위성처럼 볼 수 있는 배척들 데이터 가지고 직접 그 배들을 보여줄 수는 없나» → «위성 배경 + 항구 혼잡»
-   · 물류 층에서 해협 · 항구를 고르면 지도 칸이 그 자리의 위성 사진으로 바뀌고, 그 위에 실시간 AIS 배를 종류별 색 · 뱃머리 방향 · 지나온 꼬리로 그림
-     (1초마다 속도 · 방향대로 밀어서 · 3분마다 새로 받음 · 멈춘 배는 신호가 드물어 서버가 최근 20분 안의 것을 모아 둠)
-   · 위성 사진 = EOX Sentinel-2 cloudless (구름 없는 합성 사진 · 실시간 사진 아님) · 배만 실시간
-   · 지도 칸 오른쪽 위 «위성 | 지도» 로 언제든 원래 지도로 · 고른 것을 풀면 원래 지도
-   · Leaflet 은 위성 보기를 처음 켤 때만 불러옴 · 못 불러오거나 사진 타일이 안 오면 조용히 원래 지도 (단추도 숨김)
+/* ══════════ (10/10 5차) 위성 보기 — 학회장: «위성도 넣는 옵션을 주고 · 이건 수동으로 뷰를 볼 수 있게»
+   · 물류 층 지도 오른쪽 위 «지도 | 위성» — 처음엔 지도 · «위성» 을 누를 때만 위성 사진으로 (자동으로 바뀌지 않음 · 새로 열면 다시 지도)
+   · 위성으로 바꾸면 지금 보던 자리 · 확대 그대로 이어서 (해협 · 항구를 골라 둔 상태면 그 둘레로) · 끌기 · 휠 · 두 손가락으로 마음대로 이동 · 확대
+   · «지도» 로 돌아오면 위성에서 보던 자리 그대로 지도로
+   · 배 = 지도와 같은 실시간 AIS (화면 안 배만 · 1초마다 속도 · 방향대로) · 배를 누르면 같은 배 카드
+   · 위성 사진 = EOX Sentinel-2 cloudless (구름 없는 합성 사진 · 실시간 사진 아님) · Leaflet 은 위성을 처음 켤 때만 불러옴 · 못 받으면 단추를 숨기고 지도
    ⚠️ 위성 사진 사용 조건: CC BY-NC-SA 4.0 (비영리 · 출처 표시) — 오른쪽 아래 출처 줄을 지우면 안 됨  */
 var MK_LF = { js: 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js', css: 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css' };
 //  해마다 새 판이 나옴 — 가장 새 판부터 · 타일이 하나도 안 오면 한 해 전 판으로 (출처 줄의 해도 같이)
 var MK_SAT_YRS = [2025, 2024, 2023];
 function mkSatUrl(yr){ return 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-' + yr + '_3857/default/g/{z}/{y}/{x}.jpg'; }
 function mkSatAttr(yr){ return 'EOxCloudless ' + yr + ' <a href="https://cloudless.eox.at" target="_blank" rel="noopener">cloudless.eox.at</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data ' + yr + ')'; }
-var MK_SAT_COL = { cg: '#60a5fa', tk: '#f87171', ps: '#4ade80', tg: '#fbbf24', fs: '#c084fc', ot: '#cbd5e1', un: '#cbd5e1' };
-var SAT = { L: null, map: null, tl: null, el: null, cv: null, pts: [], key: '', sz: '', hov: null, tOk: false, tErr: 0 };
+var SAT = { L: null, map: null, tl: null, el: null, cv: null, pts: [], key: null, sz: '', hov: null, tOk: false, tErr: 0, init: false };
 function mkLfReady(){
   if (SAT.L) return Promise.resolve(true);
   if (MK.lfP) return MK.lfP;
@@ -21598,35 +21902,61 @@ function mkLfReady(){
   });
   return MK.lfP;
 }
-function mkSatCan(){ return typeof curTab !== 'undefined' && curTab === 'market' && MK.view === 'world' && MK.lay === 'port' && MK.portSel != null && !MK.satFail && !!mkPortSelInfo(MK.portSel); }
-function mkSatOn(){ return !!(SAT.map && SAT.el && SAT.el.classList.contains('on') && mkSatCan() && MK.satOn !== false); }
-//  지도 칸과 맞추기 (mkMapPaint 끝 · 크기 바뀔 때 · 단추)
+function mkSatCan(){ return typeof curTab !== 'undefined' && curTab === 'market' && MK.view === 'world' && MK.lay === 'port' && !MK.satFail; }
+function mkSatWant(){ return mkSatCan() && MK.satOn === true; }
+function mkSatOn(){ return !!(SAT.map && SAT.el && SAT.el.classList.contains('on') && mkSatWant()); }
+//  지도 칸과 맞추기 (mkMapPaint 끝 · 단추)
 function mkSatSync(){
   var box = $('mkMapBox'); if (!box) return;
   var can = mkSatCan(), sw = box.querySelector('.mk-sat-sw');
   if (can){
     if (!sw){ sw = document.createElement('div'); sw.className = 'px-seg mk-sat-sw'; sw.setAttribute('role', 'group'); box.appendChild(sw); }
     sw.setAttribute('aria-label', T('지도 바탕', 'Base map'));
-    var on = MK.satOn !== false, h = '<button type="button" class="' + (on ? 'on' : '') + '" aria-pressed="' + on + '" onclick="mkSatSet(true)">' + esc(T('위성', 'Satellite')) + '</button>'
-      + '<button type="button" class="' + (on ? '' : 'on') + '" aria-pressed="' + !on + '" onclick="mkSatSet(false)">' + esc(T('지도', 'Map')) + '</button>';
+    var on = MK.satOn === true, h = '<button type="button" class="' + (on ? '' : 'on') + '" aria-pressed="' + !on + '" onclick="mkSatSet(false)">' + esc(T('지도', 'Map')) + '</button>'
+      + '<button type="button" class="' + (on ? 'on' : '') + '" aria-pressed="' + on + '" onclick="mkSatSet(true)">' + esc(T('위성', 'Satellite')) + '</button>';
     if (sw.__h !== h){ sw.__h = h; sw.innerHTML = h; }
   } else if (sw) sw.remove();
   box.classList.toggle('sw-on', can);
-  var want = can && MK.satOn !== false;
+  var want = can && MK.satOn === true;
   if (want && !SAT.L){ want = false; mkLfReady().then(function(ok){ if (ok) mkSatSync(); else mkMapPaint(); }); }
   box.classList.toggle('sat-on', want);
   if (!want){ if (SAT.el) SAT.el.classList.remove('on'); mkSatTipHide(); return; }
   if (!mkSatInit(box)){ box.classList.remove('sat-on'); return; }
   var was = SAT.el.classList.contains('on');
   SAT.el.classList.add('on');
-  if (!was) SAT.sz = '';
+  if (!was){ SAT.sz = ''; SAT.init = true; }
   mkSatGo(); mkSatDraw();
 }
+//  지도 ↔ 위성 확대 정도 (지도: 1 = 세계 전체가 칸 폭 · 위성: 타일 단계) — 화면에서 1° 가 몇 px 인지로 맞춤
+function mkSatPpd1(){ try { var g = mkMapChart.getModel().getComponent('geo').coordinateSystem, a = g.dataToPoint([0, 0]), b = g.dataToPoint([10, 0]); return Math.abs(b[0] - a[0]) / 10 / (g.getZoom() || 1); } catch(e){ return 0; } }
+function mkSatFromMap(){
+  var m = SAT.map; if (!m || !mkMapChart) return false;
+  try {
+    var g = mkMapChart.getModel().getComponent('geo').coordinateSystem, c = g.pointToData([mkMapChart.getWidth() / 2, mkMapChart.getHeight() / 2]), p1 = mkSatPpd1();
+    if (!c || !isFinite(c[0]) || !isFinite(c[1]) || !p1) return false;
+    var z = Math.log(p1 * (g.getZoom() || 1) * 360 / 256) / Math.LN2;
+    m.setView([Math.max(-80, Math.min(80, c[1])), c[0]], Math.max(2, Math.min(15, Math.round(z * 4) / 4)), { animate: false });
+    return true;
+  } catch(e){ return false; }
+}
+function mkSatToMap(){
+  var m = SAT.map; if (!m || !mkMapChart || mkGlobeOn()) return;
+  try {
+    var c = m.getCenter(), z = m.getZoom(), p1 = mkSatPpd1(), lim = mkScaleLim(false); if (!p1) return;
+    var ez = Math.max(lim.min, Math.min(lim.max, (256 * Math.pow(2, z) / 360) / p1));
+    var g = mkMapChart.getModel().getComponent('geo').coordinateSystem, pc = [c.lng, c.lat];
+    if (mkProjOn() && g.projection && g.projection.project) pc = g.projection.project([c.lng, c.lat]);
+    return { center: pc, zoom: ez };
+  } catch(e){ return null; }
+}
 function mkSatSet(on){
+  on = !!on; if ((MK.satOn === true) === on) return;
+  var v = !on ? mkSatToMap() : null;
+  MK.satOn = on; SAT.init = on;
   //  (칸 높이도 바뀔 수 있어서 지도부터 다시 · 그 끝에서 위성 보기를 맞춤)
-  MK.satOn = !!on; mkSavePrefs(); mkMapPaint();
-  //  지도로 돌아오면 지도 위 배를 다시 그림 (위성 보기 동안은 지도 쪽 배를 안 움직였음)
-  if (!on){ mkOvPaint(); mkShipTick(); }
+  mkMapPaint();
+  //  지도로 돌아오면 위성에서 보던 자리 그대로 (옮기는 움직임으로)
+  if (!on){ if (v) mkMapAnim(v, mkMarkLabels); mkOvPaint(); mkShipTick(); }
 }
 function mkSatInit(box){
   var LF = SAT.L; if (!LF) return false;
@@ -21638,10 +21968,10 @@ function mkSatInit(box){
   }
   if (SAT.map && SAT.el === el){ mkSatLeg(); return true; }
   if (SAT.map){ try { SAT.map.remove(); } catch(e){} SAT.map = null; }
-  SAT.el = el; SAT.key = ''; SAT.sz = ''; SAT.tOk = false; SAT.tErr = 0;
+  SAT.el = el; SAT.key = null; SAT.sz = ''; SAT.tOk = false; SAT.tErr = 0;
   var m;
   try {
-    m = LF.map(el.querySelector('.mk-sat-map'), { zoomControl: false, attributionControl: false, minZoom: 3, maxZoom: 16, zoomSnap: 0.5, worldCopyJump: true,
+    m = LF.map(el.querySelector('.mk-sat-map'), { zoomControl: false, attributionControl: false, minZoom: 2, maxZoom: 16, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 110, wheelDebounceTime: 20, worldCopyJump: true,
       fadeAnimation: MOTION_OK, zoomAnimation: MOTION_OK, markerZoomAnimation: false, inertia: MOTION_OK });
   } catch(e){ MK.satFail = 'init'; return false; }
   LF.control.zoom({ position: 'topright', zoomInTitle: T('확대', 'Zoom in'), zoomOutTitle: T('축소', 'Zoom out') }).addTo(m);
@@ -21656,7 +21986,8 @@ function mkSatInit(box){
   var ct = m.getContainer();
   ct.addEventListener('mousemove', function(e){ mkSatHover(e, false); });
   ct.addEventListener('mouseleave', function(){ mkSatTipHide(); });
-  m.on('click', function(e){ mkSatHover(e.originalEvent, true); });
+  //  배를 누르면 배 카드 (지도와 같은 카드)
+  m.on('click', function(e){ var o = mkSatHit(e.originalEvent, true); if (o) mkShipPick(o[2]); });
   m.on('dragstart', function(){ mkSatTipHide(); });
   mkSatLeg();
   return true;
@@ -21665,31 +21996,29 @@ function mkSatInit(box){
 function mkSatTiles(i){
   var m = SAT.map, LF = SAT.L; if (!m || !LF) return;
   if (SAT.tl){ try { m.removeLayer(SAT.tl); } catch(e){} SAT.tl = null; }
-  if (i >= MK_SAT_YRS.length){ MK.satFail = 'tiles'; mkMapPaint(); mkOvPaint(); mkShipTick(); return; }
+  if (i >= MK_SAT_YRS.length){ MK.satFail = 'tiles'; MK.satOn = false; mkMapPaint(); mkOvPaint(); mkShipTick(); return; }
   var yr = MK_SAT_YRS[i], tl = LF.tileLayer(mkSatUrl(yr), { maxNativeZoom: 14, maxZoom: 16, attribution: mkSatAttr(yr), keepBuffer: 2 });
   SAT.tl = tl; SAT.yr = yr; SAT.tOk = false; SAT.tErr = 0;
   tl.on('tileload', function(){ SAT.tOk = true; });
   tl.on('tileerror', function(){ if (SAT.tOk || SAT.tl !== tl) return; if (++SAT.tErr >= 6) mkSatTiles(i + 1); });
   tl.addTo(m);
 }
-//  고른 곳으로 (고른 것이 바뀔 때만 맞춤 — 사용자가 옮겨 놓은 자리는 그대로) · 칸 크기가 바뀌면 다시 잼
+//  처음 켤 때 = 지도에서 보던 자리 (고른 곳이 있으면 그 둘레) · 그 뒤엔 고른 곳이 바뀔 때만 옮김 (손으로 옮긴 자리는 그대로)
 function mkSatGo(){
   var m = SAT.map; if (!m || !SAT.el) return;
   var sz = SAT.el.clientWidth + 'x' + SAT.el.clientHeight;
   if (SAT.sz !== sz){ SAT.sz = sz; try { m.invalidateSize(false); } catch(e){} }
-  var id = MK.portSel, I = mkPortSelInfo(id); if (!I || SAT.key === String(id)) return;
-  SAT.key = String(id); SAT.hov = null; mkSatTipHide();
-  //  서버가 배를 받는 네모와 같은 크기 (항구 = 정박지까지 · 해협 = 길이에 맞춰)
+  var id = MK.portSel, I = id != null ? mkPortSelInfo(id) : null, key = id != null ? String(id) : '';
+  if (SAT.init){ SAT.init = false; SAT.key = key;
+    if (I) mkSatFit(id, I); else if (!mkSatFromMap()) m.setView([20, 60], 3, { animate: false });
+    return; }
+  if (key !== SAT.key){ SAT.key = key; if (I) mkSatFit(id, I); }
+}
+function mkSatFit(id, I){
+  //  서버가 둘레를 세는 네모와 같은 크기 (항구 = 정박지까지 · 해협 = 길이에 맞춰)
   var hy = I.port ? 0.42 : id === 5 ? 2.2 : id === 7 || id === 26 ? 2.5 : 1.4, hx = I.port ? 0.6 : hy * 1.4;
-  try { m.fitBounds([[I.la - hy, I.lo - hx], [I.la + hy, I.lo + hx]], { animate: false, padding: [6, 6] }); } catch(e){}
+  try { SAT.map.fitBounds([[I.la - hy, I.lo - hx], [I.la + hy, I.lo + hx]], { animate: false, padding: [6, 6] }); } catch(e){}
 }
-//  배 자리 — 받은 뒤 지난 시간만큼 속도 · 방향대로 밀어서 (15분까지)
-function mkShipPos(s, dtH){
-  var la = s[1], lo = s[2], cog = s[3], sog = s[4] || 0, mv = sog >= 1 && cog != null && s[8] !== 1 && s[8] !== 5;
-  if (mv){ var dist = sog * dtH / 60; la += dist * Math.cos(cog * Math.PI / 180); lo += dist * Math.sin(cog * Math.PI / 180) / Math.max(0.2, Math.cos(la * Math.PI / 180)); }
-  return [la, lo, mv];
-}
-function mkShipCnt(ships){ var c = { n: ships.length, mv: 0, an: 0, mr: 0 }; ships.forEach(function(s){ c[mkShipSt(s)[0]]++; }); return c; }
 function mkSatDraw(){
   var m = SAT.map, cv = SAT.cv; if (!m || !cv || !SAT.el || !SAT.el.classList.contains('on')) return;
   //  자리를 아직 안 잡은 지도 (처음 만든 직후) — 그릴 게 없음
@@ -21699,73 +22028,66 @@ function mkSatDraw(){
   if (cv.__w !== W || cv.__h !== H || cv.__r !== dpr){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.__w = W; cv.__h = H; cv.__r = dpr; }
   var g = cv.getContext('2d'); if (!g) return;
   g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
-  var id = MK.portSel, A = (MK.ais || {})[id];
-  mkSatHead(A); SAT.pts = [];
-  if (!A || !A.d || !A.d.ships) return;
-  var now = Date.now(), z = m.getZoom(), zs = z >= 13 ? 1.5 : z >= 11 ? 1.2 : z >= 9 ? 1 : 0.8, TR = (MK.aisTr || {})[id] || {}, pts = [];
+  var A = MK.aisAll; SAT.pts = [];
+  if (!A || !A.d || !A.d.ships){ mkSatHead(0); return; }
+  var now = Date.now(), z = m.getZoom(), zs = z >= 13 ? 1.5 : z >= 11 ? 1.25 : z >= 8 ? 1.05 : z >= 5 ? 0.8 : 0.6, pts = [];
   //  ⚠️ latLngToContainerPoint 는 픽셀을 반올림 — 배가 1초에 몇 m 씩 움직이는 게 안 보여서 반올림 없이 직접 계산
   var base = m.getPixelOrigin().add(m.containerPointToLayerPoint([0, 0])), xy = function(la, lo){ return m.project([la, lo], z).subtract(base); };
+  var bnd = m.getBounds().pad(0.05), sw = bnd.getSouthWest(), ne = bnd.getNorthEast(), wrap = ne.lng - sw.lng >= 360;
   A.d.ships.forEach(function(s){
-    var dtH = Math.min(0.25, ((now - A.at) / 1000 + (s[9] || 0)) / 3600), q = mkShipPos(s, dtH), p = xy(q[0], q[1]);
-    if (p.x < -24 || p.y < -24 || p.x > W + 24 || p.y > H + 24) return;
+    var q = mkShipPos(s, Math.min(0.25, ((now - A.at) / 1000 + (s[9] || 0)) / 3600));
+    if (q[0] < sw.lat || q[0] > ne.lat) return;
+    var lo = q[1]; if (!wrap){ while (lo < sw.lng) lo += 360; while (lo > ne.lng) lo -= 360; if (lo < sw.lng) return; }
+    var p = xy(q[0], lo); if (p.x < -24 || p.y < -24 || p.x > W + 24 || p.y > H + 24) return;
     pts.push([p.x, p.y, s, mkShipSt(s)[0]]);
   });
-  //  지나온 꼬리 (항해 중인 배)
-  g.lineCap = 'round'; g.lineJoin = 'round'; g.lineWidth = 1.6; g.globalAlpha = 0.5;
-  pts.forEach(function(o){
-    if (o[3] !== 'mv') return; var h = TR[o[2][0]]; if (!h || !h.length) return;
-    g.beginPath(); h.forEach(function(ll, i){ var p = xy(ll[1], ll[0]); if (i) g.lineTo(p.x, p.y); else g.moveTo(p.x, p.y); }); g.lineTo(o[0], o[1]);
-    g.strokeStyle = MK_SAT_COL[mkShipTy(o[2][7])[0]]; g.stroke();
-  });
-  g.globalAlpha = 1;
+  mkSatHead(pts.length);
   //  멈춘 배를 먼저 (움직이는 배가 위로)
   pts.sort(function(a, b){ return (a[3] === 'mv' ? 1 : 0) - (b[3] === 'mv' ? 1 : 0); });
   pts.forEach(function(o){
-    var s = o[2], ln = s[10] || 0, k = zs * (ln >= 300 ? 1.45 : ln >= 200 ? 1.25 : ln >= 100 ? 1.05 : ln ? 0.85 : 1);
-    g.save(); g.translate(o[0], o[1]); g.fillStyle = MK_SAT_COL[mkShipTy(s[7])[0]]; g.strokeStyle = 'rgba(0,0,0,.78)'; g.lineWidth = 1;
-    if (o[3] === 'mv'){ var hd = s[5] != null ? s[5] : (s[3] || 0); g.rotate(hd * Math.PI / 180); g.beginPath(); g.moveTo(0, -7.5 * k); g.lineTo(4 * k, 5.5 * k); g.lineTo(0, 3.2 * k); g.lineTo(-4 * k, 5.5 * k); g.closePath(); g.fill(); g.stroke(); }
-    else if (o[3] === 'mr'){ g.globalAlpha = 0.88; g.fillRect(-2.6 * k, -2.6 * k, 5.2 * k, 5.2 * k); g.strokeRect(-2.6 * k, -2.6 * k, 5.2 * k, 5.2 * k); }
-    else { g.beginPath(); g.arc(0, 0, 3.1 * k, 0, Math.PI * 2); g.fill(); g.stroke(); }
+    var s = o[2], ln = s[10] || 0, k = zs * (ln >= 300 ? 1.45 : ln >= 200 ? 1.25 : ln >= 100 ? 1.05 : ln ? 0.9 : 1);
+    g.save(); g.translate(o[0], o[1]); g.fillStyle = mkShipCol(mkShipTy(s[7])[0], true); g.strokeStyle = 'rgba(0,0,0,.8)'; g.lineWidth = 1;
+    if (o[3] === 'mv' && z >= 8){ var hd = s[5] != null ? s[5] : (s[3] || 0); g.rotate(hd * Math.PI / 180); g.beginPath(); g.moveTo(0, -7.5 * k); g.lineTo(4 * k, 5.5 * k); g.lineTo(0, 3.2 * k); g.lineTo(-4 * k, 5.5 * k); g.closePath(); g.fill(); g.stroke(); }
+    else if (o[3] === 'mr' && z >= 8){ g.globalAlpha = 0.9; g.fillRect(-2.8 * k, -2.8 * k, 5.6 * k, 5.6 * k); g.strokeRect(-2.8 * k, -2.8 * k, 5.6 * k, 5.6 * k); }
+    else { g.beginPath(); g.arc(0, 0, (z >= 8 ? 3.2 : 2.6) * k + 0.6, 0, Math.PI * 2); g.fill(); g.stroke(); }
     g.restore();
-    if (SAT.hov === s[0]){ g.beginPath(); g.arc(o[0], o[1], 10 * zs, 0, Math.PI * 2); g.strokeStyle = '#fff'; g.lineWidth = 1.8; g.stroke(); }
+    if (SAT.hov === s[0] || MK.shipSel === s[0]){ g.beginPath(); g.arc(o[0], o[1], 11 * Math.max(0.8, zs), 0, Math.PI * 2); g.strokeStyle = '#fff'; g.lineWidth = MK.shipSel === s[0] ? 2.4 : 1.6; g.stroke(); }
   });
   SAT.pts = pts;
 }
-//  왼쪽 위 — 고른 곳 · 실시간 배 수
-function mkSatHead(A){
+//  왼쪽 위 — 고른 곳 (있으면) · 실시간 배 수
+function mkSatHead(nIn){
   var hd = SAT.el && SAT.el.querySelector('.mk-sat-hd'); if (!hd) return;
-  var I = mkPortSelInfo(MK.portSel); if (!I){ hd.innerHTML = ''; hd.__h = ''; return; }
-  var h = '<div class="t"><b>' + esc(I.n) + '</b><button type="button" class="x" onclick="mkPortPick(MK.portSel)" aria-label="' + esc(T('위성 보기 닫기 (세계 지도로)', 'Close satellite view')) + '" title="' + esc(T('닫기 (세계 지도로)', 'Close')) + '">×</button></div>';
+  var I = MK.portSel != null ? mkPortSelInfo(MK.portSel) : null, A = MK.aisAll, h = '<div class="t"><b>' + esc(I ? I.n : T('위성 사진', 'Satellite')) + '</b>'
+    + '<button type="button" class="x" onclick="mkSatSet(false)" aria-label="' + esc(T('위성 보기 닫기 (지도로)', 'Back to map')) + '" title="' + esc(T('지도로', 'Back to map')) + '">×</button></div>';
   if (MK.feat && MK.feat.ais){
-    if (A && A.d){ var c = mkShipCnt(A.d.ships);
-      h += '<div class="g"><span><i class="dot" aria-hidden="true"></i>' + esc(T('실시간 배 ', 'Live ') + c.n + T('척', ' ships')) + '</span><span>' + esc(T('항해 ', 'Underway ') + c.mv) + '</span><span>' + esc(T('대기 ', 'Waiting ') + c.an) + '</span><span>' + esc(T('접안 ', 'Moored ') + c.mr) + '</span></div>'; }
+    if (A && A.d){ var c = I ? mkAisArea(MK.portSel) : null;
+      h += '<div class="g">' + (c ? '<span><i class="dot" aria-hidden="true"></i>' + esc(T('이 둘레 ', 'Area ') + c.n + T('척', '')) + '</span><span>' + esc(T('항해 ', 'Underway ') + c.mv) + '</span><span>' + esc(T('대기 ', 'Waiting ') + c.an) + '</span><span>' + esc(T('접안 ', 'Moored ') + c.mr) + '</span>'
+        : '<span><i class="dot" aria-hidden="true"></i>' + esc(T('화면 안 실시간 배 ', 'Live ships in view ') + nIn + T('척', '')) + '</span>') + '</div>'; }
     else if (!A || A.busy) h += '<div class="g"><span>' + esc(T('로딩 중…', 'Loading…')) + '</span></div>';
   }
   if (hd.__h !== h){ hd.__h = h; hd.innerHTML = h; }
 }
 function mkSatLeg(){
   var el = SAT.el && SAT.el.querySelector('.mk-sat-leg'); if (!el) return;
-  var h = '<div class="r">' + [['cg', T('화물 · 컨테이너', 'Cargo')], ['tk', T('유조선', 'Tanker')], ['ps', T('여객선', 'Passenger')], ['tg', T('예인 · 특수', 'Tug')], ['fs', T('어선', 'Fishing')], ['ot', T('그 외', 'Other')]]
-      .map(function(o){ return '<span><i class="c" style="background:' + MK_SAT_COL[o[0]] + '"></i>' + esc(o[1]) + '</span>'; }).join('') + '</div>'
+  var h = '<div class="r">' + [['cg', T('화물', 'Cargo')], ['tk', T('유조선', 'Tanker')], ['ps', T('여객', 'Passenger')], ['ot', T('그 외', 'Other')]]
+      .map(function(o){ return '<span><i class="c" style="background:' + mkShipCol(o[0], true) + '"></i>' + esc(o[1]) + '</span>'; }).join('') + '</div>'
     + '<div class="r"><span><i class="s mv"></i>' + esc(T('항해 중', 'Underway')) + '</span><span><i class="s an"></i>' + esc(T('닻 내림 · 대기', 'Anchored')) + '</span><span><i class="s mr"></i>' + esc(T('접안', 'Moored')) + '</span></div>'
-    + '<div class="n">' + esc(T('바탕 = 구름 없는 위성 합성 사진 (실시간 사진 아님) · 배 = 실시간 AIS', 'Base = cloudless satellite mosaic (not live) · ships = live AIS')) + '</div>';
+    + '<div class="n">' + esc(T('바탕 = 구름 없는 위성 합성 사진 (실시간 사진 아님) · 배 = 실시간 AIS · 배를 누르면 실은 것 · 가는 곳', 'Base = cloudless mosaic (not live) · ships = live AIS · click a ship')) + '</div>';
   if (el.__h !== h){ el.__h = h; el.innerHTML = h; }
 }
-function mkSatTipHtml(s){
-  var ty = mkShipTy(s[7]), st = mkShipSt(s), A = (MK.ais || {})[MK.portSel], mn = Math.floor(((s[9] || 0) + (A ? (Date.now() - A.at) / 1000 : 0)) / 60);
-  return '<b>' + esc(s[6] || T('이름 없음', 'Unnamed')) + '</b><span class="ty"><i style="background:' + MK_SAT_COL[ty[0]] + '"></i>' + esc(ty[1]) + '</span>'
-    + '<div>' + esc(st[0] === 'mv' ? T('항해 중 · ', 'Underway · ') + (+s[4] || 0).toFixed(1) + T('노트 · 방향 ', ' kn · course ') + Math.round(s[3] || 0) + '°' : st[1]) + '</div>'
-    + (s[10] ? '<div>' + esc(T('길이 ', 'Length ') + Math.round(s[10]) + 'm') + '</div>' : '')
-    + (s[11] ? '<div>' + esc(T('목적지 ', 'Destination ') + String(s[11]).slice(0, 24)) + '</div>' : '')
-    + '<div class="ag">' + esc(mn < 1 ? T('위치 신호: 방금', 'Position: just now') : T('위치 신호: ', 'Position: ') + mn + T('분 전', ' min ago')) + '</div>';
-}
-function mkSatHover(e, tap){
-  var m = SAT.map; if (!m || !e || !SAT.el) return;
+function mkSatHit(e, tap){
+  var m = SAT.map; if (!m || !e) return null;
   var r = m.getContainer().getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, best = null, bd = tap ? 16 : 10;
   SAT.pts.forEach(function(o){ var d = Math.abs(o[0] - x) + Math.abs(o[1] - y); if (d < bd){ bd = d; best = o; } });
+  return best;
+}
+function mkSatHover(e){
+  var m = SAT.map; if (!m || !e || !SAT.el) return;
+  var best = mkSatHit(e, false);
   if (!best){ if (SAT.hov != null){ SAT.hov = null; mkSatDraw(); } mkSatTipHide(); return; }
   var tip = SAT.el.querySelector('.mk-sat-tip'); if (!tip) return;
-  var h = mkSatTipHtml(best[2]); if (tip.__h !== h){ tip.__h = h; tip.innerHTML = h; }
+  var h = mkShipTip({ s: best[2] }) + '<div class="ag">' + esc(T('누르면 실은 것 · 가는 곳', 'Click: cargo · destination')) + '</div>'; if (tip.__h !== h){ tip.__h = h; tip.innerHTML = h; }
   tip.hidden = false;
   var W = SAT.el.clientWidth, H = SAT.el.clientHeight, tw = tip.offsetWidth, th = tip.offsetHeight, lx = best[0] + 14, ly = best[1] + 12;
   if (lx + tw > W - 6) lx = best[0] - tw - 14; if (ly + th > H - 6) ly = best[1] - th - 12;
@@ -21786,19 +22108,31 @@ function mkTonKo(v){
 }
 function mkPortTabOf(){ var d = MK.ports && MK.ports.d; return d && d.prt && d.prt.length && MK.portTab === 'pt' ? 'pt' : 'cp'; }
 function mkPortTabSet(t){ t = t === 'pt' ? 'pt' : 'cp'; if (MK.portTab === t) return; MK.portTab = t; mkSavePrefs(); var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); mkLayBarRender(); mkOvPaint(); if (MK.pops && MK.pops.some(function(q){ return q.id === 'p:all'; })) mkPopsRender(); }
-//  실시간 배 (해협 · 항구 같은 모양)
+//  «실시간 배 있는 곳만» — 자료가 없으면 null (단추도 숨김)
+function mkPortLiveOn(){ return MK.aisAll && MK.aisAll.d && MK.feat && MK.feat.ais ? !!MK.portLive : null; }
+function mkPortLiveSet(on){ MK.portLive = !!on; mkSavePrefs(); var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); mkOvPaint(); }
+//  줄 이름 옆 «● 42척» (그 둘레에 지금 잡힌 배)
+function mkPortLiveBadge(id){ if (mkPortLiveOn() === null) return ''; var n = mkAisArea(id).n; return n ? ' <em class="lv" title="' + esc(T('지금 이 둘레에 잡힌 실시간 배', 'Live ships around now')) + '"><i aria-hidden="true"></i>' + n + T('척', '') + '</em>' : ''; }
+//  실시간 배 (고른 해협 · 항구 둘레 · 지도 위 배와 같은 자료)
 function mkPortLiveHtml(id){
-  var A = (MK.ais || {})[id], off = typeof isOfficer === 'function' && isOfficer();
+  var A = MK.aisAll, off = typeof isOfficer === 'function' && isOfficer();
   if (!(MK.feat && MK.feat.ais)) return off ? '<div class="st-hint">' + esc(T('(임원진) 실시간 배 위치는 Supabase Secrets 에 AISSTREAM_API_KEY 를 넣으면 켜집니다', '(officers) add AISSTREAM_API_KEY')) + '</div>' : '';
   if (A && A.d){
-    var c = mkShipCnt(A.d.ships), tk = A.d.ships.filter(function(s){ return s[7] >= 80 && s[7] <= 89; }).length;
-    return '<div class="mk-port-live"><div class="h"><i class="dot" aria-hidden="true"></i>' + esc(T('실시간 배 위치', 'Live ships')) + '<span class="st-hint">' + esc(' · ' + mkHm(A.d.at) + T(' 수신 · 3분마다', ' · every 3 min')) + '</span></div>'
-      + '<div class="g"><span><b>' + c.n + '</b>' + esc(T('척 보임', ' ships')) + '</span><span><b>' + c.mv + '</b>' + esc(T('척 항해 중', ' underway')) + '</span><span><b>' + c.an + '</b>' + esc(T('척 닻 내림 · 대기', ' anchored / waiting')) + '</span><span><b>' + c.mr + '</b>' + esc(T('척 접안', ' moored')) + '</span>'
-      + (tk ? '<span><b>' + tk + '</b>' + esc(T('척 유조선 (확인된 것)', ' tankers')) + '</span>' : '') + '</div>'
+    var c = mkAisArea(id);
+    return '<div class="mk-port-live"><div class="h"><i class="dot" aria-hidden="true"></i>' + esc(T('실시간 배 (이 둘레)', 'Live ships (this area)')) + '<span class="st-hint">' + esc(' · ' + mkHm(A.d.at) + T(' 수신 · 3분마다', ' · every 3 min')) + '</span></div>'
+      + '<div class="g"><span><b>' + c.n + '</b>' + esc(T('척 잡힘', ' ships')) + '</span><span><b>' + c.mv + '</b>' + esc(T('척 항해 중', ' underway')) + '</span><span><b>' + c.an + '</b>' + esc(T('척 닻 내림 · 대기', ' anchored / waiting')) + '</span><span><b>' + c.mr + '</b>' + esc(T('척 접안', ' moored')) + '</span></div>'
       + '<div class="st-hint">' + esc(c.n ? T('멈춰 있는 배는 신호가 드물어 최근 20분 안에 잡힌 것을 함께 셉니다 · 육상 수신소 기준이라 먼바다는 빠질 수 있음', 'Stationary ships report rarely: last 20 min included') : T('지금 이 둘레에서 받은 신호가 없습니다 (육상 수신소가 먼 곳은 빠질 수 있음)', 'No signals right now')) + '</div></div>';
   }
-  if (A && A.err) return off ? '<div class="st-hint">' + esc(T('실시간 배: ', 'Live ships: ') + mkErrTxt(A.err)) + '</div>' : '';
+  if (A && A.err && !A.busy) return off ? '<div class="st-hint">' + esc(T('실시간 배: ', 'Live ships: ') + mkErrTxt(A.err)) + '</div>' : '';
   return '<div class="mk-wait">' + esc(T('로딩 중…', 'Loading…')) + '</div>';
+}
+//  옆 칸 맨 위 — 지도 위 실시간 배 (모두)
+function mkPortAisTop(){
+  var A = MK.aisAll; if (!(MK.feat && MK.feat.ais) || !A || !A.d) return '';
+  var shown = A.d.ships.length, n = A.d.n || shown;
+  return '<div class="mk-port-ais"><i class="dot" aria-hidden="true"></i>' + esc(T('지도 위 실시간 배 ', 'Live ships on map ')) + '<b>' + num(n, 0) + '</b>' + esc(T('척', ''))
+    + (n > shown ? '<span class="st-hint">' + esc(T(' (표시 ', ' (shown ') + num(shown, 0) + T('척)', ')')) + '</span>' : '')
+    + '<span class="st-hint">' + esc(' · ' + mkHm(A.d.at) + T(' 수신 · 3분마다 · 육상 수신소 기준이라 먼바다는 빠질 수 있음', ' · every 3 min · coastal receivers')) + '</span></div>';
 }
 function mkPrtSelHtml(sel, btn){
   var p = sel.p, sg = function(v){ return (v > 0 ? '+' : '') + Math.round(v) + '%'; };
@@ -21822,19 +22156,20 @@ function mkPrtBodyHtml(btn, dark, selH){
   var alerts = L.filter(function(x){ return x.yoy7 != null && x.yoy7 <= -30; }).sort(function(a, b){ return a.yoy7 - b.yoy7; });
   var al = alerts.length ? '<div class="mk-port-al" role="status">' + alerts.map(function(x){ return '<' + tag + (btn ? ' type="button" onclick="mkPortPick(' + q(x.p.id) + ')"' : '') + ' class="a"><i aria-hidden="true">!</i><b>' + esc(x.p.n) + '</b> ' + esc(T('하루 ', '') + Math.round(x.a7) + T('척 · 전년 대비 ', '/d · ') + Math.round(x.yoy7) + '%') + '</' + tag + '>'; }).join('') + '</div>' : '';
   var mx = Math.max.apply(null, L.map(function(x){ return x.a7 || 0; }).concat([1]));
-  var rows = L.map(function(x, i){
+  var LV = mkPortLiveOn() === true ? L.filter(function(x){ return mkAisArea(x.p.id).n > 0 || MK.portSel === x.p.id; }) : L;
+  var rows = LV.map(function(x, i){
     var p = x.p, sp = p.s.t.slice(-90).map(function(v){ return { v: v }; });
     return '<' + tag + (btn ? ' type="button" onclick="mkPortPick(' + q(p.id) + ')"' : '') + ' class="mk-prow' + (MK.portSel === p.id ? ' on' : '') + '" style="--k:' + i + '">'
-      + '<span class="rk">' + (i + 1) + '</span><span class="nm">' + mkFlag2(p.cc) + ' ' + esc(p.n) + '</span>'
+      + '<span class="rk">' + (i + 1) + '</span><span class="nm">' + mkFlag2(p.cc) + ' ' + esc(p.n) + mkPortLiveBadge(p.id) + '</span>'
       + '<span class="bar"><i style="--w:' + Math.max(1.5, (x.a7 || 0) / mx * 100).toFixed(1) + '%;background:' + mkPortCol(x.yoy7, dark) + '"></i></span>'
       + '<span class="v">' + Math.round(x.a7 || 0) + '<i>' + esc(T('척', '/d')) + '</i></span>'
       + '<span class="y ' + mkUd(x.yoy7) + '">' + (x.yoy7 != null ? (x.yoy7 > 0 ? '+' : '') + Math.round(x.yoy7) + '%' : '-') + '</span>'
       + mkSpark(sp, 64, 18, x.ly) + '</' + tag + '>';
-  }).join('');
+  }).join('') || '<div class="st-hint mk-plv-none">' + esc(T('지금 실시간 배가 잡힌 곳이 없습니다', 'No live ships right now')) + '</div>';
   return '<div class="mk-res-what">' + esc(T('세계 주요 항구 ' + L.length + '곳 · 하루 입항 (최근 7일 평균) · 전년 같은 때 대비', L.length + ' major ports · daily port calls (7d avg) · vs last year')) + '<span class="st-hint"> · ' + esc((d.pAsof || d.asof) + T(' 기준 · 주 1회 갱신 (5~11일 늦음)', ' · weekly update')) + '</span></div>'
     + kpi + al + (selH || '')
     + '<div class="mk-prows" id="' + (btn ? 'mkResBars' : '') + '"><div class="mk-prow h" aria-hidden="true"><span></span><span>' + esc(T('항구', 'Port')) + '</span><span>' + esc(T('하루 입항 (7일)', 'Daily (7d)')) + '</span><span></span><span>' + esc(T('전년비', 'y/y')) + '</span><span>' + esc(T('90일', '90d')) + '</span></div>' + rows + '</div>'
-    + '<div class="mk-res-src">' + esc(T('출처: IMF PortWatch (UN Global Platform · 위성 AIS 기반 · portwatch.imf.org) · 수입 · 수출 t 는 입항 배의 크기 · 흘수로 낸 추정 · 위성 사진: EOX Sentinel-2 cloudless (구름 없는 합성 · 실시간 아님) · 실시간 배 위치는 육상 AIS 수신', 'Sources: IMF PortWatch (portwatch.imf.org) · tonnage estimated · imagery: EOX Sentinel-2 cloudless (not live)')) + '</div>';
+    + '<div class="mk-res-src">' + esc(T('출처: IMF PortWatch (UN Global Platform · 위성 AIS 기반 · portwatch.imf.org) · 수입 · 수출 t 는 입항 배의 크기 · 흘수로 낸 추정 · 실시간 배 위치는 육상 AIS 수신 (먼바다는 빠질 수 있음)', 'Sources: IMF PortWatch (portwatch.imf.org) · tonnage estimated · live ships: terrestrial AIS')) + '</div>';
 }
 //  세이피 화면 요약 — 물류 층 (해협 · 항구 · 고른 곳 · 실시간 배)
 function mkPortScreenLine(){
@@ -21845,9 +22180,14 @@ function mkPortScreenLine(){
   if (id != null){
     if (mkPortIsP(id)){ var s = mkPrtOf(id); if (s) out.push('고른 항구: ' + s.p.n + ' · 30일 평균 입항 ' + Math.round(s.a30) + '척' + (s.yoy != null ? ' (전년 대비 ' + (s.yoy > 0 ? '+' : '') + Math.round(s.yoy) + '%)' : '') + ' · 수입 ' + mkTonKo(s.im30) + '/일 · 수출 ' + mkTonKo(s.ex30) + '/일 (추정) · 컨테이너 ' + Math.round(s.mix.ct) + '% · 유조선 ' + Math.round(s.mix.tk) + '% · 벌크 ' + Math.round(s.mix.db) + '%'); }
     else { var c = mkPortOf(id); if (c) out.push('고른 해협: ' + c.cp.n + ' · 30일 평균 ' + Math.round(c.a30) + '척 · 유조선 ' + Math.round(c.mix.tk) + '% · 컨테이너 ' + Math.round(c.mix.ct) + '% · 벌크 ' + Math.round(c.mix.db) + '%'); }
-    var A = (MK.ais || {})[id];
-    if (A && A.d && A.d.ships){ var k = mkShipCnt(A.d.ships); out.push('실시간 배 (AIS · ' + mkHm(A.d.at) + ' 수신): ' + k.n + '척 · 항해 중 ' + k.mv + ' · 닻 내림 · 대기 ' + k.an + ' · 접안 ' + k.mr + (mkSatOn() ? ' · 지금 위성 사진 위에 표시 중' : '')); }
+    var k = MK.aisAll && MK.aisAll.d ? mkAisArea(id) : null;
+    if (k) out.push('고른 곳 둘레 실시간 배 (AIS · ' + mkHm(MK.aisAll.d.at) + ' 수신): ' + k.n + '척 · 항해 중 ' + k.mv + ' · 닻 내림 · 대기 ' + k.an + ' · 접안 ' + k.mr);
   }
+  //  (10/10 5차) 눌러 둔 배 (카드)
+  var sv = MK.shipSel ? (mkShipFind(MK.shipSel) || MK.shipSelS) : null;
+  if (sv){ var sd = mkShipDest(sv[11]), sc = mkShipCargo(sv); out.push('고른 배: ' + (sv[6] || '이름 없음') + ' · ' + mkShipTy(sv[7])[1] + ' · 실은 것(선종 · 이름으로 추정) ' + sc[0] + ' · 가는 곳 ' + (sd ? (sd[0] || sd[1]) + (sd[0] ? ' (AIS 입력 ' + sd[1] + ')' : '') : '입력 안 함') + (sv[12] ? ' · 도착 예정 ' + sv[12] + ' UTC' : '') + ' · ' + mkShipSt(sv)[1] + (mkShipSt(sv)[0] === 'mv' ? ' ' + (+sv[4]).toFixed(1) + '노트' : '')); }
+  if (typeof mkSatOn === 'function' && mkSatOn()) out.push('지금 위성 사진(구름 없는 합성 · 실시간 아님) 위에 실시간 배를 보는 중');
+  if (MK.aisAll && MK.aisAll.d) out.push('지도 위 실시간 배 (AIS · 육상 수신소 기준 · ' + mkHm(MK.aisAll.d.at) + ' 수신): ' + (MK.aisAll.d.n || MK.aisAll.d.ships.length) + '척');
   return out.join('\n');
 }
 /* ══════════ (10/9 4차) 마켓 맵 «자금 흐름» 층 — 학회장: «자금 흐름 · 상대적 강도가 어디로 흐르는지 · 글로벌 큰 그림에서 어느 나라로 · 어디가 유망한 나라 · 유망한 기업인지 시장 맵에서» ══════════
@@ -22145,7 +22485,7 @@ function mkMacBodyHtml(L, dark, selCc, btn){
     w = Math.max(1.5, Math.min(M[7] ? 50 : 100, w));
     var tag = btn ? 'button' : 'div', gap = k > 0 && show[k - 1] && Math.abs(show[k - 1].rk - r.rk) > 1;
     return (gap ? '<div class="mk-rb gap" aria-hidden="true">⋯</div>' : '') + '<' + tag + (btn ? ' type="button" onclick="mkMacPick(\'' + r.cc + '\')"' : '') + ' class="mk-rb' + (selCc === r.cc ? ' on' : '') + (r.cc === 'KR' ? ' kr' : '') + (M[7] ? ' dv' + (r.v < 0 ? ' neg' : '') : '') + '" style="--k:' + k + '" data-cc="' + r.cc + '">'
-      + '<span class="rk">' + r.rk + '</span><span class="nm"><i class="fl">' + mkFlag2(r.cc) + '</i><span>' + esc(mkNm(r.cc)) + '</span></span>'
+      + '<span class="rk">' + r.rk + '</span><span class="nm"><i class="fl">' + mkFlag2(r.cc) + '</i><span title="' + esc(mkNm(r.cc)) + '">' + esc(mkNm(r.cc)) + '</span></span>'
       + '<span class="bar"><i style="--w:' + w.toFixed(1) + '%;background:' + mkMacColor(r.s, L, dark) + '"></i></span>'
       + '<span class="pc">' + esc(mkMacFmt(M, r.v)) + '</span><span class="v">' + esc(r.y && r.y !== L.yr.replace(/\D/g, '') ? String(r.y) : '') + '</span></' + tag + '>';
   }).join('');
@@ -22523,7 +22863,7 @@ function mkResBarsHtml(L, dark, selCc, btn){
     var sel = selCc === r.cc, w = Math.max(1.5, r.s / mx * 100), tag = btn ? 'button' : 'div';
     return '<' + tag + (btn ? ' type="button"' : '') + ' class="mk-rb' + (sel ? ' on' : '') + (r.cc === 'KR' ? ' kr' : '') + '" style="--k:' + k + '" data-cc="' + r.cc + '"'
       + (btn ? ' onclick="mkResPick(\'' + r.cc + '\', true)" title="' + esc(mkNm(r.cc) + T(' · 누르면 지도에서 확대 (한 번 더 = 전체)', ' · click to zoom')) + '"' : '') + '>'
-      + '<span class="rk">' + r.rk + '</span><span class="nm"><i class="fl">' + mkFlag2(r.cc) + '</i><span>' + esc(mkNm(r.cc)) + '</span></span>'
+      + '<span class="rk">' + r.rk + '</span><span class="nm"><i class="fl">' + mkFlag2(r.cc) + '</i><span title="' + esc(mkNm(r.cc)) + '">' + esc(mkNm(r.cc)) + '</span></span>'
       + '<span class="bar"><i style="--w:' + w.toFixed(1) + '%;background:' + mkLayerColor(r.s, L, dark) + '"></i></span>'
       + '<span class="pc">' + esc(mkLayerPct(r)) + '</span><span class="v">' + esc(r.v != null ? mkNumFmt(r.v) : (r.vt || '')) + '</span></' + tag + '>';
   }).join('') + (L.rest && L.rest.s >= 0.5 ? '<div class="mk-rb rest"><span class="rk"></span><span class="nm">' + esc(L.rest.label) + '</span><span class="bar"><i style="--w:' + Math.max(1.5, L.rest.s / mx * 100).toFixed(1) + '%"></i></span><span class="pc">' + Math.round(L.rest.s * 10) / 10 + '%</span><span class="v"></span></div>' : '');
@@ -23173,6 +23513,16 @@ function mkCtryClose(){
   MK.ctryOpen = false; MK.cmpOn = false; mkSavePrefs(); mkSplitApply(); mkCcTabsRender(); mkPopsRender();
   mkMapPaint(); requestAnimationFrame(function(){ mkMapPaint(); mkMapZoomHome(); });
 }
+//  나라 칸 탭 줄 — 넘치면 짧은 이름 · 그래도 넘치면 옆으로 밀어 보기 (끝 흐림) · 고른 탭이 보이게 · 칸 폭이 바뀌면 다시
+function mkCtabsFit(tabs){
+  if (!tabs || tabs.offsetParent === null) return;
+  //  이름은 하나만 (화면 읽기 도구가 두 번 읽지 않게) — 긴 이름으로 재 보고 넘치면 짧은 이름으로 바꿔 끼움
+  var bs = tabs.querySelectorAll('button'), set = function(k){ Array.prototype.forEach.call(bs, function(b){ var t = b.getAttribute(k); if (t && b.textContent !== t) b.textContent = t; }); };
+  tabs.classList.remove('short', 'ovf'); set('data-l');
+  if (tabs.scrollWidth > tabs.clientWidth + 1){ tabs.classList.add('short'); set('data-s'); }
+  if (tabs.scrollWidth > tabs.clientWidth + 1){ tabs.classList.add('ovf'); var on = tabs.querySelector('button.on'); if (on) tabs.scrollLeft = Math.max(0, on.offsetLeft - 24); }
+  if (window.ResizeObserver && !tabs.__ro){ tabs.__ro = new ResizeObserver(function(){ clearTimeout(tabs.__rt); tabs.__rt = setTimeout(function(){ mkCtabsFit(tabs); }, 60); }); try { tabs.__ro.observe(tabs.parentElement); } catch(e){} }
+}
 function mkCtryTabSet(t){
   if (!mkTabOk(t, MK.cc)) return;
   MK.cmpOn = false;
@@ -23374,7 +23724,8 @@ function mkCtryRender(){
     var ok = mkTabOk(o[0], MK.cc);
     return '<button type="button"' + (MK.ctryTab === o[0] ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"')
       + (ok ? '' : ' disabled title="' + esc(o[0] === 'stk' ? T('이 나라는 미국 상장 주요 기업 목록이 아직 없습니다', 'No company list yet') : T('이 나라 통화는 FRED 일별 환율이 없습니다', 'No FX data')) + '"')
-      + ' onclick="mkCtryTabSet(\'' + o[0] + '\')">' + esc(o[1]) + '</button>'; }).join('');
+      + ' data-l="' + esc(o[1]) + '" data-s="' + esc(o[2] || o[1]) + '" onclick="mkCtryTabSet(\'' + o[0] + '\')"' + (ok ? ' title="' + esc(o[1]) + '"' : '') + '>' + esc(o[1]) + '</button>'; }).join('');
+  if (tabs) mkCtabsFit(tabs);
   [['live', 'mkCtryLive'], ['stk', 'mkCtryStk'], ['fx', 'mkCtryFx'], ['ov', 'mkCtryOv'], ['sec', 'mkCtrySec'], ['ai', 'mkCtryAi'], ['ind', 'mkCtryInd']].forEach(function(x){ var el = $(x[1]); if (el) el.classList.toggle('hidden', MK.ctryTab !== x[0]); });
   if (MK.ctryTab === 'live'){ mkCtryHeadSet(); mkLiveRender(); return; }
   if (MK.ctryTab === 'fx'){
@@ -23408,7 +23759,8 @@ function mkCtryRender(){
       return '<button type="button"' + (fam === o[0] ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + ' onclick="mkCtryFamSet(\'' + o[0] + '\')">' + esc(o[1]) + '</button>'; }).join('');
   }
   var lines = all.filter(function(l){ return l.basis === fam; });
-  var narrow = (box.clientWidth || 800) < 600;
+  //  (10/10 5차) 옆 칸을 좁힌 뒤에도 선 끝 이름표가 보이게 (460px 아래만 숨김)
+  var narrow = (box.clientWidth || 800) < 460;
   mkLineChart = chartOn(box, mkLineChart); if (!mkLineChart) return;
   var sorted = lines.slice().sort(function(a, b){ return (b.c || 0) - (a.c || 0); });
   //  다크 바탕에서는 어두운 색(남색 · 회청색 · 보라)을 밝은 쪽으로 (10/7 화면 점검: LG디스플레이 선이 바탕에 묻힘)
@@ -23691,7 +24043,7 @@ function mkOvLinkHtml(cc){
   }
   //  물류 (지나는 해협)
   var cps = (MK_CC_CP[cc] || []).map(function(id){ return typeof mkPortOf === 'function' ? mkPortOf(id) : null; }).filter(Boolean);
-  //  (10/10) 그 나라 항구 (하루 입항 · 누르면 위성 사진 위 실시간 배)
+  //  (10/10) 그 나라 항구 (하루 입항 · 누르면 그 항구로 확대)
   var pts = typeof mkPrtList === 'function' ? mkPrtList().filter(function(x){ return x.p.cc === cc; }) : [];
   if (cps.length || pts.length) out.push('<div class="mk-ovl-r"><span class="k port">' + esc(T('물류', 'Shipping')) + '</span><div class="cs">'
     + pts.map(function(x){ return chip("mkOvGo('port','" + x.p.id + "')", x.p.n, T('입항 ', 'calls ') + Math.round(x.a7) + T('척/일', '/d') + (x.yoy7 != null ? ' (' + (x.yoy7 > 0 ? '+' : '') + Math.round(x.yoy7) + '%)' : ''), 'port' + (x.yoy7 != null && x.yoy7 <= -30 ? ' al' : '')); }).join('')
