@@ -1018,8 +1018,8 @@
   .sent-crowd .sc{display:inline-flex;align-items:baseline;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid var(--border);background:var(--card);font:inherit;font-size:11.5px;color:inherit;cursor:pointer}
   .sent-crowd .sc b{font-variant-numeric:tabular-nums} .sent-crowd .sc.xl{border-color:var(--up);background:color-mix(in srgb, var(--up) 12%, transparent)} .sent-crowd .sc.l b{color:var(--up)} .sent-crowd .sc.xs{border-color:var(--down);background:color-mix(in srgb, var(--down) 12%, transparent)} .sent-crowd .sc.s b{color:var(--down)}
   /*  원자재 칸 · 투기 포지션 · 농산물 수급  */
-  .mk-cot,.mk-psd{margin-top:12px;padding:10px 11px;border:1px solid var(--border);border-radius:10px;background:var(--card)}
-  .mk-cot .h,.mk-psd .h{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:12.5px} .mk-cot .h .cot-bias{margin-left:auto}
+  .mk-cot,.mk-psd,.mk-esr{margin-top:12px;padding:10px 11px;border:1px solid var(--border);border-radius:10px;background:var(--card)}
+  .mk-cot .h,.mk-psd .h,.mk-esr .h{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:12.5px} .mk-cot .h .cot-bias{margin-left:auto}
   .mk-cot .g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0 4px;font-size:11px;color:var(--text-sub)}
   .mk-cot .g > span{display:flex;flex-direction:column;gap:2px} .mk-cot .g b{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums} .mk-cot .g b.up{color:var(--up)} .mk-cot .g b.down{color:var(--down)} .mk-cot .g i{font-style:normal;font-size:10.5px}
   .mk-cot .g em.cr{font-size:10px;margin-left:4px} .mk-cot .gw .cot-gg{width:100%;margin-top:3px}
@@ -1027,6 +1027,20 @@
   .mk-psd .g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0 4px;font-size:11px;color:var(--text-sub)}
   .mk-psd .g > span{display:flex;flex-direction:column;gap:1px} .mk-psd .g b{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums} .mk-psd .g i{font-style:normal;font-weight:700;font-size:10.5px}
   .mk-psd-ch{width:100%;height:200px}
+  /*  (10/10) 미국 주간 수출 판매  */
+  .mk-esr .g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0 4px;font-size:11px;color:var(--text-sub)}
+  .mk-esr .g > span{display:flex;flex-direction:column;gap:1px;min-width:0} .mk-esr .g b{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap} .mk-esr .g b.up{color:var(--up)} .mk-esr .g b.down{color:var(--down)} .mk-esr .g i{font-style:normal;font-size:10.5px}
+  .mk-esr-ch{width:100%;height:210px}
+  .mk-esr-map{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:6px 0 8px} .mk-esr-map .px-seg button{font-size:11px}
+  .mk-esr .hh{font-size:11.5px;font-weight:700;margin-bottom:3px}
+  .mk-esr-top{display:flex;flex-direction:column;gap:1px}
+  .mk-esr-top .r{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(40px,1fr) auto 34px minmax(76px,auto);gap:6px;align-items:center;font:inherit;font-size:11.5px;padding:2px 3px;border:0;background:none;color:inherit;text-align:left;border-radius:5px;cursor:pointer;animation:mkVin .35s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--k, 0) * 30ms)}
+  .mk-esr-top .r:hover:not(:disabled){background:var(--bg-sub)} .mk-esr-top .r:disabled,.mk-esr-top .r.u{cursor:default;color:var(--text-sub)}
+  .mk-esr-top .r .n{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .mk-esr-top .r .bar{height:6px;border-radius:3px;background:var(--bg-sub);overflow:hidden} .mk-esr-top .r .bar i{display:block;height:100%;border-radius:3px;background:var(--fx-im)}
+  .mk-esr-top .r.u .bar i{background:var(--text-sub);opacity:.5} .mk-esr-top .r b{font-variant-numeric:tabular-nums;font-size:11px;text-align:right} .mk-esr-top .r em{font-style:normal;font-size:10.5px;color:var(--text-sub);text-align:right}
+  .mk-esr-top .r .w{font-size:10.5px;font-weight:700;text-align:right;white-space:nowrap}
+  @media (max-width:560px){ .mk-esr .g{grid-template-columns:repeat(2,minmax(0,1fr))} .mk-esr-top .r{grid-template-columns:minmax(0,1fr) minmax(30px,.8fr) auto 30px} .mk-esr-top .r .w{display:none} }
+  @media (prefers-reduced-motion: reduce){ .mk-esr-top .r{animation:none} }
   .mk-psd .f2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:6px}
   .mk-psd .hh{font-size:11.5px;font-weight:700;margin-bottom:3px}
   .mk-psd .r{display:grid;grid-template-columns:minmax(0,1fr) minmax(40px,1fr) auto;gap:6px;align-items:center;font-size:11.5px;padding:1px 0}
@@ -7413,7 +7427,7 @@ var EC_TTL = {
     mkt_trade: 60 * 24, mkt_macro: 60 * 12,                                     //  (10/9 3차) 무역 흐름 · 거시 지표 층
     stk_scan: 30,                                                                //  (10/9) 주식분석 시장 폭 · 스크리너 (서버가 6시간마다 계산)
     //  (10/9 4차) COT(주 1회) · 해협(주 1회) · 배(3분) · BIS · 재무부 · ECB · 농산물 수급 · 나라 상대강도(6시간) · 종목 성과 · 켜진 기능
-    cot: 60, cot_one: 60, ports: 60 * 6, ais: 2, bis_pol: 60 * 12, ust_fiscal: 60 * 3, ecb: 60 * 6, psd: 60 * 12, ctry_rs: 60, px_perf: 60 * 3, feat: 60
+    cot: 60, cot_one: 60, ports: 60 * 6, ais: 2, bis_pol: 60 * 12, ust_fiscal: 60 * 3, ecb: 60 * 6, psd: 60 * 12, esr: 60 * 3, ctry_rs: 60, px_perf: 60 * 3, feat: 60
   },
   'company-data': {
     kr_div: 60, kr_major: 60, kr_elest: 60, kr_main: 60, eod_full: 30, filing_text: 60,
@@ -7443,7 +7457,7 @@ var EC_KEEP = {
                     eod_full: 60 * 24 * 7, f13_search: 60 * 24 * 30, f13_filings: 60 * 24 * 30, f13_holdings: 60 * 24 * 365, congress_index: 60 * 24 * 7,
                     dart_recent: 120, filing_text: 60 * 24 * 365 },
   'market-data':  { mkt_trade: 60 * 24 * 30, mkt_macro: 60 * 24 * 7, stk_scan: 60 * 12,
-                    cot: 60 * 24 * 4, cot_one: 60 * 24 * 7, ports: 60 * 24 * 7, bis_pol: 60 * 24 * 7, ust_fiscal: 60 * 24 * 3, ecb: 60 * 24 * 3, psd: 60 * 24 * 7, ctry_rs: 60 * 24 * 2, px_perf: 60 * 24 * 2,
+                    cot: 60 * 24 * 4, cot_one: 60 * 24 * 7, ports: 60 * 24 * 7, bis_pol: 60 * 24 * 7, ust_fiscal: 60 * 24 * 3, ecb: 60 * 24 * 3, psd: 60 * 24 * 7, esr: 60 * 24 * 3, ctry_rs: 60 * 24 * 2, px_perf: 60 * 24 * 2,
                     fred: 60 * 24 * 3, ecos: 60 * 24 * 3, bond: 60 * 24 * 3, bls: 60 * 24 * 3, bea: 60 * 24 * 3, wb: 60 * 24 * 7,
                     fred_items: 60 * 24 * 7, fred_search: 60 * 24, fred_report: 60 * 24 * 3, ecos_report: 60 * 24 * 3,
                     us_curve: 60 * 24 * 3, kr_curve: 60 * 24 * 3, macro_calendar: 60 * 24,
@@ -10617,6 +10631,8 @@ function aicScreen(){
         out.push('[무역 흐름 › ' + (aTm[1] || MK.res) + ' · ' + aT.yr + ' · 유엔 무역통계 · 주요 수입국 ' + (aT.rep || []).length + '곳 신고 · ' + (aTm[0] || '') + (MK.flowCc ? ' · ' + mkNm(MK.flowCc) + ' 것만' : '') + '] '
           + aT.flows.filter(function(f){ return !MK.flowCc || f[0] === MK.flowCc || f[1] === MK.flowCc; }).slice(0, 12).map(function(f){ return mkNm(f[0]) + '→' + mkNm(f[1]) + ' ' + mkUsdKo(f[2]); }).join(' · '));
       }
+      //  (10/10) 미국 주간 수출 판매 (USDA ESR)
+      if (MK.view === 'world' && MK.lay === 'res' && typeof mkEsrScreenLine === 'function'){ var aEs = mkEsrScreenLine(); if (aEs) out.push(aEs); }
       //  (10/8) 원자재 · 밸류체인 층 — 지금 지도에 칠해진 표 그대로 (출처 · 연도 포함)
       if (MK.view === 'world' && typeof mkResOn === 'function' && mkResOn() && MK.lay !== 'mac'){
         var aL = MK.layD || mkLayerData();
@@ -20266,6 +20282,8 @@ function mkMapPaint(){
         else if (od.kind === 'cp' && typeof mkPortPick === 'function') mkPortPick(od.id);
         else if ((od.kind === 'vcA' || od.kind === 'vcB') && od.st && od.cc) mkVcCellPick(od.st, od.cc);
         else if (od.kind === 'vcf' && od.b && od.to) mkVcCellPick(od.b, od.to);
+        else if (od.kind === 'esrB' && od.cc) mkResPick(od.cc, false);
+        else if (od.kind === 'esr' && od.to) mkResPick(od.to, false);
         return;
       }
       var cc = p && p.data && p.data.cc;
@@ -21110,8 +21128,10 @@ function mkOvData(){
   var D = { a: [], b: [], fx: [], nodes: [], focus: [], ships: [], sig: '', leg: '' };
   if (MK.view !== 'world') return D;
   var dark = document.documentElement.getAttribute('data-theme') === 'dark', C = mkOvCol(dark);
+  //  ⓪ (10/10) 미국 수출 판매 (USDA 주간 · 실제 기록) — 원자재 칸에서 «미국 수출 판매» 를 고르면 세계 무역 대신
+  if (typeof mkEsrMapOn === 'function' && mkEsrMapOn()) mkEsrOv(D, C);
   //  ① 원자재 무역 흐름
-  if (mkFlowOn()){
+  else if (mkFlowOn()){
     var fl = mkFlowList(); var mx = fl.reduce(function(a, f){ return Math.max(a, f[2]); }, 0) || 1, sel = MK.flowCc;
     var ex = {}, im = {};
     fl.forEach(function(f, i){
@@ -21190,6 +21210,7 @@ function mkOvLegend(D){
   var el = box.querySelector('.mk-ovleg');
   var html = D.leg === 'flow' ? '<span class="e"><i class="d ex"></i>' + esc(T('수출국', 'Exporter')) + '</span><span class="ar"><i class="ln"></i></span><span class="e"><i class="d im"></i>' + esc(T('수입국', 'Importer')) + '</span><span class="t">' + esc(T('선 굵기 = 금액 · 빛이 수출 → 수입으로 흐름', 'Width = value · light flows exporter → importer')) + '</span>'
     : D.leg === 'rs' ? '<span class="e"><i class="d dn"></i>' + esc(T('상대강도 하락', 'RS falling')) + '</span><span class="ar"><i class="ln rs"></i></span><span class="e"><i class="d up tri"></i>' + esc(T('상대강도 상승', 'RS rising')) + '</span><span class="t">' + esc(T('최근 4주 · 나라 ETF 상대강도 변화로 본 흐름 (추정 · 실제 자금 집계 아님)', '4-week relative-strength shift (estimate)')) + '</span>'
+    : D.leg === 'esr' ? '<span class="e"><i class="d ex"></i>' + esc(T('미국', 'US')) + '</span><span class="ar"><i class="ln"></i></span><span class="e"><i class="d im"></i>' + esc(T('사는 나라', 'Buyers')) + '</span><span class="t">' + esc(T('선 굵기 = 이번 판매연도 누적 약정 · USDA 주간 수출 판매 (실제 기록)', 'Width = commitments this MY · USDA weekly export sales')) + '</span>'
     : D.leg === 'vcf' ? '<span class="e"><i class="d ex"></i>' + esc(T('앞 단계 나라', 'Upstream')) + '</span><span class="ar"><i class="ln"></i></span><span class="e"><i class="d im"></i>' + esc(T('다음 단계 나라', 'Downstream')) + '</span><span class="t">' + esc(T('고른 단계로 들어오고 나가는 흐름 · 추정 모식도 (단계 비중 × 거리 · 실제 거래 기록 아님)', 'Flows into and out of this stage · schematic estimate')) + '</span>'
     : D.leg === 'port' ? '<span class="e"><i class="d pt"></i>' + esc(T('해협 (크기 = 하루 통과 선박)', 'Chokepoint (size = daily transits)')) + '</span><span class="e"><i class="d dn"></i>' + esc(T('전년보다 줄어듦', 'Down y/y')) + '</span><span class="e"><i class="d up"></i>' + esc(T('늘어남', 'Up y/y')) + '</span><span class="t">' + esc(T('선 = 주요 항로 (모식도) · 해협을 누르면 확대', 'Lines = main lanes (schematic) · click a chokepoint')) + '</span>' : '';
   if (!html){ if (el) el.remove(); return; }
@@ -21205,11 +21226,13 @@ function mkOvTip(p){
     if (d.kind === 'rs' && typeof mkRsTip === 'function') return mkRsTip(d.cc);
     if (d.kind === 'cp' && typeof mkPortTip === 'function') return mkPortTip(d.id);
     if ((d.kind === 'vcA' || d.kind === 'vcB') && typeof mkVcfTip === 'function') return mkVcfTip(d);
+    if ((d.kind === 'esrUS' || d.kind === 'esrB') && typeof mkEsrTip === 'function') return mkEsrTip(d);
     return esc(p.name || '');
   }
   if (p.seriesId === 'ovShip' && typeof mkShipTip === 'function') return mkShipTip(d);
   if (d.kind === 'rs' && typeof mkRsFlowTip === 'function') return mkRsFlowTip(d);
   if (d.kind === 'vcf' && typeof mkVcfTip === 'function') return mkVcfTip(d);
+  if (d.kind === 'esr' && typeof mkEsrTip === 'function') return mkEsrTip(d);
   if (d.kind === 'lane') return '<b>' + esc(d.n || '') + '</b><br><span style="opacity:.75">' + esc(T('주요 항로 (모식도)', 'Main lane (schematic)')) + '</span>';
   return mkFlowTip(p);
 }
@@ -22509,12 +22532,121 @@ function mkPsdDraw(k){
              { name: T('소비', 'Consumption'), type: 'bar', data: W.map(function(x){ return x.cons; }), itemStyle: { color: dk ? '#8a93a8' : '#9aa3b6', borderRadius: 2 } },
              { name: T('재고율 (오른쪽)', 'Stocks/use (rhs)'), type: 'line', yAxisIndex: 1, data: W.map(function(x){ return x.cons ? +(x.end / x.cons * 100).toFixed(1) : null; }), symbolSize: 5, lineStyle: { width: 2 }, color: dk ? '#ef6b5e' : '#c0392b' }] }, true);
 }
+/* ══════════ (10/10) 미국 주간 수출 판매 (USDA FAS ESR) — 학회장: «정보 더 가져올 수 있으면 multiple get 해도 되고» ══════════
+   원자재 칸(밀 · 옥수수 · 대두 · 면화) 아래 · USDA 열쇠가 있을 때만 (PSD 와 같은 열쇠)
+   · 이번 주 순판매(4주 평균 대비) · 누적 약정(작년 같은 주 대비) · 누적 선적(약정 중 실린 몫) · 미선적 잔량
+   · 그림: 주간 순판매 막대 + 누적 약정 선(올해 · 작년 같은 주)
+   · 사는 나라 상위 (약정 · 이번 주 순판매 ▲▼) · 누르면 그 나라 자리 물결
+   · 지도: «세계 무역(연간 · 유엔)» ↔ «미국 수출 판매(주간 · USDA)» 바꾸기 — 미국 → 사는 나라 실제 기록 화살표                    */
+var RES_ESR = { wheat: 1, corn: 1, soy: 1, cotton: 1 };
+function mkEsrOn(k){ return !!(RES_ESR[k] && MK.feat && MK.feat.psd); }
+function mkEsrLoad(k){
+  if (!mkEsrOn(k)) return;
+  var A = MK.esr || (MK.esr = {}); if (A[k]) return;
+  A[k] = { busy: true };
+  edge({ source: 'esr', k: k }).then(function(d){ A[k] = d && d.w && d.w.length ? { d: d } : { err: (d && (d.error || (d.off && 'off'))) || 'x' }; }, function(e){ A[k] = { err: String(e && e.message || e) }; })
+    .then(function(){ if (MK.lay === 'res' && MK.res === k){ var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); if (MK.esrMap) mkOvPaint(); } });
+}
+function mkEsrOf(k){ var e = (MK.esr || {})[k]; return e && e.d ? e.d : null; }
+//  단위 — 톤은 «만 t» · 베일은 «만 베일» (작으면 그대로)
+function mkEsrU(d){ var u = String(d && d.unit || ''); return /bale/i.test(u) ? T('베일', 'bales') : /ton/i.test(u) ? 't' : u; }
+function mkEsrFmt(v, d, sign){
+  if (v == null || !isFinite(v)) return '-';
+  var u = mkEsrU(d), a = Math.abs(v), s = sign && v > 0 ? '+' : '';
+  if (!isEn() && a >= 1e4) return s + (v / 1e4).toFixed(a >= 1e6 ? 0 : 1) + '만 ' + u;
+  if (isEn() && a >= 1e6) return s + (v / 1e6).toFixed(2) + 'M ' + u;
+  return s + num(v, 0) + ' ' + u;
+}
+function mkEsrSum(d){
+  var W = d.w, L = W[W.length - 1], n = W.length, P = d.pw && d.pw.length >= n ? d.pw[n - 1] : null;
+  var avg4 = W.slice(-5, -1).reduce(function(a, w){ return a + w[1]; }, 0) / Math.max(1, Math.min(4, n - 1));
+  return { L: L, P: P, n: n, avg4: n > 1 ? avg4 : null, yoy: P && P[5] ? (L[5] / P[5] - 1) * 100 : null, ship: L[5] ? L[3] / L[5] * 100 : null, pship: P && P[5] ? P[3] / P[5] * 100 : null };
+}
+var mkEsrChart = null;
+function mkEsrBlockHtml(k){
+  if (!mkEsrOn(k)) return '';
+  var e = (MK.esr || {})[k] || {}, d = e.d;
+  var head = '<div class="h"><b>' + esc(T('미국 수출 판매 · USDA 주간', 'US export sales · USDA weekly')) + '</b>';
+  if (!d) return e.err && e.err !== 'off' ? (typeof isOfficer === 'function' && isOfficer() ? '<div class="mk-esr"><div class="st-hint">' + esc('USDA ESR: ' + mkErrTxt(e.err)) + '</div></div>' : '') : '<div class="mk-esr">' + head + '</div><div class="mk-wait">' + esc(T('로딩 중…', 'Loading…')) + '</div></div>';
+  var S = mkEsrSum(d), L = S.L;
+  var kv = function(lab, v, sub, cls){ return '<span>' + esc(lab) + '<b class="' + (cls || '') + '">' + esc(v) + '</b><i>' + esc(sub || '') + '</i></span>'; };
+  //  나라를 알 수 있는 줄 상위 8 · 나머지(나라 코드를 못 맞춘 지역 포함)는 «그 밖의 나라» 한 줄
+  var known = d.top.filter(function(x){ return x.com > 0 && x.c; }), top = known.slice(0, 8), mx = top.length ? top[0].com : 1, tot = L[5] || 1;
+  var rest = d.top.filter(function(x){ return x.com > 0 && top.indexOf(x) < 0; }).reduce(function(a, x){ return a + x.com; }, 0);
+  return '<div class="mk-esr">' + head + '<span class="st-hint">' + esc(' · ' + d.myLbl + T(' 판매연도 · ', ' MY · ') + d.week + T(' 주 (매주 목요일 공표)', ' week')) + '</span></div>'
+    + '<div class="g">'
+      + kv(T('이번 주 순판매', 'Net sales (wk)'), mkEsrFmt(L[1], d, true), S.avg4 != null ? T('4주 평균 ', '4w avg ') + mkEsrFmt(S.avg4, d) : '', mkUd(L[1]))
+      + kv(T('누적 약정', 'Commitments'), mkEsrFmt(L[5], d), S.yoy != null ? T('작년 같은 주 대비 ', 'vs LY ') + mkPct(S.yoy, 1) : '', S.yoy != null ? mkUd(S.yoy) : '')
+      + kv(T('누적 선적', 'Shipped'), mkEsrFmt(L[3], d), S.ship != null ? T('약정의 ', '') + S.ship.toFixed(0) + T('% 실림', '% of commitments') + (S.pship != null ? T(' (작년 ', ' (LY ') + S.pship.toFixed(0) + '%)' : '') : '')
+      + kv(T('미선적 잔량', 'Outstanding'), mkEsrFmt(L[4], d), T('이번 주 선적 ', 'shipped this wk ') + mkEsrFmt(L[2], d))
+    + '</div>'
+    + '<div class="mk-esr-ch" id="mkEsrCh"></div>'
+    + '<div class="mk-esr-map"><span class="st-hint">' + esc(T('지도 흐름', 'Map flows')) + '</span><span class="px-seg">'
+      + '<button type="button"' + (!MK.esrMap ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + ' onclick="mkEsrMapSet(false)">' + esc(T('세계 무역 (연간)', 'World trade (annual)')) + '</button>'
+      + '<button type="button"' + (MK.esrMap ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + ' onclick="mkEsrMapSet(true)">' + esc(T('미국 수출 판매 (주간)', 'US export sales (weekly)')) + '</button></span></div>'
+    + '<div class="hh">' + esc(T('미국산을 사는 나라 · 누적 약정', 'Top buyers · commitments')) + '</div>'
+    + '<div class="mk-esr-top">' + top.map(function(x, i){ var cc = x.c;
+        return '<button type="button" class="r" style="--k:' + i + '"' + (cc ? ' onclick="mkResPick(\'' + cc + '\', false)"' : ' disabled') + '><span class="n">' + (cc ? mkFlag2(cc) + ' ' + esc(mkNm(cc)) : esc(x.nm)) + '</span>'
+          + '<span class="bar"><i style="width:' + Math.max(2, x.com / mx * 100).toFixed(1) + '%"></i></span><b>' + esc(mkEsrFmt(x.com, d)) + '</b><em>' + esc((x.com / tot * 100).toFixed(0) + '%') + '</em>'
+          + '<span class="w ' + mkUd(x.net) + '">' + esc(T('이번 주 ', 'wk ') + mkEsrFmt(x.net, d, true)) + '</span></button>'; }).join('')
+      + (rest > 0 ? '<div class="r u"><span class="n">' + esc(T('그 밖의 나라', 'Others')) + '</span><span class="bar"><i style="width:' + Math.max(2, rest / mx * 100).toFixed(1) + '%"></i></span><b>' + esc(mkEsrFmt(rest, d)) + '</b><em>' + esc((rest / tot * 100).toFixed(0) + '%') + '</em><span class="w"></span></div>' : '')
+      + (d.unk > 0 ? '<div class="r u"><span class="n">' + esc(T('목적지 미정', 'Unknown destinations')) + '</span><span class="bar"><i style="width:' + Math.max(2, d.unk / mx * 100).toFixed(1) + '%"></i></span><b>' + esc(mkEsrFmt(d.unk, d)) + '</b><em>' + esc((d.unk / tot * 100).toFixed(0) + '%') + '</em><span class="w"></span></div>' : '') + '</div>'
+    + '<div class="mk-res-src">' + esc(T('출처: 미국 농무부 해외농업국(USDA FAS) 수출 판매 보고서 · 순판매 = 새 판매 - 취소 · 약정 = 누적 선적 + 미선적 · 목적지 미정은 아직 나라가 정해지지 않은 판매', 'Source: USDA FAS Export Sales Reporting')) + '</div></div>';
+}
+function mkEsrDraw(k){
+  var el = $('mkEsrCh'), d = mkEsrOf(k); if (!el || !d || typeof echarts === 'undefined') return;
+  mkEsrChart = chartOn(el, mkEsrChart); if (!mkEsrChart) return;
+  var dk = document.documentElement.getAttribute('data-theme') === 'dark', W = d.w, n = W.length, PW = (d.pw || []);
+  //  가로 = 판매연도 n주차 (올해 · 작년 같은 주끼리) · 작년 선은 올해보다 13주 앞까지만 (최소 26주)
+  var len = Math.max(n, Math.min(PW.length, Math.max(n + 13, 26))), xs = []; for (var i = 0; i < len; i++) xs.push(T((i + 1) + '주', 'W' + (i + 1)));
+  var sc = /ton/i.test(d.unit) || /bale/i.test(d.unit) ? 1e4 : 1, su = sc > 1 ? (isEn() ? '10k ' : '만 ') + mkEsrU(d) : mkEsrU(d);
+  var up = dk ? '#ef6b5e' : '#c0392b', dn = dk ? '#5b9cf0' : '#1b5fa8', ink = dk ? '#e9eef9' : '#1a1f36', gray = dk ? '#8a93a8' : '#9aa3b6';
+  mkEsrChart.__axNoKeep = true;
+  mkEsrChart.setOption({ animation: MOTION_OK, animationDuration: 900, animationDelay: function(i){ return i * 12; }, grid: { left: 8, right: 8, top: 30, bottom: 6, containLabel: true },
+    legend: { type: 'scroll', top: 0, left: 0, right: 0, itemWidth: 10, itemHeight: 8, textStyle: { fontSize: 10.5 } },
+    tooltip: { trigger: 'axis', confine: true, formatter: function(ps){ var i = ps[0].dataIndex, h = esc(T('판매연도 ', 'MY week ') + (i + 1) + T('주차', '')) + (W[i] ? ' · ' + esc(W[i][0].slice(0, 10)) : '');
+      return h + ps.map(function(p){ return '<br>' + p.marker + esc(p.seriesName) + ' <b>' + esc(p.value == null ? '-' : mkEsrFmt(p.value * sc, d, p.seriesIndex === 0)) + '</b>'; }).join(''); } },
+    xAxis: { type: 'category', data: xs, axisTick: { show: false }, axisLabel: { fontSize: 10, hideOverlap: true } },
+    yAxis: [{ type: 'value', axisLabel: { fontSize: 10 }, splitLine: { lineStyle: { opacity: 0.4 } } }, { type: 'value', axisLabel: { fontSize: 10 }, splitLine: { show: false } }],
+    series: [{ name: T('주간 순판매 (', 'Weekly net sales (') + su + ')', type: 'bar', data: W.map(function(w){ return { value: +(w[1] / sc).toFixed(2), itemStyle: { color: w[1] >= 0 ? up : dn, borderRadius: 2 } }; }), barMaxWidth: 12, color: up },
+             { name: T('누적 약정 · 올해 (오른쪽)', 'Commitments · this MY (rhs)'), type: 'line', yAxisIndex: 1, data: W.map(function(w){ return +(w[5] / sc).toFixed(2); }), showSymbol: false, lineStyle: { width: 2.2 }, color: ink },
+             { name: T('누적 약정 · 작년 (오른쪽)', 'Commitments · last MY (rhs)'), type: 'line', yAxisIndex: 1, data: PW.slice(0, len).map(function(w){ return +(w[5] / sc).toFixed(2); }), showSymbol: false, lineStyle: { width: 1.5, type: 'dashed' }, color: gray }] }, true);
+}
+function mkEsrMapSet(on){ MK.esrMap = !!on; var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); mkOvPaint(); }
+function mkEsrMapOn(){ return MK.lay === 'res' && !!MK.esrMap && !!mkEsrOf(MK.res); }
+//  지도: 미국 → 사는 나라 (실제 누적 약정 · 상위 10)
+function mkEsrOv(D, C){
+  var d = mkEsrOf(MK.res), us = mkCxy('US'); if (!d || !us) return;
+  var xs = d.top.filter(function(x){ return x.c && x.c !== 'US' && x.com > 0 && mkCxy(x.c); }).slice(0, 10), mx = xs.length ? xs[0].com : 1;
+  xs.forEach(function(x, i){ mkOvHalves(D, mkOvPts(us, mkCxy(x.c), 0.2), { fr: 'US', to: x.c, v: x.com, net: x.net, rk: i + 1, kind: 'esr' }, C.ex, C.im, +(1.4 + 4.4 * Math.sqrt(x.com / mx)).toFixed(2), i < 6 ? 0.92 : 0.66); });
+  if (mkOvXY(us)) D.nodes.push({ name: mkNm('US'), cc: 'US', kind: 'esrUS', value: [us[0], us[1]], symbol: 'circle', symbolSize: 18, itemStyle: { color: C.ex, borderColor: C.ink, borderWidth: 1.2 }, label: { show: true, position: 'top', formatter: T('미국 수출', 'US exports'), color: C.ex } });
+  xs.forEach(function(x, i){ var g = mkCxy(x.c); if (!mkOvXY(g)) return;
+    D.nodes.push({ name: mkNm(x.c), cc: x.c, kind: 'esrB', v: x.com, net: x.net, value: [g[0], g[1]], symbol: 'diamond', symbolSize: Math.round(9 + 11 * Math.sqrt(x.com / mx)), itemStyle: { color: C.im, borderColor: C.ink, borderWidth: 1.2 },
+      label: { show: i < 5, position: 'bottom', formatter: mkNm(x.c) + ' ' + mkEsrFmt(x.com, d), color: C.im } }); });
+  D.leg = 'esr';
+}
+function mkEsrTip(dt){
+  var d = mkEsrOf(MK.res); if (!d) return '';
+  var x = d.top.filter(function(y){ return y.c === (dt.kind === 'esrB' ? dt.cc : dt.to); })[0];
+  if (dt.kind === 'esrUS') return '<b>' + esc(T('미국 ', 'US ') + d.n) + '</b><br>' + esc(T('누적 약정 ', 'Commitments ') + mkEsrFmt(d.w[d.w.length - 1][5], d) + ' · ' + d.myLbl);
+  if (!x) return '';
+  return '<b>' + esc(T('미국 → ', 'US → ')) + mkFlag2(x.c) + ' ' + esc(mkNm(x.c)) + '</b> · ' + esc(d.n) + '<br>' + esc(T('누적 약정 ', 'Commitments ') + mkEsrFmt(x.com, d) + T(' · 누적 선적 ', ' · shipped ') + mkEsrFmt(x.acc, d))
+    + '<br>' + esc(T('이번 주 순판매 ', 'Net sales this wk ') + mkEsrFmt(x.net, d, true) + T(' · 4주 ', ' · 4w ') + mkEsrFmt(x.net4, d, true)) + '<br><span style="opacity:.7">' + esc('USDA ' + d.week + T(' 주 · 실제 판매 기록', ' week')) + '</span>';
+}
+function mkEsrScreenLine(){
+  if (MK.lay !== 'res') return '';
+  var d = mkEsrOf(MK.res); if (!d) return '';
+  var S = mkEsrSum(d), L = S.L;
+  return '[미국 수출 판매 · USDA 주간 · ' + d.n + ' · ' + d.myLbl + ' 판매연도 · ' + d.week + ' 주] 이번 주 순판매 ' + mkEsrFmt(L[1], d, true) + (S.avg4 != null ? ' (4주 평균 ' + mkEsrFmt(S.avg4, d) + ')' : '') + ' · 누적 약정 ' + mkEsrFmt(L[5], d) + (S.yoy != null ? ' (작년 같은 주 대비 ' + mkPct(S.yoy, 1) + ')' : '')
+    + ' · 누적 선적 ' + mkEsrFmt(L[3], d) + ' · 미선적 ' + mkEsrFmt(L[4], d) + '\n사는 나라 (누적 약정 · 이번 주 순판매): ' + d.top.filter(function(x){ return x.c; }).slice(0, 8).map(function(x){ return (x.c ? mkNm(x.c) : x.nm) + ' ' + mkEsrFmt(x.com, d) + ' (' + mkEsrFmt(x.net, d, true) + ')'; }).join(' · ') + (d.unk > 0 ? ' · 목적지 미정 ' + mkEsrFmt(d.unk, d) : '');
+}
 //  원자재 칸 아래 (mkResRender 가 부름)
-function mkResDeepHtml(k){ return mkCotBlockHtml(k) + mkPsdBlockHtml(k); }
+function mkResDeepHtml(k){ return mkCotBlockHtml(k) + mkPsdBlockHtml(k) + (typeof mkEsrBlockHtml === 'function' ? mkEsrBlockHtml(k) : ''); }
 function mkResDeepAfter(k){
   if (RES_COT[k] && !(window.COT && COT.d) && !(window.COT && COT.err)) mkCotLoad(function(){ if (MK.lay === 'res' && MK.res === k){ var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); } });
   mkPsdLoad(k);
-  requestAnimationFrame(function(){ mkPsdDraw(k); });
+  if (typeof mkEsrLoad === 'function') mkEsrLoad(k);
+  requestAnimationFrame(function(){ mkPsdDraw(k); if (typeof mkEsrDraw === 'function') mkEsrDraw(k); });
 }
 function mkResRender(){
   var box = $('mkRes'); if (!box) return;
