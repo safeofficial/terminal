@@ -795,9 +795,10 @@
   @media (prefers-reduced-motion: reduce){ .mk-wbk:hover{transform:none} }
   .mk-side{display:flex;flex-direction:column;gap:2px;font-size:12px;min-width:0}
   .mk-side h5{margin:4px 0 2px;font-size:11.5px;color:var(--text-sub);font-weight:700}
-  .mk-side .kv{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px dashed var(--border);padding:3px 0;font-variant-numeric:tabular-nums}
-  .mk-side .kv span{color:var(--text-sub);min-width:0}
-  .mk-side .kv b{white-space:nowrap}
+  .mk-side .kv{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:0 8px;border-bottom:1px dashed var(--border);padding:3px 0;font-variant-numeric:tabular-nums}
+  /*  (10/10 8차) 좁은 칸에서 이름이 한 글자씩 끊기던 것 — 이름은 줄여지지 않고, 값이 안 들어가면 값이 다음 줄 오른쪽으로  */
+  .mk-side .kv span{color:var(--text-sub);min-width:0;flex:0 1 auto;word-break:keep-all}
+  .mk-side .kv b{white-space:nowrap;margin-left:auto;text-align:right}
   .mk-side .btn-sm{align-self:flex-start;margin-top:6px}
   .mk-src{margin:8px 0 0;line-height:1.55}
   .mk-secper{margin-bottom:8px;flex-wrap:wrap}
@@ -943,7 +944,7 @@
   .mk-ovl-r .k.res{color:var(--res)} .mk-ovl-r .k.vch{color:var(--ind)} .mk-ovl-r .k.mac{color:var(--mac)} .mk-ovl-r .k.rs{color:var(--up)} .mk-ovl-r .k.port{color:var(--port)} .mk-ovl-r .k.ai,.mk-ovl-r .k.news{color:var(--accent)}
   .mk-ovl-r .cs{display:flex;flex-wrap:wrap;gap:5px}
   .mk-ovl-c{display:inline-flex;align-items:baseline;gap:5px;max-width:100%;padding:3px 9px;border:1px solid var(--border);border-radius:999px;background:var(--card);font:inherit;font-size:11.5px;color:inherit;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
-  .mk-ovl-c span{min-width:0;word-break:keep-all} .mk-ovl-c b{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .mk-ovl-c{flex-wrap:wrap;row-gap:0} .mk-ovl-c span{min-width:0;word-break:keep-all} .mk-ovl-c b{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
   .mk-ovl-c.res:hover{border-color:var(--res-line);background:var(--res-soft)} .mk-ovl-c.vch:hover{border-color:var(--ind);background:color-mix(in srgb, var(--ind) 8%, transparent)}
   .mk-ovl-c.mac:hover{border-color:var(--mac-line);background:var(--mac-soft)} .mk-ovl-c.port:hover{border-color:var(--port-line);background:var(--port-soft)} .mk-ovl-c:hover{border-color:var(--accent)}
   .mk-ovl-c.tr b{font-weight:600;color:var(--text-sub);white-space:normal} .mk-ovl-c.tr.im span{color:var(--fx-im);font-weight:700} .mk-ovl-c.tr.ex span{color:var(--fx-ex);font-weight:700}
@@ -1051,6 +1052,25 @@
   .mk-psd .rv{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 10px;font-size:11px;padding:6px 8px;margin:4px 0 2px;border-radius:7px;background:var(--bg-sub)} .mk-psd .rv b{font-size:11px} .mk-psd .rv em{font-style:normal;font-weight:700} .mk-psd .rv em.up{color:var(--up)} .mk-psd .rv em.down{color:var(--down)} .mk-psd .rv .tp{flex-basis:100%;color:var(--text-sub)}
   .mk-psd .g > span{display:flex;flex-direction:column;gap:1px} .mk-psd .g b{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums} .mk-psd .g i{font-style:normal;font-weight:700;font-size:10.5px}
   .mk-psd-ch{width:100%;height:200px}
+  /*  (10/10 8차) 원유 · 가스 가격 경로 (EIA 전망) · 선물환 커브  */
+  .mk-steo{border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin:10px 0}
+  .mk-steo .h{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px;font-size:12px} .mk-steo .h b{font-size:13px;color:var(--res)}
+  .mk-steo-kv{display:flex;flex-direction:column;gap:3px;margin:6px 0 2px;font-size:11.5px}
+  .mk-steo-kv .kv{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;font-variant-numeric:tabular-nums} .mk-steo-kv .kv i{font-style:normal;font-weight:700;min-width:7em}
+  .mk-steo-kv em{font-style:normal;color:var(--text-sub);white-space:nowrap} .mk-steo-kv em b{color:var(--text)} .mk-steo-kv em.u{font-size:10.5px}
+  .mk-steo-ch{width:100%;height:200px}
+  .mk-fwd{margin-top:14px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;container:mkfwd / inline-size}
+  .mk-fwd-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px;font-size:12px} .mk-fwd-h b{font-size:14px}
+  .mk-fwd-g{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px;align-items:start;margin-top:6px}
+  .mk-fwd-ch{width:100%;height:230px} .mk-fwd-b{margin:6px 0 0}
+  .mk-fwd-t{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+  .mk-fwd-t th,.mk-fwd-t td{padding:5px 6px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap} .mk-fwd-t th{font-size:10.5px;color:var(--text-sub);font-weight:600}
+  .mk-fwd-t th:first-child,.mk-fwd-t td:first-child{text-align:left} .mk-fwd-t tr.sp td{background:var(--bg-sub)}
+  .mk-fwd-t tr:not(.sp){animation:mkVin .35s cubic-bezier(.2,.8,.2,1) both} .mk-fwd-t tr:nth-child(3){animation-delay:40ms} .mk-fwd-t tr:nth-child(4){animation-delay:80ms} .mk-fwd-t tr:nth-child(5){animation-delay:120ms} .mk-fwd-t tr:nth-child(6){animation-delay:160ms} .mk-fwd-t tr:nth-child(n+7){animation-delay:200ms}
+  .mk-fwd-n{margin:8px 0 0;line-height:1.55}
+  @container mkfwd (max-width: 720px){ .mk-fwd-g{grid-template-columns:minmax(0,1fr)} }
+  @container mkfwd (max-width: 480px){ .mk-fwd-t th:nth-child(5),.mk-fwd-t td:nth-child(5){display:none} .mk-fwd-t th,.mk-fwd-t td{padding:5px 4px} }
+  @media (prefers-reduced-motion: reduce){ .mk-fwd-t tr{animation:none !important} }
   /*  (10/10) 미국 주간 수출 판매  */
   .mk-esr .g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0 4px;font-size:11px;color:var(--text-sub)}
   .mk-esr .g > span{display:flex;flex-direction:column;gap:1px;min-width:0} .mk-esr .g b{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap} .mk-esr .g b.up{color:var(--up)} .mk-esr .g b.down{color:var(--down)} .mk-esr .g i{font-style:normal;font-size:10.5px}
@@ -1124,6 +1144,24 @@
   .mk-vcm .r .b{min-width:0;font-size:11px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mk-vcf-cols{display:flex;justify-content:space-between;gap:6px;font-size:10.5px;font-weight:700;color:var(--ind);margin:2px 2px 0} .mk-vcf-cols span{flex:1 1 0;min-width:0;text-align:center;word-break:keep-all} .mk-vcf-cols span:first-child{text-align:left} .mk-vcf-cols span:last-child{text-align:right}
   .mk-vcf-ch{width:100%;height:260px} .mk-vcf-b{margin-top:6px}
+  /*  (10/10 8차) 고부가가치 커브 (스마일 커브)  */
+  .mk-smile{margin:8px 0 12px;padding:10px 12px 8px;border:1px solid var(--border);border-radius:12px;background:linear-gradient(180deg,var(--ind-soft),transparent 60%)}
+  .mk-smile.none{padding:7px 10px;background:none;border-style:dashed}
+  .mk-smile-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px;font-size:12px} .mk-smile-h b{font-size:13.5px;color:var(--ind)}
+  .mk-smile-ch{width:100%;height:236px;margin-top:2px}
+  .mk-smile-rd{margin:2px 0 8px}
+  .mk-smz{display:grid;gap:6px;margin:4px 0 4px}
+  .mk-smz .z{min-width:0;border-radius:9px;background:var(--bg-sub);padding:6px 7px 7px;animation:mkVin .38s cubic-bezier(.2,.8,.2,1) both}
+  .mk-smz .zh{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 6px;font-size:10.5px;font-weight:800;color:var(--text-sub);margin-bottom:3px;word-break:keep-all}
+  .mk-smz .zh em{font-style:normal;font-weight:700;font-size:10px;border-radius:999px;padding:0 6px;white-space:nowrap}
+  .mk-smz .zh em.hi{color:var(--up);background:color-mix(in srgb, var(--up) 12%, transparent)} .mk-smz .zh em.md{color:#b7791f;background:color-mix(in srgb, #b7791f 12%, transparent)} .mk-smz .zh em.lo{color:var(--down);background:color-mix(in srgb, var(--down) 12%, transparent)}
+  .mk-smz .st{display:flex;flex-direction:column;gap:1px;width:100%;text-align:left;border:0;background:none;font:inherit;color:inherit;padding:4px 4px;border-radius:7px;cursor:pointer;font-size:11.5px;line-height:1.35;transition:background .15s}
+  .mk-smz .st + .st{margin-top:2px} .mk-smz .st:hover{background:var(--card)} .mk-smz .st.on{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--ind)}
+  .mk-smz .st .t{font-weight:700;word-break:keep-all} .mk-smz .st .t i{font-style:normal;color:var(--ind);margin-right:3px}
+  .mk-smz .st .w{font-size:11px;font-variant-numeric:tabular-nums;word-break:keep-all} .mk-smz .st .k{font-size:10.5px;color:var(--ind);font-weight:700;font-variant-numeric:tabular-nums} .mk-smz .st .k.none{color:var(--text-sub);font-weight:400}
+  .mk-smz .co{margin-top:4px;padding-top:4px;border-top:1px dashed var(--border);font-size:10.5px;color:var(--text-sub);line-height:1.45;word-break:keep-all}
+  .mk-smile-va{margin:6px 0 0;line-height:1.55}
+  @media (prefers-reduced-motion: reduce){ .mk-smz .z{animation:none} }
   @media (prefers-reduced-motion: reduce){ .mk-vcd-st,.mk-vcm .r{animation:none} }
   /*  ══ (10/9 4차) 물류 층 (청록 바다색) · 자금 흐름 (상대강도) ══  */
   :root{--port:#0e7c6b;--port-soft:rgba(14,124,107,.07);--port-line:rgba(14,124,107,.38)}
@@ -1336,11 +1374,16 @@
   .mk-flow{margin-top:14px;padding-top:12px;border-top:1px dashed var(--border)}
   .mk-eia{border:1px solid var(--border);border-radius:10px;padding:7px 10px;margin:0 0 8px}
   .mk-eia .h{font-size:11px;font-weight:700;color:var(--text-sub);margin-bottom:3px}
-  .mk-eia .r{display:grid;grid-template-columns:minmax(0,1fr) auto auto 110px auto;gap:8px;align-items:center;font-size:12px;padding:2px 0}
+  .mk-eia{container:mkeia / inline-size}
+  .mk-eia .r{display:grid;grid-template-columns:minmax(9em,1fr) auto auto 96px auto;gap:2px 10px;align-items:center;font-size:12px;padding:3px 0}
+  .mk-eia .r + .r{border-top:1px dashed var(--border)}
+  .mk-eia .r .mk-spark{width:100%;height:22px}
+  /*  (10/10 8차) 좁은 칸: 이름은 윗줄 통째로 · 아래 줄에 값 · 변화 · 추이 (예전엔 이름 칸이 한 글자 폭으로 눌림)  */
+  @container mkeia (max-width: 470px){ .mk-eia .r{grid-template-columns:auto auto minmax(40px,1fr) auto} .mk-eia .r .n{grid-column:1 / -1;font-weight:600} }
+  @container mkeia (max-width: 300px){ .mk-eia .r{grid-template-columns:auto auto minmax(0,1fr)} .mk-eia .r .t{display:none} }
   .mk-eia .r .n{min-width:0;word-break:keep-all} .mk-eia .r b{font-variant-numeric:tabular-nums;white-space:nowrap}
   .mk-eia .r .c{font-size:11.5px;font-variant-numeric:tabular-nums;white-space:nowrap} .mk-eia .r .c.up{color:var(--up)} .mk-eia .r .c.down{color:var(--down)}
   .mk-eia .r .t{font-size:10.5px;color:var(--text-sub);white-space:nowrap}
-  @media (max-width:560px){ .mk-eia .r{grid-template-columns:minmax(0,1fr) auto auto} .mk-eia .r .mk-spark,.mk-eia .r .t{display:none} }
   .mk-flow.off .mk-frs{opacity:.75}
   .mk-fh{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-bottom:6px}
   .mk-fh > b{font-size:13.5px;color:var(--res)}
@@ -1351,7 +1394,7 @@
   .mk-fsel{display:flex;align-items:center;gap:6px;font-size:12.5px;padding:5px 8px;border-radius:8px;background:var(--res-soft);margin-bottom:6px}
   .mk-x.sm{width:20px;height:20px;font-size:13px;margin-left:auto}
   .mk-frs{display:flex;flex-direction:column;gap:1px}
-  .mk-fr{display:grid;grid-template-columns:18px minmax(0,2.3fr) minmax(0,1fr) auto 50px;align-items:center;gap:7px;padding:4px 6px;border:0;background:none;border-radius:6px;font:inherit;color:inherit;text-align:left;font-size:12px;line-height:1.3}
+  .mk-fr{display:grid;grid-template-columns:18px minmax(0,2.3fr) minmax(0,1fr) auto minmax(50px,auto);align-items:center;gap:7px;padding:4px 6px;border:0;background:none;border-radius:6px;font:inherit;color:inherit;text-align:left;font-size:12px;line-height:1.3}
   button.mk-fr{cursor:pointer} button.mk-fr:hover{background:var(--bg-sub)}
   .mk-fr .rk{color:var(--text-sub);font-size:11px;text-align:right;font-variant-numeric:tabular-nums}
   .mk-fr .pr{display:flex;align-items:center;gap:4px;min-width:0;flex-wrap:wrap;word-break:keep-all}
@@ -1458,6 +1501,26 @@
   .mk-ctry-head .st-hint{flex-basis:100%}
   .mk-kv{font-variant-numeric:tabular-nums} .mk-kv .mk-tag{position:static;margin-left:4px}
   .mk-ctry-body{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+  /*  (10/10 8차 학회장: «너무 없어보이잖아 · 사이즈 크게, 작게 해서 확인») — 화면 폭이 아니라 «칸 폭»을 보고 줄 모양을 바꿈
+      (칸을 좁게 끌거나 전체 화면 서랍을 좁히면 화면은 넓어도 칸이 좁아서, 이름이 한 글자씩 끊겼습니다)  */
+  #mkCtryOv{container:mkov / inline-size}
+  #mkRes{container:mkres / inline-size}
+  @container mkres (max-width: 300px){ .mk-smz{grid-template-columns:minmax(0,1fr) !important} }
+  @container mkres (min-width: 441px) and (max-width: 620px){ .mk-smz{grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) !important} }
+  .mk-ov-grid.one{grid-template-columns:minmax(0,1fr)}
+  @container mkov (max-width: 540px){ .mk-ov-grid{grid-template-columns:minmax(0,1fr)} .mk-ovm.ustr .f2{grid-template-columns:minmax(0,1fr)} .mk-ovm.ustr .g{grid-template-columns:repeat(2,minmax(0,1fr))} .mk-side{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));column-gap:16px} .mk-side h5,.mk-side .btn-sm,.mk-side > :not(.kv){grid-column:1 / -1} }
+  @container mkres (max-width: 440px){
+    .mk-prow{grid-template-columns:16px minmax(0,1fr) 50px 44px} .mk-prow .bar,.mk-prow .mk-spark{display:none} .mk-prow.h span:nth-child(3),.mk-prow.h span:nth-child(6){display:none}
+    .mk-fr{grid-template-columns:16px minmax(0,1fr) auto} .mk-fr .bar,.mk-fr .sh{display:none} .mk-f2{grid-template-columns:minmax(0,1fr)}
+    .mk-rb{grid-template-columns:18px minmax(0,1.2fr) minmax(0,1.3fr) var(--pcw,50px);gap:6px} .mk-rb .v{display:none}
+    .mk-gfw-top .sh{grid-template-columns:9px minmax(0,1fr) auto} .mk-gfw-top .sh span{display:none}
+    .mk-vflow{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .mk-smz{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+    .mk-psd .f2{grid-template-columns:minmax(0,1fr)} .mk-cot .g,.mk-psd .g{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .cot-row{grid-template-columns:minmax(70px,1fr) 62px minmax(64px,1fr) 74px;gap:6px} .cot-row > :nth-child(4),.cot-row > :nth-child(5),.cot-row > :nth-child(7){display:none}
+    .mk-vcd-st{grid-template-columns:minmax(60px,.9fr) minmax(0,2fr) 50px} .mk-vcd-st .kr,.mk-vcd-st.h span:last-child{display:none}
+    .mk-vcd-c{grid-template-columns:minmax(0,1.4fr) 50px 50px 50px} .mk-vcd-c .mk-spark,.mk-vcd-c.h span:last-child{display:none}
+  }
   .mk-fam{align-self:flex-start;margin:0 0 6px}
   .mk-lines{height:300px;width:100%}
   .mk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:2px 12px;font-size:12px}
@@ -1691,6 +1754,22 @@
   .ai-cmp thead tr:first-child th.ai-cu,.ai-cmp thead tr:first-child th.ai-cb{border-bottom:2px solid currentColor}
   .ai-cmp tbody tr:not(.ai-sum-row) > .ai-cb:nth-child(6),.ai-cmp thead tr:first-child th.ai-cb,.ai-cmp thead tr + tr > th.ai-cb:nth-child(4),.ai-cmp tr.ai-sum-row > .ai-cb:nth-child(5){border-left:1px solid var(--border)}
   .ai-cmp tr.ai-det td{padding-top:2px;padding-bottom:14px;border-top:0} .ai-cmp tr.ai-det .ai-calc{margin:0 0 4px}
+  /*  (10/10) 표 정렬 — 열 폭 고정 · 기법 줄 묶음(기법 줄 + 계산 줄) · 계산 카드는 강세 · 약세 열 바로 아래 · 숫자 오른쪽 맞춤  */
+  .ai-cmp{table-layout:fixed;width:100%;min-width:940px;border-collapse:separate;border-spacing:0}
+  .ai-cmp td,.ai-cmp th{overflow-wrap:anywhere}
+  .ai-cmp tr.ai-mrow > td{border-top:2px solid var(--border);padding-top:12px;padding-bottom:8px;background:var(--bg-sub)}
+  .ai-cmp tr.ai-mrow:first-child > td{border-top:0}
+  .ai-cmp tr.ai-mrow + tr.ai-det > td{background:var(--bg-sub)}
+  .ai-cmp td.num,.ai-cmp th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .ai-cmp td.ai-cu,.ai-cmp td.ai-cb{vertical-align:middle}
+  .ai-cmp tr.ai-det td.ai-dc{vertical-align:top;padding-left:8px;padding-right:8px}
+  .ai-cmp tr.ai-det td.ai-cb.ai-dc{border-left:1px solid var(--border)}
+  .ai-cmp tr.ai-det td.ai-dlab{vertical-align:top;padding-top:12px} .ai-cmp tr.ai-det td.ai-dlab span{font-size:11px;font-weight:700;color:var(--text-sub);letter-spacing:.02em}
+  .ai-cmp tr.ai-det .ai-calc-card{height:100%}
+  /*  카드가 좁으면 (표가 좁은 화면) 단계 이름을 위 줄로 · 계산 글은 넓게 (세 줄로 쪼개지지 않게)  */
+  .ai-calc-card{container-type:inline-size}
+  @container (max-width: 470px){ .ai-steps{grid-template-columns:minmax(0,1fr) auto} .ai-steps .lab{grid-column:1/-1;padding-bottom:0 !important} .ai-steps li + li > .lab ~ *{border-top:0} .ai-steps .eq{display:none} .ai-steps .ex{padding-right:10px !important} }
+  .ai-cmp tr.ai-sum-row > td{background:var(--card);vertical-align:middle}
   /*  (10/8) 계산 단계 카드 — 강세 · 약세 나란히 (좁으면 위아래) · 단계마다 한 줄 · 결과는 오른쪽 굵게  */
   .ai-steps2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;white-space:normal}
   @media(max-width:900px){ .ai-steps2{grid-template-columns:1fr} }
@@ -1968,6 +2047,19 @@
     font-size:10.5px;font-weight:600;color:var(--text-sub);
     background:var(--bg);border:1px solid var(--border);vertical-align:1px}
   .fs-row{cursor:pointer}
+  /*  (10/10) 재무제표 다듬기 — 첫 칸 고정(옆으로 밀어도 계정 이름이 보임) · 연평균 칸 · 구성비 · 빈 차트 단추 · 차트 모양 접기  */
+  #coFinTable th:first-child,#coFinTable td:first-child{position:sticky;left:0;z-index:1;background:var(--card);min-width:180px}
+  #coFinTable thead th:first-child{z-index:3;background:var(--bg)}
+  #coFinTable .fs-row.sub td:first-child{background:linear-gradient(var(--accent-soft),var(--accent-soft)),var(--card)}
+  #coFinTable .fs-row:hover td:first-child{background:linear-gradient(var(--accent-soft),var(--accent-soft)),var(--card)}
+  #coFinTable td.num,#coFinTable th.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  #coFinTable .fs-cagr{border-left:1px dashed var(--border);background:var(--bg-sub)}
+  #coFinTable .fs-num.up{color:var(--up)} #coFinTable .fs-num.dn{color:var(--down)}
+  #coFinTable.cs .fs-num{font-weight:600}
+  .co-fs-mode{margin-left:8px} .co-fs-mode button{font-size:12px;padding:4px 12px}
+  .co-fin-empty{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:2px 0 4px}
+  .co-adv{margin-top:2px;padding-top:6px;border-top:1px dashed var(--border)}
+  @media (prefers-reduced-motion: no-preference){ .co-adv:not(.hidden){animation:coAdvIn .22s ease-out} @keyframes coAdvIn{from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none}} }
   .fs-row:hover{background:var(--accent-soft)}
   .fs-row td:first-child::after{content:' ＋';color:var(--accent);opacity:0;font-size:11px}
   .fs-row:hover td:first-child::after{opacity:1}
@@ -3383,7 +3475,7 @@
               <label style="min-width:auto">진하기</label>
               <input type="range" id="thGridAlpha" min="5" max="100" value="100" oninput="applyThemeInputs()" style="width:110px">
               <span id="thGridAlphaV" style="font-size:11.5px;color:var(--text-sub);min-width:38px">100%</span>
-              <span class="grow" style="font-size:11px;color:var(--text-sub)">모든 학회원의 기본 눈금선 · 각자 매크로·기업분석 탭에서 잠깐 바꿔 볼 수는 있습니다</span>
+              <span class="grow" style="font-size:11px;color:var(--text-sub)">모든 학회원의 기본 눈금선 · 각자 매크로·재무제표 탭에서 잠깐 바꿔 볼 수는 있습니다</span>
             </div>
             <!--  10/6 학회장: «축들은 다 검정색이어야 돼» — 세로축 색 고르기는 쓰지 않습니다 (값은 그대로 둡니다 · 숫자 색은 각자 «기간 · 표시» 에서)  -->
             <div class="row hidden"><label>왼쪽축</label><input type="color" id="thAxisL" oninput="applyThemeInputs()"></div>
@@ -4421,7 +4513,7 @@
 
     <div id="pane-company" class="hidden">
       <div class="page-head">
-        <h1>기업 분석</h1>
+        <h1>재무제표</h1>
         <p>회사명 · 종목코드 · 티커로 찾습니다. 국내는 DART 전자공시, 미국은 SEC EDGAR 자료입니다.</p>
       </div>
       <div id="coWarn"></div>
@@ -4508,7 +4600,9 @@
       <div id="coBody" class="hidden">
 
         <div class="card" id="coViewCard">
-          <h2>표시 설정</h2>
+          <h2>표시 설정
+            <span class="tools"><button type="button" class="btn-sm" id="coAdvBtn" onclick="coAdvToggle()" aria-expanded="false">차트 모양 ▾</button></span>
+          </h2>
           <div class="row">
             <label>기간</label>
             <select id="coPeriod" onchange="setCoPeriod(this.value)" style="width:110px">
@@ -4524,6 +4618,7 @@
               <option value="0">전체</option>
             </select>
           </div>
+          <div id="coAdv" class="co-adv hidden">
           <div class="row">
             <label style="min-width:auto">
               <input type="checkbox" id="coGrid" checked onchange="setCoGrid()" style="width:auto;vertical-align:-2px">
@@ -4561,6 +4656,7 @@
               <input type="checkbox" id="coNorm" onchange="drawCoPrice()" style="width:auto;vertical-align:-2px">
               주가 지수화 (시작=100)
             </label>
+          </div>
           </div>
         </div>
 
@@ -4760,7 +4856,42 @@
 
         <div id="coPane-fin">
           <div class="card">
-            <h2>비교 대상 추가</h2>
+            <h2>실적 추이 <span id="coFinUnit" style="font-size:12px;color:var(--text-sub);font-weight:400"></span>
+              <span class="tools"><button class="btn-sm" onclick="coFinJpg()">JPG 저장</button></span>
+            </h2>
+            <div id="coFinBox"></div>
+            <!--  (10/10) 비어 있을 땐 낮게 + 바로 담는 단추 (빈 큰 칸이 «없어 보임»)  -->
+            <div id="coFinEmpty" class="co-fin-empty hidden">
+              <button class="btn-sm btn-solid" onclick="coFinPreset()">매출 · 영업이익 · 순이익</button>
+              <button class="btn-sm" onclick="coRatioAdd('영업이익률')">영업이익률</button>
+              <button class="btn-sm" onclick="coRatioAdd('ROE')">ROE</button>
+              <button class="btn-sm" onclick="coRatioAdd('부채비율')">부채비율</button>
+              <span class="st-hint">또는 아래 재무제표에서 계정을 누르세요</span>
+            </div>
+          </div>
+          <div class="card">
+            <h2>재무제표</h2>
+            <div class="mode-seg" id="coFsSeg" style="margin-bottom:12px">
+              <button id="coFs-손익계산서" class="on" onclick="coFsShow('손익계산서')">손익계산서</button>
+              <button id="coFs-재무상태표" onclick="coFsShow('재무상태표')">대차대조표</button>
+              <button id="coFs-현금흐름표" onclick="coFsShow('현금흐름표')">현금흐름표</button>
+              <button id="coFs-summary" onclick="coFsShow('summary')">요약 · 비율</button>
+            </div>
+            <div id="coFsExpand" class="row" style="margin:-2px 0 8px">
+              <button class="btn-sm" onclick="coFsAll(true)">모두 펴기</button>
+              <button class="btn-sm" onclick="coFsAll(false)">모두 접기</button>
+              <span class="px-seg co-fs-mode" id="coFsMode" role="group" aria-label="표시 방식">
+                <button type="button" class="on" data-m="amt" onclick="coFsModeSet('amt')">금액</button>
+                <button type="button" data-m="cs" onclick="coFsModeSet('cs')" title="손익 · 현금흐름 = 매출액 대비 % · 재무상태표 = 자산총계 대비 %">구성비 %</button>
+              </span>
+              <span class="st-hint" style="margin-left:4px">▸ 를 눌러 항목별로 열고 닫을 수 있습니다 · 맨 오른쪽 = 연평균 증가율</span>
+            </div>
+            <p class="st-hint" id="coFsUnitNote" style="margin:0 0 8px"></p>
+            <div id="coFsWarn"></div>
+            <div class="scroll"><table id="coFinTable"></table></div>
+          </div>
+          <div class="card">
+            <h2>차트에 더하기 <span style="font-size:11.5px;color:var(--text-sub);font-weight:400">다른 회사 재무 · 주가 · 경제지표 · 비율</span></h2>
             <div class="row">
               <select id="coFinMk" style="width:130px">
                 <option value="KR">국내 주가</option>
@@ -4808,29 +4939,6 @@
             </div>
             <div id="coFinWarn"></div>
             <div id="coFinSeriesList" style="margin-top:10px"></div>
-          </div>
-          <div class="card">
-            <h2>실적 추이 <span id="coFinUnit" style="font-size:12px;color:var(--text-sub);font-weight:400"></span>
-              <span class="tools"><button class="btn-sm" onclick="coFinJpg()">JPG 저장</button></span>
-            </h2>
-            <div id="coFinBox"></div>
-          </div>
-          <div class="card">
-            <h2>재무제표</h2>
-            <div class="mode-seg" id="coFsSeg" style="margin-bottom:12px">
-              <button id="coFs-손익계산서" class="on" onclick="coFsShow('손익계산서')">손익계산서</button>
-              <button id="coFs-재무상태표" onclick="coFsShow('재무상태표')">대차대조표</button>
-              <button id="coFs-현금흐름표" onclick="coFsShow('현금흐름표')">현금흐름표</button>
-              <button id="coFs-summary" onclick="coFsShow('summary')">요약 · 비율</button>
-            </div>
-            <div id="coFsExpand" class="row" style="margin:-2px 0 8px">
-              <button class="btn-sm" onclick="coFsAll(true)">모두 펴기</button>
-              <button class="btn-sm" onclick="coFsAll(false)">모두 접기</button>
-              <span class="st-hint" style="margin-left:4px">▸ 를 눌러 항목별로 열고 닫을 수 있습니다</span>
-            </div>
-            <p class="st-hint" id="coFsUnitNote" style="margin:0 0 8px"></p>
-            <div id="coFsWarn"></div>
-            <div class="scroll"><table id="coFinTable"></table></div>
           </div>
         </div>
 
@@ -5938,6 +6046,8 @@
             </div>
             <div class="mk-fxsum" id="mkFxSum"></div>
           </div>
+          <!--  (10/10 8차 학회장: «환율 모델도 포워드 커브») — 금리평형으로 계산한 이론 선물환 (만기별)  -->
+          <div class="mk-fwd" id="mkFxFwd"></div>
           <div class="scroll" style="margin-top:10px"><table class="mk-fxtable" id="mkFxTable"></table></div>
           <p class="st-hint" id="mkFxNote" style="margin:8px 0 0;line-height:1.6"></p>
           <!--  (10/7 학회장: «학회원들한테도 설명해야 되니까 심플하게») — 한 번 펴면 그대로 (10초 갱신에 안 접힘)  -->
@@ -7313,7 +7423,7 @@ var TAB_GROUPS = {
   invest:   { tabs: [['trading','팀 대회'], ['solo','개인 대회']] },
   //  10/6: «마켓 맵» (전체 시장 히트맵 · 세계지도 · 환율 예측) 을 맨 앞에 — 띄워 두고 보는 화면
   //  10/8: «주식분석» 새로 (마켓 맵의 히트맵 · 산업분석의 가격 차트 · 섹터·종목 모니터를 모음) — 산업분석은 산업 데이터만
-  analysis: { tabs: [['market','마켓 맵'], ['stocks','주식분석'], ['industry','산업분석'], ['company','기업분석'], ['ai','AI 분석'], ['deriv','파생상품'], ['flow','자금흐름']] }
+  analysis: { tabs: [['market','마켓 맵'], ['stocks','주식분석'], ['industry','산업분석'], ['company','재무제표'], ['ai','AI 분석'], ['deriv','파생상품'], ['flow','자금흐름']] }
 };
 var TAB_GROUP_OF = { research:'macro', trading:'invest', solo:'invest', market:'analysis', stocks:'analysis', industry:'analysis', company:'analysis', ai:'analysis', deriv:'analysis', flow:'analysis' };
 var SUB_KEY = 'safe_subtab_v1';
@@ -10634,7 +10744,7 @@ function aicScreenWhat(){
   if (curTab === 'industry') return '병목 모니터 ' + (typeof bnCtry !== 'undefined' ? (bnCtry === 'CMP' ? '나라 비교' : bnCtryName(bnCtry)) : '') + (typeof IC !== 'undefined' && IC.s.length ? ' · 산업 지표 ' + IC.s.length + '개' : '');
   if (curTab === 'stocks') return '시장 폭 · 스크리너 · 섹터 로테이션 · 히트맵 · 섹터 표' + (typeof secPx !== 'undefined' && secPx.picks.length ? ' · 가격 차트' : '');
   if (curTab === 'company') return (typeof co !== 'undefined' && co) ? '기업 ' + (co.name || co.code) + (typeof coFinSeries !== 'undefined' && coFinSeries.length ? ' · 재무 차트 ' + coFinSeries.length + '개' : '')
-    + (typeof valData !== 'undefined' && valData && valData.code === co.code ? ' · 밸류에이션' : '') : '기업분석';
+    + (typeof valData !== 'undefined' && valData && valData.code === co.code ? ' · 밸류에이션' : '') : '재무제표';
   if (curTab === 'ai') return (typeof aiRep !== 'undefined' && aiRep) ? 'AI 리포트' : 'AI 분석';
   if (curTab === 'market' && typeof MK !== 'undefined') return '마켓 맵 ' + ((MK_VIEWS.filter(function(v){ return v[0] === MK.view; })[0] || [])[1] || '') + (MK.view === 'world' && MK.cc ? ' · ' + ((MK_CC[MK.cc] || [])[0] || MK.cc) : '');
   return (typeof AIC_TAB_NM !== 'undefined' && AIC_TAB_NM[curTab] ? AIC_TAB_NM[curTab] : '지금') + ' 화면';
@@ -10691,7 +10801,7 @@ function aicIcLine(x){
 function aicScreen(){
   var out = [];
   var tabNm = { home:'홈', research:'매크로 경제', trading:'팀 모의투자', solo:'개인 모의투자', market:'분석 › 마켓 맵', industry:'분석 › 산업분석',
-                company:'분석 › 기업분석', ai:'분석 › AI 분석', deriv:'분석 › 파생상품', flow:'분석 › 자금흐름', links:'자료실', admin:'설정' };
+                company:'분석 › 재무제표', ai:'분석 › AI 분석', deriv:'분석 › 파생상품', flow:'분석 › 자금흐름', links:'자료실', admin:'설정' };
   out.push('[탭] ' + (tabNm[curTab] || curTab) + (curTab === 'research' && MACRO_TEAMS[macroTeam] ? ' › ' + MACRO_TEAMS[macroTeam].n : ''));
   try {
     if (curTab === 'research'){
@@ -10777,11 +10887,19 @@ function aicScreen(){
           + aL.rows.slice(0, 12).map(function(r){ return r.rk + '. ' + mkNm(r.cc) + ' ' + mkLayerPct(r) + (r.v != null ? ' (' + mkNumFmt(r.v) + ' ' + aL.unit + ')' : r.vt ? ' (' + r.vt + ')' : ''); }).join(' · ')
           + (aL.rest ? ' · ' + aL.rest.label + ' ' + (Math.round(aL.rest.s * 10) / 10) + '%' : '') + (aL.notes.length ? '\n메모: ' + aL.notes.join(' / ') : ''));
         if (MK.lay === 'vc' && typeof mkVcfScreenLine === 'function'){ var aVf = mkVcfScreenLine(); if (aVf) out.push(aVf); }
+        //  (10/10 8차) 스마일 커브 자리 (개념도) · 원유 · 가스 가격 경로 (EIA 전망)
+        if (MK.lay === 'vc' && typeof mkVcSmileScreenLine === 'function'){ var aSm = mkVcSmileScreenLine(); if (aSm) out.push(aSm); }
+        if (MK.lay === 'res' && typeof mkSteoScreenLine === 'function'){ var aSt = mkSteoScreenLine(MK.res); if (aSt) out.push(aSt); }
       }
       if (MK.view === 'world' && MK.ctry && MK.ctry.lines)
         out.push('[' + ((MK_CC[MK.ctry.cc] || [])[0] || MK.ctry.cc) + ' 주요 기업 · ' + (MK.ctry.live ? '미국 장중' : '지난 미국 장 ' + (MK.ctry.day || '')) + '] ' + MK.ctry.lines.map(function(l){ return l.n + ' ' + mkChg(l.c); }).join(' · '));
       if (MK.view === 'fx' && MK.fx) out.push('[환율 모델 (통계 모형 · 중앙 · 1개월 · 방향)] ' + MK_FX_PAIRS.map(function(P){ var M = MK.fx[P.k]; if (!M || M.err || !M.h[21]) return null;
         var r = M.h[21], D = mkFxDir(P, r); return P.n + ' ' + mkFxFmt(M.last, P.k) + ' → ' + mkFxFmt(M.last * Math.exp(r.mu), P.k) + ' [' + D.word + (D.d ? ' · ' + D.mean : '') + ' · 오를 확률 ' + Math.round(D.pUp * 100) + '%] (68% ' + mkFxFmt(M.last * Math.exp(r.mu - r.sd), P.k) + '~' + mkFxFmt(M.last * Math.exp(r.mu + r.sd), P.k) + ', 표본 밖 R² ' + (r.r2c * 100).toFixed(1) + '%)'; }).filter(Boolean).join(' · '));
+      //  (10/10 8차) 선물환 커브 (이론값 · 금리평형)
+      if (MK.view === 'fx' && MK.fx && typeof mkFwdCalc === 'function'){ var fP = MK_FX_PAIRS.filter(function(x){ return x.k === MK.fxPair; })[0], fM = fP && MK.fx[fP.k];
+        var fC = fM && !fM.err ? mkFwdCalc(fP, fM, mkFxAnchor(fP, fM)) : null;
+        if (fC) out.push('[선물환 커브 (이론값 · 금리평형 · 시장 호가 아님) · ' + fP.n + '] 현물 ' + mkFxFmt(mkFxAnchor(fP, fM), fP.k) + ' · ' + fC.rows.map(function(r){ return r.n + ' ' + mkFxFmt(r.F, fP.k) + ' (스왑포인트 ' + (r.pt > 0 ? '+' : '') + r.pt.toFixed(2) + ')'; }).join(' · ')
+          + ' · 금리 3개월 ' + MK_CUR[fP.b].n + ' ' + fC.sb.v.toFixed(2) + '% · ' + MK_CUR[fP.q].n + ' ' + fC.sq.v.toFixed(2) + '% (OECD 월평균 ' + fC.sb.d + ')'); }
     } else if (curTab === 'industry'){
       //  (10/8) 산업분석 = 나라별 병목 모니터 · 산업 지표 차트
       if (typeof bnScreenLines === 'function') out.push(bnScreenLines());
@@ -10807,7 +10925,7 @@ function aicScreen(){
       if (typeof secPx !== 'undefined' && secPx.picks.length)
         out.push('[가격 차트에 올린 종목] ' + secPx.picks.map(function(x){ return x.ko + ' ' + x.sym; }).join(', ') + ' · 보기 ' + (secPx.view === 'candle' ? '캔들 (지금 ' + ((secPx.picks[secPx.act] || {}).ko || '') + ')' : '비교') + ' · 봉 ' + secPx.tf + ' · 기간 ' + secPx.per);
     } else if (curTab === 'company' && typeof co !== 'undefined' && co){
-      out.push('[기업분석] ' + (co.name || '') + ' · ' + (co.market || '') + ' ' + (co.code || co.symbol || ''));
+      out.push('[재무제표 탭 (기업)] ' + (co.name || '') + ' · ' + (co.market || '') + ' ' + (co.code || co.symbol || ''));
       if (typeof coProf !== 'undefined' && coProf && coProf.found){
         var pf = coProf, bits = [];
         ['sector', 'industry', 'mcap', 'pe', 'pb', 'div_yield', 'target', 'rating'].forEach(function(k){ if (pf[k] != null && typeof pf[k] !== 'object') bits.push(k + ' ' + pf[k]); });
@@ -10945,7 +11063,7 @@ function aicCoOk(c){
   return o;
 }
 var AIC_TAB_NM = { home:'홈', research:'매크로 경제', trading:'팀 모의투자', solo:'개인 모의투자', market:'분석 › 마켓 맵', stocks:'분석 › 주식분석', industry:'분석 › 산업분석',
-                   company:'분석 › 기업분석', ai:'분석 › AI 분석', deriv:'분석 › 파생상품', flow:'분석 › 자금흐름', links:'자료실' };
+                   company:'분석 › 재무제표', ai:'분석 › AI 분석', deriv:'분석 › 파생상품', flow:'분석 › 자금흐름', links:'자료실' };
 var AIC_TF_NM = { raw:'원값', yoy:'전년비 %', mom:'전기비 %', yoyd:'전년 차이 %p', momd:'전기 증감', reb:'시작 = 100' };
 var aicUndo = {}, aicMenuTxt = '', aicActBusy = {};      //  aicActBusy: 지금 그리는 카드 (저장하지 않음 · 두 번 누르기 막기)
 function aicActTab(a){ return AIC_ACT_TAB[a.type] || a.tab || 'home'; }
@@ -11624,7 +11742,7 @@ function aicMenu(){
     L.push('[산업 지표 차트 = kind industry] industry_set (나라별 병목 모니터 산업 키 · 미국은 키만 · 다른 나라는 «나라:키»): ' + bnAllGroups().map(function(x){ return x.key + ' ' + x.c.n + ' ' + x.g.n; }).join(' · ')
       + ' / indicators (매크로와 같은 규칙) · 합쳐 8개 · 종목 주가는 넣지 않음 (주가는 kind price = 주식분석 › 가격 차트)');
     L.push('[산업분석 › 병목 모니터 나라 = open industry + bn_country] ' + BN_COUNTRIES.map(function(c){ return c.k + ' ' + c.n; }).join(' · ') + ' · CMP 나라 비교');
-    L.push('[기업분석 = kind company · open company] 칸(sub): ' + Object.keys(AIC_CO_SUB).map(function(k){ return k + ' ' + AIC_CO_SUB[k]; }).join(' · ')
+    L.push('[재무제표 탭 (예전 기업분석) = kind company · open company] 칸(sub): ' + Object.keys(AIC_CO_SUB).map(function(k){ return k + ' ' + AIC_CO_SUB[k]; }).join(' · ')
       + ' / 재무제표(statement): 재무상태표(대차대조표) · 손익계산서 · 현금흐름표 · summary / 비율(ratios): ' + CO_RATIO_LIST.join(' · '));
     L.push('[밸류에이션 = kind valuation] inputs: ' + Object.keys(AIC_VAL_IN).map(function(k){ return k + '(' + AIC_VAL_IN[k][0] + ' ' + AIC_VAL_IN[k][1] + ')'; }).join(' · ')
       + ' / methods: ' + VAL_PICK_ALL.join(' · ') + ' / val_chart: ' + Object.keys(VAL_BAND_NAME).map(function(k){ return k + ' ' + VAL_BAND_NAME[k]; }).join(' · ')
@@ -21030,27 +21148,53 @@ var MK_VC = [
          ['del', '건조 (인도)', null, { CN: 51.8, KR: 27.9, JP: 11.8, OT: 8.5 }, { world: '세계 4,348만 CGT', val: { CN: '2,268만 CGT', KR: '1,220만 CGT', JP: '517만 CGT' }, what: '선박 건조 · 인도 (완성해 넘긴 배) · 조선소 나라' }],
          ['ob', '수주잔량', null, { CN: 62.2, KR: 20.1, JP: 7.2, OT: 10.5 }, { world: '세계 1억 7,800만 CGT (2009년 11월 이후 최대)', yr: '2026년 1월', val: { CN: '1억 1,100만 CGT', KR: '3,587만 CGT', JP: '1,285만 CGT' }, what: '수주잔량 (받아 두고 아직 안 지은 배) · 조선소 나라' }]] },
   { k: 'steel', n: '철강', yr: '2025', src: '세계철강협회 (2026년 1월)',
-    st: [['fe', '철광석 채굴', null, 'res:fe'], ['crude', '조강 생산', null, 'ds:steel']] },
+    st: [['fe', '철광석 채굴', null, 'res:fe'], ['crude', '조강 생산', null, 'ds:steel'], ['exp', '철강 수출', null, 'ds:steelX']] },
   { k: 'auto', n: '자동차', yr: '2025', src: 'OICA 세계자동차공업협회 (2025년 나라별 생산)',
     st: [['prod', '완성차 생산', null, 'ds:auto'],
-         ['ev', '전기차 생산', null, { CN: 70 }, { yr: '2025', src: 'IEA 세계 전기차 전망 2026 (2025)', notes: ['IEA 가 중국 비중만 밝힘 - 나머지 나라는 «그 외» 로 묶음'] }]] },
+         ['ev', '전기차 생산', null, { CN: 70 }, { yr: '2025', src: 'IEA 세계 전기차 전망 2026 (2025)', notes: ['IEA 가 중국 비중만 밝힘 - 나머지 나라는 «그 외» 로 묶음'] }],
+         //  (10/10 8차) 공장 위치가 아니라 회사(그룹) 국적 — 한국 = 현대차그룹 3위
+         ['grp', '그룹 판매 (회사 국적)', null, { JP: 19.1, DE: 9.5, US: 9.3, CN: 8.9, KR: 7.6, NL: 5.9, OT: 39.7 },
+          { txt: { JP: '19.1% 이상', DE: '9.5% 이상', US: '9.3% 이상', CN: '8.9% 이상' }, what: '세계 자동차 판매 · 상위 10개 그룹 본사 국적', yr: '2025', world: '상위 10개 그룹 = 세계 판매의 60.3%',
+            val: { JP: '1,749만 대', DE: '865만 대', US: '846만 대', CN: '809만 대', KR: '691만 대', NL: '536만 대' }, ot: '상위 10개 그룹 밖 (닛산 · 상하이차 · 체리 · 르노 · 테슬라 등)',
+            src: 'MarkLines «Top 10 Annual Sales Volume 2025»',
+            notes: ['일본 = 도요타 11.8% (1위) · 혼다 3.8% · 스즈키 3.5% / 독일 = 폭스바겐 9.5% / 한국 = 현대차그룹 (현대 · 기아) 7.6% (3위)', '미국 = GM 4.8% · 포드 4.5% / 중국 = BYD 4.6% · 지리 4.3% / 네덜란드 = 스텔란티스 5.9% (본사 암스테르담)', '상위 10개 밖 회사는 «그 외» 라 일본 · 독일 · 미국 · 중국은 «이상» · MarkLines 추정이 섞여 회사 발표와 조금 다를 수 있음'] }]] },
   { k: 'phone', n: '스마트폰', yr: '2025', src: 'IDC (2026년 1월 · 2025년 잠정)',
-    st: [['brand', '브랜드 국적 (출하량)', null, { US: 19.7, KR: 19.1, CN: 29.4, OT: 31.7 },
+    notes: ['순서: 두뇌 칩(AP) 설계 → (칩 생산 = 반도체 체인 · 화면 = 디스플레이 체인) → 브랜드 출하'],
+    //  (10/10 8차 학회장: «어떤 밸류체인은 좀 많이 부실해») — AP 칩 단계 (Counterpoint)
+    st: [['ap', 'AP 칩 (설계 회사 국적)', null, { US: 42, TW: 32, CN: 18, KR: 7, OT: 1 },
+          { what: '스마트폰 AP(두뇌 칩) 출하 · 칩 설계 회사 본사 국적', yr: '2026년 1분기', ot: '그 외 회사',
+            src: 'Counterpoint «Global Smartphone SoC Shipments Tracker» (MalaysianWireless 2026년 6월 13일 보도)',
+            notes: ['미국 = 퀄컴 23% · 애플 19% / 대만 = 미디어텍 32% (회사 1위) / 중국 = 유니SOC 14% · 하이실리콘(화웨이) 4% / 한국 = 삼성전자 7%', '2025년 4분기: 미디어텍 30 · 애플 23 · 퀄컴 22 · 유니SOC 15 · 삼성 6 · 하이실리콘 3 (Counterpoint 는 지난 분기 값을 나중에 고치기도 함)', '칩 생산은 대부분 대만 TSMC · 한국 삼성전자 공장 (→ 반도체 체인)'] }],
+         ['brand', '브랜드 국적 (출하량)', null, { US: 19.7, KR: 19.1, CN: 29.4, OT: 31.7 },
           { txt: { CN: '29.4% 이상' }, world: '세계 출하 12억 6,030만 대', val: { US: '2억 4,780만 대', KR: '2억 4,120만 대', CN: '3억 7,120만 대 이상' }, ot: '그 외 회사 (국적 섞임)',
             what: '스마트폰 출하량 · 브랜드 본사 국적', yr: '2025 잠정',
             notes: ['미국 = 애플 19.7% (1위) · 한국 = 삼성전자 19.1% (2위)', '중국 = 상위 5위 안의 샤오미 13.1% · 비보 8.2% · 오포 8.1% 합 (5위 밖 중국 회사는 «그 외» 에 있음)'] }]] },
   { k: 'disp', n: '디스플레이', yr: '2025', src: 'UBI Research (2026년 2월 · 2025년 OLED 시장)',
     st: [['oled', 'OLED 패널 매출', null, { KR: 69, OT: 31 },
           { world: '2025년 OLED 패널 매출', ot: '그 외 (BOE 등 중국 회사 등)', what: 'OLED 패널 매출 · 패널 회사 본사 국적',
-            notes: ['한국 = 삼성디스플레이 48% · LG디스플레이 21%', '출하 대수로는 중국 회사들 합이 50% 를 넘음 - 매출로는 한국이 앞섬'] }]] },
+            notes: ['한국 = 삼성디스플레이 48% · LG디스플레이 21%', '출하 대수로는 중국 회사들 합이 50% 를 넘음 - 매출로는 한국이 앞섬'] }],
+         //  (10/10 8차) 대형 패널 (TV · 모니터 · 노트북 · 9인치 이상) — Omdia 2025년 10월 (2025년 전망 값)
+         ['lg', '대형 패널 매출 (9인치 이상)', null, { CN: 63.5, KR: 18.0, TW: 14.7, OT: 3.8 },
+          { what: '9인치 이상 대형 디스플레이 패널 매출 · 패널 회사 본사 국적', yr: '2025 전망 (2025년 10월 발표)', src: 'Omdia (2025년 10월 1일)',
+            notes: ['대형 OLED 출하: 한국 83.7% · 중국 16.3%', '2025년 실제 (Omdia 2026년 1월 · 회사별 대형 전체 출하): BOE 35.0% · CSOT 15.8% · 이노룩스 11.3%', '일본은 따로 밝히지 않음 (그 외)'] }],
+         ['lcd', '대형 LCD 출하', null, { CN: 67.6, TW: 21.0, KR: 8.1, OT: 3.3 },
+          { what: '9인치 이상 대형 LCD 패널 출하 대수 · 패널 회사 본사 국적', yr: '2025 전망 (2025년 10월 발표)', world: '세계 약 8억 7,390만 장 (실제 8억 7,680만 장)', src: 'Omdia (2025년 10월 1일)',
+            notes: ['LCD 는 중국 · 대만이 대부분 - 한국 회사는 OLED 로 옮겨 감 (매출 비중 18.0% > 출하 비중 8.1%)'] }]] },
   { k: 'def', n: '방산', yr: '2021~25', src: 'SIPRI «국제 무기 거래 동향 2025» (2026년 3월)',
-    st: [['exp', '무기 수출', null, { US: 42, FR: 9.8, RU: 6.8, DE: 5.7, CN: 5.6, IT: 5.1, IL: 4.4, GB: 3.4, KR: 3.0, ES: 2.3, TR: 1.8, NL: 1.2, NO: 1.0, PL: 1.0, SE: 0.9, CA: 0.7, CZ: 0.4, ZA: 0.4, DK: 0.3, CH: 0.3, UA: 0.3, AU: 0.3, BE: 0.3, BR: 0.3, IR: 0.3 },
-          { world: '2021~25년 5년 합', what: '주요 무기 수출 비중 · 2021~25년 5년 합', notes: ['금액이 아니라 SIPRI 의 물량 지표(TIV) 비중 · 상위 25개 나라', '그 외 = 26위 아래 나라'] }]] },
+    notes: ['순서: 국방비 (수요) → 무기 수출 (공급) → 무기 수입 (사는 나라)'],
+    st: [['mil', '국방비 (수요)', null, { US: 33, CN: 12, RU: 6.6, DE: 3.9, IN: 3.2, GB: 3.1, UA: 2.9, SA: 2.9, FR: 2.4, JP: 2.2, IL: 1.7, IT: 1.7, KR: 1.7, PL: 1.6, ES: 1.4 },
+          { txt: { CN: '약 12%', RU: '약 6.6%', UA: '약 2.9%', SA: '약 2.9%' }, what: '국방비 · 세계 비중', yr: '2025', world: '세계 국방비 2조 8,870억 달러', val: { US: '9,540억 달러', CN: '약 3,360억 달러' },
+            src: 'SIPRI «Trends in World Military Expenditure, 2025» (2026년 4월)', notes: ['중국 · 러시아 · 우크라이나 · 사우디아라비아는 SIPRI 추정값 («약»)', '그 외 = 16위 아래 나라'] }],
+         ['exp', '무기 수출', null, { US: 42, FR: 9.8, RU: 6.8, DE: 5.7, CN: 5.6, IT: 5.1, IL: 4.4, GB: 3.4, KR: 3.0, ES: 2.3, TR: 1.8, NL: 1.2, NO: 1.0, PL: 1.0, SE: 0.9, CA: 0.7, CZ: 0.4, ZA: 0.4, DK: 0.3, CH: 0.3, UA: 0.3, AU: 0.3, BE: 0.3, BR: 0.3, IR: 0.3 },
+          { world: '2021~25년 5년 합', what: '주요 무기 수출 비중 · 2021~25년 5년 합', notes: ['금액이 아니라 SIPRI 의 물량 지표(TIV) 비중 · 상위 25개 나라', '그 외 = 26위 아래 나라'] }],
+         ['imp', '무기 수입', null, { UA: 9.7, IN: 8.2, SA: 6.8, QA: 6.4, PK: 4.2, JP: 3.9, PL: 3.6, US: 2.9, KW: 2.8, AU: 2.8, AE: 2.7, EG: 2.6, GB: 2.1, IL: 1.9, NL: 1.8, KR: 1.8, DE: 1.7, ID: 1.5, GR: 1.5, NO: 1.4 },
+          { world: '2021~25년 5년 합', what: '주요 무기 수입 비중 · 2021~25년 5년 합', yr: '2021~25', src: 'SIPRI «Trends in International Arms Transfers, 2025» (2026년 3월)',
+            notes: ['금액이 아니라 SIPRI 의 물량 지표(TIV) 비중 · 상위 20개 나라', '유럽이 세계 수입의 33% - 1960년대 이후 처음으로 가장 큰 지역', '중국은 21위 1.3% (2016~20년보다 72% 감소)'] }]] },
   /*  (10/9 학회장: «밸류체인 더 다양하게») — 9개 더 · 원자료(USGS · IEA · WNA · IFR · GWEC · 유엔 무역통계 · Energy Institute) 숫자 그대로  */
   { k: 'nuc', n: '원자력', yr: '2025', src: '세계원자력협회 (2026년 10월 · IAEA PRIS 등)',
     st: [['u', '우라늄 채굴', null, 'ds:uMine'], ['gen', '원전 발전', null, 'ds:nucGen'], ['uc', '건설 중 원자로', null, 'ds:nucUc']] },
   { k: 'refine', n: '정유', yr: '2025', src: 'Energy Institute 세계 에너지 통계 2026',
-    st: [['oil', '원유 생산', null, 'res:oil'], ['cap', '정제 능력', null, 'ds:refCap']] },
+    st: [['oil', '원유 생산', null, 'res:oil'], ['cap', '정제 능력', null, 'ds:refCap'], ['px', '석유제품 수출', null, 'ds:refX']] },
   { k: 'alu', n: '알루미늄', yr: '2025 추정', src: 'USGS 광물 원자재 요약 2026',
     notes: ['보크사이트(광석) → 알루미나(산화알루미늄) → 알루미늄(전기로 녹여 만듦) 순서', '한국은 세 단계 모두 생산 목록에 없음 (알루미늄은 수입해 가공)'],
     st: [['bx', '보크사이트 채굴', null, 'ds:bauxite'], ['ala', '알루미나 정련', null, 'ds:alumina'], ['smelt', '알루미늄 제련', null, 'ds:aluSmelt']] },
@@ -21075,7 +21219,11 @@ var MK_VC = [
           { world: '2025년 설치 178 GW (계통 연결 165 GW)', ot: '그 외 회사 (베스타스 · 노르덱스 · GE 베르노바 · 지멘스가메사 등)', what: '풍력 터빈 공급 · 터빈 회사 본사 국적',
             notes: ['상위 5개 회사가 모두 중국: 골드윈드 29.7 GW · 엔비전 21.8 · 윈디 19.8 · 밍양 18.6 · 싼이 15.1', '중국 밖 시장 1위는 베스타스(덴마크) 12.9 GW · 노르덱스(독일) 7.7 · GE 베르노바(미국) 5.8 · 지멘스가메사(스페인) 5.4'] }]] },
   { k: 'pharma', n: '의약품', yr: '2024', src: '유엔 무역통계 (UN Comtrade · 2026년 10월 조회)',
-    st: [['exp', '의약품 수출', null, 'ds:pharma']] },
+    notes: ['순서: 신약 개발 (연구) → 생산 · 수출'],
+    st: [['nas', '신약 개발 (기원 나라)', null, { CN: 44.2, US: 26.9, JP: 4.8, OT: 24.1 },
+          { what: '2025년 출시 신약 (새 유효성분 104개) · 개발 기원 나라', yr: '2025', world: '신약 104개', val: { CN: '46개 (홍콩 포함)', US: '28개', JP: '5개' }, ot: '그 외 (유럽 16개 15.4% · 나머지 9개 8.7%)',
+            src: 'EFPIA «The Pharmaceutical Industry in Figures 2026» (Europa Press 2026년 7월 27일 보도)', notes: ['유럽은 여러 나라 묶음이라 지도에서는 «그 외»'] }],
+         ['exp', '의약품 수출', null, 'ds:pharma']] },
   { k: 'beauty', n: '화장품', yr: '2024', src: '유엔 무역통계 (UN Comtrade · 2026년 10월 조회)',
     st: [['exp', '화장품 수출', null, 'ds:beauty']] },
   /*  (10/9 4차 학회장: «밸류체인 더 추가») — 3개 더 · 단계마다 출처 · 연도 (원자료 숫자 그대로)  */
@@ -21102,10 +21250,64 @@ var MK_VC = [
     st: [['mine', '구리 광산', null, 'res:cu'], ['ref', '구리 정련', null, 'ds:cuRef'],
          ['use', '정련 구리 사용', null, { CN: 58 },
           { txt: { CN: '약 58%' }, what: '정련 구리 사용(소비)량', yr: '2024', world: '세계 2,740만 t', src: '국제구리연구그룹 ICSG «World Copper Factbook 2025» (2025년 10월)',
-            notes: ['ICSG 는 중국 비중만 밝힘 - 나머지 나라는 «그 외»'] }]] }
+            notes: ['ICSG 는 중국 비중만 밝힘 - 나머지 나라는 «그 외»'] }]] },
+  /*  (10/10 8차 학회장: «밸류체인 추가적으로 - 블록체인, 데이터센터, 금융, 우주항공») — 단계마다 출처 · 연도 · 나라 기준 (원자료 숫자 그대로 · 비중은 원자료 값으로 계산)  */
+  { k: 'dcen', n: '데이터센터', yr: '2024~26', src: '단계마다 다름 (IoT Analytics · Synergy Research · IEA)',
+    notes: ['순서: AI 칩 → 데이터센터 짓기 (용량) → 전기 → 클라우드 서비스 · 단계마다 나라 기준이 다름 (회사 본사 · 설비 위치)'],
+    st: [['gpu', 'AI 가속기 (GPU)', null, { US: 96, CN: 2, OT: 2 },
+          { what: '데이터센터 GPU 매출 · 회사 본사 국적', yr: '2024', world: '세계 데이터센터 GPU 매출 1,250억 달러', src: 'IoT Analytics «The leading generative AI companies» (2025년 3월 4일)',
+            notes: ['미국 = 엔비디아 92% · AMD 4% / 중국 = 화웨이 2%', 'GPU 만 (구글 TPU · 아마존 트레이니엄 같은 자체 칩은 빠짐) · 칩 대부분은 대만 TSMC 공장에서 만듦 (→ 반도체 · AI 인프라 체인)', '2023년 출하 대수로는 엔비디아 98% (TechInsights · 385만 개)'] }],
+         ['cap', '하이퍼스케일 용량', null, { US: 55, OT: 45 },
+          { what: '하이퍼스케일 데이터센터 용량 (IT 전력) · 설비 위치', yr: '2025년 말', world: '하이퍼스케일 데이터센터 1,297곳', ot: '그 외 나라 (나라별 값 비공개)', src: 'Synergy Research (2025년 12월 19일)',
+            notes: ['아마존 · 마이크로소프트 · 구글 세 회사가 용량의 58%', '2025년 3월 발표: 미국 54% · 유럽과 중국이 나머지의 약 3분의 1씩 (→ AI 인프라 체인)', '2026년 8월 발표: 미국 북버지니아 + 중국 베이징 권역 = 세계 용량의 17%'] }],
+         ['pwr', '전력 소비', null, { US: 45, CN: 25, OT: 30 },
+          { what: '데이터센터 전력 소비 · 설비 위치', yr: '2024', world: '세계 데이터센터 전력 415 TWh (세계 전력의 약 1.5%)', ot: '그 외 (유럽 15% · 나머지 15%)', src: 'IEA «Energy and AI» (2025년 4월 10일)',
+            notes: ['유럽은 여러 나라 묶음이라 지도에서는 «그 외»', 'IEA 2026년 4월: 2025년 데이터센터 전력 사용 17% 증가 (나라별 값은 2024년이 최신)'] }],
+         ['cloud', '클라우드 서비스', null, { US: 69, CN: 8, OT: 23 },
+          { what: '클라우드 인프라 서비스 매출 · 회사 본사 국적', yr: '2026년 1분기', world: '분기 매출 1,290억 달러', ot: '그 외 회사', src: 'Synergy Research (CRN Asia 2026년 5월 5일 보도)',
+            notes: ['미국 = 아마존 28% · 마이크로소프트 21% · 구글 14% · 오라클 4% · 세일즈포스 2% / 중국 = 알리바바 4% · 화웨이 2% · 텐센트 2%', '2026년 2분기 (Synergy 2026년 7월 30일): 아마존 28% · 마이크로소프트 20% · 구글 15% · 분기 매출 1,434억 달러 (알리바바 비중은 밝히지 않아 나라 계산은 1분기 값)'] }]] },
+  { k: 'chain', n: '블록체인', yr: '2026', src: '단계마다 다름 (Hashrate Index · 테더 · 서클 · CoinDesk Data · CoinShares)',
+    notes: ['순서: 채굴 (네트워크 유지) → 스테이블코인 발행 (결제 · 송금) → ETP · ETF (제도권 투자 상품) · 단계마다 나라 기준이 다름 (설비 위치 · 발행사 본사 · 상장 거래소)'],
+    st: [['mine', '비트코인 채굴', null, { US: 37.4, RU: 16.9, CN: 12.0, PY: 4.3, AE: 3.0, OM: 3.0, CA: 2.6, ET: 2.5, KZ: 1.8, ID: 1.8 },
+          { what: '비트코인 채굴 해시레이트 (연산 능력) · 채굴 설비 위치', yr: '2026년 2분기 (30일 평균)', world: '세계 해시레이트 1,004 EH/s',
+            src: 'Hashrate Index (Luxor) «Global Hashrate Heatmap Update: Q2 2026» (2026년 4월 6일)',
+            notes: ['모형으로 추정한 값 (방법을 다 밝히지 않음 · 원문 안에서도 상위 3개 합이 조금씩 다름)', '케임브리지 대안금융센터 설문 (2024년 · 응답 49개 회사 = 해시레이트의 48%): 미국 75.4% · 캐나다 7.1% · 파라과이 3.4% · 노르웨이 2.8% · 카자흐스탄 2.6% - 미국 회사가 많이 응답해 미국이 크게 나옴'] }],
+         ['stable', '스테이블코인 발행', null, { SV: 57.9, US: 24.3, OT: 17.8 },
+          { txt: { US: '24.3% 이상' }, what: '스테이블코인 시가총액 · 발행사 본사 국적', yr: '2026년 3월 말', world: '세계 스테이블코인 시가총액 3,170억 달러',
+            val: { SV: '1,834억 달러', US: '770억 달러' }, ot: '그 외 발행사 (다른 미국 발행사 · 본사 없는 탈중앙 조직 등)',
+            src: '테더 2026년 1분기 검증 보고 (2026년 5월 1일) · 서클 2026년 1분기 실적 (2026년 5월 11일) · 합계: CoinDesk Data (2026년 3월 31일)',
+            notes: ['엘살바도르 = 테더 (USDT) - 2025년 1월 본사를 엘살바도르로 옮긴다고 밝힘 / 미국 = 서클 (USDC)', '미국은 서클만 셈 - 페이팔 · 리플 · 팍소스 등 다른 미국 발행사는 같은 때 공개 숫자가 없어 «그 외» (그래서 «이상»)', 'Sky 의 USDS (83.8억 달러 · 2.6%) 는 본사가 없는 탈중앙 조직이라 «그 외» · 세 자료 날짜가 같은 분기 말이지만 같은 순간은 아님'] }],
+         ['etp', '가상자산 ETP · ETF', null, { US: 83.06, DE: 4.37, CA: 3.84, CH: 3.45, SE: 1.63, BR: 0.87, KY: 0.66, HK: 0.49, AU: 0.35, NL: 0.09, LU: 0.08, FR: 0.06 },
+          { what: '가상자산 ETP · ETF 운용자산 · 상장한 거래소 나라', yr: '2026년 3월 27일', world: '세계 운용자산 1,295.9억 달러', src: 'CoinShares «Digital Asset Fund Flows Weekly» (2026년 3월 30일)',
+            notes: ['비트코인 · 이더리움 등 모든 가상자산 상품 (현물 비트코인 ETF 만이 아님)', '운용사별: 아이셰어즈 (블랙록) 590억 달러 · 그레이스케일 182억 달러 · 피델리티 148억 달러'] }]] },
+  { k: 'fin', n: '금융', yr: '2025', src: '단계마다 다름 (BIS · SIFMA)',
+    notes: ['외환 = 거래한 데스크 위치 · 주식 = 상장 시장 · 채권 = 발행 시장 (EU 는 27개국 합 · 지도에서 EU 나라는 같은 색)'],
+    more: ['자산운용 (세계 500대 운용사 · 2024년 말 139조 9,000억 달러): 북미 63.0% · 유럽 (영국 포함) 25.2% · 일본 3.7% · 그 외 8.1% - 나라별 값은 공개되지 않아 지도 단계에서 뺌 (Thinking Ahead Institute 2025년 11월)',
+           '세계 20대 운용사 본사: 미국 15곳 · 프랑스 2 · 스위스 · 독일 · 영국 각 1 (1위 블랙록 11조 5,500억 달러)'],
+    st: [['fx', '외환 거래', null, { GB: 37.75, US: 18.57, SG: 11.82, HK: 7.03, JP: 3.50, DE: 3.07, CH: 2.95, CA: 1.93, FR: 1.93, KR: 0.68 },
+          { rk: { KR: 14 }, what: '장외 외환 거래량 · 거래한 데스크(영업점) 위치', yr: '2025년 4월 (하루 평균)', world: '하루 평균 12조 5,699억 달러 (넷-그로스 기준)',
+            val: { KR: '하루 857.2억 달러' }, src: 'BIS 3년 주기 외환 · 장외파생 조사 2025 (2025년 9월 30일 · 부록 표 1) · 한국: 한국은행',
+            notes: ['BIS 본문: 영국 약 38% · 미국 약 19% · 싱가포르 11.8% · 홍콩 7.0% · 상위 4곳 75%', '한국 0.7% · 14위 (11~13위 나라는 목록에서 뺌)', '흔히 보는 «하루 9.6조 달러» 는 넷-넷 기준 (나라 사이 중복을 한 번 더 뺀 값) - 나라별 비중은 넷-그로스 기준'] }],
+         ['eq', '주식시장', null, { US: 43.7, CN: 9.8, EU: 9.8, IN: 6.7, JP: 4.8, HK: 3.9, GB: 3.6, CA: 2.9, AU: 1.3, SG: 0.5, OT: 13.0 },
+          { what: '상장 주식 시가총액 · 상장 시장', yr: '2025', world: '세계 시가총액 157조 7,709억 달러', val: { US: '68조 9,379억 달러', CN: '15조 5,089억 달러', IN: '10조 5,596억 달러', JP: '7조 6,105억 달러' },
+            ot: '그 외 (그 외 선진국 8.6% · 신흥국 4.4% · 한국 포함)', src: 'SIFMA Capital Markets Fact Book 2026 (2026년 8월 · 세계거래소연맹 WFE · SIFMA 추정)',
+            notes: ['한국은 따로 밝히지 않아 «그 외» 에 있음', '인도는 SIFMA 표 그대로 (거래소 두 곳 NSE · BSE 를 더했는지는 표에 밝히지 않음)'] }],
+         ['bond', '채권시장', null, { US: 38.1, EU: 19.4, CN: 17.9, JP: 6.7, GB: 4.3, CA: 2.9, AU: 1.6, CH: 0.6, SG: 0.6, HK: 0.2, OT: 7.8 },
+          { what: '채권 발행 잔액 · 발행 시장', yr: '2025', world: '세계 채권 잔액 160조 7,041억 달러', val: { US: '61조 1,826억 달러', EU: '31조 1,362억 달러', CN: '28조 7,374억 달러', JP: '10조 8,203억 달러' },
+            ot: '그 외 (그 외 선진국 2.6% · 신흥국 5.2% · 한국 포함)', src: 'SIFMA Capital Markets Fact Book 2026 (2026년 8월 · BIS · SIFMA 추정)',
+            notes: ['한국 · 인도는 따로 밝히지 않아 «그 외» 에 있음', '반올림 때문에 합이 100.1%'] }]] },
+  { k: 'aero', n: '우주항공', yr: '2025', src: '단계마다 다름 (Novaspace · 에어버스 · 보잉 · 엠브라에르 · ATR · McDowell)',
+    notes: ['순서: 정부 예산 (연구 · 개발 투자) → 항공기 제조 · 발사 → 위성 운영 · 엔진 · 부품 단계는 나라별 공개 자료가 없어 비움'],
+    st: [['bud', '정부 우주 예산', null, 'ds:spaceBud'],
+         ['air', '민항기 인도 (제조사)', null, { EU: 54.35, US: 39.53, BR: 5.14, CN: 0.99 },
+          { txt: { CN: '약 1%' }, what: '민간 여객기 인도 대수 · 제조사 본사', yr: '2025', world: '5개 회사 합 1,518대', val: { EU: '825대', US: '600대', BR: '78대', CN: '약 15대' },
+            src: '에어버스 (2026년 1월 12일) · 보잉 (1월 13일) · 엠브라에르 (1월 6일) · ATR (2월 18일) · COMAC (ITIF 2026년 6월 · SCMP 인용)',
+            notes: ['유럽 = 에어버스 793대 + ATR 32대 (에어버스 · 레오나르도 합작) - 프랑스 · 독일 · 스페인 등 여러 나라 회사라 EU 로 묶음', '미국 = 보잉 600대 (737 447 · 787 88 · 777 35 · 767 30)', '브라질 = 엠브라에르 78대 / 중국 = COMAC C919 약 15대 (다른 보도는 약 13대 · C909 는 숫자 없음)'] }],
+         ['launch', '궤도 발사', null, 'ds:launch'],
+         ['sat', '위성 발사 (소유 나라)', null, 'ds:satOwn']] }
 ];
 //  (10/9) 지도 위 밸류체인 칩 묶음 — 21개라 갈래로 나눠 보여 줌
-var MK_VC_GRP = [['첨단 · IT', ['semi', 'ai', 'disp', 'phone', 'robot']], ['에너지', ['bat', 'pv', 'wind', 'nuc', 'refine', 'lng']], ['소재 · 광물', ['steel', 'alu', 'copper', 'min', 'mag']], ['제조 · 소비재', ['ship', 'auto', 'def', 'pharma', 'beauty']]];
+var MK_VC_GRP = [['첨단 · IT', ['semi', 'ai', 'dcen', 'disp', 'phone', 'robot']], ['에너지', ['bat', 'pv', 'wind', 'nuc', 'refine', 'lng']], ['소재 · 광물', ['steel', 'alu', 'copper', 'min', 'mag']], ['제조 · 소비재', ['ship', 'auto', 'aero', 'def', 'pharma', 'beauty']], ['금융 · 디지털', ['fin', 'chain']]];
 /*  (10/9) 밸류체인 단계 중 나라별 <값> 이 있는 자료 (원자재 칩에는 안 나옴) — 'ds:키' 로 씀  */
 var MK_DS = {
   steel: { k: 'steel', n: '철강', what: '조강(쇳물을 굳힌 강철) 생산', unit: '백만 t', world: 1849.4, yr: '2025', src: '세계철강협회 (2026년 1월)', px: ['철강 · 철광석 (SLX)'],
@@ -21165,6 +21367,22 @@ var MK_DS = {
     rows: [['CN', 69.77], ['JP', 67.37], ['KR', 48.67], ['IN', 24.60], ['TW', 24.17], ['FR', 21.64], ['ES', 16.92], ['NL', 16.26], ['IT', 15.08], ['TR', 12.43], ['TH', 10.93], ['EG', 9.56],
            ['BE', 9.28], ['GB', 9.27], ['BD', 7.87], ['KW', 7.33], ['DE', 7.07], ['SG', 6.66], ['PK', 6.46], ['PL', 6.22], ['ID', 5.52], ['PT', 3.33], ['MY', 2.99], ['GR', 2.62], ['LT', 2.34], ['BR', 2.19], ['CL', 2.19], ['CO', 2.02]],
     notes: ['유럽 전체 126.2 Mt (1년 새 26.1 Mt 증가 · 러시아 가스관 대신) · 중국은 8.9 Mt 줄었지만 1위', '한국 48.7 Mt = 세계 3위', '세계 = 2025년 LNG 교역 437.0 Mt (수입 쪽 합도 같은 교역량 기준)'] },
+  //  (10/10 8차) 철강 수출 · 석유제품 수출 · 우주 (정부 예산 · 궤도 발사 · 위성 소유)
+  steelX: { k: 'steelX', n: '철강 수출', what: '철강 수출 (반제품 · 완제품)', unit: '백만 t', world: 456.5, yr: '2025', src: '세계철강협회 «World Steel in Figures 2026» (2026년 6월 4일)', px: ['철강 · 철광석 (SLX)'],
+    rows: [['CN', 133.6], ['JP', 29.8], ['KR', 27.9], ['DE', 20.9], ['TR', 17.5], ['RU', 15.2], ['BE', 14.7], ['IT', 14.3], ['IR', 13.5], ['ID', 11.6], ['VN', 11.1], ['BR', 11.0], ['IN', 9.9]],
+    notes: ['세계 수출 = 생산의 26.4%', 'EU 나라 값은 EU 안 거래 포함 (EU 27개국 밖으로 나간 것만 = 2,050만 t)', '중국 세관 기준 (완제품만) 1억 1,900만 t'] },
+  refX: { k: 'refX', n: '석유제품 수출', what: '석유제품 수출 (HS 2710 · 휘발유 · 경유 · 항공유 등)', unit: '억 달러', world: 8836, yr: '2024', src: 'CEPII BACI (유엔 무역통계 기반 · OEC 2026년 10월 조회)', px: [],
+    rows: [['US', 1127], ['IN', 582], ['SG', 566], ['KR', 515], ['NL', 504], ['AE', 462], ['RU', 451], ['CN', 343], ['BE', 334], ['MY', 318], ['SA', 289], ['KW', 243], ['DE', 215]],
+    notes: ['한국 = 4위 (원유를 사 와서 정제해 내보냄 - 원유 생산은 거의 없음)', 'Energy Institute (2026): 2025년 석유제품 교역 물량의 23% 가 미국 (LPG 등 포함 · 금액 비중보다 큼)'] },
+  spaceBud: { k: 'spaceBud', n: '정부 우주 예산', what: '정부 우주 예산 (민간 · 국방 합)', unit: '억 달러', world: 1374, yr: '2025', src: 'Novaspace (2026년 1월 20일 · 세계 합계) · 나라별 값: NewSpace Economy (2026년 1월 26일 · Novaspace 자료 인용)', px: [],
+    rows: [['US', 771.26], ['CN', 203.70], ['JP', 68.04], ['RU', 63.24], ['FR', 36.11], ['IT', 32.80], ['DE', 26.42], ['IN', 17.94], ['GB', 11.75], ['KR', 11.67], ['CA', 11.13]],
+    notes: ['나라별 값은 Novaspace 원자료가 아니라 다른 매체가 옮긴 값 (원자료는 그림으로만 공개)', '유럽우주기구 · EUMETSAT 67.6억 달러 · EU 33.1억 달러는 따로 (나라 예산에 유럽우주기구 분담금이 들어 있어 겹침)'] },
+  launch: { k: 'launch', n: '궤도 발사', what: '궤도 발사 시도 횟수 · 발사한 나라', unit: '회', world: 329, yr: '2025', src: 'Jonathan McDowell «Space Activities in 2025» (2026년 2월 4일 · 개정 1.4)', px: [],
+    rows: [['US', 181], ['CN', 92], ['RU', 17], ['NZ', 17], ['IN', 5], ['JP', 4], ['KR', 2], ['IL', 1], ['IR', 1], ['AU', 1]],
+    notes: ['329회 중 321회 궤도 도달 · 스페이스X 혼자 170회', '뉴질랜드 17회 = 미국 회사 로켓랩이 뉴질랜드에서 쏜 것 (회사 기준이면 미국 198회 · 60.2%)', '유럽 8회 (아리안스페이스 7 · 독일 이자르 1) = «그 외»'] },
+  satOwn: { k: 'satOwn', n: '위성 발사', what: '궤도에 올린 위성 · 소유 나라', unit: '기', world: 4524, yr: '2025', src: 'Jonathan McDowell «Space Activities in 2025» (2026년 2월 4일 · 표 6)', px: [],
+    rows: [['US', 3720], ['CN', 371], ['RU', 87], ['JP', 35], ['IT', 31], ['FR', 26], ['KR', 24], ['TR', 22], ['DE', 19], ['ES', 15], ['AE', 13], ['FI', 13], ['IN', 12], ['AU', 12], ['GB', 11], ['IL', 11]],
+    notes: ['1년 동안 새로 올린 위성 (지금 떠 있는 수가 아님) · 소유 나라 52곳', '미국 대부분은 스페이스X 스타링크 - 지금 작동 중인 위성 14,132기 (2025년 12월 13일) 중 66% 가 스타링크'] },
   beauty: { k: 'beauty', n: '화장품 수출', what: '화장품 수출 (HS 3304 · 메이크업 · 기초)', unit: '십억 달러', world: 72.9, yr: '2024', src: '유엔 무역통계 (UN Comtrade · 2026년 10월 조회)', px: [],
     rows: [['FR', 12.22], ['KR', 8.57], ['US', 6.19], ['SG', 4.92], ['DE', 4.66], ['CN', 4.05], ['HK', 3.35], ['IT', 3.14], ['JP', 2.79], ['PL', 2.72]],
     notes: ['싱가포르 · 홍콩은 대부분 다른 나라 제품을 다시 내보내는 중계 수출', '모든 화장품 품목 기준(식품의약품안전처)으로는 한국 102.8억 달러 · 3위 (프랑스 · 미국 다음)'] }
@@ -21212,7 +21430,7 @@ function mkLayerDataFor(lay, k, st){
       //  (10/9) 단계마다 출처 · 연도 · 설명 · 메모가 다를 수 있음 (예: 2차전지 «셀 회사 국적» = SNE Research)
       out = { key: 'vc:' + V.k + ':' + S[0], title: V.n, stage: S[1], what: ex.what || (V.n + ' ' + S[1] + (S[2] != null && S[2] < 100 ? T(' (산업 부가가치의 ' + S[2] + '%)', ' (' + S[2] + '% of value added)') : '')), unit: '', yr: ex.yr || V.yr, src: ex.src || V.src,
               notes: ex.notes || V.notes || [], px: [], hue: 'vc', basis: ex.world || (V.k === 'semi' ? T('부가가치 비중', 'Share of value added') : T('세계 생산 비중', 'Share of world output')),
-              rows: Object.keys(S[3]).filter(function(c){ return c !== 'OT'; }).map(function(c){ return { cc: c, s: S[3][c], st: ex.txt && ex.txt[c], vt: ex.val && ex.val[c] }; }) };
+              rows: Object.keys(S[3]).filter(function(c){ return c !== 'OT'; }).map(function(c){ return { cc: c, s: S[3][c], st: ex.txt && ex.txt[c], vt: ex.val && ex.val[c], rkFix: ex.rk && ex.rk[c] }; }) };
       if (S[3].OT != null) out.restFix = { s: S[3].OT, label: ex.ot || T('그 외', 'Other') };
     }
   }
@@ -21470,9 +21688,12 @@ function mkOvSeries(D){
       emphasis: { focus: 'self', lineStyle: { opacity: 1 } }, blur: { lineStyle: { opacity: 0.14 } }, animation: false, progressive: 0 },
     { id: 'ovB', type: 'lines', coordinateSystem: 'geo', polyline: true, zlevel: 1, z: 4, data: D.b, lineStyle: { cap: 'round', join: 'round' }, symbol: ['none', 'arrow'], symbolSize: [4, 9],
       emphasis: { focus: 'self', lineStyle: { opacity: 1 } }, blur: { lineStyle: { opacity: 0.14 } }, animation: false, progressive: 0 },
-    //  ⚠️ 꼬리(trail) 있는 빛 알갱이는 따로 층(zlevel 2) — 같은 층이면 지도 전체가 잔상 모드가 되어 예전 그림이 남음
-    { id: 'ovFx', type: 'lines', coordinateSystem: 'geo', polyline: true, zlevel: 2, z: 5, silent: true, data: MOTION_OK ? D.fx : [], lineStyle: { width: 0, opacity: 0 },
-      effect: { show: MOTION_OK, constantSpeed: globe ? 34 : 46, trailLength: 0.32, symbol: 'circle', symbolSize: 3.6, color: D.leg === 'port' ? (dark ? '#9ff3df' : '#0b5e51') : C.fx, loop: true, delay: function(i){ return (i * 337) % 2400; } }, animation: false },
+    /*  (10/10 학회장: «드래그해서 위치 바꾸면 경로도 막 바뀌어 · 고정적으로 스무스하게»)
+        예전 빛 알갱이는 꼬리(trailLength) 때문에 «잔상 층»(zlevel 2 · 지난 그림을 지우지 않고 덧그림)에 있었음 → 지도를 끌면 지난 자리 알갱이 · 꼬리가
+        화면에 남아 경로가 옆에서 따로 노는 것처럼 보였음 (끌기가 끝나도 바다 밖에 점이 남음).
+        이제 잔상 층을 쓰지 않음: 꼬리는 «길쭉한 혜성 모양» 기호로 (선 방향으로 저절로 돌아감) · 항로 · 지도와 같은 층(zlevel 1)이라 함께 움직임  */
+    { id: 'ovFx', type: 'lines', coordinateSystem: 'geo', polyline: true, zlevel: 1, z: 5, silent: true, data: MOTION_OK ? D.fx : [], lineStyle: { width: 0, opacity: 0 },
+      effect: { show: MOTION_OK, constantSpeed: globe ? 34 : 46, trailLength: 0, symbol: 'path://M2,0 C3.2,0 4,1 4,2.2 C4,5 2.6,12 2,20 C1.4,12 0,5 0,2.2 C0,1 0.8,0 2,0 Z', symbolSize: [3.6, 13], color: D.leg === 'port' ? (dark ? '#9ff3df' : '#0b5e51') : C.fx, loop: true, delay: function(i){ return (i * 337) % 2400; } }, animation: false },
     { id: 'ovNode', type: 'scatter', coordinateSystem: 'geo', zlevel: 1, z: 6, data: D.nodes, label: lab, labelLayout: { hideOverlap: true }, emphasis: { scale: 1.2, label: { show: true } }, animation: false },
     { id: 'ovFocus', type: 'effectScatter', coordinateSystem: 'geo', zlevel: 1, z: 7, silent: true, data: D.focus, symbolSize: 14, showEffectOn: 'render',
       rippleEffect: { brushType: 'stroke', scale: 4.2, period: 1.8, number: 3 }, itemStyle: { color: C.foc, shadowBlur: 10, shadowColor: C.foc }, animation: false },
@@ -23348,28 +23569,35 @@ var VC_CO = {
          cell: [['373220', 'LG에너지솔루션'], ['006400', '삼성SDI'], ['096770', 'SK이노베이션']], ev: [['TSLA', '테슬라'], ['005380', '현대차'], ['000270', '기아'], ['RIVN', '리비안']] },
   pv: { poly: [['DQ', '다초'], ['010060', 'OCI홀딩스']], mod: [['FSLR', '퍼스트솔라'], ['CSIQ', '캐나디안솔라'], ['JKS', '징코솔라'], ['009830', '한화솔루션']], inst: [['ENPH', '엔페이즈'], ['NEE', '넥스트에라']] },
   ship: { ord: [['329180', 'HD현대중공업'], ['042660', '한화오션'], ['010140', '삼성중공업'], ['009540', 'HD한국조선해양']] },
-  steel: { fe: [['VALE', '발레'], ['RIO', '리오틴토'], ['BHP', 'BHP']], crude: [['005490', 'POSCO홀딩스'], ['004020', '현대제철'], ['NUE', '뉴코어'], ['MT', '아르셀로미탈']] },
-  auto: { prod: [['TM', '도요타'], ['005380', '현대차'], ['000270', '기아'], ['GM', 'GM'], ['F', '포드'], ['STLA', '스텔란티스']], ev: [['TSLA', '테슬라'], ['RIVN', '리비안']] },
-  phone: { brand: [['AAPL', '애플'], ['005930', '삼성전자']] },
-  disp: { oled: [['034220', 'LG디스플레이'], ['005930', '삼성전자'], ['OLED', '유니버설디스플레이']] },
+  steel: { fe: [['VALE', '발레'], ['RIO', '리오틴토'], ['BHP', 'BHP']], crude: [['005490', 'POSCO홀딩스'], ['004020', '현대제철'], ['NUE', '뉴코어'], ['MT', '아르셀로미탈']], exp: [['005490', 'POSCO홀딩스'], ['004020', '현대제철'], ['MT', '아르셀로미탈']] },
+  auto: { prod: [['TM', '도요타'], ['005380', '현대차'], ['000270', '기아'], ['GM', 'GM'], ['F', '포드'], ['STLA', '스텔란티스']], ev: [['TSLA', '테슬라'], ['RIVN', '리비안']],
+          grp: [['TM', '도요타'], ['005380', '현대차'], ['000270', '기아'], ['HMC', '혼다'], ['GM', 'GM'], ['F', '포드']] },
+  phone: { ap: [['QCOM', '퀄컴'], ['AAPL', '애플'], ['005930', '삼성전자']], brand: [['AAPL', '애플'], ['005930', '삼성전자']] },
+  disp: { oled: [['034220', 'LG디스플레이'], ['005930', '삼성전자'], ['OLED', '유니버설디스플레이']], lg: [['034220', 'LG디스플레이']] },
   def: { exp: [['LMT', '록히드마틴'], ['RTX', 'RTX'], ['NOC', '노스럽그러먼'], ['GD', '제너럴다이내믹스'], ['012450', '한화에어로스페이스'], ['064350', '현대로템'], ['079550', 'LIG넥스원'], ['047810', '한국항공우주']] },
   nuc: { u: [['CCJ', '카메코'], ['UEC', '우라늄에너지'], ['NXE', '넥스젠']], gen: [['CEG', '컨스텔레이션'], ['VST', '비스트라']], uc: [['034020', '두산에너빌리티'], ['052690', '한전기술'], ['BWXT', 'BWX테크']] },
-  refine: { oil: [['XOM', '엑슨모빌'], ['CVX', '셰브런'], ['COP', '코노코필립스']], cap: [['VLO', '발레로'], ['MPC', '마라톤페트롤리엄'], ['PSX', '필립스66'], ['096770', 'SK이노베이션'], ['010950', 'S-Oil']] },
+  refine: { oil: [['XOM', '엑슨모빌'], ['CVX', '셰브런'], ['COP', '코노코필립스']], cap: [['VLO', '발레로'], ['MPC', '마라톤페트롤리엄'], ['PSX', '필립스66'], ['096770', 'SK이노베이션'], ['010950', 'S-Oil']], px: [['096770', 'SK이노베이션'], ['010950', 'S-Oil'], ['VLO', '발레로']] },
   alu: { bx: [['RIO', '리오틴토'], ['AA', '알코아']], smelt: [['AA', '알코아'], ['CENX', '센추리알루미늄']] },
   min: { cu: [['FCX', '프리포트맥모란'], ['SCCO', '서던코퍼']], li: [['ALB', '앨버말'], ['SQM', 'SQM']], ni: [['VALE', '발레']], ree: [['MP', 'MP머티리얼즈']] },
   mag: { mine: [['MP', 'MP머티리얼즈']] },
   robot: { ins: [['ROK', '로크웰오토메이션'], ['TER', '테라다인'], ['277810', '레인보우로보틱스'], ['454910', '두산로보틱스']] },
   wind: { inst: [['NEE', '넥스트에라']], oem: [['GEV', 'GE버노바'], ['112610', '씨에스윈드']] },
-  pharma: { exp: [['LLY', '일라이릴리'], ['NVO', '노보노디스크'], ['AZN', '아스트라제네카'], ['JNJ', 'J&J'], ['MRK', '머크'], ['207940', '삼성바이오로직스'], ['068270', '셀트리온']] },
+  pharma: { nas: [['LLY', '일라이릴리'], ['NVS', '노바티스'], ['TAK', '다케다']], exp: [['LLY', '일라이릴리'], ['NVO', '노보노디스크'], ['AZN', '아스트라제네카'], ['JNJ', 'J&J'], ['MRK', '머크'], ['207940', '삼성바이오로직스'], ['068270', '셀트리온']] },
   beauty: { exp: [['EL', '에스티로더'], ['ELF', 'e.l.f.'], ['090430', '아모레퍼시픽'], ['051900', 'LG생활건강'], ['192820', '코스맥스'], ['161890', '한국콜마']] },
   ai: { node: [['TSM', 'TSMC'], ['005930', '삼성전자']], hbm: [['000660', 'SK하이닉스'], ['005930', '삼성전자'], ['MU', '마이크론']], srv: [['SMCI', '슈퍼마이크로'], ['DELL', '델'], ['HPE', 'HPE']],
         dc: [['EQIX', '에퀴닉스'], ['DLR', '디지털리얼티'], ['MSFT', '마이크로소프트'], ['AMZN', '아마존'], ['GOOGL', '알파벳']] },
   lng: { gas: [['XOM', '엑슨모빌'], ['EQT', 'EQT']], lngx: [['LNG', '셰니어 에너지'], ['SHEL', '셸'], ['WDS', '우드사이드']], lngm: [['036460', '한국가스공사']] },
-  copper: { mine: [['FCX', '프리포트맥모란'], ['SCCO', '서던코퍼'], ['BHP', 'BHP']], ref: [['103140', '풍산']], use: [['006260', 'LS'], ['001440', '대한전선']] }
+  copper: { mine: [['FCX', '프리포트맥모란'], ['SCCO', '서던코퍼'], ['BHP', 'BHP']], ref: [['103140', '풍산']], use: [['006260', 'LS'], ['001440', '대한전선']] },
+  //  (10/10 8차) 새 체인 4개 — 미국 · 한국 상장 회사만 (비상장 · 다른 나라 상장은 주가를 못 받아 뺌: 테더 · 화웨이 · 슈나이더 · 에어버스 · 스페이스X 등)
+  dcen: { gpu: [['NVDA', '엔비디아'], ['AMD', 'AMD'], ['INTC', '인텔']], cap: [['META', '메타'], ['EQIX', '에퀴닉스'], ['DLR', '디지털리얼티'], ['GDS', 'GDS홀딩스']],
+          pwr: [['VRT', '버티브'], ['ETN', '이튼'], ['CAT', '캐터필러']], cloud: [['AMZN', '아마존'], ['MSFT', '마이크로소프트'], ['GOOGL', '알파벳'], ['ORCL', '오라클'], ['BABA', '알리바바']] },
+  chain: { mine: [['MARA', 'MARA 홀딩스'], ['RIOT', '라이엇 플랫폼스'], ['CLSK', '클린스파크']], stable: [['CRCL', '서클']], etp: [['BLK', '블랙록']] },
+  fin: { fx: [['JPM', 'JP모건'], ['C', '씨티그룹'], ['UBS', 'UBS']], eq: [['ICE', 'ICE (뉴욕증권거래소)'], ['NDAQ', '나스닥']], bond: [['TW', '트레이드웹']] },
+  aero: { bud: [['LMT', '록히드마틴'], ['NOC', '노스럽그러먼']], air: [['BA', '보잉'], ['ERJ', '엠브라에르'], ['047810', '한국항공우주']], launch: [['RKLB', '로켓랩'], ['012450', '한화에어로스페이스']], sat: [['AMZN', '아마존 (카이퍼)']] }
 };
 //  체인 → 지나는 해협 · 관련 원자재 (원자재 층 키)
-var VC_CP = { semi: [11, 5, 12], bat: [5, 11, 2], pv: [5, 11], ship: [12, 11], steel: [15, 5, 7], auto: [12, 2, 9], phone: [11, 5], disp: [11, 12], nuc: [10, 9], refine: [6, 5, 1], alu: [5, 1], min: [5, 7, 2], mag: [11, 5], robot: [12, 11], wind: [10, 9, 5], pharma: [9, 8, 1], beauty: [5, 1], def: [], ai: [11, 5, 12], lng: [6, 5, 2, 1], copper: [5, 7, 2] };
-var VC_RES = { semi: ['ree', 'cu', 'ag'], bat: ['li', 'ni', 'co'], pv: ['ag', 'cu'], ship: ['fe'], steel: ['fe'], auto: ['li', 'ni', 'cu'], phone: ['au', 'cu', 'co'], disp: ['ree'], nuc: [], refine: ['oil', 'gas'], alu: [], min: ['cu', 'li', 'ni', 'co', 'ree'], mag: ['ree'], robot: ['ree', 'cu'], wind: ['ree', 'cu', 'fe'], pharma: [], beauty: [], def: ['ree', 'au'], ai: ['cu', 'ree'], lng: ['gas', 'oil'], copper: ['cu'] };
+var VC_CP = { semi: [11, 5, 12], bat: [5, 11, 2], pv: [5, 11], ship: [12, 11], steel: [15, 5, 7], auto: [12, 2, 9], phone: [11, 5], disp: [11, 12], nuc: [10, 9], refine: [6, 5, 1], alu: [5, 1], min: [5, 7, 2], mag: [11, 5], robot: [12, 11], wind: [10, 9, 5], pharma: [9, 8, 1], beauty: [5, 1], def: [], ai: [11, 5, 12], lng: [6, 5, 2, 1], copper: [5, 7, 2], dcen: [11, 5, 12], chain: [], fin: [], aero: [] };
+var VC_RES = { semi: ['ree', 'cu', 'ag'], bat: ['li', 'ni', 'co'], pv: ['ag', 'cu'], ship: ['fe'], steel: ['fe'], auto: ['li', 'ni', 'cu'], phone: ['au', 'cu', 'co'], disp: ['ree'], nuc: [], refine: ['oil', 'gas'], alu: [], min: ['cu', 'li', 'ni', 'co', 'ree'], mag: ['ree'], robot: ['ree', 'cu'], wind: ['ree', 'cu', 'fe'], pharma: [], beauty: [], def: ['ree', 'au'], ai: ['cu', 'ree'], lng: ['gas', 'oil'], copper: ['cu'], dcen: ['cu'], chain: [], fin: [], aero: ['ni', 'co'] };
 var VC_COL = { CN: '#d6336c', US: '#2a5aa8', KR: '#0e7c6b', JP: '#b7791f', TW: '#6f42c1', EU: '#5c7cfa', IN: '#e67e22', OT: '#adb5bd' };
 /* ══════════ (10/9 4차 · 추가) 밸류체인 «나라 × 단계» 강점 · 단계 사이 흐름 — 학회장: «밸류체인에도 순서로 국가당 강점인 구체적인 밸류체인 · 국가들 간 flow 가 어떻게 되는지» ══════════
    ① 나라별 강점표: 열 = 단계(순서대로) · 줄 = 단계마다 상위 3 나라 + 한국 · 칸 = 그 단계 세계 비중 · 줄 끝 = 그 나라가 가장 강한 단계
@@ -23379,7 +23607,7 @@ var VC_COL = { CN: '#d6336c', US: '#2a5aa8', KR: '#0e7c6b', JP: '#b7791f', TW: '
    ③ 지도: 고른 단계로 들어오는 흐름(앞 단계 → 이 단계) · 나가는 흐름(이 단계 → 다음 단계) 상위 8 · 앞 단계 나라 주황 ● → 다음 단계 나라 파랑 ◆ · 빛이 흐름 방향으로
    흐름이 정해진 체인만 (가공 순서가 분명한 것) — 조선 · 자동차 · 방산처럼 단계가 «다른 보기» 인 체인은 강점표만                                      */
 var VC_FL = { semi: [['logic', 'fab'], ['eq', 'fab'], ['mat', 'fab'], ['fab', 'atp']], bat: [['li', 'cam'], ['cam', 'cell'], ['aam', 'cell'], ['cell', 'ev']],
-  pv: [['poly', 'wafer'], ['wafer', 'cell'], ['cell', 'mod'], ['mod', 'inst']], steel: [['fe', 'crude']], nuc: [['u', 'gen']], refine: [['oil', 'cap']],
+  pv: [['poly', 'wafer'], ['wafer', 'cell'], ['cell', 'mod'], ['mod', 'inst']], steel: [['fe', 'crude'], ['crude', 'exp']], nuc: [['u', 'gen']], refine: [['oil', 'cap'], ['cap', 'px']],
   alu: [['bx', 'ala'], ['ala', 'smelt']], mag: [['mine', 'ref'], ['ref', 'mag']], wind: [['oem', 'inst']],
   ai: [['node', 'srv'], ['hbm', 'srv'], ['srv', 'dc']], lng: [['lngx', 'lngm']], copper: [['mine', 'ref'], ['ref', 'use']] };
 var VC_PAL = { CN: '#d6336c', US: '#2a5aa8', KR: '#0e7c6b', JP: '#b7791f', TW: '#6f42c1', EU: '#5c7cfa', IN: '#e67e22', AU: '#1b998b', CL: '#c2410c', QA: '#7c3aed', RU: '#64748b', OT: '#adb5bd' };
@@ -23594,6 +23822,7 @@ function mkVcDeepHtml(V){
   if (krBest) bul.push(T('한국이 강한 단계: ', 'Korea strongest: ') + krBest.S[1] + ' (' + krBest.kr.rk + T('위 · ', ' · ') + mkLayerPct(krBest.kr) + ')');
   else bul.push(T('한국은 이 체인의 출처 목록에 없음 - 다른 나라에서 받아 쓰는 쪽', 'Korea not in source list'));
   if (cnDep.length) bul.push(T('중국 비중 60% 넘는 단계 ', 'China ≥60%: ') + cnDep.length + T('개: ', ': ') + cnDep.map(function(x){ return x.S[1] + ' ' + Math.round(x.cn.s) + '%'; }).join(' · '));
+  if (V.more && !isEn()) bul = bul.concat(V.more);
   //  ③ 물류 노출 · ④ 관련 원자재
   var cps = (VC_CP[V.k] || []).map(function(id){ return typeof mkPortOf === 'function' ? mkPortOf(id) : null; }).filter(Boolean);
   if ((VC_CP[V.k] || []).length && typeof mkPortLoad === 'function') mkPortLoad();
@@ -23603,6 +23832,7 @@ function mkVcDeepHtml(V){
     return '<button type="button" class="mk-ovl-c res" onclick="mkOvGo(\'res\',\'' + k + '\')" title="' + esc(cot) + '"><span>' + esc(R.n) + '</span>' + (px && px.c != null ? '<b class="' + mkUd(px.c) + '">' + esc(mkChg(px.c)) + '</b>' : '') + (cot ? '<em>' + esc(cot) + '</em>' : '') + '</button>'; }).join('') + '</div></div>' : '';
   return '<div class="mk-vcd"><div class="mk-vcd-h"><b>' + esc(T('깊이 보기', 'Deep dive')) + '</b><span class="st-hint">' + esc(T(' · 단계별 집중 · 위험 · 대표 기업 주가 · 물류 · 원자재', ' · concentration · stocks · logistics · inputs')) + '</span></div>'
     + '<ul class="mk-vcd-b">' + bul.map(function(b){ return '<li>' + esc(b) + '</li>'; }).join('') + '</ul>'
+    + mkVcSmileHtml(V)
     + mkVcFlowHtml(V)
     + '<div class="mk-vcd-sts"><div class="mk-vcd-st h" aria-hidden="true"><span>' + esc(T('단계', 'Stage')) + '</span><span>' + esc(T('나라 비중 (상위 3)', 'Top-3 share')) + '</span><span>' + esc(T('집중', 'Conc.')) + '</span><span>' + esc(T('한국', 'Korea')) + '</span></div>' + rowsH + '</div>'
     + mkVcPerfHtml(V) + cpH + rsH + '</div>';
@@ -23642,7 +23872,153 @@ function mkVcdDraw(V){
     series: [{ type: 'bar', data: rows.map(function(r){ return { value: +r[1].toFixed(2), itemStyle: { color: r[1] >= 0 ? (dk ? '#ef6b5e' : '#c0392b') : (dk ? '#5b9cf0' : '#1b5fa8'), borderRadius: 3 } }; }), barWidth: 14,
       label: { show: true, position: 'right', formatter: function(p){ return mkPct(p.value, 1); }, fontSize: 10.5 } }] }, true);
 }
-function mkVcDeepAfter(V){ mkVcPerfLoad(V); requestAnimationFrame(function(){ mkVcdDraw(V); mkVcFlowDraw(V); }); }
+function mkVcDeepAfter(V){ mkVcPerfLoad(V); requestAnimationFrame(function(){ mkVcSmileDraw(V); mkVcdDraw(V); mkVcFlowDraw(V); }); }
+/* ══════════ (10/10 8차) 고부가가치 커브 (스마일 커브) — 학회장: «밸류체인의 고부가가치 커브 등도 해서 국가랑 기업들이 어디에 해당하는지»
+   · 스탠 시 (에이서 창업자 · 1992) «스마일 커브» 일반 모형: 가운데 (제조 · 가공 · 조립) 의 부가가치가 가장 낮고, 양 끝 (연구 · 설계 / 브랜드 · 서비스) 이 높음
+   · 단계를 성격에 따라 다섯 칸 중 하나에 놓고, 높이는 일반 모형 곡선 위 → 이 체인에서 잰 값이 아니라 «자리» 를 보여 주는 개념도 (화면에 그대로 적음)
+   · 실측 부가가치 비중이 있는 체인 (반도체 · SIA · BCG) 은 그 숫자를 글로 함께
+   · 점 = 단계 (번호 = 단계 순서 · 색 = 1위 나라) · 초록 고리 = 한국이 출처 목록에 있는 단계 · 누르면 그 단계
+   · 아래: 칸별 단계 · 1위 나라 · 한국 · 대표 기업 / 나라 × 칸 표 (그 칸에서 가장 큰 비중) — 나라가 곡선 어디에 있는지
+   · 단계가 «같은 일의 다른 보기» 인 체인 (조선 수주 · 건조 · 잔량 · 광물별 정련 · 방산 · 금융 · 디스플레이) 은 곡선 대신 강점표만  */
+var VC_ZN = [['연구 · 설계', 'R&D · design'], ['원료 · 핵심 부품', 'Inputs · key parts'], ['제조 · 가공 · 조립', 'Make · assemble'], ['유통 · 판매 · 설치', 'Distribute · install'], ['브랜드 · 서비스 · 운영', 'Brand · service']];
+var VC_ZN_XS = [['연구', 'R&D'], ['부품', 'Parts'], ['제조', 'Make'], ['유통', 'Sell'], ['브랜드', 'Brand']];
+var VC_ZN_S = [['연구 · 설계', 'R&D'], ['원료 · 부품', 'Inputs'], ['제조 · 조립', 'Assembly'], ['유통 · 설치', 'Distribution'], ['브랜드 · 서비스', 'Brand · service']];
+var VC_ZONE = {
+  semi: { logic: 0, mem: 0, dao: 0, eq: 1, mat: 1, fab: 2, atp: 2 },
+  ai: { hbm: 1, node: 2, srv: 2, dc: 4 },
+  dcen: { gpu: 1, pwr: 1, cap: 2, cloud: 4 },
+  phone: { ap: 1, brand: 4 },
+  bat: { li: 1, cam: 1, aam: 1, cell: 2, ev: 2 },
+  pv: { poly: 1, wafer: 1, cell: 2, mod: 2, inst: 3 },
+  wind: { oem: 2, inst: 3 },
+  nuc: { u: 1, uc: 2, gen: 4 },
+  refine: { oil: 1, cap: 2, px: 3 },
+  lng: { gas: 1, lngx: 2, lngm: 3 },
+  steel: { fe: 1, crude: 2, exp: 3 },
+  alu: { bx: 1, ala: 2, smelt: 2 },
+  copper: { mine: 1, ref: 2 },
+  mag: { mine: 1, ref: 2, mag: 2 },
+  auto: { prod: 2, ev: 2, grp: 4 },
+  aero: { bud: 0, air: 2, launch: 4, sat: 4 },
+  pharma: { nas: 0, exp: 2 },
+  chain: { mine: 2, etp: 3, stable: 4 }
+};
+//  일반 모형 곡선 (칸 0~4 · 가운데 2 가 바닥)
+function mkSmileY(x){ var t = (x - 2) / 2; return 14 + 78 * t * t; }
+function mkVcSmileSet(V){
+  var Z = VC_ZONE[V.k]; if (!Z) return null;
+  var by = [[], [], [], [], []], out = [], off = [];
+  V.st.forEach(function(S, i){
+    if (S[0] === 'all') return;
+    if (Z[S[0]] == null){ off.push(S[1]); return; }
+    var L = mkVcStRows(V, S); if (!L || !L.rows.length) return;
+    by[Z[S[0]]].push({ S: S, L: L, i: i, z: Z[S[0]], top: L.rows[0], kr: mkLayerRowOf(L, 'KR'), co: ((VC_CO[V.k] || {})[S[0]] || []).map(function(c){ return c[1]; }) });
+  });
+  by.forEach(function(g, z){ var n = g.length, gap = n > 1 ? Math.min(0.27, 0.72 / (n - 1)) : 0;
+    //  양 끝 칸은 안쪽으로 몰아 곡선 위 (그래프 밖으로 안 나가게)
+    var sh = z === 0 ? Math.max(0, (n - 1) / 2 * gap - 0.18) : z === 4 ? -Math.max(0, (n - 1) / 2 * gap - 0.18) : 0;
+    g.forEach(function(x, j){ x.x = z + (j - (n - 1) / 2) * gap + sh; x.y = mkSmileY(x.x); out.push(x); }); });
+  if (!out.length) return null;
+  var zs = by.map(function(g, z){ return g.length ? z : -1; }).filter(function(z){ return z >= 0; });
+  return zs.length >= 2 ? { pts: out, by: by, zs: zs, off: off } : null;
+}
+function mkVcSmileHtml(V){
+  var D = mkVcSmileSet(V);
+  if (!D){
+    var multi = V.st.filter(function(S){ return S[0] !== 'all'; }).length >= 2;
+    return multi && !VC_ZONE[V.k] ? '<div class="mk-smile none"><span class="st-hint">' + esc(T('고부가가치 커브: 이 체인은 단계가 순서대로 이어지는 공정이 아니라 같은 일을 여러 기준으로 본 것이라 곡선 대신 아래 나라별 강점표로 봅니다', 'Smile curve: stages here are parallel views, not a sequence - see the strengths table')) + '</span></div>' : '';
+  }
+  var lev = function(z){ return z === 2 ? ['lo', T('낮음', 'Low')] : z === 1 || z === 3 ? ['md', T('중간', 'Mid')] : ['hi', T('높음', 'High')]; };
+  var circ = function(i){ return '①②③④⑤⑥⑦⑧⑨⑩'.charAt(i) || String(i + 1); };
+  var ordIdx = {}; V.st.filter(function(S){ return S[0] !== 'all'; }).forEach(function(S, i){ ordIdx[S[0]] = i; });
+  //  칸별 단계 · 1위 나라 · 한국 · 대표 기업
+  var zH = D.zs.map(function(z){ var g = D.by[z], lv = lev(z), cos = [];
+    g.forEach(function(x){ x.co.forEach(function(c){ if (cos.indexOf(c) < 0) cos.push(c); }); });
+    return '<div class="z"><div class="zh"><span>' + esc(T(VC_ZN[z][0], VC_ZN[z][1])) + '</span><em class="' + lv[0] + '">' + esc(T('부가가치 ', 'Value ') + lv[1]) + '</em></div>'
+      + g.map(function(x){ return '<button type="button" class="st' + (MK.vcSt === x.S[0] ? ' on' : '') + '" onclick="mkVcStSet(\'' + x.S[0] + '\')"><span class="t"><i>' + circ(ordIdx[x.S[0]]) + '</i>' + esc(x.S[1]) + '</span>'
+        + '<span class="w">' + mkFlag2(x.top.cc) + ' ' + esc(mkNm(x.top.cc) + ' ' + mkLayerPct(x.top)) + '</span>'
+        + '<span class="k' + (x.kr ? '' : ' none') + '">' + (x.kr ? mkFlag('KR') + ' ' + esc(T('한국 ', 'Korea ') + x.kr.rk + T('위 · ', ' · ') + mkLayerPct(x.kr)) : esc(T('한국 없음', 'Korea -'))) + '</span></button>'; }).join('')
+      + (cos.length ? '<div class="co">' + esc(cos.slice(0, 6).join(' · ')) + '</div>' : '') + '</div>'; }).join('');
+  //  나라 × 칸 — 그 칸 단계 중 가장 큰 비중 (나라가 곡선 어디에 있는지)
+  var ccs = {}; D.pts.forEach(function(x){ x.L.rows.slice(0, 2).forEach(function(r){ ccs[r.cc] = 1; }); if (x.kr) ccs.KR = 1; });
+  var rows = Object.keys(ccs).map(function(cc){
+    var cells = D.zs.map(function(z){ var b = null; D.by[z].forEach(function(x){ var r = x.L.rows.filter(function(y){ return y.cc === cc; })[0]; if (r && (!b || r.s > b.r.s)) b = { r: r, x: x }; }); return b; });
+    var mx = cells.reduce(function(a, c){ return c && c.r.s > a ? c.r.s : a; }, 0);
+    return { cc: cc, cells: cells, mx: mx };
+  }).filter(function(x){ return x.mx > 0; }).sort(function(a, b){ return b.mx - a.mx; });
+  var krR = rows.filter(function(x){ return x.cc === 'KR'; })[0]; rows = rows.slice(0, 7); if (krR && rows.indexOf(krR) < 0) rows[rows.length - 1] = krR;
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark', base = dark ? [91, 156, 240] : [42, 90, 168];
+  var cols = 'minmax(84px,1.2fr) ' + D.zs.map(function(){ return 'minmax(56px,1fr)'; }).join(' ');
+  var mat = '<div class="mk-vcm-w"><div class="mk-vcm" style="min-width:' + (84 + D.zs.length * 60) + 'px">'
+    + '<div class="r h" style="grid-template-columns:' + cols + '"><span>' + esc(T('나라', 'Country')) + '</span>' + D.zs.map(function(z){ return '<span class="sh">' + esc(T(VC_ZN[z][0], VC_ZN[z][1])) + '</span>'; }).join('') + '</div>'
+    + rows.map(function(x, ri){ var best = x.cells.reduce(function(a, c, i){ return c && (a < 0 || c.r.s > x.cells[a].r.s) ? i : a; }, -1);
+      return '<div class="r' + (x.cc === 'KR' ? ' kr' : '') + '" style="grid-template-columns:' + cols + ';--k:' + ri + '"><span class="n">' + mkFlag2(x.cc) + ' ' + esc(mkNm(x.cc)) + '</span>'
+        + x.cells.map(function(c, i){ if (!c) return '<span class="c e">-</span>';
+            var a = Math.min(0.85, 0.1 + c.r.s / 100 * 0.85);
+            return '<button type="button" class="c' + (i === best ? ' best' : '') + '" style="background:rgba(' + base.join(',') + ',' + a.toFixed(2) + ');color:' + (a > 0.5 ? '#fff' : 'inherit') + '" onclick="mkVcCellPick(\'' + c.x.S[0] + '\',\'' + x.cc + '\')" title="' + esc(mkNm(x.cc) + ' · ' + c.x.S[1] + ' ' + mkLayerPct(c.r) + ' · ' + c.r.rk + T('위', '')) + '">' + esc(mkLayerPct(c.r).replace(/\s*이상$/, '+')) + '</button>'; }).join('') + '</div>'; }).join('')
+    + '</div></div>';
+  //  한 줄 읽기 (자료로 계산): 양 끝 · 가운데 1위 나라 · 한국 자리
+  var tops = function(zz){ var o = []; zz.forEach(function(z){ D.by[z].forEach(function(x){ if (x.top.cc !== 'OT' && o.indexOf(x.top.cc) < 0) o.push(x.top.cc); }); }); return o; };
+  var ends = tops([0, 4]), mid = tops([2]), rd = [];
+  if (ends.length) rd.push(T('양 끝 (연구 · 설계 / 브랜드 · 서비스) 1위: ', 'Ends (R&D / brand) leaders: ') + ends.map(mkNm).join(' · '));
+  if (mid.length) rd.push(T('바닥 (제조 · 가공 · 조립) 1위: ', 'Bottom (manufacturing) leaders: ') + mid.map(mkNm).join(' · '));
+  var krB = D.pts.filter(function(x){ return x.kr; }).sort(function(a, b){ return a.kr.rk - b.kr.rk || b.kr.s - a.kr.s; })[0];
+  rd.push(krB ? T('한국이 가장 강한 자리: ', 'Korea strongest: ') + krB.S[1] + ' (' + T(VC_ZN[krB.z][0], VC_ZN[krB.z][1]) + T(' 칸 · ', ' · ') + krB.kr.rk + T('위 ', ' · ') + mkLayerPct(krB.kr) + ')' : T('한국: 이 체인의 곡선 위 단계 출처 목록에 없음', 'Korea: not in the source lists'));
+  var va = V.st.filter(function(S){ return S[0] !== 'all' && S[2] != null && S[2] < 100; });
+  var vaH = va.length ? '<p class="st-hint mk-smile-va">' + esc(T('실측 산업 부가가치 비중 (SIA · BCG · ' + V.yr + '): ', 'Measured value-added share (' + V.yr + '): ') + va.slice().sort(function(a, b){ return b[2] - a[2]; }).map(function(S){ return S[1] + ' ' + S[2] + '%'; }).join(' · ')) + '</p>' : '';
+  return '<div class="mk-smile"><div class="mk-smile-h"><b>' + esc(T('고부가가치 커브 (스마일 커브)', 'Smile curve')) + '</b><span class="st-hint">' + esc(T(' · 개념도 · 위로 갈수록 부가가치가 높은 자리 (일반 모형) · 점 = 단계 · 색 = 1위 나라 · 초록 고리 = 한국', ' · schematic · higher = higher value added (general model) · dot = stage · ring = Korea')) + '</span></div>'
+    + '<div class="mk-smile-ch" id="mkVcsCh" role="img" aria-label="' + esc(T('스마일 커브 위 단계 자리', 'Stages on the smile curve')) + '"></div>'
+    + '<ul class="mk-vcd-b mk-smile-rd">' + rd.map(function(b){ return '<li>' + esc(b) + '</li>'; }).join('') + '</ul>'
+    + '<div class="mk-smz" style="grid-template-columns:repeat(' + D.zs.length + ',minmax(0,1fr))">' + zH + '</div>'
+    + '<div class="mk-vcm-h"><b>' + esc(T('나라별 자리', 'Where countries sit')) + '</b><span class="st-hint">' + esc(T(' · 칸 = 그 자리 단계 중 가장 큰 세계 비중 · 누르면 그 단계 · 그 나라', ' · cell = largest share in that zone')) + '</span></div>' + mat
+    + vaH
+    + '<p class="st-hint">' + esc(T('스마일 커브 = 스탠 시 (에이서 창업자 · 1992) 의 일반 모형 · 단계의 높이는 이 체인에서 잰 값이 아니라 그 단계가 놓인 자리 · 나라 비중은 단계마다 출처 그대로', 'Smile curve = Stan Shih (1992) general model · heights are positions, not measurements')) + (D.off.length ? esc(T(' · 곡선 밖 (같은 단계의 다른 보기): ', ' · Off-curve: ') + D.off.join(' · ')) : '') + '</p></div>';
+}
+function mkVcSmileScreenLine(){
+  var V = mkVcOf(MK.vc), D = mkVcSmileSet(V); if (!D) return '';
+  return '[밸류체인 고부가가치 커브 (스마일 커브 · 개념도 · 높이는 일반 모형이지 잰 값 아님) · ' + V.n + '] ' + D.zs.map(function(z){ return VC_ZN[z][0] + ': ' + D.by[z].map(function(x){ return x.S[1] + ' (1위 ' + mkNm(x.top.cc) + ' ' + mkLayerPct(x.top) + (x.kr ? ' · 한국 ' + x.kr.rk + '위 ' + mkLayerPct(x.kr) : '') + ')'; }).join(', '); }).join(' / ');
+}
+var mkVcsChart = null;
+function mkVcSmileDraw(V){
+  var el = $('mkVcsCh'), D = mkVcSmileSet(V); if (!el || !D || typeof echarts === 'undefined') return;
+  mkVcsChart = chartOn(el, mkVcsChart); if (!mkVcsChart) return;
+  var dk = document.documentElement.getAttribute('data-theme') === 'dark', w = el.clientWidth || 400;
+  var cv = [], i; for (i = -0.5; i <= 4.5001; i += 0.05) cv.push([+i.toFixed(2), +mkSmileY(i).toFixed(2)]);
+  var line = dk ? '#9fb0d0' : '#5b6b8c', kr = dk ? '#3cc4a8' : '#0e7c6b', txt = dk ? '#e6e9f0' : '#1d2433', sub = dk ? '#9aa3b5' : '#6b7386';
+  var ordIdx = {}; V.st.filter(function(S){ return S[0] !== 'all'; }).forEach(function(S, k){ ordIdx[S[0]] = k; });
+  var pts = D.pts.map(function(x, k){ var on = MK.vcSt === x.S[0], col = VC_PAL[x.top.cc] || VC_COL[x.top.cc] || (dk ? '#8a93a8' : '#7a8296');
+    return { value: [x.x, x.y], st: x.S[0], d: x, symbolSize: on ? 24 : 19, itemStyle: { color: col, borderColor: on ? txt : (dk ? '#1b2130' : '#fff'), borderWidth: on ? 2.5 : 1.5, shadowBlur: on ? 10 : 0, shadowColor: col },
+      label: { show: true, position: 'inside', formatter: String(ordIdx[x.S[0]] + 1), color: '#fff', fontSize: 10.5, fontWeight: 800 } }; });
+  var krPts = D.pts.filter(function(x){ return x.kr; }).map(function(x){ return { value: [x.x, x.y], st: x.S[0], d: x }; });
+  var bw = Math.max(40, (w - 16) / 5 - 6);
+  mkVcsChart.__axNoKeep = true;
+  mkVcsChart.setOption({
+    animation: MOTION_OK, animationDuration: 900, animationEasing: 'cubicOut',
+    grid: { left: 8, right: 8, top: 22, bottom: 40 },
+    tooltip: { trigger: 'item', confine: true, formatter: function(p){ var x = p.data && p.data.d; if (!x) return '';
+      return '<b>' + esc(x.S[1]) + '</b> <span style="opacity:.7">' + esc(T(VC_ZN[x.z][0], VC_ZN[x.z][1])) + '</span><br>' + x.L.rows.slice(0, 3).map(function(r){ return esc(mkNm(r.cc) + ' ' + mkLayerPct(r)); }).join(' · ')
+        + '<br>' + esc(x.kr ? T('한국 ', 'Korea ') + x.kr.rk + T('위 · ', ' · ') + mkLayerPct(x.kr) : T('한국: 출처 목록에 없음', 'Korea: n/a')) + (x.co.length ? '<br><span style="opacity:.75">' + esc(x.co.slice(0, 5).join(' · ')) + '</span>' : ''); } },
+    xAxis: [{ type: 'value', min: -0.5, max: 4.5, show: false },
+            { type: 'category', data: (w < 430 ? VC_ZN_XS : VC_ZN_S).map(function(z){ return T(z[0], z[1]); }), position: 'bottom', boundaryGap: true, axisTick: { show: false }, axisLine: { show: false },
+              splitArea: { show: true, areaStyle: { color: dk ? ['rgba(255,255,255,0.025)', 'rgba(0,0,0,0)'] : ['rgba(20,30,60,0.03)', 'rgba(0,0,0,0)'] } },
+              axisLabel: { interval: 0, fontSize: 10, color: sub, width: bw, overflow: 'break', lineHeight: 12 } }],
+    yAxis: { type: 'value', min: 0, max: 116, show: false },
+    graphic: [{ type: 'text', left: 10, top: 2, style: { text: T('부가가치 높음 ↑', 'Higher value added ↑'), fill: sub, fontSize: 10 } }],
+    series: [
+      { type: 'line', xAxisIndex: 0, data: cv, smooth: true, showSymbol: false, silent: true, z: 1, lineStyle: { width: 2.5, color: line },
+        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: dk ? 'rgba(159,176,208,0.22)' : 'rgba(91,107,140,0.16)' }, { offset: 1, color: 'rgba(0,0,0,0)' }]) },
+        animationDuration: 1000 },
+      { type: MOTION_OK ? 'effectScatter' : 'scatter', xAxisIndex: 0, data: krPts, symbol: 'circle', symbolSize: 31, z: 2, silent: true,
+        itemStyle: { color: 'rgba(0,0,0,0)', borderColor: kr, borderWidth: 2.2 }, rippleEffect: { brushType: 'stroke', scale: 1.7, period: 3.2 },
+        animationDelay: function(k){ return 900 + k * 90; } },
+      { type: 'scatter', xAxisIndex: 0, data: pts, z: 3, cursor: 'pointer', animationDelay: function(k){ return 650 + k * 90; },
+        emphasis: { scale: 1.25 } }
+    ]
+  }, true);
+  mkVcsChart.off('click');
+  mkVcsChart.on('click', function(p){ if (p.data && p.data.st) mkVcStSet(p.data.st); });
+}
+
 /* ══════════ (10/9 4차) 원자재 칸 더 깊게 — 학회장: «USDA PSD · COT 로 마켓 맵이나 다른 탭에 원자재 분석을 더 깊게 · 폭넓게» ══════════
    · 투기 포지션 (CFTC COT · 주 1회): 순포지션 · OI 대비 · COT 지수(3년 안 자리 0~100) · 4주 변화 · 방향성 → «파생상품 › 선물 포지션» 으로 자세히
    · 농산물 수급 (USDA PSD · 서버에 키가 있을 때): 세계 생산 · 소비 · 기말재고 · 재고율 8년 · 올해 vs 작년 · 수출 · 수입 상위 나라
@@ -23869,12 +24245,12 @@ function mkResDeepScreenLine(k){
   return out.join('\n');
 }
 //  원자재 칸 아래 (mkResRender 가 부름)
-function mkResDeepHtml(k){ return mkCotBlockHtml(k) + mkPsdBlockHtml(k) + (typeof mkEsrBlockHtml === 'function' ? mkEsrBlockHtml(k) : ''); }
+function mkResDeepHtml(k){ return mkSteoBlockHtml(k) + mkCotBlockHtml(k) + mkPsdBlockHtml(k) + (typeof mkEsrBlockHtml === 'function' ? mkEsrBlockHtml(k) : ''); }
 function mkResDeepAfter(k){
   if (RES_COT[k] && !(window.COT && COT.d) && !(window.COT && COT.err)) mkCotLoad(function(){ if (MK.lay === 'res' && MK.res === k){ var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); } });
-  mkPsdLoad(k);
+  mkPsdLoad(k); mkSteoLoad(k);
   if (typeof mkEsrLoad === 'function') mkEsrLoad(k);
-  requestAnimationFrame(function(){ mkPsdDraw(k); if (typeof mkEsrDraw === 'function') mkEsrDraw(k); });
+  requestAnimationFrame(function(){ mkPsdDraw(k); mkSteoDraw(k); if (typeof mkEsrDraw === 'function') mkEsrDraw(k); });
 }
 function mkResRender(){
   var box = $('mkRes'); if (!box) return;
@@ -24393,7 +24769,8 @@ function mkOvRender(){
   var imfH = im.rows && im.rows.length
     ? '<table class="mk-imf"><tr><th>' + esc(T('IMF 경제 지표', 'IMF indicators')) + '</th>' + yrs.map(function(y){ return '<th' + (y >= Y ? ' class="fc"' : '') + '>' + esc(y) + (y >= Y ? '<br><span class="st-hint">' + esc(T('전망', 'fcst')) + '</span>' : '') + '</th>'; }).join('') + '</tr>'
       + im.rows.map(function(r){ return '<tr><td>' + esc(r.n) + ' <span class="st-hint">' + esc(r.u) + '</span></td>' + yrs.map(function(y){ return '<td' + (y >= Y ? ' class="fc"' : '') + '>' + esc(fv(r, r.v[y])) + '</td>'; }).join('') + '</tr>'; }).join('') + '</table>'
-    : '<div class="mk-wait">' + esc(im.error ? 'IMF: ' + im.error : T('IMF 자료가 없습니다', 'No IMF data')) + '</div>';
+    //  (10/10 8차 학회장 화면: «IMF: IMF 자료를 받지 못했습니다») — 학회원에게는 오류 문구 없이 칸을 비우고, 임원진만 이유를 봅니다
+    : (im.error && typeof isOfficer === 'function' && isOfficer() ? '<div class="mk-wait st-hint">' + esc(T('(임원진만 보임) IMF: ', '(officers only) IMF: ') + im.error) + '</div>' : '');
   var rt = d.rates || {}, l10 = mkLive10(cc);
   var kv = function(k, v){ return '<div class="kv"><span>' + esc(k) + '</span><b>' + v + '</b></div>'; };
   var rv = function(r){ return r ? esc(Number(r.v).toFixed(2) + '%') + ' <span class="st-hint">' + esc(r.monthly ? r.d.slice(0, 7) + T(' 월평균', ' avg') : r.d.slice(5)) + '</span>' : '-'; };
@@ -24405,11 +24782,12 @@ function mkOvRender(){
         + '<button type="button" class="btn-sm" onclick="mkCtryTabSet(\'fx\')">' + esc(T('환율 모델 보기 →', 'FX model →')) + '</button>'
       : '<h5>' + esc(T('환율', 'FX')) + '</h5><div class="st-hint">' + esc(T('이 나라 통화는 일별 환율 자료가 없어 환율 모델을 돌리지 않습니다', 'No FX data')) + '</div>')
     + '</div>';
-  grid.innerHTML = '<div class="mk-imfw">' + imfH + '</div>' + side;
+  grid.innerHTML = (imfH ? '<div class="mk-imfw">' + imfH + '</div>' : '') + side;
+  grid.classList.toggle('one', !imfH);
   //  (10/9 3차) 경기 국면(OECD) · 세계은행 구조 지표(세계 순위) · 한국은행 100대 지표(한국)
   var more = $('mkOvMore'); if (more) lvSwap(more, mkOvMoreHtml(cc, d));
   mkOvLinkLoad(cc);
-  if (src) src.innerHTML = esc(T('경제: IMF 세계경제전망 (', 'IMF WEO (') + yrs.filter(function(y){ return y >= Y; }).join(' · ') + T('년 = 전망) · 금리: ', ' = forecast) · Rates: ')
+  if (src) src.innerHTML = esc((imfH ? T('경제: IMF 세계경제전망 (', 'IMF WEO (') + yrs.filter(function(y){ return y >= Y; }).join(' · ') + T('년 = 전망) · ', ' = forecast) · ') : '') + T('금리: ', 'Rates: ')
     + (cc === 'US' ? T('FRED 일별', 'FRED daily') : T('OECD 월평균 (FRED)', 'OECD monthly (FRED)')) + (l10 ? T(' · 10년은 지금 값', ' · 10Y live') : '')
     + T(' · 지수: ', ' · Index: ') + (S && !S.usd ? T('일별 종가', 'daily close') : T('나라 ETF 일봉 (달러)', 'country ETF daily (USD)'))
     + (d.cli && d.cli.length ? T(' · 경기선행지수: OECD', ' · CLI: OECD') : '') + (d.wb && d.wb.length ? T(' · 구조 지표: 세계은행', ' · Structure: World Bank') : '') + (d.kr100 && d.kr100.rows ? T(' · 한국은행 ECOS 100대 통계지표', ' · Bank of Korea ECOS') : ''));
@@ -25016,6 +25394,133 @@ function mkFxWhyHtml(P, M, a){
     + '<div class="mk-why-read">' + esc(T('읽는 법 · ', 'How to read · ')) + '<b class="up">▲ ' + esc(T('상승', 'Up')) + '</b> = ' + esc(mkJosa(one, '을', '를') + ' 사는 데 ' + mkJosa(Q, '이', '가') + ' 더 듦 → ' + B + ' 강세 · ' + Q + ' 약세')
     + ' &nbsp;|&nbsp; <b class="down">▼ ' + esc(T('하락', 'Down')) + '</b> = ' + esc(mkJosa(Q, '이', '가') + ' 덜 듦 → ' + B + ' 약세 · ' + Q + ' 강세') + '</div>';
 }
+/* ══════════ (10/10 8차) 선물환 커브 — 학회장: «환율 모델도 포워드 커브나 원자재 선물 포워드 커브도 그려주면»
+   · 금리평형 (covered interest parity): 선물환 = 현물 × (1 + 따옴 통화 금리 × 기간) ÷ (1 + 기준 통화 금리 × 기간) · 1년 넘으면 복리
+   · 금리: 두 나라 3개월 금리 (OECD 월평균 · 환율 모델과 같은 자료) · 1년 넘는 만기는 10년 국채 금리까지 직선으로 이은 값 (10년 금리가 없는 통화는 1년까지만)
+   · 시장 호가가 아니라 «금리 차이만큼» 의 이론값 — 실제 스왑포인트는 달러 조달 사정 (베이시스) 때문에 다를 수 있음 (화면에 적음)
+   · 같은 차트에 환율 모델의 1개월 · 3개월 중앙 예측 (예측과 선물환은 다른 것: 선물환은 예측이 아니라 무위험 가격)          */
+var MK_FWD_T = [[1 / 12, '1개월', '1M'], [0.25, '3개월', '3M'], [0.5, '6개월', '6M'], [1, '1년', '1Y'], [2, '2년', '2Y'], [3, '3년', '3Y'], [5, '5년', '5Y'], [10, '10년', '10Y']];
+var MK_FX_LONG = function(cc){ return 'IRLTLT01' + cc + 'M156N'; };
+function mkRateLast(key){ var pts = (MK.fxRaw[key] || []).filter(function(p){ return p && isFinite(p.v); }); if (!pts.length) return null; var L = pts.reduce(function(a, p){ return !a || String(p.d) > String(a.d) ? p : a; }, null); return { d: String(L.d).slice(0, 7), v: Number(L.v) }; }
+function mkFwdLongLoad(P){
+  var need = [P.b, P.q].map(function(c){ return MK_CUR[c] && MK_CUR[c].rate; }).filter(Boolean).filter(function(r){ return !MK.fxRaw[MK_FX_LONG(r) + '|M'] && !MK.fxP[MK_FX_LONG(r) + '|M']; });
+  if (!need.length) return;
+  Promise.all(need.map(function(r){ return mkFxFred(MK_FX_LONG(r), 'M').catch(function(){ return []; }); })).then(function(){ if (curTab === 'market' && MK.view === 'fx' && MK.fxPair === P.k) mkFwdRender(); });
+}
+function mkFwdCalc(P, M, a){
+  var rb = MK_CUR[P.b].rate, rq = MK_CUR[P.q].rate; if (!rb || !rq || !a) return null;
+  var sb = mkRateLast(MK_FX_RATE_CODE(rb) + '|M'), sq = mkRateLast(MK_FX_RATE_CODE(rq) + '|M'); if (!sb || !sq) return null;
+  var lb = mkRateLast(MK_FX_LONG(rb) + '|M'), lq = mkRateLast(MK_FX_LONG(rq) + '|M'), long = !!(lb && lq);
+  var rAt = function(s3, l10, T){ return T <= 0.25 || !l10 ? s3.v : s3.v + (l10.v - s3.v) * (T - 0.25) / 9.75; };
+  var g = function(r, T){ return T <= 1 ? 1 + r / 100 * T : Math.pow(1 + r / 100, T); };
+  var rows = MK_FWD_T.filter(function(t){ return long || t[0] <= 1; }).map(function(t){
+    var tt = t[0], ib = rAt(sb, lb, tt), iq = rAt(sq, lq, tt), F = a * g(iq, tt) / g(ib, tt);
+    return { T: tt, n: T(t[1], t[2]), F: F, pt: F - a, ann: (Math.pow(F / a, 1 / tt) - 1) * 100, ib: ib, iq: iq };
+  });
+  return { rows: rows, sb: sb, sq: sq, lb: lb, lq: lq, long: long };
+}
+var mkFwdChart = null;
+function mkFwdRender(){
+  var box = $('mkFxFwd'); if (!box) return;
+  var P = MK_FX_PAIRS.filter(function(x){ return x.k === MK.fxPair; })[0], M = MK.fx && P && MK.fx[P.k];
+  if (!P || !M || M.err){ box.innerHTML = ''; return; }
+  mkFwdLongLoad(P);
+  var a = mkFxAnchor(P, M), C = mkFwdCalc(P, M, a);
+  if (!C){ box.innerHTML = typeof isOfficer === 'function' && isOfficer() ? '<div class="st-hint">' + esc(T('(임원진만 보임) 선물환 커브: 두 통화 금리 자료가 없어 계산하지 않았습니다', '(officers) forward curve: no rate data')) + '</div>' : ''; return; }
+  var Bn = MK_CUR[P.b].n, Qn = MK_CUR[P.q].n, diff = C.sq.v - C.sb.v, y1 = C.rows.filter(function(r){ return r.T === 1; })[0];
+  var shape = Math.abs(diff) < 0.05 ? T('두 금리가 거의 같아 선물환 ≈ 현물', 'Rates equal → forward ≈ spot')
+    : diff < 0 ? T(Bn + ' 금리 (' + C.sb.v.toFixed(2) + '%) 가 ' + Qn + ' 금리 (' + C.sq.v.toFixed(2) + '%) 보다 높아 선물환이 현물보다 낮음 (디스카운트 · 만기가 길수록 더 낮음)', 'Base rate higher → forward discount')
+    : T(Qn + ' 금리 (' + C.sq.v.toFixed(2) + '%) 가 ' + Bn + ' 금리 (' + C.sb.v.toFixed(2) + '%) 보다 높아 선물환이 현물보다 높음 (프리미엄 · 만기가 길수록 더 높음)', 'Quote rate higher → forward premium');
+  var dg = a >= 100 ? 2 : 4;
+  var pf = function(v){ return (v > 0 ? '+' : '') + v.toFixed(dg); };
+  //  모델 예측 (1개월 · 3개월) vs 같은 만기 선물환
+  var cmp = [[21, 1 / 12], [63, 0.25]].map(function(h){ var r = M.h[h[0]], f = C.rows.filter(function(x){ return Math.abs(x.T - h[1]) < 1e-6; })[0]; if (!r || !f) return null; var md = a * Math.exp(r.mu); return { n: f.n, md: md, F: f.F, gap: (md / f.F - 1) * 100 }; }).filter(Boolean);
+  var bl = [shape];
+  if (y1) bl.push(T('1년 이론 선물환 ', '1Y forward ') + mkFxFmt(y1.F, P.k) + ' (' + T('스왑포인트 ', 'points ') + pf(y1.pt) + ' · ' + T('연 ', '') + (y1.ann > 0 ? '+' : '') + y1.ann.toFixed(2) + '%)');
+  cmp.forEach(function(c){ bl.push(T('모델 ' + c.n + ' 중앙 예측 ', 'Model ' + c.n + ' median ') + mkFxFmt(c.md, P.k) + T(' vs 선물환 ', ' vs forward ') + mkFxFmt(c.F, P.k) + ' (' + (c.gap > 0 ? '+' : '') + c.gap.toFixed(2) + '%)'); });
+  var tbl = '<table class="mk-fwd-t"><tr><th>' + esc(T('만기', 'Tenor')) + '</th><th>' + esc(T('이론 선물환', 'Forward')) + '</th><th>' + esc(T('스왑포인트', 'Points')) + '</th><th>' + esc(T('연 환산', 'Ann.')) + '</th><th>' + esc(T('금리 (' + Bn + ' · ' + Qn + ')', 'Rates')) + '</th></tr>'
+    + '<tr class="sp"><td>' + esc(T('현물', 'Spot')) + '</td><td><b>' + esc(mkFxFmt(a, P.k)) + '</b></td><td>-</td><td>-</td><td></td></tr>'
+    + C.rows.map(function(r){ return '<tr><td>' + esc(r.n) + '</td><td><b>' + esc(mkFxFmt(r.F, P.k)) + '</b></td><td class="' + mkUd(r.pt) + '">' + esc(pf(r.pt)) + '</td><td>' + esc((r.ann > 0 ? '+' : '') + r.ann.toFixed(2) + '%') + '</td><td class="st-hint">' + esc(r.ib.toFixed(2) + ' · ' + r.iq.toFixed(2) + '%') + '</td></tr>'; }).join('') + '</table>';
+  box.innerHTML = '<div class="mk-fwd-h"><b>' + esc(T('선물환 커브 (이론값)', 'FX forward curve (theoretical)')) + '</b><span class="st-hint">' + esc(T(' · ' + P.n + ' · 금리평형으로 계산 · 시장 호가 아님', ' · ' + P.n + ' · covered interest parity · not market quotes')) + '</span></div>'
+    + '<div class="mk-fwd-g"><div><div class="mk-fwd-ch" id="mkFwdCh"></div><ul class="mk-vcd-b mk-fwd-b">' + bl.map(function(b){ return '<li>' + esc(b) + '</li>'; }).join('') + '</ul></div><div class="scroll">' + tbl + '</div></div>'
+    + '<p class="st-hint mk-fwd-n">' + esc(T('선물환 = 현물 × (1 + ' + Qn + ' 금리 × 기간) ÷ (1 + ' + Bn + ' 금리 × 기간) · 1년 넘으면 복리 · 금리: 3개월 (OECD 월평균 ' + C.sb.d + ' · ' + C.sq.d + ')'
+        + (C.long ? ' · 1년 넘는 만기는 3개월 금리와 10년 국채 금리 (' + C.lb.d + ' · ' + C.lq.d + ') 사이를 직선으로 이음' : ' · 10년 금리 자료가 없는 통화라 1년까지만')
+        + ' · 선물환은 «앞으로 이렇게 된다» 는 예측이 아니라 두 통화 금리 차이를 맞춘 가격 · 실제 스왑포인트는 달러 조달 사정 (베이시스) 때문에 이론값과 다를 수 있음',
+        'Forward = spot × (1 + quote rate × T) / (1 + base rate × T) · 3M OECD rates; beyond 1Y interpolated to 10Y yields · not a forecast; market points may differ (basis)')) + '</p>';
+  requestAnimationFrame(function(){ mkFwdDraw(P, M, a, C, cmp); });
+}
+function mkFwdDraw(P, M, a, C, cmp){
+  var el = $('mkFwdCh'); if (!el || typeof echarts === 'undefined') return;
+  mkFwdChart = chartOn(el, mkFwdChart); if (!mkFwdChart) return;
+  var dk = document.documentElement.getAttribute('data-theme') === 'dark', cats = [T('현물', 'Spot')].concat(C.rows.map(function(r){ return r.n; }));
+  var col = dk ? '#5b9cf0' : '#2a5aa8', mcol = dk ? '#e0b45a' : '#b7791f';
+  var mdat = cats.map(function(c){ var x = cmp.filter(function(m){ return m.n === c; })[0]; return x ? +x.md.toFixed(4) : null; });
+  mkFwdChart.__axNoKeep = true;
+  mkFwdChart.setOption({ animation: MOTION_OK, animationDuration: 800, grid: { left: 8, right: 12, top: 26, bottom: 6, containLabel: true },
+    legend: { top: 0, right: 0, itemWidth: 12, itemHeight: 8, textStyle: { fontSize: 10.5 }, data: [T('이론 선물환', 'Forward'), T('모델 중앙 예측', 'Model median')] },
+    tooltip: { trigger: 'axis', confine: true, valueFormatter: function(v){ return v == null ? '-' : mkFxFmt(v, P.k); } },
+    xAxis: { type: 'category', data: cats, boundaryGap: false, axisLabel: { fontSize: 10.5, hideOverlap: true } },
+    yAxis: { type: 'value', scale: true, axisLabel: { fontSize: 10, formatter: function(v){ return mkFxAx(v); } } },
+    series: [{ name: T('이론 선물환', 'Forward'), type: 'line', data: [+a.toFixed(4)].concat(C.rows.map(function(r){ return +r.F.toFixed(4); })), smooth: 0.25, symbolSize: 6, lineStyle: { width: 2.2, color: col }, itemStyle: { color: col },
+               areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: dk ? 'rgba(91,156,240,0.22)' : 'rgba(42,90,168,0.14)' }, { offset: 1, color: 'rgba(0,0,0,0)' }]) },
+               markLine: { silent: true, symbol: 'none', lineStyle: { type: 'dashed', color: dk ? '#8a93a8' : '#9aa3b5' }, label: { formatter: T('현물', 'spot'), fontSize: 10, position: 'insideStartTop' }, data: [{ yAxis: +a.toFixed(4) }] } },
+             { name: T('모델 중앙 예측', 'Model median'), type: 'scatter', data: mdat, symbol: 'diamond', symbolSize: 11, itemStyle: { color: mcol }, z: 3 }] }, true);
+}
+/* ══════════ (10/10 8차) 원유 · 천연가스 «가격 경로» — EIA 단기 에너지 전망 (STEO · 매달) ══════════
+   선물 시세 (NYMEX) 는 2024년 4월 뒤로 무료 공개가 끊겨, 대신 EIA 공식 월별 경로 (지난달까지 실적 · 이번 달부터 전망) 를 그림
+   서버에 EIA 열쇠가 없거나 못 받으면 학회원에게는 안 보임 (임원진만 이유)                                                     */
+function mkSteoLoad(k){
+  if (k !== 'oil' && k !== 'gas') return;
+  var A = MK.steo || (MK.steo = {}); if (A[k]) return;
+  A[k] = { busy: true };
+  if (typeof edge !== 'function') return;
+  edge({ source: 'mkt_steo', k: k }).then(function(d){ A[k] = d && d.series && d.series.length ? { d: d } : { err: (d && (d.error || (d.off && 'off'))) || 'x' }; }, function(e){ A[k] = { err: String(e && e.message || e) }; })
+    .then(function(){ if (MK.lay === 'res' && MK.res === k){ var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); } });
+}
+function mkSteoBlockHtml(k){
+  if (k !== 'oil' && k !== 'gas') return '';
+  var e = (MK.steo || {})[k] || {}, d = e.d;
+  if (!d) return e.err ? (e.err !== 'off' && typeof isOfficer === 'function' && isOfficer() ? '<div class="mk-steo"><div class="st-hint">' + esc(T('(임원진만 보임) 가격 경로 (EIA 전망): ', '(officers) EIA STEO: ') + mkErrTxt(e.err)) + '</div></div>' : '')
+    : '<div class="mk-steo"><div class="h"><b>' + esc(T('가격 경로 · EIA 전망', 'Price path · EIA outlook')) + '</b></div><div class="mk-wait">' + esc(T('로딩 중…', 'Loading…')) + '</div></div>';
+  var cur = mkKstDay().slice(0, 7);
+  var kv = d.series.map(function(S){
+    var act = S.pts.filter(function(p){ return p.d < cur; }), fc = S.pts.filter(function(p){ return p.d >= cur; });
+    var la = act[act.length - 1], f0 = fc[0], f12 = fc.filter(function(p){ return p.d <= mkSteoAdd(cur, 12); }).slice(-1)[0];
+    var ch = f0 && f12 && f12 !== f0 ? (f12.v / f0.v - 1) * 100 : null;
+    return '<span class="kv"><i>' + esc(S.n) + '</i>'
+      + (la ? '<em>' + esc(T('실적 ', 'Actual ') + la.d + ' ') + '<b>' + esc(la.v.toFixed(2)) + '</b></em>' : '')
+      + (f0 ? '<em>' + esc(T('이번 달 전망 ', 'This month ')) + '<b>' + esc(f0.v.toFixed(2)) + '</b></em>' : '')
+      + (f12 && f12 !== f0 ? '<em>' + esc(f12.d + T(' 전망 ', ' ')) + '<b>' + esc(f12.v.toFixed(2)) + '</b> <span class="' + mkUd(ch) + '">' + esc(mkPct(ch, 1)) + '</span></em>' : '')
+      + '<em class="u">' + esc(S.u) + '</em></span>'; }).join('');
+  return '<div class="mk-steo"><div class="h"><b>' + esc(T('가격 경로 · EIA 전망', 'Price path · EIA outlook')) + '</b><span class="st-hint">' + esc(T(' · 월평균 · 지난달까지 실적 (실선) · 이번 달부터 전망 (점선)', ' · monthly · solid = actual · dashed = forecast')) + '</span></div>'
+    + '<div class="mk-steo-kv">' + kv + '</div><div class="mk-steo-ch" id="mkSteoCh"></div>'
+    + '<div class="mk-res-src">' + esc(T('출처: 미 에너지정보청 (EIA) 단기 에너지 전망 (STEO · 매달 발표) · 선물 시세가 아니라 EIA 의 전망 경로 (NYMEX 선물 시세는 EIA 가 2024년 4월 뒤로 공개하지 않음)', 'Source: EIA Short-Term Energy Outlook · forecast path, not futures quotes')) + '</div></div>';
+}
+function mkSteoAdd(ym, n){ var y = +ym.slice(0, 4), m = +ym.slice(5, 7) - 1 + n; y += Math.floor(m / 12); m = ((m % 12) + 12) % 12; return y + '-' + String(m + 1).padStart(2, '0'); }
+function mkSteoScreenLine(k){
+  var e = (MK.steo || {})[k], d = e && e.d; if (!d) return '';
+  var cur = mkKstDay().slice(0, 7);
+  return '[가격 경로 · EIA 단기 에너지 전망 (선물 시세 아님 · 월평균)] ' + d.series.map(function(S){ var a = S.pts.filter(function(p){ return p.d < cur; }).slice(-1)[0], f = S.pts.filter(function(p){ return p.d >= cur; });
+    return S.n + ' (' + S.u + '): ' + (a ? '실적 ' + a.d + ' ' + a.v : '') + (f.length ? ' · 전망 ' + f.filter(function(p, i){ return i % 3 === 0; }).slice(0, 6).map(function(p){ return p.d + ' ' + p.v; }).join(', ') : ''); }).join(' / ');
+}
+var mkSteoChart = null;
+function mkSteoDraw(k){
+  var el = $('mkSteoCh'), e = (MK.steo || {})[k], d = e && e.d; if (!el || !d || typeof echarts === 'undefined') return;
+  mkSteoChart = chartOn(el, mkSteoChart); if (!mkSteoChart) return;
+  var dk = document.documentElement.getAttribute('data-theme') === 'dark', cur = mkKstDay().slice(0, 7), pal = dk ? ['#f0c46a', '#b197fc', '#43d1b4'] : ['#b7791f', '#6f42c1', '#0e7c6b'];
+  var X = function(m){ return Date.parse(m + '-15T00:00:00Z'); }, series = [];
+  d.series.forEach(function(S, i){
+    var act = S.pts.filter(function(p){ return p.d < cur; }), fc = S.pts.filter(function(p){ return p.d >= cur; }), c = pal[i % pal.length];
+    series.push({ name: S.n, type: 'line', data: act.map(function(p){ return [X(p.d), p.v]; }), showSymbol: false, lineStyle: { width: 2, color: c }, itemStyle: { color: c } });
+    series.push({ name: S.n + T(' 전망', ' fcst'), type: 'line', data: (act.length ? [act[act.length - 1]] : []).concat(fc).map(function(p){ return [X(p.d), p.v]; }), showSymbol: false, lineStyle: { width: 2, type: 'dashed', color: c }, itemStyle: { color: c } });
+  });
+  if (series.length) series[0].markLine = { silent: true, symbol: 'none', lineStyle: { type: 'dotted', color: dk ? '#8a93a8' : '#9aa3b5' }, label: { formatter: T('이번 달', 'now'), fontSize: 10 }, data: [{ xAxis: X(cur) }] };
+  mkSteoChart.__axNoKeep = true;
+  mkSteoChart.setOption({ animation: MOTION_OK, animationDuration: 900, grid: { left: 8, right: 12, top: 32, bottom: 6, containLabel: true },
+    legend: { top: 0, left: 0, itemWidth: 12, itemHeight: 8, textStyle: { fontSize: 10.5 }, data: d.series.map(function(S){ return S.n; }) },
+    tooltip: { trigger: 'axis', confine: true, valueFormatter: function(v){ return v == null ? '-' : Number(v).toFixed(2); } },
+    xAxis: { type: 'time', axisLabel: { fontSize: 10, hideOverlap: true } }, yAxis: { type: 'value', scale: true, axisLabel: { fontSize: 10 } }, series: series }, true);
+}
 function mkFxRender(liveOnly){
   var seg = $('mkFxPairs'), sum = $('mkFxSum'), tb = $('mkFxTable'), note = $('mkFxNote'), why = $('mkFxWhy');
   if (seg) seg.innerHTML = MK_FX_PAIRS.map(function(P){ return '<button type="button"' + (MK.fxPair === P.k ? ' class="on" aria-pressed="true"' : '') + ' onclick="mkFxSet(\'' + P.k + '\')">' + esc(P.n) + '</button>'; }).join('');
@@ -25070,6 +25575,7 @@ function mkFxRender(liveOnly){
     + (M.realOk ? '' : '<b>' + esc(T('이 통화는 소비자물가 자료가 없어 실질환율 요인을 빼고 맞췄습니다. ', 'No CPI data for this pair. ')) + '</b>')
     + esc(T('환율 모델은 통계적 확률 범위 · 방향일 뿐 투자 권유가 아닙니다 · 마지막 자료 ', 'Statistical ranges, not advice · last data ') + M.lastD + T(' · 맞춘 시각 ', ' · fitted ') + mkHhmmss(MK.fxAt || Date.now()));
   mkFxChart = mkFxChartDraw('mkFxBox', mkFxChart, P, M, a, !!lvP && a !== M.last, false);
+  if (!liveOnly || !$('mkFwdCh')) mkFwdRender();
 }
 /*  세계지도 나라 칸 › 환율 — 그 나라 통화 (원화 기준 · 달러 기준) · 지금 · 1주/1개월/3개월 · 차트 · 근거  */
 function mkCfxSet(k){ MK.ctryFxPair = k; mkCfxRender(); }
@@ -37365,12 +37871,24 @@ function aiDrawTargets(box, sec){
     var l = Math.min(lo, hi);
     return { value: l, r: r };
   });
-  var span = rows.map(function(r){
-    var lo = r.lo != null ? r.lo : r.hi, hi = r.hi != null ? r.hi : r.lo;
-    var w = Math.abs(hi - lo);
-    return { value: w > 0 ? w : (xmax - xmin) * 0.004, r: r,
-             itemStyle: { color: r.sum ? '#2c3e6b' : 'rgba(107,140,218,.72)', borderRadius: 4 } };
+  /*  (10/10 학회장: «막대가 약세 강세 방향성에 따라 막대 색이 바뀌는건 어때?») — 띠를 <현재가에서> 둘로 나눔
+      현재가보다 아래 = 내려갈 자리 (파랑 · 약세 쪽) · 위 = 오를 자리 (빨강 · 강세 쪽) · 종합은 더 진하게
+      띠 전체가 현재가 아래면 모두 파랑 · 위면 모두 빨강 (현재가가 없으면 예전처럼 한 색)  */
+  var dkT = aiDk(), cDn = function(sum){ return dkT ? (sum ? 'rgba(91,156,240,.95)' : 'rgba(91,156,240,.62)') : (sum ? 'rgba(27,95,168,.95)' : 'rgba(27,95,168,.55)'); },
+      cUp = function(sum){ return dkT ? (sum ? 'rgba(239,107,94,.95)' : 'rgba(239,107,94,.62)') : (sum ? 'rgba(192,57,43,.92)' : 'rgba(192,57,43,.55)'); };
+  var segs = rows.map(function(r){
+    var lo = r.lo != null ? r.lo : r.hi, hi = r.hi != null ? r.hi : r.lo, l = Math.min(lo, hi), h = Math.max(lo, hi);
+    var w = h - l, tiny = (xmax - xmin) * 0.004;
+    if (px == null || !(px > 0)) return { dn: 0, up: w > 0 ? w : tiny, one: true };
+    var cut = Math.max(l, Math.min(h, px));
+    var dn = cut - l, up = h - cut;
+    if (w <= 0) return h < px ? { dn: tiny, up: 0 } : { dn: 0, up: tiny };
+    return { dn: dn, up: up };
   });
+  var spanDn = rows.map(function(r, i){ var g = segs[i];
+    return { value: g.dn, r: r, itemStyle: { color: cDn(r.sum), borderRadius: g.up > 0 ? [4, 0, 0, 4] : 4 }, label: { show: g.up <= 0 } }; });
+  var span = rows.map(function(r, i){ var g = segs[i];
+    return { value: g.up, r: r, itemStyle: { color: g.one ? (r.sum ? '#2c3e6b' : 'rgba(107,140,218,.72)') : cUp(r.sum), borderRadius: g.dn > 0 ? [0, 4, 4, 0] : 4 }, label: { show: g.up > 0 } }; });
   var ml = [];
   //  세로 점선의 이름표는 <위쪽 여백> 에 — 띠 위에 얹히면 숫자가 가립니다
   if (px != null && px > 0) ml.push({ xAxis: px, lineStyle: { color: '#1a1f36', width: 2, type: 'dashed' },
@@ -37412,8 +37930,11 @@ function aiDrawTargets(box, sec){
         label: { show: true, position: 'insideRight', fontSize: 10.5, fontWeight: 700, color: aiDk() ? '#8fbaf5' : '#1b5fa8', distance: 6,
                  formatter: function(p){ var r = p.data.r; return r.lo != null && r.hi != null ? fmt(Math.min(r.lo, r.hi)) : ''; } },
         emphasis: { disabled: true }, tooltip: { show: false } },
+      { type: 'bar', stack: 'ff', data: spanDn, barWidth: 16,
+        label: { position: 'right', fontSize: 10.5, fontWeight: 700, color: aiDk() ? '#f29084' : '#c0392b', distance: 6,
+                 formatter: function(p){ var r = p.data.r; return r.lo != null && r.hi != null ? fmt(Math.max(r.lo, r.hi)) : fmt(r.hi != null ? r.hi : r.lo); } } },
       { type: 'bar', stack: 'ff', data: span, barWidth: 16,
-        label: { show: true, position: 'right', fontSize: 10.5, fontWeight: 700, color: aiDk() ? '#f29084' : '#c0392b', distance: 6,
+        label: { position: 'right', fontSize: 10.5, fontWeight: 700, color: aiDk() ? '#f29084' : '#c0392b', distance: 6,
                  formatter: function(p){ var r = p.data.r; return r.lo != null && r.hi != null ? fmt(Math.max(r.lo, r.hi)) : fmt(r.hi != null ? r.hi : r.lo); } },
         markLine: ml.length ? { symbol: 'none', silent: true, label: { fontSize: 10.5, fontWeight: 700, rotate: 0,
                   backgroundColor: 'rgba(255,255,255,.92)', padding: [2, 5], borderRadius: 3 }, data: ml } : undefined }
@@ -38124,20 +38645,22 @@ function aiValCompare(sec, cur, px){
     var nowM = aiNum(any.now_multiple);
     //  (10/8 학회장: «이 글 좀 잘 안 읽혀 · 공간을 더 주고 잘 다듬어서») — 한 줄로 이어 붙인 계산을 단계로 나눠 강세 · 약세 나란히
     var hasDet = (b && (aiStr(b.calc) || aiStr(b.why))) || (r && (aiStr(r.calc) || aiStr(r.why)));
-    var det = hasDet ? '<div class="ai-steps2">' + aiCalcCard(b, 'bull', cur) + aiCalcCard(r, 'bear', cur) + '</div>' : '';
-    if (det) mob.push('<div class="ai-steps-m-h">' + esc(k) + ' <span class="st-hint">계산 과정</span></div>' + det);
+    var cB = hasDet ? aiCalcCard(b, 'bull', cur) : '', cR = hasDet ? aiCalcCard(r, 'bear', cur) : '';
+    if (hasDet) mob.push('<div class="ai-steps-m-h">' + esc(k) + ' <span class="st-hint">계산 과정</span></div><div class="ai-steps2">' + cB + cR + '</div>');
     //  위 카드가 «강세(왼쪽) · 약세(오른쪽)» 이니 표도 같은 순서로
     //  rowspan 을 쓰면 휴대폰에서 계산 줄을 숨길 때 다음 기법 줄이 한 칸 밀렸습니다 → 계산 줄 첫 칸은 빈 칸으로
-    return '<tr><td><b>' + esc(k) + '</b></td>'
+    //  (10/10 학회장: «표가 뒤죽박죽 · 위 아래 내용이 더 잘 매칭되게») — 계산 카드를 <강세 세 칸 · 약세 세 칸 바로 아래> 에 (예전엔 7칸을 반씩 나눠 경계가 어긋남)
+    return '<tr class="ai-mrow"><td><b>' + esc(k) + '</b></td>'
       + '<td>' + base + (nowM != null ? '<div class="st-hint" style="white-space:nowrap">지금 ' + esc(aiTrim(num(nowM, 2))) + '배</div>' : '') + '</td>'
       + '<td class="ai-cu">' + gTxt(b) + '</td><td class="ai-cu">' + mTxt(b, 'bull') + '</td><td class="ai-cu num">' + tTxt(b, 'bull') + '</td>'
       + '<td class="ai-cb">' + gTxt(r) + '</td><td class="ai-cb">' + mTxt(r, 'bear') + '</td><td class="ai-cb num">' + tTxt(r, 'bear') + '</td></tr>'
-      + (det ? '<tr class="ai-det"><td></td><td colspan="7">' + det + '</td></tr>' : '');
+      + (hasDet ? '<tr class="ai-det"><td colspan="2" class="ai-dlab"><span>계산 과정</span></td><td colspan="3" class="ai-cu ai-dc">' + cB + '</td><td colspan="3" class="ai-cb ai-dc">' + cR + '</td></tr>' : '');
   }).join('');
   var sum = '<tr class="ai-sum-row"><td><b>종합</b></td><td class="st-hint">' + esc(aiStr(bull.target_how) || aiStr(bear.target_how) || '기법별 목표가의 단순 평균') + '</td>'
     + '<td class="ai-cu" colspan="2"></td><td class="ai-cu num">' + tTxt(bull, 'bull') + '</td>'
     + '<td class="ai-cb" colspan="2"></td><td class="ai-cb num">' + tTxt(bear, 'bear') + '</td></tr>';
   return '<div class="scroll" style="margin-top:4px"><table class="ai-vtab ai-cmp">'
+    + '<colgroup><col style="width:8%"><col style="width:16%"><col style="width:12%"><col style="width:9%"><col style="width:17%"><col style="width:12%"><col style="width:9%"><col style="width:17%"></colgroup>'
     + '<thead><tr><th rowspan="2">기법</th><th rowspan="2">기준값 <span class="st-hint">(지금 배수)</span></th>'
     + '<th colspan="3" class="ai-cu">강세 BULL</th><th colspan="3" class="ai-cb">약세 BEAR</th></tr>'
     + '<tr><th class="ai-cu">12개월 성장</th><th class="ai-cu">배수</th><th class="ai-cu num">목표가</th>'
@@ -39110,6 +39633,14 @@ function coPrefetch(c, light){
 //  기업을 열면 손익계산서부터 보여줍니다 (재무제표를 읽는 순서대로)
 var coFull = null, coFsTab = '손익계산서';
 
+/*  (10/10 학회장: «재무제표도 디자인이나 데이터 보완해서 개선») — 표시 방식 «금액 | 구성비 %» · 연평균 증가율 칸 · 차트 모양 접기  */
+var coFsMode = 'amt';
+function coFsModeSet(m){
+  coFsMode = m === 'cs' ? 'cs' : 'amt';
+  Array.prototype.forEach.call(document.querySelectorAll('#coFsMode button'), function(b){ b.classList.toggle('on', b.getAttribute('data-m') === coFsMode); b.setAttribute('aria-pressed', b.getAttribute('data-m') === coFsMode); });
+  if (coFsTab !== 'summary') renderCoStatement(coFsTab);
+}
+function coAdvToggle(){ var a = $('coAdv'), b = $('coAdvBtn'); if (!a) return; var open = a.classList.contains('hidden'); a.classList.toggle('hidden', !open); if (b){ b.setAttribute('aria-expanded', open); b.textContent = open ? '차트 모양 ▴' : '차트 모양 ▾'; } }
 function coFsShow(which){
   coFsTab = which;
   ['손익계산서','재무상태표','현금흐름표','summary'].forEach(function(k){
@@ -39132,13 +39663,14 @@ async function loadCoFull(){
   var pk = co.market + '|' + co.code + '|' + per;
   if (!coFullP[pk]) coFullP[pk] = edgeCo({ action: co.market === 'KR' ? 'kr_fin_full' : 'us_fin_full', code: key, period: per })
     .then(function(d){ delete coFullP[pk]; return d; }, function(e){ delete coFullP[pk]; throw e; });
-  var d = await coFullP[pk];
+  var d = coFsNormCis(await coFullP[pk]);
   //  기다리는 사이 다른 회사를 열었으면 그 회사 보관함에 넣지 않습니다
   if (co !== me) return d;
   coFullCache[per] = d; coFull = d;
   //  (10/8 클릭하면 바로) 보관함의 묵은 표를 먼저 그렸고 새 표가 뒤에 오면 — 같은 회사를 보고 있을 때만 바꿔 그립니다
   ecOnFresh(d, function(nd){
     if (co !== me) return;
+    coFsNormCis(nd);
     coFullCache[per] = nd; if (coFull === d || (coView.period === 'quarter' ? 'quarter' : 'annual') === per) coFull = nd;
     if (coFsTab !== 'summary' && $('coPane-fin') && !$('coPane-fin').classList.contains('hidden')) renderCoStatement(coFsTab);
     if (typeof renderCoFinChart === 'function' && coFinSeries.length) renderCoFinChart();
@@ -39146,6 +39678,13 @@ async function loadCoFull(){
     if (typeof valData !== 'undefined' && valData){ valData = null; if ($('coPane-val') && !$('coPane-val').classList.contains('hidden')) valLoad(true); }
   });
   return coFull;
+}
+/*  (10/10 학회장: «국내 주식은 왜 손익계산서 자료를 못 찾지?») 포괄손익계산서 한 장으로만 내는 회사는 손익 줄이 거기 있음
+    서버(v9)가 고쳐 보내지만, 예전에 보관된 표가 먼저 오면 여기서도 «손익계산서» 로 맞춤  */
+function coFsNormCis(d){
+  var S = d && d.statements; if (!S) return d;
+  if (!(S['손익계산서'] || []).length && (S['포괄손익계산서'] || []).length){ S['손익계산서'] = S['포괄손익계산서']; delete S['포괄손익계산서']; d.is_from = d.is_from || 'CIS'; }
+  return d;
 }
 /* 기간 구분 열쇠 — 실적 추이 행과 재무제표 열을 같은 이름으로 맞춥니다 */
 function periodKey(r){ return r.q ? (r.year + 'Q' + r.q) : String(r.year); }
@@ -39274,9 +39813,32 @@ async function renderCoStatement(group){
         라고 옮겨 적는 것이 기업분석에서 제일 흔한 사고입니다.          */
     var fsNote = coFsNote(d, years);
 
+    //  (10/10) 구성비 % — 손익 · 현금흐름은 매출액 대비 · 재무상태표는 자산총계 대비 (같은 기간)
+    var csMode = coFsMode === 'cs';
+    var csBase = (function(){ var S = d.statements || {}, L = group === '재무상태표' ? (S['재무상태표'] || []) : (S['손익계산서'] || []), want = group === '재무상태표' ? /^자산총계$/ : /^(매출액|영업수익|수익\(매출액\)|매출)$/;
+      return L.filter(function(x){ return want.test(String(x.name).replace(/\s+/g, '')); })[0] || null; })();
+    if (csMode && !csBase) csMode = false;
+    //  연평균 증가율 (연간 · 금액 · 3개 기간 넘게) — 처음 · 마지막 값이 같은 부호(둘 다 +)일 때만
+    var showCagr = !csMode && coView.period !== 'quarter' && years.length >= 3;
+    function cagrCell(r){
+      if (!showCagr) return '';
+      var ks = years.map(function(y){ return y.key; }).filter(function(k){ return r.values[k] != null; });
+      if (ks.length < 3) return '<td class="num fs-cagr"><span class="fs-num zero">–</span></td>';
+      var a = Number(r.values[ks[0]]), b = Number(r.values[ks[ks.length - 1]]), n = (Number(String(ks[ks.length - 1]).slice(0, 4)) - Number(String(ks[0]).slice(0, 4))) || (ks.length - 1);
+      if (!(a > 0 && b > 0) || n < 2) return '<td class="num fs-cagr"><span class="fs-num zero" title="처음 · 마지막 값이 0 이하라 연평균을 셀 수 없습니다">–</span></td>';
+      var g = (Math.pow(b / a, 1 / n) - 1) * 100;
+      return '<td class="num fs-cagr"><span class="fs-num ' + (g > 0.05 ? 'up' : g < -0.05 ? 'dn' : '') + '" title="' + esc(String(ks[0]).slice(0, 4) + ' → ' + String(ks[ks.length - 1]).slice(0, 4) + ' · ' + n + '년 연평균') + '">' + (g > 0 ? '+' : '') + num(g, 1) + '%</span><span class="fs-dlt flat">' + n + '년</span></td>';
+    }
     function cells(r){
       //  이 줄에 맞는 단위 (표 전체 단위로는 작은 줄이 전부 0.0 이 됩니다)
       var ru = coRowUnit(r, years, u);
+      if (csMode && !ru.ps) return years.map(function(y, k){
+        var raw = r.values[y.key], bv = csBase.values[y.key];
+        if (raw == null || bv == null || !Number(bv)) return '<td class="num"><span class="fs-num zero">–</span></td>';
+        var pc = Number(raw) / Math.abs(Number(bv)) * 100, pr = k > 0 ? r.values[years[k - 1].key] : null, pb = k > 0 ? csBase.values[years[k - 1].key] : null, dd = '';
+        if (pr != null && pb != null && Number(pb)){ var dp = pc - Number(pr) / Math.abs(Number(pb)) * 100; dd = '<span class="fs-dlt ' + (Math.abs(dp) < 0.05 ? 'flat' : dp > 0 ? 'up' : 'dn') + '">' + (Math.abs(dp) < 0.05 ? '–' : (dp > 0 ? '+' : '') + num(dp, 1) + '%p') + '</span>'; }
+        return '<td class="num"><span class="fs-num">' + num(pc, 1) + '%</span>' + dd + '</td>';
+      }).join('');
       return years.map(function(y, k){
         //  값이 없으면 0 입니다 (그 해에 그 거래가 없었다는 뜻).
         //  숫자는 흐리게 두어 '회사가 적어낸 0' 과 구분됩니다.
@@ -39347,7 +39909,7 @@ async function renderCoStatement(group){
               ? '<span class="fs-unit">' + esc(ru.tag) + '</span>' : '';
           })()
         + '</td>'
-        + cells(r) + '</tr>';
+        + cells(r) + cagrCell(r) + '</tr>';
     }
 
     var body = '';
@@ -39377,12 +39939,18 @@ async function renderCoStatement(group){
                + (y.end ? '<div class="st-hint" style="font-weight:400">'
                         + esc(String(y.end)) + '</div>' : '')
                + '</th>'; }).join('')
+      + (showCagr ? '<th class="num fs-cagr">연평균<div class="st-hint" style="font-weight:400">증가율</div></th>' : '')
       + '</tr></thead><tbody>' + body + '</tbody>';
+    tb.classList.toggle('cs', csMode);
 
     $('coFinUnit').textContent = '단위: ' + u.label + (d.basis ? ' · ' + d.basis : '');
 
     var msg = [];
     if (fsNote) msg.push(fsNote);
+    //  (10/10) 포괄손익계산서 한 장으로 보고하는 회사
+    if (csMode) msg.push('<b>구성비 %</b> - ' + (group === '재무상태표' ? '같은 시점 자산총계' : '같은 기간 매출액') + ' 대비 비율입니다 · 아래 작은 글자는 전 기간 대비 %p 변화입니다 (주당 값은 금액 그대로).');
+    else if (coFsMode === 'cs') msg.push('이 표에는 ' + (group === '재무상태표' ? '자산총계' : '매출액') + ' 줄이 없어 구성비를 셀 수 없습니다 - 금액으로 보여 드립니다.');
+    if (group === '손익계산서' && d.is_from === 'CIS') msg.push('이 회사는 손익계산서를 따로 내지 않고 <b>포괄손익계산서 한 장</b>에 손익을 함께 적습니다 - 그 안의 손익 줄입니다 (아래쪽 기타포괄손익 줄 포함).');
     //  (10/7) 계산한 칸 — 다른 계정에서 · 4분기(연간 − 3분기 누적) · 10-Q 누적에서 푼 분기 (칸에 마우스를 올리면 어떻게 셌는지 나옴)
     var calcRows = (d.derived || []).slice();
     var anyQ = all.some(function(r){ return r.derived && Object.keys(r.derived).some(function(k){ return r.derived[k] === 'q4' || r.derived[k] === 'ytd'; }); });
@@ -40009,11 +40577,15 @@ function renderCoFinChart(){
   var rows = coChartRows();
   coFinChart = chartOn('coFinBox', coFinChart); if (!coFinChart) return;
 
-  //  아무것도 안 얹었으면 빈 차트에 안내만 띄웁니다
+  //  아무것도 안 얹었으면 빈 차트에 안내만 띄웁니다 — (10/10) 낮게 (빈 큰 칸이 «없어 보임») + 바로 담는 단추
+  var fbx = $('coFinBox'), fem = $('coFinEmpty'), emptyNow = !rows.length || !coFinSeries.length;
+  if (fem) fem.classList.toggle('hidden', !emptyNow);
+  var wantH = emptyNow ? '128px' : ((coView.h || 420) + 'px');
+  if (fbx && fbx.style.height !== wantH){ fbx.style.height = wantH; try { coFinChart.resize(); } catch(e){} }
   if (!rows.length || !coFinSeries.length){
     coFinChart.clear();
     coFinChart.setOption({ backgroundColor: theme.bg,
-      title:{ left:'center', top:'44%',
+      title:{ left:'center', top:'26%',
         text:'아래 재무제표에서 계정을 클릭하면 여기에 그려집니다',
         subtext:'주가 · 경제지표도 위에서 더할 수 있습니다',
         textStyle:{ fontSize:13.5, fontWeight:'normal', color: theme.text_color },
