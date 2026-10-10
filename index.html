@@ -642,6 +642,14 @@
   .mk-ctry-top .mk-ctabs::-webkit-scrollbar{display:none}
   .mk-ctabs.short button{padding:5px 8px}
   .mk-ctabs.ovf{-webkit-mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent)}
+  /*  (10/10 9차) 넘치는 탭 줄 — 끌어서 밀기 · ‹ › 단추 (끝에 닿으면 흐림) · 끝 쪽만 흐리게  */
+  .hs-drag{cursor:grab} .hs-drag.hs-on{cursor:grabbing;scroll-behavior:auto !important;user-select:none} .hs-drag.hs-on button{pointer-events:none}
+  .mk-ctabs.ovf.at-e{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 100%);mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 100%)}
+  .mk-ctabs.ovf:not(.at-s):not(.at-e){-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 88%,transparent)}
+  .mk-ctabs.ovf.at-s.at-e{-webkit-mask-image:none;mask-image:none}
+  .hs-ar{display:none;flex:none;align-items:center;justify-content:center;width:22px;height:26px;padding:0;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text);font:inherit;font-size:16px;line-height:1;cursor:pointer;transition:opacity .15s,background .15s}
+  .hs-ar:hover{background:var(--accent-soft);color:var(--primary)} .hs-ar.end{opacity:.28;pointer-events:none}
+  .mk-ctry-top.hs-ovf .hs-ar{display:inline-flex}
   .mk-ctry-top .mk-x{flex:none}
   .mk-cmp-ttl{flex:1 1 auto;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap} .mk-cmp-ttl b{font-size:15px}
   .mk-rets{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;margin:0 0 4px;font-variant-numeric:tabular-nums}
@@ -1190,6 +1198,13 @@
   .mk-port-live .h{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;font-weight:700;font-size:12.5px} .mk-port-live .h .st-hint{font-weight:400} .mk-port-live .dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.5);animation:mkLiveDot 1.6s infinite}
   @keyframes mkLiveDot{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
   .mk-port-live .g{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:5px;font-size:12px} .mk-port-live .g b{font-size:15px;margin-right:2px;font-variant-numeric:tabular-nums}
+  /*  (10/10 9차) 고른 곳 «지금» · 진단 (임원진)  */
+  .mk-port-now{display:flex;align-items:center;gap:6px;margin-top:6px;padding:4px 8px;border-radius:7px;background:var(--port-soft);font-size:12px;font-variant-numeric:tabular-nums}
+  .mk-port-now .dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex:none;box-shadow:0 0 0 0 rgba(34,197,94,.5);animation:mkLiveDot 1.6s infinite} .mk-port-now b{color:var(--port)}
+  .mk-diag{margin-top:12px;border-top:1px dashed var(--border);padding-top:8px;font-size:12px} .mk-diag summary{cursor:pointer;color:var(--text-sub);font-weight:600}
+  .mk-diag-g{display:grid;grid-template-columns:minmax(80px,auto) minmax(0,1fr);gap:4px 10px;margin:8px 0;line-height:1.45} .mk-diag-g .k{color:var(--text-sub);white-space:nowrap} .mk-diag-g .v{min-width:0;word-break:break-word;font-variant-numeric:tabular-nums}
+  .mk-diag-fix{margin:6px 0 8px;padding:6px 9px;border-radius:8px;background:color-mix(in srgb, var(--up) 8%, transparent)} .mk-diag-fix ul{margin:4px 0 0;padding-left:16px} .mk-diag-fix li{margin:2px 0}
+  @media (prefers-reduced-motion: reduce){ .mk-port-now .dot{animation:none} }
   .mk-prows{display:flex;flex-direction:column;gap:1px}
   .mk-prow{display:grid;grid-template-columns:18px minmax(0,1.25fr) minmax(0,1fr) 54px 46px 64px;align-items:center;gap:7px;padding:4px 6px;border:0;background:none;border-radius:6px;font:inherit;color:inherit;text-align:left;font-size:12px}
   .mk-prow.h{font-size:10.5px;color:var(--text-sub);padding-bottom:2px} .mk-prow.h span{white-space:nowrap}
@@ -1629,6 +1644,29 @@
   .ad-live .it .n{font-size:11.5px;color:var(--text-sub);font-weight:700;display:flex;align-items:center;gap:6px}
   .ad-live .it .v{font-size:13.5px;margin-top:4px;font-variant-numeric:tabular-nums}
   .ad-live .it .s{font-size:11.5px;color:var(--text-sub);margin-top:2px}
+  /* (10/10 9차) 세이피 텔레그램 카드 */
+  #tgBody{container:tgb / inline-size}
+  #tgCard .ad-live{grid-template-columns:repeat(3,minmax(0,1fr))}
+  @container tgb (max-width:760px){ #tgCard .ad-live{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @container tgb (max-width:440px){ #tgCard .ad-live{grid-template-columns:minmax(0,1fr)} }
+  .tg-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 6px}
+  .tg-acts .st-hint{flex:1 1 220px;min-width:0}
+  .tg-code{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;border:1px dashed var(--accent);border-radius:10px;padding:10px 14px;margin:8px 0;background:var(--accent-soft)}
+  .tg-code b{font-size:1.35rem;letter-spacing:.18em;font-variant-numeric:tabular-nums;color:var(--primary)}
+  .tg-code code{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:12.5px}
+  .tg-code .st-hint{flex:1 1 200px;min-width:0}
+  .tg-sec{font-size:.9rem;color:var(--primary);margin:18px 0 8px;font-weight:700}
+  .tg-seg{max-width:460px;margin-bottom:10px}
+  .tg-opts{display:flex;flex-wrap:wrap;gap:8px 18px;margin:4px 0 2px}
+  .tg-opts label{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;white-space:nowrap}
+  .tg-opts input{width:auto;margin:0}
+  .tg-tbl td,.tg-tbl th{font-size:12.5px;vertical-align:top}
+  .tg-tbl td.b{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;min-width:200px;max-width:520px}
+  .tg-tbl td.t{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--text-sub)}
+  .tg-tbl select{width:auto;min-width:96px;padding:4px 8px;font-size:12.5px}
+  .tg-bad{color:var(--danger)}
+  .tg-msg{min-height:18px;font-size:12.5px;margin:4px 0 0;color:var(--text-sub)}
+  .tg-msg.err{color:var(--danger)} .tg-msg.ok{color:var(--ok)}
   .steps{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
   .step{flex:1 1 190px;display:flex;gap:9px;align-items:flex-start;padding:11px 13px;
     border:1px solid var(--border);border-radius:10px;background:var(--bg)}
@@ -5732,6 +5770,22 @@
         </div>
 
         <div id="adPane-ai" class="hidden">
+<!--  ── 세이피 텔레그램 (10/10 9차 · 자동화 기획안 1단계) ──────────────────
+        학회장: «세이피 에이전트의 자동화와 텔레그램 연동 · 개발 필요할 때 텔레그램으로 말하면 전달».
+        봇 · 웹훅 · 채널 등록 상태, 내 계정 연결(6자리 코드), 보내는 곳(시험 중 ↔ 학회 전체), 알림 켜고 끄기, 보낸 글, 개발 요청함.
+        서버: safey-telegram 함수 (임원진 로그인 + is_officer 로만 답함).                                         -->
+      <div class="card" id="tgCard">
+        <h2>세이피 텔레그램
+          <span class="tools"><button class="btn-sm" onclick="tgLoad(true)">새로고침</button></span>
+        </h2>
+        <div class="note info" style="margin-bottom:12px">
+          아침 브리핑 (화~금 07:00) · 미국 지표 발표 알림 · 오류 알림을 텔레그램으로 보내고,
+          텔레그램에서 <b>/dev</b> 로 보낸 개발 요청이 아래 요청함에 쌓입니다.
+          처음에는 <b>시험 중</b>이라 모든 글이 임원진 그룹으로만 갑니다.
+        </div>
+        <div id="tgBody"><div class="empty">로딩 중…</div></div>
+      </div>
+
 <!--  ⚠️ AI 리포트 비용은 <여기에만> 나옵니다.
             · 학회원 화면에는 금액이 한 군데도 안 뜹니다 (누르기를 망설이니까)
             · AI 분석 탭에도 안 뜹니다 (발표 중 화면 공유 때 보이면 곤란)
@@ -5987,7 +6041,9 @@
               <div class="mk-res" id="mkRes"></div>
               <div class="mk-ctry-top">
                 <span class="mk-drag" id="mkCtryDrag" title="끌어서 옮기기 (지도 위 어디든) · 두 번 누르면 제자리" aria-hidden="true">⋮⋮</span>
+                <button type="button" class="hs-ar l" id="mkCtryTabsL" aria-label="왼쪽 탭 보기" title="왼쪽 탭 보기" tabindex="-1">‹</button>
                 <span class="px-seg mk-ctabs" id="mkCtryTabs" role="group" aria-label="보기"></span>
+                <button type="button" class="hs-ar r" id="mkCtryTabsR" aria-label="오른쪽 탭 보기" title="오른쪽 탭 보기" tabindex="-1">›</button>
                 <span class="mk-cmp-ttl hidden" id="mkCmpTtl"></span>
                 <button type="button" class="mk-x" onclick="mkCtryClose()" aria-label="나라 칸 닫기" title="닫기 (지도를 넓게)">×</button>
               </div>
@@ -19941,7 +19997,7 @@ function mkDrawerReset(){
     if (mkPanFree() && (t.closest('#mkCtry') || t.closest('#mkPanFrame'))){ var z = mkZNext(), fz = $('mkPanFrame'); d.style.zIndex = z; if (fz) fz.style.zIndex = z; }
     var wf = t.closest('#mkPanFrame .mk-wf');
     if (wf && mkPanFree()){ st = { k: 'r', dir: wf.getAttribute('data-wf'), x: e.clientX, y: e.clientY, g: { x: MK.pfree.x, y: MK.pfree.y, w: MK.pfree.w, h: MK.pfree.h } }; e.preventDefault(); document.body.classList.add('dk-drag'); return; }
-    var onHandle = t.closest('#mkCtryDrag, #mkResDrag'), onTop = (t.closest('#mkCtry .mk-ctry-top') || t.closest('#mkCtry .mk-res-top')) && !t.closest('button, a, input, select, label');
+    var onHandle = t.closest('#mkCtryDrag, #mkResDrag'), onTop = (t.closest('#mkCtry .mk-ctry-top') || t.closest('#mkCtry .mk-res-top')) && !t.closest('button, a, input, select, label, .hs-drag');
     if (!onHandle && !onTop) return;
     var r = d.getBoundingClientRect(), wr = mkWorldRect();
     st = { k: 'm', x: e.clientX, y: e.clientY, g0: { x: r.left - wr.left, y: r.top - wr.top, w: r.width, h: r.height }, mode: '' };
@@ -21915,7 +21971,7 @@ function mkAisAllLoad(force){
   if (!MK.feat || !MK.feat.ais || typeof edge !== 'function') return;
   var A = MK.aisAll || (MK.aisAll = {});
   if (A.busy) return;
-  if (!force && A.d && Date.now() - A.got < 170000) return;
+  if (!force && A.d && Date.now() - A.got < 80000) return;
   if (A.err && Date.now() - (A.errAt || 0) < 60000) return;
   A.busy = true;
   edge({ source: 'ais_all' }).then(function(d){
@@ -21937,7 +21993,9 @@ function mkShipsData(D, C){
     bb = [Math.min(p0[0], p1[0]) - 0.5, Math.max(p0[0], p1[0]) + 0.5, Math.min(p0[1], p1[1]) - 0.5, Math.max(p0[1], p1[1]) + 0.5]; } catch(e){ bb = null; }
   //  (10/10 5차 «지도 버전에서도 배가 잘 보이게») — 점을 키우고 테두리로 바탕과 갈라 놓음
   var edge0 = dark ? 'rgba(8,12,22,.75)' : 'rgba(255,255,255,.9)';
-  A.d.ships.forEach(function(s){
+  var Q = mkAisSnapRows(), used = {};
+  var all = Q ? A.d.ships.map(function(s){ var q = Q.by[s[0]]; if (q && (+q[9] || 0) <= (+s[9] || 0)){ used[s[0]] = 1; return q; } return s; }).concat(Q.list.filter(function(q){ return !used[q[0]] && !Q.inS[q[0]]; })) : A.d.ships;
+  all.forEach(function(s){
     if (!mkShipShow(s)) return;
     var q = mkShipPos(s, mkShipDt(s)), la = q[0], lo = q[1], sel = MK.shipSel === s[0], fd = sel ? 1 : mkShipFade(mkShipAge(s));
     if (bb && !sel && (lo < bb[0] || lo > bb[1] || la < bb[2] || la > bb[3])) return;
@@ -22020,7 +22078,38 @@ function mkShipCargo(s){
   if (ty) return [T('알 수 없음 (기타 선종)', 'Unknown (other type)'), ''];
   return [T('알 수 없음 (선박 정보 신호를 아직 못 받음)', 'Unknown (no static data yet)'), ''];
 }
-function mkShipFind(m){ var A = MK.aisAll; if (!A || !A.d) return null; for (var i = 0; i < A.d.ships.length; i++) if (A.d.ships[i][0] === m) return A.d.ships[i]; return null; }
+function mkShipFind(m){
+  var Q = mkAisSnapRows(); if (Q && Q.by[m]) return Q.by[m];
+  var A = MK.aisAll; if (!A || !A.d) return null; for (var i = 0; i < A.d.ships.length; i++) if (A.d.ships[i][0] === m) return A.d.ships[i]; return null; }
+/* ══════════ (10/10 9차) 고른 해협 · 항구 «지금» 위치 — 학회장: «실시간으로 배들이 위치해 있는 게 보이면»
+   · 지도 전체 = 5분마다 모은 주요 무역선 마지막 위치 (90초마다 새로)
+   · 해협 · 항구를 고르면 그 둘레만 서버가 AIS 를 직접 몇 초 들어 «지금» 위치를 받음 (2분 30초마다 · 서버 3분 보관) → 같은 배는 더 새 위치로 · 새로 잡힌 무역선은 더함
+   · 배 종류를 그 몇 초 안에 못 받은 배는 지도 전체 자료의 종류로 (그래도 모르면 뺌 · 무역선만)                                          */
+function mkAisSnapKey(){ return MK.portSel != null && MK.lay === 'port' && mkPortMode() !== 'gfw' ? String(MK.portSel) : ''; }
+function mkAisSnapLoad(force){
+  if (!MK.feat || !MK.feat.ais || typeof edge !== 'function') return;
+  var k = mkAisSnapKey(); if (!k) return;
+  var Q = MK.aisSnap || (MK.aisSnap = {});
+  if (Q.busy || (!force && Q.k === k && Q.got && Date.now() - Q.got < 150000) || (Q.errK === k && Date.now() - (Q.errAt || 0) < 90000)) return;
+  Q.busy = true;
+  var body = mkPortIsP(MK.portSel) ? { source: 'ais', port: String(MK.portSel) } : { source: 'ais', cp: +MK.portSel };
+  edge(body).then(function(d){
+    Q.busy = false;
+    if (d && Array.isArray(d.ships)){ Q.k = k; Q.d = d; Q.at = Date.parse(d.at) || Date.now(); Q.got = Date.now(); Q.rows = null; Q.errK = ''; }
+    else { Q.errK = k; Q.errAt = Date.now(); }
+  }, function(){ Q.busy = false; Q.errK = k; Q.errAt = Date.now(); }).then(function(){ if (MK.lay === 'port'){ var bx = $('mkRes'); if (bx) bx.__k = ''; mkResRender(); mkOvPaint(); } });
+}
+//  고른 곳 «지금» 배 — 지도 전체 자료와 같은 모양으로 (신호 나이 = 지도 전체 자료 기준 시각에서)
+function mkAisSnapRows(){
+  var Q = MK.aisSnap, A = MK.aisAll; if (!Q || !Q.d || Q.k !== mkAisSnapKey() || !A || !A.d) return null;
+  if (Q.rows && Q.rowsFor === A.at) return Q.rows;
+  var ty = {}, inS = {}; A.d.ships.forEach(function(s){ inS[s[0]] = 1; if (s[7] != null) ty[s[0]] = s[7]; });
+  var sh = ((A.at || Date.now()) - (Q.at || Date.now())) / 1000, by = {}, list = [];
+  Q.d.ships.forEach(function(r){ var t = r[7] != null ? r[7] : ty[r[0]]; if (!(+t >= 70 && +t <= 89)) return;
+    var x = r.slice(); x[7] = +t; x[9] = Math.max(0, (+r[9] || 0) + sh); x.live = 1; by[x[0]] = x; list.push(x); });
+  Q.rows = { by: by, list: list, n: list.length, inS: inS }; Q.rowsFor = A.at;
+  return Q.rows;
+}
 function mkShipPick(s){ if (!s) return; MK.shipSel = s[0]; MK.shipSelS = s; mkShipCard(); if (mkMapChart && MK.lay === 'port') mkOvPaint(); if (typeof mkSatDraw === 'function') mkSatDraw(); }
 function mkShipClose(){ MK.shipSel = null; MK.shipSelS = null; mkShipCard(); if (mkMapChart && MK.lay === 'port') mkOvPaint(); if (typeof mkSatDraw === 'function') mkSatDraw(); }
 function mkShipCardHtml(s){
@@ -22063,7 +22152,9 @@ function mkShipTick(){
     //  (10/10 7차) 주간 분석(4~5일 전 자료)은 움직이지 않음
     if (mkPortMode() === 'gfw') return;
     var A = MK.aisAll;
-    if (A && A.d && Date.now() - A.got > 180000) mkAisAllLoad();
+    //  (10/10 9차) 90초마다 새로 (서버도 90초 보관) · 받지 못했으면 1분 뒤 다시 (예전엔 한 번 실패하면 층을 다시 열 때까지 그대로였음)
+    if (!A || (!A.d && !A.busy) || (A.d && Date.now() - A.got > 90000)) mkAisAllLoad();
+    mkAisSnapLoad();
     if (!A || !A.d || !MOTION_OK) return;
     //  위성 보기면 그쪽만 다시 그림
     if (typeof mkSatOn === 'function' && mkSatOn()){ mkSatDraw(); return; }
@@ -22113,10 +22204,72 @@ function mkPortRender(box){
   var top = '<div class="mk-res-top"><span class="mk-drag" id="mkResDrag" title="' + esc(T('끌어서 옮기기 (지도 위 어디든) · 두 번 누르면 제자리', 'Drag to move · double-click to dock')) + '" aria-hidden="true">⋮⋮</span><div class="mk-res-t"><span class="k">' + esc(T('물류', 'Shipping')) + '</span><b>' + esc(gm ? T('주간 분석 (4~5일 전)', 'Weekly analysis (4-5 days lag)') : tab === 'pt' ? T('항구 입항', 'Port calls') : T('해협 통과량', 'Chokepoint transits')) + '</b></div>'
     + '<span class="mk-res-px"></span><button type="button" class="mk-x" onclick="mkLayerSet(\'mkt\')" aria-label="' + esc(T('시장 지도로', 'Back to markets')) + '" title="' + esc(T('시장 지도로 돌아가기', 'Back to markets')) + '">×</button></div>';
   if (!d && !gm){ box.innerHTML = top + '<div class="mk-wait">' + esc(P.err ? mkErrTxt(P.err) : T('로딩 중…', 'Loading…')) + '</div>'; return; }
-  box.innerHTML = top + mkPortBodyHtml(true, dark);
+  box.innerHTML = top + mkPortBodyHtml(true, dark) + mkShipDiagHtml();
   if (gm){ if (MK.gfwSel != null) mkGfwChartDraw(dark); }
   else if (MK.portSel != null) mkPortChartDraw(dark);
   if (MOTION_OK){ box.classList.remove('grown'); requestAnimationFrame(function(){ requestAnimationFrame(function(){ box.classList.add('grown'); }); }); } else box.classList.add('grown');
+}
+/* ══════════ (10/10 9차) 진단 (임원진만) — 학회장: «몇 시간 기다려도 로딩이 안 끝남» → 어디서 막혔는지 화면에서 바로
+   열쇠 (있는지만) · 예약 설정 · 예약이 걸렸나 · 예약 실행 기록 · 서버가 돌려준 답 (상태 코드) · 배 위치 표 · 주간 분석 보관 · 서버가 스스로 모은 결과
+   → 맨 아래 «고칠 것» 에 할 일을 적음 (SQL 파일 이름 · Secrets 이름)                                                                */
+function mkShipDiagHtml(){
+  if (!(typeof isOfficer === 'function' && isOfficer())) return '';
+  var D = MK.shipDiag || {};
+  return '<details class="mk-diag" id="mkShipDiag"' + (D.open ? ' open' : '') + ' ontoggle="mkShipDiagToggle(this.open)"><summary>' + esc(T('진단 (임원진만 보임) · 배 위치 · 주간 분석이 어디서 막혔나', '(officers) Diagnostics')) + '</summary><div id="mkShipDiagB">' + mkShipDiagBody() + '</div></details>';
+}
+function mkShipDiagToggle(o){ var D = MK.shipDiag || (MK.shipDiag = {}); D.open = !!o; if (o && !D.busy && (!D.d || Date.now() - D.got > 60000)) mkShipDiagLoad(); }
+function mkShipDiagLoad(){
+  var D = MK.shipDiag || (MK.shipDiag = {}); if (typeof edge !== 'function') return;
+  D.busy = true; mkShipDiagPaint();
+  edge({ source: 'ship_diag' }).then(function(d){ D.busy = false; D.d = d || { error: 'x' }; D.got = Date.now(); mkShipDiagPaint(); },
+    function(e){ D.busy = false; D.d = { error: String(e && e.message || e) }; D.got = Date.now(); mkShipDiagPaint(); });
+}
+function mkShipDiagPaint(){ var b = $('mkShipDiagB'); if (b) b.innerHTML = mkShipDiagBody(); }
+function mkShipDiagAgo(iso){ var t = Date.parse(iso || ''); if (!isFinite(t)) return '-'; var m = Math.round((Date.now() - t) / 60000); return m < 1 ? '방금' : m < 60 ? m + '분 전' : m < 2880 ? Math.round(m / 60) + '시간 전' : Math.round(m / 1440) + '일 전'; }
+function mkShipDiagBody(){
+  var D = MK.shipDiag || {}, d = D.d;
+  if (D.busy) return '<div class="mk-wait">' + esc(T('로딩 중…', 'Loading…')) + '</div>';
+  if (!d) return '';
+  if (d.error) return '<div class="st-hint">' + esc(mkErrTxt(d.error)) + '</div>';
+  var L = [], fix = [], k = d.keys || {}, ok = function(b){ return b ? '✓' : '✗'; };
+  L.push(['열쇠 (Secrets)', 'AISSTREAM_API_KEY ' + ok(k.ais) + ' · GFW_API_TOKEN ' + ok(k.gfw) + ' · WARM_TOKEN ' + ok(d.warm)]);
+  if (!k.ais) fix.push('Supabase › Edge Functions › Secrets 에 AISSTREAM_API_KEY');
+  if (!k.gfw) fix.push('Secrets 에 GFW_API_TOKEN');
+  if (!d.warm) fix.push('Secrets 에 WARM_TOKEN (예약 열쇠)');
+  var db = d.db;
+  if (!db){ L.push(['진단 함수', '없음 (' + (d.dbErr || '').slice(0, 80) + ')']); fix.push('SQL Editor 에서 terminal-배진단.sql 실행 (Run without RLS)'); }
+  else {
+    var c = db.cfg || {};
+    L.push(['예약 설정', c.error ? c.error : ('줄 ' + ok(c.row) + ' · 주소 ' + ok(c.url) + ' · 열쇠 ' + ok(c.key) + ' · 토큰 ' + ok(c.token))]);
+    if (!c.error && !(c.row && c.url && c.key && c.token)) fix.push('예약 설정(private_warm_cfg)이 비어 있음 → terminal-예열자동.sql 1단계');
+    var jobs = Array.isArray(db.jobs) ? db.jobs : [], jn = function(n){ return jobs.filter(function(j){ return j.name === n; })[0]; };
+    [['safe-ais-collect', '배 위치 모으기', 'terminal-배위치.sql'], ['safe-gfw-collect', '주간 분석 모으기', 'terminal-GFW.sql']].forEach(function(x){
+      var j = jn(x[0]); L.push(['예약 · ' + x[1], j ? (j.schedule + ' · ' + (j.active ? '켜짐' : '꺼짐')) : '없음']);
+      if (!j) fix.push(x[1] + ' 예약 없음 → ' + x[2] + ' 실행'); else if (!j.active) fix.push(x[1] + ' 예약이 꺼져 있음');
+    });
+    var runs = Array.isArray(db.runs) ? db.runs : [];
+    if (runs.length) L.push(['예약 실행 기록', runs.slice(0, 3).map(function(r){ return r.job.replace('safe-', '') + ' ' + r.status + ' ' + mkShipDiagAgo(r.at) + (r.status !== 'succeeded' && r.msg ? ' (' + r.msg.slice(0, 60) + ')' : ''); }).join(' / ')]);
+    else if (jobs.length) L.push(['예약 실행 기록', '없음 (아직 한 번도 안 돎)']);
+    var calls = Array.isArray(db.calls) ? db.calls : [];
+    if (calls.length){
+      L.push(['서버 답', calls.slice(0, 4).map(function(r){ var st = r.status != null ? String(r.status) : r.timed_out ? '시간 초과' : '답 없음'; return r.source + ' ' + st + ' ' + mkShipDiagAgo(r.at) + ((r.status && r.status !== 200) || r.err ? ' (' + String(r.err || r.body || '').slice(0, 70) + ')' : ''); }).join(' / ')]);
+      var c0 = calls[0];
+      if (c0.status === 401 || c0.status === 403) fix.push('서버가 예약을 거부 (' + c0.status + ') → private_warm_cfg 의 warm_token 과 Secrets 의 WARM_TOKEN 이 같은지');
+      else if (c0.status === 546 || c0.status === 504 || c0.timed_out) fix.push('서버 시간 · 메모리 한도 (' + (c0.status || '시간 초과') + ') → 이번 판 market-data 를 Deploy (한 번에 하는 일을 줄임)');
+      else if (c0.status === 404) fix.push('market-data 함수를 찾지 못함 → 함수 이름 · 주소 확인');
+    } else if (jobs.length) L.push(['서버 답', '기록 없음']);
+    var a = db.ais || {};
+    L.push(['배 위치 표', a.table === false ? '없음' : ('전체 ' + num(a.rows || 0, 0) + ' · 24시간 위치 ' + num(a.pos24 || 0, 0) + ' · 무역선 ' + num(a.trade24 || 0, 0) + ' · 종류 아는 배 ' + num(a.typed || 0, 0) + ' · 마지막 신호 ' + (a.newest_s != null ? Math.round(a.newest_s / 60) + '분 전' : '-'))]);
+    if (a.table === false) fix.push('배 위치 표 없음 → terminal-배위치.sql 실행');
+    else if (a.rows && !a.trade24) fix.push('배 종류 신호가 아직 덜 모임 (보통 1~2시간이면 채워짐)');
+    var g = db.gfw || {};
+    L.push(['주간 분석 보관', g.error ? g.error : ('받은 것 ' + (g.rows || 0) + ' · 실패 ' + (g.errs || 0) + ' · 마지막 ' + (g.newest ? mkShipDiagAgo(g.newest) : '-'))]);
+  }
+  var kk = d.kick || {}, kr = kk.aisRes;
+  if (kk.ais || kk.gfw) L.push(['서버가 스스로 모음', (kk.ais ? '배 위치 ' + mkShipDiagAgo(new Date(kk.ais).toISOString()) + (kr ? (kr.ok ? ' · 위치 ' + num(kr.pos || 0, 0) + '척 · 종류 ' + num(kr.stat || 0, 0) : kr.off ? ' · 열쇠 없음' : ' · ' + String(kr.error || '').slice(0, 60)) : '') : '') + (kk.gfw ? (kk.ais ? ' / ' : '') + '주간 분석 ' + mkShipDiagAgo(new Date(kk.gfw).toISOString()) : '')]);
+  return '<div class="mk-diag-g">' + L.map(function(x){ return '<span class="k">' + esc(x[0]) + '</span><span class="v">' + esc(x[1]) + '</span>'; }).join('') + '</div>'
+    + (fix.length ? '<div class="mk-diag-fix"><b>' + esc('고칠 것') + '</b><ul>' + fix.map(function(f){ return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></div>' : '<div class="st-hint">' + esc('막힌 곳이 보이지 않습니다') + '</div>')
+    + '<button type="button" class="btn-sm" onclick="mkShipDiagLoad()">' + esc(T('다시 확인', 'Refresh')) + '</button> <span class="st-hint">' + esc(mkShipDiagAgo(d.at)) + '</span>';
 }
 //  (10/10) 해협 28 | 항구 18 — 고른 곳(해협이든 항구든)은 어느 칸에서나 위에
 function mkPortBodyHtml(btn, dark){
@@ -22453,6 +22606,7 @@ function mkPortLiveHtml(id){
     return '<div class="mk-port-live"><div class="h"><i class="dot" aria-hidden="true"></i>' + esc(sto ? T('무역선 (이 둘레 · 최근 24시간)', 'Trade ships (this area · last 24 h)') : T('실시간 무역선 (이 둘레)', 'Live trade ships (this area)')) + '<span class="st-hint">' + esc(' · ' + mkHm(A.d.at) + (sto ? T(' 기준 · 5분마다 모음', ' · collected every 5 min') : T(' 수신 · 3분마다', ' · every 3 min'))) + '</span></div>'
       + '<div class="g"><span><b>' + c.n + '</b>' + esc(T('척 잡힘', ' ships')) + '</span><span><b>' + c.mv + '</b>' + esc(T('척 항해 중', ' underway')) + '</span><span><b>' + c.an + '</b>' + esc(T('척 닻 내림 · 대기', ' anchored / waiting')) + '</span><span><b>' + c.mr + '</b>' + esc(T('척 접안', ' moored')) + '</span>'
       + (sto && c.h1 != null ? '<span><b>' + c.h1 + '</b>' + esc(T('척 1시간 안 신호', ' within 1 h')) + '</span>' : '') + '</div>'
+      + mkAisSnapLine(id)
       + (+id === 6 ? mkAisZoneHtml() : '')
       + '<div class="st-hint">' + esc(sto ? (c.n ? T('닻 내린 배는 신호가 드물어 5분마다 모아 배마다 마지막 위치를 보관합니다 (오래된 위치는 흐리게) · 육상 수신소 기준이라 먼바다는 빠질 수 있음', 'Collected every 5 min; last position kept per ship (older = fainter)') : T('최근 24시간 이 둘레에서 받은 신호가 없습니다 (육상 수신소가 먼 곳은 빠질 수 있음)', 'No signals here in the last 24 h'))
         : c.n ? T('멈춰 있는 배는 신호가 드물어 최근 20분 안에 잡힌 것을 함께 셉니다 · 육상 수신소 기준이라 먼바다는 빠질 수 있음', 'Stationary ships report rarely: last 20 min included') : T('지금 이 둘레에서 받은 신호가 없습니다 (육상 수신소가 먼 곳은 빠질 수 있음)', 'No signals right now')) + '</div></div>';
@@ -22460,13 +22614,21 @@ function mkPortLiveHtml(id){
   if (A && A.err && !A.busy) return off ? '<div class="st-hint">' + esc(T('실시간 배: ', 'Live ships: ') + mkErrTxt(A.err)) + '</div>' : '';
   return '<div class="mk-wait">' + esc(T('로딩 중…', 'Loading…')) + '</div>';
 }
+//  (10/10 9차) 고른 곳 «지금» (서버가 그 둘레를 직접 들은 것)
+function mkAisSnapLine(id){
+  if (String(id) !== mkAisSnapKey()) return '';
+  var Q = MK.aisSnap || {}, R = mkAisSnapRows();
+  if (!R) return Q.busy ? '<div class="mk-port-now"><i class="dot" aria-hidden="true"></i>' + esc(T('로딩 중…', 'Loading…')) + '</div>' : '';
+  var mv = R.list.filter(function(s){ return mkShipSt(s)[0] === 'mv'; }).length;
+  return '<div class="mk-port-now"><i class="dot" aria-hidden="true"></i><b>' + esc(T('지금', 'Now')) + '</b> ' + esc(T('무역선 ', 'trade ships ') + R.n + T('척 · 항해 중 ', ' · underway ') + mv + T('척 · ', ' · ') + mkHm(Q.d.at) + T(' 수신 (2분 30초마다)', ' received (every 2.5 min)')) + '</div>';
+}
 //  옆 칸 맨 위 — 지도 위 실시간 배 (모두)
 function mkPortAisTop(){
   var A = MK.aisAll; if (!(MK.feat && MK.feat.ais) || !A || !A.d) return '';
   //  무역선만 (예전 서버 값이면 여기서 세어 맞춤)
   var shown = A.d.ships.filter(mkShipIsTrade).length, n = A.d.trade ? (A.d.n || shown) : shown;
   if (mkAisStore()) return '<div class="mk-port-ais"><i class="dot" aria-hidden="true"></i>' + '<span>' + esc(T('최근 24시간 잡힌 무역선 ', 'Trade ships seen in last 24 h ')) + '<b>' + num(n, 0) + '</b>' + esc(T('척', '')) + '</span>'
-    + (n > shown ? '<span class="st-hint">' + esc(T(' (지도 표시 ', ' (on map ') + num(shown, 0) + T('척)', ')')) + '</span>' : '')
+    + (n > shown ? '<span class="st-hint">' + esc(T(' (지도에는 주요 무역선 ', ' (on map: major ') + num(shown, 0) + T('척 · 해협 · 항구 둘레 · 큰 배 먼저)', ')')) + '</span>' : '')
     + '<span class="st-hint">' + esc(' · ' + T('화물선 · 유조선 · 배마다 마지막 위치 · ', 'cargo · tanker · last position per ship · ') + mkHm(A.d.at) + T(' 기준 · 5분마다 모음 · 육상 수신소 기준이라 먼바다는 빠질 수 있음', ' · every 5 min · coastal receivers')) + '</span></div>';
   return '<div class="mk-port-ais"><i class="dot" aria-hidden="true"></i>' + '<span>' + esc(T('지도 위 실시간 무역선 ', 'Live trade ships on map ')) + '<b>' + num(n, 0) + '</b>' + esc(T('척', '')) + '</span>'
     + (n > shown ? '<span class="st-hint">' + esc(T(' (표시 ', ' (shown ') + num(shown, 0) + T('척)', ')')) + '</span>' : '')
@@ -22570,8 +22732,8 @@ function mkGfwLoad(force){
   G.busy = true;
   edge({ source: 'gfw' }).then(function(d){
     G.busy = false;
-    if (d && Array.isArray(d.regs)){ G.d = d; G.got = Date.now(); G.err = ''; G.errs = d.errs || {}; G.pend = false; }
-    else if (d && d.pending){ G.pend = true; G.errs = d.errs || {}; G.err = 'pending'; G.errAt = Date.now(); }
+    if (d && Array.isArray(d.regs)){ G.d = d; G.got = Date.now(); G.err = ''; G.errs = d.errs || {}; G.pend = false; G.run = d.run || null; }
+    else if (d && d.pending){ G.pend = true; G.errs = d.errs || {}; G.err = 'pending'; G.errAt = Date.now(); G.run = d.run || null; }
     else { G.err = (d && (d.error || (d.off ? 'off' : ''))) || 'x'; G.errAt = Date.now(); }
   }, function(e){ G.busy = false; G.err = String(e && e.message || e); G.errAt = Date.now(); })
     .then(function(){
@@ -22769,13 +22931,18 @@ function mkGfwSummary(){
   return out;
 }
 //  옆 칸 (주간 분석)
+//  (10/10 9차) 모으기 상태 (임원진) — 마지막 모으기 · 하는 중이던 일 · 받은 · 실패
+function mkGfwRunTxt(r){
+  if (!r || !r.at) return T('아직 한 번도 모으지 않았습니다', 'never collected yet');
+  return T('마지막 모으기 ', 'last run ') + mkGfwAgo(new Date(r.at).toISOString()) + (r.k ? T(' · 하던 일 ', ' · running ') + r.k : '') + T(' · 받음 ', ' · done ') + (r.done || 0) + T(' · 실패 ', ' · failed ') + (r.fail || 0) + (r.left != null ? T(' · 남은 일 ', ' · left ') + r.left : '');
+}
 function mkGfwBodyHtml(btn, dark){
   var G = MK.gfw || {}, d = G.d, off = typeof isOfficer === 'function' && isOfficer(), tag = btn ? 'button' : 'div';
   var errH = off && G.errs && Object.keys(G.errs).length ? '<div class="st-hint mk-gfw-err">' + esc(T('(임원진) 받지 못한 것: ', '(officers) failed: ') + Object.keys(G.errs).slice(0, 6).map(function(k){ return k + ' - ' + G.errs[k]; }).join(' / ')) + '</div>' : '';
   if (!d){
     if (!G.busy && !G.d && !G.pend && !G.err) mkGfwLoad();
     return '<div class="mk-wait">' + esc(G.err && G.err !== 'pending' && !G.busy && off ? mkErrTxt(G.err) : T('로딩 중…', 'Loading…')) + '</div>'
-      + (off && G.pend ? '<div class="st-hint">' + esc(T('(임원진) 예약이 자료를 모으는 중입니다 · 처음엔 30분~1시간 (terminal-GFW.sql 실행 필요)', '(officers) collecting · first fill takes 30-60 min')) + '</div>' : '') + errH;
+      + (off && G.pend ? '<div class="st-hint">' + esc(T('(임원진) 자료를 모으는 중입니다 · 이 화면을 열어 두면 서버가 6분마다 스스로 모읍니다 (예약이 안 돌아도) · ', '(officers) collecting · ') + mkGfwRunTxt(G.run) + T(' · 막혔으면 아래 «진단»', '')) + '</div>' : '') + errH;
   }
   var S = d.regs.map(function(r, i){ return mkGfwStat(i); }), end = (d.regs.filter(function(r){ return r.v; })[0] || {}), endD = end.d0 ? mkGfwAddD(end.d0, end.v.length - 1) : '';
   var sum = mkGfwSummary();
@@ -24349,14 +24516,71 @@ function mkCtryClose(){
   MK.ctryOpen = false; MK.cmpOn = false; mkSavePrefs(); mkSplitApply(); mkCcTabsRender(); mkPopsRender();
   mkMapPaint(); requestAnimationFrame(function(){ mkMapPaint(); mkMapZoomHome(); });
 }
+/* ══════════ (10/10 9차) 가로로 넘치는 줄 밀어 보기 — 학회장: «width 가 짧아서 잘리면 클릭 드래그로 안 보이는 옵션들 슬라이드 가능하게 · 옆으로 이동할 수단이 없잖아요»
+   · 마우스로 끌기 (5px 넘게 끌면 밀기 · 끈 뒤 바로 오는 누름은 탭 선택으로 치지 않음) · 휠 (세로 → 가로) · 양 끝 ‹ › 단추 (끝에 닿으면 흐림)
+   · 손가락은 원래대로 밀기 · 고른 탭은 늘 보이게                                                                          */
+function hsShow(el, btn, smooth){
+  if (!el || !btn) return;
+  var a = btn.offsetLeft - el.offsetLeft, b = a + btn.offsetWidth, L = el.scrollLeft, W = el.clientWidth;
+  var to = a < L + 8 ? Math.max(0, a - 24) : b > L + W - 8 ? b - W + 24 : L;
+  if (to !== L){ if (smooth && el.scrollTo) el.scrollTo({ left: to, behavior: MOTION_OK ? 'smooth' : 'auto' }); else el.scrollLeft = to; }
+  hsEdge(el);
+}
+function hsEdge(el){
+  var A = el.__hsA || [], max = el.scrollWidth - el.clientWidth;
+  if (A[0]) A[0].classList.toggle('end', el.scrollLeft <= 2);
+  if (A[1]) A[1].classList.toggle('end', el.scrollLeft >= max - 2);
+  el.classList.toggle('at-s', el.scrollLeft <= 2); el.classList.toggle('at-e', el.scrollLeft >= max - 2);
+}
+function hsDragInit(el, aL, aR){
+  if (!el) return;
+  el.__hsA = [aL || null, aR || null];
+  if (el.__hs){ hsEdge(el); return; }
+  el.__hs = 1; el.classList.add('hs-drag');
+  var st = null;
+  var step = function(d){ var by = Math.max(80, el.clientWidth * 0.7) * d; if (el.scrollBy) el.scrollBy({ left: by, behavior: MOTION_OK ? 'smooth' : 'auto' }); else el.scrollLeft += by; };
+  if (aL) aL.addEventListener('click', function(e){ e.preventDefault(); step(-1); });
+  if (aR) aR.addEventListener('click', function(e){ e.preventDefault(); step(1); });
+  el.addEventListener('pointerdown', function(e){
+    if (e.pointerType !== 'mouse' || e.button !== 0 || el.scrollWidth <= el.clientWidth + 1) return;
+    st = { x: e.clientX, s: el.scrollLeft, moved: false, id: e.pointerId };
+  });
+  el.addEventListener('pointermove', function(e){
+    if (!st) return;
+    var dx = e.clientX - st.x;
+    if (!st.moved){ if (Math.abs(dx) < 5) return; st.moved = true; el.classList.add('hs-on'); try { el.setPointerCapture(st.id); } catch(x){} }
+    el.scrollLeft = st.s - dx; e.preventDefault();
+  });
+  var end = function(){ if (!st) return; var mv = st.moved; st = null; el.classList.remove('hs-on'); if (mv){ el.__hsBlock = Date.now(); hsEdge(el); } };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end); el.addEventListener('lostpointercapture', end);
+  //  끌어서 민 뒤 바로 오는 누름은 탭을 고르지 않음
+  el.addEventListener('click', function(e){ if (el.__hsBlock && Date.now() - el.__hsBlock < 300){ e.stopPropagation(); e.preventDefault(); } }, true);
+  el.addEventListener('wheel', function(e){
+    if (el.scrollWidth <= el.clientWidth + 1 || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+    if (el.scrollTo) el.scrollTo({ left: el.scrollLeft + e.deltaY, behavior: 'instant' }); else el.scrollLeft += e.deltaY;
+    e.preventDefault(); hsEdge(el);
+  }, { passive: false });
+  el.addEventListener('scroll', function(){ hsEdge(el); }, { passive: true });
+  hsEdge(el);
+}
+//  위 큰 탭 줄 · 분석 아래 칸 줄도 (좁은 화면 · 마우스로 끌기)
+(function(){ var go = function(){ hsDragInit(document.getElementById('subTabsIn')); hsDragInit(document.querySelector('.tabs-in')); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else setTimeout(go, 0); })();
 //  나라 칸 탭 줄 — 넘치면 짧은 이름 · 그래도 넘치면 옆으로 밀어 보기 (끝 흐림) · 고른 탭이 보이게 · 칸 폭이 바뀌면 다시
 function mkCtabsFit(tabs){
   if (!tabs || tabs.offsetParent === null) return;
   //  이름은 하나만 (화면 읽기 도구가 두 번 읽지 않게) — 긴 이름으로 재 보고 넘치면 짧은 이름으로 바꿔 끼움
   var bs = tabs.querySelectorAll('button'), set = function(k){ Array.prototype.forEach.call(bs, function(b){ var t = b.getAttribute(k); if (t && b.textContent !== t) b.textContent = t; }); };
+  //  밀어 둔 자리 (다시 그리기 전에 적어 둔 것) · 맞추는 동안은 부드럽게 굴리지 않고 바로
+  var top = tabs.parentElement, keep = tabs.__keep != null ? tabs.__keep : tabs.scrollLeft; tabs.__keep = null; tabs.style.scrollBehavior = 'auto'; if (top) top.classList.remove('hs-ovf');
   tabs.classList.remove('short', 'ovf'); set('data-l');
   if (tabs.scrollWidth > tabs.clientWidth + 1){ tabs.classList.add('short'); set('data-s'); }
-  if (tabs.scrollWidth > tabs.clientWidth + 1){ tabs.classList.add('ovf'); var on = tabs.querySelector('button.on'); if (on) tabs.scrollLeft = Math.max(0, on.offsetLeft - 24); }
+  //  (10/10 9차 학회장: «잘리면 클릭 드래그로 안 보이는 옵션들 슬라이드 가능하게») — 그래도 넘치면 양 끝 ‹ › 단추 · 마우스로 끌기 · 휠
+  //  고른 탭이 바뀌었을 때만 그 탭이 보이게 옮김 (자료가 와서 다시 그릴 땐 학회원이 밀어 둔 자리 그대로)
+  if (tabs.scrollWidth > tabs.clientWidth + 1){ tabs.classList.add('ovf'); if (top) top.classList.add('hs-ovf'); var on = tabs.querySelector('button.on');
+    if (on && tabs.__onK !== MK.ctryTab){ tabs.__onK = MK.ctryTab; hsShow(tabs, on, false); } else { if (Math.abs(tabs.scrollLeft - keep) > 1) tabs.scrollLeft = keep; hsEdge(tabs); } }
+  tabs.style.scrollBehavior = '';
+  hsDragInit(tabs, $('mkCtryTabsL'), $('mkCtryTabsR'));
   if (window.ResizeObserver && !tabs.__ro){ tabs.__ro = new ResizeObserver(function(){ clearTimeout(tabs.__rt); tabs.__rt = setTimeout(function(){ mkCtabsFit(tabs); }, 60); }); try { tabs.__ro.observe(tabs.parentElement); } catch(e){} }
 }
 function mkCtryTabSet(t){
@@ -24556,6 +24780,7 @@ function mkCtryRender(){
   }
   var cmBox = $('mkCtryCmp'); if (cmBox) cmBox.classList.add('hidden');
   var tabs = $('mkCtryTabs');
+  if (tabs) tabs.__keep = tabs.scrollLeft;
   if (tabs) tabs.innerHTML = MK_CTABS.map(function(o){
     var ok = mkTabOk(o[0], MK.cc);
     return '<button type="button"' + (MK.ctryTab === o[0] ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"')
@@ -43552,6 +43777,7 @@ function adTab(which){
   try { LSX.setItem(AD_KEY, which); } catch(e){ /* 사생활 모드 */ }
   //  접속 기록은 열 때마다 새로 받습니다 (설정 안으로 옮긴 뒤로 showTab 이 안 부르므로 여기서)
   if (which === 'access' && typeof loadAccess === 'function'){ try { loadAccess(); } catch(e){ console.warn('접속 기록', e); } }
+  if (which === 'ai' && typeof tgLoad === 'function'){ try { tgLoad(); } catch(e){ console.warn('텔레그램', e); } }
   //  숨김이 풀린 뒤에 차트·표가 제 크기를 잡게 합니다
   setTimeout(resizeAllCharts, 60);
 }
@@ -43588,6 +43814,94 @@ function adLiveStart(){
   if (adLiveTimer) return;
   adLiveTimer = setInterval(function(){ if (curTab !== 'admin'){ clearInterval(adLiveTimer); adLiveTimer = null; return; } adLiveRender(); }, 5000);
 }
+/*  ── 세이피 텔레그램 (10/10 9차 · 자동화 기획안 1단계) ─────────────────────────────
+    설정 › AI 맨 위 카드. 서버 safey-telegram 에 action 으로 묻습니다 (임원진만 · 저장 안 함 · 매번 새로).
+     status · link_code(6자리 · 10분) · set_webhook · preview(내 텔레그램으로 브리핑) · settings · dev_set · unlink   */
+var TG = { d: null, at: 0, busy: false, err: null, code: null, msg: '', msgK: '' };
+var TG_KIND = { morning: '아침 브리핑', release: '발표 알림', ops: '오류 알림', dev: '개발 요청', review: '검토', preview: '미리보기' };
+var TG_DEV = [['new', '접수'], ['issue', '이슈 열림'], ['doing', '작업 중'], ['done', '끝'], ['dropped', '안 함']];
+function tgWhen(t){ var d = new Date(t); if (isNaN(d)) return '-'; var p = function(x){ return String(x).padStart(2, '0'); }; return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+async function tgLoad(force){
+  if (!isOfficer() || !$('tgBody')) return;
+  if (TG.busy) return;
+  if (!force && TG.d && Date.now() - TG.at < 60000){ tgRender(); return; }
+  TG.busy = true; if (!TG.d) tgRender();
+  try { TG.d = await edgeCall('safey-telegram', { action: 'status' }); TG.err = null; TG.at = Date.now(); }
+  catch(e){ TG.err = String(e && e.message || e); }
+  TG.busy = false; tgRender();
+}
+function tgErrHtml(m){
+  var hint = /배포되지 않았/.test(m) ? 'Supabase → Edge Functions 에 <b>safey-telegram</b> 함수를 만들고 (JWT 확인 끔) 코드를 붙여 넣은 뒤 배포해 주세요.'
+    : /does not exist|relation|schema cache|tg_/i.test(m) ? 'SQL Editor 에서 <b>terminal-텔레그램.sql</b> 을 돌려 주세요.' : '';
+  return '<div class="note">세이피 텔레그램 서버에 묻지 못했습니다 · ' + esc(m) + (hint ? '<br>' + hint : '') + '</div>';
+}
+function tgRender(){
+  var box = $('tgBody'); if (!box) return;
+  if (!TG.d){ box.innerHTML = TG.err ? tgErrHtml(TG.err) : '<div class="empty">로딩 중…</div>'; return; }
+  var d = TG.d, k = d.keys || {}, st = d.settings || {}, ch = {};
+  (d.channels || []).forEach(function(c){ ch[c.kind] = c; });
+  var botOk = !!(d.bot && d.bot.username), hookOk = !!(d.hook && d.hook.url_ok);
+  var dot = function(ok){ return '<span class="live-dot' + (ok ? '' : ' off') + '"></span>'; };
+  var items = [
+    { n: '봇', ok: botOk, v: botOk ? '@' + d.bot.username : (k.bot ? '봇에 연결하지 못함' : '아직 없음'), s: botOk ? '' : k.bot ? (d.bot && d.bot.error || '') : 'Secrets 에 TELEGRAM_BOT_TOKEN 을 넣어 주세요' },
+    { n: '웹훅 (텔레그램 → 세이피)', ok: hookOk && !(d.hook && d.hook.last_error), v: hookOk ? '연결됨' : '아직 안 됨',
+      s: !k.hook ? 'Secrets 에 TG_WEBHOOK_SECRET 을 넣어 주세요' : d.hook && d.hook.last_error ? '마지막 오류 · ' + d.hook.last_error : hookOk ? (d.hook.pending ? '못 받은 메시지 ' + d.hook.pending + '개' : '') : '아래 «웹훅 연결» 을 누르세요' },
+    { n: '학회 전체 채널', ok: !!ch.all, v: ch.all ? (ch.all.title || '등록됨') : '없음', s: ch.all ? '등록 ' + tgWhen(ch.all.set_at) : '채널에서 /whereami → 봇과 1:1 에서 /setchannel all 번호' },
+    { n: '임원진 그룹', ok: !!ch.ops, v: ch.ops ? (ch.ops.title || '등록됨') : '없음', s: ch.ops ? '등록 ' + tgWhen(ch.ops.set_at) : '그룹에서 /whereami → 봇과 1:1 에서 /setchannel ops 번호' },
+    { n: '내 텔레그램', ok: !!d.me, v: d.me ? '연결됨' + (d.me.tg_name ? ' · ' + d.me.tg_name : '') : '아직 안 됨', s: '연결된 임원진 ' + (d.linked || 0) + '명' },
+    { n: '보내는 곳', ok: !!st.live, v: st.live ? '학회 전체 채널' : '시험 중 (임원진 그룹만)', s: st.live ? '' : '2주 동안 숫자 오류 0 · 중복 0 이면 학회 전체로' }
+  ];
+  var h = '<div class="ad-live">' + items.map(function(x){ return '<div class="it"><div class="n">' + dot(x.ok) + esc(x.n) + '</div><div class="v">' + esc(x.v) + '</div>' + (x.s ? '<div class="s">' + esc(x.s) + '</div>' : '') + '</div>'; }).join('') + '</div>';
+  //  할 일 버튼
+  h += '<div class="tg-acts">'
+    + '<button class="btn-sm btn-solid" onclick="tgCode()"' + (botOk ? '' : ' disabled') + '>' + (d.me ? '다시 연결 (코드 받기)' : '내 텔레그램 연결 (코드 받기)') + '</button>'
+    + '<button class="btn-sm" onclick="tgAct({action:\'set_webhook\'}, \'웹훅을 연결했습니다.\')"' + (botOk && k.hook ? '' : ' disabled') + '>' + (hookOk ? '웹훅 다시 연결' : '웹훅 연결') + '</button>'
+    + '<button class="btn-sm" onclick="tgAct({action:\'preview\'}, \'내 텔레그램으로 브리핑 미리보기를 보냈습니다.\')"' + (d.me ? '' : ' disabled') + '>브리핑 미리보기 (내 텔레그램)</button>'
+    + (d.me ? '<button class="btn-sm" onclick="tgAct({action:\'unlink\'}, \'연결을 끊었습니다.\')">연결 끊기</button>' : '')
+    + '</div>';
+  if (TG.code && TG.code.exp > Date.now()){
+    var bot = TG.code.bot || (botOk ? d.bot.username : '');
+    h += '<div class="tg-code"><b>' + esc(TG.code.code) + '</b>'
+      + (bot ? '<a class="btn-sm btn-solid" href="https://t.me/' + encodeURIComponent(bot) + '?start=' + encodeURIComponent(TG.code.code) + '" target="_blank" rel="noopener">텔레그램에서 열기</a>' : '')
+      + '<span class="st-hint">또는 ' + (bot ? '@' + esc(bot) + ' 에게 ' : '봇에게 ') + '<code>/link ' + esc(TG.code.code) + '</code> · ' + Math.max(1, Math.ceil((TG.code.exp - Date.now()) / 60000)) + '분 안에</span></div>';
+  }
+  h += '<div class="tg-msg' + (TG.msgK ? ' ' + TG.msgK : '') + '" id="tgMsg">' + esc(TG.msg || '') + '</div>';
+  //  보내는 곳 · 알림
+  h += '<div class="tg-sec">보내는 곳 · 알림</div>'
+    + '<div class="mode-seg tg-seg"><button class="' + (st.live ? '' : 'on') + '" onclick="tgSet({live:false})">시험 중 (임원진 그룹)</button>'
+    + '<button class="' + (st.live ? 'on' : '') + '" onclick="tgSet({live:true})"' + (ch.all ? '' : ' disabled title="학회 전체 채널을 먼저 등록하세요"') + '>학회 전체 채널</button></div>'
+    + '<div class="tg-opts">' + [['morning', '아침 브리핑 (화~금 07:00)'], ['releases', '미국 지표 발표 알림'], ['ops', '오류 알림 (임원진 그룹)'], ['ai_point', '오늘의 포인트 (AI · 숫자 확인 통과할 때만)']].map(function(o){
+        return '<label><input type="checkbox"' + (st[o[0]] ? ' checked' : '') + ' onchange="tgSet({' + o[0] + ':this.checked})"> ' + esc(o[1]) + '</label>'; }).join('') + '</div>';
+  //  보낸 글
+  var posts = d.posts || [];
+  h += '<div class="tg-sec">최근 보낸 글</div>' + (posts.length
+    ? '<div class="scroll"><table class="tg-tbl"><thead><tr><th>시각</th><th>종류</th><th>결과</th></tr></thead><tbody>' + posts.map(function(p){
+        return '<tr><td class="t">' + esc(tgWhen(p.sent_at)) + '</td><td>' + esc(TG_KIND[p.kind] || p.kind) + '</td><td class="b">' + (p.ok ? '보냄' : '<span class="tg-bad">못 보냄</span>' + (p.err ? ' · ' + esc(String(p.err).slice(0, 140)) : '')) + '</td></tr>'; }).join('') + '</tbody></table></div>'
+    : '<div class="st-hint">아직 보낸 글이 없습니다.</div>');
+  //  개발 요청함
+  var dev = d.dev || [], repo = d.gh_repo || '';
+  h += '<div class="tg-sec">개발 요청함 <span class="st-hint" style="font-weight:400">텔레그램 /dev 로 들어온 요청 · ' + (k.gh ? 'GitHub 이슈도 자동으로 엽니다' : 'GitHub 이슈 자동 열기는 꺼져 있음 (GITHUB_TOKEN · GITHUB_REPO)') + '</span></div>' + (dev.length
+    ? '<div class="scroll"><table class="tg-tbl"><thead><tr><th>#</th><th>날짜</th><th>내용</th><th>상태</th><th>이슈</th></tr></thead><tbody>' + dev.map(function(r){
+        return '<tr><td class="t">' + esc(r.id) + '</td><td class="t">' + esc(tgWhen(r.created_at)) + '</td><td class="b">' + esc(String(r.body || '').slice(0, 400)) + '</td>'
+          + '<td><select onchange="tgAct({action:\'dev_set\', id:' + Number(r.id) + ', status:this.value}, \'상태를 바꿨습니다.\')">' + TG_DEV.map(function(o){ return '<option value="' + o[0] + '"' + (o[0] === r.status ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></td>'
+          + '<td class="t">' + (r.gh_issue ? (repo ? '<a href="https://github.com/' + esc(repo) + '/issues/' + Number(r.gh_issue) + '" target="_blank" rel="noopener">#' + Number(r.gh_issue) + '</a>' : '#' + Number(r.gh_issue)) : '-') + '</td></tr>'; }).join('') + '</tbody></table></div>'
+    : '<div class="st-hint">요청이 없습니다. 텔레그램에서 <code>/dev 고칠 내용</code> 을 보내면 여기에 쌓입니다.</div>');
+  if (d.build) h += '<div class="st-hint" style="margin-top:12px">서버 판 · ' + esc(d.build) + '</div>';
+  box.innerHTML = h;
+}
+function tgSay(m, kind){ TG.msg = m || ''; TG.msgK = kind || ''; var e = $('tgMsg'); if (e){ e.textContent = TG.msg; e.className = 'tg-msg' + (TG.msgK ? ' ' + TG.msgK : ''); } }
+async function tgAct(body, okMsg){
+  tgSay('로딩 중…');
+  try { var r = await edgeCall('safey-telegram', body); tgSay(r && r.skipped ? '보내지 못했습니다 · ' + r.skipped : okMsg, r && r.skipped ? 'err' : 'ok'); await tgLoad(true); }
+  catch(e){ tgSay(String(e && e.message || e), 'err'); }
+}
+async function tgSet(p){ p.action = 'settings'; await tgAct(p, '바꿨습니다.'); }
+async function tgCode(){
+  tgSay('로딩 중…');
+  try { var r = await edgeCall('safey-telegram', { action: 'link_code' }); TG.code = { code: String(r.code), bot: r.bot || '', exp: Date.now() + (Number(r.expires_in) || 600) * 1000 }; tgSay('10분 안에 텔레그램에서 연결해 주세요. 연결한 뒤 «새로고침» 을 누르면 «연결됨» 으로 바뀝니다.', 'ok'); tgRender(); }
+  catch(e){ tgSay(String(e && e.message || e), 'err'); }
+}
+
 function adTabInit(){
   var v = adForce;
   adForce = null;
