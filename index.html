@@ -5772,7 +5772,7 @@
             <span class="tools"><button type="button" class="btn-sm" onclick="npsLoad(true)">새로 받기</button></span>
           </h2>
           <div class="mode-seg" id="npsSeg" style="max-width:520px">
-            <button id="npsK-big" class="on" onclick="npsKind('big')">5% 이상 대량보유 (분기)</button>
+            <button id="npsK-big" class="on" onclick="npsKind('big')">대량보유 보고 (분기)</button>
             <button id="npsK-hold" onclick="npsKind('hold')">국내주식 전체 (연말)</button>
           </div>
           <div id="npsBody"><div class="mk-wait">로딩 중…</div></div>
@@ -35345,7 +35345,7 @@ function flowShow(which){
   if (which === 'inst'){ if ($('f13Quick') && !$('f13Quick').children.length) f13Quick(); npsLoad(false); if (npsChart) setTimeout(function(){ try { npsChart.resize(); } catch(e){} }, 60); }
 }
 /* ══════════ (10/11 13차 학회장: «13F 기관 보유 자금 흐름으로 옮기고 · NPS 보유도 추가») — 국민연금 국내주식 ══════════
-   ① 5% 이상 대량보유 (분기 · 지분율 · 직전 분기 대비 신규 · 제외 · 늘림 · 줄임) ② 국내주식 전체 (연말 · 평가액 · 비중 · 지분율 · 상위 20 막대)
+   ① 대량보유 보고 (분기 · 그 분기에 낸 5% 신규 취득 · 1%p 넘는 변동 · 5% 아래로 보고 — 회사마다 직전 보고 대비) ② 국내주식 전체 (연말 · 평가액 · 비중 · 지분율 · 상위 20 막대)
    · 원자료에 종목코드가 없어 종목명으로 · 누르면 재무제표 탭에서 그 이름으로 검색 · 해외(미국) 주식은 아래 13F 의 «국민연금» 단추  */
 var NPS = { kind: 'big', d: {}, busy: {}, sort: { big: 'p', hold: 'v' }, q: '' }, npsChart = null;
 function npsKind(k){ NPS.kind = k === 'hold' ? 'hold' : 'big'; ['big', 'hold'].forEach(function(x){ var b = $('npsK-' + x); if (b) b.classList.toggle('on', x === NPS.kind); }); npsLoad(false); }
@@ -35384,25 +35384,27 @@ function npsRender(){
   var shown = q ? rows.filter(function(x){ return x.n.indexOf(q) >= 0; }) : rows;
   var th = function(id, t, cls){ var on = key === id; return '<th class="' + (cls || '') + (on ? ' on' : '') + '"><button type="button" onclick="npsSort(\'' + id + '\')">' + esc(t) + (on ? (desc ? ' ▾' : ' ▴') : '') + '</button></th>'; };
   var pf = function(v, dp){ return v == null ? '-' : v.toFixed(dp == null ? 2 : dp) + '%'; };
-  var nmCell = function(x){ return '<td class="nm"><button type="button" class="lnk" onclick="npsCoGo(\'' + esc(x.n).replace(/'/g, '&#39;') + '\')" title="재무제표에서 검색">' + esc(x.n) + '</button>' + (x.nw ? ' <span class="nps-tag new">신규</span>' : '') + '</td>'; };
+  var nmCell = function(x){ return '<td class="nm"><button type="button" class="lnk" onclick="npsCoGo(\'' + esc(x.n).replace(/'/g, '&#39;') + '\')" title="재무제표에서 검색">' + esc(x.n) + '</button>' + (x.nw && k !== 'big' ? ' <span class="nps-tag new">신규</span>' : '') + '</td>'; };
   var H = '';
   if (k === 'big'){
-    var nNew = rows.filter(function(x){ return x.nw; }).length, up = rows.filter(function(x){ var v = dlt(x); return v != null && v > 0.005; }), dn = rows.filter(function(x){ var v = dlt(x); return v != null && v < -0.005; });
-    var avg = rows.length ? rows.reduce(function(a, x){ return a + (x.p || 0); }, 0) / rows.length : 0;
-    H += '<div class="nps-tiles"><div><span>5% 이상 보유 종목</span><b>' + rows.length + '</b><em>' + esc(npsYmd(d.base) + ' 기준') + '</em></div>'
-      + '<div><span>직전 분기 대비 신규</span><b class="up">' + (d.prevOk ? nNew : '-') + '</b><em>' + esc(d.prev ? npsYmd(d.prev) + ' 대비' : '-') + '</em></div>'
-      + '<div><span>5% 아래로 빠짐 (또는 매도)</span><b class="down">' + (d.prevOk ? (d.out || []).length : '-') + '</b><em>목록에서 빠진 종목</em></div>'
-      + '<div><span>지분율 늘림 · 줄임</span><b><span class="up">' + up.length + '</span> · <span class="down">' + dn.length + '</span></b><em>평균 지분율 ' + avg.toFixed(2) + '%</em></div></div>';
+    /*  (13차 확인) 원자료는 «보유 목록» 이 아니라 «그 분기에 낸 대량보유 보고 내역» — 5% 이상 신규 취득 · 그 뒤 1%p 넘는 변동 · 5% 아래로 내려갈 때만 보고
+        → 회사마다 이번 분기 마지막 보고 · 직전 보고(이번 분기 안 또는 지난 1년) 와 비교 · 보고가 없던 회사를 «빠짐» 으로 세지 않음  */
+    var first = rows.filter(function(x){ return x.nw; }), lo = rows.filter(function(x){ return x.lo; }), up = rows.filter(function(x){ var v = dlt(x); return v != null && v > 0.005; }), dn = rows.filter(function(x){ var v = dlt(x); return v != null && v < -0.005; });
+    var per = d.qFrom && d.qTo ? npsYmd(d.qFrom) + ' ~ ' + npsYmd(d.qTo) : npsYmd(d.base) + ' 분기';
+    H += '<div class="nps-tiles"><div><span>이번 분기 보고 종목</span><b>' + rows.length + '</b><em>' + esc('보고 ' + (d.nRep || rows.length) + '건 · ' + per) + '</em></div>'
+      + '<div><span>최근 1년 첫 보고</span><b class="up">' + (d.prevOk ? first.length : '-') + '</b><em>' + esc('5% 신규 취득 등 · ' + (d.win ? npsYmd(d.win) + ' 이후 보고 없던 종목' : '-')) + '</em></div>'
+      + '<div><span>5% 아래로 낮춤</span><b class="down">' + lo.length + '</b><em>지분율 5% 미만 보고</em></div>'
+      + '<div><span>지분율 늘림 · 줄임</span><b><span class="up">' + up.length + '</span> · <span class="down">' + dn.length + '</span></b><em>직전 보고 대비</em></div></div>';
     if (up.length || dn.length){
       var top = function(L, s){ return L.sort(function(a, b){ return s * (dlt(b) - dlt(a)); }).slice(0, 6).map(function(x){ return '<button type="button" class="nps-chip" onclick="npsCoGo(\'' + esc(x.n).replace(/'/g, '&#39;') + '\')">' + esc(x.n) + ' <b class="' + (s > 0 ? 'up' : 'down') + '">' + (dlt(x) > 0 ? '+' : '') + dlt(x).toFixed(2) + '%p</b></button>'; }).join(''); };
-      H += '<div class="nps-mv"><div><span class="k up">지분율 크게 늘린 종목</span>' + (up.length ? top(up.slice(), 1) : '<span class="st-hint">-</span>') + '</div><div><span class="k down">크게 줄인 종목</span>' + (dn.length ? top(dn.slice(), -1) : '<span class="st-hint">-</span>') + '</div></div>';
+      H += '<div class="nps-mv"><div><span class="k up">직전 보고보다 늘림 (큰 순)</span>' + (up.length ? top(up.slice(), 1) : '<span class="st-hint">-</span>') + '</div><div><span class="k down">직전 보고보다 줄임 (큰 순)</span>' + (dn.length ? top(dn.slice(), -1) : '<span class="st-hint">-</span>') + '</div></div>';
     }
-    if (d.prevOk && (d.out || []).length) H += '<div class="nps-out"><span class="k">목록에서 빠짐</span>' + d.out.slice(0, 30).map(function(x){ return '<span>' + esc(x.n) + (x.pp != null ? ' <i>' + pf(x.pp) + '</i>' : '') + '</span>'; }).join('') + (d.out.length > 30 ? '<span class="st-hint">외 ' + (d.out.length - 30) + '개</span>' : '') + '</div>';
+    if (lo.length) H += '<div class="nps-out"><span class="k">5% 아래로 낮춘 종목</span>' + lo.slice(0, 30).map(function(x){ return '<span>' + esc(x.n) + ' <i>' + pf(x.p) + (x.pp != null ? ' (직전 ' + pf(x.pp) + ')' : '') + '</i></span>'; }).join('') + (lo.length > 30 ? '<span class="st-hint">외 ' + (lo.length - 30) + '개</span>' : '') + '</div>';
     H += '<div class="row nps-f"><input type="text" id="npsQ" class="grow" placeholder="종목명으로 찾기" value="' + esc(NPS.q) + '" oninput="NPS.q = this.value; npsRender(); var e = $(\'npsQ\'); if (e){ e.focus(); e.setSelectionRange(e.value.length, e.value.length); }"><span class="st-hint">' + shown.length + '개</span></div>';
-    H += '<div class="scroll nps-tw"><table class="nps-t"><thead><tr>' + th('n', '종목') + th('p', '지분율', 'r') + th('dp', '직전 분기 대비', 'r') + '<th class="r">보고 기준일</th></tr></thead><tbody>'
-      + shown.map(function(x){ var v = dlt(x); return '<tr>' + nmCell(x) + '<td class="r"><b>' + pf(x.p) + '</b></td><td class="r ' + (v == null ? '' : v > 0.005 ? 'up' : v < -0.005 ? 'down' : '') + '">' + (v == null ? (x.nw ? '신규' : '-') : (v > 0 ? '+' : '') + v.toFixed(2) + '%p') + '</td><td class="r st-hint">' + esc(npsYmd(x.d)) + '</td></tr>'; }).join('')
+    H += '<div class="scroll nps-tw"><table class="nps-t"><thead><tr>' + th('n', '종목') + th('p', '최근 지분율', 'r') + th('dp', '직전 보고 대비', 'r') + th('k', '이번 분기 보고', 'r') + '<th class="r">최근 보고일</th></tr></thead><tbody>'
+      + shown.map(function(x){ var v = dlt(x); return '<tr>' + nmCell(x) + '<td class="r"><b' + (x.lo ? ' class="down"' : '') + '>' + pf(x.p) + '</b></td><td class="r ' + (v == null ? '' : v > 0.005 ? 'up' : v < -0.005 ? 'down' : '') + '">' + (v == null ? (x.nw ? '첫 보고' : '-') : (v > 0 ? '+' : '') + v.toFixed(2) + '%p') + '</td><td class="r">' + (x.k || 1) + '번</td><td class="r st-hint">' + esc(npsYmd(x.d)) + '</td></tr>'; }).join('')
       + '</tbody></table></div>';
-    H += '<p class="st-hint nps-src">자료: ' + esc(d.src) + ' · ' + esc(npsYmd(d.base)) + ' 기준 (분기마다 공시 · 공공데이터포털은 국민연금 기금운용본부 게시보다 한 분기 늦을 수 있음) · 지분율 = 대량보유 보고서 기준 · 투자 권유가 아닙니다</p>';
+    H += '<p class="st-hint nps-src">자료: ' + esc(d.src) + ' · ' + esc(npsYmd(d.base)) + ' 분기 · 대량보유 보고 = 지분 5% 이상 신규 취득 · 그 뒤 1%p 넘게 변할 때 · 5% 아래로 내려갈 때 내는 보고라 5% 넘게 가진 모든 종목 목록이 아님 (분기 동안 변화가 작았던 종목은 없음) · 전체 보유는 «국내주식 전체 (연말)» · 투자 권유가 아닙니다</p>';
   } else {
     var tot = rows.reduce(function(a, x){ return a + (x.v || 0); }, 0), top10 = rows.slice().sort(function(a, b){ return (b.v || 0) - (a.v || 0); }).slice(0, 10).reduce(function(a, x){ return a + (x.v || 0); }, 0);
     var totP = rows.reduce(function(a, x){ return a + (x.pv || 0); }, 0);
@@ -35444,8 +35446,8 @@ function npsScreenLines(){
   var out = [], B = NPS.d.big, H = NPS.d.hold;
   if (B && B.rows){ var dl = function(x){ return x.p != null && x.pp != null ? x.p - x.pp : null; };
     var up = B.rows.filter(function(x){ return (dl(x) || 0) > 0.005; }).sort(function(a, b){ return dl(b) - dl(a); }).slice(0, 8), dn = B.rows.filter(function(x){ return (dl(x) || 0) < -0.005; }).sort(function(a, b){ return dl(a) - dl(b); }).slice(0, 8);
-    out.push('[국민연금 5% 이상 대량보유 · ' + npsYmd(B.base) + ' 기준 · 직전 ' + (B.prev ? npsYmd(B.prev) : '-') + '] ' + B.rows.length + '종목 · 신규 ' + B.rows.filter(function(x){ return x.nw; }).map(function(x){ return x.n; }).slice(0, 12).join(', ')
-      + ' · 빠짐 ' + (B.out || []).map(function(x){ return x.n; }).slice(0, 12).join(', ') + ' · 지분율 늘림 ' + up.map(function(x){ return x.n + ' +' + dl(x).toFixed(2) + '%p'; }).join(', ') + ' · 줄임 ' + dn.map(function(x){ return x.n + ' ' + dl(x).toFixed(2) + '%p'; }).join(', ')); }
+    out.push('[국민연금 대량보유 보고 · ' + npsYmd(B.base) + ' 분기 (' + (B.qFrom ? npsYmd(B.qFrom) + '~' + npsYmd(B.qTo) : '-') + ') · 5% 신규 취득 · 1%p 넘는 변동 · 5% 아래로 보고만 (전체 보유 목록 아님)] 보고 종목 ' + B.rows.length + ' · 최근 1년 첫 보고 ' + B.rows.filter(function(x){ return x.nw; }).map(function(x){ return x.n + ' ' + (x.p != null ? x.p.toFixed(2) : '-') + '%'; }).slice(0, 12).join(', ')
+      + ' · 5% 아래로 낮춤 ' + B.rows.filter(function(x){ return x.lo; }).map(function(x){ return x.n + ' ' + (x.p != null ? x.p.toFixed(2) : '-') + '%'; }).slice(0, 12).join(', ') + ' · 직전 보고 대비 늘림 ' + up.map(function(x){ return x.n + ' +' + dl(x).toFixed(2) + '%p'; }).join(', ') + ' · 줄임 ' + dn.map(function(x){ return x.n + ' ' + dl(x).toFixed(2) + '%p'; }).join(', ')); }
   if (H && H.rows){ var top = H.rows.filter(function(x){ return x.v != null; }).sort(function(a, b){ return b.v - a.v; }).slice(0, 15);
     out.push('[국민연금 국내주식 전체 · ' + npsYmd(H.base) + ' 연말 기준] ' + H.rows.length + '종목 · 평가액 상위: ' + top.map(function(x){ return x.n + ' ' + fmtKo(x.v * 1e8) + '원 (비중 ' + (x.w != null ? x.w.toFixed(2) : '-') + '% · 지분 ' + (x.p != null ? x.p.toFixed(2) : '-') + '%)'; }).join(' / ')); }
   return out.join('\n');
@@ -51148,7 +51150,7 @@ function stratFlw(){
   if (D.flows && D.flows.length) rows.push([strTag(0, T('4주 회전 (추정)', '4w rotation')), D.flows.slice(0, 3).map(function(f){ return nm(f[0]) + ' → ' + nm(f[1]); }).join(' · '), T('상대강도가 가장 빠진 나라에서 가장 오른 나라로 짝지은 흐름 (실제 자금 집계 아님)', 'paired RS shifts, not actual fund flows'), '-']);
   var B = typeof NPS !== 'undefined' && NPS.d && NPS.d.big && NPS.d.big.rows ? NPS.d.big : null;
   if (B){ var dl = function(x){ return x.p != null && x.pp != null ? x.p - x.pp : null; }, ups = B.rows.filter(function(x){ return (dl(x) || 0) > 0.3; }).sort(function(a, b){ return dl(b) - dl(a); }).slice(0, 5);
-    if (ups.length) rows.push([strTag(1, T('국민연금 지분율 늘림', 'NPS raised stakes')), ups.map(function(x){ return x.n + ' +' + dl(x).toFixed(2) + '%p'; }).join(' · ') + ' (' + npsYmd(B.base) + ')', T('국내 최대 기관이 5% 이상 보유 종목에서 지분을 늘린 곳 · 수급 참고 (매수 시점 · 가격은 공시에 없음)', 'largest domestic holder increased'), T('다음 분기 공시에서 지분율이 줄면 철회', 'next filing shows decrease')]); }
+    if (ups.length) rows.push([strTag(1, T('국민연금 지분율 늘림', 'NPS raised stakes')), ups.map(function(x){ return x.n + ' +' + dl(x).toFixed(2) + '%p'; }).join(' · ') + T(' (직전 보고 대비 · ', ' (vs prior filing · ') + (B.qFrom ? npsYmd(B.qFrom) + '~' + npsYmd(B.qTo) : npsYmd(B.base)) + T(' 보고)', ')'), T('국내 최대 기관이 대량보유 보고에서 지분을 늘린 곳 · 수급 참고 (보고 기준일 · 지분율만 공시 · 매수 가격은 없음)', 'largest domestic holder increased'), T('다음 보고에서 지분율이 줄면 철회', 'next filing shows decrease')]); }
   stratSet('strFlw', stratTbl(rows) + '<p class="st-hint">' + esc(T('나라 ETF (미국 상장) 의 세계 지수(ACWI) 대비 상대강도 · 모멘텀 · 기준일 ', 'Country ETFs vs ACWI · as of ') + (D.asof || '-') + T(' · 자세히 = 분석 › 주식분석 › 나라 자금 흐름 · 자금흐름 › 기관 보유', '')) + '</p>');
 }
 function stratVc(){
