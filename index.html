@@ -4964,6 +4964,9 @@
 /*  (23차 학회장: ‘호가창 클릭 드래그해서 순서 바꿀 수 있게’)  */
 #qmbGrid .qmb-h,#qmbGrid .qmb-k,#qmbGrid .qmb-obi,#qmbGrid .qmb-tape{cursor:grab}
 #qmbGrid .qmb-h select,#qmbGrid .qmb-h input,#qmbGrid .qmb-h button{cursor:pointer}
+#qmcGrid .qmc-h{cursor:grab}
+#qmcGrid .qmc-c.drag-src{opacity:.45;outline:2px dashed var(--accent);outline-offset:-2px}
+#qmcGrid .qmc-c.drop-t{outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-soft)}
 #qmbGrid .qmb-p.drag-src{opacity:.45;outline:2px dashed var(--accent);outline-offset:-2px}
 #qmbGrid .qmb-p.drop-b{box-shadow:inset 4px 0 0 var(--accent)}
 #qmbGrid .qmb-p.drop-a{box-shadow:inset -4px 0 0 var(--accent)}
@@ -5072,7 +5075,7 @@ body.qmb-dragging,body.qmb-dragging *{cursor:grabbing!important;user-select:none
 .ecm-btn .ecm-dot{display:none;position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:#c0392b;box-shadow:0 0 0 2px var(--white)}
 .ecm-btn.soon .ecm-dot{display:block}
 .ecm-btn[aria-pressed="true"]{border-color:var(--primary);background:var(--accent-soft)}
-.ecm{position:fixed;right:20px;top:76px;z-index:58;width:336px;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;background:var(--card);color:var(--text);box-shadow:0 12px 34px rgba(20,30,60,.18)}
+.ecm{position:fixed;right:20px;top:118px;z-index:58;width:336px;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;background:var(--card);color:var(--text);box-shadow:0 12px 34px rgba(20,30,60,.18)}
 .ecm.moved{right:auto}
 .ecm.drag{opacity:.93;box-shadow:0 18px 40px rgba(20,30,60,.26)}
 .ecm-h{display:flex;align-items:center;gap:8px;padding:9px 8px 9px 12px;border-bottom:1px solid var(--border);cursor:move;user-select:none;touch-action:none}
@@ -5103,6 +5106,29 @@ body.qmb-dragging,body.qmb-dragging *{cursor:grabbing!important;user-select:none
 .ecm-none{margin:4px 0}
 .ecm-f{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 12px;border-top:1px solid var(--border);font-size:11px;color:var(--text-sub)}
 .ecm-f .btn-sm{padding:3px 10px}
+/*  (23차 학회장: ‘경제지표 미니탭 카운트다운도 사이즈 조절할 수 있게’) - 오른쪽 아래 손잡이를 끌어 넓이 · 높이 · 넓히면 글씨도 같이 커짐  */
+.ecm-f{padding-right:26px}
+.ecm-rz{position:absolute;right:3px;bottom:3px;width:16px;height:16px;cursor:nwse-resize;touch-action:none;border-radius:0 0 11px 0;
+  background:linear-gradient(135deg,transparent 0 46%,var(--text-sub) 46% 52%,transparent 52% 66%,var(--text-sub) 66% 72%,transparent 72%);opacity:.55}
+.ecm-rz:hover,.ecm.rsz .ecm-rz{opacity:1}
+.ecm.rsz{user-select:none}
+@media (max-width:600px){ .ecm-rz{display:none} }
+/*  (23차 학회장: ‘맨 위 상단 접기 기능 - 접기 펴기’) - 탭 줄 오른쪽 끝 단추 · 접으면 머리 줄(로고 · 이름 · 단추)이 숨고 탭 줄이 맨 위로 · 이 브라우저에 기억  */
+.top-in{transition:height .2s ease}
+nav.tabs{transition:top .2s ease}
+nav.tabs .tabs-in{padding-right:52px}
+.hdr-fold-btn{position:absolute;right:10px;top:8px;z-index:3;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:8px;background:var(--white);color:var(--text-sub);cursor:pointer;padding:0}
+.hdr-fold-btn{box-shadow:-14px 0 10px 2px var(--white)}
+.hdr-fold-btn:hover{color:var(--primary);border-color:var(--primary)}
+.hdr-fold-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
+body.hdr-fold .hdr-fold-btn svg{transform:rotate(180deg)}
+body.hdr-fold .top-in{height:0;overflow:hidden}
+body.hdr-anim .top-in{overflow:hidden}
+body.hdr-fold header.top{border-bottom-color:transparent}
+body.hdr-fold nav.tabs{top:0}
+body.hdr-fold .wd-h{top:0}
+body.hdr-fold .ecm:not(.moved){top:58px}
+@media (prefers-reduced-motion:reduce){ .top-in,nav.tabs,.hdr-fold-btn svg{transition:none} }
 @media (max-width:600px){
   .ecm,.ecm.moved{left:10px;right:10px;top:auto;bottom:118px;width:auto}
   .ecm-h{cursor:default}
@@ -63485,7 +63511,7 @@ function qmcWrapHtml(){
   return '<div class="qmc" id="qmcW"><div class="qmc-bar"><span class="qmb-g"><span class="qmb-l">' + esc(T('차트 분할', 'Layout')) + '</span>' + qSeg('qmcLay', QMC_LAY.map(function(n){ return [String(n), String(n)]; }), String(QMC.lay), 'qmcLaySet') + '</span>'
     + '<span class="qmb-g' + (QMC.lay < 2 ? ' hidden' : '') + '" id="qmcArrG"><span class="qmb-l">' + esc(T('배치', 'Arrange')) + '</span>' + qSeg('qmcArr', QMC_ARR.map(function(x){ return [x[0], T(x[1], x[2])]; }), QMC.arr, 'qmcArrSet') + '</span>'
     + '<span class="qmb-g"><span class="qmb-l">' + esc(T('봉', 'Bars')) + '</span>' + qSeg('qmcTf', QMBC_TF.map(function(x){ return [x[0], T(x[1], x[2])]; }), QMC.tf, 'qmcTfSet') + '</span>'
-    + '<span class="st-hint qmc-hint">' + esc(T('호가창 칸이나 전광판 종목을 누르면 빈 차트 칸에 · 꽉 차면 마지막으로 누른 차트 칸을 바꿈', 'Click a book to chart it')) + '</span></div>'
+    + '<span class="st-hint qmc-hint">' + esc(T('호가창 칸이나 전광판 종목을 누르면 빈 차트 칸에 · 꽉 차면 마지막으로 누른 차트 칸을 바꿈 · 차트 이름 줄을 끌어 자리 바꾸기 · 가격 축에서 휠 · 끌기 = 세로 확대 (두 번 클릭 = 자동)', 'Click a book to chart it · drag a title to swap · wheel on the price axis to scale')) + '</span></div>'
     + '<div class="' + qmcGridCls() + '" id="qmcGrid"></div></div>';
 }
 function qmcCellHtml(i){
@@ -63511,8 +63537,49 @@ function qmcLaySet(n){ n = +n; if (QMC_LAY.indexOf(n) < 0) return; QMC.lay = n; 
   var ag = $('qmcArrG'); if (ag) ag.classList.toggle('hidden', n < 2);
   qmcSave(); qoSeg('qmcLay', String(n)); qmcRender(); qmbStart(); }
 function qmcGridCls(){ return 'qmc-grid l' + QMC.lay + (QMC.lay > 1 && QMC.arr !== 'grid' ? ' a-' + QMC.arr : ''); }
+//  (23차 학회장: ‘차트도 순서 옮길 수 있게’) - 차트 이름 줄을 끌어 다른 칸(빈 칸 포함)에 놓으면 두 칸 자리를 맞바꿈
+//   · 차트 안(확대 · 이동)에서는 시작 안 함 · 받아 둔 봉은 그대로 다시 그림 (새로 안 받음)
+var QMC_DR = null;
+function qmcSwap(i, j){
+  if (i === j || !QMC.cells[i] || !QMC.cells[j]) return;
+  var a = QMC.cells[i]; QMC.cells[i] = QMC.cells[j]; QMC.cells[j] = a; QMC.act = j; qmcSave(); qmcRender();
+  obHl(document.querySelector('#qmcGrid .qmc-c[data-i="' + j + '"]'));
+}
+(function(){
+  var clr = function(){ Array.prototype.forEach.call(document.querySelectorAll('#qmcGrid .drop-t'), function(e){ e.classList.remove('drop-t'); }); };
+  var end = function(drop){
+    var D = QMC_DR; QMC_DR = null; if (!D) return; clearTimeout(D.lp);
+    if (D.on){ document.body.classList.remove('qmb-dragging'); if (D.gh) D.gh.remove(); if (D.c) D.c.classList.remove('drag-src'); clr(); QMC.dragAt = Date.now();
+      if (drop && D.tgt != null) qmcSwap(D.i, D.tgt); }
+  };
+  var start = function(D){ D.on = true; document.body.classList.add('qmb-dragging'); D.c.classList.add('drag-src');
+    var g = document.createElement('div'); g.className = 'qmb-ghost'; g.textContent = qmbNm(D.s); g.style.left = D.x + 'px'; g.style.top = D.y + 'px'; document.body.appendChild(g); D.gh = g;
+    try { if (navigator.vibrate && D.touch) navigator.vibrate(12); } catch(e){} };
+  document.addEventListener('pointerdown', function(e){
+    if (e.button > 0 || QMC_DR) return; var t = e.target; if (!t || !t.closest) return;
+    var h = t.closest('#qmcGrid .qmc-h'), c = h && h.closest('.qmc-c'); if (!c || t.closest('button, a, select, input') || QMC.lay < 2) return;
+    var i = +c.getAttribute('data-i'), cell = QMC.cells[i]; if (!cell || !cell.s) return;
+    var D = QMC_DR = { c: c, i: i, s: cell.s, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, on: false, tgt: null, touch: e.pointerType === 'touch', id: e.pointerId };
+    if (D.touch) D.lp = setTimeout(function(){ if (QMC_DR === D && !D.on) start(D); }, 350);
+  }, true);
+  document.addEventListener('pointermove', function(e){
+    var D = QMC_DR; if (!D || e.pointerId !== D.id) return; D.x = e.clientX; D.y = e.clientY;
+    if (!D.on){ var far = Math.hypot(D.x - D.x0, D.y - D.y0) > 6; if (D.touch){ if (far) end(false); return; } if (!far) return; start(D); }
+    e.preventDefault(); if (D.gh){ D.gh.style.left = D.x + 'px'; D.gh.style.top = D.y + 'px'; }
+    var vh = window.innerHeight || 800; if (D.y < 70) window.scrollBy(0, -14); else if (D.y > vh - 70) window.scrollBy(0, 14);
+    var g = $('qmcGrid'); if (g && g.scrollWidth > g.clientWidth + 2){ var gr = g.getBoundingClientRect(); if (D.x < gr.left + 50) g.scrollLeft -= 14; else if (D.x > gr.right - 50) g.scrollLeft += 14; }
+    clr(); D.tgt = null;
+    var el = document.elementFromPoint(D.x, D.y), q = el && el.closest ? el.closest('#qmcGrid .qmc-c') : null; if (!q || q === D.c) return;
+    q.classList.add('drop-t'); D.tgt = +q.getAttribute('data-i');
+  }, { passive: false });
+  document.addEventListener('touchmove', function(e){ if (QMC_DR && QMC_DR.on) e.preventDefault(); }, { passive: false });
+  document.addEventListener('pointerup', function(e){ if (QMC_DR && e.pointerId === QMC_DR.id) end(true); });
+  document.addEventListener('pointercancel', function(){ end(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && QMC_DR) end(false); });
+  document.addEventListener('click', function(e){ if (QMC.dragAt && Date.now() - QMC.dragAt < 350 && e.target && e.target.closest && e.target.closest('#qmcGrid')){ e.stopPropagation(); e.preventDefault(); } }, true);
+})();
 function qmcArrSet(v){ if (!/^(grid|row|col)$/.test(String(v))) return; QMC.arr = v; qmcSave(); qoSeg('qmcArr', v); qmcRender(); }
-function qmcTfSet(tf){ if (!QMBC_MS[tf]) return; QMC.tf = tf; qmcSave(); qoSeg('qmcTf', tf); QMC.cells.forEach(function(c){ c.bars = []; c.tf = null; }); qmcRender(); }
+function qmcTfSet(tf){ if (!QMBC_MS[tf]) return; QMC.tf = tf; qmcSave(); qoSeg('qmcTf', tf); QMC.cells.forEach(function(c){ c.bars = []; c.tf = null; c.ys = null; }); qmcRender(); }
 //  잠깐 반짝 (분홍 테두리가 남지 않게)
 function obHl(el){ if (!el) return; el.classList.remove('hl'); void el.offsetWidth; el.classList.add('hl'); clearTimeout(el.__hlT); el.__hlT = setTimeout(function(){ el.classList.remove('hl'); }, 1900); }
 function qmcAct(i){ QMC.act = i; Array.prototype.forEach.call(document.querySelectorAll('#qmcGrid .qmc-c'), function(e){ var on = +e.getAttribute('data-i') === i; e.classList.toggle('act', on); if (on) obHl(e); }); qmcMark(); }
@@ -63571,12 +63638,38 @@ function qmcLive(){
     if (due && c.bars.length) qmcDraw(i, false);
   });
 }
+//  (23차 학회장: ‘y축 스크롤로 늘리고 줄일 수 있게’) - 오른쪽 가격 축 위에서 휠 = 세로 확대 · 축소 · 위아래로 끌기도 됨 · 축 두 번 클릭 = 자동으로
+//   · 직접 맞춘 세로 범위는 그 칸에 남음 (새 봉이 와도 · 좌우로 옮겨도 그대로) · 봉을 바꾸면 자동으로 돌아감
+var QMC_YR = 62;
+function qmcYOn(el, e){ var r = el.getBoundingClientRect(); return e.clientX - r.left >= r.width - QMC_YR && e.clientY - r.top >= 18 && e.clientY - r.top <= r.height - 20; }
+function qmcYDzReset(c){ try { var dz = c.ch.getOption().dataZoom || [], ids = []; dz.forEach(function(z, k){ if (z && z.yAxisIndex != null && !(+z.start <= 0 && +z.end >= 100)) ids.push(k); }); if (ids.length) c.ch.dispatchAction({ type: 'dataZoom', dataZoomIndex: ids, start: 0, end: 100 }); } catch(e){} }
+function qmcYSet(i, f){
+  var c = QMC.cells[i]; if (!c || !c.ch || !c.bars.length) return;
+  var ext; try { ext = c.ch.getModel().getComponent('yAxis', 0).axis.scale.getExtent(); } catch(e){ return; }
+  var mid = (ext[0] + ext[1]) / 2, half = (ext[1] - ext[0]) / 2 * f, ref = Math.abs(c.bars[c.bars.length - 1].c) || 1;
+  half = Math.max(ref * 0.00002, Math.min(ref * 5, half));
+  c.ys = [mid - half, mid + half]; c.ch.setOption({ yAxis: [{ min: c.ys[0], max: c.ys[1] }] }); qmcYDzReset(c);
+}
+function qmcYAuto(i){ var c = QMC.cells[i]; if (!c || !c.ch) return; c.ys = null; c.ch.setOption({ yAxis: [{ min: null, max: null }] }); qmcYDzReset(c); }
+//  차트 칸(바깥)에서 먼저 받음 (capture) - 차트 안 확대 · 예전 축 휠보다 앞서 · 축 띠 밖이면 그대로 흘려보냄
+function qmcYBind(el){
+  var cell = el.parentNode; if (!cell || cell.__yz) return; cell.__yz = 1;
+  var idx = function(){ return +String(el.id).replace('qmcCh', ''); }, drag = null;
+  cell.addEventListener('wheel', function(e){ if (!el.contains(e.target) || !qmcYOn(el, e)) return; e.preventDefault(); e.stopPropagation(); qmcYSet(idx(), Math.pow(1.0018, Math.max(-240, Math.min(240, e.deltaY)))); }, { passive: false, capture: true });
+  var down = function(e){ if (e.button > 0 || !el.contains(e.target) || !qmcYOn(el, e)) return; e.stopPropagation(); e.preventDefault();
+    if (e.type === 'pointerdown'){ drag = { y: e.clientY, id: e.pointerId }; try { cell.setPointerCapture(e.pointerId); } catch(_){} } };
+  cell.addEventListener('pointerdown', down, true); cell.addEventListener('mousedown', down, true);
+  cell.addEventListener('pointermove', function(e){ if (!drag || e.pointerId !== drag.id) return; e.preventDefault(); e.stopPropagation(); var dy = e.clientY - drag.y; drag.y = e.clientY; if (dy) qmcYSet(idx(), Math.exp(dy * 0.006)); }, true);
+  var stop = function(e){ if (drag && e.pointerId === drag.id){ drag = null; try { cell.releasePointerCapture(e.pointerId); } catch(_){} } };
+  cell.addEventListener('pointerup', stop, true); cell.addEventListener('pointercancel', stop, true);
+  cell.addEventListener('dblclick', function(e){ if (qmcYOn(el, e)){ e.stopPropagation(); e.preventDefault(); qmcYAuto(idx()); } }, true);
+}
 function qmcDraw(i, full){
   var c = QMC.cells[i], el = $('qmcCh' + i); if (!c || !el || typeof echarts === 'undefined') return;
   var B = c.bars;
   if (!B.length){ if (c.ch){ try { c.ch.clear(); } catch(e){} } el.setAttribute('data-msg', c.err ? T('차트 자료를 받지 못했습니다. 봉을 바꾸거나 잠시 뒤 다시 눌러 주세요.', 'Could not load bars.') : T('로딩 중…', 'Loading…')); el.classList.add('msg'); return; }
   el.classList.remove('msg'); el.removeAttribute('data-msg');
-  c.ch = chartOn(el, c.ch); if (!c.ch) return; c.ch.__axNoKeep = true;
+  c.ch = chartOn(el, c.ch); if (!c.ch) return; c.ch.__axNoKeep = true; qmcYBind(el);
   var C = qmbcCol(), L = B[B.length - 1], x = B.map(function(b){ return qmbcFmtT(b.t); }), k = B.map(function(b){ return [b.o, b.c, b.l, b.h]; }), small = QMC.lay >= 4 || (window.innerWidth || 1200) < 700;
   var vol = B.map(function(b){ return { value: b.q, itemStyle: { color: b.c >= b.o ? C.upA : C.dnA } }; });
   var lastCol = L.c >= L.o ? C.up : C.dn, n = B.length, win = Math.min(n, small ? 70 : 140);
@@ -63598,7 +63691,7 @@ function qmcDraw(i, full){
       grid: [{ left: 6, right: 62, top: 22, bottom: small ? 74 : 88 }, { left: 6, right: 62, height: small ? 40 : 52, bottom: 24 }],
       xAxis: [{ type: 'category', data: x, boundaryGap: true, axisLine: { lineStyle: { color: C.grid } }, axisTick: { show: false }, axisLabel: { show: false }, splitLine: { show: false }, axisPointer: { label: { show: false } } },
               { type: 'category', gridIndex: 1, data: x, boundaryGap: true, axisLine: { lineStyle: { color: C.grid } }, axisTick: { show: false }, axisLabel: { fontSize: 10, color: C.sub, hideOverlap: true }, splitLine: { show: false } }],
-      yAxis: [{ type: 'value', scale: true, position: 'right', splitNumber: small ? 4 : 5, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { fontSize: 10, color: C.sub, formatter: function(v){ try { var ax = c.ch.getModel().getComponent('yAxis', 0).axis.scale.getExtent(), LL = c.bars[c.bars.length - 1]; if (LL && Math.abs(v - LL.c) < (ax[1] - ax[0]) * 0.1) return ''; } catch(e){} return qobPx(v); } }, splitLine: { lineStyle: { color: C.grid } } },
+      yAxis: [{ type: 'value', scale: true, position: 'right', splitNumber: small ? 4 : 5, min: c.ys ? c.ys[0] : null, max: c.ys ? c.ys[1] : null, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { fontSize: 10, color: C.sub, formatter: function(v){ try { var ax = c.ch.getModel().getComponent('yAxis', 0).axis.scale.getExtent(), LL = c.bars[c.bars.length - 1]; if (LL && Math.abs(v - LL.c) < (ax[1] - ax[0]) * 0.1) return ''; } catch(e){} return qobPx(v); } }, splitLine: { lineStyle: { color: C.grid } } },
               { type: 'value', gridIndex: 1, position: 'right', splitNumber: 2, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { show: false }, splitLine: { show: false } }],
       dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], startValue: Math.max(0, n - win), endValue: n - 1, minValueSpan: 20, zoomOnMouseWheel: true, moveOnMouseMove: true, moveOnMouseWheel: false }],
       series: series }, true);
@@ -63878,9 +63971,9 @@ function qbdCanGo(){ return typeof tabVisOk !== 'function' || (tabVisOk('quant')
    · 머리 줄 시계 단추 → 떠 있는 작은 창 (어느 탭에서나 · PC 는 머리를 끌어 옮김 · 열림 · 위치 · 중요만 기억)
    · 다음 발표까지 남은 시간 (1초마다) · 중요 (★★★) 만 / 전체 · 다음 14일 안 · 지난 24시간 발표는 발표치 · 이전치
    · 자료 = 홈 › 경제지표 캘린더와 같은 일정 (같은 달 범위로 받아 서버 보관분을 같이 씀) · 미국 발표 · 한국 시간          */
-var ECM = { open: false, imp: true, x: null, y: null, ev: [], at: 0, busy: false, err: '', tick: 0, keys: '', passed: '', drag: null };
-try { var _ecm = JSON.parse(LSX.getItem('safe_ecmini_v1') || 'null'); if (_ecm){ ECM.open = !!_ecm.open; ECM.imp = _ecm.imp !== false; if (isFinite(+_ecm.x) && isFinite(+_ecm.y) && _ecm.x !== null){ ECM.x = +_ecm.x; ECM.y = +_ecm.y; } } } catch(e){}
-function ecmSave(){ try { LSX.setItem('safe_ecmini_v1', JSON.stringify({ open: ECM.open, imp: ECM.imp, x: ECM.x, y: ECM.y })); } catch(e){} }
+var ECM = { open: false, imp: true, x: null, y: null, w: null, h: null, ev: [], at: 0, busy: false, err: '', tick: 0, keys: '', passed: '', drag: null };
+try { var _ecm = JSON.parse(LSX.getItem('safe_ecmini_v1') || 'null'); if (_ecm){ ECM.open = !!_ecm.open; ECM.imp = _ecm.imp !== false; if (isFinite(+_ecm.x) && isFinite(+_ecm.y) && _ecm.x !== null){ ECM.x = +_ecm.x; ECM.y = +_ecm.y; } if (+_ecm.w >= 280) ECM.w = +_ecm.w; if (+_ecm.h >= 120) ECM.h = +_ecm.h; } } catch(e){}
+function ecmSave(){ try { LSX.setItem('safe_ecmini_v1', JSON.stringify({ open: ECM.open, imp: ECM.imp, x: ECM.x, y: ECM.y, w: ECM.w, h: ECM.h })); } catch(e){} }
 //  홈 캘린더와 같은 범위 (그 달 앞 6일 ~ 다음 달 7일) — 서버 보관분을 같이 씀 · 달 끝 무렵이면 다음 달 것도
 function ecmRanges(){
   var n = new Date(), out = [], one = function(y, m){ out.push([ecIso(new Date(y, m, -6)), ecIso(new Date(y, m + 1, 7))]); };
@@ -63923,7 +64016,8 @@ function ecmHtml(){
     + '<span class="ecm-seg" role="group"><button type="button" data-v="1" class="' + (ECM.imp ? 'on' : '') + '" onclick="ecmImp(1)">' + esc(T('중요만', 'Key')) + '</button><button type="button" data-v="0" class="' + (ECM.imp ? '' : 'on') + '" onclick="ecmImp(0)">' + esc(T('전체', 'All')) + '</button></span>'
     + '<button type="button" class="ecm-x" onclick="ecmToggle(false)" title="' + esc(T('닫기', 'Close')) + '" aria-label="' + esc(T('카운트다운 닫기', 'Close countdown')) + '">×</button></div>'
     + '<div class="ecm-b" id="ecmBody">' + qWaitE() + '</div>'
-    + '<div class="ecm-f"><span>' + esc(T('미국 발표 · 한국 시간', 'US releases · KST')) + '</span><button type="button" class="btn-sm" onclick="ecmGoCal()">' + esc(T('전체 일정', 'Full calendar')) + '</button></div>';
+    + '<div class="ecm-f"><span>' + esc(T('미국 발표 · 한국 시간', 'US releases · KST')) + '</span><button type="button" class="btn-sm" onclick="ecmGoCal()">' + esc(T('전체 일정', 'Full calendar')) + '</button></div>'
+    + '<span class="ecm-rz" id="ecmRz" title="' + esc(T('끌어서 크기 조절 · 두 번 누르면 처음 크기', 'Drag to resize · double-click to reset')) + '"></span>';
 }
 function qWaitE(){ return '<div class="mk-wait">' + esc(T('로딩 중…', 'Loading…')) + '</div>'; }
 function ecmRender(){
@@ -63958,6 +64052,32 @@ function ecmPlace(){
   var W = w.offsetWidth || 320, H = w.offsetHeight || 200, x = Math.max(6, Math.min((window.innerWidth || 1200) - W - 6, ECM.x)), y = Math.max(70, Math.min((window.innerHeight || 800) - Math.min(H, 160), ECM.y));
   w.style.left = Math.round(x) + 'px'; w.style.top = Math.round(y) + 'px'; w.classList.add('moved');
 }
+//  크기 - 넓이 280~760 · 내용 높이 120~ (화면 안) · 넓힌 만큼 남은 시간 · 이름 글씨도 키움 (휴대폰은 처음 크기)
+function ecmSize(){
+  var w = $('ecMini'), b = $('ecmBody'); if (!w || !b) return;
+  var mob = (window.innerWidth || 1000) <= 600, W = mob ? null : ECM.w, H = mob ? null : ECM.h;
+  if (W) W = Math.min(W, Math.max(280, (window.innerWidth || 1200) - 12));
+  w.style.width = W ? Math.round(W) + 'px' : ''; b.style.height = H ? Math.round(H) + 'px' : ''; b.style.maxHeight = H ? 'none' : '';
+  var k = Math.max(0.9, Math.min(1.9, (W || 336) / 336)), k2 = Math.min(k, 1.4), k3 = Math.min(k, 1.3), st = $('ecmSzCss');
+  if (!st){ st = document.createElement('style'); st.id = 'ecmSzCss'; document.head.appendChild(st); }
+  st.textContent = Math.abs(k - 1) < 0.02 ? '' : '#ecMini .ecm-cd{font-size:' + Math.round(26 * k) + 'px}#ecMini .ecm-nm{font-size:' + (13.5 * k2).toFixed(1) + 'px}#ecMini .ecm-h b{font-size:' + (13 * k3).toFixed(1) + 'px}'
+    + '#ecMini .ecm-l li,#ecMini .ecm-l li .cd{font-size:' + (12 * k2).toFixed(1) + 'px}#ecMini .ecm-l li .v{font-size:' + (11.5 * k2).toFixed(1) + 'px}#ecMini .ecm-l li .at,#ecMini .ecm-at{font-size:' + (11.5 * k3).toFixed(1) + 'px}#ecMini .ecm-k{font-size:' + (10.5 * k3).toFixed(1) + 'px}';
+}
+function ecmRzBind(w){
+  var g = w.querySelector('#ecmRz'); if (!g || g.__on) return; g.__on = 1; var D = null;
+  g.addEventListener('pointerdown', function(ev){ if (ev.button !== 0) return; ev.preventDefault(); ev.stopPropagation();
+    var r = w.getBoundingClientRect(); if (ECM.x == null){ ECM.x = r.left; ECM.y = r.top; ecmPlace(); }
+    D = { x: ev.clientX, y: ev.clientY, w0: r.width, h0: ($('ecmBody') || {}).offsetHeight || 200, id: ev.pointerId }; try { g.setPointerCapture(ev.pointerId); } catch(e){} w.classList.add('rsz'); });
+  g.addEventListener('pointermove', function(ev){ if (!D || D.id !== ev.pointerId) return; var r = w.getBoundingClientRect(), vw = window.innerWidth || 1200, vh = window.innerHeight || 800, b = $('ecmBody');
+    var other = r.height - (b ? b.offsetHeight : 0);
+    var want = Math.max(280, Math.min(760, vw - 12, D.w0 + ev.clientX - D.x));
+    if (r.left + want > vw - 6){ ECM.x = Math.max(6, vw - 6 - want); w.style.left = Math.round(ECM.x) + 'px'; }    //  오른쪽 끝에 붙어 있으면 왼쪽으로 넓힘
+    ECM.w = want;
+    ECM.h = Math.max(120, Math.min(vh - r.top - other - 8, D.h0 + ev.clientY - D.y)); ecmSize(); });
+  var end = function(ev){ if (!D || D.id !== ev.pointerId) return; D = null; w.classList.remove('rsz'); ecmSave(); };
+  g.addEventListener('pointerup', end); g.addEventListener('pointercancel', end);
+  g.addEventListener('dblclick', function(ev){ ev.stopPropagation(); ECM.w = null; ECM.h = null; ecmSize(); ecmPlace(); ecmSave(); });
+}
 function ecmEnsure(){
   var w = $('ecMini'); if (w) return w;
   var host = $('appView') || document.body; w = document.createElement('div'); w.id = 'ecMini'; w.className = 'ecm hidden'; w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', T('경제지표 카운트다운', 'Release countdown'));
@@ -63969,15 +64089,32 @@ function ecmEnsure(){
   hd.addEventListener('pointermove', function(ev){ var D = ECM.drag; if (!D || D.id !== ev.pointerId) return; ECM.x = ev.clientX - D.dx; ECM.y = ev.clientY - D.dy; ecmPlace(); });
   var end = function(ev){ var D = ECM.drag; if (!D || D.id !== ev.pointerId) return; ECM.drag = null; w.classList.remove('drag'); ecmSave(); };
   hd.addEventListener('pointerup', end); hd.addEventListener('pointercancel', end);
+  ecmRzBind(w); ecmSize();
   return w;
 }
 function ecmToggle(on){
   ECM.open = on == null ? !ECM.open : !!on; ecmSave();
   var w = ecmEnsure(); w.classList.toggle('hidden', !ECM.open);
-  if (ECM.open){ ecmPlace(); ecmRender(); ecmLoad(!ECM.ev.length); if (!ECM.tick) ECM.tick = setInterval(ecmTick, 1000); }
+  if (ECM.open){ ecmSize(); ecmPlace(); ecmRender(); ecmLoad(!ECM.ev.length); if (!ECM.tick) ECM.tick = setInterval(ecmTick, 1000); }
   else { clearInterval(ECM.tick); ECM.tick = 0; }
   ecmBtnMark();
 }
+function hdrFoldSet(on, quiet){
+  var b = document.body; if (!b) return; on = !!on;
+  if (!quiet){ b.classList.add('hdr-anim'); clearTimeout(hdrFoldSet.t); hdrFoldSet.t = setTimeout(function(){ b.classList.remove('hdr-anim'); try { if (typeof resizeAllCharts === 'function') resizeAllCharts(); } catch(e){} }, 260); }
+  b.classList.toggle('hdr-fold', on);
+  var bt = $('hdrFoldBtn'); if (bt){ var t = on ? T('상단 펴기', 'Show header') : T('상단 접기', 'Hide header'); bt.title = t; bt.setAttribute('aria-label', t); bt.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+  try { LSX.setItem('safe_hdr_fold_v1', on ? '1' : '0'); } catch(e){}
+}
+(function(){
+  var nav = document.querySelector('#appView nav.tabs'); if (!nav || $('hdrFoldBtn')) return;
+  var bt = document.createElement('button'); bt.type = 'button'; bt.id = 'hdrFoldBtn'; bt.className = 'hdr-fold-btn';
+  bt.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4"/></svg>';
+  bt.onclick = function(){ hdrFoldSet(!document.body.classList.contains('hdr-fold')); };
+  nav.appendChild(bt);
+  var on = false; try { on = LSX.getItem('safe_hdr_fold_v1') === '1'; } catch(e){}
+  hdrFoldSet(on, true);
+})();
 function ecmImp(v){ ECM.imp = !!+v; ecmSave(); var w = $('ecMini'); if (w) Array.prototype.forEach.call(w.querySelectorAll('.ecm-seg button'), function(b){ b.classList.toggle('on', b.getAttribute('data-v') === (ECM.imp ? '1' : '0')); }); ecmRender(); }
 function ecmGoCal(){ showTab('home'); setTimeout(function(){ var c = document.querySelector('#pane-home .cal-card'); if (c && c.scrollIntoView) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 220); }
 //  머리 줄 단추 (언어 단추 앞)
@@ -63988,7 +64125,7 @@ function ecmGoCal(){ showTab('home'); setTimeout(function(){ var c = document.qu
   b.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8.6" r="5.6"/><path d="M8 5.8v2.8l1.9 1.2M6.4 1.6h3.2M8 1.6v1.4"/></svg><i class="ecm-dot" aria-hidden="true"></i>';
   b.onclick = function(){ ecmToggle(); };
   lb.parentNode.insertBefore(b, lb);
-  window.addEventListener('resize', function(){ if (ECM.open) ecmPlace(); });
+  window.addEventListener('resize', function(){ if (ECM.open){ ecmSize(); ecmPlace(); } });
   document.addEventListener('visibilitychange', function(){ if (!document.hidden && ECM.open) ecmTick(); });
   //  열어 둔 채 나갔으면 로그인 뒤 다시 열고 · 단추 점은 15분마다
   if (ECM.open) setTimeout(function(){ ecmToggle(true); }, 1500);
