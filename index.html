@@ -5288,7 +5288,8 @@ body.et-open{overflow:hidden}
   .et-ch{height:220px}
   .et-tb th:nth-child(4),.et-tb td:nth-child(4),.et-tb th:nth-child(5),.et-tb td:nth-child(5){display:none}
 }
-/*  (23차) 설정 › 출결 · 활동 증명서 · 사실 증명서  */
+/*  (23차) 설정 › 출결 · 활동 증명서 · 사실 증명서 · 서명 직접 그리기  */
+.card.mt-heat{margin-top:18px}
 .at-bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:0 0 10px}
 .at-bar label{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-sub);font-weight:600}
 .at-bar select{max-width:240px}
@@ -5324,6 +5325,14 @@ body.et-open{overflow:hidden}
 .at-file input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .at-prev{border:1px solid var(--border);border-radius:10px;background:#e9ecf2;padding:12px;display:flex;justify-content:center}
 .at-prev canvas{width:100%;max-width:420px;height:auto;aspect-ratio:1654 / 2339;background:#fff;box-shadow:0 4px 14px rgba(20,30,60,.12)}
+.at-pad{position:relative;height:180px;border:1px solid var(--border);border-radius:10px;background:#fff;margin:0 0 10px;overflow:hidden}
+.at-pad canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.at-pad::after{content:'';position:absolute;left:18px;right:18px;bottom:46px;border-bottom:1px dashed #d5d9e2;pointer-events:none}
+.at-pad-ph{position:absolute;left:0;right:0;top:42%;text-align:center;font-size:13px;color:#a3a9b8;pointer-events:none}
+.at-pad-acts,.at-sg-acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.at-pad-acts{margin:0 0 10px}
+.at-pad-acts .btn-sm,.at-sg-acts .btn-sm{width:100%;display:inline-flex;align-items:center;justify-content:center;text-align:center;box-sizing:border-box}
+.at-sg-acts .btn-solid{grid-column:1 / -1}
 .at-man{border:1px solid var(--border);border-radius:10px;margin:0 0 10px}
 .at-man>summary{cursor:pointer;list-style:none;display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;padding:9px 12px;font-size:13px;font-weight:700;color:var(--text)}
 .at-man>summary::-webkit-details-marker{display:none}
@@ -6798,6 +6807,33 @@ body.et-open{overflow:hidden}
 
       <!--  팀 관리(임원진)는 설정 탭으로 옮겼습니다. 학기 초에 한 번 하는 일이라
             매매 화면 아래에 늘 펼쳐져 있을 이유가 없습니다.  -->
+    
+      <!--  (23차 학회장: ‘시장 히트맵 탭 지우고 그냥 팀 대회 탭 맨 아래에’) — 예전 모의투자 › 시장 히트맵 칸을 그대로 옮김
+            · 화면에 가까워지면 그때 불러옴 (팀 대회를 여는 속도는 그대로) · 예전 길(showTab('heat') · 텔레그램 · 세이피)은 여기로 와서 이 칸으로 내려감  -->
+      <div class="card stk-heat-card mt-heat" id="stkHeatCard">
+        <h2 class="stk-heat-h">시장 히트맵
+          <span class="mk-live off hidden" id="stkLive" aria-live="polite"><i></i>로딩 중…</span>
+          <span class="mk-live off" id="hmLive" aria-live="polite"><i></i>로딩 중…</span>
+          <span class="tools">
+            <button type="button" class="btn-sm" id="stkFullBtn" onclick="stkHeatFull()" aria-pressed="false">전체 화면</button>
+          </span>
+        </h2>
+        <div class="hm-bar">
+          <div class="px-seg hm-seg" id="hmMkt" aria-label="시장"></div>
+          <div class="px-seg hm-seg" id="hmPer" aria-label="기간"></div>
+          <div class="hm-tools" id="hmTools">
+            <label class="hm-find"><input type="search" id="hmQ" placeholder="종목 찾기 (이름 · 코드)" oninput="hmFind(this.value)" onkeydown="hmFindKey(event)" autocomplete="off" aria-label="종목 찾기"><span id="hmQn" class="st-hint"></span></label>
+            <label class="hm-mine hidden" id="hmMineBox" title="우리 팀이 가진 종목에 노란 점 (팀 계좌는 읽기만)"><input type="checkbox" id="hmMine" onchange="hmMineTog(this.checked)"> 우리 팀 보유</label>
+          </div>
+        </div>
+        <div class="hm-sum" id="hmSum"></div>
+        <div class="hm-map" id="hmMap"><div class="mk-empty">로딩 중…</div></div>
+        <div class="hm-leg" id="hmLeg"></div>
+        <div id="mkHeat" class="mk-heat hidden"></div>
+        <p class="st-hint stk-heat-note" id="hmNote"></p>
+        <div class="hm-tip" id="hmTip" aria-hidden="true"></div>
+        <div class="hm-pop" id="hmPop" role="dialog" aria-label="종목 메뉴"></div>
+      </div>
     </div>
 
     <!-- ════ 자료실 ════ -->
@@ -6928,40 +6964,6 @@ body.et-open{overflow:hidden}
           끝난 뒤 순위는 <b>처음 센 값으로 굳힙니다</b> (새벽 5시 뒤 애프터마켓으로 값이 움직여도 순위가 안 바뀌게).
           끝날 때 이 탭을 켜 두면 끝나자마자 굳습니다.
         </div>
-      </div>
-    </div>
-
-    <!-- ════ 모의투자 › 시장 히트맵 (10/10 11차 · 18차 개편) ════
-          학회장: ‘히트맵은 모의투자 탭에’ (11차) · ‘시장 히트맵은 확실한 개선이 필요 · 애매해보여’ (18차) → 트리맵 (크기 = 비중 · 색 = 등락 · 업종끼리)
-          S&P 500 · 한국(모의투자 종목) · 자산 전체(예전 히트맵 · 10초) · 모의투자 자료는 읽기만  -->
-    <div id="pane-heat" class="hidden">
-      <div class="page-head an-head">
-        <div class="an-eyebrow">MARKET HEATMAP</div>
-        <h1>시장 히트맵</h1>
-      </div>
-      <div class="card stk-heat-card" id="stkHeatCard">
-        <h2 class="stk-heat-h">시장 히트맵
-          <span class="mk-live off hidden" id="stkLive" aria-live="polite"><i></i>로딩 중…</span>
-          <span class="mk-live off" id="hmLive" aria-live="polite"><i></i>로딩 중…</span>
-          <span class="tools">
-            <button type="button" class="btn-sm" id="stkFullBtn" onclick="stkHeatFull()" aria-pressed="false">전체 화면</button>
-          </span>
-        </h2>
-        <div class="hm-bar">
-          <div class="px-seg hm-seg" id="hmMkt" aria-label="시장"></div>
-          <div class="px-seg hm-seg" id="hmPer" aria-label="기간"></div>
-          <div class="hm-tools" id="hmTools">
-            <label class="hm-find"><input type="search" id="hmQ" placeholder="종목 찾기 (이름 · 코드)" oninput="hmFind(this.value)" onkeydown="hmFindKey(event)" autocomplete="off" aria-label="종목 찾기"><span id="hmQn" class="st-hint"></span></label>
-            <label class="hm-mine hidden" id="hmMineBox" title="우리 팀이 가진 종목에 노란 점 (팀 계좌는 읽기만)"><input type="checkbox" id="hmMine" onchange="hmMineTog(this.checked)"> 우리 팀 보유</label>
-          </div>
-        </div>
-        <div class="hm-sum" id="hmSum"></div>
-        <div class="hm-map" id="hmMap"><div class="mk-empty">로딩 중…</div></div>
-        <div class="hm-leg" id="hmLeg"></div>
-        <div id="mkHeat" class="mk-heat hidden"></div>
-        <p class="st-hint stk-heat-note" id="hmNote"></p>
-        <div class="hm-tip" id="hmTip" aria-hidden="true"></div>
-        <div class="hm-pop" id="hmPop" role="dialog" aria-label="종목 메뉴"></div>
       </div>
     </div>
 
@@ -10080,7 +10082,7 @@ var TAB_GROUPS = {
   macro:    { pane:'research', tabs: [['infl','인플레이션'], ['jobs','고용'], ['mfg','제조업'], ['rates','채권·금리'], ['usmm','미국 단기자금'],
                                       ['krmm','한국 금리', [['krmm','금리'], ['krliq','자금'], ['krpf','PF']]]] },
   //  (10/10 11차 학회장: ‘히트맵은 모의투자 탭에’) — 주식분석에서 옮김
-  invest:   { tabs: [['trading','팀 대회'], ['solo','개인 대회'], ['heat','시장 히트맵']] },
+  invest:   { tabs: [['trading','팀 대회'], ['solo','개인 대회']] },   //  (23차) 시장 히트맵은 팀 대회 맨 아래 칸으로
   //  10/6: ‘마켓 맵’ (전체 시장 히트맵 · 세계지도 · 환율 예측) 을 맨 앞에 — 띄워 두고 보는 화면
   //  10/8: ‘주식분석’ 새로 (마켓 맵의 히트맵 · 산업분석의 가격 차트 · 섹터·종목 모니터를 모음) — 산업분석은 산업 데이터만
   //  10/10 11차: ‘환율 분석’ 새로 (마켓 맵의 환율 모델 · 선물환 커브를 옮김)
@@ -10146,7 +10148,7 @@ async function clubLoad(){
 //  설정 › 탭 공개 — 묶음별 칸 · 세 가지 (전체 공개 · 임원진만 · 숨김)
 var TAB_VIS_ROWS = [['research', '매크로 경제', '매크로 경제'], ['market', '분석', '마켓 맵'], ['stocks', '분석', '주식분석'], ['industry', '분석', '산업분석'], ['fxa', '분석', '환율 분석'],
   ['company', '분석', '재무제표'], ['ai', '분석', 'AI 분석'], ['deriv', '분석', '파생상품'], ['flow', '분석', '자금흐름'], ['strat', '분석', '전략'],
-  ['quant', '퀀트', '퀀트 랩'], ['qmodel', '퀀트', '모델'], ['trading', '모의투자', '팀 대회'], ['solo', '모의투자', '개인 대회'], ['heat', '모의투자', '시장 히트맵'], ['links', '자료실', '자료실']];
+  ['quant', '퀀트', '퀀트 랩'], ['qmodel', '퀀트', '모델'], ['trading', '모의투자', '팀 대회'], ['solo', '모의투자', '개인 대회'], ['links', '자료실', '자료실']];
 function tabVisRender(){
   var box = $('tabVisBox'); if (!box) return;
   var can = CLUB.manage && CLUB.ok;
@@ -10193,9 +10195,10 @@ var INNER_VIS = [
 //  (퀀트 랩 칸 목록 QL_TABS 는 아래에서 정해짐 — items 가 null 이면 그때 읽음)
 function innerVisRows(tab){
   if (tab === 'research') return TAB_GROUPS.macro.tabs.reduce(function(a, t){ if (t[2]) t[2].forEach(function(k){ a.push(['mt_' + k[0], t[1] + ' › ' + k[1]]); }); else a.push(['mt_' + t[0], t[1]]); return a; }, []);
-  var G = INNER_VIS.filter(function(x){ return x.p === tab; })[0]; if (!G) return [];
+  var head = tab === 'trading' ? [['heat', '시장 히트맵 (맨 아래 칸)']] : [];
+  var G = INNER_VIS.filter(function(x){ return x.p === tab; })[0]; if (!G) return head;
   var items = G.items || (G.pre === 'ql' && typeof QL_TABS !== 'undefined' ? QL_TABS : []);
-  return items.map(function(it){ return [G.pre + '_' + it[0], it[1]]; });
+  return head.concat(items.map(function(it){ return [G.pre + '_' + it[0], it[1]]; }));
 }
 function innerItems(G){ return G.items || (G.pre === 'ql' && typeof QL_TABS !== 'undefined' ? QL_TABS : []); }
 function innerOk(G, v){ return !innerItems(G).some(function(it){ return it[0] === v; }) || tabVisOk(G.pre + '_' + v); }
@@ -10215,6 +10218,7 @@ function innerVisApply(){
       else if (v !== 'all') css.push(sel + '::after{content:"' + (v === 'officer' ? '임원진' : '숨김') + '";display:inline-block;margin-left:5px;padding:0 5px;border-radius:999px;font-size:10px;font-weight:700;line-height:15px;vertical-align:1px;background:var(--accent-soft);color:var(--primary)}');
     });
   });
+  if (typeof tabVisOk === 'function' && !tabVisOk('heat')) css.push('#stkHeatCard{display:none!important}');   //  (23차) 시장 히트맵 칸 숨김
   var st = $('innerVisCss'); if (!st){ st = document.createElement('style'); st.id = 'innerVisCss'; document.head.appendChild(st); }
   st.textContent = css.join('\n');
   //  바꾸는 함수 감싸기 (한 번만) — 숨긴 값이 오면 보이는 첫 칸으로
@@ -10333,8 +10337,10 @@ function macroTeamPath(k){
   return out || (MACRO_TEAMS[k] ? MACRO_TEAMS[k].n : k);
 }
 var curTab = 'home';
-var ALL_PANES = ['home','research','trading','solo','heat','market','stocks','industry','fxa','company','ai','deriv','flow','strat','quant','qmodel','links','admin'];
+var ALL_PANES = ['home','research','trading','solo','market','stocks','industry','fxa','company','ai','deriv','flow','strat','quant','qmodel','links','admin'];
 function showTab(name){
+  //  (23차) 예전 ‘모의투자 › 시장 히트맵’ 탭 → 팀 대회 맨 아래 칸 (텔레그램 · 세이피 · 예전 링크 그대로)
+  var hmJump = false; if (name === 'heat'){ name = 'trading'; hmJump = true; }
   //  예전 ‘접속 기록’ 탭 이름 → 설정 안의 칸
   if (name === 'access'){ adForce = 'access'; name = 'admin'; }
   if (ALL_PANES.indexOf(name) < 0) name = 'home';
@@ -10401,10 +10407,10 @@ function showTab(name){
   if (name==='stocks' && typeof initStocks === 'function') go(initStocks);
   if (name==='market' && typeof initMarket === 'function') go(initMarket);
   if (name==='fxa' && typeof initFxa === 'function') go(initFxa);
-  if (name==='heat' && typeof initHeat === 'function') go(initHeat);
+  if (name==='trading') go(function(){ hmLazy(hmJump); });                       //  (23차) 시장 히트맵 = 팀 대회 맨 아래 칸
   //  마켓 맵 전체 화면에서 다른 탭으로 가면 전체 화면을 풉니다
   if (name!=='market' && document.body.classList.contains('mk-full-on') && typeof mkFullExit === 'function') go(mkFullExit);
-  if (name!=='heat' && document.body.classList.contains('stk-full-on') && typeof stkHeatFullExit === 'function') go(stkHeatFullExit);
+  if (name!=='trading' && document.body.classList.contains('stk-full-on') && typeof stkHeatFullExit === 'function') go(stkHeatFullExit);
   if (name==='admin'){ go(adTabInit); go(loadAdmin); }
   //  차트를 한 번도 안 그린 상태면 빈 흰 상자만 보입니다 — 안내 문구라도 띄웁니다.
   if (name==='research' && typeof renderMacroTeam === 'function') go(function(){ renderMacroTeam(); });
@@ -13922,9 +13928,9 @@ function aicScreen(){
       }
       if (typeof secPx !== 'undefined' && secPx.picks.length)
         out.push('[가격 차트에 올린 종목] ' + secPx.picks.map(function(x){ return x.ko + ' ' + x.sym; }).join(', ') + ' · 보기 ' + (secPx.view === 'candle' ? '캔들 (지금 ' + ((secPx.picks[secPx.act] || {}).ko || '') + ')' : '비교') + ' · 봉 ' + secPx.tf + ' · 기간 ' + secPx.per);
-    } else if (curTab === 'heat' && typeof HM !== 'undefined' && HM.mkt !== 'asset'){
+    } else if (hmVis() && HM.mkt !== 'asset'){
       out = out.concat(hmScreenLines());                     //  (18차) 트리맵
-    } else if (curTab === 'heat' && typeof MK !== 'undefined'){
+    } else if (hmVis() && typeof MK !== 'undefined'){
       //  (10/10 11차) 모의투자 › 시장 히트맵 (예전 주식분석 히트맵)
       if (MK.snap && MK.snap.groups) MK.snap.groups.forEach(function(g){
         var got = (g.items || []).filter(function(x){ return x.p != null; }); if (!got.length) return;
@@ -14386,7 +14392,7 @@ function aicCoOk(c){
   if (c.market === 'KR') o.corp_code = String(c.corp_code); else o.cik = String(c.cik);
   return o;
 }
-var AIC_TAB_NM = { home:'홈', research:'매크로 경제', trading:'팀 모의투자', solo:'개인 모의투자', heat:'모의투자 › 시장 히트맵', market:'분석 › 마켓 맵', stocks:'분석 › 주식분석', industry:'분석 › 산업분석',
+var AIC_TAB_NM = { home:'홈', research:'매크로 경제', trading:'팀 모의투자', solo:'개인 모의투자', heat:'모의투자 › 팀 대회 › 시장 히트맵', market:'분석 › 마켓 맵', stocks:'분석 › 주식분석', industry:'분석 › 산업분석',
                    fxa:'분석 › 환율 분석', company:'분석 › 재무제표', ai:'분석 › AI 분석', deriv:'분석 › 파생상품', flow:'분석 › 자금흐름', links:'자료실',
                    strat:'분석 › 전략', quant:'퀀트 › 퀀트 랩', qmodel:'퀀트 › 모델' };      //  (18차) 전략 · 퀀트 (예전엔 영문 키가 그대로 보였음)
 var AIC_TF_NM = { raw:'원값', yoy:'전년비 %', mom:'전기비 %', yoyd:'전년 차이 %p', momd:'전기 증감', reb:'시작 = 100' };
@@ -23014,7 +23020,7 @@ function hmInit(){
     if (box){
       box.addEventListener('mousemove', hmHover); box.addEventListener('mouseleave', hmTipHide);
       box.addEventListener('click', hmClick);
-      if (window.ResizeObserver){ var tmr = 0; HM.ro = new ResizeObserver(function(){ clearTimeout(tmr); tmr = setTimeout(function(){ if (curTab === 'heat' && HM.mkt !== 'asset') hmRender(false); }, 120); }); HM.ro.observe(box); }
+      if (window.ResizeObserver){ var tmr = 0; HM.ro = new ResizeObserver(function(){ clearTimeout(tmr); tmr = setTimeout(function(){ if (hmVis() && HM.mkt !== 'asset') hmRender(false); }, 120); }); HM.ro.observe(box); }
     }
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape') hmPopClose(); });
     document.addEventListener('click', function(e){ if (HM.pop && !e.target.closest('.hm-pop') && !e.target.closest('.hm-t')) hmPopClose(); }, true);
@@ -23033,7 +23039,7 @@ function hmLoad(force){
     if (!d || d.error){ HM.err[m] = (d && d.error) || 'x'; if (!HM.data[m]) HM.data[m] = null; }
     else { HM.err[m] = null; hmPut(m, d); }
     if (HM.mkt === m) hmRender(false);
-    ecOnFresh(d, function(nd){ if (nd && !nd.error){ hmPut(m, nd); if (HM.mkt === m && curTab === 'heat') hmRender(false); } });
+    ecOnFresh(d, function(nd){ if (nd && !nd.error){ hmPut(m, nd); if (HM.mkt === m && hmVis()) hmRender(false); } });
   }, function(e){ HM.busy[m] = false; HM.err[m] = (e && e.message) || 'x'; if (HM.mkt === m) hmRender(false); });
 }
 //  새 값 넣기 — 등락이 바뀐 종목은 잠깐 물듦 (모션)
@@ -23047,11 +23053,11 @@ function hmSched(){
   var m = HM.mkt; if (m === 'asset') return;
   var ms = m === 'us' ? 60000 : 10 * 60000; if (typeof mkSlow === 'function' && mkSlow()) ms *= 3;
   HM.timer = setTimeout(function(){
-    if (typeof curTab !== 'undefined' && curTab === 'heat' && !document.hidden && HM.mkt === m){ hmLoad(false); if (HM.mine) hmMineLoad(false); }
+    if (hmVis() && !document.hidden && HM.mkt === m){ hmLoad(false); if (HM.mine) hmMineLoad(false); }
     hmSched();
   }, ms);
 }
-document.addEventListener('visibilitychange', function(){ if (!document.hidden && typeof curTab !== 'undefined' && curTab === 'heat' && HM.inited && HM.mkt !== 'asset'){ var d = HM.data[HM.mkt]; if (!d || !d.at || Date.now() - Date.parse(d.at) > (HM.mkt === 'us' ? 90000 : 15 * 60000)) hmLoad(false); } });
+document.addEventListener('visibilitychange', function(){ if (!document.hidden && hmVis() && HM.mkt !== 'asset'){ var d = HM.data[HM.mkt]; if (!d || !d.at || Date.now() - Date.parse(d.at) > (HM.mkt === 'us' ? 90000 : 15 * 60000)) hmLoad(false); } });
 function hmLive(){
   var el = $('hmLive'); if (!el) return;
   var d = HM.data[HM.mkt], busy = HM.busy[HM.mkt];
@@ -23284,7 +23290,7 @@ function hmScreenLines(){
     .concat(HM.sec ? ['  고른 업종: ' + HM.sec] : []);
 }
 //  세부 칸 공개 범위 (설정 › 탭 공개) — 시장 히트맵 › S&P 500 · 한국 · 자산 전체
-try { if (typeof INNER_VIS !== 'undefined') INNER_VIS.push({ p: 'heat', pre: 'hm', items: [['us', 'S&P 500'], ['kr', '한국 (모의투자 종목)'], ['asset', '자산 전체']], cur: function(){ return HM.mkt; }, go: 'hmSetMkt', sel: function(v){ return '#hmMkt button[data-v="' + v + '"]'; } }); } catch(e){}
+try { if (typeof INNER_VIS !== 'undefined') INNER_VIS.push({ p: 'trading', pre: 'hm', items: [['us', '시장 히트맵 › S&P 500'], ['kr', '시장 히트맵 › 한국 (모의투자 종목)'], ['asset', '시장 히트맵 › 자산 전체']], cur: function(){ return HM.mkt; }, go: 'hmSetMkt', sel: function(v){ return '#hmMkt button[data-v="' + v + '"]'; } }); } catch(e){}
 
 /*  (19차 학회장: ‘오늘의 시장은 그냥 빼자’) — 홈 요약 카드 · 홈에서 받던 업종 요약(heat_map lite)을 뺌 · 시장 히트맵 탭은 그대로 */
 
@@ -23425,7 +23431,7 @@ function algoHistTxt(c){ var n = (c.signals || []).length, m = (c.sig_sell || []
    · 값은 전부 정해진 모양만 받음 (모르는 종류 · 이상한 값은 버림) · 공개 범위 밖 탭이면 홈에 머무름  */
 var GO18 = { pend: null, busy: false };
 var GO_TAB = { live: 'market', tab: null, port: 'market', heat: 'heat', pair: 'quant', yc: 'qmodel', calc: 'qmodel', cal: 'home', news: null, algo: 'trading', trade: 'trading', report: 'ai', aimake: 'ai', home: 'home' };
-var GO_NM = { live: '마켓 맵 › 실시간 전광판', tab: '터미널', port: '마켓 맵 › 물류', heat: '모의투자 › 시장 히트맵', pair: '퀀트 › 페어 트레이딩', yc: '퀀트 › 일드커브 트레이딩', calc: '퀀트 › 미분 모델', cal: '홈 › 경제지표 캘린더',
+var GO_NM = { live: '마켓 맵 › 실시간 전광판', tab: '터미널', port: '마켓 맵 › 물류', heat: '모의투자 › 팀 대회 › 시장 히트맵', pair: '퀀트 › 페어 트레이딩', yc: '퀀트 › 일드커브 트레이딩', calc: '퀀트 › 미분 모델', cal: '홈 › 경제지표 캘린더',
   news: '뉴스', algo: '팀 대회 › 자동매매 › 시장 신호', trade: '모의투자 › 팀 대회', report: 'AI 분석 › 리포트', aimake: 'AI 분석 › 새 리포트', home: '홈' };
 var GO_SS = 'safe_go_v1';
 function goParse(h){
@@ -25833,6 +25839,20 @@ async function tgdSend(i, j){
 })();
 
 /*>>22차*/
+//  (23차) 시장 히트맵이 지금 보이는 자리에 있나 — 팀 대회 탭 + 한 번 연 뒤 (예전 curTab === 'heat')
+function hmVis(){ return typeof curTab !== 'undefined' && curTab === 'trading' && typeof HM !== 'undefined' && !!HM.inited; }
+//  팀 대회를 열면 맨 아래 칸이 화면에 가까워질 때 불러옴 · jump = 예전 히트맵 길로 왔을 때 (바로 열고 그 칸으로)
+var HM_IO = null;
+function hmLazy(jump){
+  var c = $('stkHeatCard'); if (!c) return;
+  if (HM_IO){ HM_IO.disconnect(); HM_IO = null; }
+  if (typeof tabVisOk === 'function' && !tabVisOk('heat')) return;
+  var go = function(){ if (HM_IO){ HM_IO.disconnect(); HM_IO = null; } if (typeof curTab !== 'undefined' && curTab === 'trading') initHeat(); };
+  if (jump){ go(); setTimeout(function(){ var e = $('stkHeatCard'); if (e && e.offsetParent) e.scrollIntoView({ block: 'start' }); }, 140); return; }
+  if (!('IntersectionObserver' in window)){ go(); return; }
+  HM_IO = new IntersectionObserver(function(es){ if (es.some(function(e){ return e.isIntersecting; })) go(); }, { rootMargin: '500px 0px' });
+  HM_IO.observe(c);
+}
 function initHeat(){
   if (typeof hmInit === 'function'){ hmInit(); return; }        //  (18차) 트리맵 · 자산 전체는 hmInit 안에서 예전 히트맵
   if (!MK.inited){ MK.inited = true; mkLoadPrefs(); }
@@ -26245,7 +26265,7 @@ function stkHeatFullExit(){
   var card = $('stkHeatCard');
   try { if ((document.fullscreenElement || document.webkitFullscreenElement) === card){ if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } } catch(e){}
   if (card) card.classList.remove('stk-full');
-  if (typeof hmRender === 'function') setTimeout(function(){ if (curTab === 'heat') hmRender(false); }, 90);
+  if (typeof hmRender === 'function') setTimeout(function(){ if (hmVis()) hmRender(false); }, 90);
   document.body.classList.remove('stk-full-on'); stkFullBtn();
   if (typeof mkWake === 'function' && !document.body.classList.contains('mk-full-on')) mkWake(false);
 }
@@ -26258,7 +26278,7 @@ function stkFullBtn(){ var b = $('stkFullBtn'); if (!b) return; var on = documen
 });
 //  마켓 맵 · 주식분석(히트맵) 두 탭이 같은 10초 스냅샷을 씁니다
 //  (10/10 11차) 마켓 맵 · 환율 분석 · 모의투자 › 시장 히트맵 세 탭이 같은 10초 스냅샷 (주식분석은 히트맵이 빠져 안 씀)
-function mkTabOn(){ return typeof curTab !== 'undefined' && (curTab === 'market' || curTab === 'fxa' || (curTab === 'heat' && (typeof HM === 'undefined' || HM.mkt === 'asset'))); }   //  (18차) 히트맵 트리맵 보기에서는 10초 스냅샷을 안 부름
+function mkTabOn(){ return typeof curTab !== 'undefined' && (curTab === 'market' || curTab === 'fxa' || (hmVis() && HM.mkt === 'asset')); }   //  (18차) 히트맵 트리맵 보기에서는 10초 스냅샷을 안 부름
 function mkOn(){ return mkTabOn() && !document.hidden && !MK.paused; }
 /*  ── 자리 비움 (10/7 효율 점검) ─────────────────────────────────────────────────────────────
     화면을 켜 둔 채 자리를 비우면 10초마다 서버를 계속 불렀습니다 (한 사람이 하룻밤 켜 두면 약 4,000번).
@@ -26334,7 +26354,7 @@ async function mkFetchSnap(){
   mkPaintAll();
 }
 function mkPaintAll(){
-  if (curTab === 'heat'){ mkHead(); mkHeatRender(); return; }
+  if (hmVis() && HM.mkt === 'asset'){ mkHead(); mkHeatRender(); return; }
   if (curTab === 'fxa'){ mkHead(); mkFxLive(); return; }
   if (curTab !== 'market') return;
   mkHead();
@@ -26700,7 +26720,7 @@ function mkPick(src, sym){
   if (typeof secPxAdd !== 'function') return;
   var added = secPxAdd(src, sym);
   //  (10/10 11차) 히트맵은 모의투자 › 시장 히트맵 — 탭을 옮기지 않고 알림 (누르면 분석 › 주식분석 › 주식 › 가격 차트)
-  if (document.body.classList.contains('stk-full-on') || (typeof curTab !== 'undefined' && curTab === 'heat')){
+  if (document.body.classList.contains('stk-full-on') || hmVis()){
     toast(esc((secPxNameOf(src, sym)[0] || sym) + (added ? T(' - 가격 차트에 올렸습니다', ' added to the price chart') : T(' - 이미 가격 차트에 있습니다', ' is already on the price chart')))
           + ' <button type="button" onclick="stkHeatFullExit();stkPxOpen()">' + esc(T('가격 차트 보기', 'Open')) + '</button>', 3600);
     return;
@@ -64927,17 +64947,19 @@ function atDrawSign(){
   var pres = AT.mem.filter(function(m){ return m.officer_pos === 'president' && m.status === 'active'; })[0];
   var img = AT.signNew || (AT.sign && AT.sign.img), nm = AT.sign && AT.sign.name || (pres && pres.name) || '';
   var R = atRoster().concat(AT.mem.filter(function(m){ return m.role === 'alumni'; }));
+  if (AT.pad && !can) AT.pad = false;
   b.innerHTML = '<div class="at-two"><div class="at-sg">'
-      + '<div class="at-sgbox">' + (img ? '<img id="atSgImg" src="' + esc(img) + '" alt="학회장 서명">' : '<span class="st-hint">서명이 아직 없습니다</span>') + '</div>'
+      + (AT.pad ? atPadHtml() : '<div class="at-sgbox">' + (img ? '<img id="atSgImg" src="' + esc(img) + '" alt="학회장 서명">' : '<span class="st-hint">서명이 아직 없습니다</span>') + '</div>')
       + '<label class="at-nm">학회장 이름 <input type="text" id="atSgNm" maxlength="20" value="' + esc(nm) + '"' + (can ? '' : ' disabled') + '></label>'
-      + (can ? '<div class="at-acts"><label class="btn-sm at-file">서명 그림 올리기<input type="file" accept="image/png,image/jpeg" onchange="atSignFile(this)"></label><button type="button" class="btn-sm btn-solid" onclick="atSignSave()">서명 저장</button></div>'
-        + '<p class="st-hint">흰 종이에 쓴 서명 사진 · 배경이 투명한 PNG 둘 다 됩니다 (자동으로 줄여 저장)</p>' : '<p class="st-hint">서명은 학회장 · 설립자만 바꿀 수 있습니다.</p>')
+      + (can && !AT.pad ? '<div class="at-acts at-sg-acts"><button type="button" class="btn-sm" onclick="atPadOn()">직접 그리기</button><label class="btn-sm at-file">서명 그림 올리기<input type="file" accept="image/png,image/jpeg" onchange="atSignFile(this)"></label><button type="button" class="btn-sm btn-solid" onclick="atSignSave()">서명 저장</button></div>'
+        + '<p class="st-hint">직접 그리기 · 흰 종이에 쓴 서명 사진 · 배경이 투명한 PNG 모두 됩니다 (자동으로 줄여 저장)</p>' : (can ? '' : '<p class="st-hint">서명은 학회장 · 설립자만 바꿀 수 있습니다.</p>'))
     + '</div><div class="at-ct"><div class="at-bar"><label>증명서 받을 사람 <select id="atCu" onchange="atCertPick(this.value, true)"><option value="">고르기</option>' + R.map(atOpt).join('') + atOptMore(R) + '</select></label></div>'
       + '<div class="at-bar"><span class="st-hint">종류</span>' + qSeg('atKindSeg', [['act', '활동 증명서'], ['fact', '사실 증명서']], atKind(), 'atKindSet') + '<span class="st-hint">배치</span>' + qSeg('atLaySeg', [['c', '가운데'], ['l', '왼쪽']], atLay(), 'atLaySet') + '</div>' + atManHtml()
       + '<div class="at-prev"><canvas id="atCv" width="1654" height="2339" aria-label="증명서 미리보기"></canvas></div>'
       + '<div class="at-acts"><button type="button" class="btn-sm btn-solid" id="atPdfB" onclick="atPdfGo()"' + (AT.cu && (AT.sign && AT.sign.img) ? '' : ' disabled') + '>PDF 내려받기</button>'
       + '<span class="st-hint" id="atCtMsg">' + esc(atCtHint()) + '</span></div></div></div>';
   atCertDraw(null);
+  if (AT.pad) atPadInit();
 }
 //  ── 입력 ──
 function atGenSet(v){ AT.gen = Number(v); AT.sid = null; var S = atSesOfGen(); AT.sid = S.length ? S[0].id : null; atDraw(); }
@@ -64981,6 +65003,65 @@ function atSignFile(inp){
     AT.signNew = f.type === 'image/png' ? cv.toDataURL('image/png') : cv.toDataURL('image/jpeg', 0.9);
     if (AT.signNew.length > 650000) AT.signNew = cv.toDataURL('image/jpeg', 0.85);
     atDrawSign(); toast('미리보기입니다 · ‘서명 저장’ 을 눌러야 저장됩니다', 2600); }; im.src = rd.result; }; rd.readAsDataURL(f);
+}
+//  (23차 학회장: ‘학회장 사인 설정에서 그리게 할 수 있나’) — 마우스 · 손가락 · 펜으로 바로 그림 · 펜은 누르는 힘, 손 · 마우스는 빠르기로 굵기
+//   · 다 그렸어요 = 빈 곳을 잘라 투명 PNG (업로드와 같은 크기 한도) → 미리보기 · ‘서명 저장’ 을 눌러야 저장 (업로드와 같음)
+function atPadHtml(){
+  return '<div class="at-pad"><canvas id="atPad" aria-label="서명 그리는 칸"></canvas><span class="at-pad-ph" id="atPadPh">여기에 서명하세요</span></div>'
+    + '<div class="at-acts at-pad-acts"><button type="button" class="btn-sm" onclick="atPadUndo()">한 획 지우기</button><button type="button" class="btn-sm" onclick="atPadClear()">모두 지우기</button>'
+    + '<button type="button" class="btn-sm" onclick="atPadOff()">취소</button><button type="button" class="btn-sm btn-solid" onclick="atPadUse()">다 그렸어요</button></div>';
+}
+function atPadOn(){ AT.pad = true; AT.padS = []; atDrawSign(); }
+function atPadOff(){ AT.pad = false; AT.padS = []; atDrawSign(); }
+function atPadClear(){ AT.padS = []; atPadPaint(); }
+function atPadUndo(){ (AT.padS || []).pop(); atPadPaint(); }
+//  한 획 그리기 — 점은 0~1 (칸 크기와 무관) · 굵기 = 칸 높이 비율 × (펜 힘 또는 빠르기)
+function atPadStroke(x, S, W, H, ink){
+  var base = H * 0.02, P = S.map(function(q){ return [q[0] * W, q[1] * H, q[2]]; });
+  x.strokeStyle = ink; x.fillStyle = ink; x.lineCap = 'round'; x.lineJoin = 'round';
+  if (P.length < 2){ if (P.length) { x.beginPath(); x.arc(P[0][0], P[0][1], base * 0.6, 0, Math.PI * 2); x.fill(); } return; }
+  var wPrev = base;
+  for (var i = 1; i < P.length; i++){
+    var a = P[i - 1], b = P[i], d = Math.hypot(b[0] - a[0], b[1] - a[1]) / H;
+    var k = b[2] != null ? 0.55 + b[2] * 0.9 : Math.max(0.55, Math.min(1.25, 1.25 - d * 9));
+    var w = wPrev * 0.6 + base * k * 0.4; wPrev = w;
+    var m0 = i > 1 ? [(P[i - 2][0] + a[0]) / 2, (P[i - 2][1] + a[1]) / 2] : a, m1 = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    x.lineWidth = w; x.beginPath(); x.moveTo(m0[0], m0[1]); x.quadraticCurveTo(a[0], a[1], m1[0], m1[1]); x.stroke();
+    if (i === P.length - 1){ x.beginPath(); x.moveTo(m1[0], m1[1]); x.lineTo(b[0], b[1]); x.stroke(); }
+  }
+}
+function atPadPaint(){
+  var cv = $('atPad'); if (!cv || !AT.padWH) return;
+  var x = cv.getContext('2d'), W = AT.padWH[0], H = AT.padWH[1];
+  x.clearRect(0, 0, W, H);
+  (AT.padS || []).forEach(function(S){ atPadStroke(x, S, W, H, '#14171f'); });
+  var ph = $('atPadPh'); if (ph) ph.style.display = (AT.padS || []).length ? 'none' : '';
+}
+function atPadInit(){
+  var cv = $('atPad'); if (!cv) return; AT.padS = AT.padS || [];
+  var r = cv.getBoundingClientRect(), dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1)), W = Math.max(200, Math.round(r.width)), H = Math.max(120, Math.round(r.height));
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0); AT.padWH = [W, H];
+  var cur = null, raf = 0;
+  var pt = function(e){ var bx = cv.getBoundingClientRect(); return [Math.max(0, Math.min(1, (e.clientX - bx.left) / bx.width)), Math.max(0, Math.min(1, (e.clientY - bx.top) / bx.height)), e.pointerType === 'pen' && e.pressure > 0 ? e.pressure : null]; };
+  var paint = function(){ if (raf) return; raf = requestAnimationFrame(function(){ raf = 0; atPadPaint(); }); };
+  cv.onpointerdown = function(e){ if (e.button > 0) return; e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch(_){} cur = [pt(e)]; AT.padS.push(cur); paint(); };
+  cv.onpointermove = function(e){ if (!cur) return; e.preventDefault(); (e.getCoalescedEvents ? e.getCoalescedEvents() : [e]).forEach(function(ev){ cur.push(pt(ev)); }); if (!e.getCoalescedEvents || !e.getCoalescedEvents().length) cur.push(pt(e)); paint(); };
+  cv.onpointerup = cv.onpointercancel = function(){ cur = null; paint(); };
+  atPadPaint();
+}
+function atPadUse(){
+  var S = AT.padS || []; if (!S.length || !AT.padWH){ toast('서명을 그려 주세요', 2200); return; }
+  var k = 3, W = AT.padWH[0] * k, H = AT.padWH[1] * k, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  var x = cv.getContext('2d'); S.forEach(function(s){ atPadStroke(x, s, W, H, '#14171f'); });
+  var px = x.getImageData(0, 0, W, H).data, x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (var y = 0; y < H; y++) for (var i = 0; i < W; i++){ if (px[(y * W + i) * 4 + 3] > 8){ if (i < x0) x0 = i; if (i > x1) x1 = i; if (y < y0) y0 = y; if (y > y1) y1 = y; } }
+  if (x1 < 0){ toast('서명을 그려 주세요', 2200); return; }
+  var pd = 14 * k / 3; x0 = Math.max(0, x0 - pd); y0 = Math.max(0, y0 - pd); x1 = Math.min(W - 1, x1 + pd); y1 = Math.min(H - 1, y1 + pd);
+  var cw = x1 - x0 + 1, ch = y1 - y0 + 1, sc = Math.min(1, 900 / cw, 360 / ch), out = document.createElement('canvas');
+  out.width = Math.max(1, Math.round(cw * sc)); out.height = Math.max(1, Math.round(ch * sc));
+  var o = out.getContext('2d'); o.imageSmoothingQuality = 'high'; o.drawImage(cv, x0, y0, cw, ch, 0, 0, out.width, out.height);
+  AT.signNew = out.toDataURL('image/png'); AT.pad = false; AT.padS = []; atDrawSign();
+  toast('미리보기입니다 · ‘서명 저장’ 을 눌러야 저장됩니다', 2600);
 }
 async function atSignSave(){
   var nm = String(($('atSgNm') || {}).value || '').trim().slice(0, 20), img = AT.signNew || (AT.sign && AT.sign.img) || null;
@@ -65112,11 +65193,11 @@ function atCertPaint(cv, D, no, cb){
       put('위와 같이 활동하였음을 증명합니다.', yS + 62, atSerif(32, 400), txt);
     }
     var now = new Date(Date.now() + 9 * 3600e3); put(now.getUTCFullYear() + '. ' + (now.getUTCMonth() + 1) + '. ' + now.getUTCDate() + '.', yD, atSerif(28, 400), sub, 2);
-    yMin = yD + 200;
+    yMin = yD + 250;
   }
   //  서명 자리 — 기관 · 학회장 이름 · 서명 (가운데면 이름과 서명을 한 덩어리로 가운데)
   var yN = Math.max(H - 380, yMin), nm = (AT.sign && AT.sign.name) || '', src = AT.sign && AT.sign.img;
-  put('서강대학교 금융경제학회 SAFE', yN - 76, atSerif(26, 400), sub, 2);
+  put('서강대학교 금융경제학회 SAFE', yN - 124, atSerif(26, 400), sub, 2);
   x.font = atSerif(36, 600); var t1 = '학회장   ' + nm, w1 = x.measureText(t1).width, sw = src ? 300 : x.measureText('(서명)').width + 30, x0 = C ? cx - (w1 + 30 + sw) / 2 : M;
   x.textAlign = 'left'; x.fillStyle = txt; x.fillText(t1, x0, yN);
   if (!src){ x.font = atSerif(28, 400); x.fillStyle = '#b8bdca'; x.fillText('(서명)', x0 + w1 + 30, yN); }
