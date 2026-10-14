@@ -4961,6 +4961,14 @@
 .qmb-grid.dyn .qmb-sel{max-width:52%}
 /*  차트 분할  */
 .qmc{margin:0 0 12px}
+/*  (23차 학회장: ‘호가창 클릭 드래그해서 순서 바꿀 수 있게’)  */
+#qmbGrid .qmb-h,#qmbGrid .qmb-k,#qmbGrid .qmb-obi,#qmbGrid .qmb-tape{cursor:grab}
+#qmbGrid .qmb-h select,#qmbGrid .qmb-h input,#qmbGrid .qmb-h button{cursor:pointer}
+#qmbGrid .qmb-p.drag-src{opacity:.45;outline:2px dashed var(--accent);outline-offset:-2px}
+#qmbGrid .qmb-p.drop-b{box-shadow:inset 4px 0 0 var(--accent)}
+#qmbGrid .qmb-p.drop-a{box-shadow:inset -4px 0 0 var(--accent)}
+body.qmb-dragging,body.qmb-dragging *{cursor:grabbing!important;user-select:none!important}
+.qmb-ghost{position:fixed;z-index:9999;pointer-events:none;padding:6px 12px;border-radius:9px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;box-shadow:0 8px 22px rgba(10,20,50,.28);transform:translate(12px,10px);white-space:nowrap}
 .qmc-bar{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;margin:0 0 8px}
 .qmc-bar .mode-seg{margin:0}
 .qmc-bar .mode-seg button{font-size:11.5px;padding:3px 9px}
@@ -5106,7 +5114,7 @@
 @media (max-width:400px){ .top-in{gap:6px;padding:0 10px} .top-brand{gap:7px} .who{gap:4px} .who .theme-btn{width:30px;height:30px} .who-chip{padding:4px 6px} .who .btn-ghost{padding:6px 7px} }
 /*  (23차) 옵션 스큐 카드  */
 .skw{padding:12px 14px}
-.qmb-card .skw{margin:0 0 12px;box-shadow:none}
+.qmb-card .skw{margin:16px 0 12px;box-shadow:none}
 .skw-h{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;margin:0 0 8px}
 .skw-h b{font-size:15px;font-weight:700;color:var(--text)}
 .skw .lv-mono{font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:1.4px;color:var(--hc-quant,var(--primary));opacity:.85}
@@ -63340,7 +63348,7 @@ function qmbHtml23(){
     + '<span class="st-hint qmb-conn" id="qmbConn"></span></div>'
     + qmcWrapHtml()
     + '<div class="qmb-grid dyn" id="qmbGrid">' + qmbPanesHtml() + '</div>'
-    + '<p class="st-hint qmb-foot">' + esc(T('위 전광판의 종목을 누르면 호가창이 하나씩 늘어나고 · 칸 오른쪽 위 × 로 닫습니다 (최대 16) · 칸을 누르면 위 차트로 · 호가 매도 잔량 = 파랑 · 매수 잔량 = 빨강 · 체결강도 = 최근 1분 매수 주도 체결 ÷ 매도 주도 체결 × 100 · 불균형 = (매수 − 매도) ÷ (매수 + 매도) 잔량 · 무기한 선물 공개 호가 · 교육용', 'Click board symbols to add books · × to close · click a book for its chart')) + '</p></div>';
+    + '<p class="st-hint qmb-foot">' + esc(T('위 전광판의 종목을 누르면 호가창이 하나씩 늘어나고 · 칸 오른쪽 위 × 로 닫습니다 (최대 16) · 칸 윗부분을 끌어 순서 바꾸기 · 칸을 누르면 위 차트로 · 호가 매도 잔량 = 파랑 · 매수 잔량 = 빨강 · 체결강도 = 최근 1분 매수 주도 체결 ÷ 매도 주도 체결 × 100 · 불균형 = (매수 − 매도) ÷ (매수 + 매도) 잔량 · 무기한 선물 공개 호가 · 교육용', 'Click board symbols to add books · × to close · click a book for its chart')) + '</p></div>';
 }
 function qmbPanesHtml(){
   if (!QMB.n) return '<div class="qmb-empty">' + esc(T('위 전광판에서 종목을 누르거나 ‘+ 종목 추가’ 로 호가창을 여세요', 'Click a board symbol or ‘+ Add symbol’')) + '</div>';
@@ -63380,6 +63388,47 @@ function qmbDel(i){
   i = +i; if (!(i >= 0 && i < QMB.n)) return;
   var s = QMB.syms.splice(i, 1)[0]; QMB.syms.push(s); QMB.n--; QMB.edit = -1; qmbSave(); qmbRebuild(); qmbStart();
 }
+//  (23차) 호가창 칸 끌어서 순서 바꾸기 - 마우스는 6px 움직이면 시작 · 손가락은 0.35초 눌렀다 끌기 · 놓는 칸의 왼쪽/오른쪽 절반 = 앞/뒤
+//   · 종목 고르기 · × · 입력 칸에서는 시작 안 함 · 끈 뒤에는 칸 누르기(차트 열기)가 따라 일어나지 않음
+var QMB_DR = null;
+function qmbMove(from, ins){
+  var a = QMB.syms.slice(0, QMB.n); if (!(from >= 0 && from < a.length)) return;
+  if (from < ins) ins--; if (ins === from || ins < 0 || ins > a.length - 1) return;
+  var x = a.splice(from, 1)[0]; a.splice(ins, 0, x); QMB.syms = a.concat(QMB.syms.slice(QMB.n)); QMB.edit = -1; qmbSave(); qmbRebuild(); qmbFlash(ins);
+}
+(function(){
+  var clr = function(){ Array.prototype.forEach.call(document.querySelectorAll('#qmbGrid .drop-b, #qmbGrid .drop-a'), function(e){ e.classList.remove('drop-b', 'drop-a'); }); };
+  var end = function(drop){
+    var D = QMB_DR; QMB_DR = null; if (!D) return; clearTimeout(D.lp);
+    if (D.on){ document.body.classList.remove('qmb-dragging'); if (D.gh) D.gh.remove(); if (D.p) D.p.classList.remove('drag-src'); clr(); QMB.dragAt = Date.now();
+      if (drop && D.tgt != null) qmbMove(D.i, D.tgt); }
+  };
+  var start = function(D){ D.on = true; document.body.classList.add('qmb-dragging'); D.p.classList.add('drag-src');
+    var g = document.createElement('div'); g.className = 'qmb-ghost'; g.textContent = qmbNm(D.s); g.style.left = D.x + 'px'; g.style.top = D.y + 'px'; document.body.appendChild(g); D.gh = g;
+    try { if (navigator.vibrate && D.touch) navigator.vibrate(12); } catch(e){} };
+  document.addEventListener('pointerdown', function(e){
+    if (e.button > 0 || QMB_DR) return; var t = e.target; if (!t || !t.closest) return;
+    var p = t.closest('#qmbGrid .qmb-p'); if (!p || t.closest('select, input, option, button, a, .qmb-lad') || QMB.n < 2) return;
+    var D = QMB_DR = { p: p, i: +p.getAttribute('data-i'), s: p.getAttribute('data-s'), x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, on: false, tgt: null, touch: e.pointerType === 'touch', id: e.pointerId };
+    if (D.touch) D.lp = setTimeout(function(){ if (QMB_DR === D && !D.on) start(D); }, 350);
+  }, true);
+  document.addEventListener('pointermove', function(e){
+    var D = QMB_DR; if (!D || e.pointerId !== D.id) return; D.x = e.clientX; D.y = e.clientY;
+    if (!D.on){ var far = Math.hypot(D.x - D.x0, D.y - D.y0) > 6; if (D.touch){ if (far) end(false); return; } if (!far) return; start(D); }
+    e.preventDefault(); if (D.gh){ D.gh.style.left = D.x + 'px'; D.gh.style.top = D.y + 'px'; }
+    var vh = window.innerHeight || 800; if (D.y < 70) window.scrollBy(0, -14); else if (D.y > vh - 70) window.scrollBy(0, 14);
+    clr(); D.tgt = null;
+    var el = document.elementFromPoint(D.x, D.y), q = el && el.closest ? el.closest('#qmbGrid .qmb-p') : null; if (!q || q === D.p) return;
+    var r = q.getBoundingClientRect(), j = +q.getAttribute('data-i'), aft = D.x > r.left + r.width / 2;
+    q.classList.add(aft ? 'drop-a' : 'drop-b'); D.tgt = aft ? j + 1 : j;
+  }, { passive: false });
+  document.addEventListener('touchmove', function(e){ if (QMB_DR && QMB_DR.on) e.preventDefault(); }, { passive: false });
+  document.addEventListener('pointerup', function(e){ if (QMB_DR && e.pointerId === QMB_DR.id) end(true); });
+  document.addEventListener('pointercancel', function(){ end(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && QMB_DR) end(false); });
+  //  끈 직후의 클릭(칸 → 차트)은 막음
+  document.addEventListener('click', function(e){ if (QMB.dragAt && Date.now() - QMB.dragAt < 350 && e.target && e.target.closest && e.target.closest('#qmbGrid')){ e.stopPropagation(); e.preventDefault(); } }, true);
+})();
 function qmbClearAll(){ QMB.n = 0; QMB.edit = -1; qmbSave(); qmbRebuild(); qmbStart(); }
 function qmbFlash(i){ var p = document.querySelector('#qmbGrid .qmb-p[data-i="' + i + '"]'); if (!p) return; p.classList.remove('flash'); void p.offsetWidth; p.classList.add('flash');
   var r = p.getBoundingClientRect(); if (r.top < 60 || r.bottom > (window.innerHeight || 800)) p.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
