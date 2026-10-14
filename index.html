@@ -5324,6 +5324,19 @@ body.et-open{overflow:hidden}
 .at-file input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .at-prev{border:1px solid var(--border);border-radius:10px;background:#e9ecf2;padding:12px;display:flex;justify-content:center}
 .at-prev canvas{width:100%;max-width:420px;height:auto;aspect-ratio:1654 / 2339;background:#fff;box-shadow:0 4px 14px rgba(20,30,60,.12)}
+.at-man{border:1px solid var(--border);border-radius:10px;margin:0 0 10px}
+.at-man>summary{cursor:pointer;list-style:none;display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;padding:9px 12px;font-size:13px;font-weight:700;color:var(--text)}
+.at-man>summary::-webkit-details-marker{display:none}
+.at-man>summary::before{content:'';width:6px;height:6px;border-right:2px solid var(--text-sub);border-bottom:2px solid var(--text-sub);transform:rotate(-45deg);margin:0 2px 0 1px;transition:transform .15s ease}
+.at-man[open]>summary::before{transform:rotate(45deg)}
+.at-man>summary .st-hint{font-weight:400}
+.at-man-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 10px;padding:2px 12px 4px}
+.at-mf{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--text-sub);font-weight:600;min-width:0}
+.at-mf input{width:100%;min-width:0;box-sizing:border-box}
+.at-man .at-acts{padding:0 12px 12px}
+.at-man.k-act .f-fact,.at-man.k-fact .f-act{display:none}
+.at-mf.f-row{grid-column-start:1}
+@media (max-width:600px){ .at-man-g{grid-template-columns:repeat(2,minmax(0,1fr))} }
 @media (max-width:900px){ .at-list{grid-template-columns:minmax(0,1fr)} .at-two{grid-template-columns:minmax(0,1fr)} }
 @media (max-width:600px){ .at-t th:nth-child(5),.at-t td:nth-child(5){display:none} }
 @media (max-width:420px){ .at-seg button{padding:5px 8px} .at-del{margin-left:0} }
@@ -64919,8 +64932,8 @@ function atDrawSign(){
       + '<label class="at-nm">학회장 이름 <input type="text" id="atSgNm" maxlength="20" value="' + esc(nm) + '"' + (can ? '' : ' disabled') + '></label>'
       + (can ? '<div class="at-acts"><label class="btn-sm at-file">서명 그림 올리기<input type="file" accept="image/png,image/jpeg" onchange="atSignFile(this)"></label><button type="button" class="btn-sm btn-solid" onclick="atSignSave()">서명 저장</button></div>'
         + '<p class="st-hint">흰 종이에 쓴 서명 사진 · 배경이 투명한 PNG 둘 다 됩니다 (자동으로 줄여 저장)</p>' : '<p class="st-hint">서명은 학회장 · 설립자만 바꿀 수 있습니다.</p>')
-    + '</div><div class="at-ct"><div class="at-bar"><label>증명서 받을 사람 <select id="atCu" onchange="atCertPick(this.value, true)"><option value="">고르기</option>' + R.map(function(m){ return '<option value="' + m.id + '"' + (m.id === AT.cu ? ' selected' : '') + '>' + esc((m.name || '-') + (m.gen != null ? ' · ' + m.gen + '기' : '')) + '</option>'; }).join('') + '</select></label></div>'
-      + '<div class="at-bar"><span class="st-hint">종류</span>' + qSeg('atKindSeg', [['act', '활동 증명서'], ['fact', '사실 증명서']], atKind(), 'atKindSet') + '<span class="st-hint">배치</span>' + qSeg('atLaySeg', [['c', '가운데'], ['l', '왼쪽']], atLay(), 'atLaySet') + '</div>'
+    + '</div><div class="at-ct"><div class="at-bar"><label>증명서 받을 사람 <select id="atCu" onchange="atCertPick(this.value, true)"><option value="">고르기</option>' + R.map(atOpt).join('') + atOptMore(R) + '</select></label></div>'
+      + '<div class="at-bar"><span class="st-hint">종류</span>' + qSeg('atKindSeg', [['act', '활동 증명서'], ['fact', '사실 증명서']], atKind(), 'atKindSet') + '<span class="st-hint">배치</span>' + qSeg('atLaySeg', [['c', '가운데'], ['l', '왼쪽']], atLay(), 'atLaySet') + '</div>' + atManHtml()
       + '<div class="at-prev"><canvas id="atCv" width="1654" height="2339" aria-label="증명서 미리보기"></canvas></div>'
       + '<div class="at-acts"><button type="button" class="btn-sm btn-solid" id="atPdfB" onclick="atPdfGo()"' + (AT.cu && (AT.sign && AT.sign.img) ? '' : ' disabled') + '>PDF 내려받기</button>'
       + '<span class="st-hint" id="atCtMsg">' + esc(atCtHint()) + '</span></div></div></div>';
@@ -64977,7 +64990,7 @@ async function atSignSave(){
   AT.sign = { name: nm, img: img, updated_at: new Date().toISOString() }; AT.signNew = null; atDrawSign(); toast('학회장 서명을 저장했습니다', 2400);
 }
 //  ── 증명서 ──
-function atCertPick(uid, noScroll){ AT.cu = uid || ''; var D0 = AT.cu ? atCertData(AT.cu) : null, many = !!(D0 && D0.c.absent >= AT_RULE_ABS); if (many && AT.kind !== 'fact'){ AT.kind = 'fact'; AT.kindAuto = true; } else if (!many && AT.kindAuto){ AT.kind = 'act'; AT.kindAuto = false; } atDrawSign(); if (!noScroll){ var c = $('atSignCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
+function atCertPick(uid, noScroll){ AT.cu = uid || ''; AT.ov = {}; if (AT.cu === AT_MAN) AT.manOpen = true; var D0 = atCertCur(), many = !!(D0 && D0.c.absent >= AT_RULE_ABS); if (many && AT.kind !== 'fact'){ AT.kind = 'fact'; AT.kindAuto = true; } else if (!many && AT.kindAuto){ AT.kind = 'act'; AT.kindAuto = false; } atDrawSign(); if (!noScroll){ var c = $('atSignCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
 function atCertData(uid){
   var m = AT.mem.filter(function(x){ return x.id === uid; })[0]; if (!m) return null;
   var S = AT.ses.filter(function(s){ return atMk(s.id, uid); }).sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
@@ -64997,14 +65010,59 @@ function atLaySet(v){ try { LSX.setItem('safe_cert_lay_v1', v === 'l' ? 'l' : 'c
 //  (23차 학회장: ‘중도 하차 학회원을 위한 사실 증명서 - 결석 · 출석 몇 번 사실 그대로만 · 활동 인증 아님 · 규정 결석 3번 이상이면 활동 증명은 어렵다는 문구’)
 var AT_RULE_ABS = 3;
 function atKind(){ return AT.kind === 'fact' ? 'fact' : 'act'; }
-function atKindSet(v){ AT.kind = v === 'fact' ? 'fact' : 'act'; AT.kindAuto = false; qoSeg('atKindSeg', AT.kind); var m = $('atCtMsg'); if (m) m.textContent = atCtHint(); atCertDraw(null); }
+function atKindSet(v){ AT.kind = v === 'fact' ? 'fact' : 'act'; AT.kindAuto = false; qoSeg('atKindSeg', AT.kind); var mp = $('atMan'); if (mp){ mp.classList.toggle('k-act', AT.kind === 'act'); mp.classList.toggle('k-fact', AT.kind === 'fact'); } var m = $('atCtMsg'); if (m) m.textContent = atCtHint(); atCertDraw(null); }
 function atCtHint(){
   if (!(AT.sign && AT.sign.img)) return '학회장 서명을 먼저 저장해 주세요';
   if (!AT.cu) return '받을 사람을 고르세요';
-  var D = atCertData(AT.cu), many = D && D.c.absent >= AT_RULE_ABS, tail = ' · 내려받을 때 발급 번호가 맨 아래 작게 붙고 기록이 남습니다';
+  var D = atCertCur(), many = D && D.c.absent >= AT_RULE_ABS, tail = ' · 내려받을 때 발급 번호가 맨 아래 작게 붙고 기록이 남습니다';
+  if (D && D.man && !D.m.name) return '직접 입력 칸에 성명부터 적어 주세요';
+  if (D && (D.man || D.edited)) tail = ' · 직접 적은 값으로 발급' + tail;
   if (atKind() === 'fact') return (AT.kindAuto ? '결석 ' + AT_RULE_ABS + '회 이상이라 사실 증명서로 바꿨습니다 · ' : '') + '기록된 모임 수 · 출석 · 지각 · 결석을 그대로 적음 (활동 인증 아님)' + (many ? ' · 규정 문구가 함께 들어감' : '') + tail;
   return (many ? '결석 ' + D.c.absent + '회 - 규정상 사실 증명서 대상입니다 · ' : '') + '활동 기간 = 그 사람의 첫 모임 ~ 마지막 모임 (출결 · 출석률은 적지 않음)' + tail;
 }
+//  (23차 학회장: ‘이번 분은 2기 소속이셔서 내가 입력해야 될 것 같은데’) - 증명서 직접 고치기 · 명단에 없는 사람 직접 입력
+//   · 칸에 지금 찍힐 값이 미리 들어 있음 · 고치면 그 값으로 · 되돌리기 = 출결 기록값 · 사람을 바꾸면 처음부터 · 출결 기록 자체는 안 바뀜
+var AT_MAN = '__man';
+function atOpt(m){ return '<option value="' + m.id + '"' + (m.id === AT.cu ? ' selected' : '') + '>' + esc((m.name || '-') + (m.gen != null ? ' · ' + m.gen + '기' : '')) + '</option>'; }
+function atOptMore(R){
+  var on = {}; R.forEach(function(m){ on[m.id] = 1; });
+  var O = AT.mem.filter(function(m){ return !on[m.id]; }).sort(function(a, b){ return (a.gen || 0) - (b.gen || 0) || String(a.name || '').localeCompare(String(b.name || ''), 'ko'); });
+  return (O.length ? '<optgroup label="그 외 명단">' + O.map(atOpt).join('') + '</optgroup>' : '') + '<option value="' + AT_MAN + '"' + (AT.cu === AT_MAN ? ' selected' : '') + '>명단에 없는 사람 - 직접 입력</option>';
+}
+function atGenTxt(v){ var g = String(v == null ? '' : v).match(/\d+/g); return g && g.length ? g.map(function(n){ return Number(n) + '기'; }).join(' · ') : String(v || '').trim(); }
+function atCertCur(){
+  var man = AT.cu === AT_MAN, R0 = man || !AT.cu ? null : atCertData(AT.cu); if (!man && !R0) return null;
+  var o = AT.ov || {}, has = function(k){ return Object.prototype.hasOwnProperty.call(o, k); };
+  var base = R0 || { m: { id: null, name: '', student_id: '', gen: null }, from: null, to: null, c: { present: 0, late: 0, absent: 0, none: 0, n: 0, rate: null }, gens: [] };
+  var m = Object.assign({}, base.m), c = Object.assign({}, base.c);
+  if (has('name')) m.name = String(o.name).trim();
+  if (has('sid')) m.student_id = String(o.sid).trim();
+  var gensTxt = has('gen') ? atGenTxt(o.gen) : (base.gens.length ? base.gens.map(function(g){ return g + '기'; }).join(' · ') : '');
+  var g1 = (gensTxt.match(/\d+/) || [])[0];
+  ['present', 'late', 'absent'].forEach(function(k){ if (has(k)) c[k] = Math.max(0, Math.min(999, Math.floor(Number(o[k]) || 0))); });
+  c.n = c.present + c.late + c.absent; c.rate = c.n ? Math.round((c.present + c.late) / c.n * 1000) / 10 : null;
+  return { m: m, from: has('from') ? (o.from || null) : base.from, to: has('to') ? (o.to || null) : base.to, c: c, gens: base.gens, gensTxt: gensTxt,
+    gen: g1 != null ? Number(g1) : (base.m.gen != null ? base.m.gen : null), pos: has('pos') ? String(o.pos).trim() : (man ? '학회원' : atPos(base.m)), man: man, edited: Object.keys(o).length > 0 };
+}
+function atManHtml(){
+  var D = atCertCur(); if (!D) return '';
+  var v = function(x){ return esc(x == null ? '' : String(x)); }, man = D.man;
+  var f = function(k, lab, val, typ, cls, ex){ return '<label class="at-mf' + (cls ? ' ' + cls : '') + '">' + lab + '<input type="' + (typ || 'text') + '" data-k="' + k + '" value="' + v(val) + '"' + (ex || '') + ' oninput="atManSet(this)"></label>'; };
+  return '<details class="at-man k-' + atKind() + '" id="atMan"' + (AT.manOpen ? ' open' : '') + ' ontoggle="AT.manOpen = this.open"><summary>' + (man ? '직접 입력' : '직접 고치기') + '<span class="st-hint">' + (man ? '명단에 없는 사람 - 칸을 채우면 미리보기에 바로 반영' : '기수 · 기간 · 횟수를 기록과 다르게 적어야 할 때') + '</span></summary>'
+    + '<div class="at-man-g">'
+    + f('name', '성명', D.m.name, 'text', '', ' maxlength="20"')
+    + f('sid', '학번', D.m.student_id || '', 'text', '', ' maxlength="12" inputmode="numeric"')
+    + f('gen', '기수', D.gensTxt.replace(/기/g, '').replace(/\s*·\s*/g, ', '), 'text', '', ' maxlength="20" placeholder="예: 2"')
+    + f('pos', '직책', D.pos, 'text', 'f-act', ' maxlength="20"')
+    + f('from', '기간 시작', D.from || '', 'date')
+    + f('to', '기간 끝', D.to || '', 'date')
+    + f('present', '출석', D.c.present, 'number', 'f-fact f-row', ' min="0" max="999" step="1" inputmode="numeric"')
+    + f('late', '지각', D.c.late, 'number', 'f-fact', ' min="0" max="999" step="1" inputmode="numeric"')
+    + f('absent', '결석', D.c.absent, 'number', 'f-fact', ' min="0" max="999" step="1" inputmode="numeric"')
+    + '</div><div class="at-acts">' + (man ? '' : '<button type="button" class="btn-sm" onclick="atManReset()">기록값으로 되돌리기</button>') + '<span class="st-hint">이 증명서에만 쓰이고 출결 기록은 바뀌지 않습니다 · 발급 기록에는 고친 값이 함께 남습니다</span></div></details>';
+}
+function atManSet(el){ AT.ov = AT.ov || {}; AT.ov[el.getAttribute('data-k')] = el.value; clearTimeout(AT.manT); AT.manT = setTimeout(function(){ var m = $('atCtMsg'); if (m) m.textContent = atCtHint(); atCertDraw(null); }, 220); }
+function atManReset(){ AT.ov = {}; AT.manOpen = true; atDrawSign(); }
 var AT_FONT_P = null;
 function atFontsReady(text){
   if (!document.fonts || !document.fonts.load) return Promise.resolve();
@@ -65014,8 +65072,8 @@ function atFontsReady(text){
   return Promise.race([new Promise(function(r){ setTimeout(r, 150); }).then(go), new Promise(function(r){ setTimeout(r, 3500); })]);
 }
 function atCertDraw(no, cb){
-  var cv = $('atCv'); if (!cv) return; var D = AT.cu ? atCertData(AT.cu) : null;
-  var txt = D ? [D.m.name, atPos(D.m), (AT.sign && AT.sign.name) || ''].join(' ') : '';
+  var cv = $('atCv'); if (!cv) return; var D = atCertCur();
+  var txt = D ? [D.m.name, D.pos, D.gensTxt, (AT.sign && AT.sign.name) || ''].join(' ') : '';
   atFontsReady(txt).then(function(){ atCertPaint(cv, D, no, cb); }, function(){ atCertPaint(cv, D, no, cb); });
 }
 function atCertPaint(cv, D, no, cb){
@@ -65034,9 +65092,10 @@ function atCertPaint(cv, D, no, cb){
   else {
     var m = D.m, dt = function(d){ return d ? d.replace(/-/g, '.') : '-'; }, rows = [['성명', m.name || '-']];
     if (m.student_id) rows.push(['학번', String(m.student_id)]);
-    rows.push(['기수', D.gens.length ? D.gens.map(function(g){ return g + '기'; }).join(' · ') : '-']);
-    if (F) rows.push(['기록 기간', D.from ? dt(D.from) + ' - ' + dt(D.to) : '기록 없음'], ['기록된 모임', D.c.n + '회'], ['출결', '출석 ' + D.c.present + '회 · 지각 ' + D.c.late + '회 · 결석 ' + D.c.absent + '회']);
-    else rows.push(['직책', atPos(m)], ['활동 기간', D.from ? dt(D.from) + ' - ' + dt(D.to) : '-']);
+    var per = D.from && D.to ? (D.from === D.to ? dt(D.from) : dt(D.from) + ' - ' + dt(D.to)) : (D.from || D.to ? dt(D.from || D.to) : '');
+    rows.push(['기수', D.gensTxt || '-']);
+    if (F) rows.push(['기록 기간', per || '기록 없음'], ['기록된 모임', D.c.n + '회'], ['출결', '출석 ' + D.c.present + '회 · 지각 ' + D.c.late + '회 · 결석 ' + D.c.absent + '회']);
+    else rows.push(['직책', D.pos || '-'], ['활동 기간', per || '-']);
     var y = F ? 960 : 980, rh = F ? 84 : 92, vx = C ? cx + 44 : M + 250, vMax = W - M - vx;
     rows.forEach(function(r, i){ var yb = y + rh * i;
       x.textAlign = C ? 'right' : 'left'; x.font = atSerif(26, 400); x.fillStyle = sub; try { x.letterSpacing = '4px'; } catch(e){} x.fillText(r[0], C ? cx - 44 : M, yb); try { x.letterSpacing = '0px'; } catch(e){}
@@ -65086,18 +65145,21 @@ function atPdfBytes(cv, title){
 }
 function atSave(bytes, name){ var bl = new Blob([bytes], { type: 'application/pdf' }), u = URL.createObjectURL(bl), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(u); }, 4000); }
 async function atPdfGo(){
-  var D = AT.cu ? atCertData(AT.cu) : null, b = $('atPdfB'); if (!D || !(AT.sign && AT.sign.img)) return;
+  var D = atCertCur(), b = $('atPdfB'); if (!D || !(AT.sign && AT.sign.img)) return;
+  if (!D.m.name){ toast('성명을 적어 주세요', 2400); var ni = document.querySelector('#atMan input[data-k="name"]'); if (ni){ $('atMan').open = true; ni.focus(); } return; }
   if (b) b.disabled = true;
   try {
     var K = atKind() === 'fact' ? 'fact' : 'activity', KN = K === 'fact' ? '사실 증명서' : '활동 증명서';
-    var r = await atDb.logCert({ user_id: D.m.id, kind: K, gen: D.m.gen, summary: { from: D.from, to: D.to, n: D.c.n, present: D.c.present, late: D.c.late, absent: D.c.absent, rate: D.c.rate, sign: AT.sign.name, rule: D.c.absent >= AT_RULE_ABS } });
+    var sm = { from: D.from, to: D.to, n: D.c.n, present: D.c.present, late: D.c.late, absent: D.c.absent, rate: D.c.rate, sign: AT.sign.name, rule: D.c.absent >= AT_RULE_ABS };
+    if (D.man || D.edited) Object.assign(sm, { manual: true, name: D.m.name, student_id: D.m.student_id || '', gens: D.gensTxt, pos: K === 'activity' ? D.pos : undefined });
+    var r = await atDb.logCert({ user_id: D.m.id || null, kind: K, gen: D.gen, summary: sm });
     if (r.error) throw r.error;
     var yr = String(r.data.issued_at || new Date().toISOString()).slice(0, 4), no = 'SAFE-' + yr + '-' + ('000' + r.data.id).slice(-4);
     await new Promise(function(res){ atCertDraw(no, res); });
     atSave(atPdfBytes($('atCv'), K === 'fact' ? 'SAFE Certificate of Record' : 'SAFE Certificate of Activity'), 'SAFE_' + KN.replace(/\s/g, '') + '_' + String(D.m.name || '').replace(/[\\/:*?"<>|\s]/g, '') + '_' + atKst().replace(/-/g, '') + '.pdf');
     var m = $('atCtMsg'); if (m) m.textContent = '발급했습니다 · ' + no;
     toast(KN + '를 내려받았습니다 · ' + esc(no), 3000);
-  } catch(e){ toast(esc(atErr(e)), 4200); }
+  } catch(e){ var em = String(e && (e.message || e) || ''); toast(/not-null|null value/i.test(em) ? '명단에 없는 사람은 terminal-증명서직접입력.sql 을 먼저 돌려야 발급할 수 있습니다' : esc(atErr(e)), 4200); }
   finally { if (b) b.disabled = false; }
 }
 /* ── 이어 붙이기 — 설정에 ‘출결’ 칸 ── */
