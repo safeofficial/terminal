@@ -5325,6 +5325,8 @@ body.et-open{overflow:hidden}
 .at-file input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .at-prev{border:1px solid var(--border);border-radius:10px;background:#e9ecf2;padding:12px;display:flex;justify-content:center}
 .at-prev canvas{width:100%;max-width:420px;height:auto;aspect-ratio:1654 / 2339;background:#fff;box-shadow:0 4px 14px rgba(20,30,60,.12)}
+.at-chk{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-sub);font-weight:600;white-space:nowrap}
+.ev-row .btn-sm.ev-att{margin-left:4px}
 .at-pad{position:relative;height:180px;border:1px solid var(--border);border-radius:10px;background:#fff;margin:0 0 10px;overflow:hidden}
 .at-pad canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
 .at-pad::after{content:'';position:absolute;left:18px;right:18px;bottom:46px;border-bottom:1px dashed #d5d9e2;pointer-events:none}
@@ -12720,7 +12722,8 @@ function evRender(){
       +   '</div>'
       +   '<div class="ev-dday-s">' + esc(live ? '진행 중' : (dim ? '' : evDdayText(n))) + '</div>'
       +   (isOfficer()
-            ? '<button class="btn-sm" onclick="evOpen(' + x.id + ')">고치기</button>' : '')
+            ? '<button class="btn-sm" onclick="evOpen(' + x.id + ')">고치기</button>'
+              + (typeof atFromHome === 'function' && typeof atEvOk === 'function' && atEvOk(x) && n <= 14 ? ' <button class="btn-sm ev-att" onclick="atFromHome(' + x.id + ')" title="설정 › 출결에서 이 날 모임 출결 입력">출결</button>' : '') : '')
       + '</div>';
     var pad = '<div class="ev-half ev-pad"></div>';
     return '<div class="ev-row' + (dim ? ' dim' : '') + (live ? ' live' : '')
@@ -64874,7 +64877,10 @@ var atDb = {
   setMany: function(rows){ return sb.from('att_marks').upsert(rows); },
   sign: function(){ return sb.from('club_sign').select('name,img,updated_at').eq('id', 1).maybeSingle(); },
   saveSign: function(o){ return sb.from('club_sign').upsert(Object.assign({ id: 1, updated_at: new Date().toISOString() }, o)); },
-  logCert: function(o){ return sb.from('cert_log').insert(o).select('id,issued_at').single(); }
+  logCert: function(o){ return sb.from('cert_log').insert(o).select('id,issued_at').single(); },
+  //  (23차) 홈 › 학회 일정 (club_events) - 읽기 · 모임을 홈 일정에 올리기
+  events: function(){ return sb.from('club_events').select('id,gen,title,kind,starts_on,ends_on').order('starts_on', { ascending: false }).order('id', { ascending: false }); },
+  addEvent: function(o){ return sb.from('club_events').insert(o).select('id,gen,title,kind,starts_on,ends_on').single(); }
 };
 function atErr(e){ var m = String(e && (e.message || e) || ''); return /att_|club_sign|cert_log|does not exist|schema cache|relation/.test(m) ? '출결 표가 아직 없습니다 - Supabase SQL Editor 에서 terminal-출결증명서.sql 을 먼저 돌려 주세요.' : m.slice(0, 200); }
 function atKst(){ return new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10); }
@@ -64887,7 +64893,9 @@ function atMk(sid, uid){ var x = AT.marks[sid]; return x ? x[uid] || '' : ''; }
 async function atLoad(){
   if (AT.busy) return; AT.busy = true; AT.err = ''; atDraw();
   try {
+    var evP = atDb.events().then(function(x){ return x; }, function(e){ return { error: e }; });
     var r = await Promise.all([atDb.members(), atDb.sessions(), atDb.marks(), atDb.sign()]);
+    var ev = await evP; AT.evOk = !(ev && ev.error); AT.ev = AT.evOk ? (ev.data || []) : [];
     var e = r.filter(function(x){ return x && x.error; })[0]; if (e) throw e.error;
     AT.mem = r[0].data || []; AT.ses = r[1].data || []; AT.marks = {};
     (r[2].data || []).forEach(function(x){ (AT.marks[x.session_id] = AT.marks[x.session_id] || {})[x.user_id] = x.st; });
@@ -64896,7 +64904,7 @@ async function atLoad(){
     var S = atSesOfGen(); if (!AT.sid || !S.some(function(s){ return s.id === AT.sid; })) AT.sid = S.length ? S[0].id : null;
     AT.loaded = true;
   } catch(e){ AT.err = atErr(e); }
-  finally { AT.busy = false; atDraw(); }
+  finally { AT.busy = false; atDraw(); if (AT.pendEv && AT.loaded) atPendGo(); }
 }
 //  ── 그리기 ──
 function atPaneHtml(){
@@ -64911,11 +64919,12 @@ function atDrawIn(){
   if (!AT.loaded){ b.innerHTML = qWait(); return; }
   var G = atGens(), S = atSesOfGen(), s = AT.ses.filter(function(x){ return x.id === AT.sid; })[0], R = atRoster();
   var h = '<div class="at-bar"><label>기수 <select onchange="atGenSet(this.value)">' + G.map(function(g){ return '<option value="' + g + '"' + (g === AT.gen ? ' selected' : '') + '>' + g + '기</option>'; }).join('') + '</select></label>'
-    + '<label>모임 <select id="atSes" onchange="atSesSet(this.value)">' + (S.length ? S.map(function(x){ return '<option value="' + x.id + '"' + (x.id === AT.sid ? ' selected' : '') + '>' + esc(atDayNm(x.d) + ' ' + x.title) + '</option>'; }).join('') : '<option value="">모임 없음</option>') + '</select></label>'
+    + '<label>모임 <select id="atSes" onchange="atSesSet(this.value)">' + (S.length ? S.map(function(x){ return '<option value="' + x.id + '"' + (x.id === AT.sid ? ' selected' : '') + '>' + esc(atDayNm(x.d) + ' ' + x.title) + '</option>'; }).join('') : '<option value="">모임 없음</option>') + atEvOpts(S) + '</select></label>'
     + '<button type="button" class="btn-sm btn-solid" onclick="atAddTog()">+ 모임 추가</button>'
+    + (s && AT.evOk && !atEvOn(s.d) ? '<button type="button" class="btn-sm" onclick="atToHome()" title="홈 › 학회 일정에 이 모임을 올립니다">홈 일정에 올리기</button>' : '')
     + (s ? '<button type="button" class="btn-sm at-del" onclick="atDel()">' + (Date.now() - AT.delAt < 4000 ? '한 번 더 누르면 지웁니다' : '모임 지우기') + '</button>' : '') + '</div>';
-  if (AT.add) h += '<div class="at-add"><input type="date" id="atAddD" value="' + atKst() + '" aria-label="모임 날짜"><input type="text" id="atAddT" value="정규 세션" maxlength="40" aria-label="모임 이름"><button type="button" class="btn-sm btn-solid" onclick="atAddGo()">추가</button><button type="button" class="btn-sm" onclick="atAddTog()">취소</button></div>';
-  if (!s){ b.innerHTML = h + '<p class="st-hint">이 기수에 모임이 없습니다 · ‘+ 모임 추가’ 로 날짜와 이름을 넣으면 출결을 입력할 수 있습니다.</p>'; return; }
+  if (AT.add) h += '<div class="at-add"><input type="date" id="atAddD" value="' + atKst() + '" aria-label="모임 날짜"><input type="text" id="atAddT" value="정규 세션" maxlength="40" aria-label="모임 이름">' + (AT.evOk ? '<label class="at-chk"><input type="checkbox" id="atAddEv" checked> 홈 일정에도 올리기</label>' : '') + '<button type="button" class="btn-sm btn-solid" onclick="atAddGo()">추가</button><button type="button" class="btn-sm" onclick="atAddTog()">취소</button></div>';
+  if (!s){ b.innerHTML = h + '<p class="st-hint">이 기수에 모임이 없습니다 · ‘+ 모임 추가’ 로 날짜와 이름을 넣거나' + (atEvList(S).length ? ' 모임 목록에서 홈 일정을 고르면' : ' 홈 › 학회 일정에 모임을 올리면') + ' 출결을 입력할 수 있습니다.</p>'; return; }
   var c = { present: 0, late: 0, absent: 0, none: 0 }; R.forEach(function(m){ var st = atMk(s.id, m.id); c[st || 'none']++; });
   h += '<div class="at-cnt"><span class="ok">출석 <b>' + c.present + '</b></span><span class="lt">지각 <b>' + c.late + '</b></span><span class="ab">결석 <b>' + c.absent + '</b></span><span>미입력 <b>' + c.none + '</b></span>'
     + (c.none ? '<button type="button" class="btn-sm" onclick="atAllPresent()">남은 ' + c.none + '명 모두 출석</button>' : '') + '</div>';
@@ -64963,14 +64972,62 @@ function atDrawSign(){
 }
 //  ── 입력 ──
 function atGenSet(v){ AT.gen = Number(v); AT.sid = null; var S = atSesOfGen(); AT.sid = S.length ? S[0].id : null; atDraw(); }
-function atSesSet(v){ AT.sid = Number(v) || null; atDrawIn(); }
+//  (23차 학회장: ‘출결 입력 - 홈탭이랑 연동하자’) - 홈 › 학회 일정 ↔ 출결 모임
+//   · 홈 일정(정기세미나 · 발표 · 친목 · 기타 · 하루짜리)이 출결 모임 목록에 뜸 → 고르면 그 날짜 · 이름으로 모임을 바로 만듦
+//   · ‘+ 모임 추가’ 는 홈 일정에도 올림 (같은 날짜 일정이 있으면 안 올림) · 홈 일정에 없는 모임은 ‘홈 일정에 올리기’
+//   · 홈 일정 카드의 ‘출결’ (임원진) → 설정 › 출결 · 그 날 모임 (없으면 만듦) · 같은 날짜 = 같은 모임으로 봄 (새 SQL 없음)
+var AT_EV_KINDS = ['seminar', 'presentation', 'social', 'etc'];
+function atGenLatest(){ var G = atGens(); return G.length ? Math.max.apply(null, G) : null; }
+function atEvOk(e){ return e && AT_EV_KINDS.indexOf(e.kind || 'etc') >= 0 && (!e.ends_on || e.ends_on === e.starts_on) && /^\d{4}-\d{2}-\d{2}$/.test(String(e.starts_on || '')); }
+function atEvGen(e){ return e.gen != null ? Number(e.gen) : atGenLatest(); }
+function atEvOn(d){ return (AT.ev || []).some(function(e){ return e.starts_on === d; }) || (typeof evRows !== 'undefined' && evRows.some(function(e){ return e.starts_on === d; })); }
+function atEvList(S){
+  var lim = new Date(Date.now() + 9 * 3600e3 + 14 * 864e5).toISOString().slice(0, 10), has = {}; (S || []).forEach(function(x){ has[x.d] = 1; });
+  return (AT.ev || []).filter(function(e){ return atEvOk(e) && atEvGen(e) === AT.gen && !has[e.starts_on] && e.starts_on <= lim; });
+}
+function atEvOpts(S){ var L = atEvList(S); return L.length ? '<optgroup label="홈 일정 - 고르면 모임을 만듭니다">' + L.map(function(e){ return '<option value="ev:' + e.id + '">' + esc(atDayNm(e.starts_on) + ' ' + e.title) + '</option>'; }).join('') + '</optgroup>' : ''; }
+async function atFromEv(e){
+  var S = atSesOfGen(), same = S.filter(function(x){ return x.d === e.starts_on; })[0];
+  if (same){ AT.sid = same.id; atDraw(); return; }
+  var r = await atDb.addSession({ d: e.starts_on, title: String(e.title || '정규 세션').slice(0, 40), gen: AT.gen });
+  if (r.error){ toast(esc(atErr(r.error)), 4200); atDrawIn(); return; }
+  AT.ses.unshift(r.data); AT.ses.sort(function(a, b){ return a.d < b.d ? 1 : a.d > b.d ? -1 : b.id - a.id; }); AT.sid = r.data.id; atDraw();
+  toast('홈 일정으로 모임을 만들었습니다 · ' + esc(atDayNm(e.starts_on) + ' ' + e.title), 2600);
+}
+async function atEvAdd(d, t){
+  var o = { title: t, kind: 'seminar', starts_on: d, gen: AT.gen }, r = await atDb.addEvent(o);
+  if (r.error && /gen/.test(String(r.error.message || ''))){ delete o.gen; r = await atDb.addEvent(o); }
+  if (r.error){ toast('홈 일정에는 못 올렸습니다 (' + esc(String(r.error.message || r.error).slice(0, 80)) + ')', 3600); return false; }
+  AT.ev.unshift(r.data); if (typeof evLoaded !== 'undefined') evLoaded = false; return true;
+}
+async function atToHome(){
+  var s = AT.ses.filter(function(x){ return x.id === AT.sid; })[0]; if (!s || atEvOn(s.d)) return;
+  if (await atEvAdd(s.d, String(s.title || '정규 세션').slice(0, 40))){ atDrawIn(); toast('홈 › 학회 일정에 올렸습니다 · ' + esc(atDayNm(s.d) + ' ' + s.title), 2600); }
+}
+//  홈 일정 카드 → 설정 › 출결 (그 날 모임)
+function atFromHome(id){
+  AT.pendEv = Number(id); showTab('admin'); if (typeof adTab === 'function') adTab('att');
+  if (AT.loaded && !AT.busy) atPendGo();
+}
+function atPendGo(){
+  var id = AT.pendEv; AT.pendEv = null; if (!id) return;
+  var e = (AT.ev || []).filter(function(x){ return x.id === id; })[0] || (typeof evRows !== 'undefined' ? evRows.filter(function(x){ return x.id === id; })[0] : null); if (!e) return;
+  var g = atEvGen(e); if (g != null && g !== AT.gen){ AT.gen = g; AT.sid = null; }
+  var S = atSesOfGen(), same = S.filter(function(x){ return x.d === e.starts_on; })[0];
+  if (same){ AT.sid = same.id; atDraw(); } else atFromEv(e);
+  setTimeout(function(){ var c = $('atCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120);
+}
+function atSesSet(v){ if (String(v).indexOf('ev:') === 0){ var e = (AT.ev || []).filter(function(x){ return x.id === Number(String(v).slice(3)); })[0]; if (e) atFromEv(e); else atDrawIn(); return; } AT.sid = Number(v) || null; atDrawIn(); }
 function atAddTog(){ AT.add = !AT.add; atDrawIn(); if (AT.add){ var t = $('atAddT'); if (t) t.focus(); } }
 async function atAddGo(){
   var d = ($('atAddD') || {}).value, t = String(($('atAddT') || {}).value || '').trim() || '정규 세션';
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d || ''))){ toast('날짜를 골라 주세요', 2400); return; }
   var r = await atDb.addSession({ d: d, title: t.slice(0, 40), gen: AT.gen });
   if (r.error){ toast(esc(atErr(r.error)), 4200); return; }
-  AT.ses.unshift(r.data); AT.ses.sort(function(a, b){ return a.d < b.d ? 1 : a.d > b.d ? -1 : b.id - a.id; }); AT.sid = r.data.id; AT.add = false; atDraw(); toast('모임을 추가했습니다 · ' + esc(atDayNm(d) + ' ' + t), 2400);
+  var up = !!($('atAddEv') && $('atAddEv').checked);
+  AT.ses.unshift(r.data); AT.ses.sort(function(a, b){ return a.d < b.d ? 1 : a.d > b.d ? -1 : b.id - a.id; }); AT.sid = r.data.id; AT.add = false; atDraw();
+  var on = up && AT.evOk && !atEvOn(d) ? await atEvAdd(d, t.slice(0, 40)) : false;
+  toast('모임을 추가했습니다 · ' + esc(atDayNm(d) + ' ' + t) + (on ? ' · 홈 일정에도 올렸습니다' : ''), 2600);
 }
 async function atDel(){
   if (!AT.sid) return;
@@ -65095,7 +65152,7 @@ function atKindSet(v){ AT.kind = v === 'fact' ? 'fact' : 'act'; AT.kindAuto = fa
 function atCtHint(){
   if (!(AT.sign && AT.sign.img)) return '학회장 서명을 먼저 저장해 주세요';
   if (!AT.cu) return '받을 사람을 고르세요';
-  var D = atCertCur(), many = D && D.c.absent >= AT_RULE_ABS, tail = ' · 내려받을 때 발급 번호가 맨 아래 작게 붙고 기록이 남습니다';
+  var D = atCertCur(), many = D && D.c.absent >= AT_RULE_ABS, tail = ' · 내려받으면 발급 기록이 남습니다';
   if (D && D.man && !D.m.name) return '직접 입력 칸에 성명부터 적어 주세요';
   if (D && (D.man || D.edited)) tail = ' · 직접 적은 값으로 발급' + tail;
   if (atKind() === 'fact') return (AT.kindAuto ? '결석 ' + AT_RULE_ABS + '회 이상이라 사실 증명서로 바꿨습니다 · ' : '') + '기록된 모임 수 · 출석 · 지각 · 결석을 그대로 적음 (활동 인증 아님)' + (many ? ' · 규정 문구가 함께 들어감' : '') + tail;
@@ -65202,7 +65259,6 @@ function atCertPaint(cv, D, no, cb){
   x.font = atSerif(36, 600); var t1 = '학회장   ' + nm, w1 = x.measureText(t1).width, sw = src ? 300 : x.measureText('(서명)').width + 30, x0 = C ? cx - (w1 + 30 + sw) / 2 : M;
   x.textAlign = 'left'; x.fillStyle = txt; x.fillText(t1, x0, yN);
   if (!src){ x.font = atSerif(28, 400); x.fillStyle = '#b8bdca'; x.fillText('(서명)', x0 + w1 + 30, yN); }
-  if (no){ put(no, H - 170, atSerif(20, 400), '#a3a9b8', 2); }
   var pend = 0, fin = function(){ if (--pend <= 0) done(); };
   if (typeof AT_LOGO === 'string'){ pend++; var lg = new Image(); lg.onload = function(){ var h = lg.height * logoW / lg.width; x.drawImage(lg, C ? cx - logoW / 2 : M, logoY, logoW, h); fin(); }; lg.onerror = fin; lg.src = AT_LOGO; }
   if (src){ pend++; var im = new Image(); im.onload = function(){ var h = 130, w = im.width * h / im.height; if (w > 340){ w = 340; h = im.height * w / im.width; }
