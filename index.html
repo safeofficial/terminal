@@ -5164,6 +5164,130 @@ body.wd-drag{cursor:ew-resize;user-select:none}
 .sht-ft{margin:8px 0 0;font-size:11px}
 @media (max-width:1100px){ .sht-g3{grid-template-columns:minmax(0,1fr)} }
 @media (max-width:760px){ .sht-ch{height:250px} }
+/*  (23차) 이상 움직임 — 전광판 칸 · 봉 고르기 · 텔레그램 단추 · 옵션 시장 카드  */
+.qbd-t .qa{grid-column:1 / 3;display:flex;justify-content:space-between;gap:6px;margin-top:2px;font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums;font-size:10.5px;font-weight:600;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qbd-t .qa i{font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.qbd-t .qa .qt{flex:0 0 auto;color:var(--text-sub);font-weight:500}
+.qbd-t .qa.up [data-qa]{color:var(--up,#c0392b)} .qbd-t .qa.down [data-qa]{color:var(--down,#1b5fa8)}
+.qbd-chip[data-c="anom"] b{min-width:10px;text-align:center}
+.qan-tg{display:inline-flex;align-items:center;gap:5px;height:30px;white-space:nowrap}
+.qan-tg svg{width:14px;height:14px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.qan-tg.on{border-color:var(--primary);background:var(--accent-soft);color:var(--primary)}
+.qan-none{line-height:1.55}
+.qan-oh{margin-top:10px}
+.qan-of li{grid-template-columns:minmax(0,1fr);cursor:pointer}
+.qan-of li .m{font-family:inherit;white-space:normal;word-break:keep-all}
+.qan-of li .k{grid-column:1 / -1}
+.qan-of li.up .m{color:var(--up,#c0392b)} .qan-of li.down .m{color:var(--down,#1b5fa8)}
+.qan-of li:hover,.qan-of li:focus-visible{border-color:var(--accent)}
+/*  홈 › 세이피 텔레그램 — 봉 다섯 한 줄  */
+.htg-mv{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;flex:1 1 100%}
+.htg-mv > span{font-size:13px;font-weight:600;color:var(--text)}
+.htg-mv label{white-space:nowrap}
+/*  분석 › 파생상품 › 옵션 · 변동성 — 옵션 시장 이상 움직임  */
+.oa-h{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:0 0 10px}
+.oa-h b{font-size:15px;font-weight:700;color:var(--text)}
+.oa .lv-mono{font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:1.4px;color:var(--primary);opacity:.85}
+.oa-tgw{margin-left:auto}
+.oa-t{font-size:12.5px;width:100%}
+.oa-t td{vertical-align:top}
+.oa-t td.r,.oa-t th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.oa-s{display:block;font-size:11px;color:var(--text-sub);font-variant-numeric:tabular-nums}
+.oa-s.up{color:var(--up,#c0392b)} .oa-s.down{color:var(--down,#1b5fa8)}
+.oa-chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;border:1px solid var(--border);color:var(--text);word-break:keep-all}
+.oa-chip.up{border-color:var(--up,#c0392b);color:var(--up,#c0392b)} .oa-chip.down{border-color:var(--down,#1b5fa8);color:var(--down,#1b5fa8)}
+.oa-lv{display:block;margin-top:3px;font-size:11.5px;color:var(--text-sub);font-variant-numeric:tabular-nums;word-break:keep-all}
+.oa-sum{list-style:disc;margin:10px 0 0;padding:10px 12px 10px 28px;border:1px solid var(--border);border-radius:10px;background:var(--bg);font-size:13px;line-height:1.65;color:var(--text)}
+.oa-sum li + li{margin-top:2px}
+.oa-ft{margin:8px 0 0;font-size:11px}
+.scroll > .q-t.oa-t{min-width:0}
+@media (max-width:760px){
+  .oa-t,.oa-t tbody{display:block;width:100%} .oa-t thead{display:none}
+  .oa-t tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 10px;padding:9px 2px;border-bottom:1px solid var(--border)}
+  .oa-t tr:last-child{border-bottom:0}
+  .oa-t td{display:block;padding:0;border:0;min-width:0}
+  .oa-t td:first-child,.oa-t td:last-child{grid-column:1 / -1}
+  .oa-t td.r{text-align:left;white-space:normal}
+  .oa-t td.r::before{content:attr(data-l);display:block;font-size:10.5px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .oa-t tr.oa-e td.r{display:none}
+  .oa-sum{font-size:12.5px;padding-left:24px} .oa-tgw{margin-left:0}
+}
+/*  (23차) 설정 › AI › 세이피 명령어  */
+.cmd h2 .tools{display:flex;align-items:center}
+.cmd-q{width:180px;max-width:46vw;height:30px;padding:0 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-size:12.5px;font-weight:400}
+.cmd-lead{margin:-4px 0 10px;font-size:12px;line-height:1.55}
+#cmdSeg{margin:0 0 12px}
+#cmdSeg.dim{opacity:.45}
+.cmd-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+.cmd-g{border:1px solid var(--border);border-radius:10px;padding:10px 12px;min-width:0}
+.cmd-g h4{margin:0 0 6px;font-size:13px;font-weight:700;color:var(--text)}
+.cmd-g h4 .st-hint{font-weight:400;font-size:11px}
+.cmd-r{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:4px 10px;align-items:baseline;padding:4px 0}
+.cmd-r + .cmd-r{border-top:1px dashed var(--border)}
+.cmd-c{justify-self:start;max-width:100%;padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font:inherit;font-size:12.5px;font-weight:600;line-height:1.5;text-align:left;cursor:pointer;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+.cmd-c.m{font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+.cmd-c:hover,.cmd-c:focus-visible{border-color:var(--accent)}
+.cmd-c.ok{border-color:var(--primary);color:var(--primary)}
+.cmd-r > span{font-size:12px;line-height:1.5;color:var(--text-sub);word-break:keep-all}
+.cmd-tp{grid-column:1 / -1}
+.cmd-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cmd-chip{padding:2px 9px;border:1px solid var(--border);border-radius:999px;font-size:12px;color:var(--text)}
+@media (max-width:760px){ .cmd-grid{grid-template-columns:minmax(0,1fr)} .cmd-r{grid-template-columns:minmax(0,1fr)} .cmd-q{width:140px} }
+/*  (23차) ETF 구성 창  */
+.et-ov{position:fixed;inset:0;z-index:90;background:rgba(10,16,30,.42);display:flex;align-items:flex-start;justify-content:center;padding:56px 16px 24px;overflow:auto}
+.et-ov.hidden{display:none}
+body.et-open{overflow:hidden}
+.et-box{width:100%;max-width:900px;margin:0;padding:16px 18px;box-shadow:0 18px 48px rgba(10,20,50,.28)}
+.et-h{display:flex;align-items:flex-start;gap:8px 10px;margin:0 0 12px}
+.et-t{flex:1 1 auto;min-width:0;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.et-t .lv-mono{font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:1.4px;color:var(--primary);opacity:.85;flex:1 1 100%}
+.et-t > b{font-size:17px;font-weight:800;color:var(--text);min-width:0}
+.et-nm{font-size:13px;font-weight:600;color:var(--text-sub)}
+.et-q{display:inline-flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;font-variant-numeric:tabular-nums}
+.et-q b{font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;font-weight:700;color:var(--text)}
+.et-q b.up{color:var(--up,#c0392b)} .et-q b.down{color:var(--down,#1b5fa8)}
+.et-q .st-hint{font-size:11px}
+.et-h .btn-sm{flex:0 0 auto;white-space:nowrap}
+.et-x{flex:0 0 auto;width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:20px;line-height:1;cursor:pointer}
+.et-x:hover{border-color:var(--accent)}
+.et-msg{margin:6px 0;line-height:1.6}
+.et-k{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.et-k > div{border:1px solid var(--border);border-radius:10px;padding:8px 10px;min-width:0}
+.et-k span{display:block;font-size:11px;color:var(--text-sub)}
+.et-k b{display:block;font-size:16px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.et-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:center}
+.et-ch{height:260px;min-width:0;position:relative}
+.et-lg{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px;min-width:0}
+.et-lg li{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:12.5px}
+.et-lg i{width:12px;height:12px;border-radius:3px}
+.et-lg span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.et-lg b{font-variant-numeric:tabular-nums;font-weight:700;color:var(--text)}
+.et-cty{margin:10px 0 0;font-size:12.5px;line-height:1.6;color:var(--text-sub)}
+.et-cty b{color:var(--text);margin-right:6px}
+.et-tl{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 6px}
+.et-tl b{font-size:14px;font-weight:700}
+.et-tl input{width:200px;max-width:60%;height:30px;padding:0 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-size:12.5px}
+.et-sc{max-height:420px;overflow:auto}
+.scroll > .q-t.et-tb{min-width:0}
+.et-tb{width:100%;font-size:12.5px;table-layout:fixed}
+.et-tb th:nth-child(1){width:44px} .et-tb th:nth-child(3){width:78px} .et-tb th:nth-child(4){width:96px} .et-tb th:nth-child(5){width:84px}
+.et-tb td,.et-tb th{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.et-tb td.r,.et-tb th.r{text-align:right;font-variant-numeric:tabular-nums}
+.et-tb .et-i{color:var(--text-sub)}
+.et-tb .et-n b{font-weight:600}
+.et-tb .et-n span{margin-left:6px;font-size:11px;color:var(--text-sub)}
+.et-more{margin:8px 0 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.et-more:empty{display:none}
+.et-ft{margin:10px 0 0;font-size:11px;line-height:1.5}
+@media (max-width:760px){
+  .et-ov{padding:12px 8px}
+  .et-box{padding:12px 12px}
+  .et-h{flex-wrap:wrap}
+  .et-k{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .et-two{grid-template-columns:minmax(0,1fr)}
+  .et-ch{height:220px}
+  .et-tb th:nth-child(4),.et-tb td:nth-child(4),.et-tb th:nth-child(5),.et-tb td:nth-child(5){display:none}
+}
 </style><!--/css23-->
 </head>
 <body>
@@ -63361,7 +63485,7 @@ var QBD_COIN = [['BTCUSDT', '비트코인', 'Bitcoin'], ['ETHUSDT', '이더리�
 //  ‘주요’ 칸 (이 순서로)
 var QBD_KEYB = ['SPX', 'NDX', 'SPY', 'QQQ', 'KOSPI', 'NI225', 'JP225', 'HSI', 'EWY', 'XAU', 'XAG', 'CL', 'WTI', 'BZ', 'BRENT', 'NATGAS', 'NG', 'COPPER', 'HG',
   'BTC', 'ETH', 'SOL', 'XRP', 'NVDA', 'TSLA', 'AAPL', 'MSFT', 'AMZN', 'GOOGL', 'META', 'AVGO', 'TSM', 'SAMSUNG', 'SKHYNIX', 'HYUNDAI', 'OPENAI', 'ANTHROPIC', 'SPCX', 'SPACEX'];
-var QBD_CATS = [['key', '주요', 'Key'], ['coin', '코인', 'Crypto'], ['etf', '지수 · ETF', 'Index · ETF'], ['cmd', '원자재', 'Commodities'], ['kr', '한국 주식', 'Korea'], ['gl', '글로벌 주식', 'Global stocks'], ['pre', '비상장', 'Pre-IPO'], ['fx', '환율', 'FX'], ['all', '전체', 'All']];
+var QBD_CATS = [['key', '주요', 'Key'], ['coin', '코인', 'Crypto'], ['etf', '지수 · ETF', 'Index · ETF'], ['cmd', '원자재', 'Commodities'], ['kr', '한국 주식', 'Korea'], ['gl', '글로벌 주식', 'Global stocks'], ['pre', '비상장', 'Pre-IPO'], ['fx', '환율', 'FX'], ['anom', '이상 움직임', 'Unusual'], ['all', '전체', 'All']];
 var QBD_RANK = { coin: 1, etf: 2, cmd: 3, kr: 4, gl: 5, pre: 6, fx: 7 };
 var QBD = { cat: 'key', q: '', sort: 'def', fold: false, uni: [], key: '', ws: null, gen: 0, mode: '', wd: 0, loop: 0, hidAt: 0, paused: false, px: {}, dirty: {}, el: {},
   pollAt: 0, pollBusy: false, polled: false, snapBusy: false, lastSpark: 0, lastDiag: 0, lastSort: 0, since: 0, pruned: false, listP: null };
@@ -63382,9 +63506,10 @@ function qbdUniBuild(){
 function qbdHasVal(u){ return !!QBD.px[u.s]; }
 //  거래소가 20초 넘게 아무 값도 안 준 칸은 숨김 (지어내지 않음)
 function qbdShown(u){ return !QBD.pruned || qbdHasVal(u); }
-function qbdCounts(){ var c = { all: 0, key: 0 }; QBD.uni.forEach(function(u){ if (!qbdShown(u)) return; c.all++; c[u.cat] = (c[u.cat] || 0) + 1; if (u.ki >= 0) c.key++; }); return c; }
+function qbdCounts(){ var c = { all: 0, key: 0, anom: typeof qanList === 'function' ? qanList().length : 0 }; QBD.uni.forEach(function(u){ if (!qbdShown(u)) return; c.all++; c[u.cat] = (c[u.cat] || 0) + 1; if (u.ki >= 0) c.key++; }); return c; }
 function qbdList(){
   var q = String(QBD.q || '').trim().toLowerCase(), cat = QBD.cat;
+  if (cat === 'anom' && !q && typeof qanList === 'function'){ var by = {}; QBD.uni.forEach(function(u){ by[u.s] = u; }); return qanList().map(function(e){ return by[e.s]; }).filter(Boolean); }
   var L = QBD.uni.filter(function(u){ if (!qbdShown(u)) return false; if (q) return (u.n + ' ' + u.s).toLowerCase().indexOf(q) >= 0; return cat === 'all' || (cat === 'key' ? u.ki >= 0 : u.cat === cat); });
   var cv = function(u){ var v = QBD.px[u.s]; return v && v.c != null && isFinite(v.c) ? v.c : null; };
   if (QBD.sort === 'up' || QBD.sort === 'down'){ var sg = QBD.sort === 'up' ? -1 : 1;
@@ -63398,14 +63523,15 @@ function qbdTileHtml(u){
   var v = QBD.px[u.s], cl = v && v.c > 0 ? 'up' : v && v.c < 0 ? 'down' : '';
   return '<button type="button" class="lv-t qbd-t' + (v && v.live ? ' lv-live' : '') + (qbdIsIn(u.s) ? ' in' : '') + '" data-s="' + esc(u.s) + '" onclick="qbdPick(\'' + esc(u.s) + '\')" title="' + esc(u.n + ' · ' + u.s.replace(/(USDT|USDC)$/, '') + T(' · 24시간 선물 · 24시간 전 대비', ' · 24h perp · vs 24h ago')) + '">'
     + '<span class="n">' + esc(u.n) + '</span><span class="p" data-p>' + esc(v ? mkPx(v.p, u.s) : '-') + '</span><span class="c ' + cl + '" data-c>' + esc(v ? mkChg(v.c) : '-') + '</span>'
+    + (QBD.cat === 'anom' && !QBD.q && typeof qanLineHtml === 'function' ? qanLineHtml(u.s) : '')
     + '<svg class="sp" viewBox="0 0 60 16" preserveAspectRatio="none" aria-hidden="true" data-sp>' + (LV.hist[u.s] ? lvSpark(u.s) : '') + '</svg></button>';
 }
 function qbdBarHtml(){
   var cnt = qbdCounts();
-  return '<div class="qbd-chips" role="group" aria-label="' + esc(T('묶음', 'Groups')) + '">' + QBD_CATS.filter(function(c){ return c[0] === 'all' || c[0] === 'key' || cnt[c[0]]; }).map(function(c){
+  return '<div class="qbd-chips" role="group" aria-label="' + esc(T('묶음', 'Groups')) + '">' + QBD_CATS.filter(function(c){ return c[0] === 'all' || c[0] === 'key' || c[0] === 'anom' || cnt[c[0]]; }).map(function(c){
       return '<button type="button" class="qbd-chip' + (QBD.cat === c[0] && !QBD.q ? ' on' : '') + '" data-c="' + c[0] + '" onclick="qbdCat(\'' + c[0] + '\')">' + esc(T(c[1], c[2])) + ' <b>' + (cnt[c[0]] || 0) + '</b></button>'; }).join('') + '</div>'
     + '<div class="qbd-tools"><input type="search" class="qbd-q" id="qbdQ" placeholder="' + esc(T('이름 · 기호 찾기', 'Search')) + '" value="' + esc(QBD.q) + '" oninput="qbdQ(this.value)" aria-label="' + esc(T('전광판 종목 찾기', 'Search board')) + '">'
-    + qSeg('qbdSort', [['def', T('기본', 'Default')], ['up', T('오른 순', 'Gainers')], ['down', T('내린 순', 'Losers')]], QBD.sort, 'qbdSortSet') + '</div>';
+    + (QBD.cat === 'anom' && !QBD.q && typeof qanToolsHtml === 'function' ? qanToolsHtml() : qSeg('qbdSort', [['def', T('기본', 'Default')], ['up', T('오른 순', 'Gainers')], ['down', T('내린 순', 'Losers')]], QBD.sort, 'qbdSortSet')) + '</div>';
 }
 function qbdHtml(){
   var real = QMM.mode === 'real';
@@ -63426,11 +63552,11 @@ function qbdRender(){
   if (!QBD.uni.length){ g.innerHTML = qWait(); QBD.el = {}; return; }
   var L = qbdList(), q = String(QBD.q || '').trim(), grp = QBD.sort === 'def' && !q && QBD.cat === 'all', prev = '', h = '';
   L.forEach(function(u){ if (grp && u.cat !== prev){ prev = u.cat; var c = QBD_CATS.filter(function(x){ return x[0] === u.cat; })[0]; h += '<div class="qbd-gh">' + esc(c ? T(c[1], c[2]) : u.cat) + '</div>'; } h += qbdTileHtml(u); });
-  g.innerHTML = h || '<p class="st-hint qbd-none">' + esc(T('맞는 종목이 없습니다', 'No match')) + '</p>';
+  g.innerHTML = h || (QBD.cat === 'anom' && !q && typeof qanEmptyHtml === 'function' ? qanEmptyHtml() : '<p class="st-hint qbd-none">' + esc(T('맞는 종목이 없습니다', 'No match')) + '</p>');
   QBD.el = {}; Array.prototype.forEach.call(g.querySelectorAll('.qbd-t'), function(e){ QBD.el[e.getAttribute('data-s')] = e; });
   QBD.lastSort = Date.now();
 }
-function qbdCat(k){ QBD.cat = k; QBD.q = ''; var qi = $('qbdQ'); if (qi) qi.value = ''; qbdSave(); qbdRender(); var g = $('qbdGrid'); if (g) g.scrollTop = 0; }
+function qbdCat(k){ var was = QBD.cat; QBD.cat = k; QBD.q = ''; if (k === 'anom' && typeof qanEnter === 'function') qanEnter(); if (was !== k && (was === 'anom' || k === 'anom')){ var bb = $('qbdBar'); if (bb) bb.innerHTML = qbdBarHtml(); } var qi = $('qbdQ'); if (qi) qi.value = ''; qbdSave(); qbdRender(); var g = $('qbdGrid'); if (g) g.scrollTop = 0; }
 function qbdQ(v){ clearTimeout(qbdQ.t); qbdQ.t = setTimeout(function(){ QBD.q = String(v || ''); qbdRender(); }, 200); }
 function qbdSortSet(k){ if (!/^(def|up|down)$/.test(k)) return; QBD.sort = k; qbdSave(); qoSeg('qbdSort', k); qbdRender(); }
 function qbdFold(){ QBD.fold = !QBD.fold; qbdSave(); var b = $('qbdBody'), f = $('qbdFoldB'); if (b) b.classList.toggle('hidden', QBD.fold);
@@ -63482,7 +63608,7 @@ function qbdStart(){
 function qbdTick(s, p, o, h, l, t, live){
   if (!(p > 0)) return;
   var X = QBD.px[s], c = o > 0 ? (p / o - 1) * 100 : X ? X.c : null;
-  QBD.px[s] = { p: p, c: c, t: t || Date.now(), live: !!live };
+  QBD.px[s] = { p: p, c: c, t: t || Date.now(), live: !!live, h: h > 0 ? h : X ? X.h : null, l: l > 0 ? l : X ? X.l : null };
   if (!X || X.p !== p || X.c !== c) QBD.dirty[s] = !X ? 0 : p > X.p ? 1 : p < X.p ? -1 : 0;
   if (live){ try { lvTick(s, p, o, h, l, t); } catch(e){} }
 }
@@ -63505,21 +63631,7 @@ function qbdSnap(){
     if (d && Array.isArray(d.groups)){ MK.snap = d; MK.err = ''; MK.at = Date.now(); MK.snapAt = d.at || d.fetched_at || null; try { mkTickPush(d); } catch(e){} try { mkSnapPerp(d); } catch(e){} QBD.lastDiag = 0; }
   }, function(){ QBD.snapBusy = false; });
 }
-function qbdAnomCheck(){
-  var now = Date.now(), nm = {}, cr = {}; QBD.uni.forEach(function(u){ nm[u.s] = u.n; cr[u.s] = u.cat === 'coin'; });
-  Object.keys(LV.hist).forEach(function(s){
-    var H = LV.hist[s], X = LV.px[s]; if (!X || !nm[s] || !(X.h > 0 && X.l > 0 && X.h > X.l) || now - X.t > 120000) return;
-    var sdD = Math.log(X.h / X.l) / 1.6, c0 = cr[s];
-    [[60000, T('1분', '1m'), 1440, c0 ? 0.006 : 0.0025], [300000, T('5분', '5m'), 288, c0 ? 0.012 : 0.005]].forEach(function(w){
-      var t0 = now - w[0], base = null; for (var i = H.length - 1; i >= 0; i--){ if (H[i][0] <= t0){ base = H[i]; break; } }
-      if (!base || t0 - base[0] > w[0] * 0.6) return;
-      var r = Math.log(X.p / base[1]), sig = sdD / Math.sqrt(w[2]), k = Math.abs(r) / sig;
-      if (!(k >= 4) || Math.abs(r) < w[3]) return;
-      var key = s + (r > 0 ? '+' : '-'); if (LV.fired[key] && now - LV.fired[key] < 15 * 60000) return; LV.fired[key] = now;
-      LV.feed.unshift({ t: now, s: s, n: nm[s], w: w[1], r: (Math.exp(r) - 1) * 100, k: k, p: X.p }); LV.feed = LV.feed.slice(0, 10);
-    });
-  });
-}
+function qbdAnomCheck(){ if (typeof qanCheck === 'function') qanCheck(); }
 function qbdDrawDirty(){
   var ks = Object.keys(QBD.dirty); if (!ks.length) return;
   ks.forEach(function(s){ var dir = QBD.dirty[s]; delete QBD.dirty[s]; var el = QBD.el[s], v = QBD.px[s]; if (!el || !v || !el.isConnected) return;
@@ -63537,8 +63649,9 @@ function qbdLoop(){
   QBD.hidAt = 0; if (QBD.paused || (!QBD.ws && QBD.mode !== 'snap')){ QBD.paused = false; qbdStart(); }
   var now = Date.now();
   qbdDrawDirty();
+  if (typeof qanSample === 'function') qanSample(now);
   if (!QBD.pruned && QBD.polled && QBD.mode === 'ws' && now - QBD.since > 20000){ QBD.pruned = true; qbdRender(); }
-  if (QBD.sort !== 'def' && now - QBD.lastSort > 5000) qbdRender();
+  if (QBD.sort !== 'def' && QBD.cat !== 'anom' && now - QBD.lastSort > 5000) qbdRender();
   if (now - QBD.lastSpark >= 2000){ QBD.lastSpark = now; qbdDrawSparks(); }
   if (now - QBD.pollAt >= (QBD.mode === 'ws' ? 60000 : 10000)) qbdPoll();
   if (now - QBD.lastDiag >= 5000){ QBD.lastDiag = now; qbdSnap(); try { lvBrLoad(); } catch(e){} try { qbdAnomCheck(); lvDiagDraw(); lvAnomDraw(); } catch(e){} }
@@ -64027,6 +64140,426 @@ function wdPopTog(on){
   wdApply(true);
   //  로그인 뒤 화면이 보이면 손잡이 자리 다시
   setTimeout(wdHandles, 800); setTimeout(wdHandles, 2500);
+})();
+
+/* ══════════ (23차) 이상 움직임 — 학회장: ‘전체 전에 이상 움직임 · 25개 채우면 제일 오래된 것 빠짐 · 실시간 로테이션 · 1분 · 5분 · 15분 · 30분 · 1시간 봉 골라서
+   이상 움직임 보거나 구독 · 전광판에서도 내가 고른 봉 로테이션 · 전광판이나 파생상품에 옵션 시장 이상 움직임도 · 매수 · 매도 기회랑 가격대 텔레그램’
+   · 전광판 종목마다 10초에 한 번 값을 적어 둠 (최근 66분) · 30분 · 1시간 봉은 서버의 5분 봉 종가 (약 1시간) 로 처음부터 셀 수 있게
+   · 고른 봉 길이 동안 움직임 ÷ 평소 그 길이 움직임 (24시간 고가 · 저가 범위로 하루 변동성 → √(봉 ÷ 하루)) 이 4배 + 크기 바닥 (코인 · 그 밖) 을 넘으면 포착
+   · 봉마다 따로 25개 (새로 들어오면 맨 앞 · 26번째 = 가장 오래된 것이 빠짐) · 같은 종목 · 같은 방향은 max(15분, 봉) 에 한 번 · 계속 크면 숫자만 새로
+   · 텔레그램: 그 봉의 이상 움직임 구독 단추 (세이피 1:1) · 옵션 시장 이상 움직임 = 서버 opt_anom (6개 · 10분마다 기록) · 파생상품 › 옵션 · 변동성 카드      */
+var QAN_TF = [['1', '1분', '1m'], ['5', '5분', '5m'], ['15', '15분', '15m'], ['30', '30분', '30m'], ['60', '1시간', '1h']];
+var QAN_TOPIC = { 1: 'moveone', 5: 'movefive', 15: 'move', 30: 'movethirty', 60: 'movehour' };
+var QAN_MAX = 25;
+var QAN = { tf: 5, L: { 1: [], 5: [], 15: [], 30: [], 60: [] }, h: {}, lastS: 0, started: 0, seedAt: 0, seedBusy: false, seeded: false, fired: {}, tg: null, tgBusy: false, tgAt: 0,
+  opt: null, optAt: 0, optBusy: false, optErr: '' };
+try { var _qan = JSON.parse(LSX.getItem('safe_qan_v1') || 'null'); if (_qan && QAN_TOPIC[+_qan.tf]) QAN.tf = +_qan.tf; } catch(e){}
+function qanSave(){ try { LSX.setItem('safe_qan_v1', JSON.stringify({ tf: QAN.tf })); } catch(e){} }
+function qanTfNm(tf){ var x = QAN_TF.filter(function(t){ return +t[0] === +tf; })[0]; return x ? T(x[1], x[2]) : tf + T('분', 'm'); }
+function qanList(){ return QAN.L[QAN.tf] || []; }
+//  ── 값 적기 (10초) ──
+function qanSample(now){
+  if (now - QAN.lastS < 10000) return; QAN.lastS = now; if (!QAN.started) QAN.started = now;
+  var cut = now - 66 * 60000;
+  Object.keys(QBD.px).forEach(function(s){ var v = QBD.px[s]; if (!v || !(v.p > 0) || now - v.t > 120000) return;
+    var H = QAN.h[s] || (QAN.h[s] = { t: [], p: [] }); H.t.push(now); H.p.push(v.p);
+    var i = 0; while (i < H.t.length && H.t[i] < cut) i++; if (i){ H.t.splice(0, i); H.p.splice(0, i); } });
+  if (QAN.tf >= 15 && !QAN.seeded && now - QAN.started < QAN.tf * 60000) qanSeed();
+}
+//  30분 · 1시간 봉을 바로 셀 수 있게 — 서버 5분 봉 종가 (약 1시간 · 4분 보관)
+function qanSeed(){
+  if (QAN.seedBusy || Date.now() - QAN.seedAt < 5 * 60000) return; QAN.seedBusy = true; QAN.seedAt = Date.now();
+  edge({ source: 'bn_ago' }).then(function(d){ QAN.seedBusy = false; var it = d && d.items || {}, n = 0;
+    Object.keys(it).forEach(function(s){ var P = Array.isArray(it[s]) ? it[s] : []; if (!P.length) return;
+      var H = QAN.h[s] || (QAN.h[s] = { t: [], p: [] }), first = H.t.length ? H.t[0] : Infinity, add = P.filter(function(x){ return x[0] < first - 5000 && x[1] > 0; });
+      if (add.length){ H.t = add.map(function(x){ return x[0]; }).concat(H.t); H.p = add.map(function(x){ return x[1]; }).concat(H.p); n++; } });
+    if (n) QAN.seeded = true; QBD.lastDiag = 0;
+  }, function(){ QAN.seedBusy = false; });
+}
+//  ── 포착 (5초 · 봉 다섯 모두 · 화면은 고른 봉) ──
+function qanCheck(){
+  var now = Date.now(), by = {}, newIn = [];
+  QBD.uni.forEach(function(u){ by[u.s] = u; });
+  QAN_TF.forEach(function(x){
+    var tf = +x[0], W = tf * 60000, tol = tf >= 15 ? 310000 : Math.max(30000, W * 0.34), L = QAN.L[tf];
+    var keys = Object.keys(QAN.h); if (typeof LV !== 'undefined' && LV.hist) Object.keys(LV.hist).forEach(function(k){ if (!QAN.h[k]) keys.push(k); });
+    keys.forEach(function(s){
+      var u = by[s], v = QBD.px[s], H = QAN.h[s] || { t: [], p: [] }; if (!u || !v || !(v.p > 0) || now - v.t > 120000 || !(v.h > 0 && v.l > 0 && v.h > v.l)) return;
+      var t0 = now - W, bt = -1, bp = 0; for (var i = H.t.length - 1; i >= 0; i--){ if (H.t[i] <= t0){ bt = H.t[i]; bp = H.p[i]; break; } }
+      //  1초 기록 (체결마다 · 최근 16분) 이 더 가까우면 그것
+      var X = tf <= 15 && typeof LV !== 'undefined' && LV.hist ? LV.hist[s] : null;
+      if (X) for (var i2 = X.length - 1; i2 >= 0; i2--){ if (X[i2][0] <= t0){ if (X[i2][0] > bt && X[i2][1] > 0){ bt = X[i2][0]; bp = X[i2][1]; } break; } }
+      var e = null; for (var j = 0; j < L.length; j++){ if (L[j].s === s){ e = L[j]; break; } }
+      if (bt < 0 || !(bp > 0) || t0 - bt > tol){ return; }
+      var r = Math.log(v.p / bp), sig = Math.log(v.h / v.l) / 1.665 * Math.sqrt(tf / 1440); if (!(sig > 0)) return;
+      var k = Math.abs(r) / sig, coin = u.cat === 'coin', minA = coin ? Math.min(0.006 * Math.sqrt(tf), 0.03) : Math.min(0.0025 * Math.sqrt(tf), 0.015), dir = r > 0 ? 1 : -1;
+      if (e){ e.cur = (Math.exp(r) - 1) * 100; e.p = v.p; }
+      if (!(k >= 4 && Math.abs(r) >= minA)) return;
+      var key = tf + ':' + s + (dir > 0 ? '+' : '-'), cool = Math.max(15, tf) * 60000;
+      if (e && e.dir === dir){ e.r = (Math.exp(r) - 1) * 100; if (k > e.k) e.k = k; e.seen = now; return; }
+      if (QAN.fired[key] && now - QAN.fired[key] < cool) return;
+      QAN.fired[key] = now;
+      if (e) L.splice(L.indexOf(e), 1);
+      var ne = { s: s, n: u.n, tf: tf, dir: dir, r: (Math.exp(r) - 1) * 100, cur: (Math.exp(r) - 1) * 100, k: k, p: v.p, t: now, seen: now };
+      L.unshift(ne); if (L.length > QAN_MAX) L.length = QAN_MAX;
+      if (tf === QAN.tf){ newIn.push(s); try { LV.feed.unshift({ t: now, s: s, n: u.n, w: qanTfNm(tf), r: ne.r, k: k, p: v.p }); LV.feed = LV.feed.slice(0, 10); } catch(e2){} }
+    });
+  });
+  qanPaint(newIn);
+  if (now - QAN.optAt > 5 * 60000) qanOptLoad();
+}
+//  ── 전광판 칸 ──
+function qanGet(s){ var L = qanList(); for (var i = 0; i < L.length; i++) if (L[i].s === s) return L[i]; return null; }
+function qanHm(t){ var d = new Date(t); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+function qanLine(e){ return (e.cur > 0 ? '+' : '') + e.cur.toFixed(2) + '% · ' + (e.k >= 10 ? Math.round(e.k) : lvF(e.k, 1)) + T('배', 'x'); }
+function qanLineHtml(s){ var e = qanGet(s); if (!e) return ''; return '<span class="qa ' + (e.cur > 0 ? 'up' : e.cur < 0 ? 'down' : '') + '" title="' + esc(qanTfNm(e.tf) + T(' 동안 움직임 · 포착할 때 평소의 몇 배 · 포착 시각', ' move · x typical · time')) + '"><i data-qa>' + esc(qanLine(e)) + '</i><i class="qt">' + qanHm(e.t) + '</i></span>'; }
+function qanEmptyHtml(){
+  var gathering = QAN.tf >= 15 && !QAN.seeded && (!QAN.started || Date.now() - QAN.started < QAN.tf * 60000);
+  return '<p class="st-hint qbd-none qan-none">' + esc(gathering ? T('로딩 중…', 'Loading…') : T('지금은 조용합니다 · ' + qanTfNm(QAN.tf) + ' 움직임이 평소의 4배를 넘으면 여기에 들어옵니다 (최대 25개 · 새로 들어오면 가장 오래된 것이 빠짐)', 'Quiet. Moves above 4x typical over the window appear here (up to 25, oldest drops).')) + '</p>';
+}
+function qanToolsHtml(){
+  var top = QAN_TOPIC[QAN.tf], tg = QAN.tg, on = !!(tg && tg.linked && (tg.subs || []).indexOf(top) >= 0);
+  return qSeg('qanTf', QAN_TF.map(function(x){ return [x[0], T(x[1], x[2])]; }), String(QAN.tf), 'qanTfSet')
+    + (tg && tg.err ? '' : '<button type="button" class="btn-sm qan-tg' + (on ? ' on' : '') + '" id="qanTg" onclick="qanTgTog(\'' + top + '\')" aria-pressed="' + (on ? 'true' : 'false') + '" title="' + esc(T('이 봉의 이상 움직임을 세이피 텔레그램 1:1 로 받기 (지수 · 원자재 · 주식 · 코인 주요 24종목)', 'Get this window on Telegram')) + '">'
+      + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4 3 11l6 2 2 6 3-4 5 4z"/></svg>' + esc(on ? T('텔레그램 알림 켜짐', 'Telegram on') : T('텔레그램 알림', 'Telegram alert')) + '</button>');
+}
+function qanTfSet(v){ v = +v; if (!QAN_TOPIC[v]) return; QAN.tf = v; qanSave(); if (QAN.tf >= 15 && !QAN.seeded) qanSeed();
+  try { LV.feed = qanList().slice(0, 10).map(function(e){ return { t: e.t, s: e.s, n: e.n, w: qanTfNm(e.tf), r: e.r, k: e.k, p: e.p }; }); } catch(e){}
+  var bb = $('qbdBar'); if (bb) bb.innerHTML = qbdBarHtml(); qbdRender(); try { lvAnomDraw(); } catch(e){} }
+function qanEnter(){ if (QAN.tf >= 15 && !QAN.seeded) qanSeed(); if (!QAN.tg || Date.now() - QAN.tgAt > 5 * 60000) qanTgLoad(); }
+//  고른 봉 목록이 바뀌면 다시 그림 (새로 들어온 칸 반짝) · 아니면 줄만 새로
+function qanPaint(newIn){
+  if (!$('qbdGrid')) return;
+  var cnt = document.querySelector('#qbdBar .qbd-chip[data-c="anom"] b'); if (cnt) cnt.textContent = qanList().length;
+  if (QBD.cat !== 'anom' || QBD.q) return;
+  var sig = qanList().map(function(e){ return e.s; }).join(',');
+  if (sig !== QAN.lastSig){ QAN.lastSig = sig; qbdRender(); (newIn || []).forEach(function(s){ var el = QBD.el[s]; if (el) obHl(el); }); return; }
+  Object.keys(QBD.el).forEach(function(s){ var el = QBD.el[s], e = qanGet(s); if (!el || !e) return; var q = el.querySelector('[data-qa]'); if (!q) return; var t = qanLine(e); if (q.textContent !== t){ q.textContent = t; q.parentNode.className = 'qa ' + (e.cur > 0 ? 'up' : e.cur < 0 ? 'down' : ''); } });
+}
+//  ── 텔레그램 구독 (세이피 1:1) ──
+function qanTgLoad(){
+  if (QAN.tgBusy) return Promise.resolve(QAN.tg); QAN.tgBusy = true;
+  return edgeCall('safey-telegram', { action: 'me' }).then(function(d){ QAN.tgBusy = false; QAN.tgAt = Date.now(); QAN.tg = { linked: !!(d && d.linked), subs: d && d.subs || [], on: !!(d && d.on) }; qanTgPaint(); return QAN.tg; },
+    function(){ QAN.tgBusy = false; QAN.tgAt = Date.now(); QAN.tg = { err: true, subs: [] }; qanTgPaint(); return QAN.tg; });
+}
+function qanTgPaint(){
+  var b = $('qanTg'); if (b){ var bb = $('qbdBar'), qi = $('qbdQ'); if (bb && !(qi && qi === document.activeElement)) bb.innerHTML = qbdBarHtml(); }
+  oaTgPaint();
+}
+async function qanTgTog(top){
+  if (!QAN.tg || QAN.tg.err) await qanTgLoad();
+  var tg = QAN.tg; if (!tg || tg.err){ toast(esc(T('지금은 텔레그램 설정을 불러오지 못했습니다', 'Telegram unavailable')), 3000); return; }
+  if (!tg.linked){ toast(esc(T('먼저 홈 › 세이피 텔레그램에서 내 텔레그램을 연결해 주세요 · 연결한 뒤 이 단추를 누르면 바로 켜집니다', 'Link Telegram first on Home')), 4200); return; }
+  var on = tg.subs.indexOf(top) >= 0, want = on ? tg.subs.filter(function(t){ return t !== top; }) : tg.subs.concat([top]);
+  try {
+    var r = await edgeCall('safey-telegram', { action: 'subs_set', topics: want }); tg.subs = r.subs || want;
+    if (typeof HTG !== 'undefined' && HTG.d) HTG.d.subs = tg.subs;
+    var what = top === 'opt' ? T('옵션 시장 이상 움직임', 'option anomalies') : qanTfNm(+Object.keys(QAN_TOPIC).filter(function(k){ return QAN_TOPIC[k] === top; })[0]) + T(' 봉 이상 움직임', ' unusual moves');
+    toast(esc(on ? T('텔레그램 알림을 껐습니다 · ', 'Off · ') + what : T('텔레그램 알림을 켰습니다 · ', 'On · ') + what + T(' (세이피 1:1 대화로)', '')), 3200);
+    qanTgPaint();
+  } catch(e){ toast(esc(String(e && e.message || e)), 3600); }
+}
+//  ── 이상 움직임 칸 (진단 옆) — 고른 봉 · 옵션 시장 신호 ──
+function lvAnomDraw(){
+  var box = $('lvAnom'); if (!box) return;
+  var L = qanList().slice(0, 10), O = qanOptSigs();
+  var h = '<div class="lv-ah"><span class="lv-mono">UNUSUAL MOVES</span><b>' + esc(T('이상 움직임', 'Unusual moves')) + '</b><span class="st-hint">' + esc(qanTfNm(QAN.tf) + T(' 봉', '')) + '</span></div>';
+  h += L.length ? '<ol class="lv-feed">' + L.map(function(f, i){ return '<li class="' + (f.r > 0 ? 'up' : 'down') + (i === 0 && Date.now() - f.t < 60000 ? ' new' : '') + '"><span class="t">' + qanHm(f.t) + '</span><b>' + esc(f.n) + '</b><span class="m">' + esc(qanTfNm(f.tf) + ' ' + (f.r > 0 ? '+' : '') + f.r.toFixed(2) + '%') + '</span><span class="k">' + esc(T('평소의 ', '') + lvF(f.k, 1) + T('배', 'x typical')) + '</span></li>'; }).join('') + '</ol>'
+    : '<p class="st-hint lv-quiet">' + esc(T('지금은 조용합니다 · ' + qanTfNm(QAN.tf) + ' 움직임이 평소의 4배를 넘으면 여기와 위 ‘이상 움직임’ 칸에 뜹니다 · 봉은 위 칸에서 고름', 'Quiet. Moves above 4x typical show here.')) + '</p>';
+  if (O.length) h += '<div class="lv-ah qan-oh"><span class="lv-mono">OPTIONS</span><b>' + esc(T('옵션 시장', 'Options')) + '</b></div><ol class="lv-feed qan-of">' + O.slice(0, 3).map(function(x){
+      return '<li class="' + (x.sig.side === 'buy' ? 'up' : x.sig.side === 'sell' ? 'down' : '') + '" onclick="oaGo()" onkeydown="if(event.key===\'Enter\')oaGo()" role="link" tabindex="0"><b>' + esc(x.nm) + '</b><span class="m">' + esc(x.sig.title) + '</span><span class="k">' + esc(oaLvTxt(x)) + '</span></li>'; }).join('') + '</ol>';
+  lvSwap(box, h);
+}
+function qanOptSigs(){ return (QAN.opt && QAN.opt.items || []).filter(function(x){ return x && x.sig; }); }
+function qanOptLoad(force){
+  if (QAN.optBusy || (!force && Date.now() - QAN.optAt < 5 * 60000)) return; QAN.optBusy = true; QAN.optAt = Date.now();
+  edge({ source: 'opt_anom' }).then(function(d){ QAN.optBusy = false; if (d && Array.isArray(d.items)){ QAN.opt = d; QAN.optErr = ''; } else QAN.optErr = d && d.error || ''; try { lvAnomDraw(); } catch(e){} oaDraw(); },
+    function(e){ QAN.optBusy = false; QAN.optErr = String(e && e.message || e); oaDraw(); });
+}
+
+/* ── 분석 › 파생상품 › 옵션 · 변동성: 옵션 시장 이상 움직임 카드 ── */
+function oaFp(v){ if (!(v > 0)) return '-'; return Number(v).toLocaleString('en-US', { maximumFractionDigits: v >= 1000 ? 0 : v >= 100 ? 1 : 2 }); }
+function oaPp(v, d){ return v == null || !isFinite(v) ? '-' : (v > 0 ? '+' : '') + (v * 100).toFixed(d == null ? 1 : d); }
+function oaLvTxt(x){ var s = x.sig, lv = s && s.lv; if (!lv) return '';
+  return s.side === 'buy' ? T('매수 가격대 ', 'Buy zone ') + oaFp(lv.lo) + ' ~ ' + oaFp(lv.hi) + T(' · 손절 ', ' · stop ') + oaFp(lv.stop) + T(' · 목표 ', ' · target ') + oaFp(lv.tgt)
+    : s.side === 'sell' ? T('매도 가격대 ', 'Sell zone ') + oaFp(lv.lo) + ' ~ ' + oaFp(lv.hi) + T(' · 손절 ', ' · stop ') + oaFp(lv.stop) + T(' · 목표 ', ' · target ') + oaFp(lv.tgt)
+    : T('하루 예상 범위 ', '1-day range ') + oaFp(lv.lo) + ' ~ ' + oaFp(lv.hi); }
+function oaHtml(){
+  return '<div class="card oa" id="oaCard"><div class="oa-h"><span class="lv-mono">OPTIONS ANOMALY</span><b>' + esc(T('옵션 시장 이상 움직임', 'Options market anomalies')) + '</b><span class="st-hint" id="oaSt"></span>'
+    + '<span class="oa-tgw" id="oaTgW"></span></div><div id="oaBody">' + qWait() + '</div>'
+    + '<p class="st-hint oa-ft">' + esc(T('30일 등가격 IV · 25델타 리스크 리버설 (풋 IV − 콜 IV · 플러스 = 풋이 비쌈) · 10분마다 기록 · 1시간 변화가 평소의 3배를 넘으면 신호 · 가격대 = 옵션이 말하는 하루 예상 범위의 0.5 · 1 · 2배 · 교육용 (투자 권유 아님)', '30d ATM IV · 25d risk reversal · educational, not advice')) + '</p></div>';
+}
+function oaMount(){
+  var pane = $('dvPane-opt'); if (!pane) return;
+  if (!$('oaCard')){ var first = pane.querySelector(':scope > .card'), tmp = document.createElement('div'); tmp.innerHTML = oaHtml(); var c = tmp.firstChild; if (first && first.nextSibling) pane.insertBefore(c, first.nextSibling); else pane.appendChild(c); }
+  oaDraw(); oaTgPaint(); qanOptLoad(); if (!QAN.tg) qanTgLoad();
+}
+function oaTgPaint(){
+  var w = $('oaTgW'); if (!w) return; var tg = QAN.tg; if (!tg || tg.err){ w.innerHTML = ''; return; }
+  var on = !!(tg.linked && (tg.subs || []).indexOf('opt') >= 0);
+  w.innerHTML = '<button type="button" class="btn-sm qan-tg' + (on ? ' on' : '') + '" onclick="qanTgTog(\'opt\')" aria-pressed="' + (on ? 'true' : 'false') + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4 3 11l6 2 2 6 3-4 5 4z"/></svg>' + esc(on ? T('텔레그램 알림 켜짐', 'Telegram on') : T('텔레그램 알림', 'Telegram alert')) + '</button>';
+}
+function oaDraw(){
+  var b = $('oaBody'); if (!b) return; var st = $('oaSt'), D = QAN.opt;
+  if (!D){ b.innerHTML = QAN.optErr ? '<p class="st-hint">' + esc(T('옵션 자료를 받지 못했습니다', 'Could not load')) + (typeof isOfficer === 'function' && isOfficer() ? '<span class="officer-hint"> (' + esc(QAN.optErr) + ')</span>' : '') + '</p>' : qWait(); return; }
+  if (st) st.textContent = D.at ? qanHm(Date.parse(D.at)) + T(' 기준', '') : '';
+  var I = (D.items || []).filter(function(x){ return x && x.spot > 0; }), E = (D.items || []).filter(function(x){ return x && !(x.spot > 0); }), off = typeof isOfficer === 'function' && isOfficer();
+  if (!I.length){ b.innerHTML = '<p class="st-hint">' + esc(T('옵션 자료를 받지 못했습니다', 'No data')) + '</p>'; return; }
+  var rows = I.map(function(x){
+    var ch = x.ch, s = x.sig, cls = s ? (s.side === 'buy' ? 'up' : s.side === 'sell' ? 'down' : 'nt') : '';
+    var lvl = x.z && x.z.rr90 != null ? (x.z.rr90 >= 2 ? T('풋 쏠림 극단', 'Put skew extreme') : x.z.rr90 <= -2 ? T('콜 쏠림 극단', 'Call skew extreme') : '') : '';
+    return '<tr><td><b>' + esc(x.nm) + '</b></td><td class="r" data-l="' + esc(T('현재가 · 1시간', 'Price · 1h')) + '">' + oaFp(x.spot) + (ch && ch.px != null ? '<span class="oa-s ' + (ch.px > 0 ? 'up' : ch.px < 0 ? 'down' : '') + '">' + esc((ch.px > 0 ? '+' : '') + ((Math.exp(ch.px) - 1) * 100).toFixed(2) + '%') + '</span>' : '') + '</td>'
+      + '<td class="r" data-l="' + esc(T('30일 IV · 1시간', '30d IV · 1h')) + '">' + esc((x.atm * 100).toFixed(1) + '%') + (ch ? '<span class="oa-s">' + esc(oaPp(ch.iv) + '%p') + '</span>' : '') + '</td>'
+      + '<td class="r" data-l="' + esc(T('리스크 리버설 · 1시간', 'RR · 1h')) + '">' + esc(oaPp(x.rr) + '%p') + (ch ? '<span class="oa-s">' + esc(oaPp(ch.rr) + '%p') + '</span>' : '') + '</td>'
+      + '<td>' + (s ? '<span class="oa-chip ' + cls + '">' + esc(s.title) + '</span><span class="oa-lv">' + esc(oaLvTxt(x)) + '</span>' : '<span class="st-hint">' + esc(lvl || (ch ? T('평소 범위', 'Normal') : T('기록 쌓는 중', 'Collecting'))) + '</span>') + '</td></tr>';
+  }).join('') + E.map(function(x){ return '<tr class="oa-e"><td><b>' + esc(x.nm) + '</b></td><td class="r">-</td><td class="r">-</td><td class="r">-</td><td><span class="st-hint">' + esc(T('자료를 받지 못했습니다', 'No data')) + (off && x.error ? '<span class="officer-hint"> (' + esc(x.error) + ')</span>' : '') + '</span></td></tr>'; }).join('');
+  var S = I.filter(function(x){ return x.sig; }), sum = [];
+  if (S.length) S.slice(0, 3).forEach(function(x){ sum.push(x.nm + ' · ' + x.sig.title + ' · ' + oaLvTxt(x)); });
+  else {
+    var hot = I.filter(function(x){ return x.ch; }).sort(function(a, c){ return Math.abs(c.ch.iv) - Math.abs(a.ch.iv); })[0];
+    sum.push(T('지금은 모두 평소 범위입니다 (1시간 변화가 평소의 3배를 넘으면 신호)', 'All within normal range'));
+    if (hot) sum.push(T('1시간 IV 변화가 가장 큰 곳: ', 'Biggest 1h IV change: ') + hot.nm + ' ' + oaPp(hot.ch.iv) + '%p · ' + T('리스크 리버설 ', 'RR ') + oaPp(hot.ch.rr) + '%p');
+  }
+  b.innerHTML = '<div class="scroll"><table class="q-t oa-t"><thead><tr><th>' + esc(T('기초자산', 'Underlying')) + '</th><th class="r">' + esc(T('현재가 · 1시간', 'Price · 1h')) + '</th><th class="r">' + esc(T('30일 IV · 1시간', '30d IV · 1h')) + '</th><th class="r">' + esc(T('리스크 리버설 · 1시간', 'RR · 1h')) + '</th><th>' + esc(T('신호 · 가격대', 'Signal · levels')) + '</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+    + '<ul class="oa-sum">' + sum.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+}
+function oaGo(){ if (typeof tabVisOk === 'function' && !tabVisOk('deriv')){ toast(esc(T('파생상품 화면은 지금 열 수 없습니다', 'Unavailable')), 3000); return; }
+  showTab('deriv'); setTimeout(function(){ try { if (typeof dvViewSet === 'function' && DV.view !== 'opt') dvViewSet('opt'); oaMount(); var c = $('oaCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); obHl(c); } catch(e){} }, 260); }
+
+/* ── 이어 붙이기 ── */
+(function(){
+  var wrap = function(nm, fn){ var f0 = window[nm]; if (typeof f0 !== 'function') return; window[nm] = fn(f0); };
+  //  파생상품 › 옵션 · 변동성 — 카드
+  wrap('dvViewSet', function(f0){ return function(v){ var r = f0.apply(this, arguments); try { if (DV.view === 'opt') oaMount(); } catch(e){} return r; }; });
+  wrap('initDeriv', function(f0){ return function(){ var r = f0.apply(this, arguments); try { if (typeof DV !== 'undefined' && DV.view === 'opt') setTimeout(oaMount, 0); } catch(e){} return r; }; });
+  //  텔레그램 링크 #go=optan (옵션 시장 이상 움직임)
+  if (typeof GO_TAB !== 'undefined'){ GO_TAB.optan = 'deriv'; if (typeof GO_NM !== 'undefined') GO_NM.optan = '분석 › 파생상품 › 옵션 시장 이상 움직임'; }
+  wrap('goRun', function(f0){ return async function(o){ if (o && o.t === 'optan'){ oaGo(); if (typeof goSay === 'function') goSay(o); return; } return f0.apply(this, arguments); }; });
+  //  홈 › 세이피 텔레그램 — 이상 움직임 봉 다섯을 한 줄로
+  wrap('htgRender', function(f0){ return function(){ var r = f0.apply(this, arguments); try {
+    var box = $('htgTopics'); if (!box || box.querySelector('.htg-mv')) return r;
+    var ks = ['moveone', 'movefive', 'move', 'movethirty', 'movehour'], nm = { moveone: '1분', movefive: '5분', move: '15분', movethirty: '30분', movehour: '1시간' }, labs = [];
+    ks.forEach(function(k){ var i = box.querySelector('input[value="' + k + '"]'); if (i && i.parentNode) labs.push([k, i.parentNode]); });
+    if (labs.length < 2) return r;
+    var row = document.createElement('div'); row.className = 'htg-mv'; row.innerHTML = '<span>이상 움직임 봉</span>';
+    box.insertBefore(row, labs[0][1]);
+    labs.forEach(function(x){ var lab = x[1], inp = lab.querySelector('input'); lab.textContent = ''; lab.appendChild(inp); lab.appendChild(document.createTextNode(' ' + nm[x[0]])); row.appendChild(lab); });
+  } catch(e){} return r; }; });
+  //  설정 › AI › 텔레그램 — 학회 채널 주제: 이상 움직임 = 15분 봉 · 옵션 시장 이상 움직임 더함
+  wrap('tgRender', function(f0){ return function(){ var r = f0.apply(this, arguments); try {
+    var box = $('tgTopics'), st = (typeof TG !== 'undefined' && TG.d && TG.d.settings) || {}; if (!box) return r;
+    var mv = box.querySelector('input[value="move"]'); if (mv && mv.parentNode && mv.parentNode.lastChild && mv.parentNode.lastChild.nodeType === 3) mv.parentNode.lastChild.textContent = ' 이상 움직임 (15분 봉 급등락)';
+    if (!box.querySelector('input[value="opt"]')){ var on = Array.isArray(st.alert_topics) ? st.alert_topics.indexOf('opt') >= 0 : true;
+      var lab = document.createElement('label'); lab.innerHTML = '<input type="checkbox" value="opt"' + (on ? ' checked' : '') + (st.alerts === undefined ? ' disabled' : '') + ' onchange="tgTopicsSave()"> ' + esc('옵션 시장 이상 움직임 (매수 · 매도 신호 · 가격대)'); box.appendChild(lab); }
+  } catch(e){} return r; }; });
+  //  세이피가 보는 화면 요약
+  if (typeof aicScreen === 'function'){ var a0 = aicScreen; window.aicScreen = function(){ var s = a0.apply(this, arguments); try {
+    var w = $('qbdW'); if (w && w.offsetParent){ var L = qanList(); s = (s ? s + '\n' : '') + '[실시간 전광판 · 이상 움직임 · ' + qanTfNm(QAN.tf) + ' 봉] ' + (L.length ? L.slice(0, 8).map(function(e){ return e.n + ' ' + (e.r > 0 ? '+' : '') + e.r.toFixed(2) + '% (평소의 ' + lvF(e.k, 1) + '배 · ' + qanHm(e.t) + ')'; }).join(' / ') : '지금은 없음'); }
+    var c = $('oaCard'); if (c && c.offsetParent && QAN.opt){ s = (s ? s + '\n' : '') + '[옵션 시장 이상 움직임] ' + (QAN.opt.items || []).filter(function(x){ return x.spot > 0; }).map(function(x){ return x.nm + ' IV ' + (x.atm * 100).toFixed(1) + '% · RR ' + oaPp(x.rr) + '%p' + (x.sig ? ' · ' + x.sig.title + ' · ' + oaLvTxt(x) : ''); }).join(' / '); }
+  } catch(e){} return s; }; }
+})();
+
+/* ══════════ (23차) 마켓 맵 ETF — 학회장: ‘마켓 맵에 etf 실시간 24시간으로 움직여야돼 - 호가창처럼 · etf 구성이 있을 거 아니야 · 완전 지수 추종은 아니잖아 ·
+   구성도 볼 수 있으면 (비율도) · 파이그래프로? · 아래 구성 종목 리스트도’
+   ① 미국 정규장이 닫힌 때 (평일 장 마감 뒤 · 장 열기 전 · 주말 · 연휴) — 같은 기호 24시간 선물이 있으면 그 값 · 없으면 같은 기초자산 24시간 선물
+      (S&P 500 · 나스닥 100 · 다우 · 금 · 은 · 원유 · 천연가스 · 구리 · 백금 · 팔라듐) 의 ‘정규장 마감 대비’ 로 칸 등락 · 색이 체결마다 움직임
+      · 기초자산 선물로 셀 때 가격은 ETF 마지막 체결 그대로 · 등락만 선물 (지어내지 않음) · 칸 설명에 무엇으로 셌는지
+      · 정규장 중은 22차 그대로 (같은 기호 선물 · 전 거래일 마감 대비) · 주말 · 연휴에 같은 기호 선물이 있으면 12차 그대로
+   ② ETF 칸을 누르면 구성 창 — SEC N-PORT 보유 내역 (분기 공시 · 약 60일 늦음) · 파이 (상위 8 + 기타) · 구성 종목 표 (비중 · 평가액 · 나라) · ‘가격 차트에 올리기’    */
+var ET_PROXY = { SPY: ['SPX', 'SP500', 'US500'], VOO: ['SPX', 'SP500', 'US500'], IVV: ['SPX', 'SP500', 'US500'], QQQ: ['NDX', 'NAS100', 'US100'], DIA: ['DJI', 'US30'],
+  GLD: ['XAU'], IAU: ['XAU'], SLV: ['XAG'], USO: ['CL', 'WTI'], BNO: ['BZ', 'BRENT'], UNG: ['NG', 'NATGAS'], CPER: ['HG', 'COPPER'], PPLT: ['XPT', 'PLATINUM'], PALL: ['XPD', 'PALLADIUM'] };
+var ET_KNOWN = ['SPY', 'QQQ', 'DIA', 'IWM', 'VOO', 'VTI', 'IVV', 'XLK', 'XLF', 'XLE', 'XLV', 'XLY', 'XLP', 'XLI', 'XLB', 'XLU', 'XLRE', 'XLC', 'SMH', 'SOXX', 'ARKK', 'TLT', 'IEF', 'HYG', 'LQD',
+  'EEM', 'EFA', 'VEA', 'VWO', 'GDX', 'GDXJ', 'KWEB', 'FXI', 'MCHI', 'INDA', 'EWY', 'EWJ', 'EWZ', 'EWT', 'EWG', 'EWU', 'EWA', 'EWC', 'EWW', 'EWH', 'EWS', 'EWL', 'EWQ', 'EWP', 'EWI', 'EWN', 'EZA',
+  'TUR', 'KSA', 'VNM', 'EPOL', 'THD', 'EIDO', 'EPHE', 'EWM', 'ECH', 'GLD', 'IAU', 'SLV', 'USO', 'BNO', 'UNG', 'CPER', 'DBA', 'CORN', 'SOYB', 'WEAT', 'CANE', 'PPLT', 'PALL', 'URA', 'LIT'];
+//  ── ① 장 밖 24시간 ──
+function etProxy(sym, d){
+  var L = ET_PROXY[sym]; if (!L) return null; var bn = {};
+  (d.groups || []).forEach(function(g){ (g.items || []).forEach(function(x){ if (x.src === 'bn') bn[x.s] = x.__o ? { s: x.s, n: x.n, p: x.__o.p, cl: x.__o.cl, at: x.__o.at } : x; }); });
+  for (var i = 0; i < L.length; i++) for (var j = 0; j < 2; j++){ var it = bn[L[i] + (j ? 'USDC' : 'USDT')]; if (it && it.p > 0) return { s: it.s, n: String(it.n || '').replace(/\s*\(24시간\)/, ''), p: it.p, cl: it.cl, at: it.at }; }
+  return null;
+}
+function mkOffPerp(d){
+  if (!d || !Array.isArray(d.groups) || typeof mklSess !== 'function' || mklSess('US')) return;
+  var W = mkWkRef('US'), ts = W ? W.ts : mklCloseTs('US'); if (!ts) return;
+  d.groups.forEach(function(g){
+    if (g.k === 'rate' || g.k === 'fx' || g.k === 'crypto' || g.k === 'idx') return;
+    (g.items || []).forEach(function(x){
+      if (x.src !== 'alp' || /\//.test(String(x.s)) || x.pfw || (x.mk || 'US') !== 'US') return;
+      var same = !!(x.pf && x.pf.s), P = same ? x.pf : etProxy(String(x.s).toUpperCase(), d); if (!P || !P.s) return;
+      var X = LV.px[P.s], live = !!(X && X.p > 0 && Date.now() - X.t < 15 * 60000);
+      if (!live && (P.cl || !(P.p > 0))) return;
+      var pN = live ? X.p : P.p, ref = mkBnRefGet(P.s, ts); if (!(ref > 0) || !(pN > 0)) return;
+      if (!x.__o) x.__o = { p: x.p, c: x.c, cl: x.cl, at: x.at };
+      x.c = (pN / ref - 1) * 100; x.p = same ? pN : x.__o.p; x.cl = false; x.at = live ? new Date(X.t).toISOString() : (P.at || x.__o.at);
+      x.pfw = { ts: ts, fri: !!(W && W.fri), off: !W, s: P.s, px: same ? '' : P.n };
+    });
+  });
+}
+//  ── ② 구성 창 ──
+var ETF = { mem: {}, busy: {}, sym: '', all: false, q: '', tick: 0, ret: null };
+var ET_CC = { US: '미국', KR: '한국', JP: '일본', CN: '중국', TW: '대만', HK: '홍콩', GB: '영국', DE: '독일', FR: '프랑스', NL: '네덜란드', CH: '스위스', IE: '아일랜드', CA: '캐나다', AU: '호주', IN: '인도',
+  BR: '브라질', MX: '멕시코', SG: '싱가포르', SE: '스웨덴', DK: '덴마크', IT: '이탈리아', ES: '스페인', BE: '벨기에', FI: '핀란드', NO: '노르웨이', ZA: '남아공', SA: '사우디', IL: '이스라엘', KY: '케이맨 제도', BM: '버뮤다', LU: '룩셈부르크', JE: '저지' };
+function etIsEtf(sym){
+  sym = String(sym || '').toUpperCase(); if (!sym) return false;
+  if (ET_KNOWN.indexOf(sym) >= 0 || ET_PROXY[sym]) return true;
+  var d = typeof MK !== 'undefined' && MK.snap, hit = false;
+  if (d && d.groups) d.groups.forEach(function(g){ if (g.k === 'usidx' || g.k === 'cmd') (g.items || []).forEach(function(x){ if (x.src === 'alp' && String(x.s).toUpperCase() === sym) hit = true; }); });
+  if (!hit && d && d.ctry) Object.keys(d.ctry).forEach(function(c){ if (d.ctry[c] && String(d.ctry[c].etf || '').toUpperCase() === sym) hit = true; });
+  return hit;
+}
+function etItem(sym){ var d = typeof MK !== 'undefined' && MK.snap, it = null; if (d && d.groups) d.groups.forEach(function(g){ (g.items || []).forEach(function(x){ if (!it && x.src === 'alp' && String(x.s).toUpperCase() === sym) it = x; }); }); return it; }
+function etUsd(v){ if (!(v > 0)) return '-'; return v >= 1e12 ? '$' + (v / 1e12).toFixed(2) + '조' : v >= 1e8 ? '$' + Math.round(v / 1e8).toLocaleString('en-US') + '억' : v >= 1e4 ? '$' + Math.round(v / 1e4).toLocaleString('en-US') + '만' : '$' + Math.round(v).toLocaleString('en-US'); }
+function etPct(v, d){ return v == null || !isFinite(v) ? '-' : Number(v).toFixed(d == null ? 2 : d) + '%'; }
+function etOpen(sym, src){
+  sym = String(sym || '').toUpperCase(); ETF.sym = sym; ETF.all = false; ETF.q = ''; ETF.src = src || 'quote_us';
+  var ov = $('etfDlg');
+  if (!ov){ ov = document.createElement('div'); ov.id = 'etfDlg'; ov.className = 'et-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-labelledby', 'etfTitle');
+    ov.onclick = function(e){ if (e.target === ov) etClose(); }; document.body.appendChild(ov);
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && $('etfDlg') && !$('etfDlg').classList.contains('hidden')) etClose(); }); }
+  ETF.ret = document.activeElement;
+  ov.classList.remove('hidden'); document.body.classList.add('et-open');
+  ov.innerHTML = '<div class="et-box card"><div class="et-h"><div class="et-t"><span class="lv-mono">ETF HOLDINGS</span><b id="etfTitle">' + esc(sym) + '</b><span class="et-q" id="etfQ"></span></div>'
+    + '<button type="button" class="btn-sm" onclick="etChart()">' + esc(T('가격 차트에 올리기', 'Add to price chart')) + '</button><button type="button" class="et-x" onclick="etClose()" aria-label="' + esc(T('닫기', 'Close')) + '">×</button></div>'
+    + '<div id="etfBody">' + qWait() + '</div></div>';
+  etQuote(); clearInterval(ETF.tick); ETF.tick = setInterval(function(){ if (!$('etfDlg') || $('etfDlg').classList.contains('hidden')){ clearInterval(ETF.tick); return; } etQuote(); }, 1000);
+  var x = ov.querySelector('.et-x'); if (x) x.focus();
+  var M = ETF.mem[sym]; if (M){ etDraw(M); return; }
+  if (ETF.busy[sym]) return; ETF.busy[sym] = true;
+  edge({ source: 'etf_hold', code: sym }).then(function(d){ ETF.busy[sym] = false; if (d && (d.kind || Array.isArray(d.holdings))) ETF.mem[sym] = d; if (ETF.sym === sym) etDraw(d || {}); },
+    function(e){ ETF.busy[sym] = false; if (ETF.sym === sym) etDraw({ error: String(e && e.message || e) }); });
+}
+function etClose(){ var ov = $('etfDlg'); if (ov){ ov.classList.add('hidden'); ov.innerHTML = ''; } document.body.classList.remove('et-open'); clearInterval(ETF.tick); try { if (QCH.etPie){ QCH.etPie.dispose(); delete QCH.etPie; } } catch(e){} try { if (ETF.ret && ETF.ret.focus) ETF.ret.focus(); } catch(e){} }
+function etChart(){ var s = ETF.sym, src = ETF.src; etClose(); if (typeof ETF.pick0 === 'function') ETF.pick0(src, s); }
+//  머리 줄 지금 가격 (마켓 맵 칸과 같은 값 · 장 밖이면 24시간 선물 기준)
+function etQuote(){
+  var q = $('etfQ'); if (!q) return; var x = etItem(ETF.sym); if (!x || x.p == null){ q.innerHTML = ''; return; }
+  var h = '<b>' + esc(mkPx(x.p, x.s)) + '</b><b class="' + (x.c > 0 ? 'up' : x.c < 0 ? 'down' : '') + '">' + esc(mkChg(x.c)) + '</b>'
+    + '<span class="st-hint">' + esc(x.pfw ? mkPerpBasis(x.pfw) : x.cl ? T('장 닫힘 (마지막 값)', 'closed') : T('전 거래일 종가 대비', 'vs prior close')) + '</span>';
+  if (q.__h !== h){ q.__h = h; q.innerHTML = h; }
+}
+function etDraw(d){
+  var b = $('etfBody'); if (!b) return; var off = typeof isOfficer === 'function' && isOfficer();
+  if (d.name){ var t = $('etfTitle'); if (t) t.innerHTML = esc(ETF.sym) + ' <span class="et-nm">' + esc(d.name) + '</span>'; }
+  if (d.kind === 'commodity'){ b.innerHTML = '<p class="et-msg">' + esc(T('이 ETF 는 ' + d.what + ' 을 담는 상품이라 주식 구성 종목이 없습니다. 가격은 담은 상품 값을 따라 움직입니다.', 'This ETF holds ' + d.what + ', not stocks.')) + '</p>'; return; }
+  var H = Array.isArray(d.holdings) ? d.holdings : [];
+  if (d.kind !== 'fund' || !H.length){ b.innerHTML = '<p class="et-msg">' + esc(T('구성 자료를 받지 못했습니다', 'Could not load holdings')) + (off && d.error ? '<span class="officer-hint"> (' + esc(d.error) + ')</span>' : '') + '</p>'; return; }
+  var top = H.slice(0, 8), rest = Math.max(0, (d.tot || H.reduce(function(s, x){ return s + (x.w || 0); }, 0)) - top.reduce(function(s, x){ return s + x.w; }, 0));
+  var cty = (d.cty || []).slice(0, 6).map(function(c){ return esc(ET_CC[c[0]] || c[0]) + ' ' + etPct(c[1], 1); }).join(' · ');
+  b.innerHTML = '<div class="et-k">'
+      + '<div><span>' + esc(T('구성 종목', 'Holdings')) + '</span><b>' + Number(d.n || H.length).toLocaleString('en-US') + T('개', '') + '</b></div>'
+      + '<div><span>' + esc(T('상위 10개 비중', 'Top 10 weight')) + '</span><b>' + etPct(d.top10, 1) + '</b></div>'
+      + '<div><span>' + esc(T('순자산', 'Net assets')) + '</span><b>' + etUsd(d.net) + '</b></div>'
+      + '<div><span>' + esc(T('공시 기준일', 'As of')) + '</span><b>' + esc(d.asof || '-') + '</b></div></div>'
+    + '<div class="et-two"><div class="et-ch" id="etPie" role="img" aria-label="' + esc(T('상위 8개 종목과 기타 비중 파이', 'Top 8 holdings pie')) + '"></div><ol class="et-lg" id="etLg"></ol></div>'
+    + (cty ? '<p class="et-cty"><b>' + esc(T('나라', 'Country')) + '</b> ' + cty + '</p>' : '')
+    + '<div class="et-tl"><b>' + esc(T('구성 종목', 'Holdings')) + '</b><input type="search" id="etfS" placeholder="' + esc(T('이름 · 기호 찾기', 'Search')) + '" oninput="etSearch(this.value)" aria-label="' + esc(T('구성 종목 찾기', 'Search holdings')) + '"></div>'
+    + '<div class="scroll et-sc"><table class="q-t et-tb"><thead><tr><th class="r">#</th><th>' + esc(T('종목', 'Name')) + '</th><th class="r">' + esc(T('비중', 'Weight')) + '</th><th class="r">' + esc(T('평가액', 'Value')) + '</th><th>' + esc(T('나라', 'Country')) + '</th></tr></thead><tbody id="etfRows"></tbody></table></div>'
+    + '<div class="et-more" id="etfMore"></div>'
+    + '<p class="st-hint et-ft">' + esc(T('출처: SEC N-PORT (펀드 보유 내역 공시 · 분기마다 · 약 60일 늦게 공개) · 공시 ' + (d.filed || '-') + ' · 비중 = 순자산 대비 % (현금 · 파생 · 빌려준 주식 담보가 있어 합이 100% 와 조금 다를 수 있음)', 'Source: SEC N-PORT (quarterly, ~60-day lag)')) + '</p>';
+  etRows(); etPie(top, rest);
+}
+function etRows(){
+  var d = ETF.mem[ETF.sym], tb = $('etfRows'); if (!d || !tb) return;
+  var q = String(ETF.q || '').trim().toLowerCase(), H = d.holdings.map(function(x, i){ return [x, i]; });
+  if (q) H = H.filter(function(p){ return (p[0].n + ' ' + (p[0].t || '')).toLowerCase().indexOf(q) >= 0; });
+  var L = q || ETF.all ? H : H.slice(0, 50);
+  tb.innerHTML = L.map(function(p){ var x = p[0]; return '<tr><td class="r et-i">' + (p[1] + 1) + '</td><td class="et-n"><b>' + esc(x.n) + '</b>' + (x.t ? '<span>' + esc(x.t) + '</span>' : '') + '</td><td class="r"><b>' + etPct(x.w, 2) + '</b></td><td class="r">' + etUsd(x.v) + '</td><td>' + esc(ET_CC[x.cc] || x.cc || '-') + '</td></tr>'; }).join('')
+    || '<tr><td colspan="5" class="st-hint">' + esc(T('맞는 종목이 없습니다', 'No match')) + '</td></tr>';
+  var m = $('etfMore'); if (m) m.innerHTML = !q && d.holdings.length > 50 ? '<button type="button" class="btn-sm" onclick="etAll()">' + esc(ETF.all ? T('50개만 보기', 'Show 50') : T('모두 보기 (' + d.holdings.length + '개)', 'Show all')) + '</button>'
+    + (d.n > d.holdings.length ? '<span class="st-hint"> ' + esc(T('비중 큰 ' + d.holdings.length + '개까지', 'Top ' + d.holdings.length)) + '</span>' : '') : '';
+}
+function etAll(){ ETF.all = !ETF.all; etRows(); }
+function etSearch(v){ clearTimeout(etSearch.t); etSearch.t = setTimeout(function(){ ETF.q = String(v || ''); etRows(); }, 150); }
+function etPie(top, rest){
+  var ch = qChart('etPie'); if (!ch) return;
+  var gray = qDark() ? '#5b6478' : '#a3abbd', data = top.map(function(x, i){ return { name: x.t || x.n, full: x.n, value: Math.round(x.w * 100) / 100, itemStyle: { color: qPal(i) } }; });
+  if (rest > 0.05) data.push({ name: T('기타', 'Other'), full: T('나머지 종목 · 현금 등', 'Others'), value: Math.round(rest * 100) / 100, itemStyle: { color: gray } });
+  ch.setOption({ animation: false, tooltip: { trigger: 'item', confine: true, formatter: function(p){ return esc(p.data.full) + '<br><b>' + p.value.toFixed(2) + '%</b>'; } },
+    series: [{ type: 'pie', radius: ['48%', '78%'], center: ['50%', '50%'], avoidLabelOverlap: true, padAngle: 1, itemStyle: { borderColor: qDark() ? '#1b2131' : '#ffffff', borderWidth: 2, borderRadius: 3 },
+      label: { show: false }, emphasis: { scale: true, scaleSize: 4 }, data: data }] }, true);
+  var lg = $('etLg'); if (lg) lg.innerHTML = data.map(function(x){ return '<li><i style="background:' + x.itemStyle.color + '"></i><span title="' + esc(x.full) + '">' + esc(x.full) + '</span><b>' + x.value.toFixed(2) + '%</b></li>'; }).join('');
+}
+
+/* ── 이어 붙이기 ── */
+(function(){
+  var wrap = function(nm, fn){ var f0 = window[nm]; if (typeof f0 !== 'function') return; window[nm] = fn(f0); };
+  wrap('mkSnapPerp', function(f0){ return function(d){ var r = f0.apply(this, arguments); try { mkOffPerp(d); } catch(e){} return r; }; });
+  wrap('mkPerpBasis', function(f0){ return function(W){
+    if (W && W.off) return T('정규장 마감 대비 · 24시간 선물 (실시간)', 'vs regular close · 24h perp (live)') + (W.px ? T(' · ' + W.px + ' 선물로 셈', ' · via ' + W.px + ' perp') : '');
+    var r = f0.apply(this, arguments); return W && W.px ? r + T(' · ' + W.px + ' 선물로 셈', ' · via ' + W.px + ' perp') : r; }; });
+  wrap('mkPick', function(f0){ ETF.pick0 = f0; return function(src, sym){ if (src === 'quote_us' && etIsEtf(sym)){ etOpen(sym, src); return; } return f0.apply(this, arguments); }; });
+  if (typeof themeHook === 'function') themeHook(function(){ try { var d = ETF.mem[ETF.sym]; if (d && $('etPie') && d.kind === 'fund'){ var H = d.holdings, top = H.slice(0, 8), rest = Math.max(0, (d.tot || 0) - top.reduce(function(s, x){ return s + x.w; }, 0)); etPie(top, rest); } } catch(e){} });
+  if (typeof aicScreen === 'function'){ var a0 = aicScreen; window.aicScreen = function(){ var s = a0.apply(this, arguments); try {
+    var ov = $('etfDlg'), d = ETF.mem[ETF.sym]; if (ov && !ov.classList.contains('hidden') && d && d.kind === 'fund') s = (s ? s + '\n' : '') + '[ETF 구성 · ' + ETF.sym + (d.name ? ' ' + d.name : '') + ' · 기준일 ' + (d.asof || '-') + '] 종목 ' + d.n + '개 · 상위 10개 ' + etPct(d.top10, 1) + ' · ' + d.holdings.slice(0, 10).map(function(x){ return (x.t || x.n) + ' ' + etPct(x.w, 2); }).join(' / ');
+  } catch(e){} return s; }; }
+})();
+
+/* ══════════ (23차) 설정 › AI › 세이피 명령어 — 학회장: ‘설정에 세이피 커맨드 정리해놓은거 보여줘’
+   · 텔레그램 세이피 (1:1) · 터미널 세이피 (대화창) · 임원진 (텔레그램) 셋으로 나눔 · 명령을 누르면 복사 · 찾기
+   · 목록은 safey-telegram 도움말 (HELP · SUB_HELP) · ai-chat 안내와 같은 말만 (없는 명령을 지어 쓰지 않음)                    */
+var CMD_V = [['tg', '텔레그램 세이피'], ['term', '터미널 세이피'], ['off', '임원진']];
+var CMD_G = {
+  tg: [['연결 · 도움말', [['/link 123456', '터미널 계정 연결 (홈 › 세이피 텔레그램에서 받은 6자리 코드)'], ['/help', '쓸 수 있는 말 보기']]],
+    ['알림 구독', [['/sub 전체', '알림 모두 켜기 (1분 · 5분 · 30분 · 1시간 봉은 빼고)'], ['/sub 물류 페어', '고른 주제만 켜기'], ['/unsub 속보', '주제 끄기'], ['/subs', '지금 구독 보기']]],
+    ['이상 움직임 · 옵션 시장', [['이상 움직임 5분 봉 알림 켜줘', '말로 켜기 (1분 · 5분 · 15분 · 30분 · 1시간)'], ['1분 봉 알림 꺼줘', '말로 끄기'], ['/sub 1분 15분', '명령으로 봉 구독 (여러 개 같이)'],
+      ['옵션 시장 신호 알림 켜줘', '옵션 시장 매수 · 매도 신호 · 가격대 (/sub 옵션)']]],
+    ['브리핑', [['/logi', '물류 브리핑 (해협 통과 선박)'], ['/heat', '시장 히트맵 (업종 등락)'], ['/signal', '자동매매 시장 신호'], ['/report 엔비디아', 'AI 리포트 요약 (없으면 만들기 링크)']]],
+    ['모의투자 주문 (내 팀)', [['엔비디아 50주 매수해줘', '말로 주문 → 미리보기 → 확인 단추 (2분 안)'], ['/buy NVDA 50', '명령으로 매수'], ['/sell 삼성전자 10', '명령으로 매도']]],
+    ['묻기', [['오늘 시장 어때?', '아무 말이나 (자료 숫자로만 답함)'], ['/ask 질문', '명령으로 묻기 (하루 20번)']]]],
+  term: [['화면 열기', [['반도체 밸류체인 열어줘', '그 화면으로 바로 이동'], ['중국 시장이랑 반도체 밸류체인 같이', '여러 화면을 탭으로 함께'], ['한국 일본 비교해 줘', '나라 2~4개 비교'], ['원유 · 구리 · 리튬 한 번에', '원자재 여러 개 함께']]],
+    ['분석', [['오늘 시장 어때?', '지금 화면 숫자로 설명'], ['밸류에이션 설명해줘', '밸류에이션 탭의 가정 · 방법별 적정주가']]],
+    ['텔레그램', [['텔레그램 방 들어가고 싶어', '들어가기 단추 (임원진은 임원진 그룹 · 봇 1:1 도)'], ['학회 채널에 오늘 세미나 공지 보내 줘', '임원진: 미리보기 카드 → ‘보내’ · ‘취소’ · 48시간 안 되돌리기']]],
+    ['개발 요청 (임원진)', [['차트 이름표 겹침 고쳐줘', '‘~ 고쳐줘 · 만들어줘’ → 개발 요청 카드 → 개발 요청 보내기']]]],
+  off: [['방 · 상태', [['/whereami', '이 대화방 번호'], ['/setchannel all 번호', '학회 전체 채널 등록 (ops = 임원진 그룹)'], ['/status', '보내는 곳 · 최근 보낸 글'], ['/golive on', '학회 전체 채널로 보내기 (off = 시험 중 · 임원진 그룹으로)']]],
+    ['브리핑 미리보기', [['/brief', '아침 브리핑'], ['/weekly', '주간 요약'], ['/weekend', '주말 브리핑']]],
+    ['개발 요청', [['세이피, 차트 겹침 고쳐줘', '임원진 그룹에서 말로 → 개발 요청 카드'], ['/dev 내용', '명령으로 요청'], ['/devs', '최근 요청 보기']]]]
+};
+var CMD_TOPIC = [['물류 · 해협', '해협 · 물류'], ['페어', '페어 트레이딩 신호'], ['일드커브 · 금리', '금리차 역전 · 급변'], ['경제지표', '지표 쇼크'], ['속보 · 뉴스', '속보'], ['히트맵 · 시장', '시장 급변'],
+  ['급등락 · 이상', '이상 움직임 15분 봉'], ['1분 · 5분 · 30분 · 1시간', '그 봉의 이상 움직임'], ['옵션 · 스큐', '옵션 시장 신호'], ['팀 · 매매', '우리 팀 체결'], ['파인더 · 리스크 · 기회', '숨은 리스크 · 기회'], ['연준 · FOMC', '연준 성명 · 발언']];
+var CMD = { v: 'tg', q: '' };
+try { var _cv = LSX.getItem('safe_cmd_v1'); if (_cv && CMD_G[_cv]) CMD.v = _cv; } catch(e){}
+function cmdHtml(){
+  return '<div class="card cmd" id="cmdCard"><h2>세이피 명령어<span class="tools"><input type="search" class="cmd-q" id="cmdQ" placeholder="명령 찾기" oninput="cmdQ(this.value)" aria-label="세이피 명령 찾기"></span></h2>'
+    + '<p class="st-hint cmd-lead">명령을 누르면 복사됩니다 · 텔레그램은 세이피 봇과의 1:1 대화에서 · 터미널은 오른쪽 아래 세이피 대화창에서</p>'
+    + qSeg('cmdSeg', CMD_V, CMD.v, 'cmdView') + '<div id="cmdBody"></div></div>';
+}
+function cmdView(v){ if (!CMD_G[v]) return; CMD.v = v; try { LSX.setItem('safe_cmd_v1', v); } catch(e){} qoSeg('cmdSeg', v); cmdDraw(); }
+function cmdQ(v){ clearTimeout(cmdQ.t); cmdQ.t = setTimeout(function(){ CMD.q = String(v || '').trim().toLowerCase(); cmdDraw(); }, 120); }
+function cmdDraw(){
+  var b = $('cmdBody'); if (!b) return;
+  var q = CMD.q, keys = q ? CMD_V.map(function(x){ return x[0]; }) : [CMD.v], h = '', n = 0;
+  var seg = $('cmdSeg'); if (seg) seg.classList.toggle('dim', !!q);
+  keys.forEach(function(k){
+    CMD_G[k].forEach(function(g){
+      var rows = g[1].filter(function(r){ return !q || (r[0] + ' ' + r[1] + ' ' + g[0]).toLowerCase().indexOf(q) >= 0; }); if (!rows.length) return; n += rows.length;
+      h += '<div class="cmd-g"><h4>' + esc(g[0]) + (q ? '<span class="st-hint"> · ' + esc(CMD_V.filter(function(x){ return x[0] === k; })[0][1]) + '</span>' : '') + '</h4>'
+        + rows.map(function(r){ return '<div class="cmd-r"><button type="button" class="cmd-c' + (r[0].charAt(0) === '/' ? ' m' : '') + '" onclick="cmdCopy(this)" title="눌러서 복사">' + esc(r[0]) + '</button><span>' + esc(r[1]) + '</span></div>'; }).join('') + '</div>';
+    });
+  });
+  if (!q && CMD.v === 'tg') h += '<div class="cmd-g cmd-tp"><h4>/sub · /unsub 뒤에 쓰는 주제</h4><div class="cmd-chips">' + CMD_TOPIC.map(function(t){ return '<span class="cmd-chip" title="' + esc(t[1]) + '">' + esc(t[0]) + '</span>'; }).join('') + '</div></div>';
+  b.innerHTML = h ? '<div class="cmd-grid">' + h + '</div>' : '<p class="st-hint">맞는 명령이 없습니다</p>';
+  if (q && !n) b.innerHTML = '<p class="st-hint">맞는 명령이 없습니다</p>';
+}
+function cmdCopy(el){
+  var t = el.textContent, done = function(){ toast('복사했습니다 · ' + esc(t), 1800); el.classList.add('ok'); setTimeout(function(){ el.classList.remove('ok'); }, 900); };
+  try { if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done, function(){ cmdCopy0(t); done(); }); return; } } catch(e){}
+  cmdCopy0(t); done();
+}
+function cmdCopy0(t){ try { var a = document.createElement('textarea'); a.value = t; a.setAttribute('readonly', ''); a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); } catch(e){} }
+function cmdMount(){
+  var p = $('adPane-ai'); if (!p) return;
+  if (!$('cmdCard')){ var tmp = document.createElement('div'); tmp.innerHTML = cmdHtml(); p.insertBefore(tmp.firstChild, p.firstChild); }
+  cmdDraw();
+}
+(function(){
+  var wrap = function(nm, fn){ var f0 = window[nm]; if (typeof f0 !== 'function') return; window[nm] = fn(f0); };
+  wrap('adTab', function(f0){ return function(w){ var r = f0.apply(this, arguments); try { if (adView === 'ai') cmdMount(); } catch(e){} return r; }; });
+  //  홈 › 세이피 텔레그램 카드의 ‘쓰는 말’ 에도 새 알림 두 줄
+  if (typeof HTG_CMDS !== 'undefined' && Array.isArray(HTG_CMDS) && !HTG_CMDS.some(function(c){ return /이상 움직임/.test(c[0]); })){
+    var at = HTG_CMDS.length - 1; HTG_CMDS.splice(at, 0, ['이상 움직임 5분 봉 알림 켜줘', '이상 움직임 알림 (1분 · 5분 · 15분 · 30분 · 1시간 봉)'], ['옵션 시장 신호 알림 켜줘', '옵션 시장 매수 · 매도 신호 · 가격대']); }
+  if (typeof aicScreen === 'function'){ var a0 = aicScreen; window.aicScreen = function(){ var s = a0.apply(this, arguments); try {
+    var c = $('cmdCard'); if (c && c.offsetParent) s = (s ? s + '\n' : '') + '[설정 › AI › 세이피 명령어 · ' + CMD_V.filter(function(x){ return x[0] === CMD.v; })[0][1] + '] ' + CMD_G[CMD.v].map(function(g){ return g[0] + ': ' + g[1].map(function(r){ return r[0]; }).join(' · '); }).join(' / ');
+  } catch(e){} return s; }; }
 })();
 
 /*>>23차*/
