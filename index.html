@@ -64508,7 +64508,9 @@ var CMD_G = {
     ['묻기', [['오늘 시장 어때?', '아무 말이나 (자료 숫자로만 답함)'], ['/ask 질문', '명령으로 묻기 (하루 20번)']]]],
   term: [['화면 열기', [['반도체 밸류체인 열어줘', '그 화면으로 바로 이동'], ['중국 시장이랑 반도체 밸류체인 같이', '여러 화면을 탭으로 함께'], ['한국 일본 비교해 줘', '나라 2~4개 비교'], ['원유 · 구리 · 리튬 한 번에', '원자재 여러 개 함께']]],
     ['분석', [['오늘 시장 어때?', '지금 화면 숫자로 설명'], ['밸류에이션 설명해줘', '밸류에이션 탭의 가정 · 방법별 적정주가']]],
-    ['텔레그램', [['텔레그램 방 들어가고 싶어', '들어가기 단추 (임원진은 임원진 그룹 · 봇 1:1 도)'], ['학회 채널에 오늘 세미나 공지 보내 줘', '임원진: 미리보기 카드 → ‘보내’ · ‘취소’ · 48시간 안 되돌리기']]],
+    ['더 깊이 이동', [['설정 열어줘', '임원진: 설정 › AI (세이피 명령어 · 텔레그램)'], ['전광판 이상 움직임 1시간 봉 보여줘', '퀀트 › 호가창 전광판 · 이상 움직임 칸 · 봉'], ['SPY 구성 보여줘', 'ETF 구성 창 (파이 · 구성 종목)'], ['옵션 시장 이상 움직임 보여줘', '파생상품 › 옵션 · 변동성 카드']]],
+    ['텔레그램', [['텔레그램 방 들어가고 싶어', '들어가기 단추 (임원진은 임원진 그룹 · 봇 1:1 도)'], ['학회 채널에 오늘 세미나 공지 보내 줘', '임원진: 바로 보냄 (초안 써 봐 = 미리보기 카드만)'], ['되돌려', '방금 보낸 텔레그램 글 지우기 (48시간 안)'],
+      ['이상 움직임 5분 봉 알림 켜줘', '내 텔레그램 알림 켜기 · 끄기 (연결한 학회원 누구나)']]],
     ['개발 요청 (임원진)', [['차트 이름표 겹침 고쳐줘', '‘~ 고쳐줘 · 만들어줘’ → 개발 요청 카드 → 개발 요청 보내기']]]],
   off: [['방 · 상태', [['/whereami', '이 대화방 번호'], ['/setchannel all 번호', '학회 전체 채널 등록 (ops = 임원진 그룹)'], ['/status', '보내는 곳 · 최근 보낸 글'], ['/golive on', '학회 전체 채널로 보내기 (off = 시험 중 · 임원진 그룹으로)']]],
     ['브리핑 미리보기', [['/brief', '아침 브리핑'], ['/weekly', '주간 요약'], ['/weekend', '주말 브리핑']]],
@@ -64560,6 +64562,224 @@ function cmdMount(){
   if (typeof aicScreen === 'function'){ var a0 = aicScreen; window.aicScreen = function(){ var s = a0.apply(this, arguments); try {
     var c = $('cmdCard'); if (c && c.offsetParent) s = (s ? s + '\n' : '') + '[설정 › AI › 세이피 명령어 · ' + CMD_V.filter(function(x){ return x[0] === CMD.v; })[0][1] + '] ' + CMD_G[CMD.v].map(function(g){ return g[0] + ': ' + g[1].map(function(r){ return r[0]; }).join(' · '); }).join(' / ');
   } catch(e){} return s; }; }
+})();
+
+/* ══════════ (23차) 말로 대화 — 학회장: ‘질문을 하면 질문이 아닌 statement 로 받아들임 · 말을 다 끝냈는데 여유롭게 하니까 더 기다려야 됨 ·
+   숫자나 수학 기호들을 잘 못 읽어 밸류에이션 설명이 혼란스러움 · 대화가 아닌 느낌 · 말로 대화하면 터미널 어디든 이동 · 텔레그램에 뭐 보내라 그러면 다 해주는걸로’
+   ① 말 끝 자동 감지 (새 기본값 ‘자동’) — 들은 글의 끝 말투로: 묻거나 끝난 말투 (~까 · ~요 · 어때 · ~줘) 면 1초 남짓 · 이어질 말투 (그리고 · 근데 · ~하고 · ~는데 · 음) 면 8초 · 모르면 2.6초
+   ② 질문 표시 — 말로 받은 글 끝이 묻는 말투이거나 의문사 (뭐 · 왜 · 어떻게 · 얼마 …) 가 있고 부탁 (~줘) 이 아니면 물음표를 붙여 보냄 · 서버도 ‘부호가 빠졌으니 애매하면 질문’ 으로 봄
+   ③ 보낼 때 짧은 신호음 (들었다는 표시)
+   ④ 읽기 사전 — 숫자를 한국어로 풀어 읽음 (12.3 → 십이 점 삼 · 3개 → 세 개 · 6월 → 유월) · 날짜 · 시각 · 분기 · 분수 · 수식 기호 (× ÷ = ≈ ≥ ≤ ^ √) · 금융 약어 (PER 퍼 · EV/EBITDA 이브이 에비타 …)
+   ⑤ 어디든 이동 — 설정 (임원진) · 전광판 묶음 · 이상 움직임 봉 · ETF 구성 창 · 옵션 시장 카드 · 공매도 (예전 화면이 short 를 버리던 것 고침)
+   ⑥ 텔레그램 — 보내라고 했으면 바로 보냄 (now) · ‘되돌려’ = 방금 보낸 글 지우기 · 알림 켜고 끄기 카드 (tgsub · 바로 저장)      */
+//  ── ① 말 끝 자동 감지 ──
+var VO_FILL = /^(음+|으음|어+|아+|에+|그+|저+|뭐지|뭐더라|그러니까|있잖아|막)$/;
+var VO_STRONG = /(까|까요|니|냐|나요|가요|죠|줘|줘요|주세요|세요|어때|어때요|해요|봐요|습니다|니다|거야|건가|인가|는가|은가|을까|래요|네요|군요|구나|맞아|맞지|맞죠|뭐야|뭐지|뭔데|그만)$/;
+var VO_CONT = /(그리고|근데|그런데|그래서|그러면|그럼|또|아니면|혹시|만약|만일|및|와|과|랑|이랑|하고|에서|부터|까지|보다|처럼|으로|로|의|를|을|이|가|은|는|에|도|만|고|는데|은데|인데|던데|면|으면|면서|며|서|어서|아서|해서|니까|라서|거나|든지|도록|려고|려면|다가|지만)$/;
+var VO_WEAK = /(요|다|해|봐|자|지|야|네|래|어|아|나|돼|되나|됐어|임)$/;
+function voAutoMs(){
+  var t = String(AIV.final || '').trim(); if (!t) return 3000;
+  var w = t.split(/\s+/), last = w[w.length - 1].replace(/[.,!?~]+$/, '');
+  if (VO_FILL.test(last)) return 8000;
+  if (VO_STRONG.test(last)) return 1100;
+  if (VO_CONT.test(last)) return 8000;
+  if (VO_WEAK.test(last)) return 1600;
+  return 2600;
+}
+//  ── ② 질문 표시 ──
+var VO_IMP = /(줘|줘요|주세요|해라|하자|해봐|봐줘|올려|보내|켜|꺼|열어|닫아|지워|그만)$/;
+var VO_ASK = /(까|까요|니|냐|나요|가요|죠|지|어때|어때요|맞아|맞지|맞죠|거야|건가|인가|는가|은가|는지|인지|은지|있어|없어|괜찮아|돼|되나|됐어|이야|뭐야|뭐지|뭔데|할래|볼래|높아|낮아|비싸|싸|많아|적어|올라|내려|떨어져|어떄)$/;
+var VO_WH = /(^|\s)(뭐|무엇|뭘|왜|어떻게|어떤|얼마|언제|어디|누구|몇|어느|무슨)/;
+var VO_ACK = /^(좋아|응|네|예|그래|알겠어|알았어|오케이|됐어|고마워|감사|그만|아니)/;
+function voQ(t){
+  t = String(t || '').trim(); if (!t || /[?？.!]$/.test(t)) return t;
+  if (t.length <= 6 && VO_ACK.test(t)) return t;
+  var last = t.split(/\s+/).pop();
+  if (VO_IMP.test(last)) return t;
+  return VO_ASK.test(last) || VO_WH.test(t) ? t + '?' : t;
+}
+//  ── ③ 신호음 ──
+function voBeep(){ try { var C = window.AudioContext || window.webkitAudioContext; if (!C) return; var ac = voBeep.ac || (voBeep.ac = new C()); if (ac.state === 'suspended') ac.resume();
+  var o = ac.createOscillator(), g = ac.createGain(), t0 = ac.currentTime; o.type = 'sine'; o.frequency.setValueAtTime(880, t0); o.frequency.exponentialRampToValueAtTime(1320, t0 + 0.12);
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.07, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18); o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0 + 0.2); } catch(e){} }
+//  ── ④ 읽기 사전 ──
+var VO_D = ['영', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+function voSino4(n){ var s = '', u = ['천', '백', '십', ''], ds = ('0000' + n).slice(-4); for (var i = 0; i < 4; i++){ var d = +ds.charAt(i); if (!d) continue; s += (d === 1 && i < 3 ? '' : VO_D[d]) + u[i]; } return s; }
+function voSinoInt(str){
+  str = String(str).replace(/^0+(?=\d)/, ''); if (!/^\d+$/.test(str)) return str; if (/^0+$/.test(str)) return '영';
+  if (str.length > 20) return str.split('').map(function(c){ return VO_D[+c]; }).join(' ');
+  var U = ['', '만', '억', '조', '경'], out = [], gi = 0;
+  for (var e = str.length; e > 0; e -= 4, gi++){ var g = +str.slice(Math.max(0, e - 4), e); if (!g) continue; out.unshift((g === 1 && gi === 1 ? '' : voSino4(g)) + U[gi]); }
+  return out.join(' ');
+}
+var VO_NT = ['', '열', '스물', '서른', '마흔', '쉰', '예순', '일흔', '여든', '아흔'], VO_NO = ['', '한', '두', '세', '네', '다섯', '여섯', '일곱', '여덟', '아홉'];
+function voNative(n){ if (n === 20) return '스무'; return VO_NT[Math.floor(n / 10)] + VO_NO[n % 10]; }
+function voNum(ip, dp, next){
+  var i = String(ip).replace(/,/g, ''), n = +i;
+  if (!dp && n >= 1 && n <= 99 && /^\s?(개(?!월)|명|살|가지|곳|마리|척|잔|권|군데|시간|시(?![가-힣])|달)/.test(next)) return voNative(n) + (/^\s/.test(next) ? '' : ' ');
+  if (!dp && /^\s?월/.test(next)){ if (n === 6) return '유'; if (n === 10) return '시'; }
+  return voSinoInt(i) + (dp ? ' 점 ' + String(dp).split('').map(function(c){ return VO_D[+c]; }).join('') + (/^[가-힣]/.test(next) ? ' ' : '') : '');
+}
+var VO_ABBR = [['EV/EBITDA', '이브이 에비타'], ['EV/EBIT', '이브이 이빗'], ['P/E', '퍼'], ['P/B', '피비알'], ['S&P', '에스앤피'], ['M&A', '엠앤에이'], ['R&D', '알앤디'], ['AT&T', '에이티앤티'],
+  ['EBITDA', '에비타'], ['EBIT', '이빗'], ['WACC', '와크'], ['CAPEX', '캐펙스'], ['CapEx', '캐펙스'], ['CAGR', '케이거'], ['ROIC', '로익'], ['PEG', '페그'], ['PER', '퍼'], ['PBR', '피비알'], ['PSR', '피에스알'],
+  ['EPS', '이피에스'], ['BPS', '비피에스'], ['DPS', '디피에스'], ['ROE', '알오이'], ['ROA', '알오에이'], ['DCF', '디씨에프'], ['FCF', '에프씨에프'], ['FCFF', '에프씨에프에프'], ['FCFE', '에프씨에프이'],
+  ['NPV', '엔피브이'], ['IRR', '아이알알'], ['YTD', '연초 대비'], ['TTM', '최근 12개월'], ['GDP', '지디피'], ['CPI', '씨피아이'], ['PPI', '피피아이'], ['PCE', '피씨이'], ['PMI', '피엠아이'],
+  ['FOMC', '에프오엠씨'], ['ECB', '유럽중앙은행'], ['BOJ', '일본은행'], ['BOK', '한국은행'], ['ETF', '이티에프'], ['VIX', '빅스'], ['DXY', '달러 인덱스'], ['ATM', '등가격'], ['OTM', '외가격'], ['ITM', '내가격'],
+  ['IV', '내재변동성'], ['HBM', '에이치비엠'], ['GPU', '지피유'], ['CPU', '씨피유'], ['AI', '에이아이'], ['IPO', '아이피오'], ['LNG', '엘엔지'], ['WTI', '더블유티아이'], ['OPEC', '오펙'], ['KOSPI', '코스피'],
+  ['KOSDAQ', '코스닥'], ['NASDAQ', '나스닥'], ['Nasdaq', '나스닥'], ['NYSE', '뉴욕증권거래소'], ['CFTC', '씨에프티씨'], ['COT', '씨오티'], ['BTC', '비트코인'], ['ETH', '이더리움'], ['USD', '달러'],
+  ['KRW', '원화'], ['JPY', '엔화'], ['EUR', '유로'], ['CNY', '위안화'], ['ESG', '이에스지'], ['OPM', '영업이익률'], ['GPM', '매출총이익률'], ['NIM', '순이자마진'], ['Fed', '연준'], ['FED', '연준']];
+function voPre(md){
+  var t = String(md || '');
+  //  날짜 · 시각 · 분기 · 회계연도 · 예상
+  t = t.replace(/\b(\d{4})[-.](\d{1,2})[-.](\d{1,2})\b/g, function(m, y, mo, d){ return y + '년 ' + (+mo) + '월 ' + (+d) + '일'; })
+       .replace(/\b([01]?\d|2[0-3]):([0-5]\d)\b/g, function(m, h, mi){ return (+h) + '시' + (+mi ? ' ' + (+mi) + '분' : ''); })
+       .replace(/\b([1-4])Q\s?'?(\d{2})\b/g, '$2년 $1분기').replace(/\bQ([1-4])\s?'?(\d{2})\b/g, '$2년 $1분기').replace(/\b([1-4])Q\b/g, '$1분기').replace(/\bQ([1-4])\b/g, '$1분기')
+       .replace(/\b([12])H\s?'?(\d{2})\b/g, function(m, h, y){ return y + '년 ' + (h === '1' ? '상반기' : '하반기'); }).replace(/\b([12])H\b/g, function(m, h){ return h === '1' ? '상반기' : '하반기'; })
+       .replace(/\bFY\s?'?(\d{2,4})\b/g, '$1 회계연도').replace(/\b(20\d{2})E\b/g, '$1년 예상').replace(/\b(20\d{2})F\b/g, '$1년 전망');
+  //  달러 (예전 다듬기는 ‘$212,’ 처럼 쉼표까지 숫자로 잡아 뒤 글과 붙었음 → 여기서 먼저)
+  t = t.replace(/\$\s?(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?(?:\s?(조|억|만|B|M|K)(?![A-Za-z]))?/g, function(m, ip, dp, u){ var v = parseFloat(String(ip).replace(/,/g, '') + (dp || '')), f = function(x){ return String(+x.toFixed(2)); };
+    if (!isFinite(v)) return m;
+    return u === 'B' ? (v >= 100 ? f(v / 1000) + '조' : f(v * 10) + '억') + ' 달러' : u === 'M' ? (v >= 100 ? f(v / 100) + '억' : f(v * 100) + '만') + ' 달러' : u === 'K' ? f(v * 1000) + ' 달러' : ip + (dp || '') + (u || '') + ' 달러'; });
+  //  분수 (진분수 · 흔한 분모만 · 날짜와 헷갈리지 않게)
+  t = t.replace(/\b(\d{1,2})\/(2|3|4|5|8|10|100)\b/g, function(m, a, b){ return +a < +b ? b + '분의 ' + a : m; });
+  //  수식 기호
+  t = t.replace(/\s*×\s*/g, ' 곱하기 ').replace(/\s*÷\s*/g, ' 나누기 ').replace(/\s*≈\s*/g, ' 약 ').replace(/\s*±\s*/g, ' 플러스마이너스 ')
+       .replace(/([^\s=]+)\s*≥\s*([^\s,.]+)/g, '$1 $2 이상').replace(/([^\s=]+)\s*≤\s*([^\s,.]+)/g, '$1 $2 이하').replace(/≥/g, ' 이상 ').replace(/≤/g, ' 이하 ')
+       .replace(/\^2\b/g, ' 제곱').replace(/\^3\b/g, ' 세제곱').replace(/\^(\d+)/g, ' $1제곱').replace(/√\s?/g, '루트 ').replace(/[Σ∑]\s?/g, '합 ').replace(/[Δ∆]\s?/g, '변화 ').replace(/∞/g, '무한대')
+       .replace(/(\S)\s=\s/g, function(m, c){ var k = c.charCodeAt(0); return c + ((k >= 0xAC00 && k <= 0xD7A3 && (k - 0xAC00) % 28) || /[0-9LMNlmn]/.test(c) ? '은 ' : '는 '); }).replace(/\s=\s/g, ' 는 ').replace(/\s\*\s/g, ' 곱하기 ');
+  //  금융 약어 (앞뒤가 영문 · 숫자가 아닐 때만 · 뒤를 보는 정규식은 쓰지 않음 · 긴 것부터)
+  VO_ABBR.forEach(function(p){ var k = p[0].replace(/[.*+?^${}()|[\]\\\/&]/g, '\\$&'); t = t.replace(new RegExp('(^|[^A-Za-z0-9])' + k + '(?![A-Za-z0-9])', 'g'), '$1' + p[1]); });
+  return t;
+}
+function voPost(t){
+  t = String(t || '');
+  t = t.replace(/(\d[\d,]*)(?:\.(\d+))?/g, function(m, ip, dp, off, str){ if (/,$/.test(ip)){ var r = voNum(ip.replace(/,+$/, ''), dp, str.slice(off + m.length, off + m.length + 4)); return r + ','; } return voNum(ip, dp, str.slice(off + m.length, off + m.length + 4)); });
+  return t.replace(/&/g, ' 앤 ').replace(/@/g, ' 앳 ').replace(/[#_]/g, ' ').replace(/[ \t]{2,}/g, ' ');
+}
+//  ── ⑥ 텔레그램 — 알림 켜고 끄기 카드 · 방금 보낸 글 되돌리기 ──
+var VO_TOPIC_NM = { cp: '해협 · 물류', pair: '페어 트레이딩', yc: '일드커브', macro: '경제지표 쇼크', news: '속보', heat: '시장 급변', moveone: '이상 움직임 1분 봉', movefive: '이상 움직임 5분 봉', move: '이상 움직임 15분 봉',
+  movethirty: '이상 움직임 30분 봉', movehour: '이상 움직임 1시간 봉', opt: '옵션 시장 신호', mine: '우리 팀 매매', find: '파인더', fed: '연준' };
+var VO_UNDO = /^(되돌려|되돌려 ?줘|되돌려 ?주세요|방금 (거|글|보낸 거|보낸 글) ?(지워|지워 ?줘|취소해|취소해 ?줘|되돌려)|텔레그램 ?(글)? ?(지워|지워 ?줘|되돌려|되돌려 ?줘|취소해 ?줘))[.!? ]*$/;
+function voSubClean(a){
+  a.topics = (Array.isArray(a.topics) ? a.topics : []).map(String).filter(function(t, i, arr){ return VO_TOPIC_NM[t] && arr.indexOf(t) === i; }); if (!a.topics.length) return null;
+  a.on = a.on !== false; a.title = String(a.title || '텔레그램 알림').slice(0, 40); a.st = /^(done|err)$/.test(String(a.st || '')) ? a.st : 'wait'; a.err = a.st === 'err' ? String(a.err || '').slice(0, 200) : null;
+  return a;
+}
+function voSubHtml(a, i, j){
+  var what = a.topics.map(function(t){ return VO_TOPIC_NM[t]; }).join(' · ');
+  var b = a.st === 'done' ? '<span class="ok">✓ ' + esc(a.on ? '켰습니다' : '껐습니다') + ' · 세이피 1:1 대화로 옵니다</span>' : a.st === 'err' ? '<span class="x tg-err">' + esc(a.err || '저장하지 못했습니다') + '</span>' : '<span class="aic-spin" aria-hidden="true"></span> 로딩 중…';
+  return '<div class="aic-act tg tgs" data-act="' + i + '.' + j + '"><div class="t">' + (typeof AIC_TG_SVG !== 'undefined' ? AIC_TG_SVG : '') + esc(a.title) + '</div><div class="w">텔레그램 알림 · ' + esc(a.on ? '켜기' : '끄기') + '</div>'
+    + '<div class="tgp-msg">' + esc(what) + '</div><div class="b">' + b + '</div></div>';
+}
+async function voSubApply(i, j){
+  var a = aicMsgs[i] && aicMsgs[i].actions && aicMsgs[i].actions[j]; if (!a || a.type !== 'tgsub' || a.st === 'done') return false;
+  try {
+    var me = await edgeCall('safey-telegram', { action: 'me' });
+    if (!me || !me.linked){ a.st = 'err'; a.err = '먼저 홈 › 세이피 텔레그램에서 내 텔레그램을 연결해 주세요.'; return false; }
+    var cur = Array.isArray(me.subs) ? me.subs.slice() : [], want = a.on ? cur.concat(a.topics.filter(function(t){ return cur.indexOf(t) < 0; })) : cur.filter(function(t){ return a.topics.indexOf(t) < 0; });
+    var r = await edgeCall('safey-telegram', { action: 'subs_set', topics: want });
+    a.st = 'done'; a.err = null;
+    try { if (typeof QAN !== 'undefined' && QAN.tg) QAN.tg.subs = r && r.subs || want; if (typeof HTG !== 'undefined' && HTG.d) HTG.d.subs = r && r.subs || want; if (typeof qanTgPaint === 'function') qanTgPaint(); } catch(e){}
+    return true;
+  } catch(e){ a.st = 'err'; a.err = String(e && e.message || e).slice(0, 200); return false; }
+  finally { a.done = true; aicSave(); aicRender(); }
+}
+function voLastSent(){
+  for (var i = aicMsgs.length - 1; i >= 0; i--){ var A = aicMsgs[i] && aicMsgs[i].actions || [];
+    for (var j = A.length - 1; j >= 0; j--){ var a = A[j]; if (a && a.type === 'tgpost' && a.st === 'sent' && a.msg_id && Date.now() - a.at < 47 * 3600000) return { i: i, j: j, a: a }; } }
+  return null;
+}
+//  ── ⑤ 어디든 이동 (열기 카드 뒤 마저) ──
+async function voOpenExtra(a){
+  if (a.tab === 'quant' && (a.bcat || a.btf)){
+    if (!$('qbdW') && typeof qmmModeSet === 'function' && typeof QMM !== 'undefined' && QMM.mode === 'sim') qmmModeSet('multi');
+    await goWait(function(){ return !!$('qbdW'); }, 3000);
+    if (QBD.fold) qbdFold();
+    if (a.btf && typeof qanTfSet === 'function'){ QAN.tf = +a.btf; qanSave(); }
+    if (a.bcat) qbdCat(a.bcat);
+    if (a.btf && typeof qanTfSet === 'function') qanTfSet(a.btf);
+    var w = $('qbdW'); if (w) setTimeout(function(){ w.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120);
+  }
+  if (a.tab === 'market' && a.etf && typeof etOpen === 'function') setTimeout(function(){ etOpen(a.etf); }, 300);
+  if (a.tab === 'deriv' && a.dfocus){
+    if (typeof dvViewSet === 'function' && DV.view !== 'opt') dvViewSet('opt');
+    if (a.dfocus === 'oa' && typeof oaMount === 'function') oaMount();
+    await goWait(function(){ return !!$(a.dfocus === 'oa' ? 'oaCard' : 'skwDv'); }, 4000);
+    var c = $(a.dfocus === 'oa' ? 'oaCard' : 'skwDv'); if (c){ c.scrollIntoView({ behavior: 'smooth', block: 'start' }); obHl(c); }
+  }
+}
+/* ── 이어 붙이기 ── */
+(function(){
+  var wrap = function(nm, fn){ var f0 = window[nm]; if (typeof f0 !== 'function') return; window[nm] = fn(f0); };
+  //  ① 말 사이 쉼 ‘자동’ (새 기본값 · 한 번만 바꿈 · 고른 값은 기억)
+  if (typeof AIV_PAUSE !== 'undefined') AIV_PAUSE.auto = 1;
+  try { var o = JSON.parse(LSX.getItem(AIV_KEY) || '{}') || {}; if (!o.pv23 || o.pause === 'auto') AIV.pause = 'auto'; } catch(e){ AIV.pause = 'auto'; }
+  wrap('aivSave', function(f0){ return function(){ try { LSX.setItem(AIV_KEY, JSON.stringify({ speak: AIV.speak, loop: AIV.loop, pause: AIV.pause, pv23: 1 })); } catch(e){ return f0.apply(this, arguments); } }; });
+  aivSave();
+  window.aivPauseMs = function(){ return AIV.pause === 'auto' ? Math.min(voAutoMs(), AIV_PAUSE.slow || 20000) : (AIV_PAUSE[AIV.pause] > 1 ? AIV_PAUSE[AIV.pause] : AIV_PAUSE.slow); };      //  자동도 ‘여유’ 보다 길게 기다리지 않음
+  var ps = $('aicPause'); if (ps && !ps.querySelector('option[value="auto"]')){ var op = document.createElement('option'); op.value = 'auto'; op.textContent = '자동 (권장)'; ps.insertBefore(op, ps.firstChild); ps.value = AIV.pause; }
+  var pw = $('aicPauseW'); if (pw) pw.title = '자동 = 말이 끝난 말투면 바로 보내고, ‘그리고 · 근데’ 처럼 이어질 말투면 기다림 · 다 말했으면 마이크를 한 번 더 누르거나 Enter';
+  //  ④ 읽기 사전 (화면 글은 그대로 · 소리로 읽을 글만)
+  wrap('aivClean', function(f0){ return function(md){ try { return voPost(f0.call(this, voPre(md))); } catch(e){ return f0.apply(this, arguments); } }; });
+  //  ⑤ 설정 이름 · 열기 카드
+  if (typeof AIC_TAB_NM !== 'undefined' && !AIC_TAB_NM.admin) AIC_TAB_NM.admin = '설정';
+  wrap('aicActClean', function(f0){ return function(a){
+    if (a && typeof a === 'object' && a.type === 'tgsub') return voSubClean(a);
+    if (a && typeof a === 'object' && a.type === 'tgpost'){ var nw = a.now === true, r0 = f0.apply(this, arguments); if (r0) r0.now = nw; return r0; }
+    if (a && typeof a === 'object' && a.type === 'open'){
+      var keep = { bcat: a.bcat, btf: a.btf, etf: a.etf, dfocus: a.dfocus, flow: a.flow };
+      if (a.tab === 'admin'){ if (!(typeof isOfficer === 'function' && isOfficer())) return null; a.title = String(a.title || '설정 열기').slice(0, 40); a.adview = /^(mt|home|ai|who|vis|etc|access)$/.test(String(a.adview || '')) ? a.adview : 'ai'; return a; }
+      var r = f0.apply(this, arguments); if (!r) return r;
+      if (r.tab === 'quant'){ r.bcat = /^(key|coin|etf|cmd|kr|gl|pre|fx|anom|all)$/.test(String(keep.bcat || '')) ? String(keep.bcat) : null; r.btf = /^(1|5|15|30|60)$/.test(String(keep.btf || '')) ? String(keep.btf) : null; if ((r.bcat || r.btf) && !r.ql) r.ql = 'mm'; }
+      if (r.tab === 'market' && /^[A-Z]{2,5}$/.test(String(keep.etf || ''))) r.etf = String(keep.etf);
+      if (r.tab === 'deriv' && /^(oa|skew)$/.test(String(keep.dfocus || ''))){ r.dfocus = String(keep.dfocus); r.dview = 'opt'; }
+      if (r.tab === 'flow' && keep.flow === 'short') r.flow = 'short';
+      return r;
+    }
+    return f0.apply(this, arguments);
+  }; });
+  wrap('aicActWhere', function(f0){ return function(a){
+    if (a && a.type === 'tgsub') return '텔레그램 › 알림';
+    if (a && a.type === 'open' && a.tab === 'admin') return '설정 › ' + ({ mt: '모의투자', home: '홈', ai: 'AI', who: '학회원', vis: '탭 공개', etc: '자료', access: '접속 기록' }[a.adview] || 'AI');
+    var s = f0.apply(this, arguments);
+    if (a && a.type === 'open' && a.tab === 'quant' && a.bcat === 'anom') s += ' › 전광판 › 이상 움직임' + (a.btf ? ' (' + qanTfNm(+a.btf) + ' 봉)' : '');
+    if (a && a.type === 'open' && a.etf) s += ' › ETF 구성 (' + a.etf + ')';
+    if (a && a.type === 'open' && a.dfocus === 'oa') s += ' › 옵션 시장 이상 움직임';
+    return s; }; });
+  wrap('aicActHtml', function(f0){ return function(a, i, j){ if (a && a.type === 'tgsub') return voSubHtml(a, i, j); return f0.apply(this, arguments); }; });
+  //  바로 보내는 텔레그램 글 · 알림 카드는 어느 탭에서든 답과 함께 (말로 · 글로)
+  //  (23차 학회장: ‘버튼 없이 그냥 알아서 이동 · 말로도 글로도’) — 답이 온 그 순간에는 어느 탭 카드든 저절로 (텔레그램 방 링크 · 아직 안 보낸 글 카드만 빼고)
+  var VO_AUTO = { on: false };
+  wrap('aicActTab', function(f0){ return function(a){ if (a && (a.type === 'tgsub' || (a.type === 'tgpost' && a.now))) return curTab; if (VO_AUTO.on && a && a.type !== 'telegram' && a.type !== 'tgpost') return curTab; return f0.apply(this, arguments); }; });
+  window.VO_AUTO = VO_AUTO;
+  wrap('aicActApply', function(f0){ return async function(i, j, auto){
+    var a = aicMsgs[i] && aicMsgs[i].actions && aicMsgs[i].actions[j];
+    if (a && a.type === 'tgsub') return voSubApply(i, j);
+    if (a && a.type === 'tgpost' && a.now && a.st === 'draft' && auto) return tgpSend(i, j);
+    if (a && a.type === 'open' && a.tab === 'admin'){ if (typeof isOfficer === 'function' && isOfficer()){ showTab('admin'); if (typeof adTab === 'function') adTab(a.adview || 'ai'); } a.done = true; aicSave(); aicRender(); return true; }
+    var r = await f0.apply(this, arguments);
+    if (a && a.type === 'open'){ try { await voOpenExtra(a); } catch(e){} }
+    return r;
+  }; });
+  //  ② · ③ · ⑥ 묻기 — 되돌려 · 물음표 · 신호음
+  wrap('aicAsk', function(f0){ return async function(qIn, opt){
+    if (aicBusy) return f0.apply(this, arguments);
+    var viaV = typeof AIV !== 'undefined' && !!AIV.viaVoice, qa = $('aicQ'), q = String(qIn != null ? qIn : (qa ? qa.value : '')).replace(/\s+/g, ' ').trim();
+    if (q && q.length <= 30 && VO_UNDO.test(q)){
+      var L = voLastSent();
+      if (L){
+        if (qa && qIn == null){ qa.value = ''; aicGrow(qa); }
+        aicMsgs.push({ role: 'user', content: q }); aicBusy = true; aicRender();
+        try { await tgpUndo(L.i, L.j); } finally { aicBusy = false; }
+        aicMsgs.push({ role: 'assistant', content: L.a.st === 'undone' ? '텔레그램 ' + (TGP_ROOM[L.a.room] || '') + '에서 방금 글을 지웠습니다.' : '지우지 못했습니다: ' + (L.a.err || '잠시 뒤 다시 해 주세요.'), actions: [] });
+        aicSave(); aicRender(); if (typeof aivAfterAnswer === 'function') aivAfterAnswer();
+        return true;
+      }
+    }
+    if (viaV && q){ var q2 = voQ(q); if (q2 !== q){ if (qIn != null) qIn = q2; else if (qa){ qa.value = q2; } } voBeep(); }
+    VO_AUTO.on = true;
+    try { return await f0.call(this, qIn, opt); } finally { VO_AUTO.on = false; }
+  }; });
 })();
 
 /*>>23차*/
