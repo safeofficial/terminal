@@ -65175,8 +65175,9 @@ function atCertPaint(cv, D, no, cb){
     if (m.student_id) rows.push(['학번', String(m.student_id)]);
     var per = D.from && D.to ? (D.from === D.to ? dt(D.from) : dt(D.from) + ' - ' + dt(D.to)) : (D.from || D.to ? dt(D.from || D.to) : '');
     rows.push(['기수', D.gensTxt || '-']);
-    if (F) rows.push(['기록 기간', per || '기록 없음'], ['기록된 모임', D.c.n + '회'], ['출결', [['출석', D.c.present], ['지각', D.c.late], ['결석', D.c.absent]].filter(function(q){ return q[1] > 0; }).map(function(q){ return q[0] + ' ' + q[1] + '회'; }).join(' · ') || '기록 없음']);
+    if (F) rows.push(['기록 기간', per], ['기록된 모임', D.c.n ? D.c.n + '회' : ''], ['출결', [['출석', D.c.present], ['지각', D.c.late], ['결석', D.c.absent]].filter(function(q){ return q[1] > 0; }).map(function(q){ return q[0] + ' ' + q[1] + '회'; }).join(' · ')]);
     else rows.push(['직책', D.pos || '-'], ['활동 기간', per || '-']);
+    rows = rows.filter(function(r){ return r[0] === '성명' || (r[1] != null && String(r[1]) !== '' && String(r[1]) !== '-'); });   //  빈 칸 · 0회 줄은 아예 빼기
     var y = F ? 960 : 980, rh = F ? 84 : 92, vx = C ? cx + 44 : M + 250, vMax = W - M - vx;
     rows.forEach(function(r, i){ var yb = y + rh * i;
       x.textAlign = C ? 'right' : 'left'; x.font = atSerif(26, 400); x.fillStyle = sub; try { x.letterSpacing = '4px'; } catch(e){} x.fillText(r[0], C ? cx - 44 : M, yb); try { x.letterSpacing = '0px'; } catch(e){}
