@@ -65175,7 +65175,7 @@ function atCertPaint(cv, D, no, cb){
     if (m.student_id) rows.push(['학번', String(m.student_id)]);
     var per = D.from && D.to ? (D.from === D.to ? dt(D.from) : dt(D.from) + ' - ' + dt(D.to)) : (D.from || D.to ? dt(D.from || D.to) : '');
     rows.push(['기수', D.gensTxt || '-']);
-    if (F) rows.push(['기록 기간', per || '기록 없음'], ['기록된 모임', D.c.n + '회'], ['출결', '출석 ' + D.c.present + '회 · 지각 ' + D.c.late + '회 · 결석 ' + D.c.absent + '회']);
+    if (F) rows.push(['기록 기간', per || '기록 없음'], ['기록된 모임', D.c.n + '회'], ['출결', [['출석', D.c.present], ['지각', D.c.late], ['결석', D.c.absent]].filter(function(q){ return q[1] > 0; }).map(function(q){ return q[0] + ' ' + q[1] + '회'; }).join(' · ') || '기록 없음']);
     else rows.push(['직책', D.pos || '-'], ['활동 기간', per || '-']);
     var y = F ? 960 : 980, rh = F ? 84 : 92, vx = C ? cx + 44 : M + 250, vMax = W - M - vx;
     rows.forEach(function(r, i){ var yb = y + rh * i;
