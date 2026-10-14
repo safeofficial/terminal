@@ -63931,8 +63931,8 @@ function skwObSym(){
 function skwObSync(){ if (!$('skwOb')) return; try { skwFollow('skwOb', skwObSym()); } catch(e){} }
 (function(){
   var wrap = function(nm, fn){ var f0 = window[nm]; if (typeof f0 !== 'function') return; window[nm] = fn(f0); };
-  //  여러 종목: 차트 아래 · 호가창 칸 위
-  wrap('qmbHtml', function(f0){ return function(){ var h = f0.apply(this, arguments), at = h.indexOf('<div class="qmb-grid'); return at < 0 ? h : h.slice(0, at) + skwHtml('skwOb', true) + h.slice(at); }; });
+  //  여러 종목: 차트 → 호가창 칸 → 옵션 스큐 (학회장 순서)
+  wrap('qmbHtml', function(f0){ return function(){ var h = f0.apply(this, arguments), at = h.indexOf('<p class="st-hint qmb-foot">'); return at < 0 ? h + skwHtml('skwOb', true) : h.slice(0, at) + skwHtml('skwOb', true) + h.slice(at); }; });
   //  실제: 호가 칸 다음 (쉽게 읽기 앞)
   wrap('qobHtml', function(f0){ return function(){ var h = f0.apply(this, arguments), ez = qEzBox('qobEz'), at = h.indexOf(ez); return at < 0 ? h + skwHtml('skwOb', true) : h.slice(0, at) + skwHtml('skwOb', true) + h.slice(at); }; });
   ['qmmInit', 'qobSet', 'qmcAct', 'qmcAdd', 'qmcClose', 'qmcLaySet', 'qmbRebuild'].forEach(function(nm){ wrap(nm, function(f0){ return function(){ var r = f0.apply(this, arguments); setTimeout(skwObSync, 0); return r; }; }); });
