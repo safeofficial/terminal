@@ -4997,6 +4997,15 @@
 .qmc-grid.l8 .qmc-ch{height:310px}
 .qmc-grid.l1 .qmc-c.empty{min-height:546px} .qmc-grid.l2 .qmc-c.empty{min-height:486px} .qmc-grid.l3 .qmc-c.empty{min-height:446px}
 .qmc-grid.l4 .qmc-c.empty{min-height:386px} .qmc-grid.l5 .qmc-c.empty,.qmc-grid.l6 .qmc-c.empty{min-height:366px} .qmc-grid.l8 .qmc-c.empty{min-height:336px}
+/*  (23차 학회장: ‘차트 분할을 한 줄로 나눌지 · 쿼터로 보일지도 정할 수 있게’) - 배치: 격자 (기본) · 가로 한 줄 · 세로 한 줄
+    가로 한 줄 = 칸마다 최소 260px · 넘치면 옆으로 밀기 · 세로 한 줄 = 한 칸씩 화면 너비 그대로  */
+.qmc-grid.a-row.a-row{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(260px,1fr);overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:4px}
+.qmc-grid.a-row > .qmc-c,.qmc-grid.a-col > .qmc-c,.qmc-grid.a-row.l5 > .qmc-c:nth-child(n+4),.qmc-grid.a-col.l5 > .qmc-c:nth-child(n+4){grid-column:auto;scroll-snap-align:start}
+.qmc-grid.a-row .qmc-ch{height:440px} .qmc-grid.a-row .qmc-c.empty{min-height:466px}
+.qmc-grid.a-col.a-col{grid-template-columns:minmax(0,1fr)}
+.qmc-grid.a-col .qmc-ch{height:340px} .qmc-grid.a-col .qmc-c.empty{min-height:366px}
+.qmc-grid.a-col.l2 .qmc-ch{height:420px} .qmc-grid.a-col.l2 .qmc-c.empty{min-height:446px}
+.qmc-grid.a-col .qmc-h .cd i.l{display:inline} .qmc-grid.a-col .qmc-h .cd i.s{display:none}
 @media (max-width:1100px){
   .qmc-grid.l3,.qmc-grid.l6,.qmc-grid.l8,.qmc-grid.l5{grid-template-columns:repeat(2,minmax(0,1fr))}
   .qmc-grid.l5 > .qmc-c,.qmc-grid.l5 > .qmc-c:nth-child(n+4){grid-column:auto}
@@ -5006,6 +5015,7 @@
   .qmc-grid[class*="l"] .qmc-ch{height:340px}
   .qmc-grid.l1 .qmc-ch{height:400px}
   .qmc-grid[class*="l"] .qmc-c.empty{min-height:120px}
+  .qmc-grid.a-row.a-row{grid-auto-columns:86%}
   .qmc-bar .mode-seg{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:100%}
   .qmc-bar .mode-seg::-webkit-scrollbar{display:none}
   .qmc-bar .mode-seg button{flex:0 0 auto;padding:3px 7px}
@@ -63411,21 +63421,23 @@ function qmbDraw(){
 
 /* ── C. 차트 분할 (1 · 2 · 3 · 4 · 5 · 6 · 8) ── */
 var QMC_LAY = [1, 2, 3, 4, 5, 6, 8];
-var QMC = { lay: 1, tf: '15m', cells: [], act: 0, drawAt: 0 };
-(function(){ try { var c = JSON.parse(LSX.getItem('safe_qmc_v1') || 'null'); if (c){ if (QMC_LAY.indexOf(+c.lay) >= 0) QMC.lay = +c.lay; if (QMBC_MS[c.tf]) QMC.tf = c.tf;
+var QMC = { lay: 1, tf: '15m', cells: [], act: 0, drawAt: 0, arr: 'grid' };
+var QMC_ARR = [['grid', '격자', 'Grid'], ['row', '가로 한 줄', 'Row'], ['col', '세로 한 줄', 'Column']];
+(function(){ try { var c = JSON.parse(LSX.getItem('safe_qmc_v1') || 'null'); if (c){ if (QMC_LAY.indexOf(+c.lay) >= 0) QMC.lay = +c.lay; if (QMBC_MS[c.tf]) QMC.tf = c.tf; if (/^(grid|row|col)$/.test(String(c.arr || ''))) QMC.arr = c.arr;
   if (Array.isArray(c.s)) QMC.cells = c.s.slice(0, 8).map(function(s){ return { s: /^[A-Z0-9]{2,16}(USDT|USDC)$/.test(String(s || '')) ? String(s) : null, bars: [], ch: null }; }); } } catch(e){}
   //  21차 차트(하나)에 열려 있던 종목은 첫 칸으로 옮기고 예전 차트는 쉼
   if (!QMC.cells.length && typeof QMBC !== 'undefined' && QMBC.open && QMBC.s) QMC.cells = [{ s: QMBC.s, bars: [], ch: null }];
   if (typeof QMBC !== 'undefined'){ QMBC.open = false; try { qmbcSave(); } catch(e){} }
   while (QMC.cells.length < 8) QMC.cells.push({ s: null, bars: [], ch: null });
   if (QMBC_MS[QMBC.tf] && !LSX.getItem('safe_qmc_v1')) QMC.tf = QMBC.tf; })();
-function qmcSave(){ try { LSX.setItem('safe_qmc_v1', JSON.stringify({ lay: QMC.lay, tf: QMC.tf, s: QMC.cells.map(function(c){ return c.s; }) })); } catch(e){} }
+function qmcSave(){ try { LSX.setItem('safe_qmc_v1', JSON.stringify({ lay: QMC.lay, tf: QMC.tf, arr: QMC.arr, s: QMC.cells.map(function(c){ return c.s; }) })); } catch(e){} }
 function qmcOn(){ return QMC.cells.slice(0, QMC.lay).some(function(c){ return c.s; }); }
 function qmcWrapHtml(){
   return '<div class="qmc" id="qmcW"><div class="qmc-bar"><span class="qmb-g"><span class="qmb-l">' + esc(T('차트 분할', 'Layout')) + '</span>' + qSeg('qmcLay', QMC_LAY.map(function(n){ return [String(n), String(n)]; }), String(QMC.lay), 'qmcLaySet') + '</span>'
+    + '<span class="qmb-g' + (QMC.lay < 2 ? ' hidden' : '') + '" id="qmcArrG"><span class="qmb-l">' + esc(T('배치', 'Arrange')) + '</span>' + qSeg('qmcArr', QMC_ARR.map(function(x){ return [x[0], T(x[1], x[2])]; }), QMC.arr, 'qmcArrSet') + '</span>'
     + '<span class="qmb-g"><span class="qmb-l">' + esc(T('봉', 'Bars')) + '</span>' + qSeg('qmcTf', QMBC_TF.map(function(x){ return [x[0], T(x[1], x[2])]; }), QMC.tf, 'qmcTfSet') + '</span>'
     + '<span class="st-hint qmc-hint">' + esc(T('호가창 칸이나 전광판 종목을 누르면 빈 차트 칸에 · 꽉 차면 마지막으로 누른 차트 칸을 바꿈', 'Click a book to chart it')) + '</span></div>'
-    + '<div class="qmc-grid l' + QMC.lay + '" id="qmcGrid"></div></div>';
+    + '<div class="' + qmcGridCls() + '" id="qmcGrid"></div></div>';
 }
 function qmcCellHtml(i){
   var c = QMC.cells[i], on = i === QMC.act;
@@ -63439,7 +63451,7 @@ function qmcRender(){
   QMC.cells.forEach(function(c){ if (c.ch){ try { c.ch.dispose(); } catch(e){} c.ch = null; } c.drawn = 0; });
   var any = qmcOn();
   w.classList.toggle('none', !any);
-  g.className = 'qmc-grid l' + QMC.lay; g.innerHTML = any ? QMC.cells.slice(0, QMC.lay).map(function(c, i){ return qmcCellHtml(i); }).join('') : '';
+  g.className = qmcGridCls(); g.innerHTML = any ? QMC.cells.slice(0, QMC.lay).map(function(c, i){ return qmcCellHtml(i); }).join('') : '';
   if (any) QMC.cells.slice(0, QMC.lay).forEach(function(c, i){ if (c.s){ if (c.bars.length && c.tf === QMC.tf) qmcDraw(i, true); else qmcLoad(i); } });
   qmcMark();
 }
@@ -63447,7 +63459,10 @@ function qmcLaySet(n){ n = +n; if (QMC_LAY.indexOf(n) < 0) return; QMC.lay = n; 
   //  분할을 늘리면 빈 칸을 호가창 종목으로 채움 (차트에 없는 것부터)
   var used = QMC.cells.slice(0, n).map(function(c){ return c.s; }), pool = qmbPaneSyms().filter(function(s){ return used.indexOf(s) < 0; });
   for (var i = 0; i < n; i++) if (!QMC.cells[i].s && pool.length) QMC.cells[i] = { s: pool.shift(), bars: [], ch: null };
+  var ag = $('qmcArrG'); if (ag) ag.classList.toggle('hidden', n < 2);
   qmcSave(); qoSeg('qmcLay', String(n)); qmcRender(); qmbStart(); }
+function qmcGridCls(){ return 'qmc-grid l' + QMC.lay + (QMC.lay > 1 && QMC.arr !== 'grid' ? ' a-' + QMC.arr : ''); }
+function qmcArrSet(v){ if (!/^(grid|row|col)$/.test(String(v))) return; QMC.arr = v; qmcSave(); qoSeg('qmcArr', v); qmcRender(); }
 function qmcTfSet(tf){ if (!QMBC_MS[tf]) return; QMC.tf = tf; qmcSave(); qoSeg('qmcTf', tf); QMC.cells.forEach(function(c){ c.bars = []; c.tf = null; }); qmcRender(); }
 //  잠깐 반짝 (분홍 테두리가 남지 않게)
 function obHl(el){ if (!el) return; el.classList.remove('hl'); void el.offsetWidth; el.classList.add('hl'); clearTimeout(el.__hlT); el.__hlT = setTimeout(function(){ el.classList.remove('hl'); }, 1900); }
