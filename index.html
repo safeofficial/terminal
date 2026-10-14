@@ -5288,7 +5288,7 @@ body.et-open{overflow:hidden}
   .et-ch{height:220px}
   .et-tb th:nth-child(4),.et-tb td:nth-child(4),.et-tb th:nth-child(5),.et-tb td:nth-child(5){display:none}
 }
-/*  (23차) 설정 › 출결 · 활동 증명서  */
+/*  (23차) 설정 › 출결 · 활동 증명서 · 사실 증명서  */
 .at-bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:0 0 10px}
 .at-bar label{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-sub);font-weight:600}
 .at-bar select{max-width:240px}
@@ -64830,7 +64830,7 @@ var AT_LOGO = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAr4AAAEfCAYAAACnL8W
    · 학회장 서명 (그림 · 이름 · 학회장 · 설립자만 바꿈) → 활동 증명서 (A4 · 그 사람의 모든 출결 기록 · 발급 번호 · 서명) → PDF 내려받기 · 발급 기록 (cert_log)
    · 표: terminal-출결증명서.sql (att_sessions · att_marks · club_sign · cert_log · 임원진만 · 학회원은 자기 것만 읽음)                  */
 var AT_ST = [['present', '출석'], ['late', '지각'], ['absent', '결석']];
-var AT = { gen: null, sid: null, mem: [], ses: [], marks: {}, sign: null, loaded: false, busy: false, err: '', add: false, delAt: 0, cu: '', all: false, signNew: null };
+var AT = { gen: null, sid: null, mem: [], ses: [], marks: {}, sign: null, loaded: false, busy: false, err: '', add: false, delAt: 0, cu: '', all: false, signNew: null, kind: 'act' };
 var atDb = {
   members: function(){ return sb.from('profiles').select('id,student_id,name,gen,role,officer_pos,status').order('gen'); },
   sessions: function(){ return sb.from('att_sessions').select('id,gen,d,title').order('d', { ascending: false }).order('id', { ascending: false }); },
@@ -64868,7 +64868,7 @@ async function atLoad(){
 //  ── 그리기 ──
 function atPaneHtml(){
   return '<div class="card at" id="atCard"><h2>출결 입력<span class="tools"><button type="button" class="btn-sm" onclick="atLoad()">새로고침</button></span></h2><div id="atIn">' + qWait() + '</div></div>'
-    + '<div class="card at" id="atSumCard"><h2>출결 현황 · 활동 증명서</h2><div id="atSum"></div></div>'
+    + '<div class="card at" id="atSumCard"><h2>출결 현황 · 증명서</h2><div id="atSum"></div></div>'
     + '<div class="card at" id="atSignCard"><h2>학회장 서명 · 증명서 발급</h2><div id="atSign"></div></div>';
 }
 function atDraw(){ atDrawIn(); atDrawSum(); atDrawSign(); }
@@ -64920,10 +64920,10 @@ function atDrawSign(){
       + (can ? '<div class="at-acts"><label class="btn-sm at-file">서명 그림 올리기<input type="file" accept="image/png,image/jpeg" onchange="atSignFile(this)"></label><button type="button" class="btn-sm btn-solid" onclick="atSignSave()">서명 저장</button></div>'
         + '<p class="st-hint">흰 종이에 쓴 서명 사진 · 배경이 투명한 PNG 둘 다 됩니다 (자동으로 줄여 저장)</p>' : '<p class="st-hint">서명은 학회장 · 설립자만 바꿀 수 있습니다.</p>')
     + '</div><div class="at-ct"><div class="at-bar"><label>증명서 받을 사람 <select id="atCu" onchange="atCertPick(this.value, true)"><option value="">고르기</option>' + R.map(function(m){ return '<option value="' + m.id + '"' + (m.id === AT.cu ? ' selected' : '') + '>' + esc((m.name || '-') + (m.gen != null ? ' · ' + m.gen + '기' : '')) + '</option>'; }).join('') + '</select></label></div>'
-      + '<div class="at-bar"><span class="st-hint">배치</span>' + qSeg('atLaySeg', [['c', '가운데'], ['l', '왼쪽']], atLay(), 'atLaySet') + '</div>'
-      + '<div class="at-prev"><canvas id="atCv" width="1654" height="2339" aria-label="활동 증명서 미리보기"></canvas></div>'
+      + '<div class="at-bar"><span class="st-hint">종류</span>' + qSeg('atKindSeg', [['act', '활동 증명서'], ['fact', '사실 증명서']], atKind(), 'atKindSet') + '<span class="st-hint">배치</span>' + qSeg('atLaySeg', [['c', '가운데'], ['l', '왼쪽']], atLay(), 'atLaySet') + '</div>'
+      + '<div class="at-prev"><canvas id="atCv" width="1654" height="2339" aria-label="증명서 미리보기"></canvas></div>'
       + '<div class="at-acts"><button type="button" class="btn-sm btn-solid" id="atPdfB" onclick="atPdfGo()"' + (AT.cu && (AT.sign && AT.sign.img) ? '' : ' disabled') + '>PDF 내려받기</button>'
-      + '<span class="st-hint" id="atCtMsg">' + esc(!(AT.sign && AT.sign.img) ? '학회장 서명을 먼저 저장해 주세요' : !AT.cu ? '받을 사람을 고르세요' : '활동 기간 = 그 사람의 첫 모임 ~ 마지막 모임 (출결 · 출석률은 적지 않음) · 내려받을 때 발급 번호가 맨 아래 작게 붙고 기록이 남습니다') + '</span></div></div></div>';
+      + '<span class="st-hint" id="atCtMsg">' + esc(atCtHint()) + '</span></div></div></div>';
   atCertDraw(null);
 }
 //  ── 입력 ──
@@ -64977,7 +64977,7 @@ async function atSignSave(){
   AT.sign = { name: nm, img: img, updated_at: new Date().toISOString() }; AT.signNew = null; atDrawSign(); toast('학회장 서명을 저장했습니다', 2400);
 }
 //  ── 증명서 ──
-function atCertPick(uid, noScroll){ AT.cu = uid || ''; atDrawSign(); if (!noScroll){ var c = $('atSignCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
+function atCertPick(uid, noScroll){ AT.cu = uid || ''; var D0 = AT.cu ? atCertData(AT.cu) : null, many = !!(D0 && D0.c.absent >= AT_RULE_ABS); if (many && AT.kind !== 'fact'){ AT.kind = 'fact'; AT.kindAuto = true; } else if (!many && AT.kindAuto){ AT.kind = 'act'; AT.kindAuto = false; } atDrawSign(); if (!noScroll){ var c = $('atSignCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
 function atCertData(uid){
   var m = AT.mem.filter(function(x){ return x.id === uid; })[0]; if (!m) return null;
   var S = AT.ses.filter(function(s){ return atMk(s.id, uid); }).sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
@@ -64994,11 +64994,22 @@ function atSerif(px, w){ return (w || 400) + ' ' + px + 'px ' + AT_SERIF; }
 function atEn(px){ return 'italic 400 ' + px + 'px "Instrument Serif", ' + AT_SERIF; }
 function atLay(){ var v = 'c'; try { v = LSX.getItem('safe_cert_lay_v1') || 'c'; } catch(e){} return v === 'l' ? 'l' : 'c'; }
 function atLaySet(v){ try { LSX.setItem('safe_cert_lay_v1', v === 'l' ? 'l' : 'c'); } catch(e){} qoSeg('atLaySeg', v); atCertDraw(null); }
+//  (23차 학회장: ‘중도 하차 학회원을 위한 사실 증명서 - 결석 · 출석 몇 번 사실 그대로만 · 활동 인증 아님 · 규정 결석 3번 이상이면 활동 증명은 어렵다는 문구’)
+var AT_RULE_ABS = 3;
+function atKind(){ return AT.kind === 'fact' ? 'fact' : 'act'; }
+function atKindSet(v){ AT.kind = v === 'fact' ? 'fact' : 'act'; AT.kindAuto = false; qoSeg('atKindSeg', AT.kind); var m = $('atCtMsg'); if (m) m.textContent = atCtHint(); atCertDraw(null); }
+function atCtHint(){
+  if (!(AT.sign && AT.sign.img)) return '학회장 서명을 먼저 저장해 주세요';
+  if (!AT.cu) return '받을 사람을 고르세요';
+  var D = atCertData(AT.cu), many = D && D.c.absent >= AT_RULE_ABS, tail = ' · 내려받을 때 발급 번호가 맨 아래 작게 붙고 기록이 남습니다';
+  if (atKind() === 'fact') return (AT.kindAuto ? '결석 ' + AT_RULE_ABS + '회 이상이라 사실 증명서로 바꿨습니다 · ' : '') + '기록된 모임 수 · 출석 · 지각 · 결석을 그대로 적음 (활동 인증 아님)' + (many ? ' · 규정 문구가 함께 들어감' : '') + tail;
+  return (many ? '결석 ' + D.c.absent + '회 - 규정상 사실 증명서 대상입니다 · ' : '') + '활동 기간 = 그 사람의 첫 모임 ~ 마지막 모임 (출결 · 출석률은 적지 않음)' + tail;
+}
 var AT_FONT_P = null;
 function atFontsReady(text){
   if (!document.fonts || !document.fonts.load) return Promise.resolve();
   if (!document.getElementById('atSerifCss')){ var l = document.createElement('link'); l.id = 'atSerifCss'; l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap'; document.head.appendChild(l); }
-  var t = String(text || '') + '활동증명서위사람은서강대학교금융경제학회에서와같이하였음을합니다성명학번기수직책기간학회장원임진0123456789.~ ';
+  var t = String(text || '') + '활동증명서위사람은서강대학교금융경제학회에서와같이하였음을합니다성명학번기수직책기간학회장원임진0123456789.~ 사실록된모임회출석지각결석의확인규정상으로발급대상에해당않습니다문서는적은것이며활동을인증없음';
   var go = function(){ return Promise.all(['400 34px "Noto Serif KR"', '600 34px "Noto Serif KR"', 'italic 400 34px "Instrument Serif"'].map(function(f){ return document.fonts.load(f, t).catch(function(){}); })); };
   return Promise.race([new Promise(function(r){ setTimeout(r, 150); }).then(go), new Promise(function(r){ setTimeout(r, 3500); })]);
 }
@@ -65014,24 +65025,35 @@ function atCertPaint(cv, D, no, cb){
   x.textBaseline = 'alphabetic'; try { x.letterSpacing = '0px'; } catch(e){}
   var put = function(t, y, font, color, ls){ x.font = font; x.fillStyle = color; try { x.letterSpacing = (ls || 0) + 'px'; } catch(e){} x.textAlign = C ? 'center' : 'left'; x.fillText(t, C ? cx : M, y); try { x.letterSpacing = '0px'; } catch(e){} };
   var logoY = 230, logoW = C ? 340 : 360;
-  put('활동 증명서', 700, atSerif(64, 600), ink, 10);
-  put('Certificate of Activity', 760, atEn(34), sub, 1);
+  var F = atKind() === 'fact';
+  put(F ? '사실 증명서' : '활동 증명서', 700, atSerif(64, 600), ink, 10);
+  put(F ? 'Certificate of Record' : 'Certificate of Activity', 760, atEn(34), sub, 1);
   x.fillStyle = ink; x.fillRect(C ? cx - 28 : M, 812, 56, 3);
   var yMin = 0;
   if (!D) put('받을 사람을 고르면 여기에 미리 보입니다', 1000, atSerif(30, 400), sub);
   else {
     var m = D.m, dt = function(d){ return d ? d.replace(/-/g, '.') : '-'; }, rows = [['성명', m.name || '-']];
     if (m.student_id) rows.push(['학번', String(m.student_id)]);
-    rows.push(['기수', D.gens.length ? D.gens.map(function(g){ return g + '기'; }).join(' · ') : '-'], ['직책', atPos(m)], ['활동 기간', D.from ? dt(D.from) + ' - ' + dt(D.to) : '-']);
-    var y = 980, rh = 92;
+    rows.push(['기수', D.gens.length ? D.gens.map(function(g){ return g + '기'; }).join(' · ') : '-']);
+    if (F) rows.push(['기록 기간', D.from ? dt(D.from) + ' - ' + dt(D.to) : '기록 없음'], ['기록된 모임', D.c.n + '회'], ['출결', '출석 ' + D.c.present + '회 · 지각 ' + D.c.late + '회 · 결석 ' + D.c.absent + '회']);
+    else rows.push(['직책', atPos(m)], ['활동 기간', D.from ? dt(D.from) + ' - ' + dt(D.to) : '-']);
+    var y = F ? 960 : 980, rh = F ? 84 : 92, vx = C ? cx + 44 : M + 250, vMax = W - M - vx;
     rows.forEach(function(r, i){ var yb = y + rh * i;
       x.textAlign = C ? 'right' : 'left'; x.font = atSerif(26, 400); x.fillStyle = sub; try { x.letterSpacing = '4px'; } catch(e){} x.fillText(r[0], C ? cx - 44 : M, yb); try { x.letterSpacing = '0px'; } catch(e){}
-      x.textAlign = 'left'; x.font = atSerif(32, r[0] === '성명' ? 600 : 400); x.fillStyle = txt; x.fillText(String(r[1]), C ? cx + 44 : M + 250, yb); });
-    var yS = y + rh * (rows.length - 1) + 210;
-    put('위 사람은 서강대학교 금융경제학회 SAFE 에서', yS, atSerif(32, 400), txt);
-    put('위와 같이 활동하였음을 증명합니다.', yS + 62, atSerif(32, 400), txt);
-    var now = new Date(Date.now() + 9 * 3600e3); put(now.getUTCFullYear() + '. ' + (now.getUTCMonth() + 1) + '. ' + now.getUTCDate() + '.', yS + 190, atSerif(28, 400), sub, 2);
-    yMin = yS + 190 + 200;
+      var fs = 32; x.textAlign = 'left'; x.font = atSerif(fs, r[0] === '성명' ? 600 : 400); while (fs > 22 && x.measureText(String(r[1])).width > vMax){ fs -= 1; x.font = atSerif(fs, r[0] === '성명' ? 600 : 400); }
+      x.fillStyle = txt; x.fillText(String(r[1]), vx, yb); });
+    var yS = y + rh * (rows.length - 1) + (F ? 180 : 210), yD = yS + 190;
+    if (F){
+      put('위 사람의 서강대학교 금융경제학회 SAFE 모임 출결 기록이', yS, atSerif(32, 400), txt);
+      put('위와 같음을 확인합니다.', yS + 62, atSerif(32, 400), txt);
+      put(D.c.absent >= AT_RULE_ABS ? '학회 규정상 결석 ' + AT_RULE_ABS + '회 이상으로 활동 증명서 발급 대상에 해당하지 않습니다.' : '이 문서는 기록된 출결을 사실대로 적은 것이며, 학회 활동을 인증하지 않습니다.', yS + 140, atSerif(25, 400), D.c.absent >= AT_RULE_ABS ? '#5a6173' : sub, 1);
+      yD = yS + 240;
+    } else {
+      put('위 사람은 서강대학교 금융경제학회 SAFE 에서', yS, atSerif(32, 400), txt);
+      put('위와 같이 활동하였음을 증명합니다.', yS + 62, atSerif(32, 400), txt);
+    }
+    var now = new Date(Date.now() + 9 * 3600e3); put(now.getUTCFullYear() + '. ' + (now.getUTCMonth() + 1) + '. ' + now.getUTCDate() + '.', yD, atSerif(28, 400), sub, 2);
+    yMin = yD + 200;
   }
   //  서명 자리 — 기관 · 학회장 이름 · 서명 (가운데면 이름과 서명을 한 덩어리로 가운데)
   var yN = Math.max(H - 380, yMin), nm = (AT.sign && AT.sign.name) || '', src = AT.sign && AT.sign.img;
@@ -65047,7 +65069,7 @@ function atCertPaint(cv, D, no, cb){
   if (!pend) done();
 }
 //  A4 한 장 PDF (JPEG 그림 하나 · 글꼴을 싣지 않아 한글이 깨지지 않음)
-function atPdfBytes(cv){
+function atPdfBytes(cv, title){
   var b64 = cv.toDataURL('image/jpeg', 0.92).split(',')[1], bin = atob(b64), jpg = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) jpg[i] = bin.charCodeAt(i);
   var enc = new TextEncoder(), parts = [], len = 0, off = [], add = function(x){ var b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; }, obj = function(n){ off[n] = len; add(n + ' 0 obj\n'); };
   var PW = 595.28, PH = 841.89, cs = 'q ' + PW + ' 0 0 ' + PH + ' 0 0 cm /Im0 Do Q';
@@ -65057,7 +65079,7 @@ function atPdfBytes(cv){
   obj(3); add('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + PW + ' ' + PH + '] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>\nendobj\n');
   obj(4); add('<< /Type /XObject /Subtype /Image /Width ' + cv.width + ' /Height ' + cv.height + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpg.length + ' >>\nstream\n'); add(jpg); add('\nendstream\nendobj\n');
   obj(5); add('<< /Length ' + cs.length + ' >>\nstream\n' + cs + '\nendstream\nendobj\n');
-  obj(6); add('<< /Title (SAFE Certificate of Activity) /Producer (SAFE Terminal) >>\nendobj\n');
+  obj(6); add('<< /Title (' + (title || 'SAFE Certificate of Activity') + ') /Producer (SAFE Terminal) >>\nendobj\n');
   var xr = len; add('xref\n0 7\n0000000000 65535 f \n'); for (var n = 1; n <= 6; n++) add(('0000000000' + off[n]).slice(-10) + ' 00000 n \n');
   add('trailer\n<< /Size 7 /Root 1 0 R /Info 6 0 R >>\nstartxref\n' + xr + '\n%%EOF\n');
   var out = new Uint8Array(len), p = 0; parts.forEach(function(b){ out.set(b, p); p += b.length; }); return out;
@@ -65067,13 +65089,14 @@ async function atPdfGo(){
   var D = AT.cu ? atCertData(AT.cu) : null, b = $('atPdfB'); if (!D || !(AT.sign && AT.sign.img)) return;
   if (b) b.disabled = true;
   try {
-    var r = await atDb.logCert({ user_id: D.m.id, kind: 'activity', gen: D.m.gen, summary: { from: D.from, to: D.to, n: D.c.n, present: D.c.present, late: D.c.late, absent: D.c.absent, rate: D.c.rate, sign: AT.sign.name } });
+    var K = atKind() === 'fact' ? 'fact' : 'activity', KN = K === 'fact' ? '사실 증명서' : '활동 증명서';
+    var r = await atDb.logCert({ user_id: D.m.id, kind: K, gen: D.m.gen, summary: { from: D.from, to: D.to, n: D.c.n, present: D.c.present, late: D.c.late, absent: D.c.absent, rate: D.c.rate, sign: AT.sign.name, rule: D.c.absent >= AT_RULE_ABS } });
     if (r.error) throw r.error;
     var yr = String(r.data.issued_at || new Date().toISOString()).slice(0, 4), no = 'SAFE-' + yr + '-' + ('000' + r.data.id).slice(-4);
     await new Promise(function(res){ atCertDraw(no, res); });
-    atSave(atPdfBytes($('atCv')), 'SAFE_활동증명서_' + String(D.m.name || '').replace(/[\\/:*?"<>|\s]/g, '') + '_' + atKst().replace(/-/g, '') + '.pdf');
+    atSave(atPdfBytes($('atCv'), K === 'fact' ? 'SAFE Certificate of Record' : 'SAFE Certificate of Activity'), 'SAFE_' + KN.replace(/\s/g, '') + '_' + String(D.m.name || '').replace(/[\\/:*?"<>|\s]/g, '') + '_' + atKst().replace(/-/g, '') + '.pdf');
     var m = $('atCtMsg'); if (m) m.textContent = '발급했습니다 · ' + no;
-    toast('활동 증명서를 내려받았습니다 · ' + esc(no), 3000);
+    toast(KN + '를 내려받았습니다 · ' + esc(no), 3000);
   } catch(e){ toast(esc(atErr(e)), 4200); }
   finally { if (b) b.disabled = false; }
 }
