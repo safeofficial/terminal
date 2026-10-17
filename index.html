@@ -1065,6 +1065,41 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:10.5px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  #stkHeatCard.mt-heat-top{margin-bottom:16px}
+  /* (26차) 팀 카드 — 크게 */
+  #mtTeams .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
+  #mtTeams .mt-team.tc{padding:18px 20px 14px;gap:9px;text-align:left;align-items:stretch}
+  #mtTeams .mt-team.tc .rk{height:26px;padding:0 11px;font-size:13px;border-radius:7px}
+  #mtTeams .mt-team.tc.r1{border-top:3px solid #e8b923}
+  .tc-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:26px}
+  .tc-tag{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;border:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text-sub);white-space:nowrap}
+  .tc-tag.me{color:var(--hc-trade);border-color:var(--hc-trade)}
+  .tc-tag.auto i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#1f8a70;margin-right:5px}
+  .tc-mem{margin-left:auto;font-size:11.5px;color:var(--text-sub);white-space:nowrap}
+  #mtTeams .mt-team.tc .nm{font-size:21px;margin-top:2px;line-height:1.2;overflow-wrap:anywhere}
+  .tc-mid{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  #mtTeams .mt-team.tc .pl{font-size:36px;line-height:1.05}
+  .tc-gap{font-size:12px;color:var(--text-sub);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tc-sp{display:block;width:100%;height:56px}
+  .tc-sp.none{height:20px;font-size:11px;color:var(--text-sub);display:flex;align-items:center}
+  .tc-kv{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:10px;border-top:1px solid var(--border)}
+  .tc-kv span{display:block;font-size:11px;color:var(--text-sub);margin-bottom:2px}
+  .tc-kv b{display:block;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:15px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tc-kv b.up{color:var(--up)} .tc-kv b.dn{color:var(--down)}
+  #mtTeams .mt-team.tc .go{margin-top:2px}
+  /* (26차) 일별 기록 튐 안내 · 사람별 손익 · 판 사람 */
+  .mt-cut{margin:8px 0 0;padding:8px 10px;border-radius:8px;background:var(--bg);border:1px dashed var(--border);font-size:11.5px;line-height:1.55;color:var(--text-sub)}
+  .mt-cut b{color:var(--text)}
+  #mtWhoTable td,#mtWhoTable th{white-space:nowrap}
+  #mtWhoTable td.up{color:var(--up)} #mtWhoTable td.dn{color:var(--down)}
+  #mtWhoTable tfoot td{font-weight:700;background:var(--bg);border-top:2px solid var(--border);border-bottom:0}
+  #mtWhoTable tfoot tr + tr td{font-weight:500;border-top:1px solid var(--border)}
+  .wb{position:relative;width:120px;height:10px;border-radius:5px;background:var(--bg-sub)}
+  .wb i{position:absolute;top:0;bottom:0;border-radius:5px}
+  .wb i.up{background:var(--up)} .wb i.dn{background:var(--down)}
+  .wb:after{content:'';position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--border)}
+  .mt-sellers{display:flex;flex-direction:column;gap:3px;align-items:flex-start}
+  .mt-sellers .q{font-size:11px;color:var(--text-sub);margin-left:4px;font-variant-numeric:tabular-nums}
   .wd-sub{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:12px 0 6px;font-size:11.5px;font-weight:700;color:var(--text-sub)}
   .wd-sub .st-hint{margin:0;font-weight:400;font-size:11px}
   .wd-al{margin-bottom:6px}
@@ -42959,27 +42994,8 @@ async function mtLoadLeague(){
       + '</div>';
     return;
   }
-  box.innerHTML = '<div class="mt-teams">' + mtBoard.map(function(t, i){
-    var mine = mtMyTeam && Number(t.team_id) === mtMyTeam;
-    var up = Number(t.pnl_pct) >= 0;
-    return '<button class="mt-team' + (mine ? ' mine' : '') + '"'
-      + ' onclick="mtEnter(' + Number(t.team_id) + ')">'
-      + '<span class="rk">' + (i + 1) + '위' + (mine ? ' · 내 팀' : '') + '</span>'
-      + '<span class="nm">' + esc(t.team_name) + '</span>'
-      + '<span class="pl ' + (up ? 'up' : 'dn') + '">'
-      + (up ? '+' : '') + num(t.pnl_pct, 2) + '%</span>'
-      + '<span class="sub">평가액 ' + mtMoney(t.total) + '원 · '
-      + (up ? '+' : '') + mtMoney(t.pnl) + '원</span>'
-      + '<span class="sub">팀원 ' + num(t.members, 0) + '명'
-      + (t.auto_on ? ' · 자동매매 켬' : '') + '</span>'
-      //  카드가 <문> 이라는 걸 적어둡니다. 예전에는 눌러야 방이 열리는데
-      //  화면 어디에도 그 말이 없어서 순위표로만 보였습니다.
-      + '<span class="go">' + (mine ? '내 팀 방 열기' : '이 팀 방 보기') + ' →</span>'
-      + '</button>';
-  }).join('') + '</div>'
-    + '<p class="st-hint" style="margin:10px 2px 0">'
-    + '팀 카드를 누르면 그 팀 <b>방</b>으로 들어갑니다 · 매매 · 전략 · 기록은 방 안에서 팀별로 따로 돌아갑니다.'
-    + (mtMyTeam ? '' : ' 소속 팀이 없으면 보기만 됩니다.') + '</p>';
+  mtBoardRender();
+  mtBoardLive();
 }
 
 /* ── 방 드나들기 ─────────────────────────────── */
@@ -52440,8 +52456,7 @@ function renderPie(){
 }
 
 async function loadHistory(){
-  var r = await sb.rpc('team_history', { p_team_id: team });
-  var hist = (r.data && !r.error) ? r.data : [];
+  var hist = await mtHistGet(team);
 
   if (typeof echarts === 'undefined') return;
   pnlChart = chartOn('pnlBox', pnlChart); if (!pnlChart) return;
@@ -52876,8 +52891,7 @@ function drawDist(boxId, rets){
 async function loadQuant(){
   if (!team) return;
   var box = $('quantBody');
-  var r = await sb.rpc('team_history', { p_team_id: team });
-  var hist = (r.data && !r.error) ? r.data : [];
+  var hist = await mtHistGet(team);
   if (hist.length < 5){
     box.innerHTML = '<div class="empty">일별 기록이 5일 이상 쌓이면 계산됩니다. (현재 '+hist.length+'일)</div>';
     return;
@@ -69416,6 +69430,312 @@ function dkFsKeep(){ DKF.fs = dkSnap(); try { LSX.setItem('safe_dock_fs_v1', JSO
     else if (!on && DKF.on){ if (DKF.dirty || DKF.fs) dkFsKeep(); dkPut(DKF.nm); DKF.on = false; DKF.nm = null; save0(); }
     return in0.apply(this, arguments);
   };
+})();
+
+
+/* ══════════ (26차) 일별 기록 — 하루 만에 크게 튀었다가 며칠 안에 되돌아온 구간 ══════════
+   학회장 화면: 9/24 ~ 9/29 누적 손익이 1억 → 1억 5천만 → 9/30 다시 9,500만 (S&P 500 대비 · 퀀트 지표도 같이 틀어짐)
+   · 기준: 하루 ±20% 넘게 움직였고, 10일 안에 거꾸로 크게 움직여 그 전날 값 근처(±5% 또는 튄 폭의 1/4 안)로 돌아온 구간
+   · 그 날들은 그래프 · S&P 500 대비 · 퀀트 지표에서 빼고, 어느 날을 왜 뺐는지 그래프 아래에 적음 · 저장된 기록은 그대로 둠       */
+var MTH = { team: null, at: 0, raw: null, cut: [] };
+function mtHistSpikes(hist){
+  var v = hist.map(function(h){ return Number(h.total); }), n = v.length, runs = [];
+  for (var i = 1; i < n - 1; i++){
+    var a = v[i - 1], b = v[i]; if (!(a > 0) || !(b > 0)) continue;
+    var jin = b / a - 1; if (Math.abs(jin) < 0.2) continue;
+    var tol = Math.max(0.05, Math.abs(jin) / 4);
+    for (var k = i + 1; k < n && k <= i + 10; k++){
+      var out = v[k] / v[k - 1] - 1;
+      if (v[k] > 0 && Math.abs(v[k] / a - 1) <= tol && out * jin < 0 && Math.abs(out) >= Math.abs(jin) * 0.5 / (1 + jin)){ runs.push({ i: i, j: k - 1, jin: jin }); i = k - 1; break; }
+    }
+  }
+  return runs;
+}
+function mtHistClean(hist){
+  var runs = mtHistSpikes(hist || []), bad = {};
+  runs.forEach(function(r){ for (var x = r.i; x <= r.j; x++) bad[x] = 1; });
+  return { rows: (hist || []).filter(function(h, x){ return !bad[x]; }),
+           cut: runs.map(function(r){ return { from: hist[r.i].d, to: hist[r.j].d, n: r.j - r.i + 1, pct: r.jin * 100, amt: Number(hist[r.i].total) - Number(hist[r.i - 1].total), peak: Number(hist[r.i].total) }; }) };
+}
+async function mtHistGet(tid){
+  if (MTH.team === tid && MTH.raw && Date.now() - MTH.at < 8000){ var c0 = mtHistClean(MTH.raw); MTH.cut = c0.cut; return c0.rows; }
+  var r = await sb.rpc('team_history', { p_team_id: tid });
+  var raw = (r.data && !r.error) ? r.data : [];
+  MTH = { team: tid, at: Date.now(), raw: raw, cut: [] };
+  var c = mtHistClean(raw); MTH.cut = c.cut;
+  setTimeout(mtHistNotes, 0);
+  return c.rows;
+}
+function mtMd(d){ var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d || '')); return m ? Number(m[2]) + '/' + Number(m[3]) : String(d || ''); }
+function mtHistNoteHtml(){
+  if (!MTH.cut || !MTH.cut.length) return '';
+  return '<div class="mt-cut">⚠ ' + MTH.cut.map(function(c){
+      return '<b>' + esc(mtMd(c.from) + (c.n > 1 ? ' ~ ' + mtMd(c.to) : '')) + '</b> (' + c.n + '일) 기록은 하루 만에 '
+        + (c.amt >= 0 ? '+' : '') + mtMoney(c.amt) + '원 (' + (c.pct >= 0 ? '+' : '') + num(c.pct, 1) + '%) 움직였다가 되돌아온 값이라';
+    }).join(' · ') + ' 그래프 · S&P 500 대비 · 퀀트 지표에서 뺐습니다. 저장된 일별 기록 쪽 오류로 보이며, 기록 자체는 지우지 않았습니다.'
+    + (isOfficer() ? ' <span class="st-hint">(임원진) 튄 날 값: ' + MTH.cut.map(function(c){ return esc(mtMd(c.from)) + ' ' + mtMoney(c.peak) + '원'; }).join(' · ') + '</span>' : '')
+    + '</div>';
+}
+function mtHistNotes(){
+  var h = mtHistNoteHtml();
+  [['pnlBox', 'pnlCut'], ['benchBox', 'benchCut']].forEach(function(x){
+    var b = $(x[0]); if (!b) return;
+    var e = $(x[1]); if (!e){ e = document.createElement('div'); e.id = x[1]; b.parentNode.insertBefore(e, b.nextSibling); }
+    e.innerHTML = x[1] === 'pnlCut' ? h : '';
+  });
+  var q = $('quantBody'); if (!q) return;
+  var e2 = $('quantCut'); if (!e2){ e2 = document.createElement('div'); e2.id = 'quantCut'; q.parentNode.insertBefore(e2, q); }
+  e2.innerHTML = h;
+}
+
+/* ══════════ (26차 학회장: ‘팀 페이지 안 평가액이랑 밖에 팀 순위 평가액이 안 맞잖아’) ══════════
+   · 순위표 카드 숫자를 팀 방과 <같은 계산> (서버 계좌 mt_account) 으로 — 팀 방 · 순위표가 같은 값을 봄
+   · 모든 팀 값을 받았을 때만 그 값으로 줄을 세움 (한 팀이라도 못 받으면 예전처럼 저장된 시세 순위표 그대로 · 섞어서 세우지 않음)
+   · 순위표가 보일 때만 · 탭이 보일 때만 · 1분마다 (팀마다 45초 안에 받은 값은 다시 안 받음) · 팀 방에서 받은 값도 같이 씀
+   · 대회가 끝났으면 저장된 최종 순위표 그대로                                                                        */
+var MTB = { live: {}, busy: false, basis: 'db', spark: {}, sparkAt: 0, sparkBusy: false };
+function mtBoardRows(){
+  var now = Date.now(), over = mtContestOver();
+  var all = !over && mtBoard.length > 0 && mtBoard.every(function(t){ var L = MTB.live[Number(t.team_id)]; return L && now - L.at < 150000; });
+  MTB.basis = all ? 'live' : 'db';
+  var rows = mtBoard.map(function(t){
+    var L = all ? MTB.live[Number(t.team_id)].d : null;
+    return { id: Number(t.team_id), name: t.team_name, members: t.members, auto: t.auto_on,
+             total: Number(L ? L.total : t.total), pnl: Number(L ? L.pnl : t.pnl), pct: Number(L ? L.pnl_pct : t.pnl_pct), at: L ? MTB.live[Number(t.team_id)].at : 0 };
+  });
+  if (all) rows.sort(function(a, b){ return (b.pct - a.pct) || (b.total - a.total); });
+  return rows;
+}
+function mtSparkSvg(id, nowTotal){
+  var H = MTB.spark[id];
+  if (!H || H.length < 2) return '<div class="tc-sp none">' + (H ? '기록이 2일 이상 쌓이면 추이가 보입니다' : '') + '</div>';
+  var pts = H.slice(-45).map(function(h){ return [String(h.d).slice(0, 10), Number(h.total)]; });
+  var td = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
+  if (isFinite(nowTotal) && nowTotal > 0){ if (pts[pts.length - 1][0] === td) pts[pts.length - 1][1] = nowTotal; else pts.push([td, nowTotal]); }
+  var seed = 100000000, vs = pts.map(function(x){ return x[1]; }).concat([seed]);
+  var lo = Math.min.apply(null, vs), hi = Math.max.apply(null, vs); if (hi - lo < 1) hi = lo + 1;
+  var W = 300, Hh = 56, pad = 4, X = function(k){ return pad + (W - 2 * pad) * k / (pts.length - 1); }, Y = function(v){ return pad + (Hh - 2 * pad) * (1 - (v - lo) / (hi - lo)); };
+  var line = pts.map(function(x, k){ return X(k).toFixed(1) + ',' + Y(x[1]).toFixed(1); }).join(' ');
+  var up = pts[pts.length - 1][1] >= seed, col = up ? 'var(--up)' : 'var(--down)', ys = Y(seed).toFixed(1);
+  return '<svg class="tc-sp" viewBox="0 0 ' + W + ' ' + Hh + '" preserveAspectRatio="none" aria-hidden="true">'
+    + '<line x1="0" x2="' + W + '" y1="' + ys + '" y2="' + ys + '" stroke="var(--border)" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>'
+    + '<polygon points="' + X(0).toFixed(1) + ',' + ys + ' ' + line + ' ' + X(pts.length - 1).toFixed(1) + ',' + ys + '" fill="' + col + '" opacity=".1"/>'
+    + '<polyline points="' + line + '" fill="none" stroke="' + col + '" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>'
+    + '<circle cx="' + X(pts.length - 1).toFixed(1) + '" cy="' + Y(pts[pts.length - 1][1]).toFixed(1) + '" r="3" fill="' + col + '"/></svg>';
+}
+function mtBoardRender(){
+  var box = $('mtTeams'); if (!box || !mtBoard || !mtBoard.length) return;
+  var rows = mtBoardRows(), lead = rows.length ? rows[0].pct : 0;
+  box.innerHTML = '<div class="mt-teams">' + rows.map(function(t, i){
+    var mine = mtMyTeam && t.id === mtMyTeam, up = t.pct >= 0, gap = t.pct - lead;
+    return '<button class="mt-team tc r' + (i + 1) + (mine ? ' mine' : '') + '" onclick="mtEnter(' + t.id + ')">'
+      + '<div class="tc-top"><span class="rk">' + (i + 1) + '위</span>'
+      + (mine ? '<span class="tc-tag me">내 팀</span>' : '')
+      + (t.auto ? '<span class="tc-tag auto"><i></i>자동매매 켬</span>' : '')
+      + '<span class="tc-mem">팀원 ' + num(t.members, 0) + '명</span></div>'
+      + '<span class="nm">' + esc(t.name) + '</span>'
+      + '<div class="tc-mid"><span class="pl ' + (up ? 'up' : 'dn') + '">' + (up ? '+' : '') + num(t.pct, 2) + '%</span>'
+      + (i ? '<span class="tc-gap">1위와 ' + num(gap, 2) + '%p</span>' : '<span class="tc-gap">선두</span>') + '</div>'
+      + mtSparkSvg(t.id, t.total)
+      + '<div class="tc-kv"><div><span>총 평가액</span><b>' + mtMoney(t.total) + '원</b></div>'
+      + '<div><span>손익</span><b class="' + (up ? 'up' : 'dn') + '">' + (up ? '+' : '') + mtMoney(t.pnl) + '원</b></div></div>'
+      + '<span class="go">' + (mine ? '내 팀 방 열기' : '이 팀 방 보기') + ' →</span>'
+      + '</button>';
+  }).join('') + '</div>'
+    + '<p class="st-hint" style="margin:10px 2px 0">'
+    + '팀 카드를 누르면 그 팀 <b>방</b>으로 들어갑니다 · 매매 · 전략 · 기록은 방 안에서 팀별로 따로 돌아갑니다.'
+    + (mtMyTeam ? '' : ' 소속 팀이 없으면 보기만 됩니다.') + '</p>';
+  mtBoardSpark();
+}
+async function mtBoardLive(){
+  if (MTB.busy || mtContestOver() || !mtBoard || !mtBoard.length) return;
+  var lg = $('mtLeague'); if (!lg || lg.classList.contains('hidden') || document.hidden) return;
+  MTB.busy = true;
+  try {
+    var ids = mtBoard.map(function(t){ return Number(t.team_id); });
+    for (var i = 0; i < ids.length; i += 3){
+      await Promise.all(ids.slice(i, i + 3).map(function(id){
+        var L = MTB.live[id]; if (L && Date.now() - L.at < 45000) return null;
+        return edge({ source: 'mt_account', team_id: id }).then(function(d){ if (d && isFinite(Number(d.total)) && isFinite(Number(d.pnl_pct))) MTB.live[id] = { d: d, at: Date.now() }; }, function(){});
+      }));
+    }
+  } finally { MTB.busy = false; }
+  var lg2 = $('mtLeague'); if (lg2 && !lg2.classList.contains('hidden')){ mtBoardRender(); mtLeagueNote(); }
+}
+//  카드 추이 — 일별 기록 (튄 날은 빼고) · 5분에 한 번
+async function mtBoardSpark(){
+  if (MTB.sparkBusy || !mtBoard || !mtBoard.length || Date.now() - MTB.sparkAt < 300000) return;
+  MTB.sparkBusy = true;
+  try {
+    await Promise.all(mtBoard.map(function(t){ var id = Number(t.team_id);
+      return sb.rpc('team_history', { p_team_id: id }).then(function(r){ MTB.spark[id] = (r && r.data && !r.error) ? mtHistClean(r.data).rows : []; }, function(){ MTB.spark[id] = null; }); }));
+    MTB.sparkAt = Date.now();
+  } catch(e){} finally { MTB.sparkBusy = false; }
+  var lg = $('mtLeague'); if (lg && !lg.classList.contains('hidden')) mtBoardRender();
+}
+mtLeagueNote = function(){
+  var el = $('mtLeagueAsOf'); if (!el) return;
+  var hm = function(d){ return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }); };
+  if (mtContestOver()){ el.innerHTML = '대회가 끝나 순위가 더 바뀌지 않습니다.'; return; }
+  el.innerHTML = MTB.basis === 'live'
+    ? '<span class="live-dot"></span>' + hm(new Date()) + ' 실시간 시세 기준 <span class="st-hint">· 팀 방과 같은 계산 · 1분마다 저절로 갱신</span>'
+    : '<span class="live-dot"></span>' + mtLeagueStamp() + ' <span class="st-hint">· 저장된 시세 · 1분마다 저절로 갱신 (실시간 값을 받는 중)</span>';
+};
+(function(){
+  //  팀 방에서 받은 계좌도 순위표가 같이 씀 (나와서 보는 숫자 = 방에서 본 숫자)
+  var la0 = mtLoadAccount;
+  mtLoadAccount = async function(){
+    var t0 = team, r = await la0.apply(this, arguments);
+    if (mtAcc && t0 && team === t0 && isFinite(Number(mtAcc.total))){ MTB.live[Number(t0)] = { d: mtAcc, at: Date.now() }; mtAcc.__team = Number(t0); }
+    try { mtWhoRender(); } catch(e){}
+    return r;
+  };
+  //  다시 계산 단추 · 방 들어갈 때 — 퀀트 지표 위에 튄 날 안내
+  var lq0 = loadQuant;
+  loadQuant = async function(){ var r = await lq0.apply(this, arguments); mtHistNotes(); return r; };
+})();
+
+/* ══════════ (26차 학회장: ‘판 내역에 누가 팔았는지 · 기록에는 누가 얼마나 벌고 잃었는지’) ══════════
+   · 이름은 서버(team_trades)가 주는 것만 씀 — 남의 팀 방에서는 서버가 이름을 안 보내므로 칸 · 표가 안 나옴 (예전 ‘누가’ 칸과 같은 규칙)
+   · 거래는 처음부터 전부 (trades 를 1,000건씩) · 이름은 거래 번호로 붙임 · 자동매매 = ‘자동매매’
+   · 실현손익 = 그 사람이 판 거래의 손익 (팀 평단 기준 · 수수료 포함 · 대회 고정환율) · 평가손익 = 지금 들고 있는 종목을 <산 수량 비율대로> 나눈 몫
+     (팀 평단은 하나라서, 판 만큼 모든 사람 몫이 같은 비율로 줄어든다고 봄) · 다 더하면 팀 손익 (차이 = 배당 · 기타)                         */
+var MTW = { team: null, at: 0, all: null, named: false, p: null };
+async function mtWhoLoad(tid, force){
+  if (!tid) return null;
+  if (!force && MTW.team === tid && MTW.all && Date.now() - MTW.at < 60000) return MTW;
+  if (MTW.p && MTW.pt === tid) return MTW.p;
+  MTW.pt = tid;
+  MTW.p = (async function(){
+    var named = [], all = [];
+    try { var r = await sb.rpc('team_trades', { p_team_id: tid, p_limit: 5000 }); if (!r.error) named = aiArr(r.data); } catch(e){}
+    var accT = (mtAcc && mtAcc.__team === Number(tid) && Array.isArray(mtAcc.trades)) ? mtAcc.trades : [];
+    try { all = await mtTradesAll(tid); } catch(e){ all = []; }
+    if (!all.length) all = (named.length ? named : accT).slice();
+    var key = function(x){ return x.id != null ? 'i' + x.id : 'k' + [x.traded_on, x.market, x.symbol, x.side, Number(x.qty), Number(x.price)].join('|'); };
+    var nm = {};
+    named.concat(accT).forEach(function(x){ var k = key(x), o = nm[k] || (nm[k] = {}); if (x.by_name && !o.who) o.who = String(x.by_name); if (x.source && !o.src) o.src = x.source; });
+    all.forEach(function(x){ var o = nm[key(x)] || {}; x.__who = o.who || (o.src === 'auto' || x.source === 'auto' ? '자동매매' : (x.by_name || '')); });
+    var res = { team: tid, at: Date.now(), all: all, named: named.concat(accT).some(function(x){ return !!x.by_name; }), p: null, pt: null };
+    MTW = res; return res;
+  })();
+  try { return await MTW.p; } catch(e){ MTW.p = null; return null; }
+}
+function mtWhoCalc(all, acc){
+  var fx = (acc && acc.fx) || (typeof mtCt !== 'undefined' && mtCt && mtCt.fx_fixed) || 1400;
+  var pos = {}, P = {}, sellers = {};
+  var per = function(n){ n = n || '이름 없음'; return P[n] || (P[n] = { name: n, buyN: 0, sellN: 0, buyAmt: 0, sellAmt: 0, real: 0, unreal: 0, win: 0, cnt: 0, best: null, worst: null }); };
+  all.slice().sort(function(a, b){ return String(a.traded_on).localeCompare(String(b.traded_on)) || (Number(a.id) || 0) - (Number(b.id) || 0); }).forEach(function(t){
+    var k = t.market + '|' + t.symbol, f = t.market === 'KR' ? 1 : fx, q = Number(t.qty), pr = Number(t.price), fee = Number(t.fee || 0);
+    if (!(q > 0) || !isFinite(pr)) return;
+    var a = pos[k] || (pos[k] = { qty: 0, cost: 0, sh: {} }), w = per(t.__who);
+    if (t.side === 'buy'){
+      a.qty += q; a.cost += (q * pr + fee) * f; a.sh[w.name] = (a.sh[w.name] || 0) + q;
+      w.buyN++; w.buyAmt += q * pr * f;
+    } else {
+      var avgc = a.qty > 0 ? a.cost / a.qty : 0, pnl = a.qty > 0 ? q * (pr * f - avgc) - fee * f : null;
+      w.sellN++; w.sellAmt += q * pr * f;
+      if (pnl != null){
+        w.real += pnl; w.cnt++; if (pnl > 0) w.win++;
+        if (!w.best || pnl > w.best.v) w.best = { v: pnl, s: t.symbol };
+        if (!w.worst || pnl < w.worst.v) w.worst = { v: pnl, s: t.symbol };
+      }
+      var S = sellers[k] || (sellers[k] = {}), so = S[w.name] || (S[w.name] = { q: 0, pnl: 0 }); so.q += q; if (pnl != null) so.pnl += pnl;
+      var keep = a.qty > 0 ? Math.max(0, a.qty - q) / a.qty : 0;
+      Object.keys(a.sh).forEach(function(n){ a.sh[n] *= keep; });
+      a.cost *= keep; a.qty = Math.max(0, a.qty - q);
+    }
+  });
+  (acc && acc.positions || []).forEach(function(p){
+    var k = p.market + '|' + p.symbol, u = p.pnl_krw != null ? Number(p.pnl_krw) : p.pnl != null ? Number(p.pnl) * (p.market === 'KR' ? 1 : fx) : null;
+    if (u == null || !isFinite(u)) return;
+    var a = pos[k], sh = a ? a.sh : {}, tot = Object.keys(sh).reduce(function(x, n){ return x + sh[n]; }, 0);
+    if (!(tot > 0)){ per('이름 없음').unreal += u; return; }
+    Object.keys(sh).forEach(function(n){ if (sh[n] > 0) per(n).unreal += u * sh[n] / tot; });
+  });
+  return { P: P, sellers: sellers };
+}
+function mtWhoReady(){ return MTW.all && MTW.team === team && MTW.named; }
+//  판 내역 — ‘판 사람’ 칸 (판 수량 옆)
+(function(){
+  var rc0 = mtRenderClosed;
+  mtRenderClosed = function(){
+    var r = rc0.apply(this, arguments);
+    try {
+      var t = $('mtClosedTable'), rows = (mtAcc && mtAcc.closed) || [];
+      if (!t || !rows.length) return r;
+      if (!mtWhoReady()){ if (team && !(MTW.p && MTW.pt === team)) mtWhoLoad(team).then(function(w){ if (w && w.named && w.team === team) mtRenderClosed(); }); return r; }
+      var C = mtWhoCalc(MTW.all, mtAcc), hr = t.querySelector('thead tr'), bt = t.querySelectorAll('tbody tr'), fr = t.querySelector('tfoot td[colspan]');
+      if (!hr || hr.querySelector('.th-who')) return r;
+      var th = document.createElement('th'); th.className = 'th-who'; th.textContent = '판 사람';
+      hr.insertBefore(th, hr.children[5] || null);
+      Array.prototype.forEach.call(bt, function(tr, i){
+        var p = rows[i]; if (!p) return;
+        var S = C.sellers[p.market + '|' + p.symbol] || {}, L = Object.keys(S).map(function(n){ return { n: n, q: S[n].q, v: S[n].pnl }; }).sort(function(a, b){ return b.q - a.q; });
+        var td = document.createElement('td');
+        td.innerHTML = L.length ? '<div class="mt-sellers">' + L.map(function(x){ return '<span title="' + esc(x.n + ' · ' + mtQtyText(x.q, p.market) + ' 판매 · 실현손익 ' + (x.v >= 0 ? '+' : '') + mtMoney(x.v) + '원') + '"><span class="by-who">' + esc(x.n) + '</span><span class="q">' + mtQtyText(x.q, p.market) + '</span></span>'; }).join('') + '</div>' : '<span class="st-hint">-</span>';
+        tr.insertBefore(td, tr.children[5] || null);
+      });
+      if (fr) fr.setAttribute('colspan', String(Number(fr.getAttribute('colspan') || 6) + 1));
+    } catch(e){}
+    return r;
+  };
+  //  기록 — 사람별 손익 표 (거래 내역 위) · 거래 내역을 새로 받을 때마다 다시 셈
+  var lt0 = loadTrades;
+  loadTrades = async function(){ var r = await lt0.apply(this, arguments); try { await mtWhoLoad(team, true); mtWhoRender(); mtRenderClosed(); } catch(e){} return r; };
+})();
+function mtWhoRender(){
+  var pane = $('mtPane-log'); if (!pane) return;
+  var card = $('mtWhoCard');
+  if (!card){
+    card = document.createElement('div'); card.className = 'card hidden'; card.id = 'mtWhoCard';
+    card.innerHTML = '<h2>사람별 손익 <span style="font-size:11.5px;color:var(--text-sub);font-weight:400"> · 누가 얼마나 벌고 잃었는지</span></h2>'
+      + '<div class="scroll"><table id="mtWhoTable"></table></div><p class="st-hint" id="mtWhoNote" style="margin:8px 0 0"></p>';
+    pane.insertBefore(card, pane.firstElementChild);
+  }
+  if (!mtWhoReady() || !mtAcc || mtAcc.__team !== Number(team)){ card.classList.add('hidden'); return; }
+  var C = mtWhoCalc(MTW.all, mtAcc), L = Object.keys(C.P).map(function(n){ var x = C.P[n]; x.tot = x.real + x.unreal; return x; })
+    .filter(function(x){ return x.buyN || x.sellN || Math.abs(x.unreal) >= 0.5; })
+    .sort(function(a, b){ return b.tot - a.tot; });
+  if (!L.length){ card.classList.add('hidden'); return; }
+  card.classList.remove('hidden');
+  var mx = Math.max.apply(null, L.map(function(x){ return Math.abs(x.tot); }).concat([1]));
+  var sg = function(v){ return (v > 0.5 ? '+' : '') + mtMoney(v) + '원'; }, cl = function(v){ return v > 0.5 ? 'up' : v < -0.5 ? 'dn' : ''; };
+  var sR = 0, sU = 0; L.forEach(function(x){ sR += x.real; sU += x.unreal; });
+  var sT = sR + sU, teamPnl = mtAcc.pnl != null ? Number(mtAcc.pnl) : null, other = teamPnl != null ? teamPnl - sT : null;
+  $('mtWhoTable').innerHTML = '<thead><tr><th>사람</th><th class="num">매매</th><th class="num">실현손익 (판 것)</th><th class="num">평가손익 (산 몫)</th><th class="num">합계</th><th>비교</th></tr></thead><tbody>'
+    + L.map(function(x){
+        var w = Math.round(Math.abs(x.tot) / mx * 50), bar = '<div class="wb"><i class="' + (x.tot >= 0 ? 'up' : 'dn') + '" style="' + (x.tot >= 0 ? 'left:50%' : 'right:50%') + ';width:' + w + '%"></i></div>';
+        var bw = [];
+        if (x.best && x.best.v > 0.5) bw.push('최고 ' + esc(x.best.s) + ' ' + sg(x.best.v));
+        if (x.worst && x.worst.v < -0.5) bw.push('최저 ' + esc(x.worst.s) + ' ' + sg(x.worst.v));
+        return '<tr><td><span class="by-who">' + esc(x.name) + '</span>' + (bw.length ? '<div class="st-hint" style="margin-top:3px">' + bw.join(' · ') + '</div>' : '') + '</td>'
+          + '<td class="num">산 ' + x.buyN + ' · 판 ' + x.sellN + (x.cnt ? '<div class="st-hint">판 것 중 이익 ' + Math.round(x.win / x.cnt * 100) + '%</div>' : '') + '</td>'
+          + '<td class="num ' + cl(x.real) + '">' + (x.sellN ? sg(x.real) : '<span class="st-hint">-</span>') + '</td>'
+          + '<td class="num ' + cl(x.unreal) + '">' + (Math.abs(x.unreal) >= 0.5 ? sg(x.unreal) : '<span class="st-hint">-</span>') + '</td>'
+          + '<td class="num ' + cl(x.tot) + '"><b>' + sg(x.tot) + '</b></td><td>' + bar + '</td></tr>';
+      }).join('') + '</tbody><tfoot>'
+    + '<tr><td>사람 합계</td><td></td><td class="num ' + cl(sR) + '">' + sg(sR) + '</td><td class="num ' + cl(sU) + '">' + sg(sU) + '</td><td class="num ' + cl(sT) + '">' + sg(sT) + '</td><td></td></tr>'
+    + (other != null && Math.abs(other) >= 1 ? '<tr><td>배당 · 기타</td><td></td><td></td><td></td><td class="num ' + cl(other) + '">' + sg(other) + '</td><td></td></tr>' : '')
+    + (teamPnl != null ? '<tr><td>팀 전체 손익</td><td></td><td></td><td></td><td class="num ' + cl(teamPnl) + '">' + sg(teamPnl) + '</td><td></td></tr>' : '')
+    + '</tfoot>';
+  $('mtWhoNote').textContent = '실현손익 = 그 사람이 판 거래의 손익 (팀 평단 기준 · 수수료 포함) · 평가손익 = 지금 들고 있는 종목을 산 수량 비율대로 나눈 몫 · 다 더하면 팀 손익 (차이 = 배당 · 기타)'
+    + (C.P['이름 없음'] ? ' · 이름 없음 = 이름이 안 남은 예전 기록' : '');
+}
+
+/* ══════════ (26차 학회장: ‘모의투자 탭에서는 시장 히트맵이 남은 시간 · 환율 고정 문구 위에 · 각 팀 페이지 안에서는 그대로 맨 아래’) ══════════ */
+function mtHeatPlace(){
+  var c = $('stkHeatCard'), lg = $('mtLeague'), w = $('tradingWarn'); if (!c || !lg || !w || !w.parentNode) return;
+  if (!mtHeatPlace.home){ mtHeatPlace.home = document.createComment('heat home'); c.parentNode.insertBefore(mtHeatPlace.home, c); }
+  var top = !lg.classList.contains('hidden');
+  if (top){ if (c.nextElementSibling !== w) w.parentNode.insertBefore(c, w); }
+  else if (mtHeatPlace.home.parentNode && c.previousSibling !== mtHeatPlace.home) mtHeatPlace.home.parentNode.insertBefore(c, mtHeatPlace.home.nextSibling);
+  c.classList.toggle('mt-heat-top', top);
+}
+(function(){
+  var lg = $('mtLeague'); if (!lg) return;
+  mtHeatPlace();
+  try { new MutationObserver(function(){ mtHeatPlace(); }).observe(lg, { attributes: true, attributeFilter: ['class'] }); } catch(e){}
 })();
 
 </script>
