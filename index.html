@@ -1066,6 +1066,140 @@
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
 
+  /* ══ (24차) 재무제표 · 밸류에이션 실무 개선 ══ */
+  .card-en{font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--hc,var(--primary));opacity:.8;margin:-3px 0 5px;line-height:1.3}
+  .card h2 .cx-fold{margin-left:auto;flex:none;border:1px solid var(--border);background:var(--card);color:var(--text-sub);border-radius:7px;font-size:11px;font-weight:600;padding:2px 9px;cursor:pointer;font-family:inherit;line-height:1.5}
+  .card h2 .tools ~ .cx-fold{margin-left:0}
+  .card h2 .cx-fold:hover{color:var(--primary);border-color:var(--accent)}
+  .card.folded > :not(h2):not(.card-en){display:none !important}
+  .card.folded > h2{margin-bottom:0}
+  /* 머리 띠 */
+  .co-rib{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;margin:-4px 0 14px;padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:var(--bg-soft)}
+  .co-rib:empty{display:none}
+  .co-rib .l,.co-rib .r{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;min-width:0}
+  .co-rib .r{gap:6px 20px}
+  .co-rib .tk{font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600;font-size:12px;padding:2px 9px;border-radius:6px;background:#f7d24c;color:#141414;letter-spacing:.08em}
+  .co-rib .tg{font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--text-sub);background:var(--card);letter-spacing:.04em;white-space:nowrap}
+  .co-rib .tg.warn{color:var(--warn-text);border-color:var(--warn-line)}
+  .co-rib .sc{font-size:12px;color:var(--text-sub);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:320px}
+  .co-rib .pxv{display:flex;align-items:baseline;gap:7px;white-space:nowrap}
+  .co-rib .pxv b{font-size:17px;font-variant-numeric:tabular-nums;color:var(--text)}
+  .co-rib .pxv em{font-style:normal;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-sub)}
+  .co-rib .pxv em.up{color:var(--up)} .co-rib .pxv em.dn{color:var(--down)}
+  .co-rib .pxv i,.co-rib .kv i{font-style:normal;font-size:10.5px;color:var(--text-sub)}
+  .co-rib .kv{display:flex;flex-direction:column;line-height:1.25;white-space:nowrap}
+  .co-rib .kv b{font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)}
+  .co-rib .w52 s{display:block;position:relative;height:3px;border-radius:2px;background:var(--border);margin-top:4px;text-decoration:none}
+  .co-rib .w52 s u{position:absolute;top:-2px;width:7px;height:7px;border-radius:50%;background:var(--primary);margin-left:-3px}
+  @media (max-width:640px){ .co-rib{padding:9px 11px} .co-rib .r{width:100%;justify-content:space-between;gap:6px 12px} .co-rib .sc{max-width:100%} }
+  /* 지표 카드 미니 그래프 */
+  #coTiles .tile{display:flex;flex-direction:column}
+  .cx-spark{display:block;width:100%;height:24px;margin-top:auto;padding-top:6px;overflow:visible;flex:none;box-sizing:content-box}
+  .cx-spark polyline{fill:none;stroke:var(--primary-light);stroke-width:1.6;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+  .cx-spark circle{fill:var(--primary)}
+  .cx-spark .z{stroke:var(--text-sub);stroke-opacity:.35;stroke-dasharray:2 2;vector-effect:non-scaling-stroke}
+  /* 재무제표 보기 설정 줄 */
+  .cx-fsbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:0 0 10px;padding:8px 10px;border-radius:10px;background:var(--bg-soft);border:1px solid var(--border)}
+  .cx-fsbar:empty{display:none}
+  .cx-fb{display:inline-flex;align-items:center;gap:6px;font-size:12px}
+  .cx-fb > i{font-style:normal;font-size:11px;font-weight:600;color:var(--text-sub);letter-spacing:.01em}
+  .cx-mini button{font-size:11.5px;padding:3px 9px}
+  /* 재무제표 표 — 회계 표 모양 (굵은 머리 밑줄 · 가는 줄 · 합계 줄 · 숫자 오른쪽 정렬) */
+  #coFinTable.cx-fs{font-size:12.5px}
+  #coFinTable.cx-fs thead th{background:var(--card);border-bottom:2px solid var(--text);color:var(--text);font-weight:700;font-size:11.5px;padding-top:8px;padding-bottom:7px}
+  #coFinTable.cx-fs thead th:first-child{background:var(--card)}
+  #coFinTable.cx-fs tbody tr:nth-child(even){background:transparent}
+  #coFinTable.cx-fs tbody td{border-bottom:1px solid var(--border)}
+  #coFinTable.cx-fs .fs-row.sub td{background:var(--bg-soft);border-top:1px solid var(--border)}
+  #coFinTable.cx-fs .fs-row.sub td:first-child{background:var(--bg-soft);box-shadow:inset 3px 0 0 var(--hc,var(--primary))}
+  #coFinTable.cx-fs .fs-row.sub.neg td:first-child{box-shadow:inset 3px 0 0 var(--down)}
+  #coFinTable.cx-fs .fs-row:hover td,#coFinTable.cx-fs .fs-row:hover td:first-child{background:var(--accent-soft)}
+  #coFinTable.cx-fs .fs-row.sub .fs-num{font-weight:700}
+  #coFinTable.cx-fs .fs-dlt,#coFinTable.cx-fs .dlt{font-size:10px;opacity:.9}
+  #coFinTable.cx-fs .fs-dlt.sm{opacity:.7}
+  #coFinTable.dl-off .fs-dlt,#coFinTable.dl-off .dlt{display:none}
+  #coFinTable.dl-big .fs-dlt.sm,#coFinTable.dl-big .dlt.sm{visibility:hidden}
+  #coFinTable .fs-ltm{background:var(--bg-sub);border-left:1px dashed var(--border)}
+  #coFinTable.cx-fs .fs-row.sub td.fs-ltm{background:var(--bg-sub)}
+  #coFinTable thead th.fs-ltm{color:var(--primary)}
+  /* 추천 조합 — 읽는 법은 접어 둠 */
+  .co-cmb.tips-off .co-cmb-c ul{display:none}
+  .co-cmb-hd .cx-tipb{margin-left:auto;font-size:11.5px;padding:3px 9px}
+  .co-cmb-hd .cx-tipb + .co-cmb-seg{margin-left:0}
+  @media (max-width:560px){ .co-cmb-hd .cx-tipb{margin-left:0} }
+  /* 밸류에이션 — 결론 줄 · 두 칸 배치 */
+  .vx-sum{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;margin:0 0 14px;padding:14px 18px;border:1px solid var(--border);border-radius:14px;background:var(--card);box-shadow:inset 4px 0 0 var(--hc,var(--primary))}
+  .vx-sum:empty{display:none}
+  .vx-sum-l{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}
+  .vx-sum-l .k{font-size:11.5px;font-weight:700;color:var(--text-sub);letter-spacing:.02em}
+  .vx-sum-l > b{font-size:26px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.1}
+  .vx-sum-l .cx-up{font-size:15px}
+  .vx-sum-r{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13px;font-variant-numeric:tabular-nums}
+  .vx-sum-r span{display:flex;flex-direction:column;line-height:1.3}
+  .vx-sum-r i{font-style:normal;font-size:10.5px;color:var(--text-sub)}
+  .vx-scen{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:2px 4px 2px 10px;border-radius:999px;border:1px solid currentColor}
+  .vx-scen.bear{color:var(--down)} .vx-scen.bull{color:var(--up)}
+  .vx-scen button{border:none;background:var(--bg-sub);color:var(--text);border-radius:999px;font-size:11px;padding:2px 8px;cursor:pointer;font-family:inherit}
+  .vx-grid2{display:block}
+  .vx-main{min-width:0}
+  @media (min-width:1100px){
+    .vx-grid2{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+    .vx-side{position:sticky;max-height:86vh;overflow:auto;overscroll-behavior:contain;border-radius:14px}
+    .vx-side > .card{margin-bottom:12px}
+    .vx-side .card h2{font-size:.95rem}
+  }
+  /* DCF 연도별 표 */
+  .vx-dcf td,.vx-dcf th{white-space:nowrap}
+  .vx-dcf td:first-child{min-width:170px}
+  .vx-dcf .tv{background:var(--bg-sub)}
+  .vx-dcf tr.b td{font-weight:700}
+  .vx-dcf tr.tot td{border-top:1px solid var(--text-sub)}
+  .vx-dcf tr.vx-irow td{background:var(--bg-soft);padding-top:4px;padding-bottom:4px}
+  #valTiles .tile.vx-imp .v{white-space:normal;font-size:1.1rem}
+  .vx-side .grid-half{display:block}
+  .vx-side .grid-half > div + div{margin-top:4px}
+  .vx-dcf input.vx-yin[type=number]{width:72px;min-width:0;height:auto;padding:3px 6px;line-height:1.4;font-size:12px;text-align:right;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-variant-numeric:tabular-nums}
+  .vx-yin::placeholder{color:var(--text-sub);opacity:.7}
+  .vx-yin.ov{border-color:var(--accent-dark);background:var(--warn-bg,#fff7e6);font-weight:700}
+  .vx-dk .cx-kpi b{font-size:16px}
+  .vx-br td:first-child{min-width:220px}
+  table.cx-t.vx-br{min-width:0}
+  .vtp-ver{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #valBandSeg{display:flex;flex-wrap:wrap;max-width:100%}
+  .vx-dcf th:first-child,.vx-dcf td:first-child{position:sticky;left:0;z-index:1;background:var(--card)}
+  .vx-dcf tr.vx-irow td:first-child{background:var(--bg-soft)}
+  .vx-br tr.b td,.vx-br tr.tot td{font-weight:700}
+  .vx-br tr.tot td{border-top:1px solid var(--text-sub);background:var(--bg-soft)}
+  /* 민감도 */
+  .vx-gseg{margin-bottom:6px}
+  .vgrid.vx-grid td.base{outline:2px solid var(--text);outline-offset:-2px;font-weight:800}
+  .vgrid.vx-grid th.on,.vgrid.vx-grid tr.on th{color:var(--text);background:var(--accent-soft)}
+  /* 고급 가정 */
+  .vx-grp{border-top:1px solid var(--border);padding:8px 0}
+  .vx-grp:first-child{border-top:none;padding-top:0}
+  .vx-grp summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--text);list-style:none;display:flex;align-items:center;gap:6px}
+  .vx-grp summary::-webkit-details-marker{display:none}
+  .vx-grp summary::before{content:'▸';font-size:11px;color:var(--text-sub);transition:transform .15s}
+  .vx-grp[open] summary::before{transform:rotate(90deg)}
+  .vx-gb{padding:8px 0 2px}
+  .vx-r{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;margin:6px 0;font-size:12.5px}
+  .vx-r > label{color:var(--text-sub)}
+  .vx-in{display:inline-flex;align-items:center;gap:4px}
+  .vx-in input[type=number]{min-width:0;height:auto;line-height:1.4;padding:4px 7px;font-size:12.5px;text-align:right;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text)}
+  .vx-in i{font-style:normal;font-size:11px;color:var(--text-sub)}
+  .vx-sel,.cx-lsel{padding:4px 7px;font-size:12.5px;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text);max-width:100%}
+  .vx-gb .st-hint{margin:2px 0 6px;font-size:11.5px;line-height:1.5}
+  /* 기타 */
+  #valMult tr.vx-fwd td{background:var(--bg-soft)}
+  .vx-wctl{margin-top:0}
+  .vx-dseg{margin-right:6px}
+  .vx-shr{margin-top:16px;padding-top:12px;border-top:1px dashed var(--border)}
+  .vx-shr h5{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+  .vx-shr h5 .btn-sm{margin-left:auto}
+  .vx-shrt .st-hint.up{color:var(--up)} .vx-shrt .st-hint.dn{color:var(--down)}
+  .vtp-vt td.b .cx-shb{margin-right:4px}
+  @media (max-width:640px){ .vx-sum{padding:12px 14px} .vx-sum-l > b{font-size:22px} .vx-sum-r{gap:6px 14px;font-size:12.5px} .vx-dcf td:first-child{min-width:118px;max-width:150px;white-space:normal;font-size:12px} .vx-br td:first-child{min-width:0} }
+
   /* (24차) 기업분석 두 갈래 탭 */
   .co-nav{margin-bottom:14px}
   .co-grp{display:flex;gap:8px;margin-bottom:8px}
@@ -7269,7 +7403,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
               <input type="text" id="cmpQ" maxlength="40" placeholder="피어 추가 · 회사명 · 티커 · 6자리 종목코드" onkeydown="if(event.key==='Enter')cmpSearch()">
               <button class="btn-sm" onclick="cmpSearch()">찾기</button>
               <select id="cmpVc" aria-label="밸류체인에서 담기" onchange="cmpVcPick(this.value)"></select>
-              <label class="cx-ck"><input type="checkbox" id="cmpLease" onchange="cmpLeaseSet(this.checked)"> EV 에 리스부채 포함</label>
+              <label class="cx-ck">EV 리스부채 <span id="cmpLeaseW"></span></label>
             </div>
             <div id="cmpHits"></div>
             <div id="cmpChips" class="cx-chips"></div>
@@ -7496,7 +7630,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
           </div>
 
           <div class="card">
-            <h2>할인율 · 영구성장률에 따라 (DCF)</h2>
+            <h2>민감도 <span class="cx-sub">DCF 주당 가치가 가정 두 개에 따라 어떻게 바뀌나</span></h2>
             <div id="valGrid"></div>
             <p class="st-hint" style="margin-top:8px">
               가정 두 개만 조금 바꿔도 DCF 값이 얼마나 달라지는지 보여줍니다.
@@ -7560,8 +7694,9 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
                 <button type="button" class="on" data-m="amt" onclick="coFsModeSet('amt')">금액</button>
                 <button type="button" data-m="cs" onclick="coFsModeSet('cs')" title="손익 · 현금흐름 = 매출액 대비 % · 재무상태표 = 자산총계 대비 %">구성비 %</button>
               </span>
-              <span class="st-hint" style="margin-left:4px">▸ 를 눌러 항목별로 열고 닫을 수 있습니다 · 맨 오른쪽 = 연평균 증가율</span>
+              <span class="st-hint" style="margin-left:4px">▸ 하위 항목 열고 닫기</span>
             </div>
+            <div class="cx-fsbar" id="cxFsBar" aria-label="표 보기 설정"></div>
             <p class="st-hint" id="coFsUnitNote" style="margin:0 0 8px"></p>
             <div id="coFsWarn"></div>
             <div class="scroll"><table id="coFinTable"></table></div>
@@ -7614,7 +7749,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
             </p>
             <div class="row" style="margin-top:2px">
               <span class="st-hint" style="flex:1">
-                차트는 <b>비어 있는 상태로 시작</b>합니다. 아래 재무제표에서 원하는 계정만 골라 담으세요.
+                회사를 열면 <b>매출 · 영업이익 · 순이익</b>을 먼저 올립니다 (전부 비우기를 누르면 다음부터 빈 차트로 시작 · 추천 조합을 올리면 다시 켜짐).
               </span>
               <button class="btn-sm" onclick="coFinPreset()">매출·영업이익·순이익 한 번에</button>
               <button class="btn-sm" onclick="coFinClear()">전부 비우기</button>
@@ -17071,32 +17206,14 @@ function valCompute(){
   var bank = !!valData.bank, NOW = valN(f), rev0 = valRev0(f);
   res.imply = bank ? null : valImplied(f, mg, w, tg, tax, N, shares);
 
-  // ── ① DCF ── (은행 · 금융지주는 안 함 — FCFF 모형이 맞지 않음)
+  // ── ① DCF ── (은행 · 금융지주는 안 함 — FCFF 모형이 맞지 않음) · (24차) 식은 valDcfCore 한 곳 (해마다 가정 · 잔여가치 방식 · SBC · 주주가치 다리)
   if (rev0 && w > tg && !bank){
-    var A = valAssume(f);
-    var rev = rev0;
-    res.nwcRatio = A.nwcR; res.stubYears = A.off;
-    res.depRatio = A.depR; res.capexRatio = A.cpxR; res.midYear = A.mid;
-
-    var pvSum = 0, prevRev = rev0;
-    for (var i = 1; i <= N; i++){
-      rev = rev * (1 + g);
-      var ebit = rev * mg;
-      var nopat = ebit * (1 - tax);
-      //  운전자본은 <늘어난 매출만큼> 늘어납니다
-      var dNwc = (A.nwcR != null) ? (rev - prevRev) * A.nwcR : 0;
-      var fcf = nopat + rev * A.depR - rev * A.cpxR - dNwc;
-      var pv = fcf / Math.pow(1 + w, A.expOf(i));
-      res.fcf.push(fcf); res.pv.push(pv); pvSum += pv;
-      prevRev = rev;
+    var C = valDcfCore(f, { g: g, mg: mg, w: w, tg: tg, tax: tax, N: N, shares: shares });
+    if (C){
+      res.dcfC = C; res.fcf = C.rows.map(function(r){ return r.fcf; }); res.pv = C.rows.map(function(r){ return r.pv; });
+      res.nwcRatio = C.nwcR; res.stubYears = C.A.off; res.depRatio = C.A.depR; res.capexRatio = C.A.cpxR; res.midYear = C.A.mid;
+      res.tv = C.tv; res.ev_total = C.ev; res.tvShare = C.tvShare; if (C.px != null) res.dcf = C.px;
     }
-    var lastFcf = res.fcf[res.fcf.length - 1];
-    res.tv = lastFcf * (1 + tg) / (w - tg);
-    var pvTv = res.tv / Math.pow(1 + w, A.expTv(N));
-    res.ev_total = pvSum + pvTv;
-    res.tvShare = res.ev_total > 0 ? pvTv / res.ev_total : null;
-    var equity = res.ev_total - valBridge(f);
-    if (shares && shares > 0 && equity > 0) res.dcf = equity / shares;
   }
 
   // ── ② PER ── (10/8) 최근 4분기 EPS 합 × 목표 PER (EPS 가 없으면 최근 4분기 지배주주 순이익 ÷ 주식 수)
@@ -49428,7 +49545,8 @@ async function renderCoStatement(group){
     var all = (d.statements || {})[group] || [];
     //  (15차) 표도 ‘표시 개수’ 만큼 (최근 것부터) · 맨 앞 칸의 증감은 잘린 앞 기간과 견줌 (yAll)
     var yAll = coFullPeriods(d), years = coView.range > 0 ? yAll.slice(-coView.range) : yAll, yOff = yAll.length - years.length;
-    var prevKey = function(k){ var j = k + yOff - 1; return j >= 0 ? yAll[j].key : null; };
+    //  (24차) 분기 증감 기본 = 1년 전 같은 분기 (계절성) · 보기 설정에서 직전 분기로
+    var prevKey = function(k){ return cxPrevKey(yAll, k + yOff); };
     coRangeNoteSet();
     if (!all.length){
       tb.innerHTML = '';
@@ -49552,10 +49670,10 @@ async function renderCoStatement(group){
               ? '<span class="fs-unit">' + esc(ru.tag) + '</span>' : '';
           })()
         + '</td>'
-        + cells(r) + cagrCell(r) + '</tr>';
+        + cells(r) + cxLtmCell(r, coRowUnit(r, years, u)) + cagrCell(r) + '</tr>';
     }
 
-    var body = '';
+    var body = ''; cxLtmPrep(d, group, years, csMode);
     function walk(nodes){
       nodes.forEach(function(node){
         var kids = coFsCount(node);
@@ -49582,7 +49700,7 @@ async function renderCoStatement(group){
                + (y.end ? '<div class="st-hint" style="font-weight:400">'
                         + esc(String(y.end)) + '</div>' : '')
                + '</th>'; }).join('')
-      + (showCagr ? '<th class="num fs-cagr">연평균<div class="st-hint" style="font-weight:400">증가율</div></th>' : '')
+      + cxLtmTh() + (showCagr ? '<th class="num fs-cagr">연평균<div class="st-hint" style="font-weight:400">증가율</div></th>' : '')
       + '</tr></thead><tbody>' + body + '</tbody>';
     tb.classList.toggle('cs', csMode);
 
@@ -50563,7 +50681,7 @@ function renderCoFinTable(){
         var on = coSumOn(nm);
         return '<tr class="fs-row' + (on ? ' on' : '') + '" onclick="coSumToggle(\'' + esc(nm) + '\')" title="' + esc(on ? '누르면 차트에서 내립니다' : '누르면 위 실적 추이 차트에 올립니다') + '"><td><b>' + esc(nm) + '</b></td>'
           + rs.map(function(r, i){
-              var prev = i > 0 ? rs[i-1] : null;
+              var prev = cxPrevRow(rs, i);   //  (24차) 분기 = 1년 전 같은 분기
               var d = '';
               if (prev){
                 if (isPP)          d = dlt(RATIO[nm](r, i, rs), RATIO[nm](prev, i - 1, rs), 'pp');
@@ -66008,7 +66126,7 @@ function cmpRow(c, F, P){
   return r;
 }
 //  EV 와 ‘EV → 주주 가치’ 다리 (차입 + 리스(고를 때) + 비지배지분 + 우선주 − 현금)
-function cmpBridge(r){ if (!r || r.debt == null || !r.cashOk) return null; return r.debt + (CMP.lease ? r.lease : 0) + r.mino + r.pref - r.cash; }
+function cmpBridge(r){ if (!r || r.debt == null || !r.cashOk) return null; return r.debt + (cxLeaseOn(r.mk) ? r.lease : 0) + r.mino + r.pref - r.cash; }
 function cmpEv(r){ var b = cmpBridge(r); if (!r || r.bank || r.mcap == null || b == null) return null; return r.mcap + b; }
 function cmpMult(r){ var ev = cmpEv(r); return { evv: ev, evrev: cxDiv(ev, r.rev), ev: cxDiv(ev, r.ebitda), evebit: cxDiv(ev, r.ebit), per: cxDiv(r.mcap, r.net), pbr: cxDiv(r.mcap, r.eq) }; }
 function cmpVal(r, k){ if (!r || r.err || r.busy) return null; var M = cmpMult(r); if (k in M) return M[k]; if (k === 'mcap') return r.mcap; return r[k] != null ? r[k] : null; }
@@ -66024,7 +66142,7 @@ function cmpLoad(force){
 function cmpRenderSoon(){ clearTimeout(cmpRenderSoon.t); cmpRenderSoon.t = setTimeout(cmpRender, 120); }
 function cmpCtlHtml(){
   var sel = $('cmpVc'); if (sel && !sel.__ok){ sel.__ok = 1; sel.innerHTML = '<option value="">' + esc(T('밸류체인에서 담기', 'From value chain')) + '</option>' + cmpVcOpts(); }
-  var l = $('cmpLease'); if (l) l.checked = !!CMP.lease;
+  var l = $('cmpLeaseW'); if (l && !l.firstChild) l.innerHTML = cxLeaseSel();
 }
 function cmpLeaseSet(on){ CMP.lease = !!on; cmpPut(); cmpRender(); cmpImpliedSave(); }
 async function cmpSearch(){
@@ -66138,7 +66256,7 @@ function cmpRender(){
   }).join('') : '';
   tb.innerHTML = head + '<tbody>' + rowHtml(me || { c: co, id: cxId(co), name: co.name, mk: co.market, busy: true }, true) + peers.map(function(r){ return rowHtml(r, false); }).join('') + st + '</tbody>';
   var ft = $('cmpFoot');
-  if (ft) ft.innerHTML = esc(T('LTM = 최근 4분기 합 (분기 자료가 모자라면 마지막 회계연도) · EV = 시가총액 + 차입금' + (CMP.lease ? ' + 리스부채' : '') + ' + 비지배지분 + 우선주 − (현금 + 단기금융상품) · EBITDA = 영업이익 + 감가상각 · NM = 값이 없거나 0 이하 · 시가총액은 최근 종가 × 주식 수 (국내는 보통주 + 우선주) · 통계는 체크한 피어만 (이 회사 빼고)', 'LTM basis'))
+  if (ft) ft.innerHTML = esc(T('LTM = 최근 4분기 합 (분기 자료가 모자라면 마지막 회계연도) · EV = 시가총액 + 차입금' + (CXL.mode === 'off' ? '' : ' + 리스부채' + (CXL.mode === 'auto' ? ' (국내 회사만)' : '')) + ' + 비지배지분 + 우선주 − (현금 + 단기금융상품) · EBITDA = 영업이익 + 감가상각 · NM = 값이 없거나 0 이하 · 시가총액은 최근 종가 × 주식 수 (국내는 보통주 + 우선주) · 통계는 체크한 피어만 (이 회사 빼고)', 'LTM basis'))
     + (CMP.ai && CMP.ai.basis ? '<br>' + esc(T('세이피가 고른 기준: ', 'Safey basis: ') + CMP.ai.basis) + (CMP.ai.meta && CMP.ai.meta.sic_desc ? esc(' · SEC 업종 ' + CMP.ai.meta.sic_desc) : '') : '')
     + (CMP.ai && CMP.ai.miss && CMP.ai.miss.length ? '<br>' + esc(T('기업 목록에서 못 찾아 뺀 추천: ', 'Not matched: ') + CMP.ai.miss.slice(0, 8).join(' · ')) : '');
   cmpImpRender(); cmpRegDraw(); cmpBoxDraw();
@@ -66168,7 +66286,7 @@ function cmpImpRender(){
     + I.rows.map(function(r){ return '<tr><td><b>' + esc(r.n) + '</b> <span class="st-hint">(' + r.nv + ')</span></td>' + r.q.map(function(v){ return '<td class="r">' + cxXf(v) + '</td>'; }).join('')
       + '<td class="r">' + esc(r.base == null ? '-' : cxMoney(r.base, me.mk)) + '</td>' + r.px.map(function(v, i){ return '<td class="r' + (i === 1 ? ' b' : '') + '">' + esc(cxPx(v, me.mk)) + '</td>'; }).join('')
       + '<td class="r">' + cxUpHtml(cxUp(r.px[1], px)) + '</td></tr>'; }).join('')
-    + '</tbody></table></div><p class="st-hint">' + esc(T('현재가 ', 'Price ') + cxPx(px, me.mk) + (me.pxd ? ' (' + me.pxd + ')' : '') + ' · EV 방법은 적정 EV − (차입금' + (CMP.lease ? ' + 리스부채' : '') + ' + 비지배지분 + 우선주 − 현금) 을 주식 수로 나눔 · 값이 0 이하이면 비움 · 이 값들은 밸류에이션 맨 위 풋볼 필드에 붙습니다')
+    + '</tbody></table></div><p class="st-hint">' + esc(T('현재가 ', 'Price ') + cxPx(px, me.mk) + (me.pxd ? ' (' + me.pxd + ')' : '') + ' · EV 방법은 적정 EV − (차입금' + (CXL.mode === 'off' ? '' : ' + 리스부채' + (CXL.mode === 'auto' ? ' (국내 회사만)' : '')) + ' + 비지배지분 + 우선주 − 현금) 을 주식 수로 나눔 · 값이 0 이하이면 비움 · 이 값들은 밸류에이션 맨 위 풋볼 필드에 붙습니다')
     + '</p>';
 }
 function cmpImpliedSave(){
@@ -66917,6 +67035,1029 @@ function coGrpGo(g){
 } catch(e){ console.warn('aero vc', e); } })();
 
 /*>>23차*/
+/*>>24차 재무제표 · 밸류에이션 실무 개선*/
+/* ══════════ (24차 학회장: ‘IB · PE 실무자가 써 본다면 · 1 · 2 · 3 · 4 한 번에’) — 밸류에이션 계산 쪽 ══════════
+   ① 바로잡기: 멀티플 추이 이중 축 → 배수마다 작은 차트 · 타인자본비용 하한 (국채 + 스프레드) · PEG = PER ÷ EPS 성장률 · 역산 DCF 문구 · 리스부채 규칙 하나 (컴스와 같게)
+   ② 실무: DCF 연도별 표 · 해마다 성장률 · 이익률 · 잔여가치 출구 배수 (+ 함의 영구성장률 · 함의 출구 배수) · 민감도 3종 · 주식보상비용 · 희석 주식
+          · 베타 (일간 · 주간 · 월간 5년 · 블룸 · 피어 무부채 베타) · 목표 자본구조 · 일별 LTM 배수 밴드 · 선행 PER (보도 기준) · 주주가치 다리 · 정상화 (일회성 빼기)
+   ⚠️ DCF 식은 valDcfCore 한 곳 — 적정주가 · 역산 성장률 · 민감도가 같은 식을 씀 (예전 규칙 그대로)                                     */
+
+// ── 리스부채 규칙 (컴스 · 밸류에이션 · LBO 같게) ── 자동 = 국내(IFRS 16 · EBITDA 에 리스비용이 안 들어감) 포함 · 미국(운용리스 비용이 EBITDA 안) 제외
+var CXL = { mode: 'auto' };
+(function(){ try { var m = LSX.getItem('safe_lease_v1'); if (m === 'on' || m === 'off' || m === 'auto') CXL.mode = m; } catch(e){} })();
+var CXL_TXT = { auto: '자동 (국내 포함 · 미국 제외)', on: '모두 포함', off: '모두 제외' };
+function cxLeaseOn(mk){ return CXL.mode === 'on' || (CXL.mode === 'auto' && mk === 'KR'); }
+function cxLeaseSel(id){ return '<select class="cx-lsel"' + (id ? ' id="' + id + '"' : '') + ' aria-label="리스부채" onchange="cxLeaseSet(this.value)">' + ['auto', 'on', 'off'].map(function(k){ return '<option value="' + k + '"' + (CXL.mode === k ? ' selected' : '') + '>' + esc(CXL_TXT[k]) + '</option>'; }).join('') + '</select>'; }
+function cxLeaseSet(m){
+  if (!CXL_TXT[m]) return; CXL.mode = m; try { LSX.setItem('safe_lease_v1', m); } catch(e){}
+  document.querySelectorAll('.cx-lsel').forEach(function(s){ s.value = m; });
+  try { if (CMP.id){ cmpRender(); cmpImpliedSave(); } } catch(e){}
+  try { if (LBO.me) lboCompute(); } catch(e){}
+  if (valData) valDraw();
+}
+
+// ── 고급 가정 (회사마다 · 이 브라우저) ──
+var VX = { key: '', s: null };
+var VX_LS = 'safe_valx_v1';
+function vxDef(){ return { g: {}, m: {}, tvm: 'g', exit: null, sbc: false, dil: 0, nwc: null, inv: 0, oth: 0, adjE: 0, adjN: 0, kdFloor: true, kdSp: 1.5, betaF: 'd', blume: false, betaSrc: 'own', tgtD: null }; }
+function vxAll(){ try { return JSON.parse(LSX.getItem(VX_LS) || '{}') || {}; } catch(e){ return {}; } }
+function vxS(){
+  var k = valData ? valData.key : '';
+  if (VX.key !== k || !VX.s){ var a = vxAll()[k]; VX.key = k; VX.s = Object.assign(vxDef(), a || {}); if (!VX.s.g) VX.s.g = {}; if (!VX.s.m) VX.s.m = {}; }
+  return VX.s;
+}
+function vxPut(){ if (!VX.key) return; var a = vxAll(); a[VX.key] = Object.assign({ at: Date.now() }, VX.s); var ks = Object.keys(a); if (ks.length > 40){ ks.sort(function(x, y){ return (a[x].at || 0) - (a[y].at || 0); }); delete a[ks[0]]; } try { LSX.setItem(VX_LS, JSON.stringify(a)); } catch(e){} }
+function vxSet(k, v, noDraw){ var X = vxS(); X[k] = v; vxPut(); if (!noDraw && valData) valDraw(); }
+function vxNum(v){ if (v === '' || v == null) return null; var n = Number(v); return isFinite(n) ? n : null; }
+//  입력 단위: 국내 억원 · 미국 백만 달러
+function vxU(){ return co && co.market === 'KR' ? 1e8 : 1e6; }
+function vxUL(){ return co && co.market === 'KR' ? '억원' : '백만 달러'; }
+function vxMoney(v){ return cxMoney(v, co && co.market === 'KR' ? 'KR' : 'US'); }   //  조 · 억 · 만 (컴스와 같은 표기)
+function vxPx(v){ if (v == null || !isFinite(v)) return '-'; return valData && valData.cur === '원' ? num(v, 0) + '원' : '$' + num(v, 2); }
+
+// ── 재무 묶음에 SBC 비율 · 분기 원자료 붙이기 ──
+(function(){
+  var p0 = valPull;
+  valPull = function(d, dq){
+    var F = p0(d, dq);
+    try {
+      Object.defineProperty(F, '__dq', { value: dq || null, enumerable: false, configurable: true, writable: true });
+      Object.defineProperty(F, '__d', { value: d || null, enumerable: false, configurable: true, writable: true });
+      var per = (d.periods || []).map(function(p){ return p.key; });
+      var rs = valRow(d, '현금흐름표', ['주식보상비용', '주식보상비', '주식기준보상비용', '주식보상']), rr = valRow(d, '손익계산서', ['매출액', '영업수익']);
+      if (rs && rr){ var a = []; per.forEach(function(k){ var s = rs.values[k], r = rr.values[k]; if (s != null && r > 0) a.push(Math.abs(s) / r * 100); }); F.sbcRatio = a.length ? cxQ(a, 0.5) : null; }
+      else F.sbcRatio = null;
+      var rc = valRow(d, '손익계산서', ['매출원가']);
+      if (rc) F.cogs = (function(){ var k = per[per.length - 1]; var v = rc.values[k]; return v == null ? null : Math.abs(v); })();
+    } catch(e){}
+    return F;
+  };
+})();
+
+// ── ‘지금’ 값에 리스 규칙 · 정상화 (일회성) 적용 ──
+(function(){
+  var n0 = valN;
+  valN = function(f){
+    var N = n0(f);
+    if (valData && f && f === valData.f){
+      var mk = co ? co.market : (valData.market || 'US');
+      if (!cxLeaseOn(mk) && N.lease){ N.leaseX = N.lease; N.lease = 0; }
+      var X = vxS(), U = vxU(), aE = vxNum(X.adjE), aN = vxNum(X.adjN);
+      if (aE){ if (N.op != null) N.op = N.op + aE * U; N.adjE = aE * U; }
+      if (aN){ if (N.net != null) N.net = N.net + aN * U; var sh = valData.shares; if (N.eps != null && sh > 0) N.eps = N.eps + aN * U / sh; N.adjN = aN * U; }
+    }
+    return N;
+  };
+  var b0 = valBridge;
+  valBridge = function(f){
+    var b = b0(f);
+    if (valData && f && f === valData.f){ var X = vxS(), U = vxU(); b += (vxNum(X.oth) || 0) * U - (vxNum(X.inv) || 0) * U; }
+    return b;
+  };
+  var a0 = valAssume;
+  valAssume = function(f){
+    var A = a0(f), X = vxS(), v = vxNum(X.nwc);
+    A.nwcAuto = A.nwcR;
+    if (v != null && v >= -50 && v <= 80){ A.nwcR = v / 100; A.nwcHow = 'user'; } else A.nwcHow = A.nwcR != null ? 'auto' : 'none';
+    return A;
+  };
+})();
+
+//  출구 배수 — 직접 넣은 값 · 없으면 이 회사 과거 결산 EV/EBITDA 중앙값 · 그것도 없으면 지금 배수
+function vxExit(f){
+  var X = vxS(), v = vxNum(X.exit);
+  if (v > 0) return v;
+  try { var h = valHistMultiples(); if (h.ev > 0) return Math.round(h.ev * 10) / 10; } catch(e){}
+  try { var m = valMultiples(); if (m.evEbitda > 0) return Math.round(m.evEbitda * 10) / 10; } catch(e){}
+  return null;
+}
+//  DCF 한 벌 — 해마다 가정 · SBC · 잔여가치 방식 · 주주가치 다리
+function valDcfCore(f, P){
+  var rev0 = valRev0(f);
+  if (!rev0 || !(P.w > P.tg) || (valData && valData.bank)) return null;
+  var A = valAssume(f), X = vxS();
+  var sbcR = X.sbc && f.sbcRatio != null ? f.sbcRatio / 100 : 0;
+  var rows = [], pvSum = 0, rev = rev0, prev = rev0;
+  for (var i = 1; i <= P.N; i++){
+    var gOv = vxNum(X.g && X.g[i]), mOv = vxNum(X.m && X.m[i]);
+    var gi = (!P.flatG && gOv != null) ? gOv / 100 : P.g, mi = mOv != null ? mOv / 100 : P.mg;
+    rev = rev * (1 + gi);
+    var ebit = rev * mi, nopat = ebit * (1 - P.tax), dep = rev * A.depR, cpx = rev * A.cpxR;
+    var dN = A.nwcR != null ? (rev - prev) * A.nwcR : 0, sbc = rev * sbcR;
+    var fcf = nopat + dep - cpx - dN - sbc, t = A.expOf(i), df = 1 / Math.pow(1 + P.w, t), pv = fcf * df;
+    rows.push({ y: i, g: gi, m: mi, gOv: gOv != null && !P.flatG, mOv: mOv != null, rev: rev, ebit: ebit, ebitda: ebit + dep, tax: ebit * P.tax, nopat: nopat, dep: dep, cpx: cpx, dNwc: dN, sbc: sbc, fcf: fcf, t: t, df: df, pv: pv });
+    pvSum += pv; prev = rev;
+  }
+  var L = rows[rows.length - 1];
+  var tvG = L.fcf * (1 + P.tg) / (P.w - P.tg), exit = vxExit(f), tvX = exit > 0 ? L.ebitda * exit : null;
+  var tvm = (X.tvm === 'x' || X.tvm === 'avg') && tvX != null ? X.tvm : 'g';
+  var tv = tvm === 'x' ? tvX : tvm === 'avg' ? (tvG + tvX) / 2 : tvG;
+  var dfTv = 1 / Math.pow(1 + P.w, A.expTv(P.N)), pvTv = tv * dfTv, ev = pvSum + pvTv, br = valBridge(f), eq = ev - br;
+  return { A: A, rows: rows, pvSum: pvSum, tvG: tvG, tvX: tvX, exit: exit, tvm: tvm, tv: tv, dfTv: dfTv, pvTv: pvTv, ev: ev, bridge: br, eq: eq,
+           px: P.shares > 0 && eq > 0 ? eq / P.shares : null, tvShare: ev > 0 ? pvTv / ev : null,
+           impExit: L.ebitda > 0 ? tvG / L.ebitda : null, impG: tvX != null && tvX + L.fcf !== 0 ? (tvX * P.w - L.fcf) / (tvX + L.fcf) : null,
+           sbcR: sbcR, nwcR: A.nwcR, nwcHow: A.nwcHow, rev0: rev0, P: P };
+}
+valDcfAt = function(f, g, mg, w, tg, tax, N, shares){
+  if (!(shares > 0)) return null;
+  var C = valDcfCore(f, { g: g, mg: mg, w: w, tg: tg, tax: tax, N: N, shares: shares, flatG: true });
+  return C ? C.px : null;
+};
+//  희석 주식 — 적정주가 · 지금 배수 모두 같은 주식 수 (안쪽에서 두 번 늘리지 않게)
+var VXD = { on: 0 };
+function vxDil(s){ var X = vxS(), d = vxNum(X.dil); return s > 0 && d ? s * (1 + d / 100) : s; }
+(function(){
+  ['valCompute', 'valMultiples'].forEach(function(nm){
+    var f0 = window[nm];
+    window[nm] = function(){
+      if (!valData || VXD.on) return f0.apply(this, arguments);
+      var s0 = valData.shares; VXD.on = 1; valData.shares = vxDil(s0);
+      try { return f0.apply(this, arguments); } finally { valData.shares = s0; VXD.on = 0; }
+    };
+  });
+})();
+
+// ── 바로잡기: PEG = PER ÷ EPS 연평균 성장률 (매출 성장률이 아님) ──
+function vxEpsCagr(f){
+  var e = (f && f.epsSeries) || [], ends = (f && f.ends) || [];
+  var ix = []; e.forEach(function(v, i){ if (v != null && isFinite(v)) ix.push(i); });
+  if (ix.length < 3) return null;
+  var i1 = ix[ix.length - 1], i0 = ix[Math.max(0, ix.length - 6)];
+  var a = e[i0], b = e[i1]; if (!(a > 0 && b > 0)) return null;
+  var yrs = ends[i0] && ends[i1] ? (Date.parse(ends[i1]) - Date.parse(ends[i0])) / 3.15576e10 : (i1 - i0);
+  if (!(yrs >= 1.5)) return null;
+  return { g: (Math.pow(b / a, 1 / yrs) - 1) * 100, yrs: Math.round(yrs), from: String(ends[i0] || '').slice(0, 4), to: String(ends[i1] || '').slice(0, 4) };
+}
+
+// ── WACC: 베타 선택 · 블룸 · 피어 · 타인자본비용 하한 · 목표 자본구조 ──
+var VB = { s: null, i: null, m5: null, peer: null, busy: false };
+(function(){ if (typeof calcBeta === 'function'){ var c0 = calcBeta; calcBeta = function(a, b){ VB.s = a; VB.i = b; VB.m5 = null; return c0.apply(this, arguments); }; } })();
+function vxBucket(pts, how){ var o = {}; (pts || []).forEach(function(p){ if (!(p.v > 0) || !p.d) return; var d = String(p.d).slice(0, 10), k; if (how === 'm') k = d.slice(0, 7); else { var t = new Date(d + 'T00:00:00Z'), wd = (t.getUTCDay() + 6) % 7; k = new Date(t.getTime() - wd * 864e5).toISOString().slice(0, 10); } o[k] = Number(p.v); }); return o; }
+function vxBetaOf(sPts, iPts, how){
+  var S = vxBucket(sPts, how), I = vxBucket(iPts, how), ks = Object.keys(S).filter(function(k){ return I[k] != null; }).sort();
+  var xs = [], ys = [];
+  for (var j = 1; j < ks.length; j++){ var a = S[ks[j - 1]], b = S[ks[j]], c = I[ks[j - 1]], d = I[ks[j]]; if (a > 0 && b > 0 && c > 0 && d > 0){ ys.push(Math.log(b / a)); xs.push(Math.log(d / c)); } }
+  var n = xs.length; if (n < (how === 'm' ? 24 : 40)) return null;
+  var cut = function(arr){ var s = arr.slice().sort(function(p, q){ return p - q; }), lo = s[Math.floor(n * 0.01)], hi = s[Math.ceil(n * 0.99) - 1]; return arr.map(function(v){ return Math.min(hi, Math.max(lo, v)); }); };
+  xs = cut(xs); ys = cut(ys);
+  var mx = xs.reduce(function(p, q){ return p + q; }, 0) / n, my = ys.reduce(function(p, q){ return p + q; }, 0) / n, cv = 0, vx = 0;
+  for (var k = 0; k < n; k++){ cv += (xs[k] - mx) * (ys[k] - my); vx += (xs[k] - mx) * (xs[k] - mx); }
+  return vx > 0 ? { beta: cv / vx, n: n } : null;
+}
+async function vxBetaM5(){
+  if (VB.m5 && VB.m5.key === (valData && valData.key)) return VB.m5;
+  if (!co || !valData) return null;
+  var key = valData.key, idx = co.market === 'KR' ? { source: 'quote_kr', code: '069500' } : { source: 'quote_us', code: 'SPY' }, from = shiftIso(today(), -5, 0);
+  try {
+    var r = await Promise.all([edge({ source: quoteSource(co.market), code: co.code, start: from }), edge({ source: idx.source, code: idx.code, start: from })]);
+    var b = vxBetaOf(r[0].points || [], r[1].points || [], 'm');
+    VB.m5 = { key: key, b: b }; return VB.m5;
+  } catch(e){ VB.m5 = { key: key, b: null, err: 1 }; return VB.m5; }
+}
+async function vxPeerBeta(){
+  if (!co || !valData || VB.busy) return;
+  cmpSync(); var ok = cmpPeersOk();
+  if (ok.length < 2){ toast(esc(T('컴스 탭에서 피어를 2곳 넘게 담아야 계산합니다', 'Need 2+ peers in Comps')), 2200); return; }
+  VB.busy = true; valWaccBox();
+  var key = valData.key, from = shiftIso(today(), -2, 0), tax = valNum('vTax') / 100, out = [];
+  var idxOf = function(mk){ return mk === 'KR' ? { source: 'quote_kr', code: '069500' } : { source: 'quote_us', code: 'SPY' }; };
+  var ix = {};
+  try {
+    for (var mk of ['US', 'KR']) if (ok.some(function(r){ return r.mk === mk; })){ var q = idxOf(mk); ix[mk] = (await edge({ source: q.source, code: q.code, start: from })).points || []; }
+    await Promise.all(ok.slice(0, 15).map(async function(r){
+      try {
+        var p = (await edge({ source: quoteSource(r.mk), code: r.c.code, start: from })).points || [];
+        var b = vxBetaOf(p, ix[r.mk], 'w'); if (!b) return;
+        var D = (r.debt || 0) + (cxLeaseOn(r.mk) ? r.lease : 0), de = r.mcap > 0 ? D / r.mcap : null; if (de == null) return;
+        out.push({ name: r.name, bl: b.beta, de: de, bu: b.beta / (1 + (1 - tax) * de) });
+      } catch(e){}
+    }));
+  } catch(e){}
+  VB.busy = false;
+  if (out.length < 2){ VB.peer = null; toast(esc(T('피어 주가가 모자라 무부채 베타를 못 냈습니다', 'Not enough peer prices')), 2200); valWaccBox(); return; }
+  VB.peer = { key: key, bu: cxQ(out.map(function(x){ return x.bu; }), 0.5), list: out, at: Date.now() };
+  vxSet('betaSrc', 'peer');
+}
+(function(){
+  var w0 = valWacc;
+  valWacc = function(){
+    var w = w0(); if (!valData) return w;
+    var X = vxS(), tax = valNum('vTax') / 100;
+    w.betaRaw = w.beta; w.betaHow = 'd';
+    if (X.betaF === 'w' && VB.s && VB.i){ var b = vxBetaOf(VB.s, VB.i, 'w'); if (b){ w.beta = b.beta; w.betaN = b.n; w.betaHow = 'w'; } }
+    if (X.betaF === 'm' && VB.m5 && VB.m5.key === valData.key && VB.m5.b){ w.beta = VB.m5.b.beta; w.betaN = VB.m5.b.n; w.betaHow = 'm'; }
+    var tgtD = vxNum(X.tgtD), wD = tgtD != null && tgtD >= 0 && tgtD <= 90 ? tgtD / 100 : (w.E > 0 ? w.D / (w.E + w.D) : null);
+    if (X.betaSrc === 'peer' && VB.peer && VB.peer.key === valData.key && wD != null && wD < 1){ w.beta = VB.peer.bu * (1 + (1 - tax) * wD / (1 - wD)); w.betaHow = 'peer'; w.betaN = VB.peer.list.length; }
+    //  목표 자본구조를 넣었으면 자기 베타도 무부채로 풀었다가 그 구조로 다시 레버 (피어 베타는 위에서 이미 그 구조로 레버)
+    if (tgtD != null && w.betaHow !== 'peer' && w.beta != null && w.E > 0 && w.D != null && wD != null && wD < 1){ var bu0 = w.beta / (1 + (1 - tax) * (w.D / w.E)); w.betaBu = bu0; w.beta = bu0 * (1 + (1 - tax) * wD / (1 - wD)); w.betaRel = true; }
+    if (X.blume && w.beta != null){ w.betaPre = w.beta; w.beta = 0.67 * w.beta + 0.33; w.blume = true; }
+    w.ke = w.rf != null && w.beta != null ? w.rf + w.beta * w.erp : null;
+    if (w.ke != null && (w.ke < 1 || w.ke > 40)) w.ke = null;
+    var sp = vxNum(X.kdSp); if (sp == null) sp = 1.5;
+    if (X.kdFloor !== false && w.rf != null && w.kd != null && w.kdSrc === 'interest' && w.kd < w.rf + sp){ w.kdRaw = w.kd; w.kd = w.rf + sp; w.kdSrc = 'floor'; }
+    if (w.kdSrc === 'rf' && w.rf != null){ w.kd = w.rf + sp; }
+    w.kdSp = sp; w.wD = wD; w.tgtD = tgtD != null;
+    w.wacc = null;
+    if (w.ke != null && wD != null) w.wacc = (1 - wD) * w.ke + wD * (w.kd != null ? w.kd : 0) * (1 - tax);
+    if (w.wacc != null && (w.wacc < 2 || w.wacc > 30)) w.wacc = null;
+    return w;
+  };
+})();
+valWaccBox = function(){
+  var box = $('valWaccBox'); if (!box || !valData) return;
+  var w = valWacc(), X = vxS(), kr = co && co.market === 'KR';
+  var pc = function(v, dp){ return v == null ? '-' : num(v, dp == null ? 2 : dp) + '%'; };
+  var bHow = { d: '최근 2년 일간', w: '최근 2년 주간', m: '최근 5년 월간', peer: '피어 무부채 베타 중앙값을 이 회사 부채비율로 다시 레버' }[w.betaHow] || '';
+  var rows = [
+    ['무위험수익률 (Rf)', pc(w.rf), kr ? '한국 국고채 10년 · 한국은행 ECOS' : '미국 국채 10년물 · FRED'],
+    ['베타 (β)', w.beta == null ? '-' : num(w.beta, 2), (w.betaHow === 'peer' ? bHow + ' (' + w.betaN + '곳)' : bHow + (w.betaN ? ' 수익률 ' + w.betaN + '개를 ' + (kr ? 'KODEX 200' : 'SPY') + ' 에 회귀 (위아래 1% 윈저라이즈)' : ' · 표본이 모자랍니다')) + (w.betaRel ? ' · 목표 자본구조로 다시 레버 (무부채 ' + num(w.betaBu, 2) + ')' : '') + (w.blume ? ' · 블룸 조정 (0.67 × ' + num(w.betaPre, 2) + ' + 0.33)' : '')],
+    ['시장위험프리미엄 (ERP)', pc(w.erp, 1), '가정값 - ' + (kr ? '한국 (미국 5.5% + 국가위험)' : '미국 장기 평균 근처')],
+    ['자기자본비용 (Ke)', pc(w.ke), 'Rf + β × ERP'],
+    ['타인자본비용 (Kd · 세전)', pc(w.kd), w.kdSrc === 'interest' ? '이자비용 ÷ 총차입금' : w.kdSrc === 'floor' ? '실효 이자율 ' + pc(w.kdRaw) + ' 이 국채 + ' + num(w.kdSp, 1) + '%p 보다 낮아 하한을 씀 (옛 저금리 채권이면 새로 빌리는 비용보다 낮음)' : '국채금리 + ' + num(w.kdSp, 1) + '%p (이자비용 자료가 없거나 이상해서)'],
+    ['법인세율', pc(w.tax, 0), '가정 칸 값'],
+    ['자본구조 (D / (D + E))', w.wD == null ? '-' : 'E ' + num((1 - w.wD) * 100, 0) + '% / D ' + num(w.wD * 100, 0) + '%', w.tgtD ? '목표 자본구조 (직접 넣은 값)' : '지금 시가총액 대 차입금' + (cxLeaseOn(co && co.market) ? ' (리스부채 포함)' : '')],
+    ['<b>WACC</b>', '<b>' + pc(w.wacc) + '</b>', 'E/(D+E) × Ke + D/(D+E) × Kd × (1 − t)']
+  ];
+  var now = valNum('vWacc'), same = w.wacc != null && Math.abs(now - w.wacc) < 0.26;
+  var seg = function(k, v, lab){ return '<button type="button" class="' + (X.betaF === v ? 'on' : '') + '" onclick="vxBetaSet(\'' + v + '\')">' + esc(lab) + '</button>'; };
+  var P = VB.peer && VB.peer.key === valData.key ? VB.peer : null;
+  box.innerHTML = '<div class="cx-ctl vx-wctl"><span class="st-hint">베타</span><span class="px-seg cx-seg">' + seg('betaF', 'd', '일간 2년') + seg('betaF', 'w', '주간 2년') + seg('betaF', 'm', '월간 5년') + '</span>'
+    + '<label class="cx-ck"><input type="checkbox"' + (X.blume ? ' checked' : '') + ' onchange="vxSet(\'blume\', this.checked)"> 블룸 조정</label>'
+    + '<button type="button" class="btn-sm' + (X.betaSrc === 'peer' && P ? ' btn-solid' : '') + '"' + (VB.busy ? ' disabled' : '') + ' onclick="' + (X.betaSrc === 'peer' && P ? 'vxSet(\'betaSrc\', \'own\')' : 'vxPeerBeta()') + '">' + (VB.busy ? '로딩 중…' : esc(X.betaSrc === 'peer' && P ? '피어 베타 쓰는 중 · 끄기' : '컴스 피어로 베타')) + '</button></div>'
+    + '<div class="scroll"><table><thead><tr><th>구성요소</th><th class="num">값</th><th>출처 · 계산</th></tr></thead><tbody>'
+    + rows.map(function(r){ return '<tr><td>' + r[0] + '</td><td class="num">' + r[1] + '</td><td class="st-hint">' + esc(r[2]) + '</td></tr>'; }).join('') + '</tbody></table></div>'
+    + (P ? '<details class="cx-more"><summary>' + esc('피어 베타 ' + P.list.length + '곳 · 무부채 중앙값 ' + num(P.bu, 2)) + '</summary><div class="cx-scroll"><table class="cx-t"><thead><tr><th>회사</th><th class="r">레버 베타 (주간)</th><th class="r">D/E</th><th class="r">무부채 베타</th></tr></thead><tbody>'
+        + P.list.map(function(x){ return '<tr><td>' + esc(x.name) + '</td><td class="r">' + num(x.bl, 2) + '</td><td class="r">' + num(x.de * 100, 0) + '%</td><td class="r">' + num(x.bu, 2) + '</td></tr>'; }).join('') + '</tbody></table></div><p class="st-hint">무부채 = 레버 ÷ (1 + (1 − t) × D/E) · 다시 레버 = 무부채 × (1 + (1 − t) × 이 회사 D/E)</p></details>' : '')
+    + '<p class="st-hint" style="margin-top:8px">' + (w.wacc == null ? '계산하지 못했습니다' + ((w.missing || []).length ? ' · 없는 것: <b>' + esc(w.missing.join(', ')) + '</b>' : '') + '. 가정 칸 값을 그대로 씁니다.'
+        : '계산값 <b>' + pc(w.wacc) + '</b>' + (same ? ' · 가정 칸에 들어 있는 값과 같음.' : ' · 가정 칸은 지금 <b>' + pc(now, 1) + '</b> (WACC 다시 계산을 누르면 넣음).')) + ' 할인율 근거를 질문받을 때 이 표로 설명할 수 있습니다.</p>';
+};
+async function vxBetaSet(v){ vxSet('betaF', v, true); if (v === 'm'){ valWaccBox(); await vxBetaM5(); if (!(VB.m5 && VB.m5.b)) toast(esc(T('5년 월간 주가가 모자랍니다 (상장 5년 미만이면 못 냄)', 'Not enough monthly data')), 2200); } valDraw(); }
+
+// ── 바로잡기 · 표 문구 ──
+(function(){
+  var mb0 = valMultBox;
+  valMultBox = function(){
+    mb0.apply(this, arguments);
+    var box = $('valMult'); if (!box || !valData) return;
+    var tb = box.querySelector('tbody'); if (!tb) return;
+    var m = valMultiples(), px = valData.px, eg = vxEpsCagr(valData.f);
+    var x = function(v, dp){ return v == null || !isFinite(v) || v <= 0 ? '-' : num(v, dp == null ? 1 : dp) + '배'; };
+    [].forEach.call(tb.querySelectorAll('tr'), function(tr){
+      var n = (tr.cells[0] || {}).textContent || '';
+      if (n === 'PEG'){ tr.cells[1].textContent = eg && eg.g > 0 && m.per ? x(m.per / eg.g, 2) : '-'; tr.cells[3].textContent = eg ? 'PER ÷ EPS 연평균 성장률 ' + num(eg.g, 1) + '% (' + eg.from + '~' + eg.to + ') · 1 아래면 성장 대비 싼 편' : 'PER ÷ EPS 성장률 · EPS 가 3년 넘게 플러스여야 냄'; }
+      if (n === 'PER'){
+        var P = typeof coProf !== 'undefined' && coProf ? coProf : null, H = P && P.highlights ? P.highlights : null, tag = P && P.source === 'pplx' ? ' (보도 기준)' : ' (컨센서스)';
+        var add = [];
+        if (H && H.eps_est_cy > 0 && px) add.push(['선행 PER · 올해 추정', x(px / H.eps_est_cy), '주가 ÷ 올해 추정 EPS ' + num(H.eps_est_cy, 2) + tag]);
+        if (H && H.eps_est_ny > 0 && px) add.push(['선행 PER · 내년 추정', x(px / H.eps_est_ny), '주가 ÷ 내년 추정 EPS ' + num(H.eps_est_ny, 2) + tag]);
+        add.reverse().forEach(function(a){ var r = document.createElement('tr'); r.className = 'vx-fwd'; r.innerHTML = '<td><b>' + esc(a[0]) + '</b></td><td class="num">' + esc(a[1]) + '</td><td class="num"><span class="st-hint">-</span></td><td class="st-hint">' + esc(a[2]) + (P && P.sources && P.sources[0] ? ' · <a href="' + esc(P.sources[0]) + '" target="_blank" rel="noopener noreferrer">출처</a>' : '') + '</td>'; tr.parentNode.insertBefore(r, tr.nextSibling); });
+      }
+    });
+    var N = valN(valData.f);
+    if (N.adjE || N.adjN){ var p = document.createElement('p'); p.className = 'st-hint'; p.innerHTML = '· <b>정상화 반영 중</b> - 일회성 조정 ' + (N.adjE ? 'EBITDA ' + esc(vxMoney(N.adjE)) : '') + (N.adjN ? (N.adjE ? ' · ' : '') + '순이익 ' + esc(vxMoney(N.adjN)) : '') + ' (가정 칸 › 정상화)'; box.appendChild(p); }
+    if (N.leaseX){ var p2 = document.createElement('p'); p2.className = 'st-hint'; p2.innerHTML = '· 리스부채 ' + esc(vxMoney(N.leaseX)) + ' 는 EV · 순차입금에서 뺐습니다 (리스 규칙: ' + esc(CXL_TXT[CXL.mode]) + ')'; box.appendChild(p2); }
+  };
+})();
+
+// ── 멀티플 추이: 이중 축 → 배수마다 작은 차트 4개 · 일별 LTM 배수 밴드 ──
+VAL_BAND_NAME.daily = '일별 배수 밴드';
+var VXB = { k: 'per', ch: null };
+(function(){
+  var bd0 = valBandDraw;
+  valBandDraw = function(){
+    if (valBandMode !== 'multiples' && valBandMode !== 'daily') return bd0.apply(this, arguments);
+    var box = $('valBandBox'), seg = $('valBandSeg'), note = $('valBandNote');
+    if (seg) seg.innerHTML = Object.keys(VAL_BAND_NAME).map(function(k){ return '<button type="button"' + (valBandMode === k ? ' class="on"' : '') + ' onclick="valBandSet(\'' + k + '\')">' + esc(VAL_BAND_NAME[k]) + '</button>'; }).join('');
+    if (!box || typeof echarts === 'undefined' || !valData) return;
+    valBandChart = chartOn(box, valBandChart); if (!valBandChart) return;
+    valBandChart.__axNoKeep = true;
+    if (valBandMode === 'daily') return vxDailyDraw(box, note);
+    var H = valHistRows(), rows = H.rows, m = valMultiples(), dk = cxDark();
+    box.style.height = '360px'; valBandChart.resize();
+    if (rows.length < 2){ valBandChart.clear(); valBandChart.setOption({ title: { text: '결산일 주가가 두 해 이상 있어야 그립니다', left: 'center', top: 'middle', textStyle: { fontSize: 13, fontWeight: 'normal', color: '#8b93a7' } } }, true); if (note) note.textContent = ''; return; }
+    var cats = rows.map(function(r){ return r.end.slice(0, 7); }).concat(['지금']);
+    var K = [['per', 'PER', m.per], ['ev', 'EV/EBITDA', m.evEbitda], ['pbr', 'PBR', m.pbr], ['psr', 'PSR', m.psr]];
+    var C = ['#2c3e6b', '#9a6a12', '#1f7a68', '#7c3aed'], CD = ['#8fb0ee', '#f0c27a', '#5fc2ac', '#b9a4ff'];
+    var narrow = (box.clientWidth || 800) < 640, G = [], X = [], Y = [], S = [], T0 = [];
+    K.forEach(function(k, i){
+      var data = rows.map(function(r){ var v = r[k[0]]; return v == null || !isFinite(v) ? null : Math.round(v * 100) / 100; }).concat([k[2] != null ? Math.round(k[2] * 100) / 100 : null]);
+      var col = narrow ? 0 : i % 2, row = narrow ? i : Math.floor(i / 2), w = narrow ? 92 : 44, h = narrow ? 17 : 34;
+      var gl = narrow ? 6 : (col ? 54 : 4), gt = narrow ? 5 + row * 24.5 : 9 + row * 48;
+      G.push({ left: gl + '%', width: w + '%', top: gt + '%', height: h + '%', containLabel: true });
+      X.push({ gridIndex: i, type: 'category', data: cats, axisLabel: { fontSize: 10, hideOverlap: true }, axisTick: { show: false } });
+      Y.push({ gridIndex: i, type: 'value', scale: true, axisLabel: { fontSize: 10, formatter: '{value}x' }, splitLine: { lineStyle: { opacity: 0.3 } } });
+      var hv = data.slice(0, -1).filter(function(v){ return v != null; }), md = hv.length ? cxQ(hv, 0.5) : null;
+      T0.push({ text: k[1] + (k[2] != null ? '  지금 ' + num(k[2], k[2] < 10 ? 2 : 1) + 'x' : '') + (md != null ? ' · 중앙값 ' + num(md, md < 10 ? 2 : 1) + 'x' : ''), left: gl + '%', top: (gt - (narrow ? 4 : 7.5)) + '%', textStyle: { fontSize: 11.5, fontWeight: 600, color: dk ? '#c9d2e6' : '#1a1f36' } });
+      S.push({ name: k[1], type: 'line', xAxisIndex: i, yAxisIndex: i, data: data, connectNulls: true, symbolSize: 6, color: dk ? CD[i] : C[i], lineStyle: { width: 2 },
+        markLine: md == null ? undefined : { silent: true, symbol: 'none', lineStyle: { type: 'dashed', color: dk ? CD[i] : C[i], opacity: 0.7 }, label: { show: false }, data: [{ yAxis: md }] } });
+    });
+    if (narrow){ box.style.height = '620px'; valBandChart.resize(); }
+    valBandChart.setOption({ animation: false, title: T0, tooltip: { trigger: 'axis', confine: true, valueFormatter: function(v){ return v == null ? '-' : num(v, v < 10 ? 2 : 1) + '배'; } }, grid: G, xAxis: X, yAxis: Y, series: S }, true);
+    if (note) note.innerHTML = '배수마다 따로 그림 (눈금이 서로 달라 한 축에 겹치지 않음) · 결산마다 <b>결산일 주가 ÷ 그해 실적</b> (' + esc(rows[0].end.slice(0, 4)) + '~' + esc(rows[rows.length - 1].end.slice(0, 4)) + ' · ' + rows.length + '개 결산) · 마지막 칸 = 오늘 주가 ÷ 최근 4분기 · 점선 = 과거 중앙값' + (H.split ? ' · 액면분할 ' + H.split + '개 해 맞춤' : '') + (H.approx ? ' · ' + H.approx + '개 해는 지금 주식 수로 셈' : '') + '.';
+  };
+})();
+//  일별 LTM 배수 — 분기 보고서가 나온 뒤(분기 말 + 45일)부터 그 LTM 을 씀 (미리 알 수 없던 실적은 안 씀)
+function vxLtmQ(){
+  var f = valData && valData.f, dq = f && f.__dq; if (!dq || !dq.periods || !dq.statements) return [];
+  var qp = dq.periods.map(function(p){ return p.key; }), qe = dq.periods.map(function(p){ return p.end; });
+  if (!qp.every(function(k){ return /^\d{4}Q\d$/.test(String(k)); })) return [];
+  var ser = function(g, n){ var r = valRow(dq, g, n); return qp.map(function(k){ return r && r.values[k] != null ? Number(r.values[k]) : null; }); };
+  var rev = ser('손익계산서', ['매출액', '영업수익']), op = ser('손익계산서', ['영업이익']), net = ser('손익계산서', ['지배주주 순이익', '당기순이익']), eps = ser('손익계산서', ['EPS (희석)', '희석주당이익', 'EPS', '주당순이익', '기본주당이익']);
+  var dep = ser('현금흐름표', ['감가상각비']), eq = ser('재무상태표', ['지배주주지분', '자본총계']), cash = ser('재무상태표', ['현금성자산']), sti = ser('재무상태표', ['단기투자자산', '단기금융상품']);
+  var dS = ser('재무상태표', ['단기차입금']), dL = ser('재무상태표', ['장기차입금']), bnd = ser('재무상태표', ['사채']), lea = ser('재무상태표', ['리스부채']), mn = ser('재무상태표', ['비지배지분']);
+  var lease = cxLeaseOn(co && co.market), out = [];
+  for (var i = 3; i < qp.length; i++){
+    if (!valQChain(qp.slice(i - 3, i + 1))) continue;
+    var s4 = function(a, abs){ var t = 0; for (var j = i - 3; j <= i; j++){ if (a[j] == null) return null; t += abs ? Math.abs(a[j]) : a[j]; } return t; };
+    var R = s4(rev), O = s4(op), Nn = s4(net), E = s4(eps), D = s4(dep, true);
+    var debt = (Math.abs(dS[i] || 0) + Math.abs(dL[i] || 0) + Math.abs(bnd[i] || 0)) + (lease ? Math.abs(lea[i] || 0) : 0);
+    var br = debt - Math.abs(cash[i] || 0) - Math.abs(sti[i] || 0) + (mn[i] || 0);
+    out.push({ key: qp[i], end: qe[i], from: new Date(Date.parse(qe[i]) + 45 * 864e5).toISOString().slice(0, 10), rev: R, ebitda: O != null && D != null ? O + D : null, net: Nn, eps: E, eq: eq[i], br: br, sh: (Nn != null && E > 0 && Nn > 0) ? Nn / E : null });
+  }
+  return out;
+}
+function vxDailyDraw(box, note){
+  var Q = vxLtmQ(), pts = (valData.pxHist && valData.pxHist.length ? valData.pxHist : (coPricePts || [])), shNow = valData.shares, dk = cxDark();
+  var KN = [['per', 'PER'], ['ev', 'EV/EBITDA'], ['psr', 'PSR'], ['pbr', 'PBR']];
+  var segH = '<span class="px-seg cx-seg vx-dseg">' + KN.map(function(k){ return '<button type="button" class="' + (VXB.k === k[0] ? 'on' : '') + '" onclick="VXB.k=\'' + k[0] + '\';valBandDraw()">' + esc(k[1]) + '</button>'; }).join('') + '</span>';
+  box.style.height = '340px'; valBandChart.resize();
+  if (Q.length < 2 || pts.length < 60){ valBandChart.clear(); valBandChart.setOption({ title: { text: '분기 실적이 1년 넘게 이어져 있어야 그립니다', left: 'center', top: 'middle', textStyle: { fontSize: 13, fontWeight: 'normal', color: '#8b93a7' } } }, true); if (note) note.innerHTML = segH; return; }
+  var k = VXB.k, j = -1, data = [];
+  var first = Q[0].from;
+  pts.forEach(function(p, ix){
+    if (!p.d || p.d < first || !(p.v > 0)) return;
+    while (j + 1 < Q.length && Q[j + 1].from <= p.d) j++;
+    if (j < 0) return; var q = Q[j], sh = q.sh || shNow, v = null;
+    if (k === 'per') v = q.eps > 0 ? p.v / q.eps : null;
+    else if (k === 'pbr') v = q.eq > 0 && sh > 0 ? p.v * sh / q.eq : null;
+    else if (k === 'psr') v = q.rev > 0 && sh > 0 ? p.v * sh / q.rev : null;
+    else v = q.ebitda > 0 && sh > 0 ? (p.v * sh + q.br) / q.ebitda : null;
+    if (v != null && isFinite(v) && v > 0 && v < 1000 && (ix % 3 === 0 || ix === pts.length - 1)) data.push([p.d, Math.round(v * 100) / 100]);
+  });
+  if (data.length < 20){ valBandChart.clear(); if (note) note.innerHTML = segH + ' 이 배수를 낼 실적이 모자랍니다 (적자 · 자료 없음).'; return; }
+  var vs = data.map(function(x){ return x[1]; }), mean = vs.reduce(function(a, b){ return a + b; }, 0) / vs.length, sd = Math.sqrt(vs.reduce(function(a, b){ return a + (b - mean) * (b - mean); }, 0) / vs.length), nowV = vs[vs.length - 1];
+  var c = dk ? '#8fb0ee' : '#2c3e6b', z = sd > 0 ? (nowV - mean) / sd : 0;
+  var ml = function(y, lab, ty){ return { yAxis: Math.round(y * 100) / 100, lineStyle: { type: ty, color: dk ? '#c9d2e6' : '#5a6278', opacity: ty === 'solid' ? 0.8 : 0.6 }, label: { formatter: lab + ' ' + num(y, y < 10 ? 2 : 1) + 'x', position: 'insideEndTop', fontSize: 10.5, color: dk ? '#c9d2e6' : '#5a6278' } }; };
+  valBandChart.setOption({ animation: false, grid: { left: 8, right: 70, top: 20, bottom: 8, containLabel: true },
+    tooltip: { trigger: 'axis', confine: true, valueFormatter: function(v){ return v == null ? '-' : num(v, v < 10 ? 2 : 1) + '배'; } },
+    xAxis: { type: 'time', axisLabel: { fontSize: 10.5, hideOverlap: true } }, yAxis: { type: 'value', scale: true, axisLabel: { fontSize: 10.5, formatter: '{value}x' }, splitLine: { lineStyle: { opacity: 0.3 } } },
+    series: [{ name: (KN.filter(function(x){ return x[0] === k; })[0] || [])[1], type: 'line', showSymbol: false, data: data, lineStyle: { width: 1.8, color: c }, itemStyle: { color: c },
+      markLine: { silent: true, symbol: 'none', data: [ml(mean, '평균', 'solid'), ml(mean + sd, '+1σ', 'dashed'), ml(Math.max(0, mean - sd), '−1σ', 'dashed')] } }] }, true);
+  if (note) note.innerHTML = segH + ' 날마다 <b>그날 주가 ÷ 그때 공시된 최근 4분기 실적</b> (분기 말 + 45일부터 반영 · 미래 실적을 미리 쓰지 않음) · ' + esc(data[0][0]) + ' ~ ' + esc(data[data.length - 1][0]) + ' · 지금 <b>' + num(nowV, nowV < 10 ? 2 : 1) + '배</b> = 평균 ' + (z >= 0 ? '+' : '') + num(z, 1) + 'σ' + (k !== 'per' ? ' · 주식 수 = 그 분기 순이익 ÷ EPS (없으면 지금 주식 수)' : '') + '.';
+}
+
+// ── 역산 DCF 칸 문구 (잘리지 않게) ──
+(function(){
+  var d0 = valDraw;
+  valDraw = function(){
+    var r = d0.apply(this, arguments);
+    try {
+      document.querySelectorAll('#valTiles .tile').forEach(function(t){
+        var k = t.querySelector('.k'), v = t.querySelector('.v');
+        if (k && v && /역산 DCF/.test(k.textContent)){ if (/100% 이상/.test(v.textContent)) v.textContent = '100% 넘음'; if (/성장 없어도/.test(v.textContent)) v.textContent = '0% 미만'; t.classList.add('vx-imp'); }
+      });
+    } catch(e){}
+    try { vxAfterDraw(); } catch(e){ console.warn('vx', e); }
+    return r;
+  };
+})();
+
+/* ══════════ (24차) 밸류에이션 화면 — 결론 줄 · DCF 연도별 표 · 주주가치 다리 · 민감도 3종 · 고급 가정 · 시나리오 보기 · 엑셀 ══════════ */
+var VXS = { grid: 'wg', scen: 'base', base: null };
+function vxAfterDraw(){
+  if (!valData) return;
+  if (VXS.key !== valData.key){ VXS.key = valData.key; VXS.scen = 'base'; VXS.base = null; }   //  회사가 바뀌면 시나리오 보기는 기본으로
+  vxSumDraw(); vxDcfDraw(); vxBridgeDraw(); vxAdvDraw(); vxLayout();
+}
+//  결론 한 줄 — 목표주가 · 상승여력 · 의견 · 방법 범위 · 가정 요약
+function vxSumDraw(){
+  var box = $('vxSum'); if (!box || !valData) return;
+  var out = valCompute(), px = valData.px, R = null; try { R = vtpLast || vtpRun(); } catch(e){}
+  var tgt = R ? (R.pw != null ? R.pw : R.t) : null;
+  //  시나리오 보기 중이면 확률 가중이 아니라 <그 시나리오 가정 그대로> 의 가중 목표주가
+  if (VXS.scen !== 'base'){ try { tgt = vtpWeighted(out, vtpWeights(out, vtpState())); } catch(e){} }
+  var up = tgt != null && px ? (tgt / px - 1) * 100 : null, op = up == null ? null : up > 15 ? ['buy', '매수'] : up < -15 ? ['sell', '매도'] : ['hold', '중립'];
+  var vals = ['dcf', 'per', 'pbr', 'ev', 'evrev'].map(function(k){ return out[k]; }).filter(function(v){ return v != null && v > 0; });
+  var lo = vals.length ? Math.min.apply(null, vals) : null, hi = vals.length ? Math.max.apply(null, vals) : null;
+  var sc = VXS.scen !== 'base' ? '<span class="vx-scen ' + VXS.scen + '">' + esc(VXS.scen === 'bear' ? '약세 시나리오로 보는 중' : '강세 시나리오로 보는 중') + ' <button type="button" onclick="vxScen(\'base\')">기본으로</button></span>' : '';
+  var lab = VXS.scen === 'bear' ? '약세 가정 목표주가' : VXS.scen === 'bull' ? '강세 가정 목표주가' : (R && R.pw != null ? '확률 가중 목표주가' : '가중 목표주가');
+  box.innerHTML = '<div class="vx-sum-l"><span class="k">' + esc(lab) + '</span><b>' + esc(vxPx(tgt)) + '</b>'
+    + (up != null ? '<span class="cx-up ' + (up >= 0 ? 'pos' : 'neg') + '">' + esc((up >= 0 ? '+' : '') + num(up, 1) + '%') + '</span>' : '') + (op ? '<span class="vtp-op ' + op[0] + '">' + esc(op[1]) + '</span>' : '') + sc + '</div>'
+    + '<div class="vx-sum-r"><span><i>현재가</i>' + esc(vxPx(px)) + '</span><span><i>방법 범위</i>' + esc(lo != null ? vxPx(lo) + ' ~ ' + vxPx(hi) : '-') + '</span><span><i>DCF</i>' + esc(vxPx(out.dcf)) + '</span>'
+    + '<span><i>가정</i>' + esc('성장 ' + valNum('vGrow') + '% · 이익률 ' + valNum('vMargin') + '% · WACC ' + num(valNum('vWacc'), 1) + '% · 영구 ' + num(valNum('vTerm'), 1) + '%') + '</span></div>';
+}
+//  DCF 연도별 표 — 성장률 · 이익률 칸은 그 해만 바꿀 수 있음 (비우면 위 가정)
+function vxDcfDraw(){
+  var box = $('vxDcf'); if (!box || !valData) return;
+  var out = valCompute(), C = out.dcfC;
+  if (!C){ box.innerHTML = '<p class="st-hint">' + esc(valData.bank ? '은행 · 금융지주는 DCF (FCFF) 를 만들지 않습니다.' : 'DCF 를 계산할 재료가 모자랍니다 (매출 · 주식 수 · WACC > 영구성장률).') + '</p>'; return; }
+  var cur = valData.cur, M = function(v){ return v == null || !isFinite(v) ? '-' : (cur === '원' ? num(v / 1e8, 0) : num(v / 1e6, Math.abs(v) >= 1e9 ? 0 : 1)); };
+  var P = function(v){ return v == null || !isFinite(v) ? '-' : num(v * 100, 1) + '%'; };
+  var R = C.rows, A = C.A, X = vxS(), g0 = valNum('vGrow'), m0 = valNum('vMargin');
+  var inp = function(kind, y, ov, base){ return '<input type="number" step="0.5" class="vx-yin' + (ov ? ' ov' : '') + '" data-k="' + kind + '" data-y="' + y + '" value="' + (ov ? esc(String(X[kind][y])) : '') + '" placeholder="' + esc(num(base, 1)) + '" aria-label="' + esc((kind === 'g' ? '매출 성장률 ' : '영업이익률 ') + y + '년차') + '">'; };
+  var line = function(lab, f, cls){ return '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td>' + lab + '</td><td class="r st-hint">' + (f.now != null ? f.now : '') + '</td>' + R.map(function(r){ return '<td class="r">' + f(r) + '</td>'; }).join('') + '<td class="r tv">' + (f.tv != null ? f.tv : '') + '</td></tr>'; };
+  var f = valData.f, N = valN(f);
+  var rows = [
+    line('매출', Object.assign(function(r){ return M(r.rev); }, { now: M(C.rev0) }), 'b'),
+    line('매출 성장률 <span class="st-hint">(칸 = 그 해만)</span>', function(r){ return inp('g', r.y, r.gOv, g0); }, 'vx-irow'),
+    line('영업이익 (EBIT)', function(r){ return M(r.ebit); }),
+    line('영업이익률 <span class="st-hint">(칸 = 그 해만)</span>', function(r){ return inp('m', r.y, r.mOv, m0); }, 'vx-irow'),
+    line('− 세금', function(r){ return M(-r.tax); }),
+    line('세후 영업이익 (NOPAT)', function(r){ return M(r.nopat); }),
+    line('+ 감가상각', function(r){ return M(r.dep); }),
+    line('− 설비투자', function(r){ return M(-r.cpx); }),
+    line('− 운전자본 증가', function(r){ return M(-r.dNwc); })
+  ];
+  if (C.sbcR) rows.push(line('− 주식보상비용', function(r){ return M(-r.sbc); }));
+  rows.push(line('<b>잉여현금흐름 (FCFF)</b>', Object.assign(function(r){ return '<b>' + M(r.fcf) + '</b>'; }, { tv: '<b>' + M(C.tv) + '</b>' }), 'tot'));
+  rows.push(line('할인 기간 (년)', Object.assign(function(r){ return num(r.t, 2); }, { tv: num(A.expTv(C.P.N), 2) })));
+  rows.push(line('할인계수', Object.assign(function(r){ return num(r.df, 3); }, { tv: num(C.dfTv, 3) })));
+  rows.push(line('<b>현재가치</b>', Object.assign(function(r){ return '<b>' + M(r.pv) + '</b>'; }, { tv: '<b>' + M(C.pvTv) + '</b>' }), 'tot'));
+  var tvName = C.tvm === 'x' ? '출구 배수 ' + num(C.exit, 1) + 'x' : C.tvm === 'avg' ? '영구성장 · 출구 배수 평균' : '영구성장 ' + num(valNum('vTerm'), 1) + '%';
+  box.innerHTML = '<div class="cx-ctl"><span class="st-hint">단위 ' + esc(cur === '원' ? '억원' : '백만 달러') + ' · 기준 = ' + esc((f.nowBasis && f.nowBasis.pnlLabel) || '최근') + '</span>'
+      + '<button type="button" class="btn-sm" onclick="vxYClear()">해마다 칸 비우기</button><button type="button" class="btn-sm" onclick="vxXlsx()">엑셀 (수식 포함)</button></div>'
+    + '<div class="cx-scroll"><table class="cx-t vx-dcf"><thead><tr><th></th><th class="r">지금 (LTM)</th>' + R.map(function(r){ return '<th class="r">' + r.y + '년차</th>'; }).join('') + '<th class="r tv">잔여가치</th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div>'
+    + '<div class="cx-kpis vx-dk">'
+    + '<div class="cx-kpi"><span>FCF 현재가치 합</span><b>' + esc(vxMoney(C.pvSum)) + '</b></div>'
+    + '<div class="cx-kpi"><span>잔여가치 현재가치 (' + esc(tvName) + ')</span><b>' + esc(vxMoney(C.pvTv)) + '</b><i>' + esc('기업가치의 ' + num((C.tvShare || 0) * 100, 0) + '%') + '</i></div>'
+    + '<div class="cx-kpi"><span>기업가치 (EV)</span><b>' + esc(vxMoney(C.ev)) + '</b></div>'
+    + '<div class="cx-kpi"><span>주당 가치</span><b>' + esc(vxPx(out.dcf)) + '</b>' + (valData.px && out.dcf ? '<i>' + esc('현재가 대비 ' + ((out.dcf / valData.px - 1) * 100 >= 0 ? '+' : '') + num((out.dcf / valData.px - 1) * 100, 1) + '%') + '</i>' : '') + '</div></div>'
+    + '<p class="st-hint">교차 확인: 영구성장 방식 잔여가치 = 마지막 해 EBITDA 의 <b>' + (C.impExit != null ? num(C.impExit, 1) + '배' : '-') + '</b>'
+      + (C.tvX != null ? ' · 출구 배수 ' + num(C.exit, 1) + 'x 방식 = 영구성장률 <b>' + (C.impG != null ? num(C.impG * 100, 1) + '%' : '-') + '</b> 와 같음' : '')
+      + ' · 운전자본 = 매출 증가분의 ' + (C.nwcR != null ? num(C.nwcR * 100, 1) + '%' + (C.nwcHow === 'user' ? ' (직접 넣은 값)' : ' (매출채권 + 재고 − 매입채무 ÷ 매출)') : '0% (자료 없음)')
+      + (C.sbcR ? ' · 주식보상비용 매출의 ' + num(C.sbcR * 100, 1) + '% 를 현금비용으로 뺌' : '') + ' · 중간연도 할인 ' + (A.mid ? '켬' : '끔') + '</p>';
+  box.querySelectorAll('.vx-yin').forEach(function(e){ e.addEventListener('change', vxYIn); });
+  if (CXF.neg === 'paren') box.querySelectorAll('.vx-dcf td.r').forEach(cxParen);
+}
+function vxYIn(e){
+  var k = e.target.getAttribute('data-k'), y = e.target.getAttribute('data-y'), X = vxS(), v = vxNum(e.target.value);
+  if (v == null) delete X[k][y]; else X[k][y] = Math.max(k === 'g' ? -80 : -50, Math.min(k === 'g' ? 300 : 90, v));
+  vxPut(); valDraw();
+}
+function vxYClear(){ var X = vxS(); X.g = {}; X.m = {}; vxPut(); valDraw(); }
+//  기업가치 → 주주가치 다리
+function vxBridgeDraw(){
+  var box = $('vxBridge'); if (!box || !valData) return;
+  var out = valCompute(), C = out.dcfC, f = valData.f, N = valN(f), X = vxS(), U = vxU();
+  if (!C){ box.innerHTML = '<p class="st-hint">DCF 기업가치가 있어야 그립니다.</p>'; return; }
+  var mk = co ? co.market : 'US', lOn = cxLeaseOn(mk);
+  var L = [['기업가치 (DCF)', C.ev, 'b'], ['− 차입금', -(N.debt || 0)], ['− 리스부채', lOn ? -(N.lease || 0) : 0, '', lOn ? '' : '규칙상 뺌 (' + CXL_TXT[CXL.mode] + ')'],
+    ['+ 현금 · 단기금융상품', N.cash || 0], ['− 비지배지분', -(N.minority || 0)], ['− 우선주', -(N.preferred || 0)],
+    ['+ 비영업 자산 (직접)', (vxNum(X.inv) || 0) * U, '', '장기 투자 · 지분법 · 유휴 부동산 등'], ['− 기타 부채성 항목 (직접)', -(vxNum(X.oth) || 0) * U, '', '연금 부족분 · 소송 충당 · 이연법인세 등']];
+  var eq = C.ev - C.bridge, sh0 = valData.shares, shD = vxDil(sh0);
+  box.innerHTML = '<div class="cx-scroll"><table class="cx-t vx-br"><tbody>' + L.map(function(r){ return '<tr' + (r[2] ? ' class="' + r[2] + '"' : '') + '><td>' + esc(r[0]) + (r[3] ? ' <span class="st-hint">' + esc(r[3]) + '</span>' : '') + '</td><td class="r">' + esc(vxMoney(r[1])) + '</td></tr>'; }).join('')
+    + '<tr class="tot"><td><b>= 주주가치</b></td><td class="r"><b>' + esc(vxMoney(eq)) + '</b></td></tr>'
+    + '<tr><td>÷ 주식 수' + (vxNum(X.dil) ? ' (기본 ' + num(sh0, 0) + ' + 희석 ' + num(vxNum(X.dil), 1) + '%)' : '') + ' <span class="st-hint">' + esc(valData.sharesNote || '') + '</span></td><td class="r">' + esc(num(shD, 0)) + '</td></tr>'
+    + '<tr class="tot"><td><b>= 주당 가치</b></td><td class="r"><b>' + esc(vxPx(out.dcf)) + '</b></td></tr></tbody></table></div>'
+    + '<p class="st-hint">EV/EBITDA · EV/매출 방법도 같은 다리를 씁니다 · 비영업 자산 · 기타 부채 · 희석은 오른쪽 가정 › 주주가치 · 주식에서 넣음 (단위 ' + esc(vxUL()) + ')</p>';
+  if (CXF.neg === 'paren') box.querySelectorAll('.vx-br td.r').forEach(cxParen);
+}
+//  민감도 — WACC × 영구성장 · WACC × 출구 배수 · 성장 × 이익률 (가운데 칸 = 지금 가정)
+valGrid = function(){
+  var box = $('valGrid'); if (!box) return;
+  if (!valData || !valData.shares){ box.innerHTML = '<div class="empty" style="padding:16px">주식 수가 있어야 그릴 수 있습니다.</div>'; return; }
+  var mode = VXS.grid, px = valData.px, cur = valData.cur, X = vxS();
+  var seg = '<div class="px-seg cx-seg vx-gseg">' + [['wg', 'WACC × 영구성장'], ['wx', 'WACC × 출구 배수'], ['gm', '성장 × 이익률']].map(function(z){ return '<button type="button" class="' + (mode === z[0] ? 'on' : '') + '" onclick="VXS.grid=\'' + z[0] + '\';valGrid()">' + esc(z[1]) + '</button>'; }).join('') + '</div>';
+  var axis = function(id, ds, base){ var el = $(id), lo = el && el.min !== '' ? Number(el.min) : -Infinity, hi = el && el.max !== '' ? Number(el.max) : Infinity, seen = {}, o = []; ds.forEach(function(d){ var v = +(base + d).toFixed(1); if (v < lo || v > hi || seen[v]) return; seen[v] = 1; o.push(v); }); return o; };
+  var keep = { w: $('vWacc').value, t: $('vTerm').value, g: $('vGrow').value, m: $('vMargin').value }, keepX = { tvm: X.tvm, exit: X.exit };
+  var A, B, aLab, bLab, aId, bId, fmtA, fmtB, setA, setB, base = {};
+  if (mode === 'gm'){ aId = 'vGrow'; bId = 'vMargin'; A = axis(aId, [-4, -2, 0, 2, 4], valNum('vGrow')); B = axis(bId, [-4, -2, 0, 2, 4], valNum('vMargin')); aLab = '매출 성장'; bLab = '영업이익률'; fmtA = fmtB = function(v){ return num(v, 1) + '%'; }; base = { a: valNum('vGrow'), b: valNum('vMargin') }; }
+  else { aId = 'vWacc'; A = axis(aId, [-2, -1, 0, 1, 2], valNum('vWacc')); aLab = 'WACC'; fmtA = function(v){ return num(v, 1) + '%'; }; base.a = valNum('vWacc');
+    if (mode === 'wg'){ bId = 'vTerm'; B = axis(bId, [-1, -0.5, 0, 0.5, 1], valNum('vTerm')); bLab = '영구성장'; fmtB = function(v){ return num(v, 1) + '%'; }; base.b = valNum('vTerm'); }
+    else { var e0 = vxExit(valData.f); if (!(e0 > 0)){ box.innerHTML = seg + '<p class="st-hint">출구 배수를 정할 EV/EBITDA 가 없습니다 (EBITDA 가 0 이하).</p>'; return; } B = [-4, -2, 0, 2, 4].map(function(d){ return Math.round((e0 + d) * 10) / 10; }).filter(function(v){ return v > 0; }); bLab = '출구 EV/EBITDA'; fmtB = function(v){ return num(v, 1) + 'x'; }; base.b = e0; } }
+  var H = '<table class="vgrid vx-grid"><thead><tr><th>' + esc(aLab + ' ↓ · ' + bLab + ' →') + '</th>' + B.map(function(b){ return '<th' + (Math.abs(b - base.b) < 1e-9 ? ' class="on"' : '') + '>' + esc(fmtB(b)) + '</th>'; }).join('') + '</tr></thead><tbody>';
+  try {
+    A.forEach(function(a){
+      H += '<tr' + (Math.abs(a - base.a) < 1e-9 ? ' class="on"' : '') + '><th>' + esc(fmtA(a)) + '</th>';
+      B.forEach(function(b){
+        $(aId).value = a;
+        if (mode === 'wx'){ X.tvm = 'x'; X.exit = b; } else $(bId).value = b;
+        var ok = mode === 'gm' ? true : (Number($('vWacc').value) > Number($('vTerm').value));
+        var v = ok ? valCompute().dcf : null, isB = Math.abs(a - base.a) < 1e-9 && Math.abs(b - base.b) < 1e-9;
+        var c = (v == null || !px) ? '' : (v > px ? 'up' : 'dn');
+        H += '<td class="' + c + (isB ? ' base' : '') + '">' + (v == null || !isFinite(v) ? '-' : (cur === '원' ? num(v, 0) : '$' + num(v, 2))) + '</td>';
+      });
+      H += '</tr>';
+    });
+  } finally { $('vWacc').value = keep.w; $('vTerm').value = keep.t; $('vGrow').value = keep.g; $('vMargin').value = keep.m; X.tvm = keepX.tvm; X.exit = keepX.exit; }
+  box.innerHTML = seg + '<div class="scroll">' + H + '</tbody></table></div><p class="st-hint">칸 = DCF 주당 가치 · 빨강 = 현재가보다 높음 · 파랑 = 낮음 · 굵은 테두리 = 지금 가정' + (mode === 'wx' ? ' · 이 표는 잔여가치를 출구 배수로 계산' : '') + '</p>';
+};
+//  고급 가정 (오른쪽 패널) — 잔여가치 · 운전자본 · SBC · 주주가치 · 주식 · 정상화 · 시나리오
+function vxAdvDraw(){
+  var box = $('vxAdv'); if (!box || !valData) return;
+  if (box.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return;    //  입력 중이면 다시 그리지 않음
+  var X = vxS(), f = valData.f, A = valAssume(f), ex = vxExit(f), ul = vxUL();
+  var nIn = function(k, ph, step, unit, w){ var v = X[k]; return '<span class="vx-in"><input type="number" step="' + (step || 0.5) + '" value="' + (v == null || v === 0 && k !== 'dil' ? (v === 0 && (k === 'inv' || k === 'oth' || k === 'adjE' || k === 'adjN' || k === 'dil') ? '' : '') : esc(String(v))) + '" placeholder="' + esc(ph) + '" data-vx="' + k + '" style="width:' + (w || 78) + 'px"><i>' + esc(unit || '') + '</i></span>'; };
+  var tvSel = '<select data-vx="tvm" class="vx-sel"><option value="g"' + (X.tvm === 'g' ? ' selected' : '') + '>영구성장</option><option value="x"' + (X.tvm === 'x' ? ' selected' : '') + '>출구 배수</option><option value="avg"' + (X.tvm === 'avg' ? ' selected' : '') + '>둘의 평균</option></select>';
+  var scen = '<div class="px-seg cx-seg vx-scseg">' + [['base', '기본'], ['bear', '약세'], ['bull', '강세']].map(function(z){ return '<button type="button" class="' + (VXS.scen === z[0] ? 'on' : '') + '" onclick="vxScen(\'' + z[0] + '\')">' + esc(z[1]) + '</button>'; }).join('') + '</div>';
+  var grp = function(id, t, inner, open){ return '<details class="vx-grp" data-g="' + id + '"' + (vxOpen(id, open) ? ' open' : '') + '><summary>' + esc(t) + '</summary><div class="vx-gb">' + inner + '</div></details>'; };
+  box.innerHTML = grp('scen', '시나리오 보기', scen + '<p class="st-hint">목표주가 함께 만들기의 약세 · 강세 값 (성장 · 이익률 · WACC · 배수) 을 가정 칸에 잠시 넣어 화면 전체를 그 시나리오로 봅니다</p>', true)
+    + grp('tv', '잔여가치 · 운전자본 · 주식보상', '<div class="vx-r"><label>잔여가치 방식</label>' + tvSel + '</div>'
+      + '<div class="vx-r"><label>출구 EV/EBITDA</label>' + nIn('exit', ex ? num(ex, 1) + ' (자동)' : '-', 0.5, 'x') + '</div>'
+      + '<div class="vx-r"><label>운전자본 (매출 증가분 대비)</label>' + nIn('nwc', A.nwcAuto != null ? num(A.nwcAuto * 100, 1) + ' (자동)' : '없음', 0.5, '%') + '</div>'
+      + (f.ar != null || f.inv != null ? '<p class="st-hint">자동 = (매출채권 ' + esc(vxMoney(f.ar)) + ' + 재고 ' + esc(vxMoney(f.inv)) + ' − 매입채무 ' + esc(vxMoney(f.ap)) + ') ÷ 매출' + (f.rev > 0 && f.ar != null ? ' · 회수 ' + num(f.ar / f.rev * 365, 0) + '일' : '') + (f.rev > 0 && f.inv != null ? ' · 재고 ' + num(f.inv / (f.cogs || f.rev) * 365, 0) + '일' : '') + (f.rev > 0 && f.ap != null ? ' · 지급 ' + num(f.ap / (f.cogs || f.rev) * 365, 0) + '일' : '') + '</p>' : '')
+      + '<div class="vx-r"><label class="cx-ck"><input type="checkbox" data-vx="sbc"' + (X.sbc ? ' checked' : '') + (f.sbcRatio == null ? ' disabled' : '') + '> 주식보상비용을 현금비용으로 빼기</label><span class="st-hint">' + esc(f.sbcRatio != null ? '매출의 ' + num(f.sbcRatio, 1) + '% (여러 해 중앙값)' : '자료 없음') + '</span></div>', false)
+    + grp('br', '주주가치 · 주식', '<div class="vx-r"><label>리스부채</label>' + cxLeaseSel() + '</div>'
+      + '<div class="vx-r"><label>+ 비영업 자산</label>' + nIn('inv', '0', 1, ul, 96) + '</div><div class="vx-r"><label>− 기타 부채성 항목</label>' + nIn('oth', '0', 1, ul, 96) + '</div>'
+      + '<div class="vx-r"><label>희석 주식 (스톡옵션 · RSU 등)</label>' + nIn('dil', '0', 0.1, '%') + '</div><p class="st-hint">희석 % = 공시의 희석 주식 수 ÷ 기본 주식 수 − 1 (자기주식법) · 지금 배수 · 적정주가 모두 이 주식 수</p>', false)
+    + grp('nm', '정상화 (일회성 빼기)', '<div class="vx-r"><label>EBITDA 조정 (+ 더함)</label>' + nIn('adjE', '0', 1, ul, 96) + '</div><div class="vx-r"><label>순이익 조정 (+ 더함)</label>' + nIn('adjN', '0', 1, ul, 96) + '</div><p class="st-hint">구조조정 · 손상 · 소송 같은 일회성 비용이 있었으면 그만큼 더해 넣음 (이익이면 빼기) · 지금 배수 · PER · EV/EBITDA 방법에 반영</p>', false)
+    + grp('wc', '할인율 세부', '<div class="vx-r"><label class="cx-ck"><input type="checkbox" data-vx="kdFloor"' + (X.kdFloor !== false ? ' checked' : '') + '> 타인자본비용 하한</label>' + nIn('kdSp', '1.5', 0.25, '%p') + '</div><p class="st-hint">국채 + 스프레드보다 낮은 실효 이자율은 하한으로 올림</p>'
+      + '<div class="vx-r"><label>목표 부채 비중 D / (D + E)</label>' + nIn('tgtD', '지금', 1, '%') + '</div><p class="st-hint">베타 · 피어 베타는 아래 WACC 카드에서 고름</p>', false);
+  box.querySelectorAll('[data-vx]').forEach(function(e){ e.addEventListener('change', vxAdvIn); });
+  box.querySelectorAll('details.vx-grp').forEach(function(d){ d.addEventListener('toggle', function(){ vxOpenSet(d.getAttribute('data-g'), d.open); }); });
+}
+function vxOpen(id, def){ try { var o = JSON.parse(LSX.getItem('safe_vxopen_v1') || '{}'); return o[id] == null ? def : !!o[id]; } catch(e){ return def; } }
+function vxOpenSet(id, v){ try { var o = JSON.parse(LSX.getItem('safe_vxopen_v1') || '{}'); o[id] = v ? 1 : 0; LSX.setItem('safe_vxopen_v1', JSON.stringify(o)); } catch(e){} }
+function vxAdvIn(e){
+  var k = e.target.getAttribute('data-vx'), t = e.target, X = vxS();
+  if (t.type === 'checkbox') X[k] = t.checked; else if (t.tagName === 'SELECT') X[k] = t.value; else { var v = vxNum(t.value); X[k] = v; }
+  if (k === 'dil' && X.dil != null) X.dil = Math.max(0, Math.min(50, X.dil));
+  vxPut(); t.blur(); valDraw();
+}
+//  시나리오 보기 — 기본 가정을 기억해 두고 약세 · 강세 차이를 더함
+function vxScen(n){
+  if (!valData) return;
+  var s = null; try { s = vtpState(); } catch(e){}
+  if (VXS.scen === 'base' && n !== 'base') VXS.base = valInputsNow();
+  if (n === 'base'){ if (VXS.base) valInputsSet(VXS.base); VXS.scen = 'base'; VXS.base = null; valDraw(); return; }
+  var b = VXS.base || valInputsNow(), d = s && s.sc && s.sc[n] ? s.sc[n] : (VTP_SC0[n] || {});
+  var o = Object.assign({}, b);
+  var add = function(k, dv){ if (o[k] != null && dv != null && isFinite(o[k])) o[k] = Math.round((Number(o[k]) + Number(dv)) * 10) / 10; };
+  add('growth', d.dg); add('margin', d.dm); add('wacc', d.dw); if (o.wacc != null && o.wacc < 2) o.wacc = 2;
+  //  목표 배수 — 비어 있으면 (자동 = 이 회사 과거 중앙값) 그 값에 곱함 (목표주가 함께 만들기와 같은 식)
+  var own = {}; try { own = valOwnMultiples() || {}; } catch(e){}
+  if (d.mx != null && d.mx !== 1) [['per', own.per], ['pbr', own.pbr], ['ev_ebitda', own.ev], ['ev_sales', own.evRev]].forEach(function(x){ var bv = Number(o[x[0]]) || x[1]; if (bv > 0) o[x[0]] = Math.round(bv * d.mx * 10) / 10; });
+  VXS.scen = n; valInputsSet(o); valDraw();
+}
+//  화면 배치 — 결론 줄 · 왼쪽 결과 · 오른쪽 가정 (스크롤 따라옴)
+var VXL = { done: false };
+function vxLayout(){
+  if (VXL.done) { vxSideTop(); return; }
+  var pane = $('coPane-val'); if (!pane) return; VXL.done = true;
+  var sum = document.createElement('div'); sum.id = 'vxSum'; sum.className = 'vx-sum';
+  var grid = document.createElement('div'); grid.className = 'vx-grid2';
+  var main = document.createElement('div'); main.className = 'vx-main';
+  var side = document.createElement('aside'); side.className = 'vx-side'; side.id = 'vxSide';
+  var card = function(id, html){ var c = document.createElement('div'); c.className = 'card'; c.id = id; c.innerHTML = html; return c; };
+  var dcf = card('vxDcfCard', '<h2>DCF 연도별 <span class="cx-sub">매출에서 잉여현금흐름 · 현재가치까지 · 성장률 · 이익률은 해마다 바꿀 수 있음</span></h2><div id="vxDcf"></div>');
+  var br = card('vxBrCard', '<h2>기업가치 → 주주가치 <span class="cx-sub">EV 에서 무엇을 빼고 더해 주당 가치가 되나</span></h2><div id="vxBridge"></div>');
+  var adv = card('vxAdvCard', '<h2>가정 더 보기 <span class="cx-sub">잔여가치 · 운전자본 · 주주가치 · 정상화 · 시나리오</span></h2><div id="vxAdv"></div>');
+  var byId = function(id){ var e = $(id); return e ? e.closest('.card') : null; };
+  var order = [byId('vffCard') || $('vffCard'), byId('valTiles'), dcf, br, byId('valGrid'), byId('valTp'), byId('valMult'), $('valBandCard'), byId('valWaccBox'), byId('valBox'), byId('valSteps'), byId('valRead'), $('valAiCard')].filter(Boolean);
+  pane.insertBefore(sum, pane.firstChild);
+  pane.insertBefore(grid, sum.nextSibling);
+  grid.appendChild(main); grid.appendChild(side);
+  order.forEach(function(c){ main.appendChild(c); });
+  var inp = $('valInputCard'); if (inp) side.appendChild(inp);
+  side.appendChild(adv);
+  //  남은 카드 (혹시 빠진 것) 는 결과 칸 아래로
+  [].slice.call(pane.children).forEach(function(c){ if (c !== sum && c !== grid && c.classList && c.classList.contains('card')) main.appendChild(c); });
+  vxSideTop();
+  window.addEventListener('resize', function(){ clearTimeout(vxLayout.t); vxLayout.t = setTimeout(vxSideTop, 150); });
+  cxEyebrows(); cxFoldInit();
+}
+function vxSideTop(){
+  var side = $('vxSide'); if (!side) return;
+  var top = 0; document.querySelectorAll('header.top, .tabs, .subtabs, .tabs-in, .sub-tabs, nav').forEach(function(e){ var cs = getComputedStyle(e); if (cs.position === 'sticky' || cs.position === 'fixed'){ var r = e.getBoundingClientRect(); if (r.top <= 4 && r.bottom > top && r.bottom < 260) top = r.bottom; } });
+  side.style.top = Math.round(top + 10) + 'px';
+}
+
+// ── 엑셀 (수식이 살아 있는 xlsx) ──
+var VXX = { p: null };
+function vxXlsxLib(){
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  if (VXX.p) return VXX.p;
+  VXX.p = new Promise(function(ok, no){ var s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.async = true; s.onload = function(){ ok(window.XLSX); }; s.onerror = function(){ VXX.p = null; no(new Error('엑셀 도구를 받지 못했습니다')); }; document.head.appendChild(s); });
+  return VXX.p;
+}
+async function vxXlsx(){
+  if (!valData) return;
+  var out = valCompute(), C = out.dcfC; if (!C){ toast(esc('DCF 가 있어야 내보냅니다'), 1600); return; }
+  var XL; try { XL = await vxXlsxLib(); } catch(e){ toast(esc(cxErr(e)), 2200); return; }
+  var U = valData.cur === '원' ? 1e8 : 1e6, ul = valData.cur === '원' ? '억원' : '백만 달러', R = C.rows, N = R.length, A = C.A;
+  var ws = {}, put = function(a, v, f, z){ var c = typeof v === 'number' ? { t: 'n', v: v } : { t: 's', v: String(v == null ? '' : v) }; if (f) c.f = f; if (z) c.z = z; ws[a] = c; };
+  var col = function(i){ var s = ''; i++; while (i > 0){ var m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  put('A1', (co ? co.name : '') + ' DCF (' + ul + ')'); put('A2', 'SAFE Terminal · ' + new Date().toISOString().slice(0, 10) + ' · B4~B15 가정 칸 · 19행 성장률 · 21행 이익률을 바꾸면 다시 계산됩니다');
+  var asm = [['WACC', valNum('vWacc') / 100, '0.0%'], ['영구성장률', valNum('vTerm') / 100, '0.0%'], ['법인세율', valNum('vTax') / 100, '0.0%'], ['감가상각 / 매출', A.depR, '0.0%'], ['설비투자 / 매출', A.cpxR, '0.0%'], ['운전자본 / 매출 증가분', C.nwcR || 0, '0.0%'], ['주식보상 / 매출', C.sbcR || 0, '0.0%'], ['출구 EV/EBITDA', C.exit || 0, '0.0"x"'], ['잔여가치 방식 (1 = 영구성장 · 2 = 출구 · 3 = 평균)', C.tvm === 'x' ? 2 : C.tvm === 'avg' ? 3 : 1, '0'], ['주주가치 다리 (차입 − 현금 + 기타)', C.bridge / U, '#,##0.0'], ['주식 수', vxDil(valData.shares), '#,##0'], ['LTM 매출', C.rev0 / U, '#,##0.0']];
+  asm.forEach(function(r, i){ put('A' + (4 + i), r[0]); put('B' + (4 + i), r[1], null, r[2]); });
+  var aR = function(n){ return '$B$' + (4 + n); };   //  0 WACC 1 g 2 tax 3 dep 4 capex 5 nwc 6 sbc 7 exit 8 tvm 9 bridge 10 shares 11 rev0
+  var r0 = 18, lab = ['연차', '매출 성장률', '매출', '영업이익률', '영업이익', '세금', 'NOPAT', '감가상각', '설비투자', '운전자본 증가', '주식보상', 'FCFF', '할인 기간', '할인계수', '현재가치'];
+  lab.forEach(function(t, i){ put('A' + (r0 + i), t); });
+  put('B' + (r0), 0); put('B' + (r0 + 2), C.rev0 / U, aR(11), '#,##0.0');
+  R.forEach(function(r, j){
+    var c = col(j + 2), p = col(j + 1), row = function(k){ return c + (r0 + k); }, prow = function(k){ return p + (r0 + k); };
+    put(row(0), r.y);
+    put(row(1), r.g, null, '0.0%'); put(row(2), r.rev / U, prow(2) + '*(1+' + row(1) + ')', '#,##0.0');
+    put(row(3), r.m, null, '0.0%'); put(row(4), r.ebit / U, row(2) + '*' + row(3), '#,##0.0');
+    put(row(5), r.tax / U, row(4) + '*' + aR(2), '#,##0.0'); put(row(6), r.nopat / U, row(4) + '-' + row(5), '#,##0.0');
+    put(row(7), r.dep / U, row(2) + '*' + aR(3), '#,##0.0'); put(row(8), r.cpx / U, row(2) + '*' + aR(4), '#,##0.0');
+    put(row(9), r.dNwc / U, '(' + row(2) + '-' + prow(2) + ')*' + aR(5), '#,##0.0'); put(row(10), r.sbc / U, row(2) + '*' + aR(6), '#,##0.0');
+    put(row(11), r.fcf / U, row(6) + '+' + row(7) + '-' + row(8) + '-' + row(9) + '-' + row(10), '#,##0.0');
+    put(row(12), r.t, null, '0.00'); put(row(13), r.df, '1/(1+' + aR(0) + ')^' + row(12), '0.000'); put(row(14), r.pv / U, row(11) + '*' + row(13), '#,##0.0');
+  });
+  var lc = col(N + 1), s0 = r0 + 16, fc = 'C', tvYears = A.expTv(N);
+  var lines = [['FCF 현재가치 합', C.pvSum / U, 'SUM(' + fc + (r0 + 14) + ':' + lc + (r0 + 14) + ')'],
+    ['잔여가치 (영구성장)', C.tvG / U, lc + (r0 + 11) + '*(1+' + aR(1) + ')/(' + aR(0) + '-' + aR(1) + ')'],
+    ['잔여가치 (출구 배수)', (C.tvX || 0) / U, '(' + lc + (r0 + 4) + '+' + lc + (r0 + 7) + ')*' + aR(7)],
+    ['쓰는 잔여가치', C.tv / U, 'CHOOSE(' + aR(8) + ',B' + (s0 + 1) + ',B' + (s0 + 2) + ',(B' + (s0 + 1) + '+B' + (s0 + 2) + ')/2)'],
+    ['잔여가치 할인 기간', tvYears, null], ['잔여가치 현재가치', C.pvTv / U, 'B' + (s0 + 3) + '/(1+' + aR(0) + ')^B' + (s0 + 4)],
+    ['기업가치 (EV)', C.ev / U, 'B' + s0 + '+B' + (s0 + 5)], ['주주가치', (C.ev - C.bridge) / U, 'B' + (s0 + 6) + '-' + aR(9)], ['주당 가치', out.dcf || 0, 'B' + (s0 + 7) + '*' + U + '/' + aR(10)]];
+  lines.forEach(function(l, i){ put('A' + (s0 + i), l[0]); put('B' + (s0 + i), l[1], l[2], i === 8 ? '#,##0.00' : (i === 4 ? '0.00' : '#,##0.0')); });
+  ws['!ref'] = 'A1:' + col(Math.max(N + 1, 2)) + (s0 + lines.length);
+  ws['!cols'] = [{ wch: 34 }].concat(R.map(function(){ return { wch: 12 }; })).concat([{ wch: 12 }]);
+  var wb = XL.utils.book_new(); XL.utils.book_append_sheet(wb, ws, 'DCF');
+  //  재무제표 (연간 원자료)
+  var d = valData.f && valData.f.__d;
+  if (d && d.statements){
+    var per = (d.periods || []).map(function(p){ return p.key; }), aoa = [['계정 (' + ul + ')'].concat((d.periods || []).map(function(p){ return p.label || p.key; }))];
+    ['손익계산서', '재무상태표', '현금흐름표'].forEach(function(g){ var L = d.statements[g] || []; if (!L.length) return; aoa.push(['[' + g + ']']); L.forEach(function(r){ aoa.push([r.name].concat(per.map(function(k){ var v = r.values[k]; return v == null ? '' : (r.per_share ? Number(v) : Number(v) / U); }))); }); });
+    XL.utils.book_append_sheet(wb, XL.utils.aoa_to_sheet(aoa), '재무제표');
+  }
+  XL.writeFile(wb, 'DCF-' + String(co ? co.name : 'co').replace(/[^\w가-힣]+/g, '_') + '.xlsx');
+}
+
+/* ══════════ (24차) 재무제표 화면 — 증감 기준 (전년 동기) · LTM 열 · 보기 설정 · 연결 / 별도 · 기본 차트 · 머리 띠 · 지표 카드 · 카드 이름표 · 접기 · 목표주가 공유 ══════════ */
+var CXF = { cmp: 'yoy', dl: 'on', neg: 'paren', ltm: true, fs: 'CFS', tips: false, noAuto: false };
+(function(){ try { var o = JSON.parse(LSX.getItem('safe_cxf_v1') || '{}'); ['cmp', 'dl', 'neg', 'ltm', 'tips', 'noAuto'].forEach(function(k){ if (o[k] != null) CXF[k] = o[k]; }); } catch(e){} })();
+//  ⚠️ 연결 / 별도는 저장하지 않음 (다음에 열 때 늘 연결 · 별도로 둔 걸 잊고 보는 사고 막기)
+function cxfPut(){ try { var o = {}; ['cmp', 'dl', 'neg', 'ltm', 'tips', 'noAuto'].forEach(function(k){ o[k] = CXF[k]; }); LSX.setItem('safe_cxf_v1', JSON.stringify(o)); } catch(e){} }
+
+// ── 증감 기준: 분기 = 1년 전 같은 분기 (계절성) · 직전 분기를 고를 수 있음 ──
+function cxPrevKey(yAll, j){
+  if (j < 1 || !yAll[j]) return null;
+  if (coView.period === 'quarter' && CXF.cmp === 'yoy'){
+    var k = String(yAll[j].key), m = /^(\d{4})Q([1-4])$/.exec(k);
+    if (m){ var want = (Number(m[1]) - 1) + 'Q' + m[2]; for (var i = j - 1; i >= 0; i--) if (String(yAll[i].key) === want) return want; return null; }
+    return j >= 4 ? yAll[j - 4].key : null;
+  }
+  return yAll[j - 1].key;
+}
+function cxPrevRow(rs, i){
+  if (i < 1) return null;
+  if (coFinQ() && CXF.cmp === 'yoy'){ try { var qi = coQi(rs[i]); return qi == null ? null : (coQAt(rs, qi - 4) || null); } catch(e){ return null; } }
+  return rs[i - 1];
+}
+
+// ── LTM 열 (연간 표) — 손익 · 현금흐름 = 최근 4분기 합 · 재무상태표 = 최근 분기 잔액 (연간 결산보다 새로울 때만) ──
+var CXT = { on: false, map: null, tried: '' };
+function cxLtmPrep(d, group, years, cs){
+  CXT.on = false; CXT.map = null;
+  if (!CXF.ltm || cs || coView.period === 'quarter' || !co || !years || !years.length) return;
+  var dq = coFullCache['quarter'] || coFullCache['quarter|L'];
+  if (!dq || !dq.statements){ cxLtmFetch(); return; }
+  var qp = coFullPeriods(dq); if (qp.length < 4) return;
+  var lastQ = qp[qp.length - 1], lastA = years[years.length - 1];
+  if (!lastQ.end || !lastA.end || !(String(lastQ.end) > String(lastA.end))) return;
+  var keys = qp.slice(-4).map(function(p){ return p.key; }), bal = group === '재무상태표';
+  if (!bal && !valQChain(keys)) return;
+  var L = (dq.statements || {})[group] || [], M = {};
+  L.forEach(function(r){
+    var nm = String(r.name).replace(/\s+/g, '');
+    if (bal){ var v = r.values[lastQ.key]; if (v != null && isFinite(v)) M[nm] = Number(v); return; }
+    var t = 0, ok = true; keys.forEach(function(k){ var v = r.values[k]; if (v == null || !isFinite(v)) ok = false; else t += Number(v); });
+    if (ok) M[nm] = t;
+  });
+  CXT.on = true; CXT.map = M; CXT.bal = bal; CXT.end = String(lastQ.end); CXT.from = String(qp[qp.length - 4].end || ''); CXT.lastA = lastA.key;
+}
+function cxLtmFetch(){
+  if (!co) return; var k = co.market + '|' + co.code + '|' + CXF.fs; if (CXT.tried === k) return; CXT.tried = k;
+  var me = co;
+  edgeCo(coFullBody(co, 'quarter', false)).then(function(dq){
+    if (co !== me || !dq || !dq.statements) return;
+    try { coFsNormCis(dq); } catch(e){}
+    if (!coFullCache['quarter'] && !coFullCache['quarter|L']) coFullCache['quarter'] = dq;
+    if (coView.period !== 'quarter' && coFsTab && coFsTab !== 'summary' && $('coPane-fin') && !$('coPane-fin').classList.contains('hidden')) renderCoStatement(coFsTab);
+  }).catch(function(){});
+}
+function cxLtmTh(){ if (!CXT.on) return ''; return '<th class="num fs-ltm">' + esc(CXT.bal ? '최근 분기' : 'LTM') + '<div class="st-hint" style="font-weight:400">' + esc(CXT.bal ? CXT.end : '~ ' + CXT.end) + '</div></th>'; }
+function cxLtmCell(r, ru){
+  if (!CXT.on) return '';
+  var v = CXT.map[String(r.name).replace(/\s+/g, '')];
+  if (v == null) return '<td class="num fs-ltm"><span class="fs-num zero" title="분기 표에 이 줄이 없거나 네 분기가 다 있지 않습니다"> - </span></td>';
+  var txt = ru.ps ? num(v, ru.dp) : num(v / ru.div, ru.dp), a = r.values[CXT.lastA], dd = '';
+  if (!CXT.bal && !ru.ps && a != null && Number(a)){ var g = (v - Number(a)) / Math.abs(Number(a)) * 100; if (isFinite(g)) dd = '<span class="fs-dlt ' + (Math.abs(g) < 0.05 ? 'flat' : g > 0 ? 'up' : 'dn') + '" title="직전 회계연도 대비">' + (Math.abs(g) < 0.05 ? '-' : (g > 0 ? '+' : '') + num(g, 1) + '%') + '</span>'; }
+  return '<td class="num fs-ltm"><span class="fs-num" title="' + esc(CXT.bal ? CXT.end + ' 잔액' : CXT.from.slice(0, 7) + ' ~ ' + CXT.end + ' 네 분기 합') + '">' + txt + '</span>' + dd + '</td>';
+}
+
+// ── 표를 그린 뒤: 증감 크기 표시 · 음수 괄호 · 보기 설정 줄 ──
+function cxParen(el){
+  var n = el.firstChild; if (!n || n.nodeType !== 3) return;
+  var t = n.nodeValue; if (/%/.test(t)) return;
+  var m = /^(\s*)(\$?)-(\$?)([\d.,]+)([^\d%]*?)(\s*)$/.exec(t);
+  if (m){ n.nodeValue = m[1] + '(' + m[2] + m[3] + m[4] + m[5] + ')' + m[6]; el.classList.add('ng'); }
+}
+function cxFsPost(){
+  var tb = $('coFinTable'); if (!tb) return;
+  tb.classList.add('cx-fs');
+  tb.classList.toggle('dl-off', CXF.dl === 'off'); tb.classList.toggle('dl-big', CXF.dl === 'big');
+  tb.querySelectorAll('.fs-dlt, .dlt').forEach(function(s){
+    var t = s.textContent.replace(/[()\s]/g, ''), n = parseFloat(t.replace(/[^0-9.+\-]/g, '')), pp = /%p$/.test(t);
+    s.classList.toggle('sm', !isFinite(n) || Math.abs(n) < (pp ? 1 : 10));
+  });
+  if (CXF.neg === 'paren') tb.querySelectorAll('td .fs-num, td .co-num').forEach(cxParen);
+  cxFsBar();
+}
+function cxFsBar(){
+  var bar = $('cxFsBar'); if (!bar) return;
+  if (!co){ bar.innerHTML = ''; return; }
+  var q = coView.period === 'quarter', kr = co.market === 'KR', sm = coFsTab === 'summary';
+  var seg = function(cur, opts, fn){ return '<span class="px-seg cx-mini">' + opts.map(function(o){ return '<button type="button" class="' + (cur === o[0] ? 'on' : '') + '" onclick="' + fn + '(\'' + o[0] + '\')"' + (o[2] ? ' title="' + esc(o[2]) + '"' : '') + '>' + esc(o[1]) + '</button>'; }).join('') + '</span>'; };
+  var h = '';
+  if (q) h += '<span class="cx-fb"><i>증감 기준</i>' + seg(CXF.cmp, [['yoy', '전년 동기', '1년 전 같은 분기와 견줌 (계절성을 뺌)'], ['seq', '직전 분기', '바로 앞 분기와 견줌']], 'cxCmpSet') + '</span>';
+  h += '<span class="cx-fb"><i>증감</i>' + seg(CXF.dl, [['on', '모두'], ['big', '±10% 넘는 것', '비율 줄은 ±1%p 넘는 것'], ['off', '숨김']], 'cxDlSet') + '</span>';
+  h += '<span class="cx-fb"><i>음수</i>' + seg(CXF.neg, [['paren', '(1,234)', '회계 표기 (괄호)'], ['minus', '-1,234']], 'cxNegSet') + '</span>';
+  if (!q && !sm) h += '<label class="cx-ck cx-fb" title="최근 4분기 합 (재무상태표는 최근 분기 잔액) · 연간 결산보다 새 분기가 있을 때만"><input type="checkbox"' + (CXF.ltm ? ' checked' : '') + ' onchange="cxLtmSet(this.checked)"> LTM 열</label>';
+  if (kr) h += '<span class="cx-fb"><i>재무제표</i>' + seg(CXF.fs, [['CFS', '연결', '자회사까지 합친 연결 재무제표 (없으면 별도)'], ['OFS', '별도', '이 회사 한 곳만 (지주회사 · 자회사 지분가치 분석용)']], 'cxFsSet') + '</span>';
+  var full = coFull, warnFs = kr && CXF.fs === 'OFS' && full && full.statements && full.fs !== 'OFS';
+  if (warnFs) h += '<span class="cx-fb note err" style="margin:0">' + esc(isOfficer() ? '별도 기준이 오지 않았습니다 - company-data 를 이번 판으로 다시 배포해야 합니다 (지금 표는 연결 우선)' : '별도 기준을 아직 받을 수 없습니다 (지금 표는 연결 우선)') + '</span>';
+  bar.innerHTML = h;
+}
+function cxFsRe(){ try { if (coFsTab === 'summary') renderCoFinTable(); else if (coFsTab) renderCoStatement(coFsTab); } catch(e){} }
+function cxCmpSet(v){ CXF.cmp = v === 'seq' ? 'seq' : 'yoy'; cxfPut(); cxFsRe(); }
+function cxDlSet(v){ CXF.dl = v; cxfPut(); cxFsPost(); }
+function cxNegSet(v){ CXF.neg = v === 'minus' ? 'minus' : 'paren'; cxfPut(); cxFsRe(); }
+function cxLtmSet(on){ CXF.ltm = !!on; cxfPut(); cxFsRe(); }
+//  국내 연결 / 별도 — 표 · 요약 · 밸류에이션을 다시 받음 (차트에 올린 이 회사 계정은 기준이 섞이지 않게 내림)
+function cxFsSet(v){
+  v = v === 'OFS' ? 'OFS' : 'CFS'; if (CXF.fs === v || !co) return;
+  CXF.fs = v; coFullCache = {}; coFull = null; CXT.tried = '';
+  if (typeof valData !== 'undefined') valData = null;
+  var had = coFinSeries.length; coFinSeries = coFinSeries.filter(function(x){ return !(x.kind === 'fin' && !x.corp); });
+  try { renderCoFinSeriesList(); renderCoFinChart(); } catch(e){}
+  try { loadCoFin(); } catch(e){}
+  cxFsRe();
+  if (had && !coFinSeries.length) coFinPreset();
+  cxRibbon();
+  toast(esc(v === 'OFS' ? '별도 (개별) 재무제표로 바꿨습니다' : '연결 재무제표로 바꿨습니다'), 1600);
+}
+(function(){
+  var e0 = edgeCo;
+  edgeCo = function(b){
+    if (b && CXF.fs === 'OFS' && /^kr_fin(_q|_full)?$/.test(String(b.action || '')) && !b.fs) b = Object.assign({}, b, { fs: 'OFS' });
+    return e0.apply(this, [b].concat([].slice.call(arguments, 1)));
+  };
+  var s0 = renderCoStatement;
+  renderCoStatement = async function(){ var r = await s0.apply(this, arguments); try { cxFsPost(); cxTilesPlus(); cxRibbon(); } catch(e){ console.warn('cxfs', e); } return r; };
+  var t0 = renderCoFinTable;
+  renderCoFinTable = function(){ var r = t0.apply(this, arguments); try { cxFsPost(); } catch(e){} return r; };
+  var c0 = coFinClear;
+  coFinClear = function(){ CXF.noAuto = true; cxfPut(); return c0.apply(this, arguments); };
+  var a0 = coComboAdd;
+  coComboAdd = function(){ if (CXF.noAuto){ CXF.noAuto = false; cxfPut(); } return a0.apply(this, arguments); };
+  //  추천 조합 — 읽는 법 두 줄은 접어 두고 ⓘ 로 펼침 (카드가 반으로 짧아짐)
+  var cr0 = coComboRender;
+  coComboRender = function(){
+    var r = cr0.apply(this, arguments), box = $('coCombo');
+    if (box && box.firstChild){
+      box.classList.toggle('tips-off', !CXF.tips);
+      var hd = box.querySelector('.co-cmb-hd');
+      if (hd && !hd.querySelector('.cx-tipb')){ var b = document.createElement('button'); b.type = 'button'; b.className = 'btn-sm cx-tipb'; b.setAttribute('aria-pressed', CXF.tips ? 'true' : 'false'); b.textContent = CXF.tips ? 'ⓘ 읽는 법 접기' : 'ⓘ 읽는 법'; b.onclick = function(){ CXF.tips = !CXF.tips; cxfPut(); coComboRender(); }; var sg = hd.querySelector('.co-cmb-seg'); hd.insertBefore(b, sg || null); }
+    }
+    return r;
+  };
+  //  회사를 열면 매출 · 영업이익 · 순이익을 먼저 올림 (전부 비우기를 누른 뒤로는 빈 차트로 시작)
+  var p0 = pickCompany;
+  pickCompany = function(){
+    VXS.scen = 'base'; VXS.base = null; CXT.tried = ''; CXR.done = '';
+    var r = p0.apply(this, arguments);
+    try { cxRibbon(); cxEyebrows(); cxFoldInit(); cxMetaGet(); } catch(e){}
+    if (!CXF.noAuto && co){ var me = co; setTimeout(function(){ if (co === me && !coFinSeries.length) coFinPreset().then(function(){ if (co === me) warn('coFinWarn', ''); }); }, 0); }
+    return r;
+  };
+  var lp0 = loadCoPrice;
+  loadCoPrice = async function(){ var r = await lp0.apply(this, arguments); try { cxRibbon(); } catch(e){} return r; };
+  var rt0 = renderCoTiles;
+  renderCoTiles = function(){ var r = rt0.apply(this, arguments); try { cxTilesPlus(); cxRibbon(); } catch(e){} return r; };
+})();
+
+// ── 머리 띠 — 티커 · 거래소 · 업종 · 결산월 · 주가 · 하루 변화 · 시가총액 · 52주 · 재무 기준 ──
+var CXR = { meta: {}, done: '' };
+function cxMetaKey(){ return co ? co.market + '|' + (co.market === 'KR' ? co.corp_code : co.cik) : ''; }
+function cxMetaGet(){
+  if (!co) return; var k = cxMetaKey(), id = co.market === 'KR' ? co.corp_code : co.cik;
+  if (!id || CXR.meta[k] !== undefined) return; CXR.meta[k] = null;
+  var me = co;
+  edgeCo({ action: 'co_meta', market: co.market, code: id }).then(function(d){ CXR.meta[k] = d && d.found ? d : false; if (co === me) cxRibbon(); }).catch(function(){ CXR.meta[k] = false; });
+}
+function cxRibbon(){
+  var t = $('coTiles'); if (!t || !co) return;
+  var box = $('coRibbon');
+  if (!box){ box = document.createElement('div'); box.id = 'coRibbon'; box.className = 'co-rib'; t.parentNode.insertBefore(box, t); }
+  var mk = co.market, M = CXR.meta[cxMetaKey()] || null, pts = (coPricePts || []).filter(function(p){ return p && p.v > 0; });
+  var L = pts.length ? pts[pts.length - 1] : null, P = pts.length > 1 ? pts[pts.length - 2] : null;
+  var full = coFull || coFullCache.annual || coFullCache.quarter || coFullCache['annual|L'] || coFullCache['quarter|L'] || null, sh = full && full.shares ? Number(full.shares.value) : null;
+  var tags = [];
+  tags.push('<span class="tk">' + esc(mk === 'US' ? (co.sub || co.code || '') : (co.code || '')) + '</span>');
+  var ex = M ? (mk === 'US' ? (M.exchanges || []).filter(Boolean)[0] : ({ Y: 'KOSPI', K: 'KOSDAQ', N: 'KONEX' })[M.cls]) : null;
+  tags.push('<span class="tg">' + esc(ex ? String(ex).toUpperCase() : (mk === 'US' ? '미국' : '국내')) + '</span>');
+  var fy = mk === 'US' ? (M && /^\d{4}$/.test(String(M.fy_end || '')) ? Number(String(M.fy_end).slice(0, 2)) : null) : (full && full.acc_mt ? Number(full.acc_mt) : null);
+  if (fy) tags.push('<span class="tg' + (fy !== 12 ? ' warn' : '') + '"' + (fy !== 12 ? ' title="12월 결산이 아님 - 분기 이름과 달력 분기가 다를 수 있습니다"' : '') + '>' + esc(fy + '월 결산') + '</span>');
+  var sec = mk === 'US' ? (M && M.sic_desc) : (typeof coProf !== 'undefined' && coProf && (coProf.sector || coProf.industry));
+  if (sec) tags.push('<span class="sc">' + esc(String(sec)) + '</span>');
+  var kv = [];
+  if (L){
+    var ch = P && P.v > 0 ? (L.v / P.v - 1) * 100 : null;
+    kv.push('<span class="pxv"><b>' + esc(cxPx(L.v, mk)) + '</b>' + (ch != null ? '<em class="' + (ch > 0.005 ? 'up' : ch < -0.005 ? 'dn' : '') + '">' + esc((ch > 0 ? '+' : '') + num(ch, 2) + '%') + '</em>' : '') + '<i>' + esc(String(L.d || '').slice(5).replace('-', '/') + ' 종가') + '</i></span>');
+    if (sh > 0) kv.push('<span class="kv"><i>시가총액</i><b>' + esc(cxMoney(L.v * sh, mk)) + '</b></span>');
+    var y1 = shiftIso(String(L.d).slice(0, 10), -1, 0), yr = pts.filter(function(p){ return String(p.d) >= y1; }).map(function(p){ return p.v; });
+    if (yr.length > 60){ var lo = Math.min.apply(null, yr), hi = Math.max.apply(null, yr), pos = hi > lo ? (L.v - lo) / (hi - lo) * 100 : 50;
+      kv.push('<span class="kv w52"><i>52주</i><b>' + esc(cxPx(lo, mk) + ' ~ ' + cxPx(hi, mk)) + '</b><s aria-hidden="true"><u style="left:' + Math.max(0, Math.min(100, pos)).toFixed(0) + '%"></u></s></span>'); }
+  }
+  if (full && full.basis) kv.push('<span class="kv bs"><i>재무 기준</i><b>' + esc(mk === 'KR' ? (full.fs === 'OFS' ? '별도' : '연결') : 'SEC 공시') + '</b></span>');
+  box.innerHTML = '<div class="l">' + tags.join('') + '</div><div class="r">' + kv.join('') + '</div>';
+}
+
+// ── 지표 카드 — 추이 미니 그래프 + 순차입금 · FCF ──
+function cxSpark(vals, cls){
+  var v = vals.filter(function(x){ return x != null && isFinite(x); });
+  if (v.length < 3) return '';
+  var lo = Math.min.apply(null, v), hi = Math.max.apply(null, v); if (hi === lo){ hi += 1; lo -= 1; }
+  var W = 120, H = 26, n = vals.length, pts = [], last = null;
+  vals.forEach(function(x, i){ if (x == null || !isFinite(x)) return; var px = n > 1 ? i / (n - 1) * W : 0, py = H - 3 - (x - lo) / (hi - lo) * (H - 6); pts.push(px.toFixed(1) + ',' + py.toFixed(1)); last = [px, py]; });
+  var z = lo < 0 && hi > 0 ? (H - 3 - (0 - lo) / (hi - lo) * (H - 6)).toFixed(1) : null;
+  return '<svg class="cx-spark ' + (cls || '') + '" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + (z != null ? '<line x1="0" x2="' + W + '" y1="' + z + '" y2="' + z + '" class="z"/>' : '') + '<polyline points="' + pts.join(' ') + '"/>' + (last ? '<circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="2.4"/>' : '') + '</svg>';
+}
+function cxTilesPlus(){
+  var box = $('coTiles'); if (!box || !co) return;
+  var g = box.querySelector('.tiles'); if (!g) return;
+  var rs = coRows(); if (!rs.length) return;
+  var take = rs.slice(-12), isQ = coFinQ();
+  var ser = [take.map(function(r){ return r.revenue; }), take.map(function(r){ return r.op; }), take.map(function(r){ return r.net; }),
+             take.map(function(r){ return coRatio(r.op, r.revenue); }),
+             take.map(function(r){ var i = rs.indexOf(r), n = isQ ? coTtm(rs.slice(0, i + 1), 'net') : r.net; return coRatio(n, r.equity); })];
+  var tl = g.querySelectorAll('.tile');
+  [].forEach.call(tl, function(t, i){ if (i < ser.length && !t.querySelector('.cx-spark')) t.insertAdjacentHTML('beforeend', cxSpark(ser[i])); });
+  //  순차입금 · FCF (전체 재무제표가 와 있을 때)
+  //  ⚠️ 지금 고른 기간 (분기 / 연간) 의 표만 — 기간을 바꾼 직후 다른 기간 표로 그리지 않게
+  var ck = coView.period === 'quarter' ? 'quarter' : 'annual', d = coFullCache[ck] || coFullCache[ck + '|L'];
+  if (!d || !d.statements || g.querySelector('.cx-tx')) return;
+  var per = coFullPeriods(d), k = per.length ? per[per.length - 1].key : null; if (!k) return;
+  var rowOf = function(gr, names){ try { return valRow(d, gr, names); } catch(e){ return null; } };
+  var val = function(r, kk){ return r && r.values[kk] != null ? Number(r.values[kk]) : null; };
+  var lease = cxLeaseOn(co.market);
+  var debtOf = function(kk){ var a = ['단기차입금', '장기차입금', '사채'].map(function(n){ return val(rowOf('재무상태표', [n]), kk); }); if (a.every(function(x){ return x == null; })) return null; var t = a.reduce(function(s, x){ return s + Math.abs(x || 0); }, 0); if (lease) t += Math.abs(val(rowOf('재무상태표', ['리스부채']), kk) || 0); return t; };
+  var cashOf = function(kk){ var c = val(rowOf('재무상태표', ['현금성자산', '현금및현금성자산']), kk); if (c == null) return null; return Math.abs(c) + Math.abs(val(rowOf('재무상태표', ['단기투자자산', '단기금융상품']), kk) || 0); };
+  var nd = function(kk){ var a = debtOf(kk), b = cashOf(kk); return a == null || b == null ? null : a - b; };
+  var fRow = rowOf('현금흐름표', ['잉여현금흐름']), cfo = rowOf('현금흐름표', ['영업활동 현금흐름', '영업활동현금흐름']), cpx = rowOf('현금흐름표', ['설비투자 (CAPEX)', '유형자산 취득', '유형자산의 취득']);
+  var fcf = function(kk){ var v = val(fRow, kk); if (v != null) return v; var a = val(cfo, kk), b = val(cpx, kk); return a == null || b == null ? null : a - Math.abs(b); };
+  var ks = per.slice(-12).map(function(p){ return p.key; });
+  var ndv = nd(k), fv = fcf(k), lab = (per[per.length - 1].label || k) + (isQ ? ' · 분기' : '');
+  var h = '';
+  if (ndv != null) h += '<div class="tile cx-tx"><div class="k">순차입금</div><div class="v">' + esc(ndv < 0 ? '순현금 ' + coAmt(-ndv) : coAmt(ndv)) + '</div><div class="d">' + esc('차입금' + (lease ? ' + 리스' : '') + ' − 현금 · ' + lab) + '</div>' + cxSpark(ks.map(nd)) + '</div>';
+  if (fv != null) h += '<div class="tile cx-tx"><div class="k">FCF</div><div class="v' + (fv < 0 ? ' neg' : '') + '">' + esc(coAmt(fv)) + '</div><div class="d">' + esc('영업현금흐름 − 설비투자 · ' + lab) + '</div>' + cxSpark(ks.map(fcf)) + '</div>';
+  if (h) g.insertAdjacentHTML('beforeend', h);
+}
+
+// ── 카드 이름표 (영문 작은 글씨) · 접기 ──
+var CX_EN = [['풋볼 필드', 'FOOTBALL FIELD'], ['적정주가 산출', 'VALUE BY METHOD'], ['DCF 연도별', 'DCF MODEL'], ['기업가치 → 주주가치', 'EQUITY BRIDGE'], ['민감도 · IRR', 'RETURNS'], ['민감도', 'SENSITIVITY'],
+  ['목표주가 함께', 'TARGET PRICE'], ['지금 몇 배', 'TRADING MULTIPLES'], ['멀티플 추이', 'MULTIPLE HISTORY'], ['할인율은 어디서', 'COST OF CAPITAL'], ['방법별 결과', 'RESULTS'], ['계산 과정', 'METHODOLOGY'], ['쉽게 읽기', 'PLAIN READING'],
+  ['가정 더 보기', 'ADVANCED'], ['가정', 'ASSUMPTIONS'], ['실적 추이', 'PERFORMANCE'], ['재무제표', 'FINANCIAL STATEMENTS'], ['차트에 더하기', 'OVERLAY'], ['표시 설정', 'DISPLAY'],
+  ['컴스', 'TRADING COMPS'], ['피어 배수로', 'IMPLIED VALUE'], ['배수와 펀더멘털', 'REGRESSION'], ['배수 분포', 'DISTRIBUTION'], ['M&A 딜', 'PRECEDENT TRANSACTIONS'], ['LBO', 'LEVERAGED BUYOUT'], ['해마다 · 빚 갚기', 'DEBT SCHEDULE'],
+  ['최근 공시', 'FILINGS'], ['배당', 'DIVIDENDS'], ['대량보유', 'OWNERSHIP'], ['임원 · 주요주주', 'INSIDERS'], ['주가 (최근', 'PRICE'], ['비교 대상 추가', 'COMPARE']];
+function cxH2Txt(h){ var t = ''; [].forEach.call(h.childNodes, function(n){ if (n.nodeType === 3) t += n.nodeValue; else if (n.nodeType === 1 && !n.classList.contains('tools') && !n.classList.contains('cx-sub') && !n.classList.contains('cx-fold') && n.tagName !== 'SPAN') t += n.textContent; }); return t.replace(/\s+/g, ' ').trim(); }
+function cxEyebrows(){
+  ['coBody'].forEach(function(id){
+    var root = $(id); if (!root) return;
+    root.querySelectorAll('.card > h2').forEach(function(h){
+      var c = h.parentNode; if (c.querySelector(':scope > .card-en')) return;
+      var t = cxH2Txt(h); if (!t) return;
+      var hit = CX_EN.filter(function(x){ return t.indexOf(x[0]) === 0; })[0]; if (!hit) return;
+      var e = document.createElement('div'); e.className = 'card-en'; e.textContent = hit[1]; c.insertBefore(e, h);
+    });
+  });
+}
+var CXFD_DEF = { 'METHODOLOGY': 1, 'PLAIN READING': 1, 'RESULTS': 1 };
+function cxFoldAll(){ try { return JSON.parse(LSX.getItem('safe_fold_v1') || '{}') || {}; } catch(e){ return {}; } }
+function cxFoldInit(){
+  var st = cxFoldAll();
+  ['coPane-val', 'coPane-comps', 'coPane-lbo', 'coPane-fin'].forEach(function(pid){
+    var p = $(pid); if (!p) return;
+    p.querySelectorAll('.card > h2').forEach(function(h){
+      var c = h.parentNode; if (c.__fold) return;
+      var en = c.querySelector(':scope > .card-en'), key = en ? en.textContent : cxH2Txt(h).slice(0, 14); if (!key) return;
+      c.__fold = key;
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'cx-fold';
+      var set = function(on, user){ c.classList.toggle('folded', on); b.setAttribute('aria-expanded', on ? 'false' : 'true'); b.title = on ? '펼치기' : '접기'; b.innerHTML = on ? '펼치기 ▾' : '▴';
+        if (user){ var s = cxFoldAll(); s[key] = on ? 1 : 0; try { LSX.setItem('safe_fold_v1', JSON.stringify(s)); } catch(e){}
+          if (!on){ setTimeout(function(){ try { window.dispatchEvent(new Event('resize')); } catch(e){} if (pid === 'coPane-val' && valData) valDraw(); if (pid === 'coPane-fin' && coFinSeries.length) renderCoFinChart(); }, 30); } } };
+      b.onclick = function(ev){ ev.stopPropagation(); set(!c.classList.contains('folded'), true); };
+      h.appendChild(b);
+      set(st[key] != null ? !!st[key] : !!CXFD_DEF[key], false);
+    });
+  });
+}
+
+// ── 목표주가 공유 (학회) — 저장한 버전을 학회에 올리고 다른 학회원 버전을 불러옴 · terminal-목표주가공유.sql ──
+(function(){
+  var sv0 = vtpSaveVer;
+  vtpSaveVer = function(){ var r = sv0.apply(this, arguments); try { var s = vtpState(), x = s.v[s.v.length - 1]; if (x && !x.vx){ var v = JSON.parse(JSON.stringify(vxS())); delete v.at; x.vx = v; vtpPut(s); } } catch(e){} return r; };
+  var lv0 = vtpLoadVer;
+  vtpLoadVer = function(j){ try { var x = vtpState().v[j]; if (x && x.vx){ vxS(); VX.s = Object.assign(vxDef(), x.vx); vxPut(); } } catch(e){} return lv0.apply(this, arguments); };
+  var vr0 = vtpRender;
+  vtpRender = function(){ var r = vr0.apply(this, arguments); try { cxShrDecor(); } catch(e){ console.warn('shr', e); } return r; };
+})();
+var CXS = { key: '', at: 0, rows: null, err: '', busy: false, del: null };
+function cxShrDecor(){
+  var box = $('valTp'); if (!box || !valData) return;
+  var s = vtpState(), rows = box.querySelectorAll('.vtp-vt tr');
+  [].slice.call(rows, 1).forEach(function(tr, i){
+    var j = s.v.length - 1 - i, td = tr.querySelector('td.b'); if (!td || td.querySelector('.cx-shb')) return;
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'btn-sm cx-shb'; b.textContent = '학회에 공유'; b.title = '이 버전을 학회원 모두가 볼 수 있게 올립니다';
+    b.onclick = function(){ cxShrPost(j, b); }; td.insertBefore(b, td.firstChild);
+  });
+  var ver = box.querySelector('.vtp-ver'); if (!ver || $('vxShr')) return;
+  var w = document.createElement('div'); w.className = 'vx-shr'; w.id = 'vxShr'; ver.parentNode.insertBefore(w, ver.nextSibling);
+  cxShrDraw(); cxShrLoad();
+}
+function cxShrErr(e){
+  var m = String(e && (e.message || e.code || e) || '');
+  if (/val_share|does not exist|schema cache|42P01|PGRST205/i.test(m)) return isOfficer() ? '공유 표가 아직 없습니다 - Supabase 에서 terminal-목표주가공유.sql 을 한 번 돌려 주세요.' : '학회 공유는 아직 준비 중입니다.';
+  return cxErr(e);
+}
+async function cxShrLoad(force){
+  if (!valData || typeof sb === 'undefined' || !sb || typeof sb.from !== 'function') return;
+  var key = valData.key;
+  if (!force && CXS.key === key && Date.now() - CXS.at < 60000){ cxShrDraw(); return; }
+  if (CXS.busy) return; CXS.busy = true; CXS.key = key; cxShrDraw();
+  try {
+    var r = await sb.from('val_share').select('id,created_at,author,author_name,author_gen,name,memo,tgt,px,cur,inputs,w,sc,vx').eq('co_key', key).order('created_at', { ascending: false }).limit(30);
+    if (r.error) throw r.error;
+    CXS.rows = r.data || []; CXS.err = '';
+  } catch(e){ CXS.rows = null; CXS.err = cxShrErr(e); }
+  CXS.at = Date.now(); CXS.busy = false; if (valData && valData.key === key) cxShrDraw();
+}
+function cxShrDraw(){
+  var w = $('vxShr'); if (!w || !valData) return;
+  var money = function(v, cur){ return v == null || !isFinite(v) ? '-' : cur === '원' ? num(v, 0) + '원' : '$' + num(v, 2); };
+  var h = '<h5>학회에 공유된 목표주가 <span class="st-hint">이 회사 · 최근 30개 · 학회원 모두 봄</span> <button type="button" class="btn-sm" onclick="cxShrLoad(true)">새로 고침</button></h5>';
+  if (CXS.busy && !CXS.rows) h += '<div class="st-hint">로딩 중…</div>';
+  else if (CXS.err) h += '<div class="st-hint">' + esc(CXS.err) + '</div>';
+  else if (!CXS.rows || !CXS.rows.length) h += '<div class="st-hint">아직 공유된 버전이 없습니다 · 위 저장한 목표주가의 ‘학회에 공유’ 를 누르면 여기에 올라갑니다</div>';
+  else {
+    h += '<div class="cx-scroll"><table class="vtp-vt vx-shrt"><tr><th>버전 · 작성자</th><th>목표주가</th><th>당시 현재가</th><th>가정</th><th></th></tr>' + CXS.rows.map(function(x){
+      var I = x.inputs || {}, up = x.tgt && x.px ? (x.tgt / x.px - 1) * 100 : null, mine = me && x.author === me.id, can = mine || isOfficer();
+      var when = String(x.created_at || '').slice(0, 10);
+      return '<tr><td><b>' + esc(x.name || '이름 없음') + '</b><div class="st-hint">' + esc((mine ? '나' : (x.author_name || '학회원')) + (x.author_gen ? ' · ' + x.author_gen + '기' : '') + ' · ' + when + (x.memo ? ' · ' + x.memo : '')) + '</div></td>'
+        + '<td>' + esc(money(x.tgt, x.cur)) + (up != null ? '<div class="st-hint ' + (up >= 0 ? 'up' : 'dn') + '">' + esc((up >= 0 ? '+' : '') + num(up, 1) + '%') + '</div>' : '') + '</td><td>' + esc(money(x.px, x.cur)) + '</td>'
+        + '<td class="st-hint">' + esc('성장 ' + (I.growth != null ? I.growth : '-') + '% · 이익률 ' + (I.margin != null ? I.margin : '-') + '% · WACC ' + (I.wacc != null ? I.wacc : '-') + '%' + (I.per ? ' · PER ' + I.per : '')) + '</td>'
+        + '<td class="b"><button type="button" class="btn-sm" onclick="cxShrUse(' + Number(x.id) + ')">불러오기</button>' + (can ? '<button type="button" class="btn-sm" onclick="cxShrDel(' + Number(x.id) + ', this)">' + (CXS.del === x.id ? '정말 지우기' : '지우기') + '</button>' : '') + '</td></tr>';
+    }).join('') + '</table></div><p class="st-hint">불러오기 = 그 학회원의 가정 · 방법별 비중 · 시나리오 · 고급 가정을 내 화면에 넣음 (내 저장 버전은 그대로) · 지우기는 올린 사람 · 임원진만</p>';
+  }
+  w.innerHTML = h;
+}
+async function cxShrPost(j, btn){
+  if (!valData || !co) return;
+  var s = vtpState(), x = s.v[j]; if (!x) return;
+  if (typeof sb === 'undefined' || !sb || typeof sb.from !== 'function'){ toast(esc('로그인이 필요합니다'), 1600); return; }
+  if (btn){ btn.disabled = true; btn.textContent = '로딩 중…'; }
+  var vx = x.vx || (function(){ var v = JSON.parse(JSON.stringify(vxS())); delete v.at; return v; })();
+  var row = { co_key: valData.key, co_name: co.name, market: co.market, code: String(co.code || ''), name: String(x.n || '').slice(0, 40), memo: String(x.memo || '').slice(0, 120),
+              tgt: x.tgt != null && isFinite(x.tgt) ? x.tgt : null, px: x.px != null && isFinite(x.px) ? x.px : null, cur: valData.cur, inputs: x.inputs || {}, w: x.w || {}, sc: x.sc || {}, vx: vx };
+  try {
+    var r = await sb.from('val_share').insert(row); if (r.error) throw r.error;
+    toast(esc('학회에 공유했습니다'), 1600); cxShrLoad(true);
+  } catch(e){ toast(esc(cxShrErr(e)), 2600); }
+  if (btn){ btn.disabled = false; btn.textContent = '학회에 공유'; }
+}
+function cxShrUse(id){
+  var x = (CXS.rows || []).filter(function(r){ return r.id === id; })[0]; if (!x || !valData) return;
+  valInputsSet(x.inputs || {});
+  var s = vtpState(); s.w = x.w || {}; s.sc = x.sc && x.sc.base ? x.sc : JSON.parse(JSON.stringify(VTP_SC0)); vtpPut(s);
+  if (x.vx){ vxS(); VX.s = Object.assign(vxDef(), x.vx); vxPut(); }
+  valDraw(); toast(esc('‘' + (x.name || '공유 버전') + '’ 가정을 불러왔습니다'), 1600);
+}
+async function cxShrDel(id, btn){
+  if (CXS.del !== id){ CXS.del = id; if (btn) btn.textContent = '정말 지우기'; setTimeout(function(){ if (CXS.del === id){ CXS.del = null; cxShrDraw(); } }, 4000); return; }
+  CXS.del = null;
+  try { var r = await sb.from('val_share').delete().eq('id', id); if (r.error) throw r.error; toast(esc('지웠습니다'), 1400); cxShrLoad(true); } catch(e){ toast(esc(cxShrErr(e)), 2400); }
+}
+
+// ── 좁은 화면: 가정 칸을 결과 사이 (적정주가 산출 다음) 로 · 넓은 화면은 오른쪽 따라오는 칸 ──
+(function(){
+  var st0 = vxSideTop;
+  vxSideTop = function(){
+    st0.apply(this, arguments);
+    var side = $('vxSide'), main = side && side.parentNode ? side.parentNode.querySelector('.vx-main') : null; if (!side || !main) return;
+    var wide = window.innerWidth >= 1100, cards = [$('valInputCard'), $('vxAdvCard')].filter(Boolean);
+    if (wide){ cards.forEach(function(c){ if (c.parentNode !== side) side.appendChild(c); }); }
+    else {
+      var anchor = $('valTiles') ? $('valTiles').closest('.card') : null; if (!anchor || anchor.parentNode !== main) return;
+      var after = anchor; cards.forEach(function(c){ if (c.parentNode !== main || c.previousElementSibling !== after) main.insertBefore(c, after.nextSibling); after = c; });
+    }
+  };
+})();
+
+// ── 풋볼 필드 가로축 글자 — 짧게 ($150 · 15만) 겹치지 않게 ──
+(function(){
+  var f0 = vtpFfDraw;
+  vtpFfDraw = function(){
+    var r = f0.apply(this, arguments);
+    try { var el = $('vffChart'), ch = el && echarts.getInstanceByDom(el); if (ch && valData){ var kr = valData.cur === '원';
+      ch.setOption({ xAxis: { axisLabel: { hideOverlap: true, formatter: function(v){ return kr ? fmtKo(v) : '$' + num(v, Math.abs(v) < 10 ? 1 : 0); } } } }); } } catch(e){}
+    return r;
+  };
+})();
+
 </script>
 </body>
 </html>
