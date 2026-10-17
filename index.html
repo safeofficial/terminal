@@ -68396,6 +68396,9 @@ function cxGlanceCard(){
   var first = pane.querySelector('.card'); if (!first) return null;
   var c = document.createElement('div'); c.className = 'card cx-gl'; c.id = 'cxGlanceCard';
   c.innerHTML = '<h2>한눈에 보기 <span class="cx-sub" id="cxGlBasis"></span></h2><div id="cxGlance"><div class="st-hint">로딩 중…</div></div>';
+  //  (25차 학회장: ‘재무제표를 한눈에 보기 위에’) - 실적 추이 → 재무제표 → 한눈에 보기 순
+  var fsT = $('coFinTable'), fsC = fsT && fsT.closest ? fsT.closest('.card') : null;
+  if (fsC && fsC.parentNode === pane) first = fsC;
   first.parentNode.insertBefore(c, first.nextSibling);
   try { cxEyebrows(); cxFoldInit(); } catch(e){}
   return $('cxGlance');
@@ -69382,6 +69385,37 @@ function wdAlSet(a){ WD.al = /^(l|c|r|a)$/.test(a) ? a : 'c'; wdSave(); wdApply(
   wdApply(true);
   //  ⚠️ 원래 코드가 0.8 · 2.5초 뒤에 <예전 손잡이 함수> 로 자리를 다시 잡습니다 (함수를 그때 붙잡아 둠) — 그 뒤에 한 번 더
   setTimeout(function(){ wdHandles(); }, 900); setTimeout(function(){ wdHandles(); }, 2700);
+})();
+
+
+/* ══════════ (25차 학회장: ‘마켓 맵 전체 화면에서 세이피를 옮기면 나와서도 그 자리라 다시 옮겨야 해 번거로움 · 전체 화면 자리는 보통 화면에 영향 없게’) ══════════
+   · 세이피 자리 · 크기를 두 벌로 기억: 보통 화면 / 마켓 맵 전체 화면 (서로 안 섞임 · 이 브라우저에 기억)
+   · 전체 화면에 처음 들어가면 보통 화면 자리에서 시작 (예전처럼 · 고른 쪽 그대로) · 전체 화면에서 한 번이라도 옮기거나 크기를 바꾸면 그 뒤로는 전체 화면 자리를 따로 씀
+   · 나오면 들어가기 전 보통 화면 자리 · 크기로 돌아감 · 뉴스 서랍은 예전처럼 하나                                           */
+var DKF = { on: false, nm: null, fs: null, dirty: false };
+try { var _dkf = JSON.parse(LSX.getItem('safe_dock_fs_v1') || 'null'); if (_dkf && (_dkf.side === 'left' || _dkf.side === 'right')) DKF.fs = _dkf; } catch(e){}
+function dkSnap(){ var a = DK.aic; return { side: a.side, w: a.w, h: a.h, free: a.free ? { x: a.free.x, y: a.free.y } : null, pick: !!a.pick }; }
+function dkPut(v){
+  if (!v) return; var a = DK.aic;
+  a.side = v.side === 'left' ? 'left' : 'right'; a.w = Number(v.w) > 0 ? Number(v.w) : DK_DEF.aic.w; a.h = Number(v.h) > 0 ? Number(v.h) : 0;
+  a.free = v.free && isFinite(v.free.x) && isFinite(v.free.y) ? { x: +v.free.x, y: +v.free.y } : null; a.pick = !!v.pick;
+}
+function dkFsKeep(){ DKF.fs = dkSnap(); try { LSX.setItem('safe_dock_fs_v1', JSON.stringify(DKF.fs)); } catch(e){} }
+(function(){
+  if (typeof dkSave !== 'function' || typeof mkAicIn !== 'function') return;
+  var save0 = dkSave, in0 = mkAicIn;
+  //  전체 화면 안에서 저장하면 → 전체 화면 자리로 · 보통 화면 자리(기존 저장 칸)는 들어가기 전 값 그대로
+  dkSave = function(){
+    if (!DKF.on) return save0.apply(this, arguments);
+    DKF.dirty = true; dkFsKeep();
+    var cur = dkSnap(); dkPut(DKF.nm);
+    try { save0(); } finally { dkPut(cur); }
+  };
+  mkAicIn = function(on){
+    if (on && !DKF.on){ DKF.nm = dkSnap(); DKF.on = true; DKF.dirty = false; if (DKF.fs) dkPut(DKF.fs); }
+    else if (!on && DKF.on){ if (DKF.dirty || DKF.fs) dkFsKeep(); dkPut(DKF.nm); DKF.on = false; DKF.nm = null; save0(); }
+    return in0.apply(this, arguments);
+  };
 })();
 
 </script>
