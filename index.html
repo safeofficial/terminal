@@ -1066,6 +1066,18 @@
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
 
+  /* (24차) 기업분석 두 갈래 탭 */
+  .co-nav{margin-bottom:14px}
+  .co-grp{display:flex;gap:8px;margin-bottom:8px}
+  .co-grp button{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:9px 14px;border:1px solid var(--border);border-radius:11px;background:var(--card);color:var(--text);cursor:pointer;text-align:left}
+  .co-grp button b{font-size:13.5px} .co-grp button span{font-size:11px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .co-grp button:hover{border-color:var(--accent)}
+  .co-grp button.on{border-color:var(--primary);background:var(--accent-soft);box-shadow:inset 0 -3px 0 var(--primary)} .co-grp button.on b{color:var(--primary)}
+  #coNav #coSeg{margin-bottom:0}
+  #coSeg[data-g="info"] button[data-g="val"],#coSeg[data-g="val"] button[data-g="info"]{display:none}
+  .co-flow{margin:6px 2px 0;display:none} #coNav[data-g="val"] .co-flow{display:block}
+  @media (max-width:520px){ .co-grp button{padding:8px 10px} .co-grp button span{display:none} }
+
   /* (24차) 컴스 · M&A 딜 · LBO · 풋볼 필드 · 양자컴퓨터 심화 */
   #coSeg{flex-wrap:wrap} #coSeg button{flex:1 1 auto;white-space:nowrap}
   .cx-sub{font-size:11.5px;color:var(--text-sub);font-weight:400;margin-left:6px}
@@ -7155,21 +7167,30 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
 
       <!--  탭 줄은 기업을 고르기 전에도 보입니다 (고르기 전엔 눌리지 않음).
             (10/11 13차) 13F 는 ‘이 회사’ 가 아니라 ‘기관’ 을 찾는 화면이라 분석 › 자금흐름 › 기관 보유 로 옮김  -->
-      <div class="mode-seg" id="coSeg">
-        <button id="coTab-prof"  onclick="coShow('prof')"  disabled>개요 · 컨센서스</button>
-        <button id="coTab-val"   onclick="coShow('val')"   disabled>밸류에이션</button>
-        <button id="coTab-comps" onclick="coShow('comps')" disabled>컴스</button>
-        <button id="coTab-deal"  onclick="coShow('deal')">M&amp;A 딜</button>
-        <button id="coTab-lbo"   onclick="coShow('lbo')"   disabled>LBO</button>
-        <button id="coTab-fin"   onclick="coShow('fin')"   disabled>재무제표</button>
-        <button id="coTab-price" onclick="coShow('price')" disabled>주가</button>
-        <button id="coTab-disc"  onclick="coShow('disc')"  disabled>공시</button>
-        <button id="coTab-own"   onclick="coShow('own')"   disabled>지분 · 배당</button>
+      <!--  (24차 학회장: ‘재무제표에 탭이 많아서 개선’) — 9칸을 두 갈래로: 기업 · 재무 (5칸) / 가치 평가 (4칸) · 갈래마다 마지막 칸을 기억  -->
+      <div class="co-nav" id="coNav">
+        <div class="co-grp" id="coGrp" role="group" aria-label="분석 갈래">
+          <button type="button" id="coGrp-info" class="on" aria-pressed="true" onclick="coGrpGo('info')"><b>기업 · 재무</b><span>재무제표 · 개요 · 주가 · 공시 · 지분</span></button>
+          <button type="button" id="coGrp-val" aria-pressed="false" onclick="coGrpGo('val')"><b>가치 평가</b><span>밸류에이션 · 컴스 · M&amp;A 딜 · LBO</span></button>
+        </div>
+        <div class="mode-seg" id="coSeg" data-g="info">
+          <button id="coTab-fin"   data-g="info" onclick="coShow('fin')"   disabled>재무제표</button>
+          <button id="coTab-prof"  data-g="info" onclick="coShow('prof')"  disabled>개요 · 컨센서스</button>
+          <button id="coTab-price" data-g="info" onclick="coShow('price')" disabled>주가</button>
+          <button id="coTab-disc"  data-g="info" onclick="coShow('disc')"  disabled>공시</button>
+          <button id="coTab-own"   data-g="info" onclick="coShow('own')"   disabled>지분 · 배당</button>
+          <button id="coTab-val"   data-g="val"  onclick="coShow('val')"   disabled>밸류에이션 · 풋볼 필드</button>
+          <button id="coTab-comps" data-g="val"  onclick="coShow('comps')" disabled>컴스</button>
+          <button id="coTab-deal"  data-g="val"  onclick="coShow('deal')">M&amp;A 딜</button>
+          <button id="coTab-lbo"   data-g="val"  onclick="coShow('lbo')"   disabled>LBO</button>
+        </div>
+        <p class="co-flow st-hint" id="coFlowHint">컴스 · 선정 거래 · LBO 에서 계산한 값은 밸류에이션 맨 위 풋볼 필드에 모입니다 · M&amp;A 딜 DB 는 기업을 고르지 않아도 열림</p>
       </div>
 
       <!--  (10/11 13차) 기업을 고르기 전 — 13F 는 분석 › 자금흐름 › 기관 보유 로 옮김  -->
       <div id="coEmpty" class="card co-empty">
-        <p>기업을 검색하면 <b>개요 · 밸류에이션 · 재무제표 · 주가 · 공시 · 지분</b>이 열립니다.</p>
+        <p>기업을 검색하면 <b>기업 · 재무</b> (재무제표 · 개요 · 주가 · 공시 · 지분) 와 <b>가치 평가</b> (밸류에이션 · 컴스 · M&amp;A 딜 · LBO) 가 열립니다.</p>
+        <p class="st-hint">M&amp;A 딜 · 선정 거래 DB 는 기업을 고르지 않아도 <button type="button" class="btn-sm" onclick="coGrpGo('val')">가치 평가 › M&amp;A 딜</button> 에서 볼 수 있습니다.</p>
         <p class="st-hint">기관 보유 (13F) 는 <button type="button" class="btn-sm" onclick="showTab('flow'); flowShow('f13')">분석 › 자금흐름 › 기관 보유 (13F)</button> · 국민연금 보유는 <button type="button" class="btn-sm" onclick="showTab('flow'); flowShow('nps')">분석 › 자금흐름 › 국민연금</button> 에 있습니다.</p>
       </div>
 
@@ -10412,7 +10433,7 @@ var TV_OPEN = {};
 var INNER_VIS = [
   { p: 'stocks', pre: 'stk', items: [['sec', '섹터'], ['stk', '주식']], cur: function(){ return STK.view === 'stk' ? 'stk' : 'sec'; }, go: 'stkViewSet', sel: function(v){ return '#stkViewSeg button[data-v="' + v + '"]'; } },
   { p: 'industry', pre: 'ind', items: [['ind', '산업'], ['vc', '밸류체인']], cur: function(){ return IND.view === 'vc' ? 'vc' : 'ind'; }, go: 'indViewSet', sel: function(v){ return '#indViewSeg button[data-v="' + v + '"]'; } },
-  { p: 'company', pre: 'co', items: [['prof', '개요 · 컨센서스'], ['val', '밸류에이션'], ['fin', '재무제표'], ['price', '주가'], ['disc', '공시'], ['own', '지분 · 배당']],
+  { p: 'company', pre: 'co', items: [['fin', '재무제표'], ['prof', '개요 · 컨센서스'], ['price', '주가'], ['disc', '공시'], ['own', '지분 · 배당'], ['val', '밸류에이션'], ['comps', '컴스'], ['deal', 'M&A 딜'], ['lbo', 'LBO']],
     cur: function(){ var b = document.querySelector('#coSeg button.on'); return b ? b.id.replace('coTab-', '') : null; }, go: 'coShow', sel: function(v){ return '#coTab-' + v; } },
   { p: 'deriv', pre: 'dv', items: [['cot', '선물 포지션 (COT)'], ['sent', '시장 심리'], ['opt', '옵션 · 변동성']], cur: function(){ return DV.view; }, go: 'dvViewSet', sel: function(v){ return '#dvV-' + v; } },
   { p: 'flow', pre: 'fl', items: [['dark', '다크풀 (장외 거래)'], ['cong', '미 의회 거래'], ['liq', '유동성 · 재정'], ['f13', '기관 보유 (13F)'], ['nps', '국민연금']], cur: function(){ return flowTab; }, go: 'flowShow', sel: function(v){ return '#flowTab-' + v; } },
@@ -66835,6 +66856,65 @@ async function qcdComps(){
   coShow('comps');
   var miss = tks.length - ok.length; if (miss) toast(esc(T('기업 목록에 없는 ' + miss + '곳은 뺐습니다 (최근 상장)', miss + ' not listed yet')), 2400);
 }
+
+
+/* ══ (24차 학회장: ‘재무제표에 탭이 많아서 개선’) — 기업분석 두 갈래 탭 ══
+   · 기업 · 재무 (재무제표 · 개요 · 주가 · 공시 · 지분) / 가치 평가 (밸류에이션 · 컴스 · M&A 딜 · LBO) — 한 번에 보이는 칸 9개 → 5 · 4개
+   · 갈래마다 마지막 칸을 기억 (이 브라우저) · 가치 평가를 보다가 다른 회사를 고르면 가치 평가 그대로 (예전엔 늘 재무제표로 돌아감)
+   · 세이피 이동 · 세부 탭 공개 범위 · 기존 단추 id 는 그대로                                                         */
+var CO_NAV = { g: 'info', last: { info: 'fin', val: 'val' } };
+var CO_G = { fin: 'info', prof: 'info', price: 'info', disc: 'info', own: 'info', val: 'val', comps: 'val', deal: 'val', lbo: 'val' };
+(function(){ try { var o = JSON.parse(LSX.getItem('safe_conav_v1') || 'null'); if (o && o.last){ if (CO_G[o.last.info] === 'info') CO_NAV.last.info = o.last.info; if (CO_G[o.last.val] === 'val') CO_NAV.last.val = o.last.val; } } catch(e){} })();
+function coGrpSet(g){
+  CO_NAV.g = g; var sg = $('coSeg'), nv = $('coNav');
+  if (sg) sg.setAttribute('data-g', g); if (nv) nv.setAttribute('data-g', g);
+  ['info', 'val'].forEach(function(x){ var b = $('coGrp-' + x); if (b){ b.classList.toggle('on', x === g); b.setAttribute('aria-pressed', String(x === g)); } });
+}
+function coGrpGo(g){
+  if (g !== 'info' && g !== 'val') return;
+  if (!co){ coGrpSet(g); coShow(g === 'val' ? 'deal' : null); coGrpSet(g); return; }
+  //  숨긴 칸(임원진 설정)이면 세부 탭 공개 범위가 보이는 첫 칸으로 돌림
+  coShow(CO_NAV.last[g] || (g === 'val' ? 'val' : 'fin'));
+}
+(function(){
+  var c1 = coShow;
+  coShow = function(which){
+    c1(which);
+    var g = which && CO_G[which];
+    if (g){ if (co) CO_NAV.last[g] = which; coGrpSet(g); try { LSX.setItem('safe_conav_v1', JSON.stringify({ last: CO_NAV.last })); } catch(e){} }
+    else if (!co) coGrpSet(CO_NAV.g);
+  };
+  var pk0 = pickCompany;
+  pickCompany = function(i){
+    var g = CO_NAV.g, t = CO_NAV.last.val;
+    var r = pk0.apply(this, arguments);
+    if (co && g === 'val' && t) coShow(t);
+    return r;
+  };
+})();
+
+/* ══ (24차 학회장: ‘우주항공에 스페이스X가 없는 건 말이 안 됨 · LEO 위성 · ASTS 등도 필요’) ══
+   · 시세 칸: 스페이스X (NASDAQ:SPCX · 2026년 6월 12일 상장) · 파이어플라이 · AST 스페이스모바일 · 이리듐 · 비아샛 · 에코스타 더함
+   · 단계 더함 (흐름도 · 주요 기업): 위성 제작 · 부품 / 저궤도 위성 인터넷 / 위성-휴대폰 직접 통신 / 지상국 · 단말 / 지구 관측 · 우주 데이터 / 달 탐사 · 우주 인프라
+   · 심층 사실: 회사 공시(SEC 8-K) · McDowell(2026-10-15) · Novaspace 등 원자료 숫자 그대로 · 출처 링크                    */
+(function(){ try {
+  var ST = {"satmfg": "위성 제작 · 부품", "leo": "저궤도 위성 인터넷", "d2d": "위성-휴대폰 직접 통신", "ground": "지상국 · 단말 (안테나)", "eo": "지구 관측 · 우주 데이터", "explore": "달 탐사 · 우주 인프라"}, PL = {"satmfg": [["로켓랩 (Rocket Lab)", "US", "NASDAQ:RKLB", "위성 버스 · 부품 제작 겸 발사"], ["요크 스페이스 시스템즈 (York Space Systems)", "US", "NYSE:YSS", "국방 · 상업 위성 제작, 2026-01 상장"], ["MDA 스페이스 (MDA Space)", "CA", "TSX:MDA", "텔레샛 Lightspeed 위성 제작"], ["란테리스 (Lanteris Space Systems)", "US", "비상장 (모회사 Intuitive Machines 자회사)", "구 Maxar Space Systems, LEO · GEO 위성 제작"], ["레드와이어 (Redwire)", "US", "NYSE:RDW", "태양전지판 등 위성 부품"], ["카르만 (Karman Space & Defense)", "US", "NYSE:KRMN", "발사체 · 위성 · 미사일 부품"], ["에어버스 (Airbus)", "FR", "EPA:AIR", "원웹 위성 제작"], ["쎄트렉아이 (Satrec Initiative)", "KR", "KRX:099320", "소형 지구관측 위성 제작 · 수출"], ["한국항공우주 (KAI)", "KR", "KRX:047810", "6G 저궤도 통신위성 개발 주관"], ["중국위성 (China Spacesat)", "CN", "SSE:600118", "중국 소형 위성 제작"]], "leo": [["스페이스X (SpaceX Starlink)", "US", "NASDAQ:SPCX", "스타링크 1만1천여 기, 가입자 1,200만"], ["아마존 (Amazon Leo)", "US", "NASDAQ:AMZN", "구 카이퍼, 396기 배치, 2026년 초기 서비스 목표"], ["유텔샛 (Eutelsat OneWeb)", "FR", "EPA:ETL", "원웹 운영, LEO 매출 비중 25%"], ["텔레샛 (Telesat Lightspeed)", "CA", "NASDAQ:TSAT", "Lightspeed 225기 계획, 2028년 서비스"], ["중국위성네트워크그룹 (China SatNet, 궈왕)", "CN", "비상장", "국영 궈왕 위성망 구축"], ["상하이 위안신 (SSST, 첸판)", "CN", "비상장", "첸판 (千帆) 위성망 운영"], ["한화시스템 (Hanwha Systems)", "KR", "KRX:272210", "원웹 투자, 군 저궤도 통신망 구축"], ["케이티샛 (KT SAT)", "KR", "비상장 (모회사 KT 자회사)", "스타링크 국내 공식 리셀러 (2025-12 개시)"]], "d2d": [["스페이스X (Starlink Direct to Cell)", "US", "NASDAQ:SPCX", "DTC 위성 636기 운용, 통신사 제휴"], ["AST 스페이스모바일 (AST SpaceMobile)", "US", "NASDAQ:ASTS", "BlueBird 13기, 통신사 60곳 이상 제휴"], ["글로벌스타 (Globalstar)", "US", "NASDAQ:GSAT", "아이폰 위성 기능, 아마존 인수 진행 중"], ["이리듐 (Iridium)", "US", "NASDAQ:IRDM", "NTN Direct 위성-휴대폰 서비스 준비"], ["에코스타 (EchoStar)", "US", "NASDAQ:SATS", "AWS-4 · H-block · AWS-3 주파수 SpaceX에 매각"], ["엘베오 모바일 (Elveo Mobile)", "US", "비상장", "Lynk Global + Omnispace 합병 (2026-08)"], ["스카이로 (Skylo)", "US", "비상장", "기존 위성 주파수로 휴대폰 메시징"], ["이쿼티스 (Equatys)", "AE", "비상장 (Viasat · Space42 합작)", "L · S밴드 100MHz 공유형 D2D 플랫폼"], ["티모바일 (T-Mobile US)", "US", "NASDAQ:TMUS", "스타링크 DTC 기반 T-Satellite"], ["애플 (Apple)", "US", "NASDAQ:AAPL", "글로벌스타 망으로 아이폰 위성 기능"]], "ground": [["인텔리안테크 (Intellian)", "KR", "KRX:189300", "위성 안테나 · 게이트웨이, 원웹 · AST 공급"], ["AP위성 (AP Satellite)", "KR", "KRX:211270", "위성전화 단말 · 위성 부품"], ["컨텍 (Contec)", "KR", "KRX:451760", "글로벌 지상국 구축 · 운영 서비스"], ["한화시스템 (Hanwha Systems)", "KR", "KRX:272210", "평판형 ESA 위성 단말 개발"], ["길랏 (Gilat Satellite Networks)", "IL", "NASDAQ:GILT", "위성 지상 장비 · 단말"], ["콤텍 (Comtech)", "US", "NASDAQ:CMTL", "위성 지상 장비 · 모뎀"], ["크라토스 (Kratos)", "US", "NASDAQ:KTOS", "위성 지상 시스템 · 관제 소프트웨어"], ["키메타 (Kymeta)", "US", "비상장", "평판형 위성 안테나"], ["KSAT (Kongsberg Satellite Services)", "NO", "비상장", "극지 지상국 네트워크"]], "eo": [["플래닛 랩스 (Planet Labs)", "US", "NYSE:PL", "소형 관측위성 군집, 분기 매출 1.16억 달러"], ["블랙스카이 (BlackSky)", "US", "NYSE:BKSY", "고빈도 광학 영상 · 분석"], ["스파이어 (Spire Global)", "US", "NYSE:SPIR", "기상 · 전파 우주 데이터"], ["새틀로직 (Satellogic)", "US", "NASDAQ:SATL", "서브미터급 광학 관측위성"], ["MDA 스페이스 (MDA Space)", "CA", "TSX:MDA", "RADARSAT 레이더 관측"], ["쎄트렉아이 (Satrec Initiative)", "KR", "KRX:099320", "자체 초고해상도 위성 영상 판매"], ["루미르 (Lumir)", "KR", "KRX:474170", "소형 SAR 위성 Lumir X-1 개발"], ["컨텍 (Contec)", "KR", "KRX:451760", "위성 영상 처리 · 분석 플랫폼"], ["아이스아이 (ICEYE)", "FI", "비상장", "소형 SAR 위성 군집"]], "explore": [["인튜이티브 머신스 (Intuitive Machines)", "US", "NASDAQ:LUNR", "달 착륙선 Nova-C, NASA CLPS"], ["파이어플라이 (Firefly Aerospace)", "US", "NASDAQ:FLY", "달 착륙선 Blue Ghost"], ["레드와이어 (Redwire)", "US", "NYSE:RDW", "우주 인프라 · 궤도 제조"], ["보이저 테크놀로지스 (Voyager Technologies)", "US", "NYSE:VOYG", "상업 우주정거장 Starlab"], ["아이스페이스 (ispace)", "JP", "TYO:9348", "달 착륙선 · 탐사"], ["블루 오리진 (Blue Origin)", "US", "비상장", "달 착륙선 Blue Moon, New Glenn"], ["액시엄 스페이스 (Axiom Space)", "US", "비상장", "상업 우주정거장 · 우주복"], ["바스트 (Vast)", "US", "비상장", "상업 우주정거장 Haven"], ["애스트로보틱 (Astrobotic)", "US", "비상장", "달 착륙선 Griffin, NASA CLPS"]], "launch": [["파이어플라이 (Firefly Aerospace)", "US", "NASDAQ:FLY", "소형 발사체 Alpha, 2025-08 상장"], ["로켓랩 (Rocket Lab)", "US", "NASDAQ:RKLB", "Electron 발사, Neutron 개발"], ["이노스페이스 (Innospace)", "KR", "KRX:462350", "소형 발사체 한빛-나노"], ["랜드스페이스 (LandSpace)", "CN", "비상장", "주췌 발사체, 상하이 STAR 상장 심사 중"], ["중커위항 (CAS Space)", "CN", "비상장", "리젠 발사체, 상하이 상장 신청"]], "satop": [["SES (SES)", "LU", "EPA:SESG", "GEO · MEO 운영, 2025-07 인텔샛 인수"], ["비아샛 (Viasat)", "US", "NASDAQ:VSAT", "ViaSat · 인마샛 GEO 운영"], ["스페이스42 (Space42)", "AE", "ADX:SPACE42", "Yahsat · Bayanat 합병 위성 기업"], ["케이티샛 (KT SAT)", "KR", "비상장 (모회사 KT 자회사)", "무궁화 GEO 위성 관제 · 운영"]]}, CO = {"satmfg": [["RKLB", "로켓랩"], ["YSS", "요크 스페이스"], ["KRMN", "카르만"], ["099320", "쎄트렉아이"], ["047810", "한국항공우주"]], "leo": [["SPCX", "스페이스X"], ["AMZN", "아마존"], ["TSAT", "텔레샛"], ["272210", "한화시스템"]], "d2d": [["ASTS", "AST 스페이스모바일"], ["GSAT", "글로벌스타"], ["IRDM", "이리듐"], ["SATS", "에코스타"]], "ground": [["189300", "인텔리안테크"], ["211270", "AP위성"], ["451760", "컨텍"], ["GILT", "길랏"]], "eo": [["PL", "플래닛 랩스"], ["BKSY", "블랙스카이"], ["SPIR", "스파이어"], ["SATL", "새틀로직"], ["474170", "루미르"]], "explore": [["LUNR", "인튜이티브 머신스"], ["FLY", "파이어플라이"], ["RDW", "레드와이어"], ["VOYG", "보이저"]]}, FL = [["satmfg", "launch", "완성 위성 (발사 대기)"], ["launch", "leo", "통신위성 궤도 투입"], ["launch", "d2d", "BlueBird · DTC 위성 투입"], ["launch", "eo", "관측위성 궤도 투입"], ["launch", "explore", "달 착륙선 · 정거장 모듈 발사"], ["ground", "leo", "사용자 단말 · 게이트웨이 안테나"], ["ground", "eo", "지상국 데이터 수신"], ["satop", "d2d", "주파수 매각 (EchoStar 주파수 SpaceX로)"], ["bud", "explore", "NASA CLPS 등 정부 계약"], ["bud", "eo", "정부 · 국방 영상 구매"]], FA = [["스타링크 누적 발사 13,015기, 궤도상 11,154기, 작동 11,140기, 운용궤도 9,726기", "Jonathan McDowell (2026-10-15)", "https://planet4589.org/space/con/star/stats.html"], ["스타링크 가입자 1,200만 명 (2026년 2분기 말, 1년 새 약 2배), ARPU 월 66달러", "SpaceX 2분기 실적 8-K (2026-08-04)", "https://www.sec.gov/Archives/edgar/data/0001181412/000162828026052515/earningsreleaseq22608042.htm"], ["SpaceX 2026년 2분기 매출 78.14억 달러 (+92%), 커넥티비티 (스타링크) 42.91억 달러 (+66%), 2분기 발사 38회", "SpaceX 2분기 실적 8-K (2026-08-04)", "https://www.sec.gov/Archives/edgar/data/0001181412/000162828026052515/earningsreleaseq22608042.htm"], ["SpaceX IPO: 공모가 135달러, 조달 750억 달러, 공모가 기준 시총 1.77조 달러, 첫날 종가 161.11달러 (약 2.1조 달러)", "Fortune (2026-06-12)", "https://www.fortune.com/2026/06/12/spacex-ipo-trading-first-day-live-updates-elon-musk/"], ["스타링크 Direct to Cell 위성 674기 발사, 636기 운용 (DTC 전용 궤도 2개)", "Jonathan McDowell (2026-10-15)", "https://planet4589.org/space/con/conlist.html"], ["EchoStar, AWS-4 · H-block 주파수 약 170억 달러에 SpaceX로 매각 (현금 · SpaceX 주식 각 최대 85억 달러, 이자 약 20억 달러 별도)", "EchoStar IR (2025-09-08)", "https://ir.echostar.com/node/32686"], ["EchoStar, AWS-3 비페어 주파수 26억 달러 (전액 SpaceX 주식)에 추가 매각", "Via Satellite (2025-11-06)", "https://www.satellitetoday.com/finance/2025/11/06/echostar-to-sell-more-spectrum-to-spacex-form-new-investment-entity"], ["FCC, EchoStar 주파수 매각 승인: SpaceX 65MHz (D2D용), AT&T 최대 50MHz, 총 약 400억 달러 규모", "Advanced Television (2026-05-13)", "https://www.advanced-television.com/2026/05/13/fcc-approves-echostars-spectrum-sale-to-spacex-att/"], ["AST 스페이스모바일 BlueBird 13기 궤도, 2분기 매출 3,150만 달러 (전년 120만 달러), 통신사 파트너 60곳 이상 (가입자 30억 명 이상)", "AST SpaceMobile 8-K (2026-08-10)", "https://www.sec.gov/Archives/edgar/data/0001780312/000119312526342540/asts-ex99_1.htm"], ["아마존 Leo 위성 396기 배치 (14회 발사, 4기 폐기), 하루 5기 생산, 2026년 내 초기 서비스 목표 (날짜 미정)", "Light Reading (2026-10-12)", "https://lightreading.com/satellite/amazon-leo-still-tracking-for-2026-service-launch-as-satellite-production-ramps"], ["아마존, 글로벌스타 인수 계약 (2026-04-13): 주당 현금 90달러 또는 아마존 주식 0.3210주, 2027년 종결 예정", "Globalstar SEC DEFM14C (2026-08-18)", "https://www.sec.gov/Archives/edgar/data/0001366868/000114036126033587/ny20070552x1_defm14c.htm"], ["유텔샛 FY2025-26 매출 12.359억 유로, LEO (원웹) 매출 2.97억 유로 (+69.5%, 비중 25%)", "Eutelsat (2026-08-07)", "https://www.mynewsdesk.com/eutelsat/pressreleases/full-year-2025-26-results-3460129"], ["중국 궈왕 (星网) 261기 발사 · 213기 운용, 첸판 (千帆) 258기 발사 · 178기 운용, 원웹 660기 발사 · 636기 운용", "Jonathan McDowell (2026-10-15)", "https://planet4589.org/space/con/conlist.html"], ["텔레샛 Lightspeed 156기에서 225기로 확대, 글로벌 상용 서비스 2028년 1분기 말 목표", "Telesat 6-K (2026-08-13)", "https://www.sec.gov/Archives/edgar/data/0001845840/000121390026088683/ea030137801ex99-1.htm"], ["위성 서비스 매출 2024년 1,010억 달러에서 2034년 1,220억 달러, 데이터 비중 21%에서 55%로", "Novaspace (2025-10)", "https://nova.space/?p=25309"], ["D2D · 위성 IoT 누적 매출 2034년까지 1,000억 달러 이상, 위성-휴대폰 직접 통신만 약 700억 달러", "Novaspace (2025-12-18)", "https://nova.space/press-release/direct-to-device-connectivity-a-100-billion-market-transformation/"], ["한국 6G 저궤도 위성통신 기술개발사업: 총 3,200억 원, 2025-2030년, 통신위성 2기 발사, KAI 주관", "아주경제 (2025-04-28)", "https://www.ajunews.com/view/20250428171217005"], ["2025년 궤도 발사 시도 329회 (성공 321): 미국 181, 중국 92, 러시아 17, 팰컨9 단독 165회", "Jonathan McDowell (2026-02-04)", "https://planet4589.org/space/papers/space25.1.4.pdf"]];
+  if (typeof VC_FLOWN !== 'undefined'){ VC_FLOWN.aero = Object.assign(VC_FLOWN.aero || {}, ST); }
+  if (typeof VC_PLAY !== 'undefined'){
+    var P = VC_PLAY.aero || (VC_PLAY.aero = {});
+    Object.keys(PL).forEach(function(k){ var L = P[k] || (P[k] = []); PL[k].forEach(function(x){ var nm = String(x[0]).split(' (')[0]; if (!L.some(function(y){ return String(y[0]).split(' (')[0] === nm || (y[2] === x[2] && /:/.test(x[2])); })) L.push(x); }); });
+  }
+  if (typeof VC_CO !== 'undefined'){
+    var C = VC_CO.aero || (VC_CO.aero = {});
+    var add = function(st, L){ var a = C[st] || (C[st] = []); L.forEach(function(c){ if (!a.some(function(y){ return y[0] === c[0]; })) a.unshift(c); }); };
+    add('launch', [['FLY', '파이어플라이'], ['SPCX', '스페이스X']]);
+    add('sat', [['ASTS', 'AST 스페이스모바일'], ['SPCX', '스페이스X']]);
+    add('satop', [['SATS', '에코스타'], ['VSAT', '비아샛'], ['IRDM', '이리듐'], ['SPCX', '스페이스X']]);
+    Object.keys(CO).forEach(function(k){ if (!C[k]) C[k] = CO[k]; });
+  }
+  if (typeof VC_FLOW !== 'undefined'){ var F = VC_FLOW.aero || (VC_FLOW.aero = []); FL.forEach(function(f){ if (!F.some(function(y){ return y[0] === f[0] && y[1] === f[1]; })) F.push(f); }); }
+  if (typeof VC_FACTS !== 'undefined'){ var X = VC_FACTS.aero || (VC_FACTS.aero = []); VC_FACTS.aero = FA.concat(X.filter(function(y){ return !FA.some(function(z){ return z[0] === y[0]; }); })); }
+} catch(e){ console.warn('aero vc', e); } })();
 
 /*>>23차*/
 </script>
