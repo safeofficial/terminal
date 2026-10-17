@@ -5108,6 +5108,8 @@ body.qmb-dragging,body.qmb-dragging *{cursor:grabbing!important;user-select:none
 .ecm-f .btn-sm{padding:3px 10px}
 /*  (23차 학회장: ‘경제지표 미니탭 카운트다운도 사이즈 조절할 수 있게’) - 오른쪽 아래 손잡이를 끌어 넓이 · 높이 · 넓히면 글씨도 같이 커짐  */
 .ecm-f{padding-right:26px}
+.ecm-h b{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.ecm-h .ecm-seg{flex:none}
 .ecm-rz{position:absolute;right:3px;bottom:3px;width:16px;height:16px;cursor:nwse-resize;touch-action:none;border-radius:0 0 11px 0;
   background:linear-gradient(135deg,transparent 0 46%,var(--text-sub) 46% 52%,transparent 52% 66%,var(--text-sub) 66% 72%,transparent 72%);opacity:.55}
 .ecm-rz:hover,.ecm.rsz .ecm-rz{opacity:1}
@@ -63972,7 +63974,7 @@ function qbdCanGo(){ return typeof tabVisOk !== 'function' || (tabVisOk('quant')
    · 다음 발표까지 남은 시간 (1초마다) · 중요 (★★★) 만 / 전체 · 다음 14일 안 · 지난 24시간 발표는 발표치 · 이전치
    · 자료 = 홈 › 경제지표 캘린더와 같은 일정 (같은 달 범위로 받아 서버 보관분을 같이 씀) · 미국 발표 · 한국 시간          */
 var ECM = { open: false, imp: true, x: null, y: null, w: null, h: null, ev: [], at: 0, busy: false, err: '', tick: 0, keys: '', passed: '', drag: null };
-try { var _ecm = JSON.parse(LSX.getItem('safe_ecmini_v1') || 'null'); if (_ecm){ ECM.open = !!_ecm.open; ECM.imp = _ecm.imp !== false; if (isFinite(+_ecm.x) && isFinite(+_ecm.y) && _ecm.x !== null){ ECM.x = +_ecm.x; ECM.y = +_ecm.y; } if (+_ecm.w >= 280) ECM.w = +_ecm.w; if (+_ecm.h >= 120) ECM.h = +_ecm.h; } } catch(e){}
+try { var _ecm = JSON.parse(LSX.getItem('safe_ecmini_v1') || 'null'); if (_ecm){ ECM.open = !!_ecm.open; ECM.imp = _ecm.imp !== false; if (isFinite(+_ecm.x) && isFinite(+_ecm.y) && _ecm.x !== null){ ECM.x = +_ecm.x; ECM.y = +_ecm.y; } if (+_ecm.w >= 220) ECM.w = +_ecm.w; if (+_ecm.h >= 70) ECM.h = +_ecm.h; } } catch(e){}
 function ecmSave(){ try { LSX.setItem('safe_ecmini_v1', JSON.stringify({ open: ECM.open, imp: ECM.imp, x: ECM.x, y: ECM.y, w: ECM.w, h: ECM.h })); } catch(e){} }
 //  홈 캘린더와 같은 범위 (그 달 앞 6일 ~ 다음 달 7일) — 서버 보관분을 같이 씀 · 달 끝 무렵이면 다음 달 것도
 function ecmRanges(){
@@ -63982,21 +63984,38 @@ function ecmRanges(){
   return out;
 }
 function ecmTs(e){ if (!e || !e.kst_date || !/^\d{2}:\d{2}$/.test(String(e.kst_time || ''))) return NaN; return Date.parse(e.kst_date + 'T' + e.kst_time + ':00+09:00'); }
+//  (23차 학회장: ‘발표치 바로 나오게 · 시간 딱 되면 수치 바로’) - 예전엔 기기에 남은 묵은 일정(발표 전 것)을 쓰고 뒤에서 온 새 값을 버렸고 · 발표 3분 뒤 한 번만 다시 받았음
+//   · 이제: 뒤에서 온 새 값도 바로 반영 · 발표 시각 5초 뒤부터 발표치가 들어올 때까지 기기 보관분을 건너뛰고 서버에서 직접
+//     (5분 안 20초마다 → 20분까지 1분마다 → 1시간까지 3분마다) · 창을 열어 둔 동안만 · 중요도 ★★ 이상만 (서버에 몰리지 않게)
+function ecmBuild(A){
+  var seen = {}, ev = [];
+  A.forEach(function(L){ (L || []).forEach(function(e){ var t = ecmTs(e); if (!isFinite(t)) return; var k = String(e.id) + '|' + e.date; if (seen[k]) return; seen[k] = 1;
+    ev.push({ k: k, nm: isEn() ? String(e.name_en || e.name || '') : String(e.name || ''), imp: +e.importance || 1, t: t, act: e.actual_txt || null, prev: e.previous_txt || null, ref: e.ref_period || '', done: !!e.done }); }); });
+  return ev.sort(function(a, b){ return a.t - b.t; });
+}
 function ecmLoad(force){
   if (ECM.busy || (typeof me !== 'undefined' && !me)) return; if (!force && ECM.at && Date.now() - ECM.at < 15 * 60000) return;
-  ECM.busy = true; var R = ecmRanges();
-  Promise.all(R.map(function(r){ return edge({ source: 'macro_calendar', from: r[0], to: r[1], v: 2 }).then(function(d){ return d && Array.isArray(d.events) ? d.events : []; }, function(e){ ECM.err = String(e && e.message || e); return null; }); }))
+  ECM.busy = true; var R = ecmRanges(), got = R.map(function(){ return null; }), live = force === 'live';
+  var put = function(){ if (!got.some(function(L){ return L; })) return; ECM.ev = ecmBuild(got); ecmRender(); ecmBtnMark(); ecmLive(); };
+  Promise.all(R.map(function(r, i){ var q = { source: 'macro_calendar', from: r[0], to: r[1], v: 2 }; if (live) q.force = true;
+      return edge(q).then(function(d){
+        if (typeof ecOnFresh === 'function') ecOnFresh(d, function(nd){ if (nd && Array.isArray(nd.events)){ got[i] = nd.events; put(); } });
+        return d && Array.isArray(d.events) ? d.events : []; }, function(e){ ECM.err = String(e && e.message || e); return null; }); }))
     .then(function(A){
       ECM.busy = false; ECM.at = Date.now();
-      //  하나도 못 받았으면 (로그인 전 · 망) 1분 뒤 다시
-      if (!A.some(function(L){ return L; })) ECM.at = Date.now() - 14 * 60000;
-      var seen = {}, ev = [];
-      A.forEach(function(L){ (L || []).forEach(function(e){ var t = ecmTs(e); if (!isFinite(t)) return; var k = String(e.id) + '|' + e.date; if (seen[k]) return; seen[k] = 1;
-        ev.push({ k: k, nm: isEn() ? String(e.name_en || e.name || '') : String(e.name || ''), imp: +e.importance || 1, t: t, act: e.actual_txt || null, prev: e.previous_txt || null, ref: e.ref_period || '', done: !!e.done }); }); });
-      if (A.some(function(L){ return L; })) ECM.err = '';
-      ECM.ev = ev.sort(function(a, b){ return a.t - b.t; });
-      ecmRender(); ecmBtnMark();
+      if (!A.some(function(L){ return L; })) ECM.at = Date.now() - 14 * 60000; else ECM.err = '';
+      A.forEach(function(L, i){ if (L) got[i] = L; }); put();
     });
+}
+function ecmLive(){
+  clearTimeout(ECM.liveT); if (!ECM.open) return;
+  var now = Date.now(), pend = ECM.ev.filter(function(e){ return e.imp >= 2 && e.t <= now + 1000 && now - e.t < 60 * 60000 && !e.act; });
+  var next = ECM.ev.filter(function(e){ return e.imp >= 2 && e.t > now && e.t - now < 6 * 3600e3; })[0];
+  var ms = null;
+  if (pend.length){ var age = now - Math.max.apply(null, pend.map(function(e){ return e.t; })); ms = age < 5000 ? 5000 - age : age < 5 * 60000 ? 20000 : age < 20 * 60000 ? 60000 : 180000; }
+  if (next){ var w = next.t - now + 5000; if (ms == null || w < ms) ms = w; }        //  다음 발표 5초 뒤에 맞춰 깨움
+  if (ms == null) return;
+  ECM.liveT = setTimeout(function(){ if (document.hidden || !ECM.open){ return; } var n2 = Date.now(); if (ECM.ev.some(function(e){ return e.imp >= 2 && e.t <= n2 && n2 - e.t < 60 * 60000 && !e.act; })) ecmLoad('live'); else ecmLive(); }, Math.max(1000, Math.min(ms, 2147000000)));
 }
 function ecmStars(n){ n = Math.max(1, Math.min(3, n | 0)); return '<span class="ecm-st" aria-label="' + esc(T('중요도 ', 'Importance ') + n) + '">' + '★★★'.slice(0, n) + '<i>' + '★★★'.slice(n) + '</i></span>'; }
 function ecmDow(t){ var d = new Date(t); return (d.getMonth() + 1) + '/' + d.getDate() + ' (' + (isEn() ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] : ['일', '월', '화', '수', '목', '금', '토'])[d.getDay()] + ') ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
@@ -64041,7 +64060,7 @@ function ecmTick(){
   var w = $('ecMini'); if (!w || w.classList.contains('hidden') || document.hidden) return;
   var now = Date.now(), passed = false;
   Array.prototype.forEach.call(w.querySelectorAll('[data-t]'), function(e){ var t = +e.getAttribute('data-t'); if (t <= now) passed = true; var s = ecmLeft(t); if (e.textContent !== s) e.textContent = s; });
-  if (passed){ ecmRender(); setTimeout(function(){ ecmLoad(true); }, 180000); }
+  if (passed){ ecmRender(); ecmLive(); }
   if (now - ECM.at > 15 * 60000) ecmLoad();
 }
 //  머리 줄 단추 — 중요 발표가 1시간 안이면 점
@@ -64056,12 +64075,12 @@ function ecmPlace(){
 function ecmSize(){
   var w = $('ecMini'), b = $('ecmBody'); if (!w || !b) return;
   var mob = (window.innerWidth || 1000) <= 600, W = mob ? null : ECM.w, H = mob ? null : ECM.h;
-  if (W) W = Math.min(W, Math.max(280, (window.innerWidth || 1200) - 12));
+  if (W) W = Math.min(W, Math.max(220, (window.innerWidth || 1200) - 12));
   w.style.width = W ? Math.round(W) + 'px' : ''; b.style.height = H ? Math.round(H) + 'px' : ''; b.style.maxHeight = H ? 'none' : '';
-  var k = Math.max(0.9, Math.min(1.9, (W || 336) / 336)), k2 = Math.min(k, 1.4), k3 = Math.min(k, 1.3), st = $('ecmSzCss');
+  var k = Math.max(0.72, Math.min(1.9, (W || 336) / 336)), k2 = Math.min(k, 1.4), k3 = Math.max(0.8, Math.min(k, 1.3)), st = $('ecmSzCss');
   if (!st){ st = document.createElement('style'); st.id = 'ecmSzCss'; document.head.appendChild(st); }
   st.textContent = Math.abs(k - 1) < 0.02 ? '' : '#ecMini .ecm-cd{font-size:' + Math.round(26 * k) + 'px}#ecMini .ecm-nm{font-size:' + (13.5 * k2).toFixed(1) + 'px}#ecMini .ecm-h b{font-size:' + (13 * k3).toFixed(1) + 'px}'
-    + '#ecMini .ecm-l li,#ecMini .ecm-l li .cd{font-size:' + (12 * k2).toFixed(1) + 'px}#ecMini .ecm-l li .v{font-size:' + (11.5 * k2).toFixed(1) + 'px}#ecMini .ecm-l li .at,#ecMini .ecm-at{font-size:' + (11.5 * k3).toFixed(1) + 'px}#ecMini .ecm-k{font-size:' + (10.5 * k3).toFixed(1) + 'px}';
+    + '#ecMini .ecm-l li,#ecMini .ecm-l li .cd{font-size:' + (12 * k2).toFixed(1) + 'px}#ecMini .ecm-l li .v{font-size:' + (11.5 * k2).toFixed(1) + 'px}#ecMini .ecm-l li .at,#ecMini .ecm-at{font-size:' + (11.5 * k3).toFixed(1) + 'px}#ecMini .ecm-k{font-size:' + (10.5 * k3).toFixed(1) + 'px}#ecMini .ecm-seg button{font-size:' + (11.5 * k3).toFixed(1) + 'px;padding:3px ' + Math.round(9 * Math.min(1, k)) + 'px}#ecMini .ecm-f{font-size:' + (11 * k3).toFixed(1) + 'px}#ecMini .ecm-f .btn-sm{font-size:' + (12.5 * Math.min(1, k3)).toFixed(1) + 'px;padding:' + (k < 1 ? '2px 8px' : '3px 10px') + '}#ecMini .ecm-b{padding:' + Math.round(10 * Math.min(1, k)) + 'px ' + Math.round(12 * Math.min(1, k)) + 'px}';
 }
 function ecmRzBind(w){
   var g = w.querySelector('#ecmRz'); if (!g || g.__on) return; g.__on = 1; var D = null;
@@ -64070,10 +64089,10 @@ function ecmRzBind(w){
     D = { x: ev.clientX, y: ev.clientY, w0: r.width, h0: ($('ecmBody') || {}).offsetHeight || 200, id: ev.pointerId }; try { g.setPointerCapture(ev.pointerId); } catch(e){} w.classList.add('rsz'); });
   g.addEventListener('pointermove', function(ev){ if (!D || D.id !== ev.pointerId) return; var r = w.getBoundingClientRect(), vw = window.innerWidth || 1200, vh = window.innerHeight || 800, b = $('ecmBody');
     var other = r.height - (b ? b.offsetHeight : 0);
-    var want = Math.max(280, Math.min(760, vw - 12, D.w0 + ev.clientX - D.x));
+    var want = Math.max(220, Math.min(760, vw - 12, D.w0 + ev.clientX - D.x));
     if (r.left + want > vw - 6){ ECM.x = Math.max(6, vw - 6 - want); w.style.left = Math.round(ECM.x) + 'px'; }    //  오른쪽 끝에 붙어 있으면 왼쪽으로 넓힘
     ECM.w = want;
-    ECM.h = Math.max(120, Math.min(vh - r.top - other - 8, D.h0 + ev.clientY - D.y)); ecmSize(); });
+    ECM.h = Math.max(70, Math.min(vh - r.top - other - 8, D.h0 + ev.clientY - D.y)); ecmSize(); });
   var end = function(ev){ if (!D || D.id !== ev.pointerId) return; D = null; w.classList.remove('rsz'); ecmSave(); };
   g.addEventListener('pointerup', end); g.addEventListener('pointercancel', end);
   g.addEventListener('dblclick', function(ev){ ev.stopPropagation(); ECM.w = null; ECM.h = null; ecmSize(); ecmPlace(); ecmSave(); });
@@ -64095,8 +64114,8 @@ function ecmEnsure(){
 function ecmToggle(on){
   ECM.open = on == null ? !ECM.open : !!on; ecmSave();
   var w = ecmEnsure(); w.classList.toggle('hidden', !ECM.open);
-  if (ECM.open){ ecmSize(); ecmPlace(); ecmRender(); ecmLoad(!ECM.ev.length); if (!ECM.tick) ECM.tick = setInterval(ecmTick, 1000); }
-  else { clearInterval(ECM.tick); ECM.tick = 0; }
+  if (ECM.open){ ecmSize(); ecmPlace(); ecmRender(); ecmLoad(!ECM.ev.length); ecmLive(); if (!ECM.tick) ECM.tick = setInterval(ecmTick, 1000); }
+  else { clearInterval(ECM.tick); ECM.tick = 0; clearTimeout(ECM.liveT); }
   ecmBtnMark();
 }
 function hdrFoldSet(on, quiet){
@@ -64126,7 +64145,7 @@ function ecmGoCal(){ showTab('home'); setTimeout(function(){ var c = document.qu
   b.onclick = function(){ ecmToggle(); };
   lb.parentNode.insertBefore(b, lb);
   window.addEventListener('resize', function(){ if (ECM.open){ ecmSize(); ecmPlace(); } });
-  document.addEventListener('visibilitychange', function(){ if (!document.hidden && ECM.open) ecmTick(); });
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden && ECM.open){ ecmTick(); ecmLive(); } });
   //  열어 둔 채 나갔으면 로그인 뒤 다시 열고 · 단추 점은 15분마다
   if (ECM.open) setTimeout(function(){ ecmToggle(true); }, 1500);
   var on = function(){ return typeof me !== 'undefined' && !!me; };
