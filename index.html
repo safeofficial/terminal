@@ -1065,6 +1065,22 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:10.5px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  .tc-ch{position:relative;display:flex;gap:6px;margin:2px 0 0}
+  .tc-plot{position:relative;flex:1 1 auto;min-width:0;height:118px}
+  .tc-plot svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
+  .tc-gut{position:relative;flex:0 0 50px;height:118px}
+  .tc-gut span{position:absolute;right:0;transform:translateY(-50%);font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;color:var(--text-sub);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .tc-gut span.up{color:var(--up)} .tc-gut span.dn{color:var(--down)}
+  .tc-dot{position:absolute;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;border:2px solid var(--white);box-sizing:content-box;pointer-events:none}
+  .tc-dot.up{background:var(--up)} .tc-dot.dn{background:var(--down)} .tc-dot.hi,.tc-dot.lo{width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-width:1.5px}
+  .tc-dates{display:flex;justify-content:space-between;margin:3px 56px 0 0;font-size:10.5px;color:var(--text-sub);font-variant-numeric:tabular-nums}
+  .tc-rng{font-size:11.5px;color:var(--text-sub);font-variant-numeric:tabular-nums;line-height:1.5}
+  .tc-rng b{font-weight:700;color:var(--text)} .tc-rng b.up{color:var(--up)} .tc-rng b.dn{color:var(--down)}
+  .tc-tip{position:absolute;top:0;bottom:0;width:1px;background:var(--text-sub);opacity:.55;pointer-events:none;display:none}
+  .tc-tipb{position:absolute;top:2px;transform:translateX(-50%);padding:4px 8px;border-radius:7px;background:#14171f;color:#f2f4f8;font-size:11px;line-height:1.45;white-space:nowrap;pointer-events:none;display:none;z-index:3;box-shadow:0 6px 16px rgba(0,0,0,.25);font-variant-numeric:tabular-nums}
+  .tc-plot.on .tc-tip,.tc-plot.on .tc-tipb,.tc-plot.on .tc-hd{display:block}
+  .tc-hd{display:none;background:var(--text);z-index:2}
+  @media (max-width:560px){ .tc-plot,.tc-gut{height:100px} }
   #stkHeatCard.mt-heat-top{margin-bottom:16px}
   /* (26차) 팀 카드 — 크게 */
   #mtTeams .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
@@ -69724,18 +69740,146 @@ function mtWhoRender(){
 }
 
 /* ══════════ (26차 학회장: ‘모의투자 탭에서는 시장 히트맵이 남은 시간 · 환율 고정 문구 위에 · 각 팀 페이지 안에서는 그대로 맨 아래’) ══════════ */
+//  (26차 학회장: ‘시장 히트맵은 현황 탭에만 있어도 돼’) - 팀 방 안에서는 현황 칸 맨 아래 (직접 매매 · 자동매매 · 퀀트 지표 · 기록에서는 안 보임)
 function mtHeatPlace(){
-  var c = $('stkHeatCard'), lg = $('mtLeague'), w = $('tradingWarn'); if (!c || !lg || !w || !w.parentNode) return;
-  if (!mtHeatPlace.home){ mtHeatPlace.home = document.createComment('heat home'); c.parentNode.insertBefore(mtHeatPlace.home, c); }
+  var c = $('stkHeatCard'), lg = $('mtLeague'), w = $('tradingWarn'), now = $('mtPane-now'); if (!c || !lg || !w || !w.parentNode || !now) return;
   var top = !lg.classList.contains('hidden');
   if (top){ if (c.nextElementSibling !== w) w.parentNode.insertBefore(c, w); }
-  else if (mtHeatPlace.home.parentNode && c.previousSibling !== mtHeatPlace.home) mtHeatPlace.home.parentNode.insertBefore(c, mtHeatPlace.home.nextSibling);
+  else if (c.parentNode !== now || c.nextElementSibling) now.appendChild(c);
   c.classList.toggle('mt-heat-top', top);
 }
+//  예전 길 (텔레그램 · 세이피 · ‘히트맵으로’) 로 왔는데 팀 방의 다른 칸이면 현황으로 바꿔서 보여 줌
+(function(){
+  if (typeof hmLazy !== 'function') return;
+  var hl0 = hmLazy;
+  hmLazy = function(jump){
+    try { var now = $('mtPane-now'), lg = $('mtLeague');
+      if (jump && lg && lg.classList.contains('hidden') && now && now.classList.contains('hidden') && typeof tradeTab === 'function') tradeTab('now'); } catch(e){}
+    return hl0.apply(this, arguments);
+  };
+})();
 (function(){
   var lg = $('mtLeague'); if (!lg) return;
   mtHeatPlace();
   try { new MutationObserver(function(){ mtHeatPlace(); }).observe(lg, { attributes: true, attributeFilter: ['class'] }); } catch(e){}
+})();
+
+
+/* ══════════ (26차) 팀 카드 추이 — 크게 · 수익률(시드 대비) 눈금 · 최고 · 최저 · 변동폭 · 마우스 올리면 그날 값 ══════════ */
+MTB.sp = {};
+mtSparkSvg = function(id, nowTotal){
+  var H = MTB.spark[id];
+  if (!H || H.length < 2) return '<div class="tc-sp none">' + (H ? '기록이 2일 이상 쌓이면 추이가 보입니다' : '') + '</div>';
+  var pts = H.slice(-60).map(function(h){ return [String(h.d).slice(0, 10), Number(h.total)]; });
+  var td = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
+  if (isFinite(nowTotal) && nowTotal > 0){ if (pts[pts.length - 1][0] === td) pts[pts.length - 1][1] = nowTotal; else pts.push([td, nowTotal]); }
+  var seed = 100000000, P = pts.map(function(x){ return (x[1] / seed - 1) * 100; });
+  var mx = Math.max.apply(null, P), mn = Math.min.apply(null, P), iMx = P.indexOf(mx), iMn = P.indexOf(mn);
+  var hi = Math.max(mx, 0), lo = Math.min(mn, 0), pad = Math.max((hi - lo) * 0.12, 0.3); hi += pad; lo -= pad;
+  var n = pts.length, X = function(k){ return n > 1 ? k / (n - 1) * 100 : 50; }, Y = function(v){ return (hi - v) / (hi - lo) * 100; };
+  MTB.sp[id] = { d: pts.map(function(x){ return x[0]; }), v: pts.map(function(x){ return x[1]; }), p: P, X: n, hi: hi, lo: lo };
+  var last = P[n - 1], up = last >= 0, col = up ? 'var(--up)' : 'var(--down)', y0 = Y(0).toFixed(2);
+  var line = P.map(function(v, k){ return X(k).toFixed(2) + ',' + Y(v).toFixed(2); }).join(' ');
+  var pc = function(v){ return (v > 0 ? '+' : '') + num(v, 2) + '%'; }, cls = function(v){ return v > 0.005 ? 'up' : v < -0.005 ? 'dn' : ''; };
+  //  눈금: 최고 · 최저 · 0% (서로 가까우면 0% 는 뺌)
+  var labs = [[mx, 'hi'], [mn, 'lo']], show0 = Math.abs(Y(0) - Y(mx)) > 14 && Math.abs(Y(0) - Y(mn)) > 14;
+  if (iMx === iMn) labs = [[mx, 'hi']];
+  var gut = labs.map(function(l){ return '<span class="' + cls(l[0]) + '" style="top:' + Y(l[0]).toFixed(1) + '%">' + pc(l[0]) + '</span>'; }).join('')
+          + (show0 ? '<span style="top:' + y0 + '%">0%</span>' : '');
+  var dot = function(k, c){ return '<i class="tc-dot ' + c + '" style="left:' + X(k).toFixed(2) + '%;top:' + Y(P[k]).toFixed(2) + '%"></i>'; };
+  return '<div class="tc-ch"><div class="tc-plot" data-tc="' + id + '">'
+    + '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'
+    + '<line x1="0" x2="100" y1="' + y0 + '" y2="' + y0 + '" stroke="var(--border)" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>'
+    + '<polygon points="0,' + y0 + ' ' + line + ' 100,' + y0 + '" fill="' + col + '" opacity=".12"/>'
+    + '<polyline points="' + line + '" fill="none" stroke="' + col + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>'
+    + (iMx !== n - 1 ? dot(iMx, 'hi ' + cls(mx)) : '') + (iMn !== n - 1 && iMn !== iMx ? dot(iMn, 'lo ' + cls(mn)) : '') + dot(n - 1, up ? 'up' : 'dn')
+    + '<i class="tc-tip"></i><i class="tc-dot tc-hd"></i><span class="tc-tipb"></span></div>'
+    + '<div class="tc-gut">' + gut + '</div></div>'
+    + '<div class="tc-dates"><span>' + esc(mtMd(pts[0][0])) + '</span><span>' + (pts[n - 1][0] === td ? '오늘' : esc(mtMd(pts[n - 1][0]))) + '</span></div>'
+    + '<div class="tc-rng">변동폭 <b>' + num(mx - mn, 2) + '%p</b> · 최고 <b class="' + cls(mx) + '">' + pc(mx) + '</b> ' + (pts[iMx][0] === td ? '오늘' : esc(mtMd(pts[iMx][0])))
+    + ' · 최저 <b class="' + cls(mn) + '">' + pc(mn) + '</b> ' + (pts[iMn][0] === td ? '오늘' : esc(mtMd(pts[iMn][0]))) + '</div>';
+};
+//  마우스 올리면 그날 값 (카드 단추는 그대로 눌림)
+(function(){
+  var box = $('mtTeams'); if (!box) return;
+  var hit = function(ev){
+    var pl = ev.target && ev.target.closest ? ev.target.closest('.tc-plot') : null;
+    Array.prototype.forEach.call(box.querySelectorAll('.tc-plot.on'), function(o){ if (o !== pl) o.classList.remove('on'); });
+    if (!pl) return;
+    var S = MTB.sp[pl.getAttribute('data-tc')]; if (!S || S.X < 2) return;
+    var r = pl.getBoundingClientRect(), x = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)), k = Math.round(x * (S.X - 1));
+    var xp = k / (S.X - 1) * 100, tip = pl.querySelector('.tc-tip'), tb = pl.querySelector('.tc-tipb');
+    tip.style.left = xp + '%';
+    var hd = pl.querySelector('.tc-hd'); if (hd){ hd.style.left = xp + '%'; hd.style.top = ((S.hi - S.p[k]) / (S.hi - S.lo) * 100) + '%'; }
+    tb.style.left = Math.max(18, Math.min(82, xp)) + '%';
+    var v = S.p[k];
+    tb.innerHTML = esc(mtMd(S.d[k])) + ' · <b>' + (v > 0 ? '+' : '') + num(v, 2) + '%</b><br>' + mtMoney(S.v[k]) + '원';
+    pl.classList.add('on');
+  };
+  box.addEventListener('mousemove', hit);
+  box.addEventListener('mouseleave', function(){ Array.prototype.forEach.call(box.querySelectorAll('.tc-plot.on'), function(o){ o.classList.remove('on'); }); });
+})();
+
+
+/* ══════════ (26차 학회장: ‘각 팀 방 열었을 때 시작 때 잘못된 데이터가 순간적으로 나와’) ══════════
+   원인 ① 방에 들어가면 예전 화면 함수(renderSummary)가 저장된 스냅샷(team_state)으로 ‘총자산 · 평가손익 · 현금 · 주식 평가액’ 타일을 먼저 그림
+          → 몇 초 뒤 서버 계좌(mt_account)가 오면 다른 숫자로 바뀜 (그 몇 초 동안 다른 값이 보임)
+   원인 ② 앞 팀 방에서 30초마다 받던 계좌가 늦게 도착하면, 새 팀 방에 <앞 팀 계좌> 가 잠깐 그려짐
+   원인 ③ 앞 팀의 ‘튄 기록’ 안내 · 사람별 손익이 다음 값을 받을 때까지 남아 있음
+   고침 · 방에 들어가자마자 같은 자리에 ‘로딩 중…’ 타일 · 표 → 순위표에서 1분 안에 받아 둔 그 팀 계좌가 있으면 그걸로 바로 그림 (순위표 카드와 같은 값)
+        · 예전 타일은 더 안 그림 (환율 고정 안내만) · 계좌가 늦게 왔는데 그새 다른 팀 방이면 버림                                              */
+function mtSumSkel(){
+  var L = '로딩 중…';
+  return '<div class="tiles">' + tile('총 평가액', L, '현금 + 보유 · 지금 시세') + tile('손익금액', L, '') + tile('현금', L, '자동매매도 여기서 씁니다')
+       + tile('보유 평가액', L, '') + tile('실현손익', L, '판 것에서 확정된 손익') + '</div>';
+}
+function mtRoomOn(){ var h = $('mtRoomHead'); return !!(h && !h.classList.contains('hidden')); }
+(function(){
+  //  ① 예전 타일 대신 — 계좌가 있으면 그 값, 없으면 ‘로딩 중…’
+  var rs0 = renderSummary;
+  renderSummary = function(){
+    var r = rs0.apply(this, arguments);
+    if (mtRoomOn()){ if (mtAcc) mtRenderSummary(); else { var t = $('teamSummary'); if (t) t.innerHTML = mtSumSkel(); } }
+    return r;
+  };
+  //  ② 늦게 온 계좌는 버림 · 받은 계좌는 순위표도 같이 씀 · 사람별 손익도 다시
+  mtLoadAccount = async function(){
+    if (!team) return;
+    var t0 = team, d;
+    try { d = await edge({ source: 'mt_account', team_id: t0 }); }
+    catch(e){ if (team === t0){ var pt = $('mtPosTable'); if (pt) pt.innerHTML = '<tr><td class="empty">' + esc(e.message) + '</td></tr>'; } return; }
+    if (team !== t0 || !d) return;
+    mtAcc = d; mtAcc.__team = Number(t0);
+    if (isFinite(Number(d.total))) MTB.live[Number(t0)] = { d: d, at: Date.now() };
+    mtRenderPositions();
+    mtRenderClosed();
+    mtRenderSummary();
+    mtLoadDividends();
+    try { renderPie(); } catch(e){}
+    mtRenderAutoBar();
+    mtNoteAutoFills();
+    mtLiveAt = Date.now();
+    mtStampAsOf();
+    try { mtWhoRender(); } catch(e){}
+  };
+  //  방에 들어가는 순간
+  var me0 = mtEnter;
+  mtEnter = async function(teamId){
+    var id = Number(teamId), L = MTB.live[id];
+    ['pnlCut', 'benchCut', 'quantCut'].forEach(function(x){ var e = $(x); if (e) e.innerHTML = ''; });
+    var wc = $('mtWhoCard'); if (wc) wc.classList.add('hidden');
+    var pr = me0.apply(this, arguments);              //  여기까지 (첫 기다림 전) 방 비우기 · team 바꾸기가 끝남
+    try {
+      if (Number(team) === id && L && L.d && Date.now() - L.at < 60000){
+        mtAcc = L.d; mtAcc.__team = id; mtLiveAt = L.at;
+        mtRenderSummary(); mtRenderPositions(); mtRenderClosed(); mtStampAsOf();
+      } else {
+        var t = $('teamSummary'); if (t) t.innerHTML = mtSumSkel();
+        var pt = $('mtPosTable'); if (pt) pt.innerHTML = '<tr><td class="empty">로딩 중…</td></tr>';
+      }
+    } catch(e){}
+    return pr;
+  };
 })();
 
 </script>
