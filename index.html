@@ -5373,6 +5373,18 @@ body.et-open{overflow:hidden}
 .at-prev canvas{width:100%;max-width:420px;height:auto;aspect-ratio:1654 / 2339;background:#fff;box-shadow:0 4px 14px rgba(20,30,60,.12)}
 .at-chk{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-sub);font-weight:600;white-space:nowrap}
 .ev-row .btn-sm.ev-att{margin-left:4px}
+body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!important;animation-iteration-count:1!important;transition-duration:0s!important}
+.eco-row{display:flex;align-items:flex-start;gap:8px;margin:10px 0 0;padding-top:10px;border-top:1px solid var(--border);cursor:pointer}
+.eco-row input{margin-top:3px}
+.eco-row span{display:flex;flex-direction:column;gap:2px;font-size:12.5px}
+.eco-row em{font-style:normal;font-size:11.5px;color:var(--text-sub);line-height:1.45}
+.spd-k{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 0 10px;font-size:12.5px;color:var(--text-sub)}
+.spd-k b{color:var(--text);margin-left:4px;font-variant-numeric:tabular-nums}
+.spd-k b.up,.spd-t td.up{color:var(--ok,#1b7a46)} .spd-k b.warn,.spd-t td.warn{color:#b57510} .spd-k b.down,.spd-t td.down{color:var(--down,#1b5fa8)}
+.spd-t{width:100%;border-collapse:collapse;font-size:12.5px}
+.spd-t th,.spd-t td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+.spd-t th.r,.spd-t td.r{text-align:right;font-variant-numeric:tabular-nums}
+.qmb-p.stale .qmb-lad,.qmb-p.stale .qmb-k{opacity:.45;transition:opacity .2s}
 .at-pad{position:relative;height:180px;border:1px solid var(--border);border-radius:10px;background:#fff;margin:0 0 10px;overflow:hidden}
 .at-pad canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
 .at-pad::after{content:'';position:absolute;left:18px;right:18px;bottom:46px;border-bottom:1px dashed #d5d9e2;pointer-events:none}
@@ -8479,6 +8491,8 @@ body.et-open{overflow:hidden}
         </div>
 
         <div id="adPane-etc" class="hidden">
+      <!--  (24차) 속도 점검 - 자료 종류별 서버 응답 · 끊김(50ms 넘는 작업) · 실시간 연결  -->
+      <div class="card" id="spdCard"><h2>속도 점검 <span class="tools"><button type="button" class="btn-sm" onclick="spdRender()">새로고침</button></span></h2><div id="spdBox"><div class="empty" style="padding:14px">로딩 중…</div></div></div>
       <!--  (10/8 학회장: ‘초 · 카운트다운은 학회원 화면에서 빼고, 잘 돌아가고 있다는 것만 설정에서’) -->
       <div class="card admin-only hidden">
         <h2>실시간 상태 <span class="tools"><span class="st-hint" id="adLiveHint"></span></span></h2>
@@ -10866,7 +10880,16 @@ async function edgeCall(fn, body, _retry){
     return d;
   } finally { delete ecFly[k]; }
 }
+//  (24차) 속도 점검 - 서버 응답 시간을 자료 종류마다 기록 (최근 200번) · 설정 › 자료에서 봄 (임원진)
+var SPD = { e: {}, lt: [], t0: Date.now() };
+try { if (window.PerformanceObserver) new PerformanceObserver(function(l){ l.getEntries().forEach(function(x){ SPD.lt.push([Date.now(), x.duration]); }); var cut = Date.now() - 600000; while (SPD.lt.length && SPD.lt[0][0] < cut) SPD.lt.shift(); }).observe({ type: 'longtask', buffered: true }); } catch(e){}
+function spdRec(k, ms, ok){ var o = SPD.e[k] || (SPD.e[k] = { n: 0, err: 0, ms: [] }); o.n++; if (!ok) o.err++; o.ms.push(ms); if (o.ms.length > 200) o.ms.shift(); }
 async function edgeCall0(fn, body, _retry){
+  var t0 = performance.now(), k = fn.replace('-data', '') + ' · ' + String((body && (body.source || body.action)) || '-'), ok = false;
+  try { var r = await edgeCall00(fn, body, _retry); ok = !(r && r.error); return r; }
+  finally { spdRec(k, performance.now() - t0, ok); }
+}
+async function edgeCall00(fn, body, _retry){
   var s = await authFresh();
   if (!s){ if (me) authLost(); throw new Error('로그인이 끊겼습니다. 다시 로그인해주세요.'); }
   var r = await fetch(SUPABASE_URL + '/functions/v1/' + fn, {
@@ -27598,17 +27621,35 @@ function mkLiveSeries(base, tkKey){
   (MK.tk[tkKey] || []).forEach(function(x){ if (x[2] != null && x[0] > last + 1000) pts.push([x[0], Math.round(x[2] * 100) / 100]); });
   return pts;
 }
+//  (24차 학회장: ‘실시간 차트가 미국장 오픈 시간만 보여 줌 → 24시간 주 7일 실시간’) - 24h 선물 선은 거래소 5분봉 최근 24시간 (24시간 전 대비 %) + 실시간 틱
+//   · 2분마다 새로 받음 (화면을 볼 때만) · 받기 전에는 예전 선 그대로
+var MK_PF24 = {};
+function mkPf24Pts(sym){
+  if (!sym || !/^[A-Z0-9]{2,20}(USDT|USDC)$/.test(String(sym))) return null;
+  var c = MK_PF24[sym] || (MK_PF24[sym] = { pts: null, at: 0, busy: false }), now = Date.now();
+  if (!c.busy && now - c.at > 120000 && !document.hidden){
+    c.busy = true;
+    edge({ source: 'bn_bars', code: sym, tf: '5m' }).then(function(d){
+      var B = ((d && d.points) || []).map(function(p){ var t = Date.parse(String(p.d).slice(0, 16) + ':00Z'); return isFinite(t) && +p.o > 0 && +p.v > 0 ? { t: t, o: +p.o, c: +p.v } : null; }).filter(Boolean).sort(function(a, b){ return a.t - b.t; });
+      var cut = Date.now() - 24 * 3600e3; B = B.filter(function(b){ return b.t >= cut - 300000; });
+      if (B.length > 5){ var base = B[0].o; c.pts = B.map(function(b){ return [b.t + 300000, Math.round((b.c / base - 1) * 10000) / 100]; }); }
+      c.at = Date.now(); c.busy = false;
+      try { if (MK.ctryOpen && MK.ctryTab === 'live') mkLiveRender(); if (MK.cmpOn) mkCmpRender(); } catch(e){}
+    }, function(){ c.busy = false; c.at = Date.now() - 60000; });
+  }
+  return c.pts;
+}
 function mkLiveChartDraw(cc, idx, pf, sc){
   var box = $('mkLiveBox'); if (!box || typeof echarts === 'undefined') return;
   var d = MK.ctryC[cc] || (MK.ctry && MK.ctry.cc === cc ? MK.ctry : null), lines = d && d.lines || [];
   var etfL = lines.filter(function(l){ return l.sec === '나라 ETF'; })[0], pfL = lines.filter(function(l){ return l.basis === '24h' && l.sec === '지수'; })[0];
   var dk = document.documentElement.getAttribute('data-theme') === 'dark', S = [];
-  if (pf || pfL) S.push({ n: (pfL ? String(pfL.n) : String(pf.n)).replace(/\s*\(24시간\)/, '') + T(' 24h 선물', ' 24h perp'), pts: mkLiveSeries(pfL && pfL.pts, pf ? pf.s : (pfL && pfL.s)), col: dk ? '#e0b45a' : '#b7791f', w: 2.4 });
+  if (pf || pfL){ var pfS = pf ? pf.s : (pfL && pfL.s); S.push({ n: (pfL ? String(pfL.n) : String(pf.n)).replace(/\s*\(24시간\)/, '') + T(' 24h 선물', ' 24h perp'), pts: mkLiveSeries(mkPf24Pts(pfS) || (pfL && pfL.pts), pfS), col: dk ? '#e0b45a' : '#b7791f', w: 2.4 }); }
   if (sc && sc.etf) S.push({ n: sc.etf + ' ETF', pts: mkLiveSeries(etfL && etfL.pts, 'etf:' + cc), col: dk ? '#e8ebf2' : '#1a1f36', w: 2 });
   if (idx && mkSpotOpen(cc)) S.push({ n: idx.n, pts: mkLiveSeries(null, idx.s), col: dk ? '#ef6b5e' : '#c0392b', w: 2 });
   S = S.filter(function(x){ return x.pts.length > 1; });
   var note = $('mkLiveNote');
-  if (note) note.textContent = S.length ? T('그날 5분 선 + 실시간 이어 붙임 · ETF = 전 거래일 종가 대비 · 24h 선물 = 24시간 전 대비', '5-min line + live ticks')
+  if (note) note.textContent = S.length ? T('24h 선물 = 최근 24시간 (주말 · 휴일 · 장 밖에도) · ETF = 미국 장중 · 전 거래일 종가 대비 · 실시간 이어 붙임', '24h perp = last 24 hours · ETF = US session · live ticks')
                                         : (MK_LINES.indexOf(cc) >= 0 ? T('로딩 중…', 'Loading…') : T('화면을 켜 두면 선이 이어집니다', 'Keep this open to build the line'));
   box.classList.toggle('empty', !S.length);
   if (!S.length){ if (mkLiveChart) mkLiveChart.clear(); return; }
@@ -27668,7 +27709,7 @@ function mkCmpRender(){
     var d = MK.ctryC[cc], lines = d && d.lines || [], pf = mkPerpOf(cc), open = mkSpotOpen(cc);
     var pfL = lines.filter(function(l){ return l.basis === '24h' && l.sec === '지수'; })[0], etfL = lines.filter(function(l){ return l.sec === '나라 ETF'; })[0];
     var usePf = (pf || pfL) && (open === false || !etfL);
-    var pts = usePf ? mkLiveSeries(pfL && pfL.pts, pf ? pf.s : pfL && pfL.s) : mkLiveSeries(etfL && etfL.pts, 'etf:' + cc);
+    var pfS = pf ? pf.s : pfL && pfL.s, pts = usePf ? mkLiveSeries(mkPf24Pts(pfS) || (pfL && pfL.pts), pfS) : mkLiveSeries(etfL && etfL.pts, 'etf:' + cc);
     return { n: (MK_CC[cc] || [cc])[0] + (usePf ? T(' (24h 선물)', ' (24h)') : T(' (ETF)', ' (ETF)')), pts: pts, col: PAL[i % PAL.length] };
   }).filter(function(x){ return x.pts.length > 1; });
   var note = $('mkCmpNote');
@@ -58228,7 +58269,7 @@ function qobStart(){
   var bases = ['wss://fstream.binance.com/public/ws/', 'wss://fstream.binance.com/ws/'], tb = ['wss://fstream.binance.com/market/ws/', 'wss://fstream.binance.com/ws/'];
   var tryDepth = function(i){
     if (gen !== QOB.gen) return; if (i >= bases.length){ qobPoll(gen); return; }
-    var ok = false, ws; try { ws = new WebSocket(bases[i] + s + '@depth20@100ms'); } catch(e){ tryDepth(i + 1); return; }
+    var ok = false, ws; try { ws = new WebSocket(bases[i] + s + (window.ECO && ECO.on ? '@depth20@500ms' : '@depth20@100ms')); } catch(e){ tryDepth(i + 1); return; }
     QOB.ws = ws;
     ws.onmessage = function(ev){ if (gen !== QOB.gen) return; var d; try { d = JSON.parse(ev.data); } catch(e){ return; } var b = d.b || d.bids, a = d.a || d.asks; if (!b || !a) return; ok = true; QOB.mode = 'ws'; qobBook(b, a, d.E || d.T || Date.now()); };
     ws.onerror = function(){}; ws.onclose = function(){ if (gen !== QOB.gen) return; if (!ok) tryDepth(i + 1); else setTimeout(function(){ if (gen === QOB.gen && qobVisible()) qobStart(); }, 1500); };
@@ -58282,7 +58323,7 @@ function qobLoop(gen){
   else { QOB.hidAt = 0; if (QOB.paused){ QOB.paused = 0; qobStart(); return; } }
   if (qobVisible() && QOB.book) qobDraw();
   else if (!QOB.book && Date.now() - QOB.started > 9000 && QOB.mode !== 'poll') qobConn(T('연결이 늦습니다…', 'Slow connection…'));
-  QOB.drawT = setTimeout(function(){ qobLoop(gen); }, 250);
+  QOB.drawT = setTimeout(function(){ qobLoop(gen); }, window.ECO && ECO.on ? 500 : 250);
 }
 //  지표 한 벌
 function qobStats(){
@@ -61226,7 +61267,7 @@ function qmbStart(){
   var L = qmbList(), key = L.join(','); if (!L.length) return;
   if (QMB.key === key && (QMB.ws1 || QMB.poll)) return;
   qmbStop(); QMB.key = key; var gen = QMB.gen; qmbConn();
-  var dep = L.map(function(s){ return s.toLowerCase() + (QMB.lv > 10 ? '@depth20@100ms' : '@depth10@100ms'); }).join('/'), mk = L.map(function(s){ var l = s.toLowerCase(); return l + '@aggTrade/' + l + '@miniTicker'; }).join('/');
+  var spd = (window.ECO && ECO.on) || L.length > 8 ? '@500ms' : L.length > 4 ? '' : '@100ms', dep = L.map(function(s){ return s.toLowerCase() + (QMB.lv > 10 ? '@depth20' : '@depth10') + spd; }).join('/'), mk = L.map(function(s){ var l = s.toLowerCase(); return l + '@aggTrade/' + l + '@miniTicker'; }).join('/');
   var B1 = ['wss://fstream.binance.com/public/stream?streams=', 'wss://fstream.binance.com/stream?streams='], B2 = ['wss://fstream.binance.com/market/stream?streams=', 'wss://fstream.binance.com/stream?streams='];
   var open = function(bases, path, i, slot, onMsg){
     if (gen !== QMB.gen) return; if (i >= bases.length){ if (slot === 'ws1') qmbPoll(gen); return; }
@@ -61275,6 +61316,7 @@ function qmbDraw(){
   var g = $('qmbGrid'); if (!g) return;
   g.querySelectorAll('.qmb-p').forEach(function(P){
     var s = P.getAttribute('data-s'), B = QMB.B[s], S = qmbStats(s); if (!B || !S) return;
+    P.classList.toggle('stale', Date.now() - B.t > 5000);
     var set = function(sel, v, cls){ var e = P.querySelector(sel); if (!e) return; if (e.textContent !== v) e.textContent = v; if (cls != null) e.className = cls; };
     var mid = qobPx(S.mid), m0 = P.__mid;
     set('[data-mid]', mid, 'm' + (m0 != null && S.mid !== m0 ? (S.mid > m0 ? ' up' : ' down') : (P.__dir || '')));
@@ -61295,11 +61337,16 @@ function qmbDraw(){
     if (tp){ var h = TR.map(function(x){ return '<span class="' + (x.m ? 'down' : 'up') + '">' + qobPx(x.p) + ' <em>' + qmbQty(x.q) + '</em></span>'; }).join(''); if (tp.__h !== h){ tp.__h = h; tp.innerHTML = h; } }
   });
 }
+//  (24차 학회장: ‘다른 탭에 있다 오면 최신 데이터가 아닌 것 같음’) - 15초 넘게 안 보였으면: 지난 체결 · 묵은 호가 표시를 정리하고, 차트 봉을 새로 받음
+function qmbResume(){
+  var cut = Date.now() - 60000; Object.keys(QMB.TR).forEach(function(k){ QMB.TR[k] = (QMB.TR[k] || []).filter(function(x){ return x.T >= cut; }); });
+  if (typeof QMC !== 'undefined') QMC.cells.slice(0, QMC.lay).forEach(function(c, i){ if (c.s && Date.now() - Math.max(c.at || 0, c.live || 0) > 15000) qmcLoad(i); else if (c.ch) try { c.ch.resize(); } catch(e){} });
+}
 function qmbLoop(){
   if (!$('qmbGrid') || !$('qmbGrid').isConnected){ qmbStop(); QMB.loop = 0; return; }
   if (!qmbVisible()){ if (!QMB.hidAt) QMB.hidAt = Date.now(); else if (Date.now() - QMB.hidAt > 20000 && (QMB.ws1 || QMB.poll)){ qmbStop(); QMB.paused = true; } }
-  else { QMB.hidAt = 0; if (QMB.paused){ QMB.paused = false; qmbStart(); } qmbDraw(); }
-  QMB.loop = setTimeout(qmbLoop, 250);
+  else { var away = QMB.hidAt ? Date.now() - QMB.hidAt : 0; QMB.hidAt = 0; if (QMB.paused){ QMB.paused = false; qmbStart(); } if (away > 15000) qmbResume(); qmbDraw(); }
+  QMB.loop = setTimeout(qmbLoop, window.ECO && ECO.on ? 500 : 250);
 }
 //  호가창 칸의 세 번째 보기 — 실제 (한 종목 깊게) · 여러 종목 · 가상
 (function(){
@@ -63529,7 +63576,7 @@ function qmcRender(){
   var any = qmcOn();
   w.classList.toggle('none', !any);
   g.className = qmcGridCls(); g.innerHTML = any ? QMC.cells.slice(0, QMC.lay).map(function(c, i){ return qmcCellHtml(i); }).join('') : '';
-  if (any) QMC.cells.slice(0, QMC.lay).forEach(function(c, i){ if (c.s){ if (c.bars.length && c.tf === QMC.tf) qmcDraw(i, true); else qmcLoad(i); } });
+  if (any) QMC.cells.slice(0, QMC.lay).forEach(function(c, i){ if (c.s){ if (c.bars.length && c.tf === QMC.tf && Date.now() - Math.max(c.at || 0, c.live || 0) < 30000) qmcDraw(i, true); else qmcLoad(i); } });
   qmcMark();
 }
 function qmcLaySet(n){ n = +n; if (QMC_LAY.indexOf(n) < 0) return; QMC.lay = n; if (QMC.act >= n) QMC.act = 0;
@@ -63610,14 +63657,14 @@ function qmcLoad(i){
     if (QMC.cells[i] !== c || run !== c.run) return;
     var pts = (d && d.points) || [];
     c.bars = pts.map(function(p){ var t = Date.parse(String(p.d).slice(0, 16) + ':00Z'); return isFinite(t) && p.o > 0 && p.h > 0 && p.l > 0 && p.v > 0 ? { t: t, o: +p.o, h: +p.h, l: +p.l, c: +p.v, q: +p.q || 0 } : null; }).filter(Boolean).sort(function(a, b){ return a.t - b.t; });
-    c.err = c.bars.length ? '' : ((d && d.error) || 'x'); qmcDraw(i, true);
+    c.err = c.bars.length ? '' : ((d && d.error) || 'x'); c.at = Date.now(); qmcDraw(i, true);
   }, function(e){ if (QMC.cells[i] !== c || run !== c.run) return; c.err = String(e && e.message || e); qmcDraw(i, true); });
 }
 function qmcTick(s, p, q, t){
   if (!(p > 0)) return; var ms = QMBC_MS[QMC.tf];
   QMC.cells.slice(0, QMC.lay).forEach(function(c){
     if (c.s !== s || !c.bars.length) return;
-    var B = c.bars, L = B[B.length - 1], st = Math.floor(t / ms) * ms; if (st < L.t) return;
+    var B = c.bars, L = B[B.length - 1], st = Math.floor(t / ms) * ms; if (st < L.t) return; c.live = Date.now();
     if (st >= L.t + ms){ B.push({ t: st, o: L.c, h: Math.max(L.c, p), l: Math.min(L.c, p), c: p, q: q || 0 }); if (B.length > 1500) B.shift(); }
     else { L.c = p; if (p > L.h) L.h = p; if (p < L.l) L.l = p; L.q += q || 0; }
   });
@@ -64134,6 +64181,23 @@ function hdrFoldSet(on, quiet){
   var on = false; try { on = LSX.getItem('safe_hdr_fold_v1') === '1'; } catch(e){}
   hdrFoldSet(on, true);
 })();
+function spdRender(){
+  var b = $('spdBox'); if (!b) return;
+  var pct = function(a, q){ if (!a.length) return null; var x = a.slice().sort(function(m, n){ return m - n; }); return x[Math.min(x.length - 1, Math.floor(q * (x.length - 1)))]; };
+  var R = Object.keys(SPD.e).map(function(k){ var o = SPD.e[k], av = o.ms.reduce(function(a, v){ return a + v; }, 0) / (o.ms.length || 1); return { k: k, n: o.n, err: o.err, av: av, p90: pct(o.ms, 0.9), tot: av * o.n }; }).sort(function(a, b){ return b.tot - a.tot; }).slice(0, 14);
+  var ms = function(v){ return v == null ? '-' : v >= 1000 ? (v / 1000).toFixed(1) + '초' : Math.round(v) + 'ms'; }, cls = function(v){ return v == null ? '' : v >= 3000 ? 'down' : v >= 1200 ? 'warn' : 'up'; };
+  var st = typeof ecStat !== 'undefined' ? ecStat : { hit: 0, join: 0, miss: 0, disk: 0, stale: 0 }, all = st.hit + st.join + st.miss + st.disk + st.stale, hit = all ? Math.round((st.hit + st.join + st.disk + st.stale) / all * 100) : null;
+  var now = Date.now(), lt5 = SPD.lt.filter(function(x){ return x[0] > now - 300000; }), lt5ms = lt5.reduce(function(a, x){ return a + x[1]; }, 0);
+  var ws = [typeof QMB !== 'undefined' && (QMB.ws1 || QMB.ws2) ? T('여러 종목 호가', 'multi-book') : '', typeof QOB !== 'undefined' && QOB.ws ? T('실제 호가', 'live book') : '', typeof LV !== 'undefined' && LV.ws ? T('전광판', 'live board') : ''].filter(Boolean);
+  var mem = performance && performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) + 'MB' : '-';
+  b.innerHTML = '<div class="spd-k"><span>' + esc(T('보관함 바로 꺼냄', 'Served from cache')) + ' <b>' + (hit == null ? '-' : hit + '%') + '</b></span><span>' + esc(T('끊김 (최근 5분 · 50ms 넘는 작업)', 'Long tasks (5 min)')) + ' <b class="' + (lt5.length > 20 ? 'down' : lt5.length > 6 ? 'warn' : 'up') + '">' + lt5.length + T('번', '') + (lt5.length ? ' · ' + ms(lt5ms) : '') + '</b></span>'
+    + '<span>' + esc(T('실시간 연결', 'Live sockets')) + ' <b>' + esc(ws.length ? ws.join(' · ') : T('없음', 'none')) + '</b></span><span>' + esc(T('메모리', 'Memory')) + ' <b>' + esc(mem) + '</b></span><span>' + esc(T('절전 모드', 'Power saving')) + ' <b>' + esc(ECO.on ? T('켜짐', 'on') : T('꺼짐', 'off')) + '</b></span></div>'
+    + (R.length ? '<div class="tbl-wrap"><table class="spd-t"><thead><tr><th>' + esc(T('자료 (서버)', 'Data (server)')) + '</th><th class="r">' + esc(T('횟수', 'Calls')) + '</th><th class="r">' + esc(T('평균', 'Avg')) + '</th><th class="r">' + esc(T('느린 10%', 'p90')) + '</th><th class="r">' + esc(T('실패', 'Fail')) + '</th></tr></thead><tbody>'
+      + R.map(function(r){ return '<tr><td>' + esc(r.k) + '</td><td class="r">' + r.n + '</td><td class="r ' + cls(r.av) + '">' + ms(r.av) + '</td><td class="r ' + cls(r.p90) + '">' + ms(r.p90) + '</td><td class="r' + (r.err ? ' down' : '') + '">' + r.err + '</td></tr>'; }).join('') + '</tbody></table></div>'
+      : '<p class="st-hint">' + esc(T('아직 서버에서 받은 자료가 없습니다 · 탭을 몇 개 열어 본 뒤 새로고침을 누르세요', 'No server calls yet')) + '</p>')
+    + '<p class="st-hint">' + esc(T('이 브라우저 · 이번 접속 기준 (새로 고침하면 처음부터) · 평균 1.2초 넘으면 주황 · 3초 넘으면 파랑 · 보관함 = 기기 · 메모리에 둔 자료를 바로 꺼낸 비율', 'This browser, this session')) + '</p>';
+}
+(function(){ var f0 = window.adTab; if (typeof f0 !== 'function') return; window.adTab = function(w){ var r = f0.apply(this, arguments); if (w === 'etc') setTimeout(spdRender, 30); return r; }; })();
 function ecmImp(v){ ECM.imp = !!+v; ecmSave(); var w = $('ecMini'); if (w) Array.prototype.forEach.call(w.querySelectorAll('.ecm-seg button'), function(b){ b.classList.toggle('on', b.getAttribute('data-v') === (ECM.imp ? '1' : '0')); }); ecmRender(); }
 function ecmGoCal(){ showTab('home'); setTimeout(function(){ var c = document.querySelector('#pane-home .cal-card'); if (c && c.scrollIntoView) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 220); }
 //  머리 줄 단추 (언어 단추 앞)
@@ -64402,11 +64466,29 @@ function wdHandleEv(h){
   h.addEventListener('dblclick', function(){ WD.w = WD.w === -1 ? 0 : -1; wdSave(); wdApply(); });
 }
 function wdSet(v){ WD.w = v === 'full' ? -1 : v === 'wide' ? WD.wide : v === 'base' ? 0 : Math.max(WD.min, Math.min(4000, +v || 0)); if (WD.w !== -1 && WD.w && Math.abs(WD.w - WD.base) <= 20) WD.w = 0; wdSave(); wdApply(); }
+//  (24차 학회장: ‘컴퓨터 사용량이 너무 는 것 같아 부담을 줄이고 싶음’) - 절전 모드: 반복 애니메이션 멈춤 · 차트 움직임 끔 · 실시간 갱신 느리게 (호가 0.5초 · 시장 스냅샷 3배)
+//   · 이 브라우저에 기억 · 값은 똑같이 실시간 (그리는 횟수만 줄임)
+var ECO = { on: false, mo: null };
+try { ECO.on = LSX.getItem('safe_eco_v1') === '1'; } catch(e){}
+function ecoApply(){
+  var b = document.body; if (b) b.classList.toggle('eco', ECO.on);
+  if (ECO.mo == null) ECO.mo = typeof MOTION_OK !== 'undefined' ? MOTION_OK : true;
+  try { MOTION_OK = ECO.on ? false : ECO.mo; } catch(e){}
+  var t = $('ecoTog'); if (t) t.checked = ECO.on;
+}
+function ecoSet(on){
+  ECO.on = !!on; try { LSX.setItem('safe_eco_v1', ECO.on ? '1' : '0'); } catch(e){} ecoApply();
+  try { if (typeof qmbStop === 'function' && $('qmbGrid') && QMB.key){ QMB.key = ''; qmbStart(); } } catch(e){}
+  try { if (typeof qobStart === 'function' && $('qobDepth') && (QOB.ws || QOB.poll)) qobStart(); } catch(e){}
+  toast(ECO.on ? T('절전 모드를 켰습니다 · 값은 그대로 실시간이고 화면 움직임만 줄입니다', 'Power saving on') : T('절전 모드를 껐습니다', 'Power saving off'), 2600);
+}
+(function(){ var f0 = typeof mkSlow === 'function' ? mkSlow : null; if (f0) window.mkSlow = function(){ return ECO.on || f0.apply(this, arguments); }; ecoApply(); })();
 function wdPopHtml(){
   return '<div class="wd-pop-h"><b>' + esc(T('화면 넓이', 'Content width')) + '</b><span class="st-hint" id="wdPopV"></span></div>'
     + '<div class="wd-seg" role="group">' + [['base', T('기본', 'Default')], ['wide', T('넓게', 'Wide')], ['full', T('전체 폭', 'Full')]].map(function(x){ return '<button type="button" data-v="' + x[0] + '" onclick="wdSet(\'' + x[0] + '\')">' + esc(x[1]) + '</button>'; }).join('') + '</div>'
     + '<input type="range" id="wdRange" min="1100" max="2560" step="20" aria-label="' + esc(T('화면 넓이', 'Width')) + '" oninput="wdSet(this.value)">'
-    + '<p class="st-hint">' + esc(T('본문 양옆 빈 곳의 세로 막대를 끌어도 됩니다 · 두 번 누르면 전체 폭', 'Or drag the bars beside the content · double-click for full width')) + '</p>';
+    + '<p class="st-hint">' + esc(T('본문 양옆 빈 곳의 세로 막대를 끌어도 됩니다 · 두 번 누르면 전체 폭', 'Or drag the bars beside the content · double-click for full width')) + '</p>'
+    + '<label class="eco-row"><input type="checkbox" id="ecoTog"' + (ECO.on ? ' checked' : '') + ' onchange="ecoSet(this.checked)"><span><b>' + esc(T('절전 모드', 'Power saving')) + '</b><em>' + esc(T('움직임 · 갱신 횟수를 줄여 컴퓨터 부담을 낮춤 (값은 그대로 실시간)', 'Less motion and redraws, same live data')) + '</em></span></label>';
 }
 function wdPopSync(){
   var p = $('wdPop'); if (!p) return; var k = WD.w === -1 ? 'full' : !WD.w ? 'base' : WD.w === WD.wide ? 'wide' : '';
@@ -65541,6 +65623,74 @@ async function atPdfGo(){
       s = (s ? s + '\n' : '') + '[설정 › 출결 · ' + (AT.gen != null ? AT.gen + '기 ' : '') + '모임 ' + ids.length + '회] ' + atRoster().slice(0, 30).map(function(m){ var c = atStat(m.id, ids); return (m.name || '-') + ' 출석 ' + c.present + ' 지각 ' + c.late + ' 결석 ' + c.absent + (c.rate == null ? '' : ' (' + c.rate + '%)'); }).join(' / '); }
   } catch(e){} return s; }; }
 })();
+
+
+/* ══════════ (24차) 밸류체인 › 양자컴퓨터 — 학회장: ‘밸류체인에 양자컴퓨터 · 리서치해서 최대한 디테일하게 (이번 산업/기업 분석 보고서 산업)’ ══════════
+   · 나라 비중 단계 4개 (논문 · 특허 · 정부 투자 · 민간 투자) = McKinsey Quantum Technology Monitor 2025 (2025년 6월) 의 숫자 그대로 · 비중이 직접 없으면 적힌 총액 대비 계산 (‘약’)
+   · 흐름 단계 4개 (핵심 부품 · 하드웨어 · 소프트웨어 · 클라우드 · 응용) = 나라 비중 자료가 없어 회사 · 흐름만 · 2026년판 (2026년 4월) 숫자는 메모 · 핵심 사실에
+   · 대표 기업 주가 = 미국 상장만 (값을 받을 수 있는 곳) · 투자 권유가 아님 · 2026년 10월 정리                                           */
+(function(){ try {
+  if (typeof MK_VC === 'undefined' || MK_VC.some(function(v){ return v.k === 'qc'; })) return;
+  MK_VC.push({ k: 'qc', n: '양자컴퓨터', yr: '2024~25', src: 'McKinsey ‘Quantum Technology Monitor 2025’ (2025년 6월) · 2026년판 (2026년 4월)',
+    notes: ['순서: 연구 (논문 · 특허) → 자금 (정부 · 민간) → 핵심 부품 → 하드웨어 → 소프트웨어 · 클라우드 → 응용',
+            '시장: 양자컴퓨팅 회사 매출 2024년 6.5~7.5억 달러 → 2025년 10억 달러 넘음 → 2028년 최대 44억 달러 · 2035년 양자컴퓨팅 시장 430~710억 달러 전망 (McKinsey 2026)',
+            '큐비트 방식: 초전도 (IBM · 구글 · 리게티 · IQM · 후지쯔) · 이온트랩 (아이온큐 · 퀀티뉴엄) · 중성원자 (QuEra · 파스칼 · 아톰컴퓨팅) · 광자 (사이퀀텀 · 자나두) · 실리콘 스핀 (인텔) · 위상 (마이크로소프트) · 어닐링 (디웨이브)',
+            '한국: 정부 투자 약 24억 달러 (세계 6위권) · 논문 비중 3.6% (2024) · 응용 · 보안(양자암호) 쪽이 강함'],
+    st: [['paper', '연구 (논문)', null, { CN: 41.8, US: 17.6, EU: 17.3, KR: 3.6, GB: 3.6, JP: 3.6, IN: 2.0, CH: 1.8, CA: 1.4, SG: 1.1, AU: 1.1, OT: 5.1 },
+           { yr: '2024', what: '양자기술 논문 비중 (나라별)', notes: ['중국 비중 2023년 34.5% → 2024년 41.8% (1년에 약 7%p 상승)', 'EU = 27개국 합계 (지도에서 EU 나라는 같은 색)'] }],
+         ['pat', '특허 (등록 누적)', null, { US: 27.0, JP: 13.6, DE: 12.3, CN: 11.0, FR: 10.5, OT: 25.6 },
+           { yr: '2000~23 누적', what: '양자기술 특허 등록 (누적 건수)', val: { US: '18,649건', JP: '9,400건', DE: '8,500건', CN: '7,601건', FR: '7,220건' },
+             notes: ['비중은 미국 약 27% 를 기준으로 계산한 근사치 (상위 11개 나라가 약 90%)', '출원(신청) 기준: 미국 · 중국 각 약 28% · 양자컴퓨팅만 보면 중국 약 32% · 미국 약 22%', '2024년 등록 건수는 1년 전보다 약 13% 증가'] }],
+         ['gov', '정부 투자 (발표 누적)', null, { CN: 28.3, JP: 17.0, US: 11.1, DE: 9.6, GB: 8.5, KR: 4.4, FR: 4.1, IN: 3.1, CA: 2.6, ES: 1.9, NL: 1.9, AU: 1.5, RU: 1.5, DK: 1.1, OT: 3.4 },
+           { yr: '2025년 4월까지', world: '세계 약 540억 달러 (추정 · 방향성 수치)', what: '각국 정부가 발표한 양자기술 공공 투자 (누적)',
+             val: { CN: '약 153억 달러', JP: '약 92억 달러', US: '약 60억 달러', DE: '약 52억 달러', GB: '약 46억 달러', KR: '약 24억 달러', FR: '약 22억 달러', IN: '약 17억 달러', CA: '약 14억 달러', ES: '약 10억 달러', NL: '약 10억 달러' },
+             notes: ['일본은 2025년에 74억 달러를 새로 발표 (그해 발표의 대부분)', '중국은 ‘150억 달러 이상’ 추정 - 공식 확인이 어려운 숫자', '비중 = 약 540억 달러 대비 계산'] }],
+         ['vc', '민간 투자 (스타트업)', null, { US: 78.2, AU: 7.9, GB: 5.3, EU: 5.2, IL: 2.5, OT: 0.9 },
+           { yr: '2024', world: '세계 약 19.9억 달러 (2024)', what: '양자기술 스타트업 투자 (투자받은 회사 본사 기준)',
+             val: { US: '약 15.6억 달러', AU: '약 1.6억 달러', GB: '약 1.1억 달러', EU: '약 1.0억 달러', IL: '약 0.5억 달러' },
+             notes: ['2025년은 126억 달러로 2024년의 6.3배 · 상위 10건이 약 60% · 나라별 나눔은 아직 공개 안 됨 (McKinsey 2026)', '2025년 투자의 약 90% 가 양자컴퓨팅 (나머지는 센싱 · 통신)', '중국은 자료가 부족해 빠짐'] }]] });
+  if (typeof MK_VC_GRP !== 'undefined' && MK_VC_GRP[0] && MK_VC_GRP[0][1].indexOf('qc') < 0) MK_VC_GRP[0][1].push('qc');
+  if (typeof VC_CO !== 'undefined') VC_CO.qc = {
+    paper: [['IBM', 'IBM'], ['GOOGL', '알파벳 (구글 퀀텀 AI)'], ['MSFT', '마이크로소프트']],
+    pat: [['HON', '하니웰 (퀀티뉴엄 대주주)'], ['INTC', '인텔'], ['NVDA', '엔비디아 (CUDA-Q)']],
+    vc: [['IONQ', '아이온큐'], ['RGTI', '리게티'], ['QBTS', '디웨이브'], ['QUBT', '퀀텀컴퓨팅']] };
+  if (typeof VC_ZONE !== 'undefined') VC_ZONE.qc = { paper: 0, pat: 0, gov: 0, vc: 0 };
+  if (typeof VCX_BN !== 'undefined') VCX_BN.qc = ['semi', 'KR:semi', 'JP:elec'];
+  if (typeof VC_FLOWN !== 'undefined') VC_FLOWN.qc = { part: '핵심 부품 (냉동기 · 제어 · 레이저)', hw: '하드웨어 (큐비트)', sw: '소프트웨어 · 클라우드', app: '응용 (제약 · 화학 · 금융 · 보안)' };
+  if (typeof VC_FLOW !== 'undefined') VC_FLOW.qc = [
+    ['paper', 'pat', '연구 성과 → 원천 특허'],
+    ['pat', 'hw', '원천 기술 → 큐비트 하드웨어 설계'],
+    ['gov', 'hw', '국가 프로그램 → 국립 연구소 · 하드웨어 개발 (일본 2025년 74억 달러)'],
+    ['vc', 'hw', '스타트업 투자 → 하드웨어 회사 (2025년 투자의 약 90% 가 양자컴퓨팅)'],
+    ['part', 'hw', '희석 냉동기 (영하 273도 근처) · 제어 전자장비 · 레이저 → 큐비트 시스템'],
+    ['hw', 'sw', '양자컴퓨터 → 클라우드로 제공 (아마존 브라켓 · 애저 퀀텀 · IBM 퀀텀)'],
+    ['sw', 'app', '알고리즘 · 오류 정정 · 슈퍼컴퓨터 결합 → 신약 · 소재 · 금융 · 보안']];
+  if (typeof VC_PLAY !== 'undefined') VC_PLAY.qc = {
+    part: [['블루포스 (Bluefors)', 'FI', '비상장', '희석 냉동기 (초전도 큐비트 냉각)'], ['메이벨 퀀텀 (Maybell Quantum)', 'US', '비상장', '소형 희석 냉동기'],
+           ['퀀텀 머신 (Quantum Machines)', 'IL', '비상장', '큐비트 제어 장비 · 소프트웨어'], ['취리히 인스트루먼츠 (Zurich Instruments)', 'CH', '비상장', '큐비트 제어 · 측정 장비'],
+           ['큐블록스 (Qblox)', 'NL', '비상장', '큐비트 제어 장비'], ['키사이트 (Keysight)', 'US', 'NYSE:KEYS', '제어 · 측정 장비'],
+           ['폼팩터 (FormFactor)', 'US', 'NASDAQ:FORM', '극저온 측정 장비'], ['톱티카 (Toptica Photonics)', 'DE', '비상장', '이온 · 원자 큐비트용 레이저']],
+    hw: [['IBM', 'US', 'NYSE:IBM', '초전도 · 2029년 오류 내성 컴퓨터 목표'], ['구글 퀀텀 AI (Alphabet)', 'US', 'NASDAQ:GOOGL', '초전도 · 윌로우 칩 (2024년 12월)'],
+         ['리게티 (Rigetti)', 'US', 'NASDAQ:RGTI', '초전도'], ['IQM', 'FI', '비상장', '초전도 (유럽)'], ['후지쯔 (Fujitsu)', 'JP', 'TSE:6702', '초전도 (리켄과 공동 개발)'],
+         ['오리진 퀀텀 (本源量子)', 'CN', '비상장', '초전도 (중국)'], ['아이온큐 (IonQ)', 'US', 'NYSE:IONQ', '이온트랩 · 옥스퍼드 아이오닉스 11억 달러 인수 (2025)'],
+         ['퀀티뉴엄 (Quantinuum)', 'US', '비상장', '이온트랩 · 하니웰 대주주 · Helios 2큐비트 정확도 99.921%'], ['QuEra', 'US', '비상장', '중성원자'],
+         ['파스칼 (Pasqal)', 'FR', '비상장', '중성원자'], ['아톰 컴퓨팅 (Atom Computing)', 'US', '비상장', '중성원자'], ['사이퀀텀 (PsiQuantum)', 'US', '비상장', '광자'],
+         ['자나두 (Xanadu)', 'CA', '비상장', '광자 · SPAC 상장 추진 (2025년 11월 발표)'], ['인텔 (Intel)', 'US', 'NASDAQ:INTC', '실리콘 스핀'],
+         ['마이크로소프트 (Microsoft)', 'US', 'NASDAQ:MSFT', '위상 큐비트 (마요라나 1 · 2025년 2월)'], ['디웨이브 (D-Wave)', 'US', 'NYSE:QBTS', '어닐링 · 게이트 방식']],
+    sw: [['아마존 브라켓 (Amazon)', 'US', 'NASDAQ:AMZN', '양자 클라우드'], ['애저 퀀텀 (Microsoft)', 'US', 'NASDAQ:MSFT', '양자 클라우드'], ['IBM 퀀텀 (Qiskit)', 'US', 'NYSE:IBM', '클라우드 · 개발 도구'],
+         ['엔비디아 CUDA-Q (NVIDIA)', 'US', 'NASDAQ:NVDA', 'GPU · 양자 결합 계산'], ['클래식 (Classiq)', 'IL', '비상장', '양자 소프트웨어 설계'], ['큐컨트롤 (Q-CTRL)', 'AU', '비상장', '오류 억제 · 제어 소프트웨어'],
+         ['리버레인 (Riverlane)', 'GB', '비상장', '양자 오류 정정']],
+    app: [['ID 퀀티크 (ID Quantique)', 'CH', '비상장', '양자암호 통신 · 아이온큐가 과반 지분'], ['SK텔레콤', 'KR', 'KRX:017670', '양자암호 통신망'], ['도시바 (Toshiba)', 'JP', '비상장', '양자암호 통신'],
+          ['PQShield', 'GB', '비상장', '양자내성암호 (PQC)'], ['JP모건 (JPMorgan)', 'US', 'NYSE:JPM', '금융 · 양자 알고리즘 연구'], ['아스트라제네카 (AstraZeneca)', 'GB', 'LSE:AZN', '신약 · 화학 계산 시범']] };
+  if (typeof VC_FACTS !== 'undefined') VC_FACTS.qc = [
+    ['2025년 양자기술 스타트업 투자 126억 달러 (2024년의 6.3배) · 상위 10건이 약 60%', 'McKinsey ‘Quantum Technology Monitor 2026’', 'https://www.mckinsey.com/capabilities/mckinsey-technology/our-insights/mckinsey-quantum-technology-monitor-2026-a-commercial-tipping-point'],
+    ['양자컴퓨팅 회사 매출 2025년 10억 달러 넘음 · 2028년 최대 44억 달러 전망', 'McKinsey ‘Quantum Technology Monitor 2026’', 'https://www.mckinsey.com/capabilities/mckinsey-technology/our-insights/mckinsey-quantum-technology-monitor-2026-a-commercial-tipping-point'],
+    ['2035년 양자컴퓨팅 시장 430~710억 달러 · 기업이 얻는 경제적 가치 1.3~2.7조 달러', 'McKinsey ‘Quantum Technology Monitor 2026’', 'https://www.mckinsey.com/capabilities/mckinsey-technology/our-insights/mckinsey-quantum-technology-monitor-2026-a-commercial-tipping-point'],
+    ['아이온큐: 옥스퍼드 아이오닉스 11억 달러 인수 (2025년 6월) · ID 퀀티크 과반 지분 · 스카이워터 인수 추진 (2026년 마무리 예정)', 'McKinsey ‘Quantum Technology Monitor 2026’', 'https://www.mckinsey.com/capabilities/mckinsey-technology/our-insights/mckinsey-quantum-technology-monitor-2026-a-commercial-tipping-point'],
+    ['각국 정부 발표 누적 공공 투자 약 540억 달러 (2025년 4월까지) · 일본 2025년 74억 달러 새로 발표', 'McKinsey ‘Quantum Technology Monitor 2025’', 'https://www.mckinsey.com/~/media/mckinsey/business%20functions/mckinsey%20digital/our%20insights/the%20year%20of%20quantum%20from%20concept%20to%20reality%20in%202025/quantum-monitor-2025.pdf'],
+    ['2024년 양자기술 논문의 41.8% 가 중국 (2023년 34.5%) · 미국 17.6% · EU 17.3%', 'McKinsey ‘Quantum Technology Monitor 2025’', 'https://www.mckinsey.com/~/media/mckinsey/business%20functions/mckinsey%20digital/our%20insights/the%20year%20of%20quantum%20from%20concept%20to%20reality%20in%202025/quantum-monitor-2025.pdf'],
+    ['양자컴퓨팅 스타트업 274곳 (2024년 말) · 2024년에 새로 생긴 곳은 13곳', 'McKinsey ‘Quantum Technology Monitor 2025’', 'https://www.mckinsey.com/~/media/mckinsey/business%20functions/mckinsey%20digital/our%20insights/the%20year%20of%20quantum%20from%20concept%20to%20reality%20in%202025/quantum-monitor-2025.pdf']];
+} catch(e){ console.warn('qc vc', e); } })();
 
 /*>>23차*/
 </script>
