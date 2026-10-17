@@ -52429,15 +52429,9 @@ async function drawBenchmark(hist){
   }
   var bench = await getBenchmark(hist[0].d);
   var seed = Number(tstate.seed||1);
-  var bmap = {}; (bench||[]).forEach(function(p){ bmap[p.d] = p.v; });
-
-  var b0 = null, bseries = [], last = null;
-  hist.forEach(function(h){
-    if (bmap[h.d] != null) last = bmap[h.d];
-    if (last == null) return;
-    if (b0 == null) b0 = last;
-    bseries.push([h.d, seed * (last / b0)]);
-  });
+  //  (24차 5) 퀀트 지표와 같은 식 (그날까지 나온 마지막 종가)
+  var bv = benchAsOf(hist, bench), b0 = null, bseries = [];
+  hist.forEach(function(h, i){ var last = bv[i]; if (last == null) return; if (b0 == null) b0 = last; bseries.push([h.d, seed * (last / b0)]); });
 
   //  두 선이 다 들어가는 폭으로 눈금 자릿수를 정합니다
   var bAll = hist.map(function(h){ return Number(h.total); })
@@ -52468,12 +52462,22 @@ async function drawBenchmark(hist){
 }
 
 async function getBenchmark(from){
-  if (benchCache) return benchCache;
+  //  (24차 5) 받아 둔 지수가 <요청한 날보다 늦게> 시작하면 다시 받습니다 · 시작 10일 전부터 (그날 직전 종가를 기준으로) · 6시간 지나면 새로
+  var f0 = String(from || '').slice(0, 10), d0 = f0;
+  try { var t0 = new Date(f0 + 'T00:00:00Z'); if (!isNaN(t0)) d0 = new Date(t0.getTime() - 10 * 864e5).toISOString().slice(0, 10); } catch(e){}
+  if (benchCache && benchCache.from && (!d0 || benchCache.from <= d0) && Date.now() - benchCache.at < 6 * 3600e3) return benchCache.pts;
   try {
-    var d = await edge({ source:'fred', code:'SP500', cycle:'D', start: from });
-    benchCache = d.points || [];
-  } catch(e){ benchCache = []; }
-  return benchCache;
+    var d = await edge({ source:'fred', code:'SP500', cycle:'D', start: d0 || from });
+    var pts = (d.points || []).filter(function(x){ return x && x.d && isFinite(Number(x.v)) && Number(x.v) > 0; }).map(function(x){ return { d: String(x.d).slice(0, 10), v: Number(x.v) }; }).sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+    benchCache = { from: d0 || f0, at: Date.now(), pts: pts };
+  } catch(e){ return (benchCache && benchCache.pts) || []; }
+  return benchCache.pts;
+}
+//  날마다 <그날까지 나온 마지막 종가> (주말 · 휴일 · 우리 기록에 없는 날도 앞으로 이어 붙임)
+function benchAsOf(hist, bench){
+  var B = (bench || []).slice().sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; }), j = -1, out = [];
+  hist.forEach(function(h){ var d = String(h.d).slice(0, 10); while (j + 1 < B.length && B[j + 1].d <= d) j++; out.push(j >= 0 ? Number(B[j].v) : null); });
+  return out;
 }
 
 /* ══════════ 퀀트 지표 ══════════
@@ -52526,9 +52530,7 @@ function quantMetrics(hist, bench, rf, seed){
   var rets = [];
   for (var i=1;i<vals.length;i++){ if (vals[i-1] > 0) rets.push(vals[i]/vals[i-1]-1); }
 
-  var bmap = {}; (bench||[]).forEach(function(p){ bmap[p.d] = p.v; });
-  var bvals = [], last = null;
-  hist.forEach(function(h){ if (bmap[h.d]!=null) last = bmap[h.d]; bvals.push(last); });
+  var bvals = benchAsOf(hist, bench);
   var brets = [];
   for (var j=1;j<bvals.length;j++){
     brets.push((bvals[j-1] && bvals[j]) ? (bvals[j]/bvals[j-1]-1) : 0);
@@ -52552,7 +52554,9 @@ function quantMetrics(hist, bench, rf, seed){
 
   var bvar = variance(brets);
   var beta = bvar > 0 ? covariance(rets, brets) / bvar : 0;
-  var bTotal = (bvals[0] && bvals[bvals.length-1]) ? (bvals[bvals.length-1]/bvals[0]-1) : 0;
+  //  (24차 5) 첫 칸이 비어 있으면 예전엔 벤치마크 0% 로 나왔습니다 · 이제 첫 값이 있는 날부터 (그것도 없으면 계산 안 함)
+  var bFirst = null; for (var bi = 0; bi < bvals.length; bi++){ if (bvals[bi]){ bFirst = bvals[bi]; break; } }
+  var bTotal = (bFirst && bvals[bvals.length-1]) ? (bvals[bvals.length-1]/bFirst-1) : 0;
   var bCagr = Math.pow(1+bTotal, 1/years) - 1;
   var alpha = cagr - (rf + beta*(bCagr - rf));
   var corr  = (sd>0 && std(brets)>0) ? covariance(rets,brets)/(sd*std(brets)) : 0;
@@ -52728,7 +52732,7 @@ function mtFillRealized(rows){
 function attribution(trades, positions){
   var acc = {};
   var fxFix = (mtAcc && mtAcc.fx) || (mtCt && mtCt.fx_fixed) || 1400;
-  trades.slice().sort(function(a,b){ return String(a.traded_on).localeCompare(String(b.traded_on)); })
+  trades.map(function(t, i){ return [t, i]; }).sort(function(a,b){ return String(a[0].traded_on).localeCompare(String(b[0].traded_on)) || ((Number(a[0].id) || 0) - (Number(b[0].id) || 0)) || (a[1] - b[1]); }).map(function(x){ return x[0]; })
   .forEach(function(t){
     var k = t.market+'|'+t.symbol;
     var f = t.market === 'KR' ? 1 : fxFix;
@@ -52827,13 +52831,14 @@ async function loadQuant(){
   var seed = Number((tstate && tstate.seed) || hist[0].total);
   var m = quantMetrics(hist, bench, rf, seed);
 
-  var tr = await sb.from('trades')
-    .select('market,symbol,name,side,qty,price,fee,fx,traded_on').eq('team_id', team);
-
-  //  보유 종목은 서버가 환산해준 mtAcc 를 먼저 씁니다 (없으면 예전 값)
-  var qpos = (mtAcc && mtAcc.positions) || (tstate && tstate.positions) || [];
+  /*  (24차 5 학회장: ‘종목별 기여도가 틀린 거 같아 · 평가손익 0 인데 실현손익 2천만원?’)
+      예전에는 거래를 화면에서 다시 굴려 실현손익을 냈습니다. 그런데 ① 거래 표를 정렬 없이 1,000건까지만 받았고
+      ② 같은 날 산 것 · 판 것의 순서를 안 지켜서, 산 기록보다 판 기록이 먼저 오면 원가 0 으로 셈 → 판 금액 전체가 이익으로 잡혔습니다.
+      이제 서버 계좌 (판 내역 · 보유 종목 표와 같은 곳) 의 실현 · 평가손익을 그대로 쓰고, 거래는 횟수만 셉니다.        */
+  var trAll = await mtTradesAll(team);
+  var accQ = null; try { accQ = (mtAcc && (mtAcc.closed || mtAcc.positions)) ? mtAcc : await edge({ source:'mt_account', team_id: team }); } catch(e){ accQ = null; }
   box.innerHTML = quantHTML(m)
-    + attributionHTML(attribution(tr.data || [], qpos))
+    + attrTeamHTML(trAll, accQ, seed)
     + '<div class="q-group" style="margin-bottom:0"><div class="q-title">일간 수익률 분포 '
     + '<span>분포가 중앙에 모이고 왼쪽 꼬리가 짧을수록 안정적입니다</span></div>'
     + '<div id="distBox"></div></div>';
@@ -52981,7 +52986,11 @@ async function loadTrades(){
 
   var fx = (mtAcc && mtAcc.fx) || 1400;
   //  ⚠️ 서버가 실현손익을 안 주므로 여기서 매깁니다 (아래 손익 칸이 쓰는 값)
-  mtFillRealized(rows);
+  if (!rows.some(function(x){ return x.realized_krw != null || x.realized != null; })){
+    try { var all = mtFillRealized(await mtTradesAll(team)), byId = {}; all.forEach(function(x){ if (x.id != null) byId[x.id] = x; });
+      rows.forEach(function(x){ var y = byId[x.id]; if (y){ x.__pnl = y.__pnl; x.__pnlNat = y.__pnlNat; } else { x.__pnl = null; x.__pnlNat = null; } });
+    } catch(e){ mtFillRealized(rows); }
+  } else mtFillRealized(rows);
   t.innerHTML = '<thead><tr><th>날짜</th><th>시장</th><th>종목</th>'
     + (showWho ? '<th>누가</th>' : '') + '<th>산 방법</th><th>구분</th>'
     + '<th class="num">수량</th><th class="num">단가</th><th class="num">금액</th>'
@@ -69145,6 +69154,50 @@ function lrnOvf(){
   var ul = $('lrnT-ovf'); if (ul) ul.innerHTML = '<li>주가는 <b>무작위로 만든 가짜</b> · 어떤 규칙도 통할 이유가 없음</li><li>' + O.combos.length + '개 규칙 중 과거 2년 1등 (MA ' + b.f + ' / ' + b.s + ') 샤프 ' + num(b.is, 2) + ' → 처음 보는 1년 ' + num(b.oos, 2) + '</li><li>그래서 실무는 · 규칙을 고를 때 쓰지 않은 기간으로 확인 · 거래비용 포함 · 시도한 규칙 수를 함께 적음</li>';
 }
 (function(){ var r0 = null; window.addEventListener('resize', function(){ clearTimeout(r0); r0 = setTimeout(function(){ if (LRN.init && $('pane-learn') && !$('pane-learn').classList.contains('hidden')){ ['fs3', 'bin'].forEach(function(k){ if (LRN.seen[k]) lrnDraw(k); }); } }, 250); }); })();
+
+
+/* ══ (24차 5) 모의투자 · 종목별 기여도 = 서버 계좌 숫자 ══ */
+async function mtTradesAll(tid){
+  var out = [], from = 0;
+  for (var k = 0; k < 40; k++){
+    var r = await sb.from('trades').select('id,market,symbol,name,side,qty,price,fee,traded_on').eq('team_id', tid)
+      .order('traded_on', { ascending: true }).order('id', { ascending: true }).range(from, from + 999);
+    if (r.error) throw r.error;
+    var d = r.data || []; out = out.concat(d); if (d.length < 1000) break; from += 1000;
+  }
+  return out;
+}
+function attrTeamHTML(trAll, acc, seed){
+  var rows = {}, src = 'srv', fx = (acc && acc.fx) || (mtCt && mtCt.fx_fixed) || 1400;
+  var get = function(mk, sym, nm){ var k = mk + '|' + sym; return rows[k] || (rows[k] = { market: mk, symbol: sym, name: nm || sym, trades: 0, realized: 0, unreal: 0, hold: false }); };
+  if (acc && (acc.closed || acc.positions)){
+    (acc.closed || []).forEach(function(c){ var r = get(c.market, c.symbol, c.name); if (c.realized_krw != null) r.realized += Number(c.realized_krw) || 0; else if (c.realized != null) r.realized += Number(c.realized) * (c.market === 'KR' ? 1 : fx); });
+    (acc.positions || []).forEach(function(p){ var r = get(p.market, p.symbol, p.name); r.hold = true; r.unreal += p.pnl_krw != null ? Number(p.pnl_krw) || 0 : p.pnl != null ? Number(p.pnl) * (p.market === 'KR' ? 1 : fx) : 0; });
+    (trAll || []).forEach(function(t){ var r = get(t.market, t.symbol, t.name); r.trades++; });
+  } else {
+    src = 'local';
+    attribution(trAll || [], (tstate && tstate.positions) || []).forEach(function(a){ rows[a.market + '|' + a.symbol] = a; });
+  }
+  var L = Object.keys(rows).map(function(k){ var a = rows[k]; a.total = (a.realized || 0) + (a.unreal || 0); return a; }).filter(function(a){ return a.trades || Math.abs(a.total) >= 0.5 || a.hold; }).sort(function(x, y){ return y.total - x.total; });
+  if (!L.length) return '';
+  var sR = 0, sU = 0; L.forEach(function(a){ sR += a.realized || 0; sU += a.unreal || 0; });
+  var sT = sR + sU, base = Number(seed) || 0, teamPnl = acc && acc.pnl != null ? Number(acc.pnl) : null, other = teamPnl != null ? teamPnl - sT : null;
+  var sg = function(v){ return (v > 0 ? '+' : '') + num(Math.round(v)); }, pp = function(v){ return base > 0 ? (v >= 0 ? '+' : '') + (v / base * 100).toFixed(2) + '%p' : '-'; };
+  var cls = function(v){ return v > 0.5 ? 'pos' : v < -0.5 ? 'neg' : ''; };
+  return '<div class="q-group"><div class="q-title">종목별 기여도 <span>실현 + 평가손익 · 수익률 기여 = 손익 ÷ 시드 (다 더하면 팀 수익률)</span></div>'
+    + '<div class="scroll"><table><thead><tr><th>종목</th><th class="num">매매</th><th class="num">실현손익</th><th class="num">평가손익</th><th class="num">합계</th><th class="num">수익률 기여</th></tr></thead><tbody>'
+    + L.map(function(x){
+        return '<tr><td><span class="pill ' + esc(x.market) + '">' + esc(x.market) + '</span> <b>' + esc(x.name) + '</b>' + (x.hold ? ' <span class="st-hint">보유 중</span>' : '') + '</td>'
+          + '<td class="num">' + x.trades + '회</td><td class="num">' + sg(x.realized) + '</td><td class="num">' + (x.hold ? sg(x.unreal) : '<span class="st-hint">-</span>') + '</td>'
+          + '<td class="num ' + cls(x.total) + '">' + sg(x.total) + '</td><td class="num ' + cls(x.total) + '">' + pp(x.total) + '</td></tr>';
+      }).join('') + '</tbody><tfoot>'
+    + '<tr><td><b>종목 합계</b></td><td></td><td class="num"><b>' + sg(sR) + '</b></td><td class="num"><b>' + sg(sU) + '</b></td><td class="num ' + cls(sT) + '"><b>' + sg(sT) + '</b></td><td class="num ' + cls(sT) + '"><b>' + pp(sT) + '</b></td></tr>'
+    + (other != null && Math.abs(other) >= 1 ? '<tr><td>배당 · 기타</td><td></td><td></td><td></td><td class="num ' + cls(other) + '">' + sg(other) + '</td><td class="num ' + cls(other) + '">' + pp(other) + '</td></tr>' : '')
+    + (teamPnl != null ? '<tr><td><b>팀 전체 손익</b> <span class="st-hint">총 평가액 − 시드</span></td><td></td><td></td><td></td><td class="num ' + cls(teamPnl) + '"><b>' + sg(teamPnl) + '</b></td><td class="num ' + cls(teamPnl) + '"><b>' + pp(teamPnl) + '</b></td></tr>' : '')
+    + '</tfoot></table></div><p class="st-hint" style="margin:6px 0 0">'
+    + (src === 'srv' ? '실현손익 = 판 내역 표 · 평가손익 = 보유 종목 표와 같은 서버 계산 (수수료 포함 · 미국 · 코인은 대회 고정환율 ' + num(fx) + '원) · 매매 = 거래 기록 횟수'
+                     : '서버 계좌를 받지 못해 거래 기록을 처음부터 다시 굴려 계산했습니다 (같은 날 거래는 기록 순서대로)') + '</p></div>';
+}
 
 </script>
 </body>
