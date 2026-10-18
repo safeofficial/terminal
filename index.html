@@ -1065,6 +1065,96 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* ══ (33차) 학회장: '노란색 별로 · 다크 선택 색 별로 · 한눈에 보기 글자 키워 · 차트 · 상단 더 세련되게' ══ */
+  /* ① 분석 갈래 색 = 잉크 (머스터드 노랑 뺌) — 카드 제목 막대 · 영문 소제목 줄 · 보기 단추 */
+  html:root{--hc-market:#1f2433;--hc-stocks:#1f2433;--hc-company:#1f2433;--hc-ai:#1f2433;--hc-deriv:#1f2433;--hc-flow:#1f2433;--hc-fxa:#1f2433;--hc-strat:#1f2433}
+  html:root[data-theme="dark"]{--hc-market:#e6e9f0;--hc-stocks:#e6e9f0;--hc-company:#e6e9f0;--hc-ai:#e6e9f0;--hc-deriv:#e6e9f0;--hc-flow:#e6e9f0;--hc-fxa:#e6e9f0;--hc-strat:#e6e9f0}
+  html body .ph19 .ph-cat.y{background:#1f2433;color:#f4f5f8}
+  html:root[data-theme="dark"] body .ph19 .ph-cat.y{background:#e6e9f0;color:#141414}
+  html body .page-head.ph19.tt-ink .ph-cat.y,html body .page-head.ph19.tt-accent .ph-cat.y{background:#f2efe6;color:#141414}
+  html body .ph19[data-cat="y"]{--ph-acc:#1f2433}
+  html:root[data-theme="dark"] body .ph19[data-cat="y"]{--ph-acc:#e6e9f0}
+  html body .page-head.ph19.tt-ink[data-cat="y"],html body #pane-industry .page-head.ph19.tt-ink[data-cat="y"]{--ph-acc:#f2efe6}
+
+  /* ② 갈래 카드 (01 · 02 · 03) 고른 칸 — 라이트: 흰 카드 + 잉크 테두리 · 다크: 살짝 뜬 카드 + 밝은 테두리 (남색 · 노랑 뺌) */
+  html body #pane-company #coNav #coGrp#coGrp > button,html body #pane-cores #crGrp#crGrp > button{transition:border-color .15s,box-shadow .15s,transform .15s,background .15s}
+  html body #pane-company #coNav #coGrp#coGrp > button.on,html body #pane-cores #crGrp#crGrp > button.on{background:var(--white,#fff);border-color:#1f2433;box-shadow:0 0 0 1px #1f2433,0 14px 28px -18px rgba(16,24,40,.45)}
+  html body #pane-company #coNav #coGrp#coGrp > button.on em,html body #pane-cores #crGrp#crGrp > button.on em{background:#1f2433;color:#ffffff}
+  html body #pane-company #coNav #coGrp#coGrp > button.on b,html body #pane-cores #crGrp#crGrp > button.on b{color:#1f2433}
+  html body #pane-company #coNav #coGrp#coGrp > button.on span,html body #pane-cores #crGrp#crGrp > button.on span{color:var(--text-sub)}
+  html:root[data-theme="dark"] body #pane-company #coNav #coGrp#coGrp > button.on,html:root[data-theme="dark"] body #pane-cores #crGrp#crGrp > button.on{background:#232937;border-color:#e6e9f0;box-shadow:0 0 0 1px #e6e9f0,0 16px 30px -18px rgba(0,0,0,.85)}
+  html:root[data-theme="dark"] body #pane-company #coNav #coGrp#coGrp > button.on em,html:root[data-theme="dark"] body #pane-cores #crGrp#crGrp > button.on em{background:#e6e9f0;color:#12151c}
+  html:root[data-theme="dark"] body #pane-company #coNav #coGrp#coGrp > button.on b,html:root[data-theme="dark"] body #pane-cores #crGrp#crGrp > button.on b{color:#ffffff}
+  html:root[data-theme="dark"] body #pane-company #coNav #coGrp#coGrp > button.on span,html:root[data-theme="dark"] body #pane-cores #crGrp#crGrp > button.on span{color:#aeb6c8}
+  html body #pane-company #coNav #coGrp#coGrp > button:not(.on):hover,html body #pane-cores #crGrp#crGrp > button:not(.on):hover{border-color:var(--text-sub)}
+  /*  세부 칸 (재무제표 · 개요 …) 고른 칸 — 다크에서 바탕과 비슷해 안 보이던 것 → 밝은 알약  */
+  html:root[data-theme="dark"] body #pane-company #coSeg.mode-seg button.on{background:#e6e9f0;color:#12151c;box-shadow:none}
+
+  /* ③ 머리 (회사 이름 · 주가 · 지표 띠) — 더 크게 · 또렷하게 · 오른쪽에 큰 티커 (옅게) */
+  html body #pane-company #coHead > .card > h2{font-size:42px;letter-spacing:-.04em;line-height:1.08;margin-bottom:16px}
+  html body #pane-company #coHead #coName > span{display:inline-flex;align-items:center;height:24px;padding:0 10px;border:1px solid var(--border);border-radius:999px;position:relative;top:-7px;margin-left:4px}
+  html body #pane-company #coHead #coRibbon{position:relative;padding:16px 0 14px}
+  html body #pane-company #coHead #coRibbon > .r{position:relative;z-index:1}
+  html body #pane-company #coHead #coRibbon::after{content:attr(data-tk);position:absolute;right:-2px;top:50%;transform:translateY(-50%);z-index:0;pointer-events:none;white-space:nowrap;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-weight:700;font-size:96px;line-height:1;letter-spacing:-.05em;color:var(--text);opacity:.06}
+  html body #pane-company #coHead .co-rib .pxv b{font-size:46px;letter-spacing:-1.4px}
+  html body #pane-company #coHead .co-rib .pxv em{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:999px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:14px;font-weight:600;background:var(--bg-sub);color:var(--text-sub);align-self:center}
+  html body #pane-company #coHead .co-rib .pxv em.up{background:color-mix(in srgb,var(--up) 13%,transparent);color:var(--up)}
+  html body #pane-company #coHead .co-rib .pxv em.dn{background:color-mix(in srgb,var(--down) 13%,transparent);color:var(--down)}
+  html body #pane-company #coHead .co-rib .kv b{font-size:16px}
+  html body #pane-company #coHead .co-rib .w52 s{height:4px;border-radius:4px}
+  html body #pane-company #coHead .co-rib .w52 s u{width:10px;height:10px;top:-3px;margin-left:-5px;border-radius:50%;background:var(--text);box-shadow:0 0 0 3px var(--card,var(--white))}
+  html body #pane-company #coHead #coTiles .tiles{border-top:2px solid var(--text)}
+  html body #pane-company #coHead #coTiles .tile{transition:background .15s}
+  html body #pane-company #coHead #coTiles .tile:hover{background:color-mix(in srgb,var(--text) 3.5%,transparent)}
+  html body #pane-company #coHead #coTiles .tile .k{font-weight:600;font-size:12px}
+  html body #pane-company #coHead #coTiles .tile .v{font-size:25px;letter-spacing:-.6px;margin-top:2px}
+  html body #pane-company #coHead #coTiles .tile .d em{font-style:normal;font-weight:700;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace}
+  html body #pane-company #coHead #coTiles .tile .d em.up{color:var(--up)} html body #pane-company #coHead #coTiles .tile .d em.dn{color:var(--down)}
+  html body #pane-company #coHead .cx-spark polyline{stroke:var(--text);stroke-width:1.5;opacity:.55} html body #pane-company #coHead .cx-spark circle{fill:var(--text)}
+  @media (max-width:900px){ html body #pane-company #coHead #coRibbon::after{display:none} }
+  @media (max-width:640px){ html body #pane-company #coHead > .card > h2{font-size:27px} html body #pane-company #coHead #coName > span{top:-3px} html body #pane-company #coHead .co-rib .pxv b{font-size:32px} html body #pane-company #coHead #coTiles .tile .v{font-size:20px} }
+
+  /* ④ 실적 추이 — 최근 기간 값 띠 · 그림 크기 고르기 */
+  #coFinSum.co-fsum{display:flex;flex-wrap:wrap;align-items:stretch;margin:0 0 12px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  #coFinSum[hidden]{display:none}
+  #coFinSum .hd{display:flex;flex-direction:column;justify-content:center;gap:3px;padding:11px 20px 11px 0;min-width:0}
+  #coFinSum .hd b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:14px;font-weight:700;color:var(--text);letter-spacing:.02em;white-space:nowrap}
+  #coFinSum .hd span{font-size:11.5px;color:var(--text-sub);white-space:nowrap}
+  #coFinSum .it{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:11px 22px;border-left:1px solid var(--border);min-width:0}
+  #coFinSum .it .k{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #coFinSum .it .k i{flex:none;width:9px;height:9px;border-radius:3px}
+  #coFinSum .it .k small{font-weight:500;font-size:11px}
+  #coFinSum .it .v{display:flex;align-items:baseline;gap:9px;white-space:nowrap}
+  #coFinSum .it .v b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:22px;font-weight:600;letter-spacing:-.5px;line-height:1.15;color:var(--text)}
+  #coFinSum .it .v em{font-style:normal;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12.5px;font-weight:700;color:var(--text-sub)}
+  #coFinSum .it .v em.up{color:var(--up)} #coFinSum .it .v em.dn{color:var(--down)}
+  @media (max-width:640px){ #coFinSum .hd{flex-basis:100%;flex-direction:row;align-items:baseline;gap:8px;padding:9px 0 4px} #coFinSum .it{flex:1 1 44%;padding:8px 10px 10px 0;border-left:0} #coFinSum .it + .it{padding-left:10px;border-left:1px solid var(--border)} #coFinSum .it:nth-child(4){border-left:0;padding-left:0} #coFinSum .it .v b{font-size:18px} }
+  .co-xs{display:inline-flex;align-items:center;gap:6px;margin-right:6px;flex-wrap:wrap}
+  .co-xs select{height:30px;padding:0 26px 0 10px;border-radius:999px;font-size:12.5px;width:auto;min-width:0;max-width:210px}
+  .co-xs .wh{display:inline-flex;align-items:center;gap:4px}
+  .co-xs .wh[hidden]{display:none}
+  .co-xs .wh input{width:70px;height:30px;padding:0 8px;border-radius:8px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12.5px}
+  .co-xs .wh i{font-style:normal;font-size:12px;color:var(--text-sub)}
+  #coFinBox.co-xs-on{margin:0 auto;outline:1px dashed var(--border);outline-offset:4px;border-radius:2px}
+  @media (max-width:640px){ .co-xs .wh{display:none} .co-xs select{max-width:150px} }
+
+  /* ⑤ 한눈에 보기 — 글자 키움 */
+  html body #cxGlance .vz-k{font-size:14px}
+  html body #cxGlance .vz-v{font-size:30px}
+  html body #cxGlance .vz-p{font-size:12px}
+  html body #cxGlance .vz-n{font-size:12px}
+  html body #cxGlance .vz-f{font-size:12.5px}
+  html body #cxGlance .v3-fx code{font-size:12.5px} html body #cxGlance .v3-fx i{font-size:14px}
+  html body #cxGlance .v3-c h6{font-size:12.5px}
+  html body #cxGlance .v3-r span,html body #cxGlance .v3-r b{font-size:14px}
+  html body #cxGlance .v3-r em{font-size:12px}
+  html body #cxGlance .v3-nt{font-size:12px}
+  html body #cxGlance .cx-du-b span,html body #cxGlance .cx-du-b small,html body #cxGlance .cx-du-b em{font-size:12px}
+  html body #cxGlance .cx-du-b b{font-size:23px}
+  html body #cxGlance .cx-du-n{font-size:12.5px}
+  html body #cxGlance .vh-r .n,html body #cxGlance .vh-r .v{font-size:14px}
+  html body #cxGlance .vh-s{font-size:12px}
+  @media (max-width:640px){ html body #cxGlance .vz-v{font-size:25px} html body #cxGlance .v3-r span,html body #cxGlance .v3-r b,html body #cxGlance .vh-r .n,html body #cxGlance .vh-r .v{font-size:13px} }
   /* (32차) 그림 카드 (vz · 세 표 · 재무 안정성 · 개념 배우기) — 라이트 모드 = 밝은 카드 · 다크 모드 = 검정 대신 카드 색 (자동 생성) */
   :root:not([data-theme="dark"]) .vz{background:#ffffff;color:#16181d;border:1px solid #e3e6ee;box-shadow:0 18px 40px -22px rgba(16,24,40,.12)}
   :root:not([data-theme="dark"]) .vz-k{color:#2b2f38}
@@ -68806,7 +68896,7 @@ function cxWfDraw(el, old, steps, o){
   ch.resize();
   ch.setOption({ animation: MOTION_OK, grid: { left: 6, right: 12, top: 6, bottom: 20, containLabel: true },
     tooltip: { trigger: 'item', confine: true, formatter: function(p){ var r = rows[p.dataIndex]; if (!r) return ''; return '<b>' + esc(r.n) + '</b><br>' + esc((r.t === 'delta' && r.v > 0 ? '+' : '') + fmt(r.v)) + (r.pct != null ? ' · ' + esc(num(r.pct, 1) + '%' + (o.pctOf ? ' (' + o.pctOf + ' 대비)' : '')) : '') + (r.tip ? '<br><span style="color:#8b93a7">' + esc(r.tip) + '</span>' : ''); } },
-    xAxis: { type: 'value', min: lo < 0 ? lo - span * 0.26 : 0, max: hi + span * (o.padR || 0.3), axisLabel: { fontSize: 10, color: C.sub, hideOverlap: true, formatter: function(v){ return o.ax ? o.ax(v) : fmtKo(v); } }, splitLine: { lineStyle: { color: C.grid } }, axisLine: { show: false } },
+    xAxis: { type: 'value', min: lo < 0 ? lo - span * 0.26 : 0, max: hi + span * (o.padR || 0.3), axisLabel: { fontSize: 10, color: C.sub, hideOverlap: true, showMaxLabel: false, formatter: function(v){ return o.ax ? o.ax(v) : fmtKo(v); } }, splitLine: { lineStyle: { color: C.grid } }, axisLine: { show: false } },
     yAxis: { type: 'category', inverse: true, data: rows.map(function(r){ return r.n; }), axisTick: { show: false }, axisLine: { show: false },
       axisLabel: { fontSize: 11.5, color: C.ink, formatter: function(v, i){ return rows[i] && rows[i].t !== 'delta' ? '{b|' + v + '}' : v; }, rich: { b: { fontWeight: 700, fontSize: 11.5, color: C.ink } } } },
     series: [{ type: 'custom', data: rows.map(function(r, i){ return [i, r.a, r.b]; }), encode: { x: [1, 2], y: 0 }, clip: false,
@@ -68816,7 +68906,7 @@ function cxWfDraw(el, old, steps, o){
         var col = r.t === 'delta' ? (r.v >= 0 ? C.up : C.dn) : C.tot;
         var lab = (r.t === 'delta' && r.v > 0 ? '+' : '') + fmt(r.v) + (r.pct != null && o.showPct !== false ? '  ' + num(r.pct, 1) + '%' : '');
         var kids = [{ type: 'rect', shape: { x: x0, y: p0[1] - h / 2, width: w, height: h, r: 3 }, style: { fill: col, opacity: r.t === 'delta' ? 0.88 : 1 } },
-          { type: 'text', style: { x: (r.t === 'delta' || right ? Math.max(p0[0], p1[0]) : Math.min(p0[0], p1[0])) + (r.t === 'delta' || right ? 6 : -6), y: p0[1], text: lab, align: r.t === 'delta' || right ? 'left' : 'right', verticalAlign: 'middle', fontSize: 10.5, fontWeight: r.t === 'delta' ? 500 : 700, fill: C.inkR } }];
+          { type: 'text', style: { x: (r.t === 'delta' || right ? Math.max(p0[0], p1[0]) : Math.min(p0[0], p1[0])) + (r.t === 'delta' || right ? 6 : -6), y: p0[1], text: lab, align: r.t === 'delta' || right ? 'left' : 'right', verticalAlign: 'middle', fontSize: (el && el.id && el.id.indexOf('cxGl') === 0 ? 12 : 10.5), fontWeight: r.t === 'delta' ? 500 : 700, fill: C.inkR } }];
         //  다음 막대로 이어지는 가는 선 (흐름이 끊기지 않게)
         if (i < rows.length - 1 && rows[i + 1].t === 'delta'){ var pn = api.coord([r.b, i + 1]); kids.push({ type: 'line', shape: { x1: p1[0], y1: p0[1] + h / 2, x2: pn[0], y2: pn[1] - h / 2 }, style: { stroke: C.subR, lineWidth: 1, lineDash: [2, 2], opacity: 0.6 } }); }
         return { type: 'group', children: kids };
@@ -71955,6 +72045,369 @@ function mkSegInk(c){
   var h = m[1], L = mkLumRgb(parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16));
   return L > 0.58 ? 'color:#16181d;text-shadow:none' : '';
 }
+
+/*  (32차) 물류 지도를 지금 보는 사람이 있다는 표시 — 서버 예약 작업(배 위치 · GFW 수집)이 이 표시가 있을 때만 돎 (terminal-서버절약.sql)
+    · 물류 층을 열 때 + 열어 둔 동안 20분마다 한 번 (탭 숨김 · 15분 자리 비움이면 보내지 않음)  */
+function mkLogiSeen(){
+  try {
+    if (typeof curTab === 'undefined' || curTab !== 'market' || typeof MK === 'undefined' || MK.lay !== 'port' || document.hidden) return;
+    if (typeof userActAt !== 'undefined' && Date.now() - userActAt > 15 * 60000) return;
+    var last = typeof TVL !== 'undefined' && TVL.last ? TVL.last['market|port'] : 0;
+    if (last && Date.now() - last < 20 * 60e3) return;
+    if (last) delete TVL.last['market|port'];
+    if (typeof tvLog === 'function') tvLog('market', 'port');
+  } catch(e){}
+}
+(function(){
+  if (typeof mkLayerSet === 'function'){ var l0 = mkLayerSet; mkLayerSet = function(ly){ var r = l0.apply(this, arguments); setTimeout(function(){ mkLogiSeen(); }, 400); return r; }; }
+  setInterval(function(){ mkLogiSeen(); }, 60000);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) mkLogiSeen(); });
+})();
+
+/* ══════════ (33차) 학회장: 다크 JPG · 기업 리서치 공개 범위 · 색 · 한눈에 보기 글자 · 실적 추이 · 머리 · 그림 크기 ══════════ */
+
+/*  ① 다크 모드에서 JPG 를 저장하면 흰 바탕에 다크 색 (밝은 글자 · 선) 이 그대로 찍히던 것
+    → 화면은 그대로 두고, 보이지 않는 곳에 '라이트 판' 으로 한 번 더 그려 저장 (보고서에 바로 붙게)
+    · 다크 → 라이트로 바꿀 때 안 돌아오던 색 (진한 눈금선 · 밝혀 둔 선 색) 도 되돌림  */
+var JPG_LF = { '#363f57': '#e8ecf4', '#4a5470': '#c8d0e0', '#c9d1e0': '#1d2433' };
+(function(){
+  if (typeof themeMapColor !== 'function') return;
+  var m0 = themeMapColor;
+  themeMapColor = function(key, v, dark, pkey){
+    var r = m0.apply(this, arguments);
+    if (dark || typeof r !== 'string' || key !== 'color') return r;
+    var lc = r.toLowerCase().replace(/\s+/g, '');
+    if (JPG_LF[lc]) return JPG_LF[lc];
+    if (typeof THEME_BRIGHT_BACK !== 'undefined' && THEME_BRIGHT_BACK[lc]) return THEME_BRIGHT_BACK[lc];
+    return r;
+  };
+})();
+var JPG_TXT = { label: 1, textStyle: 1, axisLabel: 1, nameTextStyle: 1, subtextStyle: 1, pageTextStyle: 1, rich: 1, endLabel: 1, upperLabel: 1 };
+var JPG_KEEP = { lineStyle: 1, itemStyle: 1, areaStyle: 1, emphasis: 1, color: 1, borderColor: 1, textBorderColor: 1 };
+function jpgLightFix(o, key, ctx, ins){
+  if (typeof o === 'string'){
+    if (key !== 'color' && key !== 'borderColor' && key !== 'textBorderColor') return o;
+    var lc = o.toLowerCase().replace(/\s+/g, '');
+    if (JPG_LF[lc]) return JPG_LF[lc];
+    var L = typeof themeLum === 'function' ? themeLum(lc) : null;
+    if (L == null) return o;
+    if (key === 'color' && JPG_TXT[ctx] && !ins){ if (L > 0.78) return '#1d2433'; if (L > 0.6) return '#5a6278'; }
+    if ((ctx === 'splitLine' || ctx === 'minorSplitLine') && L < 0.4) return '#e8ecf4';
+    if ((ctx === 'axisLine' || ctx === 'axisTick') && L < 0.4) return '#c8d0e0';
+    return o;
+  }
+  if (Array.isArray(o)){
+    if (key === 'data' && o.length > 64) return o;
+    return o.map(function(x){ return jpgLightFix(x, key, ctx, ins); });
+  }
+  if (o && typeof o === 'object' && !(o instanceof Date) && !o.colorStops && !o.image){
+    var inside = ins || ((key === 'label' || key === 'endLabel') && typeof o.position === 'string' && /inside/i.test(o.position));
+    var out = {};
+    for (var k in o){
+      if (!Object.prototype.hasOwnProperty.call(o, k)) continue;
+      var v = o[k];
+      if (typeof v === 'function'){ out[k] = v; continue; }
+      var c2 = JPG_TXT[k] ? k : (ctx === 'rich' ? 'rich' : (JPG_KEEP[k] ? ctx : k));
+      out[k] = jpgLightFix(v, k, c2, inside);
+    }
+    return out;
+  }
+  return o;
+}
+function jpgLightClone(chart){
+  if (typeof echarts === 'undefined' || !chart || !chart.getDom) return null;
+  var dom = chart.getDom(); if (!dom) return null;
+  var w = chart.getWidth(), h = chart.getHeight(); if (!(w > 0 && h > 0)) return null;
+  var host = document.createElement('div'), el = document.createElement('div');
+  host.setAttribute('aria-hidden', 'true');
+  if (dom.closest && dom.closest('.vz')) host.className = 'vz';
+  host.style.cssText = 'position:fixed;left:-30000px;top:0;width:' + w + 'px;height:' + h + 'px;overflow:hidden;pointer-events:none;padding:0;margin:0;border:0;border-radius:0;box-shadow:none;background:none';
+  el.style.cssText = 'width:' + w + 'px;height:' + h + 'px';
+  host.appendChild(el); document.body.appendChild(host);
+  var d0 = isDark, c2 = null, kill = function(){ try { if (c2) c2.dispose(); } catch(e){} if (host.parentNode) host.parentNode.removeChild(host); };
+  try {
+    var o = chart.getOption();
+    isDark = function(){ return false; };
+    c2 = echarts.init(el);
+    var lo = themeChartOpt(o, el);
+    lo = jpgLightFix(lo, '', '', false);
+    lo.animation = false;
+    if (typeof lo.backgroundColor === 'string'){ var L = themeLum(lo.backgroundColor.toLowerCase().replace(/\s+/g, '')); if (L != null && L < 0.5) lo.backgroundColor = '#ffffff'; }
+    c2.setOption(lo, true);
+  } catch(e){ isDark = d0; kill(); return null; }
+  isDark = d0;
+  return { chart: c2, done: kill };
+}
+(function(){
+  if (typeof saveChartJpg !== 'function') return;
+  var s0 = saveChartJpg;
+  saveChartJpg = function(chart, filename, bg){
+    try {
+      var dom = chart && chart.getDom && chart.getDom();
+      var bgL = typeof bg === 'string' && typeof themeLum === 'function' ? themeLum(bg.toLowerCase().replace(/\s+/g, '')) : null;
+      if (isDark() && dom && !(typeof THEME_NO_DARK !== 'undefined' && THEME_NO_DARK[dom.id]) && (bg == null || (bgL != null && bgL < 0.5))){
+        var C = jpgLightClone(chart);
+        if (C){ var r = s0.call(this, C.chart, filename, '#ffffff'); setTimeout(C.done, 4000); return r; }
+      }
+    } catch(e){}
+    return s0.apply(this, arguments);
+  };
+})();
+
+/*  ② 설정 › 탭 공개 — '기업 리서치' 는 이제 재무제표 안 (03) → 분석 줄에서 빼고 재무제표 세부 탭 안으로
+    · 숨김 = 학회장 · 설립자에게만 보임 (03 카드에 '숨김' · '임원진' 표시) · 학회원은 03 카드 자체가 안 보임
+    · 재무제표를 가리면 그 안의 기업 리서치도 같이 가려짐  */
+(function(){
+  if (typeof tabVisRender === 'function'){
+    var r0 = tabVisRender;
+    tabVisRender = function(){
+      var R = TAB_VIS_ROWS; TAB_VIS_ROWS = R.filter(function(r){ return r[0] !== 'cores'; });
+      try { return r0.apply(this, arguments); } finally { TAB_VIS_ROWS = R; }
+    };
+  }
+  if (typeof innerVisRows === 'function'){
+    var v0 = innerVisRows;
+    innerVisRows = function(tab){
+      var r = v0.apply(this, arguments);
+      if (tab === 'company' && !r.some(function(x){ return x[0] === 'cores'; })) r = r.concat([['cores', '03 기업 리서치 (시장 → 산업 → 기업)']]);
+      return r;
+    };
+  }
+  if (typeof tabVisOk === 'function'){
+    var ok0 = tabVisOk;
+    tabVisOk = function(k){ if (k === 'cores') return ok0('cores') && ok0('company'); return ok0.apply(this, arguments); };
+  }
+  if (typeof coGrpVisApply === 'function'){
+    var g0 = coGrpVisApply;
+    var BADGE = 'display:inline-block;margin-left:7px;padding:0 6px;border-radius:999px;font-size:11px;font-weight:700;line-height:16px;vertical-align:2px;background:var(--bg-sub);color:var(--text-sub)';
+    coGrpVisApply = function(){
+      var r = g0.apply(this, arguments);
+      try {
+        var st = $('coGrpVisCss'); if (!st){ st = document.createElement('style'); st.id = 'coGrpVisCss'; document.head.appendChild(st); }
+        var css = (st.textContent || '').replace(/#coGrp-val\.on b::after\{[^}]*\}/g, '').replace(/\n?\/\*cr\*\/[\s\S]*$/, '');
+        css = css.replace('#coGrp-val b::after{', '#coGrp-val b::after,#crGrp-val b::after{');
+        var add = '';
+        var v = tabVis('cores');
+        if (tabVisOk('cores') && v !== 'all') add += '#coGrp-cr b::after,#crGrp-cr b::after{content:"' + (v === 'officer' ? '임원진' : '숨김') + '";' + BADGE + '}';
+        add += 'html body #coGrp > button.on b::after,html body #crGrp > button.on b::after{background:#eceef3;color:#1f2433}'
+          + 'html:root[data-theme="dark"] body #coGrp > button.on b::after,html:root[data-theme="dark"] body #crGrp > button.on b::after{background:rgba(230,233,240,.14);color:#e6e9f0}';
+        st.textContent = css + '\n/*cr*/' + add;
+      } catch(e){}
+      return r;
+    };
+    try { coGrpVisApply(); } catch(e){}
+  }
+})();
+
+/*  ③ 한눈에 보기 — 차트 글자도 키움 (한 번 바꾼 크기는 다시 안 바뀌게: 바뀐 값이 원래 표에 없음)  */
+var GL_FS = { 9: 10.6, 9.5: 11.1, 10: 11.6, 10.5: 12.1, 11: 12.6, 11.5: 13.1, 12: 13.6, 12.5: 13.8 };
+function glFsWalk(o, key){
+  if (Array.isArray(o)){ if (key === 'data' && o.length > 64) return o; return o.map(function(x){ return glFsWalk(x, key); }); }
+  if (o && typeof o === 'object' && !(o instanceof Date) && !o.colorStops && !o.image){
+    var out = {};
+    for (var k in o){
+      if (!Object.prototype.hasOwnProperty.call(o, k)) continue;
+      var v = o[k];
+      if (k === 'fontSize' && typeof v === 'number' && GL_FS[v]) out[k] = GL_FS[v];
+      else if (v && typeof v === 'object' && typeof v !== 'function') out[k] = glFsWalk(v, k);
+      else out[k] = v;
+    }
+    return out;
+  }
+  return o;
+}
+
+/*  ④ 실적 추이 차트 — 범례 표시 · 축 정리 · 최근 기간 옅은 띠 (그리기 직전 한 곳에서 · 차트 코드는 그대로)  */
+(function(){
+  if (typeof themeChartOpt !== 'function') return;
+  var t0 = themeChartOpt;
+  themeChartOpt = function(o, dom){
+    o = t0.apply(this, arguments);
+    try { if (o && dom && dom.closest && dom.closest('#cxGlance')) o = glFsWalk(o, ''); } catch(e){}
+    try {
+      if (o && dom && dom.id === 'coFinBox' && o.series && (Array.isArray(o.series) ? o.series.length : 1)){
+        var dk = isDark(), S = Array.isArray(o.series) ? o.series : [o.series];
+        (Array.isArray(o.legend) ? o.legend : o.legend ? [o.legend] : []).forEach(function(l){ if (!l) return; if (l.icon == null) l.icon = 'roundRect'; l.itemWidth = 14; l.itemHeight = 8; });
+        var X = Array.isArray(o.xAxis) ? o.xAxis : o.xAxis ? [o.xAxis] : [];
+        if (X[0]){ X[0].axisTick = Object.assign({}, X[0].axisTick, { show: false }); X[0].axisLabel = Object.assign({}, X[0].axisLabel, { margin: 10 }); }
+        var Y = Array.isArray(o.yAxis) ? o.yAxis : o.yAxis ? [o.yAxis] : [];
+        var shown = Y.filter(function(a){ return a && a.show !== false; }).length;
+        if (Y[0]){ Y[0].axisTick = Object.assign({}, Y[0].axisTick, { show: false }); if (shown <= 1) Y[0].axisLine = Object.assign({}, Y[0].axisLine, { show: false }); }
+        var cats = X[0] && X[0].data, last = cats && cats.length ? cats[cats.length - 1] : null;
+        if (last && typeof last === 'object') last = last.value;
+        var s0 = S.filter(function(s){ return s && (s.xAxisIndex == null || s.xAxisIndex === 0) && (s.type === 'bar' || s.type === 'line'); })[0];
+        S.forEach(function(s){ if (s && s !== s0 && s.markArea && s.markArea.__last) delete s.markArea; });
+        if (s0 && last != null){
+          s0.markArea = { __last: 1, silent: true, label: { show: false }, itemStyle: { color: dk ? 'rgba(230,233,240,0.06)' : 'rgba(31,36,51,0.045)' }, data: [[{ xAxis: last }, { xAxis: last }]] };
+        }
+        var tt = o.tooltip;
+        if (tt && !Array.isArray(tt) && tt.axisPointer && tt.axisPointer.type === 'shadow') tt.axisPointer = Object.assign({}, tt.axisPointer, { shadowStyle: { color: dk ? 'rgba(230,233,240,0.07)' : 'rgba(31,36,51,0.05)' } });
+      }
+    } catch(e){}
+    return o;
+  };
+})();
+
+/*  ⑤ 실적 추이 — 최근 기간 값 띠 (차트에 올린 재무 항목 · 최근 값 · 전년 같은 기간 대비)  */
+function coFinSum(){
+  var b = $('coFinBox'); if (!b || !b.parentNode) return;
+  var el = $('coFinSum');
+  if (!el){ el = document.createElement('div'); el.id = 'coFinSum'; el.className = 'co-fsum'; el.setAttribute('aria-label', '최근 기간 값'); b.parentNode.insertBefore(el, b); }
+  var rows = typeof coChartRows === 'function' ? coChartRows() : [];
+  var S = (typeof coFinSeries !== 'undefined' && coFinSeries ? coFinSeries : []).filter(function(x){ return x && x.kind === 'fin'; });
+  if (typeof co === 'undefined' || !co || !rows.length || !S.length){ el.innerHTML = ''; el.hidden = true; return; }
+  var u = coUnit(), n = rows.length, last = rows[n - 1], lag = last && last.q ? 4 : 1;
+  var cmap = []; try { (coFinChart.getOption().series || []).forEach(function(s){ var c = (s.itemStyle && s.itemStyle.color) || (s.lineStyle && s.lineStyle.color); if (typeof c === 'string') cmap.push([String(s.name || ''), c]); }); } catch(e){}
+  var colOf = function(x){ var hit = cmap.filter(function(m){ return m[0] === x.label; })[0] || cmap.filter(function(m){ return m[0].indexOf(x.label) === 0; })[0]; return hit ? hit[1] : (x.color || 'var(--text-sub)'); };
+  var amt = false, cells = [];
+  S.slice(0, 4).forEach(function(x){
+    var d = coFinValues(x, rows, u) || [], i = d.length - 1;
+    while (i >= 0 && (d[i] == null || !isFinite(d[i]))) i--;
+    if (i < 0) return;
+    var v = Number(d[i]), j = i - lag, pv = j >= 0 && d[j] != null && isFinite(d[j]) ? Number(d[j]) : null;
+    if (pv != null && lag === 4 && rows[j] && rows[i] && rows[j].q !== rows[i].q) pv = null;
+    var isR = !!(x.ratio && !x.drv), t;
+    if (isR) t = CO_RATIO_X[x.ratio] ? num(v, 2) + CO_RATIO_X[x.ratio] : num(v, 1) + '%';
+    else if (x.per_share) t = num(v, Math.abs(v) < 100 ? 2 : 1) + (x.unit ? ' ' + x.unit : '');
+    else { t = num(v, Math.abs(v) >= 100 ? 0 : 1); amt = true; }
+    var ch = '';
+    if (pv != null){
+      var dv = null, txt = null;
+      if (isR){ dv = v - pv; txt = (dv > 0 ? '+' : '') + dv.toFixed(1) + '%p'; }
+      else if (pv !== 0){ dv = (v - pv) / Math.abs(pv) * 100; txt = (dv > 0 ? '+' : '') + dv.toFixed(1) + '%'; }
+      if (txt != null && isFinite(dv)) ch = '<em class="' + (Math.abs(dv) < 0.05 ? 'fl' : dv > 0 ? 'up' : 'dn') + '">' + esc(txt) + '</em>';
+    }
+    cells.push('<div class="it"><span class="k"><i style="background:' + esc(colOf(x)) + '"></i>' + esc(x.label || '') + (i !== n - 1 ? ' <small>' + esc(coLabel(rows[i])) + '</small>' : '') + '</span><span class="v"><b>' + esc(t) + '</b>' + ch + '</span></div>');
+  });
+  if (!cells.length){ el.innerHTML = ''; el.hidden = true; return; }
+  el.hidden = false;
+  el.innerHTML = '<div class="hd"><b>' + esc(coLabel(last)) + '</b><span>' + esc((lag === 4 ? '전년 같은 분기 대비' : '전년 대비') + (amt && u && u.label ? ' · ' + u.label : '')) + '</span></div>' + cells.join('');
+}
+
+/*  ⑥ 실적 추이 — 그림 크기 (매크로 차트처럼) · 보고서 · 슬라이드에 그대로 맞게
+    · 비율을 고르면 화면 차트도 그 비율로 바뀜 (보이는 그대로 저장) · JPG 는 고른 픽셀 크기 그대로
+    · 다크 모드여도 저장은 라이트 판                                                        */
+var COXS_K = 'safe_coxs_v1';
+var COXS_P = [['', '그림 크기 · 화면 그대로', 0, 0], ['169', '16:9 슬라이드', 1920, 1080], ['43', '4:3', 1600, 1200], ['32', '3:2', 1800, 1200], ['11', '1:1 정사각', 1200, 1200],
+  ['a4l', 'A4 가로 (인쇄)', 3508, 2480], ['a4p', 'A4 세로 (인쇄)', 2480, 3508], ['c', '직접 입력 (px)', 0, 0]];
+var COXS = (function(){ try { var v = JSON.parse(LSX.getItem(COXS_K) || 'null'); if (v && v.w >= 320 && v.h >= 200 && v.w <= 8000 && v.h <= 8000) return v; } catch(e){} return null; })();
+function coXsSave(){ try { if (COXS) LSX.setItem(COXS_K, JSON.stringify(COXS)); else LSX.removeItem(COXS_K); } catch(e){} }
+function coXsUi(){
+  var box = $('coFinBox'); if (!box) return;
+  var card = box.closest('.card'), tools = card && card.querySelector('h2 .tools'); if (!tools) return;
+  if (!$('coXs')){
+    var w = document.createElement('span'); w.className = 'co-xs'; w.id = 'coXs';
+    w.innerHTML = '<select id="coXsSel" aria-label="저장할 그림 크기" title="JPG 로 저장할 크기 · 고르면 화면 차트도 그 비율로" onchange="coXsPick(this.value)">'
+      + COXS_P.map(function(p){ return '<option value="' + p[0] + '">' + esc(p[1] + (p[2] ? ' · ' + p[2] + '×' + p[3] : '')) + '</option>'; }).join('') + '</select>'
+      + '<span class="wh" id="coXsWH" hidden><input type="number" id="coXsW" min="320" max="8000" step="10" aria-label="가로 px" onchange="coXsType()"><i>×</i><input type="number" id="coXsH" min="200" max="8000" step="10" aria-label="세로 px" onchange="coXsType()"><i>px</i></span>';
+    tools.insertBefore(w, tools.firstChild);
+  }
+  var sel = $('coXsSel'), wh = $('coXsWH');
+  if (sel) sel.value = COXS ? (COXS_P.some(function(p){ return p[0] === COXS.p; }) ? COXS.p : 'c') : '';
+  if (wh) wh.hidden = !COXS;
+  if (COXS){ if ($('coXsW') && document.activeElement !== $('coXsW')) $('coXsW').value = COXS.w; if ($('coXsH') && document.activeElement !== $('coXsH')) $('coXsH').value = COXS.h; }
+}
+function coXsPick(v){
+  if (!v) COXS = null;
+  else if (v === 'c') COXS = { p: 'c', w: COXS ? COXS.w : 1600, h: COXS ? COXS.h : 900 };
+  else { var p = COXS_P.filter(function(x){ return x[0] === v; })[0]; COXS = p ? { p: v, w: p[2], h: p[3] } : null; }
+  coXsSave(); coXsUi();
+  if (typeof renderCoFinChart === 'function') renderCoFinChart();
+}
+function coXsType(){
+  var W = Math.round(Number($('coXsW') && $('coXsW').value)), H = Math.round(Number($('coXsH') && $('coXsH').value));
+  if (!(W > 0) || !(H > 0)) return;
+  W = Math.max(320, Math.min(8000, W)); H = Math.max(200, Math.min(8000, H));
+  var p = COXS_P.filter(function(x){ return x[2] === W && x[3] === H; })[0];
+  COXS = { p: p ? p[0] : 'c', w: W, h: H };
+  coXsSave(); coXsUi();
+  if (typeof renderCoFinChart === 'function') renderCoFinChart();
+}
+function coXsActive(){ var e = $('coFinEmpty'); return !!(COXS && $('coFinBox') && !(e && !e.classList.contains('hidden'))); }
+function coXsBoxW(b){
+  var p = b.parentNode, cs = getComputedStyle(p), aw = p.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+  var ratio = COXS.h / COXS.w, maxH = Math.max(320, Math.min(900, Math.round(innerHeight * 0.8)));
+  var W = aw; if (W * ratio > maxH) W = maxH / ratio;
+  return Math.max(260, Math.floor(W));
+}
+function coXsFit(){
+  var b = $('coFinBox'); if (!b) return;
+  if (!coXsActive()){
+    if (b.classList.contains('co-xs-on')){ b.classList.remove('co-xs-on'); b.style.width = typeof coView !== 'undefined' && coView.w ? coView.w + 'px' : '100%'; try { if (coFinChart) coFinChart.resize(); } catch(e){} }
+    return;
+  }
+  var W = coXsBoxW(b), H = Math.round(W * COXS.h / COXS.w);
+  b.classList.add('co-xs-on'); b.style.maxWidth = '100%';
+  if (b.style.width !== W + 'px' || b.style.height !== H + 'px'){ b.style.width = W + 'px'; b.style.height = H + 'px'; try { if (coFinChart) coFinChart.resize(); } catch(e){} }
+}
+function coXsJpg(){
+  var c = typeof coFinChart !== 'undefined' ? coFinChart : null; if (!c || !COXS) return false;
+  var W = COXS.w, H = COXS.h, C = isDark() ? jpgLightClone(c) : null, src = C ? C.chart : c;
+  var bgc = C ? '#ffffff' : ((typeof theme !== 'undefined' && theme && theme.bg) || '#ffffff');
+  var pr = W / Math.max(1, src.getWidth());
+  var url = src.getDataURL({ type: 'png', pixelRatio: pr, backgroundColor: bgc });
+  if (C) C.done();
+  var name = 'SAFE_' + ((co && co.sub) || 'company') + '_재무_' + W + 'x' + H + '_' + today() + '.jpg';
+  var img = new Image();
+  img.onload = function(){
+    var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    var x = cv.getContext('2d'); x.fillStyle = bgc; x.fillRect(0, 0, W, H);
+    try { x.imageSmoothingQuality = 'high'; } catch(e){}
+    x.drawImage(img, 0, 0, W, H);
+    cv.toBlob(function(bl){ if (bl) saveBlob(bl, name); }, 'image/jpeg', 0.92);
+  };
+  img.src = url;
+  return true;
+}
+(function(){
+  if (typeof renderCoFinChart === 'function'){
+    var r0 = renderCoFinChart;
+    renderCoFinChart = function(){
+      var b = $('coFinBox');
+      try { if (b && COXS && typeof coFinSeries !== 'undefined' && coFinSeries.length){ b.style.width = coXsBoxW(b) + 'px'; b.style.maxWidth = '100%'; } } catch(e){}
+      var r = r0.apply(this, arguments);
+      try { coXsFit(); } catch(e){}
+      try { coFinSum(); } catch(e){}
+      try { coXsUi(); } catch(e){}
+      return r;
+    };
+  }
+  if (typeof applyCoSize === 'function'){
+    var a0 = applyCoSize;
+    applyCoSize = function(){ var r = a0.apply(this, arguments); try { if (COXS){ var b = $('coFinBox'); if (b) b.classList.remove('co-xs-on'); coXsFit(); } } catch(e){} return r; };
+  }
+  if (typeof coFinJpg === 'function'){
+    var j0 = coFinJpg;
+    coFinJpg = function(){ try { if (COXS && typeof coFinChart !== 'undefined' && coFinChart && coXsActive() && coXsJpg()) return; } catch(e){} return j0.apply(this, arguments); };
+  }
+  var rt;
+  window.addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(function(){ try { if (COXS && typeof curTab !== 'undefined' && curTab === 'company'){ var b = $('coFinBox'); if (b && b.offsetParent){ b.classList.remove('co-xs-on'); coXsFit(); } } } catch(e){} }, 220); });
+  try { coXsUi(); } catch(e){}
+})();
+
+/*  ⑦ 머리 — 오른쪽에 큰 티커 (옅게) · 지표 칸 YoY 색 (오르면 빨강 · 내리면 파랑)  */
+function coTileYoy(){
+  Array.prototype.forEach.call(document.querySelectorAll('#coTiles .tile .d'), function(d){
+    if (d.querySelector('em')) return;
+    var m = /^\s*([+\-−]?\d[\d.,]*%p?)\s*(YoY|QoQ)?\s*$/.exec(d.textContent || ''); if (!m) return;
+    var z = /^[+\-−]?0(\.0+)?%/.test(m[1]), neg = /^[\-−]/.test(m[1]);
+    d.innerHTML = '<em class="' + (z ? 'fl' : neg ? 'dn' : 'up') + '">' + esc(m[1]) + '</em>' + (m[2] ? ' ' + esc(m[2]) : '');
+  });
+}
+(function(){
+  if (typeof cxRibbon === 'function'){
+    var c0 = cxRibbon;
+    cxRibbon = function(){
+      var r = c0.apply(this, arguments);
+      try { var b = $('coRibbon'); if (b && typeof co !== 'undefined' && co) b.setAttribute('data-tk', String(co.market === 'US' ? (co.sub || co.code || '') : (co.code || '')).toUpperCase().slice(0, 8)); } catch(e){}
+      return r;
+    };
+  }
+  if (typeof renderCoTiles === 'function'){
+    var t0 = renderCoTiles;
+    renderCoTiles = function(){ var r = t0.apply(this, arguments); try { coTileYoy(); } catch(e){} return r; };
+  }
+})();
 
 </script>
 </body>
