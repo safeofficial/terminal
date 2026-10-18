@@ -71212,7 +71212,8 @@ AIV_SAMPLE = '세이피입니다. 코스피는 0.8퍼센트 상승 마감했고,
 /*  (32차) 공통 고지 = 로그인 화면에만 (patch39)  */
 /*  (32차 PC 점검) 환율 분석 — FRED 에 없는 시리즈 (중국 · 브라질 장기 금리 · 브라질 3개월 금리) 는 부르지 않음  */
 var FX_NO_SERIES = { IRLTLT01CNM156N: 1, IRLTLT01BRM156N: 1, IR3TIB01BRM156N: 1 };
-(function(){ var f0 = mkFxFred; mkFxFred = function(code){ if (FX_NO_SERIES[code]) return Promise.resolve([]); return f0.apply(this, arguments); }; })();
+//  (32차) 빈 값을 MK.fxRaw 에 남겨 둠 — 안 남기면 선물환 커브가 '아직 없음' 으로 보고 다시 부르고 다시 그리기를 끝없이 되풀이 (달러/위안 · 위안/원에서 화면 멈춤)
+(function(){ var f0 = mkFxFred; mkFxFred = function(code, cy){ if (FX_NO_SERIES[code]){ var k = code + '|' + cy, e = MK.fxRaw[k]; if (!e){ e = []; e.__none = 1; MK.fxRaw[k] = e; } return Promise.resolve(e); } return f0.apply(this, arguments); }; })();
 
 /* ══════════ (32차 학회장: '투명한 재정 · 회계 운영 · API 비용 · 학회 장부 · 영수증 · 결산') — 설정 › 장부 (임원진 · 설립자) ══════════
    · terminal-장부.sql: club_ledger (지우기 없음 · 금액 · 날짜 · 구분 · 항목 · 재원은 적은 뒤 못 바꿈 · 틀리면 취소 + 새로) · club_services · 저장소 club-receipts (비공개)
