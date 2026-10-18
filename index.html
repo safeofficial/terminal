@@ -1123,7 +1123,7 @@
     #mdBody .tbl th:last-child{width:auto!important} #mdBody .tbl td:last-child{white-space:normal!important;text-align:right}
     #mdBody .tbl td:last-child .btn-sm{padding:4px 9px;font-size:12px;margin:2px 0}
     #mdBody .tbl td b{word-break:keep-all;overflow-wrap:anywhere}
-    #pane-company .co-tb #coRangeN,#pane-company #coJpgBtn{display:none}
+    #pane-company .co-tb #coRangeN,#pane-company .co-tb #coJpgBtn{display:none}
   }
   #pane-cores .cr-chips > div > i{display:block;margin:3px 0 0;font-size:11.5px;color:var(--text-sub)} #pane-cores .cr-chips i span{display:inline;font-size:inherit}
   /* (31차) 밸류에이션 게이지 — 태그 자리 넉넉히 · 양 끝에서는 안쪽으로 붙임 */
@@ -1134,112 +1134,67 @@
   .vtp-gauge .mk.l span{left:-2px;transform:none} .vtp-gauge .mk.r span{left:auto;right:-2px;transform:none}
   .vtp-gauge .lg{margin-top:40px;height:16px}
   .vtp-gauge .lg span.l{transform:none} .vtp-gauge .lg span.r{transform:translateX(-100%)}
-  /* ══ (31차) 미니멀 리서치 데스크 — 재무제표 · 기업 리서치 ══ */
-  #pane-company .card,#pane-cores .card{border-radius:14px;box-shadow:none}
-  #pane-company .card > h2,#pane-cores .card > h2{font-size:16px;font-weight:800;letter-spacing:-.01em}
-  #pane-company .card-en,#pane-cores .card-en{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.2em;opacity:1;color:var(--text-sub)}
-  #pane-company .card-en::before,#pane-cores .card-en::before{content:'';width:16px;height:1px;background:var(--text)}
-  /* 검색 */
-  #pane-company #coQ,#pane-cores #crQ{height:48px;font-size:16px;border-radius:12px;padding-left:44px!important;background-color:var(--bg);
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 20 20' fill='none' stroke='%238a93a8' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='8.6' cy='8.6' r='5.6'/%3E%3Cpath d='m13 13 4.2 4.2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:15px center}
-  #pane-company #coQ + .btn-sm,#pane-cores #crQ + .btn-sm{height:48px;padding:0 20px;border-radius:12px;font-size:14px}
-  /* ① 머리 — 상자 없이 바탕 위에 · 선으로 구분 */
-  #pane-company #coHead > .card{background:transparent;border:0;border-radius:0;box-shadow:none;padding:8px 2px 0;margin-bottom:0}
-  #pane-company #coHead > .card > h2{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.15;color:var(--text);display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;margin:0 0 14px;padding:0;border:0}
-  #pane-company #coHead > .card > h2::before{display:none}
-  #pane-company #coHead #coName > span{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12.5px!important;letter-spacing:.14em;text-transform:uppercase;color:var(--text-sub)!important;font-weight:500!important}
-  #pane-company #coHead .btn-sm{background:transparent;border:1px solid var(--border);border-radius:999px;color:var(--text-sub)}
-  #pane-company #coHead .btn-sm:hover{color:var(--text);border-color:var(--text)}
-  #pane-company #coHead .co-rib{background:transparent;border:0;border-top:1px solid var(--border);border-radius:0;padding:14px 0 12px;margin:0}
-  #pane-company #coHead .co-rib .tk{background:transparent;color:var(--text);border:1px solid var(--text);font-size:11.5px}
-  #pane-company #coHead .co-rib .tg{background:transparent;border:1px solid var(--border);color:var(--text-sub)}
-  #pane-company #coHead .co-rib .pxv b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:40px;font-weight:600;letter-spacing:-1px;color:var(--text);line-height:1.05}
-  #pane-company #coHead .co-rib .pxv em{font-size:15px;font-weight:700;font-style:normal} #pane-company #coHead .co-rib .pxv em.up{color:var(--up)} #pane-company #coHead .co-rib .pxv em.dn{color:var(--down)}
-  #pane-company #coHead .co-rib .pxv i,#pane-company #coHead .co-rib .kv i{color:var(--text-sub);font-style:normal;font-size:11.5px}
-  #pane-company #coHead .co-rib .kv b{color:var(--text);font-size:15px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-weight:600}
-  #pane-company #coHead .co-rib .w52 s{background:var(--border)} #pane-company #coHead .co-rib .w52 s u{background:var(--text);box-shadow:none}
-  #pane-company #coHead #coTiles .tiles{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);grid-template-columns:none;gap:0;margin:0;border-top:1px solid var(--text);border-bottom:1px solid var(--border)}
-  #pane-company #coHead #coTiles .tile{background:transparent;border:0;border-left:1px solid var(--border);border-radius:0;box-shadow:none;padding:13px 14px 10px;min-width:0}
-  #pane-company #coHead #coTiles .tile:first-child{border-left:0;padding-left:0}
-  #pane-company #coHead #coTiles .tile .k{color:var(--text-sub);font-size:12px;letter-spacing:0}
-  #pane-company #coHead #coTiles .tile .v{color:var(--text);font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:22px;font-weight:600;letter-spacing:-.4px}
-  #pane-company #coHead #coTiles .tile .v.neg{color:var(--down)} #pane-company #coHead #coTiles .tile .v.pos{color:var(--up)}
-  #pane-company #coHead #coTiles .tile .d{color:var(--text-sub);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  #pane-company #coHead .cx-spark polyline{stroke:var(--text-sub)} #pane-company #coHead .cx-spark circle{fill:var(--text)}
-  /* ② 탭 한 줄 — 갈래 카드 없앰 · 가치 평가 앞에 세로 선 · 주가 탭은 재무제표 차트로 */
-  #pane-company #coNav{margin:24px 0 16px;border-bottom:1px solid var(--border)}
-  #pane-company #coNav #coGrp{display:none!important}
-  #pane-company #coNav #coSeg{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:24px;padding:0;margin:0;background:transparent;border:0;border-radius:0;scrollbar-width:none}
-  #pane-company #coNav #coSeg[data-g] button[data-g]{display:inline-flex}
-  #pane-company #coNav #coSeg button{flex:none;align-items:center;padding:10px 0 11px;margin:0 0 -1px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--text-sub);font-size:14.5px;font-weight:600;box-shadow:none;white-space:nowrap}
-  #pane-company #coNav #coSeg button:hover:not(:disabled){color:var(--text);background:transparent;border-color:transparent;border-bottom-color:var(--border)}
-  #pane-company #coNav #coSeg button.on{color:var(--text);font-weight:800;background:transparent;border-bottom-color:var(--text)}
-  #pane-company #coNav #coSeg .co-sep{flex:none;width:1px;height:16px;align-self:center;background:var(--border)}
-  #pane-company #coTab-price{display:none!important}
-  /* ③ 도구 막대 (표시 설정 + 차트에 더하기) */
-  #pane-company #coViewCard{background:transparent;border:0;box-shadow:none;border-radius:0;padding:0;margin:0 0 14px}
-  #pane-company #coViewCard > h2,#pane-company #coViewCard > .card-en{display:none}
-  #pane-company .co-tb{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px}
-  #pane-company .co-tb > .row{display:contents}
-  #pane-company .co-tb label,#pane-company .co-tb #coPeriod{display:none}
-  #pane-company .co-tb .co-rng{display:inline-flex;align-items:center;gap:6px}
-  #pane-company .co-tb #coRangeN{width:58px;height:32px;padding:0 8px;border-radius:999px;text-align:center;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace}
-  #pane-company .co-tb .co-rng .u{display:none}
-  #pane-company .co-tb .co-rng-note{flex-basis:100%;order:9;margin:0}
-  #pane-company .co-tb .sp{flex:1 1 auto}
-  #pane-company .co-pill{display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 14px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}
-  #pane-company .co-pill:hover{border-color:var(--text)}
-  #pane-company .co-pill.on{background:var(--text);border-color:var(--text);color:var(--card)}
-  #pane-company .co-pill.add{border-color:var(--primary);color:var(--primary)} #pane-company .co-pill.add.on{background:var(--primary);color:#fff}
-  #pane-company .co-pseg{display:inline-flex;padding:2px;border:1px solid var(--border);border-radius:999px}
-  #pane-company .co-pseg button{height:28px;padding:0 14px;border:0;border-radius:999px;background:transparent;color:var(--text-sub);font-size:13px;font-weight:600}
-  #pane-company .co-pseg button.on{background:var(--text);color:var(--card)}
-  #pane-company #coAdv{margin-top:12px;padding:12px 14px;border:1px solid var(--border);border-radius:12px}
-  #pane-company #coAddPanel{margin-top:12px;padding:14px 16px 10px;border:1px solid var(--border);border-radius:12px;background:var(--bg-soft)}
-  #pane-company #coAddPanel > h2,#pane-company #coAddPanel > .card-en{display:none}
-  #pane-company #coAddPanel .row{margin-bottom:8px}
-  #pane-company .co-add-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 10px;font-size:13px;font-weight:800}
-  #pane-company .co-add-h span{font-size:12px;font-weight:400;color:var(--text-sub)}
-  /* ④ 차트 */
-  #pane-company #coPane-fin > .card:not(#coViewCard){border:1px solid var(--border)}
-  #pane-company #coHead .co-rib .l{display:none}
-  #pane-company #coFinSlH{cursor:pointer;user-select:none} #pane-company #coFinSlH::after{content:' ▾'} #pane-company #coFinSlH.open::after{content:' ▴'}
-  #pane-company #coFinSlH:not(.open) + #coFinSeriesList{display:none}
-  #pane-company #coFinChips{margin:0 0 6px}
-  #pane-company #coCombo.co-cmb-off{display:none}
-  /* ⑤ 표 — 장부 */
-  #pane-company #coFsSeg.mode-seg{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:24px;background:transparent;border:0;border-bottom:1px solid var(--border);border-radius:0;padding:0;margin:0 0 12px}
-  #pane-company #coFsSeg.mode-seg button{flex:none;background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;padding:8px 0 10px;margin:0 0 -1px;color:var(--text-sub);font-size:14px;font-weight:600;box-shadow:none}
-  #pane-company #coFsSeg.mode-seg button.on{color:var(--text);font-weight:800;border-bottom-color:var(--text);background:transparent}
-  #pane-company #coFsSeg.mode-seg button i{font-style:normal;font-size:11px;margin-left:5px;color:var(--text-sub);font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace}
-  #pane-company #coFinTable{border-collapse:collapse}
-  #pane-company #coFinTable thead th{position:sticky;top:0;z-index:2;background:var(--card);font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--text-sub);border:0;border-bottom:1px solid var(--text)}
-  #pane-company #coFinTable td{border:0;border-bottom:1px solid var(--bg-sub);background:transparent;font-variant-numeric:tabular-nums}
-  #pane-company #coFinTable td .fs-num{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12.5px}
-  #pane-company #coFinTable tr.lvl0 td{background:transparent;font-weight:700;color:var(--text);border-top:1px solid var(--border)}
-  #pane-company #coFinTable tr.lvl0 td:first-child{box-shadow:none}
-  #pane-company #coFinTable tr.lvl1 td .fs-nm,#pane-company #coFinTable tr.lvl2 td .fs-nm,#pane-company #coFinTable tr.lvl1 td .fs-num,#pane-company #coFinTable tr.lvl2 td .fs-num{color:var(--text-sub)}
-  #pane-company #coFinTable td:last-child .fs-num{font-weight:700;color:var(--text)}
-  #pane-company #coFinTable tbody tr:hover td{background:var(--bg-soft)}
-  #pane-company #coFinTable th:first-child,#pane-company #coFinTable td:first-child{position:sticky;left:0;z-index:1;background:var(--card)}
-  #pane-company #coFinTable thead th:first-child{z-index:3}
-  #pane-company #coFinTable tbody tr:hover td:first-child{background:var(--bg-soft)}
+  /* ══ (28차) 재무제표 · 기업 리서치 — 잉크 카드 디자인 ══ */
+  #pane-company{--ink1:#0c1022;--ink2:#151a3c;--ink3:#211646;--glass:rgba(255,255,255,.055);--glass-b:rgba(255,255,255,.1);--ink-t:#eef0fa;--ink-s:rgba(226,230,248,.62);--ink-up:#ff8f86;--ink-dn:#8fb8ff}
+  #pane-company .card{border-radius:18px;border-color:color-mix(in srgb,var(--border) 70%,transparent);box-shadow:0 1px 2px rgba(16,24,40,.04),0 12px 30px -22px rgba(16,24,40,.28)}
+  #pane-company .card > h2{font-size:17px;font-weight:800;letter-spacing:-.015em}
+  #pane-company .card-en{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.2em;opacity:1;color:var(--text-sub)}
+  #pane-company .card-en::before{content:'';width:18px;height:2px;border-radius:2px;background:var(--hc,var(--primary))}
+  /* 검색 — 큰 입력칸 */
+  #pane-company #coQ{height:50px;font-size:16px;border-radius:14px;padding-left:46px!important;background-color:var(--bg);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 20 20' fill='none' stroke='%238a93a8' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='8.6' cy='8.6' r='5.6'/%3E%3Cpath d='m13 13 4.2 4.2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:16px center}
+  #pane-company #coQ + .btn-sm{height:50px;padding:0 22px;border-radius:14px;font-size:14px}
+  /* 회사 머리 — 잉크 카드 */
+    background:radial-gradient(900px 260px at 92% -30%,rgba(124,140,255,.34),transparent 62%),radial-gradient(700px 240px at -10% 130%,rgba(255,122,92,.18),transparent 60%),linear-gradient(135deg,var(--ink1) 0%,var(--ink2) 58%,var(--ink3) 100%);
+    box-shadow:0 30px 60px -34px rgba(12,16,50,.75)}
+    background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:28px 28px;
+    -webkit-mask-image:linear-gradient(180deg,#000,transparent 85%);mask-image:linear-gradient(180deg,#000,transparent 85%)}
+  /* 갈래 두 장 · 칸 알약 */
+  #pane-company #coNav{margin:18px 0 6px}
+  #pane-company #coGrp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;border:0;margin-bottom:12px}
+  #pane-company #coGrp > button{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:12px;align-items:center;text-align:left;padding:14px 18px;border-radius:16px;border:1px solid var(--border);background:var(--white);box-shadow:0 1px 2px rgba(16,24,40,.04);margin:0;transition:border-color .15s,box-shadow .15s,transform .15s}
+  #pane-company #coGrp > button::after{display:none}
+  #pane-company #coGrp > button:hover{border-color:var(--primary);transform:translateY(-1px)}
+  #pane-company #coGrp > button em{grid-row:1 / 3;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:11px;background:var(--bg-sub);color:var(--text-sub);font-style:normal;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:13px;font-weight:700}
+  #pane-company #coGrp > button b{font-size:16px;font-weight:800;color:var(--text)}
+  #pane-company #coGrp > button span{font-size:12px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #pane-company #coGrp > button.on{background:linear-gradient(135deg,var(--ink1),var(--ink2));border-color:transparent;box-shadow:0 18px 34px -22px rgba(12,16,50,.8)}
+  #pane-company #coGrp > button.on em{background:#f7d24c;color:#141414} #pane-company #coGrp > button.on b{color:#fff} #pane-company #coGrp > button.on span{color:var(--ink-s)}
+  #pane-company #coSeg.mode-seg{display:inline-flex;flex-wrap:wrap;gap:4px;padding:5px;border-radius:14px;background:var(--bg-sub);border:1px solid var(--border)}
+  #pane-company #coSeg.mode-seg button{border:0;border-radius:10px;padding:8px 15px;font-weight:700;font-size:13.5px;background:transparent;color:var(--text-sub);box-shadow:none}
+  #pane-company #coSeg.mode-seg button.on{background:var(--white);color:var(--text);box-shadow:0 1px 2px rgba(16,24,40,.08),0 6px 14px -8px rgba(16,24,40,.25)}
+  #pane-company #coSeg.mode-seg button:disabled{opacity:.45}
+  /* 표시 설정 — 가는 띠 */
+  #pane-company #coViewCard{padding:12px 18px}
+  #pane-company #coViewCard > .card-en{display:none}
+  #pane-company #coViewCard > h2{font-size:13px;margin-bottom:8px}
+  /* 재무제표 표 */
+  #pane-company #coFinTable thead th{position:sticky;top:0;z-index:2;background:var(--white);font-size:11px;letter-spacing:.06em;color:var(--text-sub);border-bottom:2px solid var(--border)}
+  #pane-company #coFinTable td{font-variant-numeric:tabular-nums}
+  #pane-company #coFinTable td.fs-num,#pane-company #coFinTable td.num{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12.5px}
+  #pane-company #coFinTable tr.lvl0 td{background:color-mix(in srgb,var(--primary) 5%,var(--white));font-weight:700}
+  #pane-company #coFinTable tr.lvl0 td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
+  #pane-company #coFinTable tbody tr:hover td{background:color-mix(in srgb,var(--primary) 9%,var(--white))}
   #pane-company .fs-dlt{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace}
-  /* ⑥ 한눈에 보기 — 접힌 띠 (누르면 그 그림만) */
-  #pane-company .card.cx-gl{background:var(--card);background-image:none;border:1px solid var(--border)}
-  #pane-company .gls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:0;margin:0 0 14px;border-top:1px solid var(--text);border-bottom:1px solid var(--border)}
-  #pane-company .gls button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;padding:12px 14px;border:0;border-left:1px solid var(--border);border-radius:0;background:transparent;text-align:left;cursor:pointer}
-  #pane-company .gls button:first-child{border-left:0}
-  #pane-company .gls button span{font-size:12px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-  #pane-company .gls button b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:19px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-  #pane-company .gls button.on{box-shadow:inset 0 -2px 0 var(--text)} #pane-company .gls button.on span{color:var(--text);font-weight:700}
-  #pane-company .gls button.all{align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--primary);padding:12px 16px}
-  #pane-company #cxGlance:not([data-gl="all"]) .vz:not(.gls-on){display:none}
-  #pane-company #cxGlance:not([data-gl="all"]) .cx-gl-g{grid-template-columns:minmax(0,1fr)}
-  /* 밸류에이션 결론 띠 — 선만 */
-  #pane-company .vx-sum{background:transparent;border:0;border-top:1px solid var(--text);border-bottom:1px solid var(--border);border-radius:0;box-shadow:none;padding:14px 2px}
-  #pane-company .vx-sum-l > b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:32px;font-weight:600;letter-spacing:-.6px;color:var(--text)}
-  /* ⑦ 기업 리서치 — 리포트 두 단 */
+  /* 밸류에이션 결론 — 잉크 띠 */
+  #pane-company .vx-sum{position:relative;overflow:hidden;border:0;color:var(--ink-t);padding:18px 22px;border-radius:18px;
+    background:radial-gradient(700px 200px at 95% -40%,rgba(124,140,255,.32),transparent 60%),linear-gradient(135deg,var(--ink1),var(--ink2) 60%,var(--ink3));box-shadow:0 26px 50px -32px rgba(12,16,50,.75)}
+  #pane-company .vx-sum-l .k,#pane-company .vx-sum-r i{color:var(--ink-s)}
+  #pane-company .vx-sum-l > b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:34px;font-weight:600;color:#fff;letter-spacing:-.6px}
+  #pane-company .vx-sum-l .cx-up.pos{color:var(--ink-up)} #pane-company .vx-sum-l .cx-up.neg{color:var(--ink-dn)}
+  #pane-company .vx-sum-r{color:#fff}
+  @media (max-width:640px){
+    #pane-company #coGrp > button{padding:11px 12px;column-gap:9px} #pane-company #coGrp > button em{width:30px;height:30px;font-size:12px} #pane-company #coGrp > button b{font-size:14px} #pane-company #coGrp > button span{display:none}
+    #pane-company #coSeg.mode-seg{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none} #pane-company #coSeg.mode-seg button{white-space:nowrap;padding:8px 12px}
+  }
+  /* ══ (31차) 기업 리서치 — 리포트 두 단 (재무제표는 28차 잉크 디자인으로 되돌림 · 32차) ══ */
+  #pane-cores .card{border-radius:14px;box-shadow:none}
+  #pane-cores .card > h2{font-size:16px;font-weight:800;letter-spacing:-.01em}
+  #pane-cores .card-en{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.2em;opacity:1;color:var(--text-sub)}
+  #pane-cores .card-en::before{content:'';width:16px;height:1px;background:var(--text)}
+  #pane-cores #crQ{height:48px;font-size:16px;border-radius:12px;padding-left:44px!important;background-color:var(--bg);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 20 20' fill='none' stroke='%238a93a8' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='8.6' cy='8.6' r='5.6'/%3E%3Cpath d='m13 13 4.2 4.2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:15px center}
+  #pane-cores #crQ + .btn-sm{height:48px;padding:0 20px;border-radius:12px;font-size:14px}
   #pane-cores #crBody > .card:first-child{background:transparent;border:0;border-bottom:2px solid var(--text);border-radius:0;box-shadow:none;padding:6px 2px 18px}
   #pane-cores .cr-name{font-size:34px;font-weight:800;letter-spacing:-.03em;color:var(--text)}
   #pane-cores .cr-sub{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-sub)}
@@ -1269,20 +1224,37 @@
   #pane-cores .cr-side .cr-chips{display:flex;flex-direction:column;gap:0;border-top:0;margin-top:2px}
   #pane-cores .cr-side .cr-chips > div{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 8px;padding:9px 0}
   #pane-cores .cr-side .cr-chips span{display:inline;font-size:12.5px} #pane-cores .cr-side .cr-chips b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:14.5px;font-weight:600;margin-left:auto} #pane-cores .cr-side .cr-chips i{flex-basis:100%;text-align:right;margin:0}
-  #pane-company #coFinChips .st-hint{display:none}
+  @media (max-width:980px){ #pane-cores .cr-doc{grid-template-columns:minmax(0,1fr)} #pane-cores .cr-side{position:static;order:-1} }
+  @media (max-width:640px){ #pane-cores .cr-name{font-size:25px} #pane-cores .cr-px b{font-size:30px} }
+
+  /* (32차) 회사 머리 = 31차 미니멀 그대로 (학회장: '상단 이 부분은 그대로 유지') */
+  #pane-company #coHead > .card{background:transparent;border:0;border-radius:0;box-shadow:none;padding:8px 2px 0;margin-bottom:0}
+  #pane-company #coHead > .card > h2{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.15;color:var(--text);display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;margin:0 0 14px;padding:0;border:0}
+  #pane-company #coHead > .card > h2::before{display:none}
+  #pane-company #coHead #coName > span{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12.5px!important;letter-spacing:.14em;text-transform:uppercase;color:var(--text-sub)!important;font-weight:500!important}
+  #pane-company #coHead .btn-sm{background:transparent;border:1px solid var(--border);border-radius:999px;color:var(--text-sub)}
+  #pane-company #coHead .btn-sm:hover{color:var(--text);border-color:var(--text)}
+  #pane-company #coHead .co-rib{background:transparent;border:0;border-top:1px solid var(--border);border-radius:0;padding:14px 0 12px;margin:0}
+  #pane-company #coHead .co-rib .tk{background:transparent;color:var(--text);border:1px solid var(--text);font-size:11.5px}
+  #pane-company #coHead .co-rib .tg{background:transparent;border:1px solid var(--border);color:var(--text-sub)}
+  #pane-company #coHead .co-rib .pxv b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:40px;font-weight:600;letter-spacing:-1px;color:var(--text);line-height:1.05}
+  #pane-company #coHead .co-rib .pxv em{font-size:15px;font-weight:700;font-style:normal} #pane-company #coHead .co-rib .pxv em.up{color:var(--up)} #pane-company #coHead .co-rib .pxv em.dn{color:var(--down)}
+  #pane-company #coHead .co-rib .pxv i,#pane-company #coHead .co-rib .kv i{color:var(--text-sub);font-style:normal;font-size:11.5px}
+  #pane-company #coHead .co-rib .kv b{color:var(--text);font-size:15px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-weight:600}
+  #pane-company #coHead .co-rib .w52 s{background:var(--border)} #pane-company #coHead .co-rib .w52 s u{background:var(--text);box-shadow:none}
+  #pane-company #coHead #coTiles .tiles{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);grid-template-columns:none;gap:0;margin:0;border-top:1px solid var(--text);border-bottom:1px solid var(--border)}
+  #pane-company #coHead #coTiles .tile{background:transparent;border:0;border-left:1px solid var(--border);border-radius:0;box-shadow:none;padding:13px 14px 10px;min-width:0}
+  #pane-company #coHead #coTiles .tile:first-child{border-left:0;padding-left:0}
+  #pane-company #coHead #coTiles .tile .k{color:var(--text-sub);font-size:12px;letter-spacing:0}
+  #pane-company #coHead #coTiles .tile .v{color:var(--text);font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:22px;font-weight:600;letter-spacing:-.4px}
+  #pane-company #coHead #coTiles .tile .v.neg{color:var(--down)} #pane-company #coHead #coTiles .tile .v.pos{color:var(--up)}
+  #pane-company #coHead #coTiles .tile .d{color:var(--text-sub);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #pane-company #coHead .cx-spark polyline{stroke:var(--text-sub)} #pane-company #coHead .cx-spark circle{fill:var(--text)}
+  #pane-company #coHead .co-rib .l{display:none}
+  #pane-company #coHead + #coNav{margin-top:22px}
   @media (max-width:1100px){ #pane-company #coHead #coTiles .tiles{grid-auto-flow:row;grid-template-columns:repeat(4,minmax(0,1fr))}
     #pane-company #coHead #coTiles .tile:nth-child(4n+1){border-left:0;padding-left:0} #pane-company #coHead #coTiles .tile:nth-child(n+5){border-top:1px solid var(--border)} }
-  @media (max-width:980px){ #pane-cores .cr-doc{grid-template-columns:minmax(0,1fr)} #pane-cores .cr-side{position:static;order:-1} }
-  @media (max-width:640px){
-    #pane-company #coHead > .card > h2,#pane-cores .cr-name{font-size:25px}
-    #pane-company #coHead .co-rib .pxv b,#pane-cores .cr-px b{font-size:30px}
-    #pane-company #coHead #coTiles .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
-    #pane-company #coHead #coTiles .tile{border-left:0;padding:11px 10px 9px 0} #pane-company #coHead #coTiles .tile:nth-child(2n){border-left:1px solid var(--border);padding-left:12px}
-    #pane-company #coHead #coTiles .tile:nth-child(n+3){border-top:1px solid var(--border)} #pane-company #coHead #coTiles .tile .v{font-size:19px}
-    #pane-company #coNav #coSeg{gap:18px}
-    #pane-company .gls{grid-template-columns:repeat(2,minmax(0,1fr))} #pane-company .gls button:nth-child(odd){border-left:0} #pane-company .gls button:nth-child(n+3){border-top:1px solid var(--border)} #pane-company .gls button.all{grid-column:span 2}
-  }
-  /* ══ (28차) 분석 › 기업 리서치 ══ */
+  @media (max-width:640px){ #pane-company #coHead > .card > h2{font-size:25px} #pane-company #coHead .co-rib .pxv b{font-size:30px} #pane-company #coHead #coTiles .tiles{grid-template-columns:repeat(2,minmax(0,1fr))} #pane-company #coHead #coTiles .tile{border-left:0;padding:11px 10px 9px 0} #pane-company #coHead #coTiles .tile:nth-child(2n){border-left:1px solid var(--border);padding-left:12px} #pane-company #coHead #coTiles .tile:nth-child(n+3){border-top:1px solid var(--border)} #pane-company #coHead #coTiles .tile .v{font-size:19px} }  /* ══ (28차) 분석 › 기업 리서치 ══ */
   .cr-shelf{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin-top:10px}
   .cr-shelf:empty{display:none}
   .cr-shelf .k{font-size:11.5px;font-weight:700;color:var(--text-sub);margin-right:2px}
@@ -34159,11 +34131,12 @@ function mkFxModel(dates, vals, carry, opt){
     var Yb = function(t){ return Y(t) - FP(t); };
     var T0 = Math.max(252 + 500, N - h - 756);
     var pr = [], ac = [], prB = [], fpv = [];
+    var ACC = mkRidgeAcc(ZERO.length), ACCb = useCarry ? mkRidgeAcc(ZERO.length) : null, pS = 0;
     for (var s = T0; s < N - h; s += 21){
-      var tr = S.filter(function(t){ return t + h <= s; });
-      if (tr.length < 300) continue;
-      var md = mkRidge(tr.map(X), tr.map(Y), lamR); if (!md) continue;
-      var mdB = useCarry ? mkRidge(tr.map(X), tr.map(Yb), lamR) : null;
+      while (pS < S.length && S[pS] + h <= s){ var xS = X(S[pS]); ACC.add(xS, Y(S[pS])); if (ACCb) ACCb.add(xS, Yb(S[pS])); pS++; }
+      if (ACC.n < 300) continue;
+      var md = ACC.fit(lamR); if (!md) continue;
+      var mdB = ACCb ? ACCb.fit(lamR) : null;
       for (var t3 = s; t3 < Math.min(s + 21, N - h); t3++){ if (!F[t3]) continue; pr.push(md.f(X(t3))); ac.push(Y(t3)); prB.push(mdB ? mdB.f(X(t3)) : 0); fpv.push(FP(t3)); }
     }
     var sPA = 0, sPP = 0, mseM = 0, mseR = 0, hit = 0, hn = 0, sPAb = 0, sPPb = 0, mseF = 0;
@@ -71049,7 +71022,7 @@ function crCopy(){ var t = crText(); if (!t) return; try { navigator.clipboard.w
 })();
 
 
-/*  (28차) 실적 추이 · 기업 리서치 막대 — 둥근 끝 · 너무 굵지 않게  */
+/*  (28차) 실적 추이 · 기업 리서치 막대 — 둥근 끝 · 너무 굵지 않게 (차트 코드는 그대로, 그리기 직전 한 곳에서)  */
 (function(){
   if (typeof themeChartOpt !== 'function') return;
   var t0 = themeChartOpt;
@@ -71060,125 +71033,16 @@ function crCopy(){ var t = crText(); if (!t) return; try { navigator.clipboard.w
       if (o && o.series && (id === 'coFinBox' || id === 'crFin')){
         (Array.isArray(o.series) ? o.series : [o.series]).forEach(function(x){
           if (!x || x.type !== 'bar') return;
-          x.itemStyle = x.itemStyle || {}; if (x.itemStyle.borderRadius == null) x.itemStyle.borderRadius = [4, 4, 0, 0];
-          if (x.barMaxWidth == null) x.barMaxWidth = 22; if (x.barGap == null) x.barGap = '18%';
+          x.itemStyle = x.itemStyle || {}; if (x.itemStyle.borderRadius == null) x.itemStyle.borderRadius = [5, 5, 0, 0];
+          if (x.barMaxWidth == null) x.barMaxWidth = 22;
         });
+        if (o.series.length > 1 && !o.__gap){ (Array.isArray(o.series) ? o.series : [o.series]).forEach(function(x){ if (x && x.type === 'bar' && x.barGap == null) x.barGap = '18%'; }); }
       }
     } catch(e){}
     return o;
   };
 })();
 
-/* ══════════ (31차) 재무제표 — 탭 한 줄 · 도구 막대 (표시 설정 + 차트에 더하기 + 이 회사 주가) · 한눈에 보기 접힌 띠 ══════════ */
-(function(){
-  //  탭 사이 세로 선 (가치 평가 앞)
-  var seg = $('coSeg'), tv = $('coTab-val');
-  if (seg && tv && !seg.querySelector('.co-sep')){ var sp = document.createElement('i'); sp.className = 'co-sep'; sp.setAttribute('aria-hidden', 'true'); seg.insertBefore(sp, tv); }
-  //  표시 설정 → 재무제표 칸 맨 위 도구 막대
-  var vc = $('coViewCard'), pane = $('coPane-fin'); if (!vc || !pane) return;
-  pane.insertBefore(vc, pane.firstChild);
-  var row = vc.querySelector('.row'); if (row){ row.classList.add('co-tb'); }
-  var tb = row || vc;
-  var per = $('coPeriod');
-  var ps = document.createElement('span'); ps.className = 'co-pseg'; ps.id = 'coPerSeg'; ps.setAttribute('role', 'group'); ps.setAttribute('aria-label', '기간');
-  ps.innerHTML = '<button type="button" data-v="quarter" onclick="coPerPick(\'quarter\')">분기</button><button type="button" data-v="annual" onclick="coPerPick(\'annual\')">연간</button>';
-  tb.insertBefore(ps, tb.firstChild);
-  var sp2 = document.createElement('span'); sp2.className = 'sp'; tb.appendChild(sp2);
-  var mk = function(id, cls, txt, fn, title){ var b = document.createElement('button'); b.type = 'button'; b.id = id; b.className = 'co-pill ' + (cls || ''); b.textContent = txt; b.setAttribute('onclick', fn); if (title) b.title = title; tb.appendChild(b); return b; };
-  mk('coSelfPxBtn', '', '+ 이 회사 주가', 'coSelfPx()', '이 회사 주가를 차트에 (기간 끝 종가)');
-  mk('coAddBtn', 'add', '+ 차트에 더하기', 'coAddToggle()', '다른 회사 주가 · 경제지표 · 재무 비교 · 비율');
-  mk('coCmbBtn', '', '추천 조합', 'coCmbToggle()');
-  var adv = $('coAdvBtn'); if (adv){ adv.className = 'co-pill'; adv.textContent = '모양'; tb.appendChild(adv); }
-  mk('coJpgBtn', '', 'JPG', 'coFinJpg()', '차트를 그림으로 저장');
-  //  차트에 더하기 카드 → 막대 아래 펼치는 판
-  var q = $('coFinQ'), card = q && q.closest ? q.closest('.card') : null;
-  if (card){ card.id = 'coAddPanel'; card.classList.remove('card'); card.classList.add('hidden');
-    var hh = document.createElement('div'); hh.className = 'co-add-h'; hh.innerHTML = '차트에 더하기 <span>다른 회사 주가 · 경제지표 · 재무 비교 · 비율 · 아래 재무제표 계정을 눌러도 올라감</span>';
-    card.insertBefore(hh, card.firstChild);
-    var adp = $('coAdv'); vc.insertBefore(card, adp ? adp.nextSibling : null); }
-  //  JPG 단추는 막대로 옮겼으니 차트 머리의 것은 숨김 · 올린 항목 칩은 차트 위
-  var chartCard = $('coFinBox') && $('coFinBox').closest('.card');
-  if (chartCard){ var j = chartCard.querySelector('h2 .tools'); if (j) j.style.display = 'none'; var ch = $('coFinChips'), bx = $('coFinBox'); if (ch && bx) bx.parentNode.insertBefore(ch, bx); }
-  var cmb = $('coCombo'); if (cmb) cmb.classList.add('co-cmb-off');
-  var slh = $('coFinSlH'); if (slh){ slh.setAttribute('role', 'button'); slh.setAttribute('tabindex', '0'); slh.setAttribute('onclick', "this.classList.toggle('open')"); slh.setAttribute('onkeydown', "if(event.key==='Enter'){this.classList.toggle('open')}"); }
-  coTbSync();
-})();
-function coTbSync(){
-  var per = $('coPeriod'), v = per ? per.value : 'quarter';
-  Array.prototype.forEach.call(document.querySelectorAll('#coPerSeg button'), function(b){ b.classList.toggle('on', b.getAttribute('data-v') === v); });
-  var a = $('coAddPanel'), ab = $('coAddBtn'); if (ab) ab.classList.toggle('on', !!(a && !a.classList.contains('hidden')));
-  var c = $('coCombo'), cb = $('coCmbBtn'); if (cb) cb.classList.toggle('on', !!(c && !c.classList.contains('co-cmb-off')));
-  var sb2 = $('coSelfPxBtn'); if (sb2){ var on = coSelfPxIdx() >= 0; sb2.classList.toggle('on', on); sb2.textContent = on ? '이 회사 주가 ×' : '+ 이 회사 주가'; }
-}
-function coPerPick(v){ var per = $('coPeriod'); if (per) per.value = v; setCoPeriod(v); coTbSync(); }
-function coAddToggle(){ var a = $('coAddPanel'); if (!a) return; a.classList.toggle('hidden'); coTbSync(); if (!a.classList.contains('hidden')){ var q = $('coFinQ'); if (q) setTimeout(function(){ try { q.focus({ preventScroll: true }); } catch(e){} }, 30); } }
-function coCmbToggle(){ var c = $('coCombo'); if (!c) return; c.classList.toggle('co-cmb-off'); coTbSync(); }
-function coSelfKey(){ return co ? { kind: 'price', source: quoteSource(co.market), code: co.code, item_code: '', cycle: 'D' } : null; }
-function coSelfPxIdx(){ if (!co || typeof coFinSeries === 'undefined') return -1; var k = coFinKey(coSelfKey()); for (var i = 0; i < coFinSeries.length; i++) if (coFinKey(coFinSeries[i]) === k) return i; return -1; }
-function coSelfPx(force){
-  if (!co) return;
-  var i = coSelfPxIdx();
-  if (i >= 0){ if (!force) removeCoFinSeries(i); coTbSync(); return; }
-  var x = coSelfKey(); x.label = co.name + ' 주가'; x.axis = 2; x.type = 'line';
-  if (addCoFinX(x)) loadCoFinX(x);
-  coTbSync();
-}
-//  주가 탭은 뺐습니다 — 예전 길 (세이피 · 명령창 GP · 기업 리서치 '주가 차트') 은 재무제표 차트에 이 회사 주가를 올림
-(function(){
-  var s0 = coShow;
-  coShow = function(which){
-    if (which === 'price'){ var r = s0.call(this, 'fin'); setTimeout(function(){ if (co && coSelfPxIdx() < 0) coSelfPx(true); }, 400); return r; }
-    var out = s0.apply(this, arguments); try { coTbSync(); } catch(e){} return out;
-  };
-  var r0 = renderCoFinSeriesList;
-  renderCoFinSeriesList = function(){ var out = r0.apply(this, arguments); try { coTbSync(); } catch(e){} return out; };
-  var p0 = setCoPeriod;
-  setCoPeriod = function(){ var out = p0.apply(this, arguments); try { coTbSync(); } catch(e){} return out; };
-  if (typeof innerVisRows === 'function'){ var iv0 = innerVisRows; innerVisRows = function(tab){ var r = iv0.apply(this, arguments); return tab === 'company' ? r.filter(function(x){ return x[0] !== 'co_price'; }) : r; }; }
-  if (typeof coGrpVisApply === 'function'){ var g0 = coGrpVisApply; coGrpVisApply = function(){ var out = g0.apply(this, arguments);
-    try { var okv = ['val', 'comps', 'deal', 'lbo'].some(function(v){ return tabVisOk('co_' + v); }); var sp = document.querySelector('#coSeg .co-sep'); if (sp) sp.style.display = okv ? '' : 'none'; } catch(e){} return out; }; try { coGrpVisApply(); } catch(e){} }
-})();
-
-//  한눈에 보기 — 접힌 띠 4칸 + 모두 펼치기 (누르면 그 그림만 · 다시 누르면 접힘)
-var GLS = { pick: null, busy: false };
-var GLS_CARDS = [['cxGlDu', 'ROE 분해'], ['cxGlPlW', '손익 흐름'], ['cxGlCfW', '현금 흐름'], ['cxGlHlW', '재무 건전성']];
-function glsNum(el){
-  if (!el) return '';
-  var n = el.querySelector('.vz-vr'); var f = n && (n.querySelector('b') || n.firstElementChild); var t = f ? f.textContent : n ? n.textContent : '';
-  if (!t){ var b = el.querySelector('.cx-du-b b'); t = b ? b.textContent : ''; }
-  t = String(t || '').replace(/\s+/g, ' ').trim();
-  return t.length > 14 ? t.slice(0, 14) : t;
-}
-function glsBuild(){
-  var g = $('cxGlance'); if (!g || GLS.busy) return;
-  GLS.busy = true;
-  try {
-    var cs = GLS_CARDS.filter(function(c){ return $(c[0]); });
-    var st = $('cxGlStrip');
-    if (!cs.length){ if (st) st.remove(); g.setAttribute('data-gl', 'all'); return; }
-    if (!st){ st = document.createElement('div'); st.id = 'cxGlStrip'; st.className = 'gls'; g.insertBefore(st, g.firstChild); }
-    var nAll = g.querySelectorAll('.vz').length;
-    var h = cs.map(function(c){ return '<button type="button" data-k="' + c[0] + '" class="' + (GLS.pick === c[0] ? 'on' : '') + '" onclick="glsPick(\'' + c[0] + '\')"><span>' + esc(c[1]) + '</span><b>' + esc(glsNum($(c[0])) || '-') + '</b></button>'; }).join('')
-      + '<button type="button" class="all" onclick="glsPick(\'all\')">' + (GLS.pick === 'all' ? '접기' : '모두 펼치기' + (nAll ? ' (' + nAll + ')' : '')) + '</button>';
-    if (st.innerHTML !== h) st.innerHTML = h;
-    g.setAttribute('data-gl', GLS.pick === 'all' ? 'all' : (GLS.pick || 'none'));
-    Array.prototype.forEach.call(g.querySelectorAll('.vz'), function(v){ v.classList.toggle('gls-on', GLS.pick === 'all' || v.id === GLS.pick); });
-  } finally { GLS.busy = false; }
-}
-function glsPick(k){
-  GLS.pick = GLS.pick === k ? null : k; if (k === 'all' && GLS.pick === null) GLS.pick = null;
-  glsBuild();
-  setTimeout(function(){ try { Object.keys(CXG.ch || {}).forEach(function(n){ var c = CXG.ch[n]; if (c && c.resize) c.resize(); }); } catch(e){} }, 40);
-}
-(function(){
-  var t = null, hook = function(){
-    var g = $('cxGlance'); if (!g || g.__gls) return; g.__gls = true;
-    new MutationObserver(function(ms){ if (GLS.busy) return; if (ms.every(function(m){ return m.target && m.target.closest && m.target.closest('#cxGlStrip'); })) return; clearTimeout(t); t = setTimeout(glsBuild, 120); }).observe(g, { childList: true, subtree: true, characterData: true });
-    glsBuild();
-  };
-  if (typeof cxGlanceCard === 'function'){ var c0 = cxGlanceCard; cxGlanceCard = function(){ var r = c0.apply(this, arguments); try { hook(); } catch(e){} return r; }; }
-  try { hook(); } catch(e){}
-})();
 
 /* ══════════ (31차) 기업 리서치 — 리포트 두 단 (결론 맨 위 · 본문 = 시장 → 산업 → 기업 · 오른쪽 숫자 단) ══════════ */
 function crDocLayout(){
@@ -71694,6 +71558,39 @@ function lvFeedCap(box, st){
     return r;
   };
 })();
+
+
+/*  (32차) 리지 — 합계를 이어 붙이는 판 (mkRidge 와 같은 식: 훈련 표본 평균 · 표준편차로 표준화 · 절편 벌점 없음)
+    첫 행을 기준으로 빼서 더함 (큰 값끼리 빼며 생기는 오차 방지) · 결과 모양도 mkRidge 와 같음  */
+function mkRidgeAcc(k){
+  var o = { n: 0, K: null, Ky: 0, sy: 0, sx: new Float64Array(k), sxy: new Float64Array(k), sxx: [] };
+  for (var i = 0; i < k; i++) o.sxx.push(new Float64Array(k));
+  o.add = function(x, y){
+    if (!o.K){ o.K = x.slice(); o.Ky = y; }
+    var d = new Array(k), dy = y - o.Ky;
+    for (var j = 0; j < k; j++) d[j] = x[j] - o.K[j];
+    o.n++; o.sy += dy;
+    for (var a = 0; a < k; a++){ var da = d[a]; o.sx[a] += da; o.sxy[a] += da * dy; var r = o.sxx[a]; for (var b = 0; b < k; b++) r[b] += da * d[b]; }
+  };
+  o.fit = function(lam){
+    var n = o.n; if (!n) return null;
+    var m = [], mu = [], sd = [], my = o.sy / n;
+    for (var j = 0; j < k; j++){ m[j] = o.sx[j] / n; mu[j] = o.K[j] + m[j]; sd[j] = Math.sqrt(Math.max(o.sxx[j][j] / n - m[j] * m[j], 1e-18)) || 1; }
+    var A = [], bb = [];
+    for (var a = 0; a < k; a++){
+      var row = new Array(k);
+      for (var c = 0; c < k; c++) row[c] = (o.sxx[a][c] - n * m[a] * m[c]) / (sd[a] * sd[c]);
+      row[a] += lam * n; A.push(row);
+      bb.push((o.sxy[a] - n * m[a] * my) / sd[a]);
+    }
+    var beta = mkSolve(A, bb); if (!beta) return null;
+    var ym = o.Ky + my;
+    return { mu: mu, sd: sd, beta: beta, b0: ym,
+             z: function(x){ return x.map(function(v, j){ return (v - mu[j]) / sd[j]; }); },
+             f: function(x){ var t = ym; for (var j = 0; j < k; j++) t += beta[j] * (x[j] - mu[j]) / sd[j]; return t; } };
+  };
+  return o;
+}
 
 </script>
 </body>
