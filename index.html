@@ -1065,6 +1065,14 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (31차) 밸류에이션 게이지 — 태그 자리 넉넉히 · 양 끝에서는 안쪽으로 붙임 */
+  .vtp-gauge{margin:18px 0 6px;padding:0 2px}
+  .vtp-gauge .tr{margin:46px 0 6px}
+  .vtp-gauge .mk span{bottom:24px;padding:2px 8px;line-height:1.4;font-size:11.5px}
+  .vtp-gauge .mk.tg span{top:24px}
+  .vtp-gauge .mk.l span{left:-2px;transform:none} .vtp-gauge .mk.r span{left:auto;right:-2px;transform:none}
+  .vtp-gauge .lg{margin-top:40px;height:16px}
+  .vtp-gauge .lg span.l{transform:none} .vtp-gauge .lg span.r{transform:translateX(-100%)}
   /* ══ (28차) 재무제표 · 기업 리서치 — 잉크 카드 디자인 ══ */
   #pane-company,#pane-cores{--ink1:#0c1022;--ink2:#151a3c;--ink3:#211646;--glass:rgba(255,255,255,.055);--glass-b:rgba(255,255,255,.1);--ink-t:#eef0fa;--ink-s:rgba(226,230,248,.62);--ink-up:#ff8f86;--ink-dn:#8fb8ff}
   #pane-company .card,#pane-cores .card{border-radius:18px;border-color:color-mix(in srgb,var(--border) 70%,transparent);box-shadow:0 1px 2px rgba(16,24,40,.04),0 12px 30px -22px rgba(16,24,40,.28)}
@@ -17820,8 +17828,8 @@ function vtpRender(){
     var lo = Math.min(px, tgt, R.sc.bear.t || tgt) * 0.8, hi = Math.max(px, tgt, R.sc.bull.t || tgt) * 1.15, X = function(v){ return Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100)); };
     var z1 = X(tgt * 0.8), z2 = X(tgt * 1.2);
     gauge = '<div class="vtp-gauge" role="img" aria-label="' + esc(T('현재가와 목표주가 위치', 'Price vs target')) + '"><div class="tr"><i class="z u" style="width:' + z1.toFixed(1) + '%"></i><i class="z f" style="left:' + z1.toFixed(1) + '%;width:' + (z2 - z1).toFixed(1) + '%"></i><i class="z o" style="left:' + z2.toFixed(1) + '%;right:0"></i>'
-      + '<b class="mk px" style="left:' + X(px).toFixed(1) + '%"><span>' + esc(T('현재가 ', 'Price ') + vtpMoney(px)) + '</span></b><b class="mk tg" style="left:' + X(tgt).toFixed(1) + '%"><span>' + esc(T('목표 ', 'Target ') + vtpMoney(tgt)) + '</span></b></div>'
-      + '<div class="lg"><span class="u" style="left:' + (z1 / 2).toFixed(1) + '%">' + esc(T('저평가', 'Undervalued')) + '</span><span class="f" style="left:' + ((z1 + z2) / 2).toFixed(1) + '%">' + esc(T('적정 (목표 ±20%)', 'Fair')) + '</span><span class="o" style="left:' + ((z2 + 100) / 2).toFixed(1) + '%">' + esc(T('고평가', 'Overvalued')) + '</span></div></div>';
+      + '<b class="mk px' + (X(px) < 12 ? ' l' : X(px) > 88 ? ' r' : '') + '" style="left:' + X(px).toFixed(1) + '%"><span>' + esc(T('현재가 ', 'Price ') + vtpMoney(px)) + '</span></b><b class="mk tg' + (X(tgt) < 12 ? ' l' : X(tgt) > 88 ? ' r' : '') + '" style="left:' + X(tgt).toFixed(1) + '%"><span>' + esc(T('목표 ', 'Target ') + vtpMoney(tgt)) + '</span></b></div>'
+      + '<div class="lg"><span class="u' + (z1 / 2 < 6 ? ' l' : '') + '" style="left:' + (z1 / 2).toFixed(1) + '%">' + esc(T('저평가', 'Undervalued')) + '</span><span class="f" style="left:' + ((z1 + z2) / 2).toFixed(1) + '%">' + esc(T('적정 (목표 ±20%)', 'Fair')) + '</span><span class="o' + ((z2 + 100) / 2 > 94 ? ' r' : '') + '" style="left:' + ((z2 + 100) / 2).toFixed(1) + '%">' + esc(T('고평가', 'Overvalued')) + '</span></div></div>';
   }
   var head = '<div class="vtp-res"><div class="big"><span class="k">' + esc(R.pw != null ? T('확률 가중 목표주가', 'Probability-weighted target') : T('가중 목표주가', 'Weighted target')) + '</span><b data-tw>' + esc(vtpMoney(tgt)) + '</b>'
     + (up != null ? '<span class="up ' + (up >= 0 ? 'pos' : 'neg') + '">' + esc((up >= 0 ? '+' : '') + num(up, 1) + '%') + '</span>' : '') + (op ? '<span class="vtp-op ' + op[0] + '">' + esc(op[1]) + '</span>' : '') + '</div>'
@@ -26610,7 +26618,7 @@ function tgdHtml(a, i, j){
   if (a.edit && st === 'draft') h += '<textarea class="tgp-ta" id="tgdTa' + i + '_' + j + '" rows="6" maxlength="1500" aria-label="요청 정리" oninput="tgdEdit(' + A + ',this.value)">' + esc(a.text) + '</textarea>';
   else h += '<div class="tgp-msg">' + esc(a.text) + '</div>';
   if (st === 'draft') h += (typeof isOfficer === 'function' && isOfficer())
-    ? '<div class="tgp-n">아직 보내지 않았습니다 · ‘개발 요청 보내기’ 를 누르거나 ‘보내’ 라고 말하면 보냅니다 (학회장 · 설립자는 바로 GitHub 의 Claude 에게 · 다른 임원진은 임원진 그룹 승인)</div>'
+    ? '<div class="tgp-n">아직 보내지 않았습니다 · ‘개발 요청 보내기’ 를 누르거나 ‘보내’ 라고 말하면 보냅니다 ' + (typeof CLUB !== 'undefined' && CLUB.pos === 'founder' ? '(설립자 요청 · Claude 가 고치고 검사를 통과하면 저절로 반영 · 반영되면 임원진 그룹에 알림과 되돌리기)' : '(학회장 · 설립자는 바로 GitHub 의 Claude 에게 · 다른 임원진은 임원진 그룹 승인)') + '</div>'
     : '<div class="tgp-n mem">보내면 임원진 요청함에 들어갑니다 · 임원진이 확인하고 개발로 넘깁니다</div>';
   if (a.err) h += '<div class="x tg-err">' + esc(a.err) + '</div>';
   var b;
@@ -26639,8 +26647,9 @@ async function tgdSend(i, j){
   aicActBusy[bk] = true; a.err = null; a.edit = false; aicRender();
   if (!(typeof isOfficer === 'function' && isOfficer())){
     try {
-      var ri = await sb.from('dev_inbox').insert({ title: a.title, body: a.text, ctx: { tab: typeof curTab !== 'undefined' ? curTab : '', vw: document.documentElement.clientWidth, at: new Date().toISOString() } });
+      var ri = await sb.from('dev_inbox').insert({ title: a.title, body: a.text, ctx: { tab: typeof curTab !== 'undefined' ? curTab : '', vw: document.documentElement.clientWidth, at: new Date().toISOString() } }).select('id').single();
       if (ri.error) throw ri.error;
+      try { if (ri.data && ri.data.id) Promise.resolve(edgeCall('safey-telegram', { action: 'inbox_ping', id: ri.data.id })).catch(function(){}); } catch(e){}
       a.st = 'sent'; a.res = { inbox: true }; toast('요청을 보냈습니다 · 임원진이 확인합니다', 3000); return true;
     } catch(e){ a.err = '지금은 요청을 받을 수 없습니다 - 임원진에게 직접 말해 주세요'; return false; }
     finally { delete aicActBusy[bk]; aicSave(); aicRender(); }
@@ -70683,7 +70692,9 @@ function crNow(){
     per: mc && N.net > 0 ? mc / N.net : null, pbr: mc && N.eq > 0 ? mc / N.eq : null, evE: !valData.bank && ev && ebitda > 0 ? ev / ebitda : null, evS: !valData.bank && ev && N.rev > 0 ? ev / N.rev : null,
     roe: N.eq > 0 && N.net != null ? N.net / N.eq * 100 : null, opm: N.rev > 0 && N.op != null ? N.op / N.rev * 100 : null };
 }
+function crNoVal(){ return typeof tabVisOk === 'function' && !tabVisOk('co_val'); }
 function crTgt(){
+  if (crNoVal()) return null;
   if (!crValOk()) return null;
   try { var out = valCompute(), R = (typeof vtpLast !== 'undefined' && vtpLast) || (typeof vtpRun === 'function' ? vtpRun() : null), t = R ? (R.pw != null ? R.pw : R.t) : null;
     var ms = [['DCF', out.dcf], ['PER', out.per], ['PBR', out.pbr], ['EV/EBITDA', out.ev], ['EV/매출', out.evrev]].filter(function(x){ return x[1] != null && x[1] > 0 && isFinite(x[1]); });
@@ -70726,7 +70737,7 @@ function crRender(){
     + '<div class="cr-acts"><button type="button" class="btn-sm' + (w ? ' on' : '') + '" onclick="crWatchToggle()">' + (w ? '★ 관심 종목' : '☆ 관심 종목에 넣기') + '</button>'
     + '<button type="button" class="btn-sm btn-solid" onclick="crBrief()">세이피 리서치 브리핑</button>'
     + '<button type="button" class="btn-sm" onclick="crPrint()">한 장 인쇄 · PDF</button><button type="button" class="btn-sm" onclick="crCopy()">리포트 초안 복사</button></div>'
-    + '<div class="cr-acts"><button type="button" class="btn-sm" onclick="crGo(\'fin\')">재무제표</button><button type="button" class="btn-sm" onclick="crGo(\'val\')">밸류에이션</button><button type="button" class="btn-sm" onclick="crGo(\'comps\')">컴스</button><button type="button" class="btn-sm" onclick="crGo(\'price\')">주가 차트</button><button type="button" class="btn-sm" onclick="crGo(\'disc\')">공시</button></div>'
+    + '<div class="cr-acts">' + [['fin', '재무제표'], ['val', '밸류에이션'], ['comps', '컴스'], ['price', '주가 차트'], ['disc', '공시']].filter(function(b){ return typeof tabVisOk !== 'function' || tabVisOk('co_' + b[0]); }).map(function(b){ return '<button type="button" class="btn-sm" onclick="crGo(\'' + b[0] + '\')">' + b[1] + '</button>'; }).join('') + '</div>'
     + '</div><div class="cr-kpi">'
     + [['시가총액', X && X.mc ? cxMoney(X.mc, mk) : HL.market_cap ? cxMoney(HL.market_cap, mk) : '-'], ['PER', X && X.per ? num(X.per, 1) + '배' : '-'], ['PBR', X && X.pbr ? num(X.pbr, 2) + '배' : '-'],
        ['EV/EBITDA', X && X.evE ? num(X.evE, 1) + '배' : '-'], ['영업이익률', X && X.opm != null ? num(X.opm, 1) + '%' : '-'], ['ROE', X && X.roe != null ? num(X.roe, 1) + '%' : '-']]
@@ -70774,7 +70785,8 @@ function crRender(){
   if (rowsT) H += '<div class="card">' + rowsT + '</div>';
   //  밸류에이션
   var cons = RT && (RT.target || HL.wall_street_target) ? Number(RT.target || HL.wall_street_target) : null, nA = RT ? ['strong_buy', 'buy', 'hold', 'sell', 'strong_sell'].reduce(function(t, k){ return t + (Number(RT[k]) || 0); }, 0) : 0;
-  H += '<div class="cr-two"><div class="card"><h2>밸류에이션 <span class="cx-sub">방법별 적정주가 · 현재가</span></h2>' + (TG && TG.ms.length ? '<div class="cr-ch sm" id="crVal"></div>' : '<div class="empty" style="padding:22px">' + (crValOk() ? '계산할 자료가 모자랍니다' : '로딩 중…') + '</div>') + '</div>'
+  if (crNoVal()) H += '<div class="card"><h2>지분 · 공시</h2>' + crOwnDisc(mk) + '</div>';
+  else H += '<div class="cr-two"><div class="card"><h2>밸류에이션 <span class="cx-sub">방법별 적정주가 · 현재가</span></h2>' + (TG && TG.ms.length ? '<div class="cr-ch sm" id="crVal"></div>' : '<div class="empty" style="padding:22px">' + (crValOk() ? '계산할 자료가 모자랍니다' : '로딩 중…') + '</div>') + '</div>'
     + '<div class="card"><h2>지분 · 공시</h2>' + crOwnDisc(mk) + '</div></div>';
   //  ── ④ 결론 ──
   var pts = [], risk = [];
@@ -70785,11 +70797,12 @@ function crRender(){
   if (bt && bt.beta > 1.3) risk.push('베타 <b>' + num(bt.beta, 2) + '</b> - 시장보다 크게 흔들림');
   if (pos != null && pos >= 90) risk.push('52주 고점 근처 (<b>' + num(pos, 0) + '%</b> 위치)');
   if (pos != null && pos <= 10) risk.push('52주 저점 근처 (<b>' + num(pos, 0) + '%</b> 위치)');
-  H += '<div class="cr-step"><em>04</em><b>결론</b><span>목표주가 · 투자 포인트 · 리스크</span></div><div class="card"><div class="cr-verdict"><div class="cr-tgt">'
-    + '<span class="st-hint">' + esc(TG && TG.pw ? '확률 가중 목표주가' : '가중 목표주가') + ' (밸류에이션 탭 가정)</span><div><b>' + esc(TG && TG.t ? cxPx(TG.t, mk) : '-') + '</b>' + (TG && TG.op ? '<span class="op ' + TG.op[0] + '">' + TG.op[1] + '</span>' : '') + '</div>'
+  H += '<div class="cr-step"><em>04</em><b>결론</b><span>' + (crNoVal() ? '컨센서스' : '목표주가') + ' · 투자 포인트 · 리스크</span></div><div class="card"><div class="cr-verdict"><div class="cr-tgt">'
+    + (crNoVal() ? (cons ? '' : '<span class="st-hint">시장 컨센서스</span><div><b>-</b></div>')
+      : '<span class="st-hint">' + esc(TG && TG.pw ? '확률 가중 목표주가' : '가중 목표주가') + ' (밸류에이션 탭 가정)</span><div><b>' + esc(TG && TG.t ? cxPx(TG.t, mk) : '-') + '</b>' + (TG && TG.op ? '<span class="op ' + TG.op[0] + '">' + TG.op[1] + '</span>' : '') + '</div>')
     + (TG && TG.up != null ? '<p class="cr-line">현재가 대비 <b class="' + crCls(TG.up) + '">' + crPct(TG.up) + '</b>' + (TG.ms.length ? ' · 방법 범위 ' + esc(cxPx(Math.min.apply(null, TG.ms.map(function(m){ return m[1]; })), mk)) + ' ~ ' + esc(cxPx(Math.max.apply(null, TG.ms.map(function(m){ return m[1]; })), mk)) : '') + '</p>' : '')
     + (cons ? '<p class="cr-line">시장 컨센서스 목표 <b>' + esc(cxPx(cons, mk)) + '</b>' + (px ? ' (' + crPct((cons / px - 1) * 100) + ')' : '') + (nA ? ' · 의견 ' + nA + '곳 (매수 ' + ((Number(RT.strong_buy) || 0) + (Number(RT.buy) || 0)) + ' · 중립 ' + (Number(RT.hold) || 0) + ' · 매도 ' + ((Number(RT.sell) || 0) + (Number(RT.strong_sell) || 0)) + ')' : '') + '</p>' : '')
-    + '<p class="cr-src">학회 리서치 · 학습용 · 투자 권유 아님 · 가정은 밸류에이션 탭에서 바꿀 수 있습니다</p></div><div>'
+    + '<p class="cr-src">학회 리서치 · 학습용 · 투자 권유 아님' + (crNoVal() ? '' : ' · 가정은 밸류에이션 탭에서 바꿀 수 있습니다') + '</p></div><div>'
     + '<div class="st-hint" style="font-weight:700;margin-bottom:4px">투자 포인트</div>' + (pts.length ? '<ul class="cr-pts">' + pts.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>' : '<p class="st-hint">자료가 모이면 채웁니다</p>')
     + '<div class="st-hint" style="font-weight:700;margin:10px 0 4px">리스크</div>' + (risk.length ? '<ul class="cr-pts risk">' + risk.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>' : '<p class="st-hint">숫자로 잡힌 위험 신호가 없습니다</p>')
     + '</div></div></div>';
@@ -70887,6 +70900,7 @@ function crText(){
     L.push('- 영업이익률 ' + (X.opm != null ? num(X.opm, 1) + '%' : '-') + ' · ROE ' + (X.roe != null ? num(X.roe, 1) + '%' : '-') + (X.f && X.f.cagr != null ? ' · 매출 연평균 성장률 ' + crPct(X.f.cagr) : '')); }
   crHealth(X).forEach(function(r){ L.push('- ' + r[0] + ' ' + r[1] + ' (' + ({ g: '양호', y: '보통', o: '주의' })[r[2]] + ')'); });
   L.push('', '## 4. 결론');
+  if (crNoVal()){ var RT2 = CR.prof && CR.prof.ratings || {}, HL2 = CR.prof && CR.prof.highlights || {}, c2 = Number(RT2.target || HL2.wall_street_target) || null; var lp = P.length ? P[P.length - 1].v : null; if (c2) L.push('- 시장 컨센서스 목표 ' + cxPx(c2, mk) + (lp ? ' (' + crPct((c2 / lp - 1) * 100) + ')' : '')); }
   if (TG && TG.t) L.push('- 목표주가 ' + cxPx(TG.t, mk) + (TG.up != null ? ' (현재가 대비 ' + crPct(TG.up) + ')' : '') + (TG.op ? ' · ' + TG.op[1] : ''));
   if (TG && TG.ms.length) L.push('- 방법별: ' + TG.ms.map(function(m){ return m[0] + ' ' + cxPx(m[1], mk); }).join(' · '));
   L.push('', '학회 리서치 · 학습용 의견이며 투자 권유가 아닙니다. 숫자 출처: DART · SEC EDGAR 재무제표, 주가, FRED.');
@@ -70940,6 +70954,132 @@ function crCopy(){ var t = crText(); if (!t) return; try { navigator.clipboard.w
 function coTkMark(){ try { var c = document.querySelector('#coHead > .card'); if (c) c.setAttribute('data-tk', (typeof co !== 'undefined' && co) ? String(co.sub || co.code || '').toUpperCase().slice(0, 8) : ''); } catch(e){} }
 (function(){ var p0 = typeof pickCompany === 'function' ? pickCompany : null; if (!p0) return; pickCompany = async function(){ var r = p0.apply(this, arguments); coTkMark(); try { await r; } finally { coTkMark(); } return r; }; })();
 (function(){ var r0 = typeof crRender === 'function' ? crRender : null; if (!r0) return; crRender = function(){ var r = r0.apply(this, arguments); try { var c = document.querySelector('#crBody > .card:first-child'); if (c && CR.hit) c.setAttribute('data-tk', String(CR.hit.sub || CR.hit.code || '').toUpperCase().slice(0, 8)); } catch(e){} return r; }; })();
+
+/* ══════════ (31차) 가치 평가 묶음 숨기기 · 갈래 카드 ══════════ */
+var CO_VALG = ['co_val', 'co_comps', 'co_deal', 'co_lbo'], VIS_RANK = { all: 0, officer: 1, hidden: 2 };
+(function(){
+  var tv0 = tabVis;
+  tabVis = function(k){ var v = tv0(k); if (CO_VALG.indexOf(k) >= 0){ var g = (CLUB.vis && CLUB.vis.co_gval) || 'all'; if ((VIS_RANK[g] || 0) > (VIS_RANK[v] || 0)) v = g; } return v; };
+  var ivr0 = innerVisRows;
+  innerVisRows = function(tab){ var r = ivr0.apply(this, arguments); if (tab !== 'company') return r; var i = -1; r.forEach(function(x, j){ if (i < 0 && x[0] === 'co_val') i = j; });
+    if (i >= 0) r.splice(i, 0, ['co_gval', '가치 평가 묶음 전체 (밸류에이션 · 컴스 · M&A 딜 · LBO)']); return r; };
+  var iva0 = innerVisApply;
+  innerVisApply = function(){ var r = iva0.apply(this, arguments); try { coGrpVisApply(); } catch(e){} return r; };
+})();
+function coGrpVisApply(){
+  var V = ['val', 'comps', 'deal', 'lbo'], I = ['fin', 'prof', 'price', 'disc', 'own'];
+  var okv = V.some(function(v){ return tabVisOk('co_' + v); }), oki = I.some(function(v){ return tabVisOk('co_' + v); }), css = '';
+  if (!okv || !oki) css = '#pane-company #coGrp{display:none!important}';
+  else if (V.every(function(v){ return tabVis('co_' + v) !== 'all'; })){
+    var lab = V.every(function(v){ return tabVis('co_' + v) === 'hidden'; }) ? '숨김' : '임원진';
+    css = '#coGrp-val b::after{content:"' + lab + '";display:inline-block;margin-left:7px;padding:0 6px;border-radius:999px;font-size:11px;font-weight:700;line-height:16px;vertical-align:2px;background:var(--bg-sub);color:var(--text-sub)}'
+      + '#coGrp-val.on b::after{background:rgba(255,255,255,.14);color:#e9ecff}';
+  }
+  var st = $('coGrpVisCss'); if (!st){ st = document.createElement('style'); st.id = 'coGrpVisCss'; document.head.appendChild(st); }
+  st.textContent = css;
+  if (!okv && typeof CO_NAV !== 'undefined' && CO_NAV.g === 'val' && typeof coGrpGo === 'function'){ try { coGrpGo('info'); } catch(e){} }
+  if (typeof CR !== 'undefined' && CR.hit && typeof crRender === 'function' && typeof curTab !== 'undefined' && curTab === 'cores'){ try { crRender(); } catch(e){} }
+}
+try { coGrpVisApply(); } catch(e){}
+
+/* ══════════ (31차 학회장: '세이피 목소리를 좀 더 스무스하게 · 더 프로하게') ══════════
+   · 서버 음성: 묶음마다 <audio> 를 갈아 끼우던 것 → Web Audio 로 이어 붙여 재생 (묶음 사이 끊김 · 딸깍 소리 없이 · 다음 묶음을 미리 받아 바로 이어짐)
+     묶음 앞뒤 아주 짧은 페이드 · 묶음 사이 숨 고르기 0.06초 · 앞뒤 문장을 서버에 같이 보내 억양이 이어지게 (ElevenLabs)
+   · 브라우저 음성: 한 문장씩 끝나길 기다렸다 말하던 것 → 한 번에 줄 세워 문장 사이 빈틈 줄임
+   · 읽기 다듬기: 날짜 (10/16 · 2026-10-16) · 분기 (1Q · Q1) · S&P · Fed · KST
+   · 목소리 고르기: Google 목소리마다 말투 (차분 · 부드러움 · 또렷함 …) · 비서 톤 추천을 맨 위에                                */
+var AIVW = { ctx: null, srcs: [], utts: [], ok: false };
+function aivCtx(){
+  if (AIVW.ctx) return AIVW.ctx;
+  var C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
+  try { AIVW.ctx = new C(); } catch(e){ AIVW.ctx = null; }
+  return AIVW.ctx;
+}
+(function(){
+  var u0 = aivUnlock;
+  aivUnlock = function(){
+    try { var c = aivCtx(); if (c){ if (c.state === 'suspended' && c.resume) c.resume(); if (!AIVW.ok){ var b = c.createBuffer(1, 1, 22050), s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0); AIVW.ok = true; } } } catch(e){}
+    return u0.apply(this, arguments);
+  };
+  var st0 = aivSpeakStop;
+  aivSpeakStop = function(){
+    (AIVW.srcs || []).forEach(function(s){ try { s.onended = null; s.stop(0); } catch(e){} }); AIVW.srcs = []; AIVW.utts = [];
+    return st0.apply(this, arguments);
+  };
+})();
+function aivB64Buf(b64){ var bin = atob(b64), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; }
+function aivDecode(c, b64){
+  return new Promise(function(res, rej){ var did = false, ok = function(b){ if (!did){ did = true; res(b); } }, no = function(e){ if (!did){ did = true; rej(e || new Error('decode')); } };
+    try { var p = c.decodeAudioData(aivB64Buf(b64), ok, no); if (p && p.then) p.then(ok, no); } catch(e){ no(e); } });
+}
+function aivSrvGet2(t, prev, next){
+  return edgeCall('ai-chat', { action: 'tts', text: t, prev: String(prev || '').slice(-300), next: String(next || '').slice(0, 300) }).then(function(d){
+    if (!d || !d.audio){ if (d && d.off) AIVS.st = 'off'; throw new Error(d && d.why || 'tts'); } return d; });
+}
+var aivSpeakSrv0 = aivSpeakSrv;
+aivSpeakSrv = function(parts, g, done){
+  var c = aivCtx();
+  if (c && c.state === 'suspended' && c.resume){ try { c.resume(); } catch(e){} }
+  if (!c || c.state !== 'running') return aivSpeakSrv0(parts, g, done);
+  var reqs = [], at = 0, GAP = 0.06, FADE = 0.012;
+  var get = function(i){ if (i >= parts.length) return null; if (!reqs[i]) reqs[i] = aivSrvGet2(parts[i], parts[i - 1], parts[i + 1]).then(function(d){ return aivDecode(c, d.audio); }); return reqs[i]; };
+  var finish = function(){ if (g !== AIV.gen) return; AIVW.srcs = []; AIV.speaking = false; aivBtn(); if (done) done(); };
+  var play = function(i){
+    if (g !== AIV.gen || i >= parts.length) return;
+    get(i); get(i + 1);
+    reqs[i].then(function(buf){
+      if (g !== AIV.gen) return;
+      var start = Math.max(c.currentTime + 0.03, at), end = start + buf.duration;
+      var src = c.createBufferSource(), gn = c.createGain();
+      src.buffer = buf; src.connect(gn); gn.connect(c.destination);
+      try { gn.gain.setValueAtTime(0, start); gn.gain.linearRampToValueAtTime(1, start + FADE); gn.gain.setValueAtTime(1, Math.max(start + FADE, end - FADE)); gn.gain.linearRampToValueAtTime(0, end); } catch(e){}
+      src.onended = function(){ if (i === parts.length - 1) finish(); };
+      src.start(start); AIVW.srcs.push(src);
+      at = end + GAP;
+      play(i + 1);
+    }, function(){
+      if (g !== AIV.gen) return;
+      //  그 묶음부터 브라우저 목소리 (지금 나오는 소리가 끝난 뒤)
+      setTimeout(function(){ if (g === AIV.gen) aivSpeakTts(parts.slice(i), g, done); }, Math.max(0, (at - c.currentTime) * 1000));
+    });
+  };
+  play(0);
+};
+aivSpeakTts = function(parts, g, done){
+  if (!aivTtsOk() || !parts.length){ AIV.speaking = false; aivBtn(); if (done) done(); return; }
+  var v = aivVoice(), rate = (v && aivVoiceScore(v) >= 4 ? 1.0 : 1.05) * (typeof aivRate === 'function' ? aivRate() : 1);
+  AIVW.utts = [];
+  parts.forEach(function(t, i){
+    var u = new SpeechSynthesisUtterance(t);
+    u.lang = 'ko-KR'; if (v) u.voice = v; u.rate = rate; u.pitch = 1;
+    if (i === parts.length - 1) u.onend = function(){ if (g === AIV.gen){ AIV.speaking = false; aivBtn(); if (done) done(); } };
+    u.onerror = function(e){ if (g === AIV.gen && !(e && /interrupted|canceled/.test(String(e.error || '')))){ AIV.speaking = false; aivBtn(); } };
+    AIVW.utts.push(u);   //  크롬이 줄 선 문장을 버리지 않게 붙잡아 둠
+    try { speechSynthesis.speak(u); } catch(e){}
+  });
+};
+(function(){
+  var c0 = aivClean;
+  aivClean = function(md){
+    var t = String(md || '')
+      .replace(/\b(20\d\d)-(\d\d)-(\d\d)\b/g, function(_m, y, m, d){ return y + '년 ' + Number(m) + '월 ' + Number(d) + '일'; })
+      .replace(/(^|[^\d.\/])(1[0-2]|0?[1-9])\/(3[01]|[12]\d|0?[1-9])(?![\d\/])/g, function(_m, a, m, d){ return a + Number(m) + '월 ' + Number(d) + '일'; })
+      .replace(/\b(\d\d)'\s?([1-4])Q\b/g, '$1년 $2분기').replace(/\b([1-4])Q\b/g, '$1분기').replace(/\bQ([1-4])\b/g, '$1분기')
+      .replace(/S&P\s?500/gi, '에스앤피 500').replace(/S&P/gi, '에스앤피').replace(/\bFed\b/g, '연준').replace(/\bKST\b/g, '한국 시간');
+    return c0(t);
+  };
+})();
+//  목소리 말투 (Google Chirp 3 HD) · 비서 톤 추천
+var AIV_G_TONE = { Charon: '차분한 설명', Algieba: '부드러움', Iapetus: '또렷함', Sadaltager: '지적', Rasalgethi: '설명형', Schedar: '고른 톤', Orus: '단단함', Alnilam: '단단함', Kore: '단단함', Despina: '부드러움', Erinome: '또렷함', Gacrux: '성숙함',
+  Aoede: '산뜻함', Achernar: '부드러움', Vindemiatrix: '온화함', Sulafat: '따뜻함', Zephyr: '밝음', Autonoe: '밝음', Leda: '젊음', Callirrhoe: '느긋함', Laomedeia: '경쾌함', Pulcherrima: '적극적',
+  Puck: '경쾌함', Fenrir: '들뜬', Enceladus: '숨결', Umbriel: '느긋함', Algenib: '거침', Achird: '친근함', Zubenelgenubi: '편안함', Sadachbia: '활기' };
+var AIV_G_PICK = ['Charon', 'Algieba', 'Iapetus', 'Schedar', 'Despina', 'Erinome', 'Kore'];
+(function(){
+  var seen = {}, top = AIV_G_PICK.map(function(n){ var v = AIV_G_VOICES.filter(function(x){ return x[0] === n; })[0]; if (v){ seen[n] = 1; return [v[0], v[1] + ' · ' + AIV_G_TONE[n] + ' · 비서 톤 추천']; } return null; }).filter(Boolean);
+  var rest = AIV_G_VOICES.filter(function(x){ return !seen[x[0]]; }).map(function(x){ return [x[0], x[1] + (AIV_G_TONE[x[0]] ? ' · ' + AIV_G_TONE[x[0]] : '')]; });
+  AIV_G_VOICES = top.concat(rest);
+})();
+AIV_SAMPLE = '세이피입니다. 코스피는 0.8퍼센트 상승 마감했고, 미국 10년물 금리는 4.1퍼센트입니다. 오늘 밤 미국 소비자물가 발표가 있습니다.';
 
 </script>
 </body>
