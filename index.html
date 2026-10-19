@@ -1065,6 +1065,169 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* ══ (34차) 개념을 그림으로 — 밸류에이션 · 컴스 (코발트 카드 · 머신러닝 히어로와 같은 말투) ══ */
+  .cv-card{--ml-y:#ffd84d;margin:0 0 16px}
+  .cv-card .ml-hl::before,.cv-card .ml-hl::after{background:var(--ml-y)} .cv-card .ml-kick i{background:var(--ml-y)}
+  .cv-g{display:grid;grid-template-columns:minmax(0,0.95fr) minmax(0,1.15fr);gap:26px;align-items:center} .cv-g.one{grid-template-columns:minmax(0,1fr)}
+  .cv-l{min-width:0} .cv-r{min-width:0}
+  .cv-sts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px;max-width:460px}
+  .cv-st{padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14)}
+  .cv-st span{display:block;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:.12em;color:rgba(255,255,255,.65)}
+  .cv-st b{display:block;margin-top:6px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:34px;font-weight:600;letter-spacing:-1.2px;line-height:1.05;color:#fff}
+  .cv-st em{display:block;margin-top:5px;font-style:normal;font-size:12px;color:rgba(255,255,255,.72)}
+  .cv-st.y{background:rgba(255,216,77,.12);border-color:rgba(255,216,77,.45)} .cv-st.y b{color:var(--ml-y)}
+  .cv-read{margin:14px 0 0;font-size:14px;font-weight:700;line-height:1.55;color:#fff;max-width:52ch}
+  .cv-eq{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.18);font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12px;line-height:1.7;color:rgba(255,255,255,.85)}
+  .cv-sub{margin:10px 0 0;font-size:12px;line-height:1.6;color:rgba(255,255,255,.66);max-width:58ch}
+  .cv-ch{height:300px;border-radius:14px;background:rgba(0,0,0,.14);border:1px solid rgba(255,255,255,.1)} .cv-ch.cv-bub{height:320px}
+  .cv-seg.mode-seg{margin-top:14px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.16)}
+  .cv-seg.mode-seg button{color:rgba(255,255,255,.75)} .cv-seg.mode-seg button.on{background:#fff;color:#151f95;box-shadow:none}
+  html:root[data-theme="dark"] .cv-seg.mode-seg button.on{background:#e6e9f0;color:#0b0e2b}
+  @media (max-width:900px){ .cv-g{grid-template-columns:minmax(0,1fr)} }
+  @media (max-width:640px){ .cv-st b{font-size:26px} .cv-ch{height:260px} .cv-ch.cv-bub{height:280px} }
+  /* ══ (34차) 퀀트 › 모델 › 머신러닝 — 코발트 히어로 · 고정폭 머리글 · 선택 상자 강조 (학회장이 보낸 편집 디자인 참고) ══ */
+  .ml-wrap{--ml-tr:#14935f;--ml-ch:#6d5cf6;--ml-mid:#c5cad6;--ml-co:#2f45e6;--ml-y:#ffd84d;--ml-p:var(--ml-tr);--ml-q:var(--ml-ch);display:flex;flex-direction:column;gap:16px}
+  html:root[data-theme="dark"] .ml-wrap{--ml-tr:#5fd39a;--ml-ch:#a99bff;--ml-mid:#4b5368;--ml-co:#8fa0ff}
+  .ml-wrap.is-dir{--ml-p:var(--up);--ml-q:var(--down)}
+  .ml-wrap .card{margin:0}
+  .ml-ctl{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 18px;padding:16px 20px;border:1px solid var(--border);border-radius:16px;background:var(--card,var(--white))}
+  .ml-f{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .ml-fl{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-sub)}
+  .ml-fa select{min-width:210px;max-width:280px;height:36px;border-radius:10px;font-size:13.5px;font-weight:600}
+  .ml-add{display:inline-flex;gap:6px} .ml-add input{width:178px;height:36px;border-radius:10px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12.5px;text-transform:uppercase}
+  .ml-add input.bad{border-color:var(--danger,#d23b30);box-shadow:0 0 0 3px color-mix(in srgb,var(--danger,#d23b30) 18%,transparent)} .ml-add .btn-sm{height:36px;padding:0 14px}
+  .ml-cost{display:inline-flex;align-items:center;gap:6px} .ml-cost input{width:64px;height:36px;border-radius:10px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:13px;text-align:right} .ml-cost i{font-style:normal;font-size:12px;color:var(--text-sub)}
+  .ml-seg.mode-seg{height:36px;align-items:center}
+  /* 히어로 — 코발트 (라이트) · 밤하늘 남색 (다크) */
+  .ml-hero{position:relative;overflow:hidden;border-radius:22px;padding:28px 30px 26px;color:#fff;isolation:isolate;
+    background:radial-gradient(70% 90% at 12% 0%,rgba(110,128,255,.9) 0%,rgba(110,128,255,0) 60%),radial-gradient(60% 80% at 100% 110%,rgba(176,120,255,.55) 0%,rgba(176,120,255,0) 65%),linear-gradient(155deg,#2b3de6 0%,#1e2cc0 52%,#151f95 100%);
+    box-shadow:0 30px 60px -38px rgba(21,31,149,.85)}
+  .ml-hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.5;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1.2px);background-size:22px 22px;-webkit-mask:linear-gradient(180deg,#000 0%,transparent 85%);mask:linear-gradient(180deg,#000 0%,transparent 85%)}
+  html:root[data-theme="dark"] .ml-hero{background:radial-gradient(70% 90% at 12% 0%,rgba(61,82,255,.55) 0%,rgba(61,82,255,0) 60%),radial-gradient(60% 80% at 100% 110%,rgba(150,90,255,.35) 0%,rgba(150,90,255,0) 65%),linear-gradient(155deg,#121640 0%,#0b0e2b 55%,#07081a 100%);border:1px solid rgba(130,150,255,.18);box-shadow:none}
+  .ml-hero-g{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:24px;align-items:center} .ml-hero-g.one{grid-template-columns:minmax(0,1fr)}
+  .ml-kick{display:flex;align-items:center;gap:9px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.72)}
+  .ml-kick i{width:7px;height:7px;border-radius:50%;background:var(--ml-y);box-shadow:0 0 0 4px rgba(255,216,77,.18)}
+  .ml-h{margin:14px 0 0;font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.25;color:#fff}
+  .ml-hl{position:relative;display:inline-block;padding:1px 10px 3px;margin-right:4px;border:1.5px solid rgba(255,255,255,.85);background:rgba(255,255,255,.12);border-radius:3px}
+  .ml-hl::before,.ml-hl::after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:var(--ml-y);border:1.5px solid #151f95}
+  .ml-hl::before{left:-5px;top:-5px} .ml-hl::after{right:-5px;bottom:-5px}
+  .ml-big{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-top:10px}
+  .ml-big b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:68px;font-weight:600;letter-spacing:-3px;line-height:1;color:#fff}
+  .ml-big em{font-style:normal;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:30px;font-weight:600;color:rgba(255,255,255,.8);margin-left:-8px}
+  .ml-sig{align-self:center;display:inline-flex;align-items:center;height:26px;padding:0 12px;border-radius:999px;font-size:12.5px;font-weight:800;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25)}
+  .ml-sig.up{background:#ffe2de;color:#b3261e;border-color:transparent} .ml-sig.dn{background:#dfe9ff;color:#1b4fb8;border-color:transparent} .ml-sig.nt{background:rgba(255,255,255,.14);color:#fff}
+  .ml-sub{margin:10px 0 0;font-size:13px;line-height:1.6;color:rgba(255,255,255,.8);max-width:46ch}
+  .ml-meter{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:18px;max-width:440px}
+  .ml-meter span{height:34px;display:flex;align-items:center;justify-content:center;border-radius:9px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:600;letter-spacing:.08em;background:rgba(255,255,255,.08);color:rgba(255,255,255,.74);transition:background .2s,color .2s}
+  .ml-meter span.on.c{background:#a99bff;color:#1a1060} .ml-meter span.on.m{background:rgba(255,255,255,.85);color:#151f95} .ml-meter span.on.t{background:#5fd39a;color:#06301d}
+  .ml-gauge{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:18px;max-width:440px}
+  .ml-gauge span{height:34px;display:flex;align-items:center;justify-content:center;border-radius:9px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:600;letter-spacing:.08em;background:rgba(255,255,255,.08);color:rgba(255,255,255,.74)}
+  .ml-gauge u{position:absolute;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;border-radius:3px;background:var(--ml-y);box-shadow:0 0 12px rgba(255,216,77,.8)}
+  .ml-cuts{margin:8px 0 0;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.04em;color:rgba(255,255,255,.74)}
+  .ml-actual{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:14px 0 0;padding:9px 12px;border-radius:10px;background:rgba(0,0,0,.18);font-size:13px;font-weight:700;color:#fff}
+  .ml-back{height:28px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-size:12px;font-weight:700;cursor:pointer} .ml-back:hover{background:rgba(255,255,255,.12)}
+  .ml-hero-r{min-width:0}
+  .ml-sc{height:230px;border-radius:14px;background:rgba(0,0,0,.14);border:1px solid rgba(255,255,255,.1)}
+  .ml-eq{margin:10px 2px 0;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12px;color:rgba(255,255,255,.75);text-align:right} .ml-eq b{color:var(--ml-y);font-weight:600}
+  .ml-hero-wait{min-height:180px} .ml-skel{display:grid;gap:12px;margin-top:22px;max-width:520px} .ml-skel i{display:block;height:14px;border-radius:7px;background:rgba(255,255,255,.14)} .ml-skel i:nth-child(1){width:62%;height:30px} .ml-skel i:nth-child(2){width:40%;height:54px} .ml-skel i:nth-child(3){width:80%}
+  @media (prefers-reduced-motion:no-preference){ .ml-skel i{animation:mlSk 1.4s ease-in-out infinite} @keyframes mlSk{50%{opacity:.45}} }
+  /* 카드 */
+  .ml-card{padding:22px 24px!important;border-radius:18px!important}
+  .ml-hd{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-bottom:16px}
+  .ml-k{flex-basis:100%;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ml-co)}
+  .ml-hd h3{margin:0;font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+  .ml-hint{font-size:12px;color:var(--text-sub);line-height:1.5}
+  .ml-note{margin:12px 0 0;font-size:11.5px;line-height:1.6;color:var(--text-sub)}
+  /* 왜 — 가운데 기준 막대 */
+  .ml-why{display:flex;flex-direction:column;gap:2px}
+  .ml-wax{display:grid;grid-template-columns:150px minmax(0,1fr) 72px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:.1em;margin-bottom:6px}
+  .ml-wax span.q{grid-column:2;grid-row:1;justify-self:start;color:var(--ml-q)} .ml-wax span.p{grid-column:2;grid-row:1;justify-self:end;color:var(--ml-p)}
+  .ml-wr{display:grid;grid-template-columns:150px minmax(0,1fr) 72px;align-items:center;gap:0 12px;height:34px;padding:0 6px;margin:0 -6px;border-radius:8px;cursor:default;transition:background .15s}
+  .ml-wr:hover{background:var(--bg-sub)}
+  .ml-wr .n{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+  .ml-wr.rest .n{color:var(--text-sub);font-weight:500}
+  .ml-wr .bar{position:relative;height:14px} .ml-wr .bar::before{content:"";position:absolute;left:50%;top:-6px;bottom:-6px;width:1px;background:var(--border)}
+  .ml-wr .bar i{position:absolute;top:0;bottom:0;border-radius:4px}
+  .ml-wr .bar i.p{background:var(--ml-p)} .ml-wr .bar i.q{background:var(--ml-q)}
+  .ml-wr b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12.5px;font-weight:600;text-align:right} .ml-wr b.p{color:var(--ml-p)} .ml-wr b.q{color:var(--ml-q)}
+  .ml-score{margin:14px 0 0;padding:12px 14px;border-radius:12px;background:var(--bg-sub);font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.7;color:var(--text-sub)} .ml-score b{color:var(--text);font-weight:600}
+  /* 검증 */
+  .ml-kps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .ml-kp{padding:14px 16px;border-radius:14px;border:1px solid var(--border);background:var(--card,var(--white));min-width:0}
+  .ml-kp span{display:block;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-sub)}
+  .ml-kp b{display:block;margin-top:6px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:26px;font-weight:600;letter-spacing:-.8px;color:var(--text)}
+  .ml-kp em{display:block;margin-top:4px;font-style:normal;font-size:11.5px;color:var(--text-sub);line-height:1.45}
+  .ml-kp.good{border-color:color-mix(in srgb,var(--ml-tr) 45%,var(--border));background:color-mix(in srgb,var(--ml-tr) 6%,var(--card,var(--white)))} .ml-kp.good b{color:var(--ml-tr)}
+  .ml-kp.weak b{color:var(--text-sub)}
+  .ml-wf{margin-top:18px;padding:16px 18px 10px;border-radius:14px;background:var(--bg-sub)}
+  .ml-wfl{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:10px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:.1em;color:var(--text-sub)}
+  .ml-wfl i{display:inline-block;width:12px;height:8px;border-radius:3px;margin-right:6px;vertical-align:0} .ml-wfl i.tr{background:var(--card,#fff);border:1px solid var(--border)} .ml-wfl i.te{background:var(--ml-co)} .ml-wfl .r{margin-left:auto}
+  .ml-wfr{position:relative;height:14px;margin:0 0 8px}
+  .ml-wfr i{position:absolute;top:0;bottom:0;border-radius:7px;transition:opacity .15s} .ml-wfr i:hover{opacity:.75}
+  .ml-wfr i.tr{background:var(--card,#fff);border:1px solid var(--border)} .ml-wfr i.te{background:var(--ml-co);box-shadow:0 4px 12px -6px color-mix(in srgb,var(--ml-co) 80%,transparent)}
+  .ml-wfa{position:relative;height:16px;margin-top:4px} .ml-wfa span{position:absolute;top:0;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--text-sub);white-space:nowrap}
+  .ml-bk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+  .ml-bk .b{padding:16px 16px 12px;border-radius:14px;border:1px solid var(--border);border-top:3px solid var(--ml-mid);background:var(--card,var(--white))}
+  .ml-bk .b.c{border-top-color:var(--ml-ch)} .ml-bk .b.t{border-top-color:var(--ml-tr)}
+  .ml-bk h4{margin:0;font-size:14px;font-weight:800} .ml-bk .c h4{color:var(--ml-ch)} .ml-bk .t h4{color:var(--ml-tr)} .ml-bk .m h4{color:var(--text-sub)}
+  .ml-bk .ct{display:block;margin-top:2px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--text-sub)}
+  .ml-bk dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 10px;margin:12px 0 0}
+  .ml-bk dt{font-size:12px;color:var(--text-sub)} .ml-bk dd{margin:0;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:13px;font-weight:600;color:var(--text);text-align:right} .ml-bk dd.up{color:var(--up)} .ml-bk dd.dn{color:var(--down)}
+  /* 모델 없이 vs 함께 */
+  .ml-vs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}
+  .ml-tb{width:100%;min-width:0!important;border-collapse:separate;border-spacing:0;table-layout:fixed} .ml-tb thead th:first-child{width:34%}
+  .ml-tb th,.ml-tb td{background:transparent!important;padding:9px 10px;border-bottom:1px solid var(--border);font-size:13px;text-align:right;white-space:nowrap}
+  .ml-tb tbody th{text-align:left;font-weight:500;color:var(--text-sub);white-space:normal}
+  .ml-tb thead th{vertical-align:bottom;font-size:12.5px;font-weight:800;color:var(--text-sub);border-bottom:1.5px solid var(--text)}
+  .ml-tb thead th small{display:block;margin-top:3px;font-size:10.5px;font-weight:500;line-height:1.35;white-space:normal;color:var(--text-sub)}
+  .ml-tb thead th.co{color:var(--ml-co)}
+  .ml-tb td{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;color:var(--text-sub)} .ml-tb td b{color:var(--text);font-weight:600}
+  .ml-dl{display:inline-block;margin-left:6px;font-size:10px;color:var(--text-sub)} .ml-dl.good{color:var(--ml-tr)} .ml-dl.bad{color:var(--ml-ch)}
+  .ml-ch{min-width:0} .ml-eqc{height:300px} .ml-hist{height:340px}
+  /* 측정값 · 가중치 (접기) */
+  .ml-det > summary{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;cursor:pointer;list-style:none} .ml-det > summary::-webkit-details-marker{display:none}
+  .ml-det > summary b{font-size:18px;font-weight:800;letter-spacing:-.02em} .ml-det > summary::after{content:"펼치기 ▾";margin-left:auto;font-size:12px;font-weight:700;color:var(--ml-co)} .ml-det[open] > summary::after{content:"접기 ▴"}
+  .ml-det[open] > summary{margin-bottom:16px}
+  .ml-er{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:center;padding:14px 16px;border-radius:14px;background:var(--bg-sub);margin-bottom:16px}
+  .ml-erf span{display:block;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:.12em;color:var(--text-sub)} .ml-erf b{display:block;margin-top:6px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:17px;font-weight:600} .ml-erf em{display:block;margin-top:6px;font-style:normal;font-size:12px;color:var(--text-sub);line-height:1.55}
+  .ml-ersv{width:100%;height:auto;overflow:visible} .ml-ersv path{fill:none;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round} .ml-ersv path.a{stroke:var(--ml-tr)} .ml-ersv path.b{stroke:var(--ml-ch);opacity:.85}
+  .ml-ersv text{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:9.5px;fill:var(--ml-tr);text-anchor:end;transform:translateX(34px)} .ml-ersv text.b{fill:var(--ml-ch)}
+  .ml-fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 26px}
+  .ml-fg h4{margin:0 0 6px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:.12em;color:var(--text-sub)}
+  .ml-fr{display:grid;grid-template-columns:minmax(0,1fr) 90px 60px;align-items:center;gap:10px;height:30px;border-bottom:1px solid var(--border)}
+  .ml-fr span{font-size:12.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .ml-fr i{height:6px;border-radius:3px;background:var(--bg-sub);overflow:hidden} .ml-fr u{display:block;height:100%;border-radius:3px} .ml-fr u.p{background:var(--ml-p)} .ml-fr u.q{background:var(--ml-q)}
+  .ml-fr b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12px;font-weight:600;text-align:right} .ml-fr b.p{color:var(--ml-p)} .ml-fr b.q{color:var(--ml-q)}
+  /* 모델 겨루기 */
+  .ml-lb{display:flex;flex-direction:column;gap:4px}
+  .ml-lr.hd{height:22px} .ml-lr.hd:hover{background:transparent} .ml-lr.hd .t{background:transparent}
+  .ml-lr .t .bl{position:absolute;top:-5px;bottom:-5px;width:0;border-left:1.5px dashed var(--text-sub);z-index:2}
+  .ml-lr.hd .t .bl{top:2px;bottom:-12px} .ml-lr.hd .t .bl span{position:absolute;top:-3px;left:6px;white-space:nowrap;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;color:var(--text-sub)}
+  .ml-lr .t .z{position:absolute;top:-5px;bottom:-5px;background:color-mix(in srgb,var(--text-sub) 12%,transparent);border-radius:4px;z-index:0}
+  .ml-lr{position:relative;display:grid;grid-template-columns:210px minmax(0,1fr) 64px 50px 56px;align-items:center;gap:0;height:38px;border-radius:10px;transition:background .15s}
+  .ml-lr:hover{background:var(--bg-sub)}
+  .ml-lr .n{padding-right:14px;font-size:13.5px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ml-lr .t{position:relative;height:16px;border-radius:999px;background:var(--bg-sub)}
+  .ml-lr .t i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;z-index:1}
+  .ml-lr .t i.tr{background:transparent;border:1.5px dashed color-mix(in srgb,var(--text-sub) 60%,transparent)}
+  .ml-lr .t i.te{background:color-mix(in srgb,var(--ml-co) 70%,var(--card,#fff))}
+  .ml-lr.win .t i.te{background:var(--ml-tr);box-shadow:0 0 0 3px color-mix(in srgb,var(--ml-tr) 18%,transparent)} .ml-lr.win .n{color:var(--ml-tr)}
+  .ml-lr.base .t i.te{background:var(--ml-mid)} .ml-lr.base .n{color:var(--text-sub);font-weight:600}
+  .ml-lr b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:13px;font-weight:600;text-align:right;color:var(--text)} .ml-lr.win b{color:var(--ml-tr)}
+  .ml-lr em.trn{color:var(--text-sub)} .ml-lr em.trn.hi{color:var(--ml-ch);font-weight:700} .ml-lr.hd b,.ml-lr.hd em{font-size:10px;letter-spacing:.1em;color:var(--text-sub);font-weight:600}
+  .ml-lbl b.hi{color:var(--ml-ch)}
+  .ml-lr em{font-style:normal;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--text-sub);text-align:right}
+  .ml-lbl{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font-size:11.5px;color:var(--text-sub)}
+  .ml-lbl i{display:inline-block;width:14px;height:8px;border-radius:4px;margin-right:6px} .ml-lbl i.te{background:color-mix(in srgb,var(--ml-co) 70%,var(--card,#fff))} .ml-lbl i.tr{border:1.5px dashed var(--text-sub)} .ml-lbl i.z{background:color-mix(in srgb,var(--text-sub) 18%,transparent)}
+  .ml-code{border-radius:14px;overflow:hidden;background:#0b0d14;border:1px solid #1d2131}
+  .ml-code-h{display:flex;align-items:center;gap:7px;padding:10px 14px;border-bottom:1px solid #1d2131} .ml-code-h i{width:10px;height:10px;border-radius:50%;background:#ff5f57} .ml-code-h i:nth-child(2){background:#febc2e} .ml-code-h i:nth-child(3){background:#28c840}
+  .ml-code-h span{margin-left:8px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:11.5px;color:#8a90a6}
+  .ml-code pre{margin:0;padding:14px 18px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:13px;line-height:1.75;color:#e6e9f0;white-space:pre;overflow-x:auto}
+  .ml-code pre.out{border-top:1px solid #1d2131;color:#9aa3b8} .ml-code .k{color:#ff9e64} .ml-code .f{color:#7aa2f7} .ml-code .d{color:#6b7288} .ml-code .w{color:#5fd39a;font-weight:600}
+  .ml-ul{margin:0;padding:0;list-style:none;display:grid;gap:10px} .ml-ul li{font-size:13px;line-height:1.6;color:var(--text-sub)} .ml-ul b{color:var(--text);margin-right:6px}
+  @media (max-width:900px){ .ml-hero-g{grid-template-columns:minmax(0,1fr)} .ml-vs{grid-template-columns:minmax(0,1fr)} .ml-kps{grid-template-columns:repeat(2,minmax(0,1fr))} .ml-er{grid-template-columns:minmax(0,1fr)} }
+  @media (max-width:640px){ .ml-hero{padding:22px 18px 20px;border-radius:18px} .ml-h{font-size:21px} .ml-big b{font-size:52px} .ml-card{padding:18px 16px!important} .ml-ctl{padding:14px} .ml-fa select{min-width:0;width:100%} .ml-fa{flex-basis:100%}
+    .ml-wax,.ml-wr{grid-template-columns:104px minmax(0,1fr) 58px} .ml-wr .n{font-size:12px} .ml-bk{grid-template-columns:minmax(0,1fr)} .ml-lr{grid-template-columns:112px minmax(0,1fr) 52px 40px} .ml-lr .n{font-size:12px;padding-right:8px} .ml-lr em:last-child{display:none} .ml-tb th,.ml-tb td{padding:8px 5px;font-size:11.5px;white-space:normal;word-break:keep-all} .ml-tb thead th:first-child{width:30%} .ml-eqc{height:240px} .ml-hist{height:300px} }
+  .ml-lg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:-6px 0 10px;font-size:11.5px;color:var(--text-sub)} .ml-lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px} .ml-lg .r{margin-left:auto;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px}
   /* ══ (33차) 학회장: '노란색 별로 · 다크 선택 색 별로 · 한눈에 보기 글자 키워 · 차트 · 상단 더 세련되게' ══ */
   /* ① 분석 갈래 색 = 잉크 (머스터드 노랑 뺌) — 카드 제목 막대 · 영문 소제목 줄 · 보기 단추 */
   html:root{--hc-market:#1f2433;--hc-stocks:#1f2433;--hc-company:#1f2433;--hc-ai:#1f2433;--hc-deriv:#1f2433;--hc-flow:#1f2433;--hc-fxa:#1f2433;--hc-strat:#1f2433}
@@ -72408,6 +72571,755 @@ function coTileYoy(){
     renderCoTiles = function(){ var r = t0.apply(this, arguments); try { coTileYoy(); } catch(e){} return r; };
   }
 })();
+
+/* ══════════ (34차) 예측 모델 — 계산 엔진 (백그라운드 작업자에서 돎 · 화면이 멈추지 않게) ══════════
+   · 이 함수는 글자로 바꿔 작업자(Web Worker)에 넣습니다 → 바깥 변수를 쓰면 안 됨 (안에서 다 해결)
+   · 작업자를 못 쓰는 브라우저는 같은 함수를 화면 쪽에서 그대로 돌림                                  */
+function mlCore(){
+  'use strict';
+  function rng(seed){ var s = (seed >>> 0) || 1; return function(){ s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+  function sig(z){ return z >= 0 ? 1 / (1 + Math.exp(-z)) : Math.exp(z) / (1 + Math.exp(z)); }
+  function fin(v){ return typeof v === 'number' && v === v && v !== Infinity && v !== -Infinity; }
+  function sortNum(a){ return a.sort(function(x, y){ return x - y; }); }
+  function quant(sorted, q){ if (!sorted.length) return NaN; var p = (sorted.length - 1) * q, i = Math.floor(p), f = p - i; return i + 1 < sorted.length ? sorted[i] * (1 - f) + sorted[i + 1] * f : sorted[i]; }
+
+  /* ── 측정값 만들기 ─────────────────────────────────────────────
+     하루 효율 e = |종가 − 시가| ÷ (고가 − 저가)  (그날 얼마나 한 방향으로 곧게 갔나 · 0 = 제자리 · 1 = 시가에서 종가까지 직진)
+     시가 · 고가 · 저가가 없는 자료는 3일 효율 (|3일 순이동| ÷ 3일 이동 거리) 로 대신
+     효율 지표 ER(k) = |C(t) − C(t−k)| ÷ Σ|ΔC|  (k일 순이동 ÷ k일 이동 거리)                         */
+  function build(B, ohlc, ann){
+    var n = B.length, C = new Float64Array(n), i, j;
+    for (i = 0; i < n; i++) C[i] = B[i].c;
+    var r = new Float64Array(n); r[0] = NaN; for (i = 1; i < n; i++) r[i] = Math.log(C[i] / C[i - 1]);
+    var cs = new Float64Array(n + 1); for (i = 0; i < n; i++) cs[i + 1] = cs[i] + (i ? Math.abs(C[i] - C[i - 1]) : 0);
+    var ER = function(i, k){ if (i < k) return NaN; var den = cs[i + 1] - cs[i - k + 1]; return den > 0 ? Math.abs(C[i] - C[i - k]) / den : 0; };
+    var e = new Float64Array(n);
+    for (i = 0; i < n; i++){ var b = B[i]; if (ohlc && b.h != null && b.l != null && b.o != null && b.h > b.l) e[i] = Math.min(1, Math.abs(b.c - b.o) / (b.h - b.l)); else e[i] = i >= 3 ? ER(i, 3) : NaN; }
+    var s1 = new Float64Array(n + 1), s2 = new Float64Array(n + 1);
+    for (i = 0; i < n; i++){ var v = i ? r[i] : 0; s1[i + 1] = s1[i] + v; s2[i + 1] = s2[i] + v * v; }
+    var sdr = function(i, k){ if (i < k) return NaN; var a = s1[i + 1] - s1[i - k + 1], q = s2[i + 1] - s2[i - k + 1], m = a / k, vv = (q - k * m * m) / (k - 1); return vv > 0 ? Math.sqrt(vv) : 0; };
+    var pc = new Float64Array(n + 1); for (i = 0; i < n; i++) pc[i + 1] = pc[i] + C[i];
+    var sma = function(i, k){ return i >= k - 1 ? (pc[i + 1] - pc[i - k + 1]) / k : NaN; };
+    //  평소 효율 = 지난 120일 하루 효율의 중앙값 (그날 전까지만) · 그보다 낮은 날 = 횡보한 날
+    var med = new Float64Array(n), W = 120; for (i = 0; i < n; i++) med[i] = NaN;
+    for (i = W + 3; i < n; i++){ var w = []; for (j = i - W; j < i; j++) if (fin(e[j])) w.push(e[j]); sortNum(w); var m2 = w.length; med[i] = m2 ? (m2 % 2 ? w[(m2 - 1) / 2] : (w[m2 / 2 - 1] + w[m2 / 2]) / 2) : NaN; }
+    var chop = new Int8Array(n); for (i = 0; i < n; i++) chop[i] = (fin(med[i]) && e[i] < med[i]) ? 1 : 0;
+    //  RSI (14일 · 와일더)
+    var rsi = new Float64Array(n), ag = 0, al = 0; for (i = 0; i < n; i++) rsi[i] = NaN;
+    for (i = 1; i < n; i++){ var dc = C[i] - C[i - 1], up = dc > 0 ? dc : 0, dn = dc < 0 ? -dc : 0;
+      if (i <= 14){ ag += up / 14; al += dn / 14; if (i === 14) rsi[i] = al > 0 ? 100 - 100 / (1 + ag / al) : 100; }
+      else { ag = (ag * 13 + up) / 14; al = (al * 13 + dn) / 14; rsi[i] = al > 0 ? 100 - 100 / (1 + ag / al) : 100; } }
+    var hi252 = new Float64Array(n); for (i = 0; i < n; i++){ var mx = -Infinity; for (j = Math.max(0, i - 251); j <= i; j++) if (C[j] > mx) mx = C[j]; hi252[i] = i >= 251 ? mx : NaN; }
+    //  분산 비율 (5일 · 60일 창) — 1보다 크면 같은 방향이 이어짐 · 작으면 되돌림
+    var vr = function(i){ if (i < 66) return NaN; var q = [], rr = [], a, m, s, t; for (a = i - 59; a <= i; a++){ q.push(Math.log(C[a] / C[a - 5])); rr.push(r[a]); }
+      m = 0; for (a = 0; a < 60; a++) m += rr[a]; m /= 60; s = 0; for (a = 0; a < 60; a++) s += (rr[a] - m) * (rr[a] - m); s /= 59;
+      var mq = 0; for (a = 0; a < 60; a++) mq += q[a]; mq /= 60; t = 0; for (a = 0; a < 60; a++) t += (q[a] - mq) * (q[a] - mq); t /= 59;
+      return s > 0 ? t / (5 * s) : 1; };
+    //  가짜 돌파 비율 (20일) — 10일 고점 · 저점을 넘었다가 다시 안으로 돌아온 비율
+    var fake = function(i){ if (i < 32) return NaN; var bo = 0, fk = 0, a, k, ph, pl;
+      for (a = i - 19; a <= i; a++){
+        if (ohlc && B[a].h != null && B[a].l != null){ ph = -Infinity; pl = Infinity; for (k = a - 10; k < a; k++){ if (B[k].h != null && B[k].h > ph) ph = B[k].h; if (B[k].l != null && B[k].l < pl) pl = B[k].l; }
+          if (B[a].h > ph){ bo++; if (B[a].c < ph) fk++; } if (B[a].l < pl){ bo++; if (B[a].c > pl) fk++; } }
+        else if (a < i){ ph = -Infinity; pl = Infinity; for (k = a - 10; k < a; k++){ if (C[k] > ph) ph = C[k]; if (C[k] < pl) pl = C[k]; }
+          if (C[a] > ph){ bo++; if (C[a + 1] < ph) fk++; } if (C[a] < pl){ bo++; if (C[a + 1] > pl) fk++; } } }
+      return bo ? fk / bo : 0.5; };
+    return { n: n, C: C, r: r, e: e, med: med, chop: chop, ER: ER, sdr: sdr, sma: sma, rsi: rsi, hi252: hi252, vr: vr, fake: fake, ann: ann };
+  }
+  var REG_F = ['실현 변동성 (20일)', '오늘 효율', '20일 효율', '분산 비율', '가짜 돌파 비율', '50일선과의 거리', '연속 횡보 일수', '5일 효율', '10일 효율', '20일 평균 하루 효율', '어제 효율', '그제 효율', '변동성 변화', '5일 횡보 비중', '10일 횡보 비중'];
+  var DIR_F = ['1일 수익률', '5일 수익률', '20일 수익률', '60일 수익률', 'RSI (14일)', '20일선 거리', '50일선 거리', '200일선 거리', '52주 고점 거리', '실현 변동성 (20일)', '변동성 변화', '10일 효율', '오늘 효율'];
+  function regRow(F, i){
+    if (i < 140) return null;
+    var sd20 = F.sdr(i, 20), sd5 = F.sdr(i, 5), s50 = F.sma(i, 50); if (!(sd20 > 0)) return null;
+    var run = 0; for (var a = i; a >= 0 && run < 20 && F.chop[a]; a--) run++;
+    var c5 = 0, c10 = 0; for (a = i - 9; a <= i; a++){ if (F.chop[a]){ c10++; if (a > i - 5) c5++; } }
+    var m20 = 0; for (a = i - 19; a <= i; a++) m20 += F.e[a]; m20 /= 20;
+    var x = [sd20 * Math.sqrt(F.ann), F.e[i], F.ER(i, 20), F.vr(i), F.fake(i), Math.abs(Math.log(F.C[i] / s50)) / sd20, run, F.ER(i, 5), F.ER(i, 10), m20, F.e[i - 1], F.e[i - 2], Math.log(Math.max(sd5, 1e-9) / sd20), c5 / 5, c10 / 10];
+    for (a = 0; a < x.length; a++) if (!fin(x[a])) return null;
+    return x;
+  }
+  function dirRow(F, i){
+    if (i < 260) return null;
+    var C = F.C, sd20 = F.sdr(i, 20), sd5 = F.sdr(i, 5); if (!(sd20 > 0)) return null;
+    var x = [F.r[i], Math.log(C[i] / C[i - 5]), Math.log(C[i] / C[i - 20]), Math.log(C[i] / C[i - 60]), F.rsi[i], Math.log(C[i] / F.sma(i, 20)), Math.log(C[i] / F.sma(i, 50)), Math.log(C[i] / F.sma(i, 200)), Math.log(C[i] / F.hi252[i]), sd20 * Math.sqrt(F.ann), Math.log(Math.max(sd5, 1e-9) / sd20), F.ER(i, 10), F.e[i]];
+    for (var a = 0; a < x.length; a++) if (!fin(x[a])) return null;
+    return x;
+  }
+  function design(F, kind, hz){
+    var n = F.n, X = new Array(n), y = new Int8Array(n), i;
+    for (i = 0; i < n; i++){
+      X[i] = kind === 'reg' ? regRow(F, i) : dirRow(F, i);
+      if (kind === 'reg') y[i] = (i + 1 < n && fin(F.med[i + 1]) && fin(F.e[i + 1])) ? (F.e[i + 1] > F.med[i + 1] ? 1 : 0) : -1;
+      else y[i] = i + hz < n ? (F.C[i + hz] > F.C[i] ? 1 : 0) : -1;
+    }
+    return { X: X, y: y };
+  }
+  /* ── 표준화 (학습 구간 평균 · 표준편차) ── */
+  function stdz(X, rows){
+    var d = X[rows[0]].length, mu = new Float64Array(d), sd = new Float64Array(d), q, a;
+    for (q = 0; q < rows.length; q++) for (a = 0; a < d; a++) mu[a] += X[rows[q]][a];
+    for (a = 0; a < d; a++) mu[a] /= rows.length;
+    for (q = 0; q < rows.length; q++) for (a = 0; a < d; a++){ var t = X[rows[q]][a] - mu[a]; sd[a] += t * t; }
+    for (a = 0; a < d; a++){ sd[a] = Math.sqrt(sd[a] / Math.max(1, rows.length - 1)); if (!(sd[a] > 1e-12)) sd[a] = 1; }
+    return { mu: mu, sd: sd };
+  }
+  function zrow(x, S){ var d = x.length, z = new Float64Array(d); for (var a = 0; a < d; a++){ var v = (x[a] - S.mu[a]) / S.sd[a]; z[a] = v > 5 ? 5 : v < -5 ? -5 : v; } return z; }
+  function solve(A, b){
+    var n = b.length, M = A.map(function(r, i){ var o = Array.prototype.slice.call(r); o.push(b[i]); return o; }), i, j, k;
+    for (i = 0; i < n; i++){ var p = i; for (k = i + 1; k < n; k++) if (Math.abs(M[k][i]) > Math.abs(M[p][i])) p = k; var t = M[i]; M[i] = M[p]; M[p] = t;
+      var piv = M[i][i]; if (Math.abs(piv) < 1e-12) piv = 1e-12;
+      for (k = i + 1; k < n; k++){ var f = M[k][i] / piv; if (!f) continue; for (j = i; j <= n; j++) M[k][j] -= f * M[i][j]; } }
+    var x = new Float64Array(n); for (i = n - 1; i >= 0; i--){ var s = M[i][n]; for (j = i + 1; j < n; j++) s -= M[i][j] * x[j]; x[i] = s / (Math.abs(M[i][i]) < 1e-12 ? 1e-12 : M[i][i]); }
+    return x;
+  }
+  /* ── 로지스틱 회귀 (뉴턴 · 능선 벌점 λ) ── */
+  function logit(Z, y, lam, w0){
+    var d = Z[0].length, w = w0 ? Float64Array.from(w0) : new Float64Array(d + 1), it, a, b;
+    for (it = 0; it < 30; it++){
+      var g = new Float64Array(d + 1), H = []; for (a = 0; a <= d; a++) H.push(new Float64Array(d + 1));
+      for (var q = 0; q < Z.length; q++){ var x = Z[q], z = w[0]; for (a = 0; a < d; a++) z += w[a + 1] * x[a];
+        var p = sig(z), wt = Math.max(p * (1 - p), 1e-6), res = p - y[q];
+        g[0] += res; H[0][0] += wt;
+        for (a = 0; a < d; a++){ g[a + 1] += res * x[a]; var xa = x[a] * wt; H[0][a + 1] += xa; var Ha = H[a + 1]; for (b = a; b < d; b++) Ha[b + 1] += xa * x[b]; } }
+      for (a = 1; a <= d; a++){ g[a] += lam * w[a]; H[a][a] += lam; }
+      for (a = 0; a <= d; a++) for (b = 0; b < a; b++) H[a][b] = H[b][a];
+      var st = solve(H, g), mx = 0; for (a = 0; a <= d; a++){ w[a] -= st[a]; if (Math.abs(st[a]) > mx) mx = Math.abs(st[a]); }
+      if (mx < 1e-8) break;
+    }
+    return w;
+  }
+  function lpred(w, z){ var s = w[0]; for (var a = 0; a < z.length; a++) s += w[a + 1] * z[a]; return s; }
+  function auc(p, y){
+    var idx = []; for (var i = 0; i < p.length; i++) idx.push(i); idx.sort(function(a, b){ return p[a] - p[b]; });
+    var np = 0, nn = 0, rs = 0, k = 0;
+    while (k < idx.length){ var j = k; while (j + 1 < idx.length && p[idx[j + 1]] === p[idx[k]]) j++; var rk = (k + j) / 2 + 1; for (var t = k; t <= j; t++){ if (y[idx[t]]) { rs += rk; np++; } else nn++; } k = j + 1; }
+    return np && nn ? (rs - np * (np + 1) / 2) / (np * nn) : 0.5;
+  }
+  function evalP(p, y){
+    var n = p.length, hit = 0, ll = 0, br = 0, pos = 0, i; if (!n) return null;
+    for (i = 0; i < n; i++){ pos += y[i]; }
+    var base = pos / n, maj = base >= 0.5 ? 1 : 0, llb = 0;
+    for (i = 0; i < n; i++){ var q = Math.min(1 - 1e-9, Math.max(1e-9, p[i])); hit += ((p[i] >= 0.5 ? 1 : 0) === y[i]) ? 1 : 0; ll -= y[i] ? Math.log(q) : Math.log(1 - q); br += (q - y[i]) * (q - y[i]);
+      var qb = Math.min(1 - 1e-9, Math.max(1e-9, base)); llb -= y[i] ? Math.log(qb) : Math.log(1 - qb); }
+    return { n: n, acc: hit / n, base: base, baseAcc: Math.max(base, 1 - base), maj: maj, auc: auc(p, y), ll: ll / n, llBase: llb / n, brier: br / n };
+  }
+  /* ── 걸어가며 검증 (walk-forward) — 그날까지 알던 자료로만 배우고 · 다음 날을 맞히고 · 21일마다 다시 배움 ── */
+  function walk(B, ohlc, ann, kind, hz, lam){
+    var F = build(B, ohlc, ann), D = design(F, kind, hz), n = F.n, X = D.X, y = D.y, i;
+    var s = -1; for (i = 0; i < n; i++) if (X[i]){ s = i; break; }
+    if (s < 0) throw new Error('측정값을 만들 자료가 모자랍니다');
+    var minTrain = Math.min(500, Math.max(250, Math.floor((n - s) * 0.4))), step = 21, k0 = s + minTrain + hz;
+    if (k0 >= n - 20) throw new Error('자료가 너무 짧습니다 (' + n + '일) · 기간을 늘리거나 다른 자산을 고르세요');
+    var p = new Float64Array(n), mi = new Int32Array(n), b = new Int8Array(n), models = [], wPrev = null;
+    for (i = 0; i < n; i++){ p[i] = NaN; mi[i] = -1; b[i] = -1; }
+    for (var k = k0; k < n; k += step){
+      var rows = []; for (i = s; i <= k - hz; i++) if (X[i] && y[i] >= 0) rows.push(i);
+      if (rows.length < 200) continue;
+      var S = stdz(X, rows), Z = rows.map(function(i){ return zrow(X[i], S); }), yy = rows.map(function(i){ return y[i]; });
+      var w = logit(Z, yy, lam, wPrev); wPrev = w;
+      var ins = sortNum(Z.map(function(z){ return sig(lpred(w, z)); })), lo = quant(ins, 1 / 3), hi = quant(ins, 2 / 3);
+      models.push({ w: Array.from(w), mu: Array.from(S.mu), sd: Array.from(S.sd), at: k, lo: lo, hi: hi, nTrain: rows.length });
+      for (var t = k; t < Math.min(n, k + step); t++){ if (!X[t]) continue; var pt = sig(lpred(w, zrow(X[t], S))); p[t] = pt; mi[t] = models.length - 1; b[t] = pt < lo ? 0 : pt > hi ? 2 : 1; }
+    }
+    //  지금 (마지막 날) 예측 = 알려진 정답을 다 쓴 마지막 모델
+    var rowsAll = []; for (i = s; i < n; i++) if (X[i] && y[i] >= 0) rowsAll.push(i);
+    var SA = stdz(X, rowsAll), ZA = rowsAll.map(function(i){ return zrow(X[i], SA); }), wA = logit(ZA, rowsAll.map(function(i){ return y[i]; }), lam, wPrev);
+    var insA = sortNum(ZA.map(function(z){ return sig(lpred(wA, z)); }));
+    var final = { w: Array.from(wA), mu: Array.from(SA.mu), sd: Array.from(SA.sd), lo: quant(insA, 1 / 3), hi: quant(insA, 2 / 3), nTrain: rowsAll.length, last: -1 };
+    for (i = n - 1; i >= 0; i--) if (X[i]){ final.last = i; break; }
+    //  평가 — 표본 밖 · 정답이 나온 날만
+    var pe = [], ye = []; for (i = k0; i < n; i++) if (fin(p[i]) && y[i] >= 0){ pe.push(p[i]); ye.push(y[i]); }
+    var ev = evalP(pe, ye);
+    var Xo = new Array(n); for (i = 0; i < n; i++) Xo[i] = X[i] ? Array.from(X[i]) : null;
+    return { kind: kind, hz: hz, s: s, k0: k0, n: n, p: Array.from(p), mi: Array.from(mi), b: Array.from(b), y: Array.from(y), X: Xo, models: models, final: final, ev: ev,
+      e: Array.from(F.e), med: Array.from(F.med), sma20: Array.from({ length: n }, function(_, i){ return F.sma(i, 20); }), names: kind === 'reg' ? REG_F : DIR_F };
+  }
+
+  /* ══ 모델 겨루기 — 같은 자료 · 앞 70% 로 배우고 뒤 30% 로 시험 ══ */
+  function tree(Z, t, rows, maxDep, minLeaf, mtry, R, cand){
+    var d = Z[rows[0]].length;
+    function grow(rs, dep){
+      var n = rs.length, s = 0, q; for (q = 0; q < n; q++) s += t[rs[q]];
+      var node = { v: s / n };
+      if (dep >= maxDep || n < 2 * minLeaf) return node;
+      var feats = [], a;
+      if (mtry && mtry < d){ var pool = []; for (a = 0; a < d; a++) pool.push(a); for (a = 0; a < mtry; a++){ var kk = a + Math.floor(R() * (d - a)), tp = pool[a]; pool[a] = pool[kk]; pool[kk] = tp; feats.push(pool[a]); } }
+      else for (a = 0; a < d; a++) feats.push(a);
+      var best = null, base = s * s / n, stp = Math.max(1, Math.floor((n - 2 * minLeaf) / cand));
+      for (var fi = 0; fi < feats.length; fi++){
+        var f = feats[fi], ord = rs.slice().sort(function(x, y){ return Z[x][f] - Z[y][f]; }), ls = 0, pos = 0;
+        for (var cut = minLeaf; cut <= n - minLeaf; cut += stp){
+          while (pos < cut){ ls += t[ord[pos]]; pos++; }
+          var lv = Z[ord[cut - 1]][f], rv = Z[ord[cut]][f]; if (lv === rv) continue;
+          var rsum = s - ls, gain = ls * ls / cut + rsum * rsum / (n - cut) - base;
+          if (!best || gain > best.g) best = { g: gain, f: f, th: (lv + rv) / 2 };
+        }
+      }
+      if (!best || best.g <= 1e-12) return node;
+      var L = [], Rr = []; for (q = 0; q < n; q++) (Z[rs[q]][best.f] <= best.th ? L : Rr).push(rs[q]);
+      if (L.length < minLeaf || Rr.length < minLeaf) return node;
+      node.f = best.f; node.th = best.th; node.l = grow(L, dep + 1); node.r = grow(Rr, dep + 1);
+      return node;
+    }
+    return grow(rows, 0);
+  }
+  function leaf(node, x){ while (node.l) node = x[node.f] <= node.th ? node.l : node.r; return node; }
+  function tval(node, x){ return leaf(node, x).v; }
+  function contest(B, ohlc, ann, kind, seed){
+    var F = build(B, ohlc, ann), D = design(F, kind, 1), n = F.n, rows = [], i;
+    for (i = 0; i < n; i++) if (D.X[i] && D.y[i] >= 0) rows.push(i);
+    if (rows.length < 600) throw new Error('자료가 너무 짧습니다 (' + rows.length + '일)');
+    var cut = Math.floor(rows.length * 0.7), tr = rows.slice(0, cut), te = rows.slice(cut + (kind === 'reg' ? 1 : 1));
+    var S = stdz(D.X, tr), Z = {}, yv = {}; rows.forEach(function(i){ Z[i] = zrow(D.X[i], S); yv[i] = D.y[i]; });
+    var Ztr = tr.map(function(i){ return Z[i]; }), ytr = tr.map(function(i){ return yv[i]; }), Zte = te.map(function(i){ return Z[i]; }), yte = te.map(function(i){ return yv[i]; });
+    var d = Ztr[0].length, R = rng(seed || 7), out = [];
+    var now = function(){ return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now(); };
+    var score = function(key, name, en, fit){
+      var t0 = now(), f = fit(), ms = now() - t0;
+      var ptr = Ztr.map(f), pte = Zte.map(f);
+      var acc = function(p, y){ var h = 0; for (var q = 0; q < p.length; q++) h += ((p[q] >= 0.5 ? 1 : 0) === y[q]) ? 1 : 0; return h / p.length; };
+      out.push({ key: key, name: name, en: en, accTr: acc(ptr, ytr), acc: acc(pte, yte), auc: auc(pte, yte), ms: Math.round(ms) });
+    };
+    var pos = ytr.reduce(function(a, b){ return a + b; }, 0) / ytr.length, maj = pos >= 0.5 ? 1 : 0;
+    //  기준선 — 학습 구간에서 많았던 쪽을 늘 고름 (AUC 0.5)
+    score('base', '기준선 (늘 많은 쪽)', 'Baseline', function(){ return function(){ return maj ? 0.75 : 0.25; }; });
+    score('logit', '로지스틱 회귀', 'Logistic', function(){ var w = logit(Ztr, ytr, 1); return function(z){ return sig(lpred(w, z)); }; });
+    score('nb', '나이브 베이즈', 'Naive Bayes', function(){
+      var M = [0, 1].map(function(c){ var rs = Ztr.filter(function(_, q){ return ytr[q] === c; }), mu = new Float64Array(d), v = new Float64Array(d), a;
+        rs.forEach(function(z){ for (a = 0; a < d; a++) mu[a] += z[a]; }); for (a = 0; a < d; a++) mu[a] /= Math.max(1, rs.length);
+        rs.forEach(function(z){ for (a = 0; a < d; a++) v[a] += (z[a] - mu[a]) * (z[a] - mu[a]); }); for (a = 0; a < d; a++) v[a] = v[a] / Math.max(1, rs.length - 1) + 1e-3;
+        return { mu: mu, v: v, pr: rs.length / Ztr.length }; });
+      return function(z){ var l = [0, 1].map(function(c){ var m = M[c], s = Math.log(Math.max(m.pr, 1e-9)); for (var a = 0; a < d; a++) s -= 0.5 * Math.log(2 * Math.PI * m.v[a]) + (z[a] - m.mu[a]) * (z[a] - m.mu[a]) / (2 * m.v[a]); return s; }); return sig(l[1] - l[0]); }; });
+    score('knn', 'KNN (가까운 이웃 31개)', 'k-nearest neighbors', function(){ var K = 31;
+      return function(z){ var ds = new Float64Array(Ztr.length); for (var q = 0; q < Ztr.length; q++){ var s = 0, x = Ztr[q]; for (var a = 0; a < d; a++){ var t = x[a] - z[a]; s += t * t; } ds[q] = s; }
+        var idx = Array.from({ length: Ztr.length }, function(_, q){ return q; }); idx.sort(function(a, b){ return ds[a] - ds[b]; }); var c = 0; for (q = 0; q < K; q++) c += ytr[idx[q]]; return c / K; }; });
+    var trIdx = Ztr.map(function(_, q){ return q; });
+    score('tree', '결정 나무 (깊이 4)', 'Decision tree', function(){ var T = tree(Ztr, ytr, trIdx, 4, 25, 0, R, 24); return function(z){ return tval(T, z); }; });
+    score('rf', '랜덤 포레스트 (나무 60그루)', 'Random forest', function(){ var Ts = [], m = Math.max(2, Math.round(Math.sqrt(d)));
+      for (var k = 0; k < 60; k++){ var bs = []; for (var q = 0; q < Ztr.length; q++) bs.push(Math.floor(R() * Ztr.length)); Ts.push(tree(Ztr, ytr, bs, 6, 12, m, R, 12)); }
+      return function(z){ var s = 0; for (var k = 0; k < Ts.length; k++) s += tval(Ts[k], z); return s / Ts.length; }; });
+    score('gbm', '그래디언트 부스팅 (80번)', 'Gradient boosting', function(){
+      var F0 = Math.log(Math.max(pos, 1e-6) / Math.max(1 - pos, 1e-6)), Fv = new Float64Array(Ztr.length).fill(F0), Ts = [], lr = 0.1;
+      for (var m = 0; m < 80; m++){
+        var rr = new Float64Array(Ztr.length), hh = new Float64Array(Ztr.length); for (var q = 0; q < Ztr.length; q++){ var p = sig(Fv[q]); rr[q] = ytr[q] - p; hh[q] = p * (1 - p); }
+        var T = tree(Ztr, rr, trIdx, 2, 30, 0, R, 16);
+        //  잎 값 = 뉴턴 한 걸음 (Σ잔차 ÷ Σp(1−p))
+        var acc = new Map(); for (q = 0; q < Ztr.length; q++){ var L = leaf(T, Ztr[q]), o = acc.get(L) || { r: 0, h: 0 }; o.r += rr[q]; o.h += hh[q]; acc.set(L, o); }
+        acc.forEach(function(o, L){ L.v = Math.max(-4, Math.min(4, o.r / (o.h + 1e-9))); });
+        for (q = 0; q < Ztr.length; q++) Fv[q] += lr * leaf(T, Ztr[q]).v; Ts.push(T);
+      }
+      return function(z){ var s = F0; for (var k = 0; k < Ts.length; k++) s += lr * tval(Ts[k], z); return sig(s); }; });
+    score('svm', 'SVM (RBF 커널)', 'Support vector machine', function(){
+      var m = Math.min(700, Ztr.length), Xs = Ztr.slice(Ztr.length - m), Ys = ytr.slice(ytr.length - m).map(function(v){ return v ? 1 : -1; }), g = 1 / d, Cc = 1;
+      var K = new Float64Array(m * m), a, q, i2, j2;
+      for (i2 = 0; i2 < m; i2++) for (j2 = i2; j2 < m; j2++){ var s = 0; for (a = 0; a < d; a++){ var t = Xs[i2][a] - Xs[j2][a]; s += t * t; } K[i2 * m + j2] = K[j2 * m + i2] = Math.exp(-g * s); }
+      var al = new Float64Array(m), b = 0, passes = 0, it = 0, tol = 1e-3;
+      var fx = function(i){ var s = b; for (var j = 0; j < m; j++) if (al[j]) s += al[j] * Ys[j] * K[i * m + j]; return s; };
+      while (passes < 3 && it < 40){ it++; var ch = 0;
+        for (i2 = 0; i2 < m; i2++){ var Ei = fx(i2) - Ys[i2];
+          if ((Ys[i2] * Ei < -tol && al[i2] < Cc) || (Ys[i2] * Ei > tol && al[i2] > 0)){
+            j2 = Math.floor(R() * (m - 1)); if (j2 >= i2) j2++;
+            var Ej = fx(j2) - Ys[j2], ai = al[i2], aj = al[j2], Lb, Hb;
+            if (Ys[i2] !== Ys[j2]){ Lb = Math.max(0, aj - ai); Hb = Math.min(Cc, Cc + aj - ai); } else { Lb = Math.max(0, ai + aj - Cc); Hb = Math.min(Cc, ai + aj); }
+            if (Lb >= Hb) continue;
+            var eta = 2 * K[i2 * m + j2] - K[i2 * m + i2] - K[j2 * m + j2]; if (eta >= 0) continue;
+            var ajn = aj - Ys[j2] * (Ei - Ej) / eta; ajn = Math.min(Hb, Math.max(Lb, ajn)); if (Math.abs(ajn - aj) < 1e-5) continue;
+            var ain = ai + Ys[i2] * Ys[j2] * (aj - ajn);
+            var b1 = b - Ei - Ys[i2] * (ain - ai) * K[i2 * m + i2] - Ys[j2] * (ajn - aj) * K[i2 * m + j2], b2 = b - Ej - Ys[i2] * (ain - ai) * K[i2 * m + j2] - Ys[j2] * (ajn - aj) * K[j2 * m + j2];
+            b = (ain > 0 && ain < Cc) ? b1 : (ajn > 0 && ajn < Cc) ? b2 : (b1 + b2) / 2;
+            al[i2] = ain; al[j2] = ajn; ch++; } }
+        passes = ch ? 0 : passes + 1; }
+      var sv = []; for (q = 0; q < m; q++) if (al[q] > 1e-8) sv.push(q);
+      return function(z){ var s = b; for (var k = 0; k < sv.length; k++){ var j = sv[k], x = Xs[j], dd = 0; for (var a2 = 0; a2 < d; a2++){ var t = x[a2] - z[a2]; dd += t * t; } s += al[j] * Ys[j] * Math.exp(-g * dd); } return sig(2 * s); }; });
+    score('mlp', '신경망 (은닉 16칸)', 'Neural network (MLP)', function(){
+      var H = 16, W1 = [], b1 = new Float64Array(H), W2 = new Float64Array(H), b2 = 0, a, h, q, ep;
+      for (h = 0; h < H; h++){ var row = new Float64Array(d); for (a = 0; a < d; a++) row[a] = (R() * 2 - 1) * Math.sqrt(1 / d); W1.push(row); W2[h] = (R() * 2 - 1) * Math.sqrt(1 / H); }
+      var P = [], add = function(arr){ P.push({ x: arr, m: new Float64Array(arr.length || 1), v: new Float64Array(arr.length || 1) }); };
+      W1.forEach(add); add(b1); add(W2);
+      var mb = { m: 0, v: 0 }, t = 0, lr = 0.005, l2 = 1e-3, B1 = 0.9, B2 = 0.999, order = trIdx.slice();
+      var fwd = function(z, hid){ var s = b2; for (var h2 = 0; h2 < H; h2++){ var u = b1[h2], w = W1[h2]; for (var a3 = 0; a3 < d; a3++) u += w[a3] * z[a3]; var th = Math.tanh(u); if (hid) hid[h2] = th; s += W2[h2] * th; } return sig(s); };
+      var hid = new Float64Array(H);
+      for (ep = 0; ep < 60; ep++){
+        for (q = order.length - 1; q > 0; q--){ var jj = Math.floor(R() * (q + 1)), tp = order[q]; order[q] = order[jj]; order[jj] = tp; }
+        for (var st = 0; st < order.length; st += 32){
+          var gW1 = W1.map(function(){ return new Float64Array(d); }), gb1 = new Float64Array(H), gW2 = new Float64Array(H), gb2 = 0, nb = 0;
+          for (q = st; q < Math.min(order.length, st + 32); q++){ var z = Ztr[order[q]], p = fwd(z, hid), dz = p - ytr[order[q]]; nb++;
+            gb2 += dz; for (h = 0; h < H; h++){ gW2[h] += dz * hid[h]; var dh = dz * W2[h] * (1 - hid[h] * hid[h]); gb1[h] += dh; var gw = gW1[h]; for (a = 0; a < d; a++) gw[a] += dh * z[a]; } }
+          t++; var c1 = 1 - Math.pow(B1, t), c2 = 1 - Math.pow(B2, t);
+          var upd = function(Pp, gr, wd){ for (var k = 0; k < gr.length; k++){ var g2 = gr[k] / nb + wd * Pp.x[k]; Pp.m[k] = B1 * Pp.m[k] + (1 - B1) * g2; Pp.v[k] = B2 * Pp.v[k] + (1 - B2) * g2 * g2; Pp.x[k] -= lr * (Pp.m[k] / c1) / (Math.sqrt(Pp.v[k] / c2) + 1e-8); } };
+          for (h = 0; h < H; h++) upd(P[h], gW1[h], l2); upd(P[H], gb1, 0); upd(P[H + 1], gW2, l2);
+          var gg = gb2 / nb; mb.m = B1 * mb.m + (1 - B1) * gg; mb.v = B2 * mb.v + (1 - B2) * gg * gg; b2 -= lr * (mb.m / c1) / (Math.sqrt(mb.v / c2) + 1e-8);
+        }
+      }
+      return function(z){ return fwd(z, null); }; });
+    var nTe = yte.length, bpos = yte.reduce(function(a, b){ return a + b; }, 0) / nTe;
+    return { kind: kind, models: out, nTr: tr.length, nTe: nTe, d: d, testBase: Math.max(bpos, 1 - bpos), testUp: bpos, trainMaj: maj, se: Math.sqrt(0.25 / nTe),
+      from: tr[0], split: te[0], to: te[te.length - 1], names: kind === 'reg' ? REG_F : DIR_F };
+  }
+  function run(m){
+    var lam = m.lam || 1;
+    if (m.cmd === 'walk') return walk(m.bars, m.ohlc, m.ann, m.kind, m.hz || 1, lam);
+    if (m.cmd === 'contest') return contest(m.bars, m.ohlc, m.ann, m.kind, m.seed);
+    throw new Error('unknown cmd');
+  }
+  return { run: run };
+}
+
+/* ══════════ (34차) 퀀트 › 모델 › 머신러닝 — 추세 · 횡보 예측 / 방향 예측 / 모델 겨루기 ══════════
+   학회장: 'Asset/stock prediction model 하나 만드시죠' · '프로 웹디자이너처럼 간격 · 상호작용 · 단순하고 직접적으로'
+   · 자료 = 일봉 (미국 · 국내 · 코인) · 계산 = 백그라운드 작업자 (화면 안 멈춤)
+   · 검증 = 걸어가며 검증 (그날까지 자료로만 배우고 다음 날을 맞힘 · 21일마다 다시 배움) — 미래 자료를 쓰지 않음  */
+var ML_LS = 'safe_ml_v1';
+var ML = { tab: 'mlreg', asset: 'US:SPY', yrs: 10, hz: 1, strat: 'trend', th: 0.55, cmpT: 'dir', cost: 5, my: [], px: {}, nm: {}, res: {}, run: 0, sel: null, ch: {} };
+(function(){ try { var o = JSON.parse(LSX.getItem(ML_LS) || 'null'); if (o){ ['asset', 'yrs', 'hz', 'strat', 'th', 'cmpT', 'cost'].forEach(function(k){ if (o[k] != null) ML[k] = o[k]; }); if (Array.isArray(o.my)) ML.my = o.my.filter(function(x){ return Array.isArray(x) && /^(US|KR|CC):/.test(String(x[0])); }).slice(0, 10); } } catch(e){} })();
+function mlSave(){ try { LSX.setItem(ML_LS, JSON.stringify({ asset: ML.asset, yrs: ML.yrs, hz: ML.hz, strat: ML.strat, th: ML.th, cmpT: ML.cmpT, cost: ML.cost, my: ML.my })); } catch(e){} }
+var ML_LIST = [
+  ['ix', '지수 · ETF', [['US:SPY', 'S&P 500 (SPY)'], ['US:QQQ', '나스닥 100 (QQQ)'], ['US:DIA', '다우 30 (DIA)'], ['US:IWM', '러셀 2000 (IWM)'], ['KR:069500', '코스피 200 (KODEX 200)'], ['KR:229200', '코스닥 150 (KODEX)'], ['US:EWJ', '일본 (EWJ)'], ['US:FEZ', '유로 스톡스 50 (FEZ)'], ['US:GLD', '금 (GLD)'], ['US:TLT', '미 장기채 (TLT)']]],
+  ['st', '대형주', [['US:AAPL', '애플'], ['US:NVDA', '엔비디아'], ['US:MSFT', '마이크로소프트'], ['US:TSLA', '테슬라'], ['KR:005930', '삼성전자'], ['KR:000660', 'SK하이닉스']]],
+  ['cc', '코인', [['CC:BTC-USD', '비트코인 (BTC)'], ['CC:ETH-USD', '이더리움 (ETH)'], ['CC:SOL-USD', '솔라나 (SOL)'], ['CC:XRP-USD', '리플 (XRP)']]]
+];
+function mlCoKey(){ if (typeof co === 'undefined' || !co) return null; if (co.market === 'US' && (co.sub || co.code)) return 'US:' + String(co.sub || co.code).toUpperCase(); if (co.market === 'KR' && /^\d{6}$/.test(String(co.code || ''))) return 'KR:' + co.code; return null; }
+function mlNm(k){
+  var hit = null; ML_LIST.some(function(g){ return g[2].some(function(a){ if (a[0] === k){ hit = a[1]; return true; } return false; }); });
+  if (hit) return hit; var m = ML.my.filter(function(a){ return a[0] === k; })[0]; if (m) return m[1];
+  if (k === mlCoKey() && co && co.name) return co.name;
+  return ML.nm[k] || k.replace(/^(US|KR|CC):/, '').replace(/-USD$/, '');
+}
+function mlPick(){
+  var cur = ML.asset, seen = {}, g = [];
+  var ck = mlCoKey(); if (ck){ g.push(['지금 보던 회사', [[ck, (co && co.name ? co.name : ck)]]]); }
+  var mine = ML.my.slice(); if (typeof QMY !== 'undefined') QMY.list.forEach(function(a){ if (/^(US|KR):/.test(a[0]) && !mine.some(function(b){ return b[0] === a[0]; })) mine.push([a[0], a[1]]); });
+  if (mine.length) g.push(['직접 넣은 종목', mine]);
+  ML_LIST.forEach(function(x){ g.push([x[1], x[2]]); });
+  var html = g.map(function(x){ return '<optgroup label="' + esc(x[0]) + '">' + x[1].filter(function(a){ if (seen[a[0]]) return false; seen[a[0]] = 1; return true; }).map(function(a){ return '<option value="' + esc(a[0]) + '"' + (a[0] === cur ? ' selected' : '') + '>' + esc(a[1]) + '</option>'; }).join('') + '</optgroup>'; }).join('');
+  if (!seen[cur]) html = '<option value="' + esc(cur) + '" selected>' + esc(mlNm(cur)) + '</option>' + html;
+  return '<select id="mlAsset" aria-label="자산" onchange="mlAssetSet(this.value)">' + html + '</select>';
+}
+function mlParse(s){
+  s = String(s || '').trim().toUpperCase().replace(/\s+/g, ''); if (!s) return null;
+  if (/^\d{6}$/.test(s)) return 'KR:' + s;
+  if (/^[A-Z0-9]{2,10}-USD$/.test(s)) return 'CC:' + s;
+  if (/^(BTC|ETH|SOL|XRP|DOGE|ADA|BNB|AVAX|LINK|DOT|TRX|LTC|SUI|TON)$/.test(s)) return 'CC:' + s + '-USD';
+  if (/^[A-Z][A-Z0-9.\-]{0,9}$/.test(s)) return 'US:' + s;
+  return null;
+}
+function mlAddGo(){
+  var el = $('mlAdd'), k = mlParse(el && el.value); if (!k){ if (el){ el.classList.add('bad'); setTimeout(function(){ el.classList.remove('bad'); }, 900); } return; }
+  if (!ML.my.some(function(a){ return a[0] === k; })){ ML.my.unshift([k, k.replace(/^(US|KR|CC):/, '').replace(/-USD$/, '')]); ML.my = ML.my.slice(0, 10); }
+  if (el) el.value = '';
+  mlAssetSet(k);
+}
+function mlAssetSet(k){ ML.asset = k; ML.sel = null; mlSave(); mlRender(true); }
+function mlSet(key, v){ ML[key] = v; if (key !== 'strat' && key !== 'th') ML.sel = null; mlSave(); if (key === 'strat' || key === 'th') mlDraw(); else mlRender(true); }
+function mlCostSet(v){ var n = Math.round(Number(v)); ML.cost = isFinite(n) ? Math.max(0, Math.min(200, n)) : 5; mlSave(); mlDraw(); }
+
+/* ── 시세 (일봉 · 시가 · 고가 · 저가가 있으면 같이) ── */
+function mlPx(key, yrs){
+  var ck = key + '|' + yrs; if (ML.px[ck]) return ML.px[ck];
+  var m = /^(US|KR|CC):(.+)$/.exec(key); if (!m) return Promise.reject(new Error('모르는 종목'));
+  var start = new Date(Date.now() - (yrs + 1.25) * 365.25 * 864e5).toISOString().slice(0, 10);
+  var src = m[1] === 'US' ? 'quote_us' : m[1] === 'KR' ? 'quote_kr' : 'quote_crypto';
+  var p = edge({ source: src, code: m[2], item_code: '', cycle: 'D', start: start }).then(function(d){
+    try { var nm = d && (d.name || d.n); if (nm) ML.nm[key] = String(nm).slice(0, 30); } catch(e){}
+    var pts = (d && d.points || []).map(function(x){ var c = Number(x.v != null ? x.v : x.c), o = Number(x.o), h = Number(x.h), l = Number(x.l);
+      var ok = o > 0 && h > 0 && l > 0 && h >= Math.max(o, c) - 1e-9 && l <= Math.min(o, c) + 1e-9;
+      return { d: String(x.d || '').slice(0, 10), c: c, o: ok ? o : null, h: ok ? h : null, l: ok ? l : null }; })
+      .filter(function(x){ return x.d && x.c > 0 && isFinite(x.c); }).sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+    var out = []; pts.forEach(function(x){ if (out.length && out[out.length - 1].d === x.d) out[out.length - 1] = x; else out.push(x); });
+    if (out.length < 420) throw new Error('시세가 너무 짧습니다 (' + out.length + '일)');
+    var rng = out.filter(function(x){ return x.h != null && x.h > x.l; }).length;
+    out.ohlc = rng >= out.length * 0.8;
+    return out;
+  });
+  p.catch(function(){ delete ML.px[ck]; });
+  ML.px[ck] = p; return p;
+}
+/* ── 계산 맡기기 (작업자 · 못 쓰면 화면에서) ── */
+var ML_W = null, ML_WQ = {}, ML_WID = 0, ML_CORE = null;
+function mlSync(msg){ try { return (ML_CORE || (ML_CORE = mlCore())).run(msg); } catch(e){ return { error: String(e && e.message || e) }; } }
+function mlWorker(){
+  if (ML_W !== null) return ML_W;
+  try {
+    var src = 'var CORE=(' + mlCore.toString() + ')();self.onmessage=function(e){var m=e.data,r;try{r=CORE.run(m.msg);}catch(x){r={error:String(x&&x.message||x)};}self.postMessage({id:m.id,res:r});};';
+    ML_W = new Worker(URL.createObjectURL(new Blob([src], { type: 'application/javascript' })));
+    ML_W.onmessage = function(e){ var q = ML_WQ[e.data.id]; if (q){ delete ML_WQ[e.data.id]; q.res(e.data.res); } };
+    ML_W.onerror = function(){ ML_W = false; Object.keys(ML_WQ).forEach(function(id){ var q = ML_WQ[id]; delete ML_WQ[id]; setTimeout(function(){ q.res(mlSync(q.msg)); }, 20); }); };
+  } catch(e){ ML_W = false; }
+  return ML_W;
+}
+function mlCompute(msg){
+  return new Promise(function(res){
+    var w = mlWorker();
+    if (w){ var id = ++ML_WID; ML_WQ[id] = { res: res, msg: msg }; try { w.postMessage({ id: id, msg: msg }); } catch(e){ delete ML_WQ[id]; setTimeout(function(){ res(mlSync(msg)); }, 20); } }
+    else setTimeout(function(){ res(mlSync(msg)); }, 30);
+  });
+}
+function mlAnn(k){ return /^CC:/.test(k) ? 365 : 252; }
+function mlKey(){ return ML.tab + '|' + ML.asset + '|' + ML.yrs + '|' + (ML.tab === 'mldir' ? ML.hz : ML.tab === 'mlcmp' ? ML.cmpT : ''); }
+
+/* ── 숫자 ── */
+function mlP(v, dp){ return v == null || !isFinite(v) ? '-' : (v * 100).toFixed(dp == null ? 1 : dp) + '%'; }
+function mlS(v, dp){ return v == null || !isFinite(v) ? '-' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v * 100).toFixed(dp == null ? 1 : dp) + '%'; }
+function mlN(v, dp){ return v == null || !isFinite(v) ? '-' : (+v).toFixed(dp == null ? 2 : dp); }
+function mlSN(v, dp){ return v == null || !isFinite(v) ? '-' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(+v).toFixed(dp == null ? 3 : dp); }
+function mlC(){ var dk = qDark(); return { tr: dk ? '#5fd39a' : '#14935f', ch: dk ? '#a99bff' : '#6d5cf6', mid: dk ? '#4b5368' : '#c5cad6', co: dk ? '#8fa0ff' : '#2f45e6', gr: dk ? '#6b7388' : '#a3a9b8', ink: qInk(), sub: qSub(), grid: qGrid(), up: dk ? '#ff7b72' : '#d23b30', dn: dk ? '#6ea8ff' : '#1f5fd1' }; }
+
+/* ── 화면 틀 ── */
+function mlHtml(){
+  var t = ML.tab;
+  var seg = function(id, items, cur, key){ return '<div class="mode-seg q-seg ml-seg" id="' + id + '">' + items.map(function(x){ return '<button type="button" class="' + (String(x[0]) === String(cur) ? 'on' : '') + '" onclick="mlSet(\'' + key + '\',' + (typeof x[0] === 'number' ? x[0] : '\'' + x[0] + '\'') + ')">' + esc(x[1]) + '</button>'; }).join('') + '</div>'; };
+  var f = function(lab, body, cls){ return '<div class="ml-f' + (cls ? ' ' + cls : '') + '"><span class="ml-fl">' + esc(lab) + '</span>' + body + '</div>'; };
+  var ctl = '<div class="ml-ctl">' + f('자산', mlPick(), 'ml-fa')
+    + f('직접 입력', '<span class="ml-add"><input type="text" id="mlAdd" maxlength="16" placeholder="AAPL · 005930 · BTC" onkeydown="if(event.key===\'Enter\'){event.preventDefault();mlAddGo();}"><button type="button" class="btn-sm" onclick="mlAddGo()">넣기</button></span>')
+    + f('기간', seg('mlYrs', [[5, '5년'], [10, '10년']], ML.yrs, 'yrs'))
+    + (t === 'mlreg' ? f('함께 볼 전략', seg('mlStrat', [['trend', '추세 추종'], ['mr', '평균 회귀']], ML.strat, 'strat')) : '')
+    + (t === 'mldir' ? f('맞힐 기간', seg('mlHz', [[1, '다음 날'], [5, '다음 주']], ML.hz, 'hz')) + f('강세 기준', seg('mlTh', [[0.5, '50%'], [0.55, '55%'], [0.6, '60%']], ML.th, 'th')) : '')
+    + (t === 'mlcmp' ? f('맞힐 것', seg('mlCmpT', [['dir', '방향 (다음 날)'], ['reg', '추세 · 횡보']], ML.cmpT, 'cmpT')) : '')
+    + (t !== 'mlcmp' ? f('거래 비용 (편도)', '<span class="ml-cost"><input type="number" id="mlCost" min="0" max="200" step="1" value="' + ML.cost + '" onchange="mlCostSet(this.value)"><i>bp</i></span>') : '')
+    + '</div>';
+  return '<div class="ml-wrap ' + (t === 'mldir' ? 'is-dir' : 'is-reg') + '" id="mlWrap">' + ctl + '<div id="mlOut">' + mlWaitHtml() + '</div></div>';
+}
+function mlWaitHtml(msg){ return '<div class="ml-hero ml-hero-wait"><div class="ml-kick"><i></i>' + esc(msg || '로딩 중…') + '</div><div class="ml-skel"><i></i><i></i><i></i></div></div>'; }
+function mlRender(reload){
+  var out = $('mlOut'); if (!out) return;
+  if (reload){ var w = $('mlWrap'); if (w && w.parentNode){ var tmp = document.createElement('div'); tmp.innerHTML = mlHtml(); w.parentNode.replaceChild(tmp.firstChild, w); out = $('mlOut'); } }
+  var key = mlKey(), run = ++ML.run;
+  if (ML.res[key]){ mlDraw(); return; }
+  out.innerHTML = mlWaitHtml('로딩 중…');
+  mlPx(ML.asset, ML.yrs).then(function(P){
+    if (run !== ML.run) return;
+    var cut = new Date(Date.now() - (ML.yrs + 1.15) * 365.25 * 864e5).toISOString().slice(0, 10), B = P.filter(function(x){ return x.d >= cut; });
+    var bars = B.map(function(x){ return { c: x.c, o: x.o, h: x.h, l: x.l }; });
+    var msg = ML.tab === 'mlcmp' ? { cmd: 'contest', bars: bars, ohlc: P.ohlc, ann: mlAnn(ML.asset), kind: ML.cmpT, seed: 11 } : { cmd: 'walk', bars: bars, ohlc: P.ohlc, ann: mlAnn(ML.asset), kind: ML.tab === 'mlreg' ? 'reg' : 'dir', hz: ML.tab === 'mldir' ? ML.hz : 1 };
+    var o2 = $('mlOut'); if (o2) o2.innerHTML = mlWaitHtml(ML.tab === 'mlcmp' ? '8개 모델 학습 중…' : '걸어가며 학습 · 검증 중…');
+    return mlCompute(msg).then(function(R){
+      if (run !== ML.run) return;
+      if (!R || R.error) throw new Error(R && R.error || '계산 실패');
+      R.d = B.map(function(x){ return x.d; }); R.c = B.map(function(x){ return x.c; }); R.ohlc = P.ohlc; R.asset = ML.asset;
+      ML.res[key] = R; mlDraw();
+    });
+  }).catch(function(e){ if (run !== ML.run) return; var o3 = $('mlOut'); if (o3) o3.innerHTML = '<div class="card ml-card"><p class="st-hint" style="margin:0">' + esc(String(e && e.message || e).indexOf('짧') >= 0 ? String(e.message) : '자료를 받지 못했습니다. 잠시 뒤 다시 골라 주세요.') + (typeof isOfficer === 'function' && isOfficer() && e ? ' <span class="officer-hint">(' + esc(String(e && e.message || e).slice(0, 120)) + ')</span>' : '') + '</p></div>'; });
+}
+function mlDraw(){
+  var R = ML.res[mlKey()], out = $('mlOut'); if (!R || !out) return;
+  if (ML.tab === 'mlcmp') return mlDrawCmp(R, out);
+  return mlDrawWalk(R, out);
+}
+
+/* ── 전략 성과 (표본 밖) ── */
+function mlBack(R, posOf){
+  var n = R.n, k0 = R.k0, cost = ML.cost / 1e4, eq = 1, pk = 1, dd = 0, ret = [], curve = [], prev = 0, held = 0, trades = [], cur = null, days = 0;
+  for (var t = k0; t < n - 1; t++){
+    var pos = posOf(t), r = R.c[t + 1] / R.c[t] - 1, c = Math.abs(pos - prev) * cost, d = pos * r - c;
+    if (pos && !prev) cur = { r: 1 }; if (cur) cur.r *= (1 + pos * r) * (1 - c);
+    if (!pos && prev && cur){ cur.r *= (1 - c); trades.push(cur.r - 1); cur = null; }
+    eq *= 1 + d; if (eq > pk) pk = eq; var ddn = 1 - eq / pk; if (ddn > dd) dd = ddn;
+    ret.push(d); curve.push(eq - 1); if (pos) held++; days++; prev = pos;
+  }
+  if (cur) trades.push(cur.r - 1);
+  var m = 0; ret.forEach(function(x){ m += x; }); m /= Math.max(1, ret.length); var s = 0; ret.forEach(function(x){ s += (x - m) * (x - m); }); s = Math.sqrt(s / Math.max(1, ret.length - 1));
+  var gp = 0, gl = 0, w = 0; trades.forEach(function(x){ if (x > 0){ gp += x; w++; } else gl -= x; });
+  var ann = mlAnn(R.asset), tot = eq - 1;
+  return { tot: tot, dd: dd, sharpe: s > 0 ? m / s * Math.sqrt(ann) : 0, n: trades.length, exp: trades.length ? trades.reduce(function(a, b){ return a + b; }, 0) / trades.length : 0, win: trades.length ? w / trades.length : 0, pf: gl > 0 ? gp / gl : (gp > 0 ? Infinity : 0), rdd: dd > 0 ? tot / dd : 0, exposure: days ? held / days : 0, curve: curve };
+}
+function mlPosFns(R){
+  var b = R.b, c = R.c, sma = R.sma20, p = R.p;
+  if (R.kind === 'reg'){
+    if (ML.strat === 'mr') return { base: function(t){ return c[t] < c[t - 1] ? 1 : 0; }, model: function(t){ return c[t] < c[t - 1] && b[t] !== 2 ? 1 : 0; }, baseNm: '평균 회귀 (오늘 내리면 다음 날 하루 보유)', rule: '추세 예상일은 쉼' };
+    return { base: function(t){ return c[t] > sma[t] ? 1 : 0; }, model: function(t){ return c[t] > sma[t] && b[t] !== 0 ? 1 : 0; }, baseNm: '추세 추종 (20일선 위면 보유)', rule: '횡보 예상일은 쉼' };
+  }
+  var hz = R.hz, th = ML.th, k0 = R.k0;
+  if (hz > 1){ var dec = function(t){ return t - ((t - k0) % hz); }; return { base: function(){ return 1; }, model: function(t){ var s0 = dec(t); return p[s0] >= th ? 1 : 0; }, baseNm: '그냥 보유 (늘 들고 있기)', rule: '확률 ' + Math.round(th * 100) + '% 이상인 주만 보유 (5일마다 다시 판단)' }; }
+  return { base: function(){ return 1; }, model: function(t){ return p[t] >= th ? 1 : 0; }, baseNm: '그냥 보유 (늘 들고 있기)', rule: '오를 확률 ' + Math.round(th * 100) + '% 이상인 날만 보유' };
+}
+/* ── 하루 점수 쪼개기 (가중치 × 평소 대비 값) ── */
+function mlContrib(R, t){
+  var M = t === R.final.last && ML.sel == null ? R.final : (R.mi[t] >= 0 ? R.models[R.mi[t]] : R.final), x = R.X[t]; if (!x || !M) return null;
+  var z = x.map(function(v, a){ var q = (v - M.mu[a]) / M.sd[a]; return Math.max(-5, Math.min(5, q)); }), c = z.map(function(q, a){ return M.w[a + 1] * q; });
+  var score = M.w[0] + c.reduce(function(s, v){ return s + v; }, 0), p = 1 / (1 + Math.exp(-score));
+  return { M: M, z: z, c: c, x: x, score: score, p: p, b0: M.w[0], lo: M.lo, hi: M.hi };
+}
+function mlDrawWalk(R, out){
+  var C = mlC(), reg = R.kind === 'reg', n = R.n, last = R.final.last, sel = ML.sel != null && ML.sel < n ? ML.sel : null, t = sel != null ? sel : last;
+  var K = mlContrib(R, t); if (!K){ out.innerHTML = '<div class="card ml-card"><p class="st-hint" style="margin:0">측정값을 만들 수 없는 날입니다.</p></div>'; return; }
+  var nm = mlNm(R.asset), d = R.d, isCC = /^CC:/.test(R.asset), nextNm = isCC ? '다음 날' : (reg || R.hz === 1 ? '다음 거래일' : '다음 5거래일');
+  var bk = K.p < K.lo ? 0 : K.p > K.hi ? 2 : 1;
+  var ev = R.ev, F = mlPosFns(R), A = mlBack(R, F.base), Bm = mlBack(R, F.model);
+  //  ① 결론 (히어로)
+  var sig = !reg ? (K.p >= ML.th ? ['up', '강세 신호'] : K.p <= 1 - ML.th ? ['dn', '약세 신호'] : ['nt', '중립']) : null;
+  var actual = '';
+  if (sel != null && t + R.hz < n){ if (reg){ var ef = R.e[t + 1], md = R.med[t + 1]; actual = '실제: ' + (ef > md ? '추세' : '횡보') + ' (그날 효율 ' + mlN(ef, 2) + ' · 평소 ' + mlN(md, 2) + ')'; } else { var rr = R.c[t + R.hz] / R.c[t] - 1; actual = '실제: ' + mlS(rr, 2) + (rr > 0 ? ' 오름' : ' 내림'); } }
+  var hero = '<section class="ml-hero" id="mlHero"><div class="ml-hero-g">'
+    + '<div class="ml-hero-l"><div class="ml-kick"><i></i>' + esc((sel != null ? '지난 예측 · ' : 'NEXT · ') + nm + ' · ' + d[t] + ' 종가 기준') + '</div>'
+    + (reg ? '<h3 class="ml-h"><span class="ml-hl">' + esc(nextNm) + '</span> 추세장일 확률</h3>' : '<h3 class="ml-h"><span class="ml-hl">' + esc(nextNm) + '</span> 오를 확률</h3>')
+    + '<div class="ml-big"><b>' + (K.p * 100).toFixed(1) + '</b><em>%</em>' + (sig ? '<span class="ml-sig ' + sig[0] + '">' + esc(sig[1]) + '</span>' : '') + '</div>'
+    + '<p class="ml-sub">' + esc(reg ? '추세장 = 그날 하루 효율이 평소 (지난 120일 중앙값) 보다 높은 날 · 한 방향으로 곧게 움직임' : (R.hz === 1 ? '다음 거래일 종가가 오늘 종가보다 높을 확률' : '5거래일 뒤 종가가 오늘 종가보다 높을 확률')) + '</p>'
+    + (reg ? '<div class="ml-meter" role="img" aria-label="' + esc(['횡보 예상', '중간', '추세 예상'][bk]) + '">' + ['횡보 예상', '중간', '추세 예상'].map(function(x, i){ return '<span class="' + ['c', 'm', 't'][i] + (i === bk ? ' on' : '') + '">' + esc(x) + '</span>'; }).join('') + '</div>'
+         + '<p class="ml-cuts">경계 ' + mlN(K.lo, 3) + ' · ' + mlN(K.hi, 3) + ' = 학습 구간 예측을 셋으로 나눈 자리</p>'
+         : '<div class="ml-gauge" role="img" aria-label="' + esc(sig[1]) + '"><span class="dn">약세</span><span class="nt">중립</span><span class="up">강세</span><u style="left:' + Math.max(2, Math.min(98, (K.p - 0.3) / 0.4 * 100)).toFixed(1) + '%"></u></div><p class="ml-cuts">눈금 30% ~ 70% · 기준 ' + Math.round(ML.th * 100) + '% / ' + Math.round((1 - ML.th) * 100) + '%</p>')
+    + (actual ? '<p class="ml-actual">' + esc(actual) + ' <button type="button" class="ml-back" onclick="mlSel(null)">오늘로 돌아가기</button></p>' : '')
+    + '</div><div class="ml-hero-r"><div class="ml-sc" id="mlSc"></div><p class="ml-eq">p = σ(b + Σ wᵢ·zᵢ) · 점수 <b>' + mlSN(K.score, 2) + '</b></p></div></div></section>';
+  //  ② 왜 — 점수 쪼개기
+  var idx = K.c.map(function(_, a){ return a; }).sort(function(a, b){ return Math.abs(K.c[b]) - Math.abs(K.c[a]); }), top = idx.slice(0, 6), rest = idx.slice(6), restSum = rest.reduce(function(s, a){ return s + K.c[a]; }, 0);
+  var mx = Math.max.apply(null, top.map(function(a){ return Math.abs(K.c[a]); }).concat([Math.abs(restSum), 1e-6]));
+  var left = reg ? '횡보 쪽' : '약세 쪽', right = reg ? '추세 쪽' : '강세 쪽';
+  var row = function(name, v, tip, cls){ var w = Math.abs(v) / mx * 50; return '<div class="ml-wr' + (cls ? ' ' + cls : '') + '" title="' + esc(tip) + '"><span class="n">' + esc(name) + '</span><span class="bar"><i class="' + (v >= 0 ? 'p' : 'q') + '" style="width:' + w.toFixed(2) + '%;' + (v >= 0 ? 'left:50%' : 'right:50%') + '"></i></span><b class="' + (v >= 0 ? 'p' : 'q') + '">' + mlSN(v, 3) + '</b></div>'; };
+  var why = '<div class="card ml-card"><div class="ml-hd"><span class="ml-k">02 · WHY</span><h3>왜 이렇게 봤나</h3><span class="ml-hint">막대 = 배운 가중치 × 그날 값 (평소 대비 몇 표준편차)</span></div>'
+    + '<div class="ml-why"><div class="ml-wax"><span class="q">← ' + esc(left) + '</span><span class="p">' + esc(right) + ' →</span></div>'
+    + top.map(function(a){ return row(R.names[a], K.c[a], R.names[a] + ' · 그날 값 ' + mlN(K.x[a], 3) + ' · 평소 대비 ' + mlSN(K.z[a], 2) + 'σ · 가중치 ' + mlSN(K.M.w[a + 1], 3)); }).join('')
+    + (rest.length ? row('나머지 ' + rest.length + '개', restSum, rest.map(function(a){ return R.names[a] + ' ' + mlSN(K.c[a], 3); }).join(' · '), 'rest') : '') + '</div>'
+    + '<p class="ml-score">점수 = 기본값 ' + mlSN(K.b0, 3) + ' + ' + R.names.length + '개 합 ' + mlSN(K.score - K.b0, 3) + ' = <b>' + mlSN(K.score, 3) + '</b> → 확률 1 ÷ (1 + e<sup>−점수</sup>) = <b>' + mlP(K.p, 1) + '</b></p></div>';
+  //  ③ 맞혔나 — 표본 밖 검증
+  var kpi = function(k, v, s, cls){ return '<div class="ml-kp' + (cls ? ' ' + cls : '') + '"><span>' + esc(k) + '</span><b>' + v + '</b><em>' + esc(s) + '</em></div>'; };
+  var llGain = ev ? (1 - ev.ll / ev.llBase) : null;
+  var check = '<div class="card ml-card"><div class="ml-hd"><span class="ml-k">03 · OUT OF SAMPLE</span><h3>처음 보는 날에 맞혔나</h3><span class="ml-hint">' + esc(d[R.k0] + ' ~ ' + d[n - 1] + ' · 그날까지 자료로만 배운 모델의 예측') + '</span></div>'
+    + '<div class="ml-kps">' + kpi('AUC', mlN(ev.auc, 3), '0.5 = 동전 던지기 · 1 = 완벽', ev.auc >= 0.55 ? 'good' : ev.auc < 0.51 ? 'weak' : '')
+    + kpi('적중률', mlP(ev.acc, 1), '기준 ' + mlP(ev.baseAcc, 1) + ' (늘 많은 쪽)', ev.acc > ev.baseAcc + 0.01 ? 'good' : ev.acc < ev.baseAcc ? 'weak' : '')
+    + kpi('로그 손실 개선', mlS(llGain, 1), '확률을 기준보다 얼마나 잘 냈나', llGain > 0.005 ? 'good' : llGain < 0 ? 'weak' : '')
+    + kpi('표본 밖', ev.n.toLocaleString() + '일', '21일마다 다시 배움 · 모델 ' + R.models.length + '개') + '</div>'
+    + mlWfSvg(R) + (reg ? mlBuckets(R, F, C) : '') + '</div>';
+  //  ④ 모델 없이 vs 함께
+  var tOk = function(X){ return X.n >= 3; }; var rowV = function(k, a, b, fmt, better, tr){ if (tr && (!tOk(A) || !tOk(Bm))){ return '<tr><th>' + esc(k) + '</th><td>' + (tOk(A) ? fmt(a) : '-') + '</td><td><b>' + (tOk(Bm) ? fmt(b) : '-') + '</b></td></tr>'; } var dlt = b - a, good = better === 'hi' ? dlt > 1e-9 : dlt < -1e-9, bad = better === 'hi' ? dlt < -1e-9 : dlt > 1e-9;
+    return '<tr><th>' + esc(k) + '</th><td>' + fmt(a) + '</td><td><b>' + fmt(b) + '</b>' + (isFinite(dlt) && Math.abs(dlt) > 1e-9 ? '<span class="ml-dl ' + (good ? 'good' : bad ? 'bad' : '') + '">' + (dlt > 0 ? '▲' : '▼') + '</span>' : '') + '</td></tr>'; };
+  var pf = function(v){ return v === Infinity ? '∞' : mlN(v, 2); };
+  var vs = '<div class="card ml-card"><div class="ml-hd"><span class="ml-k">04 · BACKTEST</span><h3>모델 없이 vs 모델과 함께</h3><span class="ml-hint">' + esc('같은 기간 · 표본 밖 · 거래 비용 편도 ' + ML.cost + 'bp') + '</span></div>'
+    + '<div class="ml-vs"><div class="ml-vt"><table class="ml-tb"><thead><tr><th></th><th>모델 없이<small>' + esc(F.baseNm) + '</small></th><th class="co">모델과 함께<small>' + esc(F.rule) + '</small></th></tr></thead><tbody>'
+    + rowV('거래당 평균', A.exp, Bm.exp, function(v){ return mlS(v, 2); }, 'hi', 1) + rowV('손익비 (번 돈 ÷ 잃은 돈)', A.pf, Bm.pf, pf, 'hi', 1) + rowV('이긴 거래 비율', A.win, Bm.win, function(v){ return mlP(v, 1); }, 'hi', 1)
+    + rowV('최대 낙폭', A.dd, Bm.dd, function(v){ return mlS(-v, 1); }, 'lo') + rowV('수익 ÷ 낙폭', A.rdd, Bm.rdd, function(v){ return mlN(v, 2); }, 'hi') + rowV('샤프 비율', A.sharpe, Bm.sharpe, function(v){ return mlN(v, 2); }, 'hi')
+    + rowV('총 수익', A.tot, Bm.tot, function(v){ return mlS(v, 1); }, 'hi') + '<tr><th>거래 수 · 들고 있던 날</th><td>' + A.n + ' · ' + mlP(A.exposure, 0) + '</td><td>' + Bm.n + ' · ' + mlP(Bm.exposure, 0) + '</td></tr>'
+    + '</tbody></table></div><div class="ml-ch ml-eqc" id="mlEq"></div></div>'
+    + '<p class="ml-note">▲ · ▼ = 모델과 함께 쪽이 좋아진 것 · 나빠진 것 (낙폭은 줄어든 게 좋아진 것)' + (!tOk(A) ? ' · 그냥 보유는 한 번 사서 계속 들고 있어 거래별 값이 없음' : '') + ' · 과거 자료 검증이라 앞으로도 같다는 뜻은 아님</p></div>';
+  //  ⑤ 지난 예측
+  var hist = '<div class="card ml-card"><div class="ml-hd"><span class="ml-k">05 · HISTORY</span><h3>지난 예측 기록</h3><span class="ml-hint">막대를 누르면 그날 예측을 위에서 다시 봄 · 끌어서 기간 이동</span></div>' + (reg ? '<div class="ml-lg"><span><i style="background:' + C.tr + '"></i>추세 예상</span><span><i style="background:' + C.mid + '"></i>중간</span><span><i style="background:' + C.ch + '"></i>횡보 예상</span><span class="r">막대 높이 = 확률 − 50%</span></div>' : '<div class="ml-lg"><span><i style="background:' + C.up + '"></i>강세 신호</span><span><i style="background:' + C.mid + '"></i>중립</span><span><i style="background:' + C.dn + '"></i>약세 신호</span><span class="r">막대 높이 = 확률 − 50%</span></div>') + '<div class="ml-ch ml-hist" id="mlHist"></div></div>';
+  //  ⑥ 측정값 · 가중치
+  var W = R.final.w, wmx = Math.max.apply(null, W.slice(1).map(Math.abs).concat([1e-6]));
+  var grp = reg ? [['방금 시장이 한 일', [0, 1, 2, 3, 4, 5]], ['요즘 흐름', [6, 7, 8, 9, 10, 11, 12, 13, 14]]] : [['추세 · 모멘텀', [0, 1, 2, 3, 4]], ['위치 (이동평균 · 고점)', [5, 6, 7, 8]], ['변동성 · 효율', [9, 10, 11, 12]]];
+  var feats = '<details class="card ml-card ml-det"><summary><span class="ml-k">06 · MODEL</span><b>' + R.names.length + '개 측정값 · 배운 가중치</b><span class="ml-hint">로지스틱 회귀 (신경망 아님) · 측정값은 평소 대비로 바꿔 넣음 · 능선 벌점 λ = 1</span></summary>'
+    + (reg ? '<div class="ml-er"><div class="ml-erf"><span>효율 지표</span><b>ER = |C<sub>n</sub> − C<sub>1</sub>| ÷ Σ|ΔC|</b><em>순이동 ÷ 이동 거리 · 하루 효율 = |종가 − 시가| ÷ (고가 − 저가)' + (R.ohlc ? '' : ' (이 자료는 시가 · 고가 · 저가가 없어 3일 효율로 대신)') + '</em></div>' + mlErSvg() + '</div>' : '')
+    + '<div class="ml-fg">' + grp.map(function(g){ return '<div><h4>' + esc(g[0]) + '</h4>' + g[1].map(function(a){ var v = W[a + 1]; return '<div class="ml-fr"><span>' + esc(R.names[a]) + '</span><i><u class="' + (v >= 0 ? 'p' : 'q') + '" style="width:' + (Math.abs(v) / wmx * 100).toFixed(1) + '%"></u></i><b class="' + (v >= 0 ? 'p' : 'q') + '">' + mlSN(v, 3) + '</b></div>'; }).join('') + '</div>'; }).join('') + '</div>'
+    + '<p class="ml-note">' + esc((reg ? '+ = 클수록 추세 쪽 · − = 클수록 횡보 쪽' : '+ = 클수록 오를 쪽 · − = 클수록 내릴 쪽') + ' · 마지막 모델 (학습 ' + R.final.nTrain.toLocaleString() + '일) 기준') + '</p></details>';
+  out.innerHTML = hero + why + check + vs + hist + feats;
+  mlScDraw(K, reg); mlEqDraw(R, A, Bm, C); mlHistDraw(R, C, t);
+}
+function mlSel(t){ ML.sel = t; mlDraw(); var h = $('mlHero'); if (h && t != null && h.getBoundingClientRect().top < 0) h.scrollIntoView({ behavior: MOTION_OK ? 'smooth' : 'auto', block: 'start' }); }
+/* 걸어가며 검증 그림 — 배운 구간 (넓어짐) · 시험 구간 (처음 보는 날) */
+function mlWfSvg(R){
+  var n = R.n, s0 = R.s, k0 = R.k0, rows = 6, seg = (n - k0) / rows, span = Math.max(1, n - 1 - s0), X = function(i){ return ((i - s0) / span * 100).toFixed(2) + '%'; }, W = function(a, b){ return (Math.max(0.4, (b - a) / span * 100)).toFixed(2) + '%'; }, h = '';
+  for (var j = 0; j < rows; j++){ var a = Math.round(k0 + j * seg), b = Math.min(n - 1, Math.round(k0 + (j + 1) * seg) - 1);
+    h += '<div class="ml-wfr"><i class="tr" style="left:0;width:' + W(s0, a - 1) + '" title="' + esc('배운 구간 ' + R.d[s0] + ' ~ ' + R.d[Math.max(s0, a - 1)]) + '"></i><i class="te" style="left:' + X(a) + ';width:' + W(a, b) + '" title="' + esc('시험 구간 ' + R.d[a] + ' ~ ' + R.d[b]) + '"></i></div>'; }
+  var yr = function(i){ return R.d[i].slice(0, 4); };
+  return '<div class="ml-wf"><div class="ml-wfl"><span><i class="tr"></i>배운 구간 (점점 넓어짐)</span><span><i class="te"></i>시험 구간 (처음 보는 날)</span><span class="r">앞으로 굴러감 →</span></div>' + h
+    + '<div class="ml-wfa"><span style="left:0">' + yr(s0) + '</span><span style="left:' + X(k0) + '">' + yr(k0) + ' 시험 시작</span><span style="right:0">' + yr(n - 1) + '</span></div></div>';
+}
+/* 효율 그림 — 같은 순이동이라도 곧게 간 날 · 출렁인 날 */
+function mlErSvg(){
+  return '<svg class="ml-ersv" viewBox="0 0 300 92" role="img" aria-label="효율 지표 그림"><path class="a" d="M10 70 L60 62 L110 50 L160 41 L210 30 L260 20"/><path class="b" d="M10 82 L30 60 L48 86 L70 52 L92 84 L118 50 L140 78 L166 46 L190 74 L214 42 L238 64 L260 32"/>'
+    + '<text x="266" y="22">곧게 · ER 높음</text><text x="266" y="36" class="b">출렁 · ER 낮음</text></svg>';
+}
+/* 예측별로 나눈 결과 (횡보 예상 · 중간 · 추세 예상) */
+function mlBuckets(R, F, C){
+  var S = [0, 1, 2].map(function(){ return { n: 0, tr: 0, ef: 0, mv: 0, hn: 0, hr: 0, hw: 0, gp: 0, gl: 0 }; });
+  for (var t = R.k0; t < R.n - 1; t++){ var b = R.b[t]; if (b < 0 || R.y[t] < 0) continue; var o = S[b], r = R.c[t + 1] / R.c[t] - 1;
+    o.n++; o.tr += R.y[t]; o.ef += R.e[t + 1]; o.mv += Math.abs(r);
+    if (F.base(t)){ o.hn++; o.hr += r; if (r > 0){ o.hw++; o.gp += r; } else o.gl -= r; } }
+  var nm = ['횡보 예상', '중간', '추세 예상'], cls = ['c', 'm', 't'];
+  return '<div class="ml-bk">' + S.map(function(o, i){ var hm = o.hn ? o.hr / o.hn : null;
+    return '<div class="b ' + cls[i] + '"><h4>' + esc(nm[i]) + '</h4><span class="ct">' + o.n.toLocaleString() + '일</span><dl>'
+      + '<dt>실제로 추세였던 날</dt><dd>' + mlP(o.n ? o.tr / o.n : null, 0) + '</dd>'
+      + '<dt>다음 날 평균 효율</dt><dd>' + mlN(o.n ? o.ef / o.n : null, 2) + '</dd>'
+      + '<dt>다음 날 평균 움직임</dt><dd>' + mlP(o.n ? o.mv / o.n : null, 2) + '</dd>'
+      + '<dt>전략 보유일 평균</dt><dd class="' + (hm > 0 ? 'up' : hm < 0 ? 'dn' : '') + '">' + mlS(hm, 3) + '</dd>'
+      + '<dt>보유일 손익비</dt><dd>' + (o.gl > 0 ? mlN(o.gp / o.gl, 2) : '-') + '</dd></dl></div>'; }).join('') + '</div>'
+    + '<p class="ml-note">' + esc('예측을 셋으로 나눠 실제 결과를 비교 · 보유일 = ' + F.baseNm + ' 이 들고 있던 날') + '</p>';
+}
+function mlScDraw(K, reg){
+  var c = qChart('mlSc'); if (!c) return;
+  var pts = []; for (var x = -4; x <= 4.0001; x += 0.1) pts.push([+x.toFixed(2), +(1 / (1 + Math.exp(-x))).toFixed(4)]);
+  var sx = Math.max(-4, Math.min(4, K.score)), Y = '#ffd84d';
+  c.setOption({ animation: false, backgroundColor: 'transparent', grid: { left: 34, right: 12, top: 10, bottom: 26 },
+    tooltip: { trigger: 'item', confine: true, formatter: function(p){ return p.seriesIndex === 1 ? '점수 ' + mlSN(K.score, 2) + ' → 확률 ' + mlP(K.p, 1) : '점수 ' + p.value[0] + ' → ' + mlP(p.value[1], 1); } },
+    xAxis: { type: 'value', min: -4, max: 4, interval: 2, axisLine: { show: false }, axisTick: { show: false }, splitLine: { show: false }, axisLabel: { color: 'rgba(255,255,255,0.72)', fontSize: 10.5, fontFamily: 'IBM Plex Mono, monospace' } },
+    yAxis: { type: 'value', min: 0, max: 1, interval: 0.5, axisLine: { show: false }, axisTick: { show: false }, splitLine: { show: false }, axisLabel: { color: 'rgba(255,255,255,0.72)', fontSize: 10.5, fontFamily: 'IBM Plex Mono, monospace', formatter: function(v){ return v.toFixed(1); } } },
+    series: [{ type: 'line', data: pts, showSymbol: false, smooth: true, lineStyle: { width: 2.2, color: 'rgba(255,255,255,0.85)' }, itemStyle: { color: 'rgba(255,255,255,0.85)' },
+      markLine: { silent: true, symbol: 'none', lineStyle: { color: 'rgba(255,255,255,0.32)', type: 'dashed', width: 1 }, label: { position: 'insideStartTop', color: 'rgba(255,255,255,0.6)', fontSize: 10, fontFamily: 'IBM Plex Mono, monospace', formatter: function(p){ return p.name; } },
+        data: reg ? [{ yAxis: K.lo, name: K.lo.toFixed(3) }, { yAxis: K.hi, name: K.hi.toFixed(3) }] : [{ yAxis: 0.5, name: '0.500' }] } },
+      { type: 'scatter', data: [[sx, K.p]], symbolSize: 14, itemStyle: { color: Y, borderColor: '#141d8f', borderWidth: 2, shadowBlur: 18, shadowColor: 'rgba(255,216,77,0.75)' }, z: 5,
+        label: { show: true, position: K.p > 0.8 ? 'bottom' : 'top', distance: 8, color: Y, fontSize: 13, fontWeight: 700, fontFamily: 'IBM Plex Mono, monospace', formatter: function(){ return K.p.toFixed(3); } } }] }, true);
+}
+function mlEqDraw(R, A, Bm, C){
+  var c = qChart('mlEq'); if (!c) return;
+  var d = R.d.slice(R.k0 + 1, R.n);
+  c.setOption(qBase({ legend: { top: 0, left: 0, icon: 'roundRect', itemWidth: 12, itemHeight: 6, textStyle: { fontSize: 11.5, color: C.sub } }, grid: { left: 6, right: 14, top: 30, bottom: 6, containLabel: true },
+    tooltip: { trigger: 'axis', confine: true, valueFormatter: function(v){ return v == null ? '-' : mlS(v, 1); } },
+    xAxis: { type: 'category', data: d, boundaryGap: false, axisTick: { show: false }, axisLine: { lineStyle: { color: C.grid } }, axisLabel: { fontSize: 10.5, color: C.sub, hideOverlap: true, formatter: function(v){ return String(v).slice(0, 7); } } },
+    yAxis: { type: 'value', scale: true, splitLine: { lineStyle: { color: C.grid } }, axisLabel: { fontSize: 10.5, color: C.sub, formatter: function(v){ return (v * 100).toFixed(0) + '%'; } } },
+    series: [{ type: 'line', name: '모델 없이', data: A.curve.map(function(v){ return +v.toFixed(4); }), showSymbol: false, lineStyle: { width: 1.4, color: C.gr }, itemStyle: { color: C.gr } },
+             { type: 'line', name: '모델과 함께', data: Bm.curve.map(function(v){ return +v.toFixed(4); }), showSymbol: false, lineStyle: { width: 2.2, color: C.co }, itemStyle: { color: C.co }, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: qDark() ? 'rgba(143,160,255,0.22)' : 'rgba(47,69,230,0.14)' }, { offset: 1, color: 'rgba(47,69,230,0)' }] } } }] }), true);
+}
+function mlHistDraw(R, C, selT){
+  var c = qChart('mlHist'); if (!c) return;
+  var reg = R.kind === 'reg', from = R.k0, d = R.d.slice(from), px = R.c.slice(from), bars = [];
+  for (var t = from; t < R.n; t++){ var p = R.p[t], col = reg ? (R.b[t] === 2 ? C.tr : R.b[t] === 0 ? C.ch : C.mid) : (p >= ML.th ? C.up : p <= 1 - ML.th ? C.dn : C.mid);
+    bars.push(isFinite(p) ? { value: +(p - 0.5).toFixed(4), itemStyle: { color: col, opacity: t === selT ? 1 : 0.85, borderColor: t === selT ? C.ink : 'transparent', borderWidth: t === selT ? 1 : 0 } } : null); }
+  var startPct = Math.max(0, 100 - 260 / Math.max(1, d.length) * 100);
+  c.setOption({ animation: false, backgroundColor: 'transparent', axisPointer: { link: [{ xAxisIndex: 'all' }] },
+    grid: [{ left: 6, right: 14, top: 10, height: '50%', containLabel: true }, { left: 6, right: 14, top: '64%', bottom: 26, containLabel: true }],
+    tooltip: { trigger: 'axis', confine: true, formatter: function(ps){ if (!ps || !ps.length) return ''; var i = ps[0].dataIndex, t = from + i, p = R.p[t]; var s = '<b>' + esc(d[i]) + '</b><br>종가 ' + qF(px[i], 2);
+      if (isFinite(p)) s += '<br>' + (reg ? '추세 확률 ' : '오를 확률 ') + mlP(p, 1) + (reg ? ' · ' + ['횡보 예상', '중간', '추세 예상'][R.b[t]] : '');
+      if (R.y[t] >= 0) s += '<br>실제: ' + (reg ? (R.y[t] ? '추세' : '횡보') : (R.y[t] ? '오름' : '내림'));
+      return s + '<br><span style="opacity:.7">눌러서 그날 보기</span>'; } },
+    xAxis: [{ type: 'category', data: d, gridIndex: 0, boundaryGap: true, axisLabel: { show: false }, axisTick: { show: false }, axisLine: { lineStyle: { color: C.grid } } },
+            { type: 'category', data: d, gridIndex: 1, boundaryGap: true, axisTick: { show: false }, axisLine: { lineStyle: { color: C.grid } }, axisLabel: { fontSize: 10.5, color: C.sub, hideOverlap: true } }],
+    yAxis: [{ type: 'value', gridIndex: 0, scale: true, splitNumber: 3, splitLine: { lineStyle: { color: C.grid } }, axisLabel: { fontSize: 10.5, color: C.sub } },
+            { type: 'value', gridIndex: 1, min: -0.25, max: 0.25, interval: 0.25, splitLine: { lineStyle: { color: C.grid } }, axisLabel: { fontSize: 10.5, color: C.sub, formatter: function(v){ return Math.round((v + 0.5) * 100) + '%'; } } }],
+    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: startPct, end: 100 }],
+    series: [{ type: 'line', name: mlNm(R.asset), data: px, xAxisIndex: 0, yAxisIndex: 0, showSymbol: false, lineStyle: { width: 1.5, color: C.ink }, itemStyle: { color: C.ink },
+               markLine: selT >= from ? { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: C.co, width: 1, type: 'dashed' }, data: [{ xAxis: R.d[selT] }] } : undefined },
+             { type: 'bar', name: reg ? '추세 확률' : '오를 확률', data: bars, xAxisIndex: 1, yAxisIndex: 1, barWidth: '70%', barMinHeight: 1 }] }, true);
+  c.off('click'); c.on('click', function(p){ if (p && p.dataIndex != null){ var t = from + p.dataIndex; if (R.X[t]) mlSel(t === R.final.last ? null : t); } });
+}
+/* ── 모델 겨루기 ── */
+function mlDrawCmp(R, out){
+  var C = mlC(), M = R.models.slice(), base = M.filter(function(m){ return m.key === 'base'; })[0], rest = M.filter(function(m){ return m.key !== 'base'; }).sort(function(a, b){ return b.acc - a.acc; });
+  var win = rest[0], se2 = 2 * R.se, beat = win.acc > R.testBase + se2, d = R.d, nm = mlNm(R.asset), reg = R.kind === 'reg';
+  var lo = Math.min.apply(null, M.map(function(m){ return m.acc; }).concat([R.testBase - se2])) - 0.03, hi = Math.max.apply(null, M.map(function(m){ return m.acc; }).concat([R.testBase + se2])) + 0.03;
+  lo = Math.max(0, Math.floor(lo * 50) / 50); hi = Math.min(1, Math.ceil(hi * 50) / 50);
+  var X = function(v){ return ((v - lo) / (hi - lo) * 100).toFixed(2) + '%'; };
+  var hero = '<section class="ml-hero" id="mlHero"><div class="ml-hero-g one"><div class="ml-hero-l"><div class="ml-kick"><i></i>' + esc('SAME DATA · ' + nm + ' · 처음 보는 ' + R.nTe.toLocaleString() + '일 · 모델 ' + rest.length + '개 + 기준선') + '</div>'
+    + '<h3 class="ml-h">1등은 <span class="ml-hl">' + esc(win.name.replace(/\s*\(.*\)$/, '')) + '</span></h3>'
+    + '<div class="ml-big"><b>' + (win.acc * 100).toFixed(1) + '</b><em>%</em><span class="ml-sig ' + (beat ? 'up' : 'nt') + '">' + esc(beat ? '기준선보다 확실히 나음' : '우연 범위 안') + '</span></div>'
+    + '<p class="ml-sub">' + esc((reg ? '다음 날이 추세장인지 · 횡보장인지' : '다음 날 오를지 · 내릴지') + ' 맞힌 비율 · 기준선 (늘 많은 쪽) ' + mlP(R.testBase, 1) + ' · 우연 범위 ±' + (se2 * 100).toFixed(1) + '%p') + '</p></div></div></section>';
+  var bars = '<div class="card ml-card"><div class="ml-hd"><span class="ml-k">02 · LEADERBOARD</span><h3>같은 자료 · 같은 시험</h3><span class="ml-hint">' + esc('앞 70% (' + d[R.from] + ' ~) 로 배우고 · 뒤 30% (' + d[R.split] + ' ~ ' + d[R.to] + ') 로 시험') + '</span></div>'
+    + '<div class="ml-lb"><div class="ml-lr hd"><span class="n"></span><span class="t"><u class="bl" style="left:' + X(R.testBase) + '"><span>기준선 ' + mlP(R.testBase, 1) + '</span></u></span><b>시험</b><em class="trn">학습</em><em>AUC</em></div>'
+    + rest.concat([base]).map(function(m){ var top = m === win;
+      return '<div class="ml-lr' + (top ? ' win' : '') + (m.key === 'base' ? ' base' : '') + '" title="' + esc(m.en + ' · 학습 정확도 ' + mlP(m.accTr, 1) + ' · 시험 정확도 ' + mlP(m.acc, 1) + ' · AUC ' + mlN(m.auc, 3) + ' · ' + m.ms + 'ms') + '"><span class="n">' + esc(m.name) + '</span><span class="t"><s class="z" style="left:' + X(R.testBase - se2) + ';width:' + (((se2 * 2) / (hi - lo)) * 100).toFixed(2) + '%"></s><i class="te" style="width:' + X(m.acc) + '"></i><u class="bl" style="left:' + X(R.testBase) + '"></u></span><b>' + mlP(m.acc, 1) + '</b><em class="trn' + (m.accTr - m.acc > 0.08 ? ' hi' : '') + '">' + (m.key === 'base' ? '-' : mlP(m.accTr, 0)) + '</em><em>' + mlN(m.auc, 3) + '</em></div>'; }).join('')
+    + '</div><div class="ml-lbl"><span><i class="te"></i>시험 정확도 (처음 보는 날)</span><span><i class="z"></i>우연 범위 (기준선 ± 2 표준오차)</span><span><b class="hi">학습</b> 정확도가 시험보다 훨씬 높으면 지난 자료를 외운 것</span></div></div>';
+  var code = '<div class="card ml-card ml-codec"><div class="ml-hd"><span class="ml-k">03 · SAME IN PYTHON</span><h3>같은 실험을 파이썬으로 쓰면</h3><span class="ml-hint">scikit-learn 기준 · 여기서는 브라우저에서 같은 방식으로 직접 계산</span></div>'
+    + '<div class="ml-code"><div class="ml-code-h"><i></i><i></i><i></i><span>contest.py</span></div><pre><code>'
+    + '<span class="k">for</span> name, m <span class="k">in</span> models.items():\n    m.fit(X_train, y_train)\n    <span class="f">print</span>(name, m.score(X_test, y_test))</code></pre>'
+    + '<pre class="out"><code><span class="d">$ python contest.py</span>\n' + rest.map(function(m){ return '<span class="' + (m === win ? 'w' : '') + '">' + esc((m.en.toLowerCase().replace(/[^a-z]+/g, '_').replace(/^_|_$/g, '') + '                    ').slice(0, 24)) + (m.acc * 100).toFixed(1) + '%</span>'; }).join('\n') + '</code></pre></div></div>';
+  var notes = '<div class="card ml-card"><div class="ml-hd"><span class="ml-k">04 · READ ME</span><h3>읽는 법</h3></div><ul class="ml-ul">'
+    + '<li><b>측정값 ' + R.names.length + '개</b> ' + esc(R.names.join(' · ')) + '</li>'
+    + '<li><b>표준화</b> 학습 구간 평균 · 표준편차로만 (시험 구간 정보가 새지 않게)</li>'
+    + '<li><b>정확도 1~2%p 차이</b>는 우연일 수 있음 · 우연 범위를 넘는지 먼저 봄</li>'
+    + '<li><b>학습 정확도만 높은 모델</b> (나무 · 이웃) 은 지난 자료를 외운 것 · 처음 보는 날엔 약함</li></ul></div>';
+  out.innerHTML = hero + bars + code + notes;
+}
+/* ── 모델 탭에 끼우기 ── */
+(function(){
+  if (typeof QM_TABS === 'undefined') return;
+  if (!QM_TABS.some(function(g){ return g[0] === 'ml'; })){
+    var at = QM_TABS.map(function(g){ return g[0]; }).indexOf('math');
+    QM_TABS.splice(at < 0 ? QM_TABS.length : at, 0, ['ml', '머신러닝', 'ML', [['mlreg', '추세 · 횡보 예측', 'Trend vs chop'], ['mldir', '방향 예측 (오를까)', 'Direction'], ['mlcmp', '모델 겨루기 (8개)', 'Model contest']]]);
+  }
+  try { var Gq = typeof INNER_VIS !== 'undefined' ? INNER_VIS.filter(function(g){ return g.pre === 'qm'; })[0] : null;
+    if (Gq && Gq.items) [['mlreg', '추세 · 횡보 예측'], ['mldir', '방향 예측 (오를까)'], ['mlcmp', '모델 겨루기 (8개)']].forEach(function(x){ if (!Gq.items.some(function(i){ return i[0] === x[0]; })) Gq.items.push(x); }); } catch(e){}
+  var h0 = qmHtml, r0 = qmRun;
+  qmHtml = function(){ if (/^ml/.test(QM.tab)){ ML.tab = QM.tab; return qmSegHtml(QM.tab) + '<div id="qmBody" class="q-body ml-body">' + mlHtml() + '</div>'; } return h0.apply(this, arguments); };
+  qmRun = function(){ if (/^ml/.test(QM.tab)){ ML.tab = QM.tab; ML.sel = null; return mlRender(false); } return r0.apply(this, arguments); };
+  //  테마가 바뀌면 다시 그림 (색은 그릴 때 정함)
+  if (typeof themeHook === 'function') themeHook(function(){ if (typeof curTab !== 'undefined' && curTab === 'qmodel' && /^ml/.test(QM.tab) && $('mlOut')) mlDraw(); });
+})();
+
+/* ══════════ (34차) 개념을 그림으로 — 밸류에이션 · 컴스 (학회장: '시각자료로 직관적으로 회계 · 밸류에이션 내용을 설명 · 사진의 일러스트도 본받아') ══════════
+   ① DCF — 할인율을 바꾸면 주당 가치가 어떻게 변하나 · 현재가와 만나는 할인율 (= 시장이 보는 할인율 · IRR 과 같은 생각)
+   ② 컴스 — 비교 회사 사이에서 이 회사가 어디쯤 (거품 크기 = 시가총액 · 점선 = 중앙값)                                       */
+function cvKick(t){ return '<div class="ml-kick"><i></i>' + esc(t) + '</div>'; }
+function cvAx(){ return { lab: 'rgba(255,255,255,0.74)', line: 'rgba(255,255,255,0.14)', y: '#ffd84d', w: '#ffffff' }; }
+function vxWcDraw(){
+  var host = $('vxDcf'); if (!host || typeof valData === 'undefined' || !valData) return;
+  var card = host.closest('.card'); if (!card || !card.parentNode) return;
+  var box = $('vxWc'); if (!box){ box = document.createElement('section'); box.id = 'vxWc'; box.className = 'ml-hero cv-card'; card.parentNode.insertBefore(box, card.nextSibling); }
+  if (valData.bank || typeof valDcfCore !== 'function'){ box.style.display = 'none'; return; }
+  var f = valData.f, sh = valData.shares, g = valNum('vGrow') / 100, mg = valNum('vMargin') / 100, w0 = valNum('vWacc') / 100, tg = valNum('vTerm') / 100, tax = valNum('vTax') / 100, N = Number(($('vYears') || {}).value) || 5, px = valData.px;
+  var at = function(w){ try { var C = valDcfCore(f, { g: g, mg: mg, w: w, tg: tg, tax: tax, N: N, shares: sh }); return C && C.px > 0 ? C.px : null; } catch(e){ return null; } };
+  var v0 = at(w0); if (v0 == null){ box.style.display = 'none'; return; }
+  box.style.display = '';
+  var lo = Math.max(tg + 0.01, 0.03), hi = Math.max(0.2, w0 + 0.04), pts = [];
+  for (var w = lo; w <= hi + 1e-9; w += 0.0025){ var v = at(w); pts.push([+(w * 100).toFixed(2), v]); }
+  var imp = null, edge = null;
+  if (px > 0){
+    for (var i = 1; i < pts.length; i++){ var a = pts[i - 1], b = pts[i]; if (a[1] == null || b[1] == null) continue; if ((a[1] - px) * (b[1] - px) <= 0){ imp = a[0] + (px - a[1]) * (b[0] - a[0]) / ((b[1] - a[1]) || 1e-9); break; } }
+    if (imp == null){ var vals = pts.filter(function(p){ return p[1] != null; }); if (vals.length){ edge = px > vals[0][1] ? 'low' : 'high'; } }
+  }
+  var wTxt = (w0 * 100).toFixed(1) + '%', gap = imp != null ? imp - w0 * 100 : null;
+  var read = imp != null ? (Math.abs(gap) < 0.25 ? '지금 가정이 시장과 거의 같음' : gap < 0 ? '시장은 이 회사 위험을 지금 가정보다 ' + Math.abs(gap).toFixed(1) + '%p 낮게 봄 (또는 성장을 더 높게)' : '시장은 이 회사 위험을 지금 가정보다 ' + gap.toFixed(1) + '%p 높게 봄 (또는 성장을 더 낮게)')
+    : edge === 'low' ? '할인율을 ' + pts[0][0].toFixed(1) + '% 까지 낮춰도 현재가에 못 미침 · 시장은 지금 가정보다 훨씬 높은 성장을 반영' : edge === 'high' ? '할인율을 ' + (hi * 100).toFixed(0) + '% 까지 올려도 현재가보다 높음 · 시장은 지금 가정보다 훨씬 보수적' : '';
+  box.innerHTML = '<div class="cv-g"><div class="cv-l">' + cvKick('DISCOUNT RATE · ' + ((co && co.name) || '')) + '<h3 class="ml-h"><span class="ml-hl">할인율</span> 하나만 바꿔 보면</h3>'
+    + '<div class="cv-sts"><div class="cv-st"><span>지금 가정 WACC</span><b>' + esc(wTxt) + '</b><em>주당 ' + esc(vxPx(v0)) + '</em></div>'
+    + '<div class="cv-st y"><span>시장 할인율</span><b>' + esc(imp != null ? imp.toFixed(1) + '%' : edge === 'low' ? '< ' + pts[0][0].toFixed(1) + '%' : edge === 'high' ? '> ' + (hi * 100).toFixed(0) + '%' : '-') + '</b><em>현재가 ' + esc(vxPx(px)) + ' 와 같아지는 WACC</em></div></div>'
+    + '<p class="cv-read">' + esc(read) + '</p>'
+    + '<p class="cv-eq">주당 가치 = ( Σ FCF<sub>t</sub> ÷ (1 + WACC)<sup>t</sup> + 잔여가치 ÷ (1 + WACC)<sup>N</sup> − 순차입금 ) ÷ 주식 수</p>'
+    + '<p class="cv-sub">곡선 = 다른 가정 (성장 ' + esc(String(valNum('vGrow'))) + '% · 이익률 ' + esc(String(valNum('vMargin'))) + '% · 영구 ' + esc(num(valNum('vTerm'), 1)) + '%) 은 그대로 · 할인율만 바꿈 · 할인율이 높을수록 먼 미래 현금이 작아져 가치가 내려감</p></div>'
+    + '<div class="cv-r"><div class="cv-ch" id="vxWcCh"></div></div></div>';
+  var c = qChart('vxWcCh'); if (!c) return;
+  var A = cvAx(), ymax = Math.max(px > 0 ? px : 0, v0) * 1.7; pts = pts.map(function(p){ return [p[0], p[1] != null && p[1] <= ymax * 1.02 ? p[1] : null]; });
+  var ser = [{ type: 'line', data: pts, smooth: true, showSymbol: false, connectNulls: false, lineStyle: { width: 3, color: A.y, shadowBlur: 14, shadowColor: 'rgba(255,216,77,0.45)' }, itemStyle: { color: A.y }, z: 3,
+      markLine: px > 0 ? { silent: true, symbol: 'none', lineStyle: { color: 'rgba(255,255,255,0.55)', type: [4, 5], width: 1.2 }, label: { position: 'insideEndTop', color: 'rgba(255,255,255,0.8)', fontSize: 11, fontFamily: 'IBM Plex Mono, monospace', formatter: '현재가 ' + vxPx(px) }, data: [{ yAxis: px }] } : undefined },
+    { type: 'scatter', data: [[+(w0 * 100).toFixed(2), v0]], symbolSize: 13, z: 5, itemStyle: { color: A.w, borderColor: '#151f95', borderWidth: 2 }, label: { show: true, position: 'right', distance: 8, color: '#fff', fontSize: 12, fontWeight: 700, fontFamily: 'IBM Plex Mono, monospace', formatter: function(){ return vxPx(v0); } } }];
+  if (imp != null) ser.push({ type: 'scatter', data: [[+imp.toFixed(2), px]], symbolSize: 15, z: 6, itemStyle: { color: A.y, borderColor: '#151f95', borderWidth: 2, shadowBlur: 20, shadowColor: 'rgba(255,216,77,0.9)' },
+    label: { show: true, position: (imp - lo * 100) / ((hi - lo) * 100) < 0.2 ? 'right' : 'top', distance: 12, color: A.y, fontSize: 15, fontWeight: 800, fontFamily: 'IBM Plex Mono, monospace', formatter: function(){ return '시장 ' + imp.toFixed(1) + '%'; } },
+    markLine: { silent: true, symbol: 'none', lineStyle: { color: 'rgba(255,216,77,0.6)', type: [2, 4], width: 1.2 }, label: { show: false }, data: [{ xAxis: +imp.toFixed(2) }] } });
+  c.setOption({ animation: MOTION_OK, backgroundColor: 'transparent', grid: { left: 8, right: 22, top: 26, bottom: 26, containLabel: true },
+    tooltip: { trigger: 'axis', confine: true, formatter: function(ps){ var p = ps && ps[0]; if (!p) return ''; var v = Array.isArray(p.value) ? p.value : p.data; return 'WACC ' + (+v[0]).toFixed(2) + '% → 주당 ' + vxPx(v[1]); } },
+    xAxis: { type: 'value', min: +(lo * 100).toFixed(2), max: +(hi * 100).toFixed(2), axisLine: { lineStyle: { color: A.line } }, axisTick: { show: false }, splitLine: { show: false }, axisLabel: { color: A.lab, fontSize: 11, fontFamily: 'IBM Plex Mono, monospace', formatter: '{value}%' } },
+    yAxis: { type: 'value', min: 0, max: (function(){ var e = Math.pow(10, Math.floor(Math.log10(ymax))), st = e / 2; return Math.ceil(ymax / st) * st; })(), axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: A.line } }, axisLabel: { color: A.lab, fontSize: 11, fontFamily: 'IBM Plex Mono, monospace', formatter: function(v){ return valData.cur === '원' ? (v >= 1e4 ? num(v / 1e4, 0) + '만' : num(v, 0)) : '$' + num(v, 0); } } },
+    series: ser }, true);
+}
+(function(){ if (typeof vxAfterDraw !== 'function') return; var a0 = vxAfterDraw; vxAfterDraw = function(){ var r = a0.apply(this, arguments); try { vxWcDraw(); } catch(e){} return r; }; })();
+
+/* ② 컴스 — 비교 회사 사이 우리 위치 */
+var CMPB = { k: 'ev' };
+var CMPB_K = [['ev', 'EV/EBITDA'], ['per', 'P/E'], ['evrev', 'EV/매출'], ['pbr', 'P/B']];
+function cmpBubSet(k){ CMPB.k = k; cmpBubDraw(); }
+function cmpBubDraw(){
+  var tb = $('cmpTable'); if (!tb || !co || typeof CMP === 'undefined') return;
+  var card = tb.closest('.card'); if (!card || !card.parentNode) return;
+  var box = $('cmpBub'); if (!box){ box = document.createElement('section'); box.id = 'cmpBub'; box.className = 'ml-hero cv-card'; card.parentNode.insertBefore(box, card.nextSibling); }
+  var me = CMP.rows[cxId(co)], ok = cmpPeersOk(), k = CMPB.k, nmK = (CMPB_K.filter(function(x){ return x[0] === k; })[0] || [k, k])[1];
+  var P = ok.map(function(r){ return { r: r, v: cmpMult(r)[k] }; }).filter(function(x){ return x.v != null && isFinite(x.v) && x.v > 0; });
+  var mv = me && !me.err && !me.busy ? cmpMult(me)[k] : null;
+  var seg = '<div class="mode-seg q-seg cv-seg">' + CMPB_K.map(function(x){ return '<button type="button" class="' + (x[0] === k ? 'on' : '') + '" onclick="cmpBubSet(\'' + x[0] + '\')">' + esc(x[1]) + '</button>'; }).join('') + '</div>';
+  if (P.length < 2){ box.style.display = 'none'; box.innerHTML = ''; return; }
+  box.style.display = '';
+  if (!(mv > 0)){
+    box.innerHTML = '<div class="cv-g one"><div class="cv-l">' + cvKick('PEERS · ' + nmK) + '<h3 class="ml-h">비교 회사 사이 <span class="ml-hl">우리 위치</span></h3>' + seg + '<p class="cv-read">' + esc(P.length < 2 ? '비교 회사 (피어) 가 2곳 넘게 있어야 그립니다.' : '이 회사 ' + nmK + ' 가 0 이하이거나 없어 그리지 않습니다 (적자 · 자본잠식 등).') + '</p></div></div>';
+    return;
+  }
+  var vals = P.map(function(x){ return x.v; }), med = cxQ(vals, 0.5), prem = mv / med - 1, I = null; try { I = cmpImplied(); } catch(e){}
+  var irow = I && I.rows ? I.rows.filter(function(r){ return r.k === k; })[0] : null, ipx = irow && irow.px ? irow.px[1] : null;
+  var cap = Math.max(med * 3, cxQ(vals.concat([mv]), 0.9) * 1.15), mcaps = P.map(function(x){ return x.r.mcap || 0; }).concat([me.mcap || 0]), mmax = Math.max.apply(null, mcaps.concat([1]));
+  var sz = function(m){ return 22 + 44 * Math.sqrt(Math.max(0, m || 0) / mmax); };
+  var short = function(r){ var c = r.c || {}; var s = c.market === 'US' ? (c.sub || c.code || r.name) : (r.name || c.name || ''); return String(s).slice(0, 7); };
+  var xmin0 = Math.max(0, Math.min.apply(null, vals.concat([mv])) * 0.7);
+  var el0 = $('cmpBubCh'), Wp = Math.max(300, (el0 ? el0.clientWidth : 640) - 40), Hp = 260, XP = function(v){ return (v - xmin0) / Math.max(1e-9, cap - xmin0) * Wp; }, YP = function(y){ return y / 3.6 * Hp; };
+  var placed = [{ x: XP(Math.min(mv, cap)), y: 0, r: Math.max(46, sz(me.mcap)) / 2 }], cand = [0, 0.6, -0.6, 1.15, -1.15, 1.55, -1.55];
+  var order = P.map(function(x, i){ return i; }).sort(function(a, b){ return (P[b].r.mcap || 0) - (P[a].r.mcap || 0); }), ypos = {};
+  order.forEach(function(i){ var x = XP(Math.min(P[i].v, cap)), r = sz(P[i].r.mcap) / 2, best = null;
+    cand.forEach(function(cy){ var ov = 0; placed.forEach(function(q){ var dx = x - q.x, dy = YP(cy) - YP(q.y), dd = Math.sqrt(dx * dx + dy * dy), need = r + q.r + 14; if (dd < need) ov += need - dd; }); if (best == null || ov < best.ov - 1e-6) best = { y: cy, ov: ov }; });
+    ypos[i] = best.y; placed.push({ x: x, y: best.y, r: r }); });
+  var data = P.map(function(x, i){ var v = Math.min(x.v, cap); return { value: [v, ypos[i]], name: x.r.name, raw: x.v, symbolSize: sz(x.r.mcap), lab: short(x.r) + (x.v > cap ? ' →' : '') }; });
+  var mshort = co.market === 'US' ? String(co.sub || co.code || '').slice(0, 6) : String(co.name || '').slice(0, 5);
+  box.innerHTML = '<div class="cv-g"><div class="cv-l">' + cvKick('PEERS · ' + nmK + ' · ' + P.length + '곳') + '<h3 class="ml-h">비교 회사 사이 <span class="ml-hl">우리 위치</span></h3>' + seg
+    + '<div class="cv-sts"><div class="cv-st y"><span>이 회사</span><b>' + esc(num(mv, 1)) + 'x</b><em>' + esc(co.name || '') + '</em></div>'
+    + '<div class="cv-st"><span>비교 회사 중앙값</span><b>' + esc(num(med, 1)) + 'x</b><em>' + esc((prem >= 0 ? '+' : '−') + num(Math.abs(prem) * 100, 0) + '% ' + (prem >= 0 ? '비쌈 (할증)' : '쌈 (할인)')) + '</em></div></div>'
+    + (ipx ? '<p class="cv-read">' + esc('중앙값 ' + nmK + ' ' + num(med, 1) + 'x 를 이 회사에 쓰면 주당 ' + (co.market === 'KR' ? num(ipx, 0) + '원' : '$' + num(ipx, 2))) + '</p>' : '')
+    + '<p class="cv-sub">거품 크기 = 시가총액 · 점선 = 비교 회사 중앙값 · 배수가 낮을수록 같은 이익을 싸게 사는 셈 (성장 · 위험 차이를 같이 봐야 함)</p></div>'
+    + '<div class="cv-r"><div class="cv-ch cv-bub" id="cmpBubCh"></div></div></div>';
+  var c = qChart('cmpBubCh'); if (!c) return;
+  var A = cvAx(), xmin = Math.max(0, Math.min.apply(null, vals.concat([mv])) * 0.7);
+  c.setOption({ animation: MOTION_OK, animationDuration: 700, backgroundColor: 'transparent', grid: { left: 14, right: 26, top: 34, bottom: 34 },
+    tooltip: { trigger: 'item', confine: true, formatter: function(p){ var d = p.data || {}; return '<b>' + esc(d.name || '') + '</b><br>' + esc(nmK) + ' ' + num(d.raw != null ? d.raw : (p.value || [])[0], 1) + 'x'; } },
+    xAxis: { type: 'value', min: +xmin.toFixed(1), max: +cap.toFixed(1), axisLine: { lineStyle: { color: 'rgba(255,255,255,0.35)' } }, axisTick: { show: true, length: 5, lineStyle: { color: 'rgba(255,255,255,0.35)' } }, splitLine: { show: false }, axisLabel: { color: A.lab, fontSize: 11.5, fontFamily: 'IBM Plex Mono, monospace', formatter: function(v){ return num(v, v < 10 ? 1 : 0) + 'x'; } } },
+    yAxis: { type: 'value', min: -2, max: 1.8, show: false },
+    series: [{ type: 'scatter', data: data, z: 2, itemStyle: { color: 'rgba(150,165,255,0.28)', borderColor: 'rgba(255,255,255,0.75)', borderWidth: 1.5 },
+        label: { show: true, position: 'bottom', distance: 6, color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: 600, fontFamily: 'IBM Plex Mono, monospace', formatter: function(p){ return p.data.lab; } },
+        emphasis: { scale: 1.08, itemStyle: { color: 'rgba(150,165,255,0.5)' } },
+        markLine: { silent: true, symbol: 'none', lineStyle: { color: A.y, type: [3, 5], width: 1.4 }, label: { position: 'end', color: A.y, fontSize: 10.5, fontWeight: 700, fontFamily: 'IBM Plex Mono, monospace', formatter: '중앙값 ' + num(med, 1) + 'x' }, data: [{ xAxis: +med.toFixed(2) }] } },
+      { type: 'scatter', data: [{ value: [Math.min(mv, cap), 0], name: co.name, raw: mv, symbolSize: Math.max(46, sz(me.mcap)) }], z: 5, itemStyle: { color: A.y, borderColor: '#fff', borderWidth: 2, shadowBlur: 24, shadowColor: 'rgba(255,216,77,0.7)' },
+        label: { show: true, position: 'inside', color: '#141414', fontSize: 12, fontWeight: 800, formatter: function(){ return mshort; } } }] }, true);
+}
+(function(){ if (typeof cmpRender !== 'function') return; var c0 = cmpRender; cmpRender = function(){ var r = c0.apply(this, arguments); try { cmpBubDraw(); } catch(e){} return r; }; })();
+if (typeof themeHook === 'function') themeHook(function(){ try { if ($('vxWc') && $('vxWc').offsetParent) vxWcDraw(); if ($('cmpBub') && $('cmpBub').offsetParent) cmpBubDraw(); } catch(e){} });
 
 </script>
 </body>
