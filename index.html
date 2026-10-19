@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-1e3d8e40.js">
-<link rel="preload" as="script" href="app2-1335a669.js">
+<link rel="preload" as="script" href="app2-00f1756d.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,37 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (36차 2) 오디오 브리핑 초안 */
+  .pod-card{max-width:980px}
+  .pod-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+  .pod-hd h3{margin:0;font-size:18px;font-weight:800}
+  .pod-k{flex-basis:100%;font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--text-sub)}
+  .pod-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--text-sub)}
+  .pod-sub{margin:6px 0 12px;line-height:1.55}
+  .pod-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:8px 0}
+  .pod-l{min-width:34px;font-size:12px;font-weight:700;color:var(--text-sub)}
+  .pod-seg{border:1px solid var(--border);background:var(--card);color:var(--text-sub);font:inherit;font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;cursor:pointer}
+  .pod-seg.on{border-color:var(--text);color:var(--text);background:var(--bg-sub)}
+  .pod-go{min-width:96px}
+  .pod-st{font-weight:600}
+  .pod-err{margin:6px 0;font-size:12.5px;color:var(--down)}
+  .pod-ex summary,.pod-dt summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--text-sub);margin:8px 0 4px}
+  .pod-ex textarea{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font:inherit;font-size:12.5px;line-height:1.55;padding:8px 10px;resize:vertical}
+  .pod-pl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:14px 0 4px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--bg-sub)}
+  .pod-btn{width:34px;height:34px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text);font:inherit;font-size:15px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+  .pod-btn.pod-main{width:42px;height:42px;font-size:14px;background:var(--text);color:var(--card);border-color:var(--text)}
+  .pod-pos{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text-sub);margin-right:auto}
+  .pod-fc{margin:4px 2px 8px;font-size:11.5px}
+  .pod-tr{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+  .pod-gh{margin:14px 0 4px;font-size:12px;font-weight:800;color:var(--text-sub);letter-spacing:.02em}
+  .pod-ln{display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px;padding:7px 10px;border-radius:9px;cursor:pointer;font-size:13.5px;line-height:1.65}
+  .pod-ln b{font-size:11.5px;font-weight:700;color:var(--text-sub);padding-top:2px}
+  .pod-ln.b b{color:var(--mac,var(--text))}
+  .pod-ln:hover{background:var(--bg-sub)}
+  .pod-ln.cur{background:var(--bg-sub);box-shadow:inset 3px 0 0 var(--text)}
+  .pod-dt h4{margin:10px 0 4px;font-size:12px}
+  .pod-dt pre{margin:0;max-height:260px;overflow:auto;white-space:pre-wrap;font-size:11.5px;line-height:1.5;padding:8px 10px;border-radius:8px;background:var(--bg-sub)}
+  @media (max-width:640px){ .pod-ln{grid-template-columns:1fr;gap:2px} .pod-pos{flex-basis:100%;order:5} }
   /* (36차 2) 머신러닝 상자 간격 · 글꼴 */
   #mlOut{display:flex;flex-direction:column;gap:16px}
   .ml-fl,.ml-hz .k,.ml-wax,.ml-kp span,.ml-wfl,.ml-fg h4,.ml-erf span,.ml-cuts,.ml-meter span,.ml-gauge span,.ml-lr em,.ml-wfa span,.ml-bk .ct,.ml-tb td,.ml-score,.ml-eq,.ml-kick,.cv-st span,.cv-eq,.ml-lr.hd .t .bl span{
@@ -10447,6 +10478,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-1e3d8e40.js"></script>
-<script src="app2-1335a669.js"></script>
+<script src="app2-00f1756d.js"></script>
 </body>
 </html>
