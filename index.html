@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-1e3d8e40.js">
-<link rel="preload" as="script" href="app2-4077368b.js">
+<link rel="preload" as="script" href="app2-23aca0b1.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1072,7 +1072,7 @@
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
   /* (36차 3) 기업 분석 › 03 리서치 */
-  #pane-company #coGrp{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #pane-company #coNav #coGrp[data-n="4"],#pane-cores #crGrp[data-n="4"]{grid-template-columns:repeat(4,minmax(0,1fr))}
   #coSeg[data-g="info"] button[data-g="rs"],#coSeg[data-g="val"] button[data-g="rs"],#coSeg[data-g="rs"] button[data-g="info"],#coSeg[data-g="rs"] button[data-g="val"]{display:none}
   .rs-pane{display:flex;flex-direction:column;gap:16px} .rs-pane.hidden{display:none} .rs-pane > .card{margin:0}
   .rs-card .up{color:var(--up)} .rs-card .down{color:var(--down)}
@@ -1139,7 +1139,7 @@
   .rs-done{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--text-sub);white-space:nowrap}
   .rs-chk{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:12px;font-size:12px;color:var(--text-sub)} .rs-chk .ok{color:var(--text);font-weight:700}
   .rs-board tr.rs-rl{cursor:pointer} .rs-board tr.rs-rl:hover{background:var(--bg-sub)} .rs-board th small{max-width:240px}
-  @media (max-width:640px){ #pane-company #coGrp{grid-template-columns:1fr} .rs-row{grid-template-columns:1fr} .rs-bar{grid-template-columns:80px minmax(0,1fr) 110px} .rs-sh .rs-tx{width:100%} }
+  @media (max-width:640px){ #pane-company #coNav #coGrp[data-n="4"],#pane-cores #crGrp[data-n="4"]{grid-template-columns:repeat(2,minmax(0,1fr))} .rs-row{grid-template-columns:1fr} .rs-bar{grid-template-columns:80px minmax(0,1fr) 110px} .rs-sh .rs-tx{width:100%} }
   .rs-card table.rs-t th,.rs-card table.rs-t td{background:transparent!important;text-align:right!important}
   .rs-card table.rs-t tbody th,.rs-card table.rs-t thead th:first-child,.rs-card table.rs-t .rs-q,.rs-card table.rs-t td[colspan]{text-align:left!important}
   .rs-card table.rs-t thead th{background:transparent!important}
@@ -10550,6 +10550,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-1e3d8e40.js"></script>
-<script src="app2-4077368b.js"></script>
+<script src="app2-23aca0b1.js"></script>
 </body>
 </html>
