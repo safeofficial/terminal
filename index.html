@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-fd09291f.js">
-<link rel="preload" as="script" href="app2-0b4bf102.js">
+<link rel="preload" as="script" href="app2-e476ca30.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1150,6 +1150,7 @@
   .rs-card table.rs-t th,.rs-card table.rs-t td{background:transparent!important;text-align:right!important}
   .rs-card table.rs-t tbody th,.rs-card table.rs-t thead th:first-child,.rs-card table.rs-t .rs-q,.rs-card table.rs-t td[colspan]{text-align:left!important}
   .rs-card table.rs-t thead th{background:transparent!important}
+  #coGrp-rs b::after,#crGrp-rs b::after{content:"숨김";display:inline-block;margin-left:7px;padding:0 6px;border-radius:999px;font-size:11px;font-weight:700;line-height:16px;vertical-align:2px;background:var(--bg-sub);color:var(--text-sub)}
   /* (36차 2) 오디오 브리핑 초안 */
   .pod-card{max-width:980px}
   .pod-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
@@ -1181,6 +1182,20 @@
   .pod-dt h4{margin:10px 0 4px;font-size:12px}
   .pod-dt pre{margin:0;max-height:260px;overflow:auto;white-space:pre-wrap;font-size:11.5px;line-height:1.5;padding:8px 10px;border-radius:8px;background:var(--bg-sub)}
   @media (max-width:640px){ .pod-ln{grid-template-columns:1fr;gap:2px} .pod-pos{flex-basis:100%;order:5} }
+  /* 다른 탭에서 보이는 작은 재생 막대 (왼쪽 아래 · 세이피 단추와 안 겹치게) */
+  .pod-mini{position:fixed;left:20px;bottom:20px;z-index:59;width:440px;max-width:calc(100vw - 120px);display:flex;align-items:center;gap:10px;padding:8px 10px 8px 12px;border:1px solid var(--border);border-radius:14px;background:var(--card);color:var(--text);box-shadow:0 10px 30px -12px rgba(10,16,40,.45)}
+  .pod-mini.hidden{display:none}
+  .pod-mini-o{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:0}
+  .pod-mini-o .k{font-size:10.5px;font-weight:800;letter-spacing:.06em;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pod-mini-o .t{font-size:12.5px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pod-mini-o .t b{font-size:11.5px;color:var(--text-sub);font-weight:700;margin-right:2px}
+  .pod-mini-b{flex:none;display:flex;align-items:center;gap:6px}
+  .pod-mini-b .pod-btn{width:30px;height:30px;font-size:14px}
+  .pod-mini-b .pod-btn.pod-main{width:36px;height:36px;font-size:12px}
+  .pod-mini-b .pos{font-size:11px;font-weight:600;color:var(--text-sub);font-variant-numeric:tabular-nums;min-width:36px;text-align:center}
+  .pod-mini-x{width:26px;height:26px;border:0;border-radius:999px;background:transparent;color:var(--text-sub);font-size:16px;line-height:1;cursor:pointer}
+  .pod-mini-x:hover{background:var(--bg-sub);color:var(--text)}
+  @media (max-width:640px){ .pod-mini{left:12px;right:76px;bottom:14px;width:auto;max-width:none;gap:6px;padding:6px 8px} .pod-mini-b .pos{display:none} .pod-mini-b .pod-btn:not(.pod-main){display:none} }
   /* (36차 2) 머신러닝 상자 간격 · 글꼴 */
   #mlOut{display:flex;flex-direction:column;gap:16px}
   .ml-fl,.ml-hz .k,.ml-wax,.ml-kp span,.ml-wfl,.ml-fg h4,.ml-erf span,.ml-cuts,.ml-meter span,.ml-gauge span,.ml-lr em,.ml-wfa span,.ml-bk .ct,.ml-tb td,.ml-score,.ml-eq,.ml-kick,.cv-st span,.cv-eq,.ml-lr.hd .t .bl span{
@@ -10557,6 +10572,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-fd09291f.js"></script>
-<script src="app2-0b4bf102.js"></script>
+<script src="app2-e476ca30.js"></script>
 </body>
 </html>
