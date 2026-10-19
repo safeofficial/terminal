@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-1e3d8e40.js">
-<link rel="preload" as="script" href="app2-00f1756d.js">
+<link rel="preload" as="script" href="app2-4077368b.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,78 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (36차 3) 기업 분석 › 03 리서치 */
+  #pane-company #coGrp{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #coSeg[data-g="info"] button[data-g="rs"],#coSeg[data-g="val"] button[data-g="rs"],#coSeg[data-g="rs"] button[data-g="info"],#coSeg[data-g="rs"] button[data-g="val"]{display:none}
+  .rs-pane{display:flex;flex-direction:column;gap:16px} .rs-pane.hidden{display:none} .rs-pane > .card{margin:0}
+  .rs-card .up{color:var(--up)} .rs-card .down{color:var(--down)}
+  .rs-hd{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px 16px;margin-bottom:10px}
+  .rs-hd h2{margin:2px 0 0;font-size:18px;font-weight:800}
+  .rs-k{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--text-sub)}
+  .rs-sub{margin:4px 0 0;font-size:12.5px;line-height:1.5;color:var(--text-sub);max-width:70ch}
+  .rs-act{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+  .rs-act2{margin-top:12px}
+  .rs-ghost{background:transparent!important}
+  .rs-sel{height:30px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-size:12px;padding:0 8px}
+  .rs-base{margin:0 0 10px;line-height:1.55}
+  .rs-i{height:30px;box-sizing:border-box;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text);font:inherit;font-size:12.5px;padding:0 7px;width:100%;min-width:0;font-variant-numeric:tabular-nums}
+  .rs-i:focus{outline:none;border-color:var(--text)}
+  .rs-i:disabled{background:var(--bg-sub);color:var(--text)}
+  textarea.rs-i{height:auto;padding:7px 8px;line-height:1.55;resize:vertical}
+  .rs-tx{width:auto}
+  .rs-seg{border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin:0 0 10px;background:var(--bg-sub)}
+  .rs-sh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-bottom:8px;font-size:12px;color:var(--text-sub)}
+  .rs-sh .rs-tx{width:160px;font-weight:700;color:var(--text)}
+  .rs-sh label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  .rs-pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--border);background:var(--card)}
+  .rs-x{margin-left:auto;width:26px;height:26px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text-sub);font-size:15px;line-height:1;cursor:pointer}
+  .rs-tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .rs-t{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+  .rs-t th,.rs-t td{padding:5px 7px;border-top:1px solid var(--border);text-align:right;white-space:nowrap;vertical-align:middle}
+  .rs-t thead th{border-top:0;font-size:11.5px;font-weight:700;color:var(--text-sub)}
+  .rs-t tbody th{text-align:left;font-weight:700}
+  .rs-t th small,.rs-t td small{display:block;font-size:10.5px;font-weight:400;color:var(--text-sub);white-space:normal;max-width:260px}
+  .rs-g td{min-width:74px} .rs-g .rs-i{text-align:right}
+  .rs-t tr.o td{color:var(--text)} .rs-t tr.o th{font-weight:600;color:var(--text-sub)}
+  .rs-t tr.s td,.rs-t tr.s th{font-size:11.5px;color:var(--text-sub)}
+  .rs-t tr.w td,.rs-t tr.w th{border-top:2px solid var(--border)}
+  .rs-add{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:4px 0 6px}
+  .rs-warn{color:var(--down)!important}
+  .rs-h3{margin:16px 0 6px;font-size:13px;font-weight:800}
+  .rs-det summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--text-sub);margin:12px 0 6px}
+  .rs-asm{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 12px;margin:6px 0}
+  .rs-asm label{display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:var(--text-sub)}
+  .rs-asm .rs-i{width:100%!important}
+  .rs-kpi{display:flex;flex-wrap:wrap;gap:6px 18px;margin:10px 0 2px;padding:10px 12px;border-radius:10px;background:var(--bg-sub);font-size:12px;color:var(--text-sub)}
+  .rs-kpi b{display:block;margin-top:2px;font-size:16px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+  .rs-kpi b.up{color:var(--up)} .rs-kpi b.down{color:var(--down)}
+  .rs-bars{display:flex;flex-direction:column;gap:5px;margin:10px 0 4px}
+  .rs-bar{display:grid;grid-template-columns:120px minmax(0,1fr) 150px;align-items:center;gap:8px;font-size:12px}
+  .rs-bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rs-bar i{display:block;height:10px;border-radius:3px;background:var(--text);opacity:.55}
+  .rs-bar b{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+  .rs-sotp .rs-sel{margin-right:4px}
+  .rs-earn-in{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:4px 0 10px}
+  .rs-earn-in textarea{flex-basis:100%;width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font:inherit;font-size:12.5px;line-height:1.55;padding:8px 10px;resize:vertical}
+  .rs-meta{margin:6px 0;font-size:12.5px;line-height:1.55}
+  .rs-q{text-align:left!important;white-space:normal!important;font-size:11px;color:var(--text-sub);min-width:220px;max-width:420px}
+  .rs-pts{margin:4px 0;padding-left:18px;font-size:12.5px;line-height:1.55} .rs-pts li{margin:4px 0} .rs-pts .rs-q{display:block;margin-top:1px}
+  .rs-gadd{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px} .rs-gadd .rs-i{width:auto}
+  .rs-ed{display:flex;flex-direction:column;gap:12px}
+  .rs-f{display:flex;flex-direction:column;gap:5px} .rs-f > span{font-size:12px;font-weight:700;color:var(--text-sub)}
+  .rs-f .rs-tx{width:100%}
+  .rs-f2{flex-direction:row;flex-wrap:wrap;align-items:flex-end;gap:10px 14px} .rs-f2 label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:var(--text-sub)} .rs-f2 .rs-tx{width:150px}
+  .rs-rt{display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;border-radius:10px;border:1px solid var(--border);background:var(--bg-sub);align-self:flex-start}
+  .rs-rt button{border:0;background:transparent;color:var(--text-sub);font:inherit;font-size:12px;font-weight:700;padding:5px 10px;border-radius:7px;cursor:pointer}
+  .rs-rt button.on{background:var(--card);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.08)} .rs-rt button.on.up{color:var(--up)} .rs-rt button.on.down{color:var(--down)}
+  .rs-row{display:grid;gap:6px;align-items:center} .rs-row.c2{grid-template-columns:150px minmax(0,1fr) auto} .rs-row.r2{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)} .rs-row.c3{grid-template-columns:150px minmax(0,0.8fr) minmax(0,1.6fr)}
+  .rs-done{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--text-sub);white-space:nowrap}
+  .rs-chk{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:12px;font-size:12px;color:var(--text-sub)} .rs-chk .ok{color:var(--text);font-weight:700}
+  .rs-board tr.rs-rl{cursor:pointer} .rs-board tr.rs-rl:hover{background:var(--bg-sub)} .rs-board th small{max-width:240px}
+  @media (max-width:640px){ #pane-company #coGrp{grid-template-columns:1fr} .rs-row{grid-template-columns:1fr} .rs-bar{grid-template-columns:80px minmax(0,1fr) 110px} .rs-sh .rs-tx{width:100%} }
+  .rs-card table.rs-t th,.rs-card table.rs-t td{background:transparent!important;text-align:right!important}
+  .rs-card table.rs-t tbody th,.rs-card table.rs-t thead th:first-child,.rs-card table.rs-t .rs-q,.rs-card table.rs-t td[colspan]{text-align:left!important}
+  .rs-card table.rs-t thead th{background:transparent!important}
   /* (36차 2) 오디오 브리핑 초안 */
   .pod-card{max-width:980px}
   .pod-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
@@ -10478,6 +10550,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-1e3d8e40.js"></script>
-<script src="app2-00f1756d.js"></script>
+<script src="app2-4077368b.js"></script>
 </body>
 </html>
