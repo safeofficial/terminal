@@ -25,8 +25,8 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
-<link rel="preload" as="script" href="app1-c7a88129.js">
-<link rel="preload" as="script" href="app2-668f4286.js">
+<link rel="preload" as="script" href="app1-104f9325.js">
+<link rel="preload" as="script" href="app2-27f0b26b.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,34 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* ══ (35차) ML 스캔 — 머신러닝 카드 · 전광판 ‘ML 강세’ · 스크리너 ‘ML 점수’ ══ */
+  .mls-tools{display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px 10px;font-size:12.5px;color:var(--text-sub)}
+  .mls-tools label{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .mls-tools input{width:58px;height:32px;padding:0 8px;border-radius:9px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:13px;text-align:right}
+  .mls-tools select{height:32px;border-radius:9px;font-size:12.5px;font-weight:600}
+  .mls-tools .btn-sm{height:32px}
+  .stk-scr-meta .mls-tools{margin-left:auto}
+  .qbd-tools .mls-tools{margin-left:auto}
+  .mls-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:-2px 0 12px}
+  .mls-list{max-height:342px;overflow-y:auto;overscroll-behavior:contain;border-top:1.5px solid var(--text)}
+  .mls-hd,.mls-r{display:grid;grid-template-columns:minmax(0,1fr) 168px 82px 196px;align-items:center;gap:12px;padding:9px 4px;border-bottom:1px solid var(--border)}
+  .mls-hd{position:sticky;top:0;z-index:1;background:var(--card,var(--white));padding-top:8px;padding-bottom:8px}
+  .mls-hd span{font-size:11.5px;font-weight:700;color:var(--text-sub)}
+  .mls-r .n{display:flex;flex-direction:column;min-width:0} .mls-r .n b{font-size:13.5px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mls-r .n em{font-style:normal;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:11px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mls-r .s{display:flex;align-items:center;gap:8px} .mls-r .s b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:20px;font-weight:600;color:var(--up);letter-spacing:-.5px}
+  .mls-r .p{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--text-sub)}
+  .mls-r .a{display:flex;gap:6px;justify-content:flex-end} .mls-r .a .btn-sm{height:28px;padding:0 10px;font-size:12px}
+  .ml-chip{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;font-style:normal;font-size:11.5px;font-weight:800;white-space:nowrap}
+  .ml-chip.up{background:color-mix(in srgb,var(--up) 13%,transparent);color:var(--up)} .ml-chip.nt{background:var(--bg-sub);color:var(--text-sub)}
+  .mls-none,.mls-below{margin:12px 2px 4px}
+  .mls-line{display:block;margin-top:2px;font-size:10.5px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .mls-line b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;color:var(--up);font-weight:700}
+  .mls-td{white-space:nowrap}
+  .mls-sc{min-width:34px;height:24px;padding:0 7px;border-radius:7px;border:1px solid var(--border);background:transparent;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12.5px;font-weight:600;color:var(--text);cursor:pointer}
+  .mls-sc.hi{background:color-mix(in srgb,var(--up) 13%,transparent);border-color:color-mix(in srgb,var(--up) 40%,var(--border));color:var(--up)}
+  .mls-sc.lo{color:var(--down)}
+  .mls-q{color:var(--text-sub)}
+  @media (max-width:640px){ .mls-hd{display:none} .mls-r{grid-template-columns:minmax(0,1fr) auto;gap:6px 10px} .mls-r .p{display:none} .mls-r .a{grid-column:1 / -1;justify-content:flex-start} .mls-tools input{width:52px} .stk-scr-meta .mls-tools,.qbd-tools .mls-tools{margin-left:0} }
   /* ══ (34차) 개념을 그림으로 — 밸류에이션 · 컴스 (코발트 카드 · 머신러닝 히어로와 같은 말투) ══ */
   .cv-card{--ml-y:#ffd84d;margin:0 0 16px}
   .cv-card .ml-hl::before,.cv-card .ml-hl::after{background:var(--ml-y)} .cv-card .ml-kick i{background:var(--ml-y)}
@@ -1189,7 +1217,7 @@
   .ml-tb thead th.co{color:var(--ml-co)}
   .ml-tb td{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;color:var(--text-sub)} .ml-tb td b{color:var(--text);font-weight:600}
   .ml-dl{display:inline-block;margin-left:6px;font-size:10px;color:var(--text-sub)} .ml-dl.good{color:var(--ml-tr)} .ml-dl.bad{color:var(--ml-ch)}
-  .ml-ch{min-width:0} .ml-eqc{height:300px} .ml-hist{height:340px}
+  .ml-ch{min-width:0} .ml-eqc{height:300px} .ml-hist{height:850px}
   /* 측정값 · 가중치 (접기) */
   .ml-det > summary{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;cursor:pointer;list-style:none} .ml-det > summary::-webkit-details-marker{display:none}
   .ml-det > summary b{font-size:18px;font-weight:800;letter-spacing:-.02em} .ml-det > summary::after{content:"펼치기 ▾";margin-left:auto;font-size:12px;font-weight:700;color:var(--ml-co)} .ml-det[open] > summary::after{content:"접기 ▴"}
@@ -1232,8 +1260,35 @@
   .ml-ul{margin:0;padding:0;list-style:none;display:grid;gap:10px} .ml-ul li{font-size:13px;line-height:1.6;color:var(--text-sub)} .ml-ul b{color:var(--text);margin-right:6px}
   @media (max-width:900px){ .ml-hero-g{grid-template-columns:minmax(0,1fr)} .ml-vs{grid-template-columns:minmax(0,1fr)} .ml-kps{grid-template-columns:repeat(2,minmax(0,1fr))} .ml-er{grid-template-columns:minmax(0,1fr)} }
   @media (max-width:640px){ .ml-hero{padding:22px 18px 20px;border-radius:18px} .ml-h{font-size:21px} .ml-big b{font-size:52px} .ml-card{padding:18px 16px!important} .ml-ctl{padding:14px} .ml-fa select{min-width:0;width:100%} .ml-fa{flex-basis:100%}
-    .ml-wax,.ml-wr{grid-template-columns:104px minmax(0,1fr) 58px} .ml-wr .n{font-size:12px} .ml-bk{grid-template-columns:minmax(0,1fr)} .ml-lr{grid-template-columns:112px minmax(0,1fr) 52px 40px} .ml-lr .n{font-size:12px;padding-right:8px} .ml-lr em:last-child{display:none} .ml-tb th,.ml-tb td{padding:8px 5px;font-size:11.5px;white-space:normal;word-break:keep-all} .ml-tb thead th:first-child{width:30%} .ml-eqc{height:240px} .ml-hist{height:300px} }
+    .ml-wax,.ml-wr{grid-template-columns:104px minmax(0,1fr) 58px} .ml-wr .n{font-size:12px} .ml-bk{grid-template-columns:minmax(0,1fr)} .ml-lr{grid-template-columns:112px minmax(0,1fr) 52px 40px} .ml-lr .n{font-size:12px;padding-right:8px} .ml-lr em:last-child{display:none} .ml-tb th,.ml-tb td{padding:8px 5px;font-size:11.5px;white-space:normal;word-break:keep-all} .ml-tb thead th:first-child{width:30%} .ml-eqc{height:240px} .ml-hist{height:640px} }
   .ml-lg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:-6px 0 10px;font-size:11.5px;color:var(--text-sub)} .ml-lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px} .ml-lg .r{margin-left:auto;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px}
+
+  /* ══ (35차) 기간별 칸 (단기 · 중기) · 점수 · 점수 구간표 · 고전 규칙 열 ══ */
+  .ml-hzs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .ml-hz{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;padding:13px 16px 12px;border-radius:14px;border:1px solid var(--border);background:var(--card,var(--white));text-align:left;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s}
+  .ml-hz:hover{border-color:color-mix(in srgb,var(--ml-co) 45%,var(--border));transform:translateY(-1px)}
+  .ml-hz.on{border-color:var(--ml-co);box-shadow:0 0 0 3px color-mix(in srgb,var(--ml-co) 16%,transparent)}
+  .ml-hz .k{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:.1em;color:var(--text-sub)}
+  .ml-hz b{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:30px;font-weight:600;letter-spacing:-1px;line-height:1.05;color:var(--text)} .ml-hz b.w{color:var(--text-sub)}
+  .ml-hz.up b{color:var(--up)} .ml-hz.dn b{color:var(--down)}
+  .ml-hz .c{font-size:12px;font-weight:800;color:var(--text-sub)} .ml-hz.up .c{color:var(--up)} .ml-hz.dn .c{color:var(--down)}
+  .ml-hz em{font-style:normal;font-size:11.5px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .ml-cal{margin:8px 0 0;font-size:12.5px;line-height:1.55;color:rgba(255,255,255,.78)} .ml-cal b{color:var(--ml-y);font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-weight:600}
+  .ml-sig.tr{background:#dff5ea;color:#0f6e47;border-color:transparent} .ml-sig.ch{background:#ebe7ff;color:#4a3bc8;border-color:transparent} .ml-sig.md{background:rgba(255,255,255,.14);color:#fff}
+  .ml-hd .ml-hseg{margin-left:auto}
+  .ml-qb{display:flex;flex-direction:column;gap:2px;margin-top:16px}
+  .ml-qr{display:grid;grid-template-columns:96px minmax(0,1fr) 52px 70px 62px;align-items:center;gap:12px;padding:8px 2px;border-bottom:1px solid var(--border)}
+  .ml-qr.hd{padding-top:0;border-bottom:1.5px solid var(--text)} .ml-qr.hd span,.ml-qr.hd b,.ml-qr.hd em,.ml-qr.hd small{font-family:inherit;font-size:11.5px;font-weight:700;color:var(--text-sub)}
+  .ml-qr .n{font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap}
+  .ml-qr .bar{position:relative;height:10px;border-radius:5px;background:var(--bg-sub)} .ml-qr.hd .bar{height:auto;background:none;font-size:11.5px}
+  .ml-qr .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:var(--ml-mid)} .ml-qr .bar i.up{background:var(--up)} .ml-qr .bar i.dn{background:var(--down)}
+  .ml-qr .bar u{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--text);border-radius:1px}
+  .ml-qr b,.ml-qr em,.ml-qr small{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-style:normal;text-align:right;white-space:nowrap}
+  .ml-qr b{font-size:13px;font-weight:600;color:var(--text)} .ml-qr b.up,.ml-qr em.up{color:var(--up)} .ml-qr b.dn,.ml-qr em.dn{color:var(--down)}
+  .ml-qr em{font-size:12px;color:var(--text-sub)} .ml-qr small{font-size:11px;color:var(--text-sub)}
+  .ml-tb.c4 thead th:first-child{width:26%}
+  @media (max-width:900px){ .ml-hzs{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:640px){ .ml-qr{grid-template-columns:74px minmax(0,1fr) 40px 56px;gap:8px} .ml-qr small{display:none} .ml-hz b{font-size:26px} .ml-hd .ml-hseg{margin-left:0} }
   /* ══ (33차) 학회장: '노란색 별로 · 다크 선택 색 별로 · 한눈에 보기 글자 키워 · 차트 · 상단 더 세련되게' ══ */
   /* ① 분석 갈래 색 = 잉크 (머스터드 노랑 뺌) — 카드 제목 막대 · 영문 소제목 줄 · 보기 단추 */
   html:root{--hc-market:#1f2433;--hc-stocks:#1f2433;--hc-company:#1f2433;--hc-ai:#1f2433;--hc-deriv:#1f2433;--hc-flow:#1f2433;--hc-fxa:#1f2433;--hc-strat:#1f2433}
@@ -10330,7 +10385,7 @@ var LSX = {
   } catch(e){}
 })();
 </script>
-<script src="app1-c7a88129.js"></script>
-<script src="app2-668f4286.js"></script>
+<script src="app1-104f9325.js"></script>
+<script src="app2-27f0b26b.js"></script>
 </body>
 </html>
