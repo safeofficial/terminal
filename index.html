@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-fd09291f.js">
-<link rel="preload" as="script" href="app2-9dea8e00.js">
+<link rel="preload" as="script" href="app2-37a0bf40.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,18 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (36차 4) 원가 곡선 - 한눈에 보기 (뜻 · 기회 · 손해 · 사는 쪽 · 볼 것) */
+  .cc-sum{margin:12px 0 8px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-sub)}
+  .cc-sum-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:0 0 8px}
+  .cc-sum-h b{font-size:13px;color:var(--text)}
+  .cc-sum ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .cc-sum li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;align-items:baseline;font-size:12.5px;line-height:1.6;color:var(--text)}
+  .cc-tg{display:inline-block;text-align:center;font-size:11px;font-weight:700;padding:1px 0;border-radius:6px;border:1px solid var(--border);color:var(--text-sub);white-space:nowrap}
+  .cc-tg.ok{color:#1f8a63;border-color:rgba(31,138,99,.35);background:rgba(31,138,99,.08)}
+  .cc-tg.bad{color:#c96a00;border-color:rgba(201,106,0,.35);background:rgba(201,106,0,.08)}
+  :root[data-theme="dark"] .cc-tg.ok{color:#4fc79a;border-color:rgba(79,199,154,.35);background:rgba(79,199,154,.1)}
+  :root[data-theme="dark"] .cc-tg.bad{color:#f2a344;border-color:rgba(242,163,68,.35);background:rgba(242,163,68,.1)}
+  @media (max-width:560px){ .cc-sum{padding:10px 12px} .cc-sum li{grid-template-columns:46px minmax(0,1fr);gap:8px;font-size:12px} }
   /* (36차 4) 결론 먼저 보이는 요약 카드 - DCF · LBO · 리포트 */
   .sm-card .up{color:var(--up)} .sm-card .down{color:var(--down)}
   .sm-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:10px}
@@ -10614,6 +10626,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-fd09291f.js"></script>
-<script src="app2-9dea8e00.js"></script>
+<script src="app2-37a0bf40.js"></script>
 </body>
 </html>
