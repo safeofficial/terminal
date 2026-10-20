@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-402aa35d.js">
-<link rel="preload" as="script" href="app2-dbda26c4.js">
+<link rel="preload" as="script" href="app2-26596957.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,71 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (36차 4) 기업 리서치 › 단계별 분석 */
+  .crw-mode{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:0 0 12px}
+  .crw-mode .mode-seg{margin-left:0}
+  #crBody.cr-step > :not(:first-child){display:none!important}
+  .crw-card{padding-top:14px}
+  .crw-nav{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;margin:0 0 14px;border-bottom:1px solid var(--border);scrollbar-width:thin}
+  .crw-nav button{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--text-sub);font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .crw-nav button em{font-style:normal;font-size:11px;font-weight:700;width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;background:var(--bg-sub);color:var(--text-sub)}
+  .crw-nav button.on{border-color:var(--primary);color:var(--text)}
+  .crw-nav button.on em{background:var(--primary-fill);color:#fff}
+  .crw-nav button.ok em{background:var(--ok-soft);color:var(--ok)}
+  .crw-nav button.re em,.crw-nav button.weak em{background:var(--warn-soft);color:var(--warn-text)}
+  .crw-nav button.on.ok em,.crw-nav button.on.re em,.crw-nav button.on.weak em{background:var(--primary-fill);color:#fff}
+  .crw-hd{margin:0 0 14px}
+  .crw-no{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--text-sub)}
+  .crw-hd h2{margin:2px 0 4px;font-size:18px}
+  .crw-hd p{margin:0;font-size:12.5px;line-height:1.55;color:var(--text-sub)}
+  .crw-body{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+  .crw-in{display:flex;flex-direction:column;gap:10px;min-width:0}
+  .crw-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+  .crw-rl{width:100%;font-size:12px;color:var(--text-sub);font-weight:700}
+  .crw-f{display:flex;flex-direction:column;gap:4px;min-width:120px;position:relative}
+  .crw-f > span{font-size:11.5px;font-weight:600;color:var(--text-sub)}
+  .crw-f input,.crw-f select,.crw-f textarea{width:100%;box-sizing:border-box;font:inherit;font-size:13px}
+  .crw-f input{padding-right:26px}
+  .crw-f em{position:absolute;right:9px;bottom:8px;font-style:normal;font-size:11.5px;color:var(--text-sub);pointer-events:none}
+  .crw-row .crw-f{flex:1 1 120px}
+  .crw-row .crw-f[style]{flex:1 1 70px;min-width:70px}
+  .crw-wide{width:100%}
+  .crw-why textarea{resize:vertical;min-height:64px;line-height:1.5}
+  .crw-side{min-width:0}
+  .crw-ref{border:1px solid var(--border);border-radius:10px;background:var(--bg-sub);padding:10px 12px}
+  .crw-hist{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:0 0 8px;padding:0 0 8px;border-bottom:1px solid var(--border)}
+  .crw-hist span,.crw-kv span{display:flex;flex-direction:column;gap:1px;min-width:0}
+  .crw-hist em,.crw-kv em{font-style:normal;font-size:11px;color:var(--text-sub)}
+  .crw-hist b{font-size:12.5px;font-variant-numeric:tabular-nums}
+  .crw-kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
+  .crw-kv b{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+  .crw-kv b.up,.crw-kpi b.up{color:var(--up)} .crw-kv b.down,.crw-kpi b.down{color:var(--down)}
+  .crw-rule{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+  .crw-rule li{font-size:12px;line-height:1.5;padding-left:14px;position:relative;color:var(--text)}
+  .crw-rule li:before{content:"";position:absolute;left:2px;top:.6em;width:6px;height:6px;border-radius:50%;background:var(--warn)}
+  .crw-rule li.bad:before{background:var(--danger)}
+  .crw-sf{margin:12px 0 0;padding:12px 14px;border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:10px;background:var(--card)}
+  .crw-sh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 6px}
+  .crw-sh b{font-size:12.5px}
+  .crw-sf ul{margin:0;padding-left:18px;font-size:12.5px;line-height:1.6}
+  .crw-vd{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:6px;border:1px solid var(--border);white-space:nowrap}
+  .crw-vd.ok{color:var(--ok);background:var(--ok-soft);border-color:transparent}
+  .crw-vd.re,.crw-vd.weak{color:var(--warn-text);background:var(--warn-soft);border-color:transparent}
+  .crw-act{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:16px 0 0;flex-wrap:wrap}
+  .crw-ar{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+  .crw-ft{margin:10px 0 0;text-align:right}
+  .crw-lk{background:none;border:0;padding:0;font:inherit;font-size:11.5px;color:var(--text-sub);text-decoration:underline;cursor:pointer}
+  .crw-end{margin:0 0 16px}
+  .crw-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 12px}
+  .crw-kpi span{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border:1px solid var(--border);border-radius:10px}
+  .crw-kpi em{font-style:normal;font-size:11px;color:var(--text-sub)}
+  .crw-kpi b{font-size:17px;font-variant-numeric:tabular-nums}
+  .crw-t{width:100%;border-collapse:collapse;font-size:12.5px}
+  .crw-t th{width:110px;text-align:left;font-weight:600;color:var(--text-sub);padding:7px 8px 7px 0;vertical-align:top;border-top:1px solid var(--border)}
+  .crw-t td{padding:7px 8px 7px 0;border-top:1px solid var(--border);line-height:1.5;overflow-wrap:anywhere}
+  .crw-t td.crw-vc{width:84px;text-align:right;padding-right:0}
+  @media (max-width:820px){ .crw-body{grid-template-columns:1fr} .crw-kpi{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:560px){ .crw-t th{width:84px} .crw-t td.crw-vc{width:70px} .crw-hd h2{font-size:16px} .crw-act .btn-sm{padding:7px 10px} }
   /* (36차 4 설립자: '색 조합 - 예술가들이 실제로 쓰는 배색으로 다양하게 · 세련되게') - 설정 › 색 조합. 빨강 = 오름 · 파랑 = 내림 은 그대로 */
   :root[data-pal="nord"]:not([data-theme="dark"]){--bg:#eceff4;--white:#f8f9fb;--card:#f8f9fb;--bg-sub:#e5e9f0;--bg-soft:#e5e9f0;--text:#2e3440;--text-sub:#4c566a;--border:#d8dee9;--primary:#4c6a92;--primary-light:#5e81ac;--primary-fill:#4c6a92;--accent:#4c7f8f;--accent-soft:#e3ecf3;--info-line:#c9d3e3;--pal-h1:#5e81ac;--pal-h2:#4c6a92;--pal-h3:#2e3440;--pal-hl:#88c0d0}
   :root[data-pal="nord"][data-theme="dark"]{--bg:#242933;--white:#2e3440;--card:#2e3440;--bg-sub:#3b4252;--bg-soft:#3b4252;--text:#eceff4;--text-sub:#b8c0cf;--border:#434c5e;--primary:#88c0d0;--primary-light:#8fbcbb;--primary-fill:#4c6a92;--accent:#81a1c1;--accent-soft:#2f3a4d;--info-line:#4c566a;--pal-h1:#4c6a92;--pal-h2:#3b4252;--pal-h3:#242933;--pal-hl:#88c0d0}
@@ -10675,6 +10740,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-402aa35d.js"></script>
-<script src="app2-dbda26c4.js"></script>
+<script src="app2-26596957.js"></script>
 </body>
 </html>
