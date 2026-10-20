@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-402aa35d.js">
-<link rel="preload" as="script" href="app2-049068b1.js">
+<link rel="preload" as="script" href="app2-dbda26c4.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,52 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (36차 4 설립자: '색 조합 - 예술가들이 실제로 쓰는 배색으로 다양하게 · 세련되게') - 설정 › 색 조합. 빨강 = 오름 · 파랑 = 내림 은 그대로 */
+  :root[data-pal="nord"]:not([data-theme="dark"]){--bg:#eceff4;--white:#f8f9fb;--card:#f8f9fb;--bg-sub:#e5e9f0;--bg-soft:#e5e9f0;--text:#2e3440;--text-sub:#4c566a;--border:#d8dee9;--primary:#4c6a92;--primary-light:#5e81ac;--primary-fill:#4c6a92;--accent:#4c7f8f;--accent-soft:#e3ecf3;--info-line:#c9d3e3;--pal-h1:#5e81ac;--pal-h2:#4c6a92;--pal-h3:#2e3440;--pal-hl:#88c0d0}
+  :root[data-pal="nord"][data-theme="dark"]{--bg:#242933;--white:#2e3440;--card:#2e3440;--bg-sub:#3b4252;--bg-soft:#3b4252;--text:#eceff4;--text-sub:#b8c0cf;--border:#434c5e;--primary:#88c0d0;--primary-light:#8fbcbb;--primary-fill:#4c6a92;--accent:#81a1c1;--accent-soft:#2f3a4d;--info-line:#4c566a;--pal-h1:#4c6a92;--pal-h2:#3b4252;--pal-h3:#242933;--pal-hl:#88c0d0}
+  :root[data-pal="solar"]:not([data-theme="dark"]){--bg:#fdf6e3;--white:#fffbf0;--card:#fffbf0;--bg-sub:#eee8d5;--bg-soft:#eee8d5;--text:#073642;--text-sub:#586e75;--border:#e4ddc8;--primary:#1f6fae;--primary-light:#268bd2;--primary-fill:#1f6fae;--accent:#1f8079;--accent-soft:#e9f1ec;--info-line:#d6dcd0;--pal-h1:#0e5a73;--pal-h2:#073642;--pal-h3:#002b36;--pal-hl:#7fd3c9}
+  :root[data-pal="solar"][data-theme="dark"]{--bg:#002b36;--white:#073642;--card:#073642;--bg-sub:#0b3f4d;--bg-soft:#0b3f4d;--text:#eee8d5;--text-sub:#a3b1b1;--border:#18505e;--primary:#5aa9e6;--primary-light:#7dbbee;--primary-fill:#1f6fae;--accent:#2aa198;--accent-soft:#0a3a40;--info-line:#1d5664;--pal-h1:#0e5a73;--pal-h2:#073642;--pal-h3:#00212a;--pal-hl:#7fd3c9}
+  :root[data-pal="paper"]:not([data-theme="dark"]){--bg:#fff1e5;--white:#fff7ef;--card:#fff7ef;--bg-sub:#f2dfcf;--bg-soft:#f2dfcf;--text:#1f1c1a;--text-sub:#66605c;--border:#ead6c4;--primary:#0f5499;--primary-light:#1e6bb8;--primary-fill:#0f5499;--accent:#0d7680;--accent-soft:#e3eeee;--info-line:#e0cdbd;--pal-h1:#1e6bb8;--pal-h2:#0f5499;--pal-h3:#0a3566;--pal-hl:#f9d5bd}
+  :root[data-pal="paper"][data-theme="dark"]{--bg:#1f2226;--white:#262a33;--card:#262a33;--bg-sub:#2e333d;--bg-soft:#2e333d;--text:#f2ece6;--text-sub:#bdb4ab;--border:#3a404b;--primary:#7fb0e6;--primary-light:#9cc2ec;--primary-fill:#1e6bb8;--accent:#4fb3bd;--accent-soft:#1d3236;--info-line:#3d4655;--pal-h1:#1e4f86;--pal-h2:#13355c;--pal-h3:#0b1f38;--pal-hl:#f9d5bd}
+  :root[data-pal="carbon"]:not([data-theme="dark"]){--bg:#f4f4f4;--white:#ffffff;--card:#ffffff;--bg-sub:#e8e8e8;--bg-soft:#e8e8e8;--text:#161616;--text-sub:#525252;--border:#e0e0e0;--primary:#0f62fe;--primary-light:#4589ff;--primary-fill:#0f62fe;--accent:#6929c4;--accent-soft:#edf5ff;--info-line:#d0e2ff;--pal-h1:#0f62fe;--pal-h2:#0043ce;--pal-h3:#002d9c;--pal-hl:#a6c8ff}
+  :root[data-pal="carbon"][data-theme="dark"]{--bg:#161616;--white:#262626;--card:#262626;--bg-sub:#303030;--bg-soft:#303030;--text:#f4f4f4;--text-sub:#c6c6c6;--border:#474747;--primary:#78a9ff;--primary-light:#a6c8ff;--primary-fill:#0f62fe;--accent:#be95ff;--accent-soft:#1c2a45;--info-line:#3d4b66;--pal-h1:#0043ce;--pal-h2:#002d9c;--pal-h3:#001d6c;--pal-hl:#a6c8ff}
+  :root[data-pal="graphite"]:not([data-theme="dark"]){--bg:#f7f7f8;--white:#ffffff;--card:#ffffff;--bg-sub:#efeff1;--bg-soft:#efeff1;--text:#111113;--text-sub:#5c5c66;--border:#e4e4e7;--primary:#4f46e5;--primary-light:#6366f1;--primary-fill:#4f46e5;--accent:#52525b;--accent-soft:#eef0ff;--info-line:#d9dbf5;--pal-h1:#3f3f46;--pal-h2:#27272a;--pal-h3:#18181b;--pal-hl:#c7d2fe}
+  :root[data-pal="graphite"][data-theme="dark"]{--bg:#09090b;--white:#131316;--card:#131316;--bg-sub:#1c1c20;--bg-soft:#1c1c20;--text:#fafafa;--text-sub:#a1a1aa;--border:#27272a;--primary:#a5b4fc;--primary-light:#c7d2fe;--primary-fill:#4f46e5;--accent:#a1a1aa;--accent-soft:#1e1b3a;--info-line:#2e2e3a;--pal-h1:#2e2e36;--pal-h2:#1c1c21;--pal-h3:#0c0c0e;--pal-hl:#c7d2fe}
+  :root[data-pal="whanki"]:not([data-theme="dark"]){--bg:#f3f4f7;--white:#ffffff;--card:#ffffff;--bg-sub:#e9edf5;--bg-soft:#e9edf5;--text:#121a2e;--text-sub:#4f5b75;--border:#dbe1ee;--primary:#1f3f8f;--primary-light:#2f56b0;--primary-fill:#1f3f8f;--accent:#4a6bb8;--accent-soft:#e6ecf8;--info-line:#c3d0ea;--pal-h1:#2f56b0;--pal-h2:#1a3478;--pal-h3:#0b1e4f;--pal-hl:#9fc0ff}
+  :root[data-pal="whanki"][data-theme="dark"]{--bg:#0a0f1e;--white:#111a2e;--card:#111a2e;--bg-sub:#17223a;--bg-soft:#17223a;--text:#e9eef8;--text-sub:#a7b3cc;--border:#26324d;--primary:#8fa9e6;--primary-light:#a9bdee;--primary-fill:#2f56b0;--accent:#7d9ad8;--accent-soft:#1a2645;--info-line:#2b3b63;--pal-h1:#24448f;--pal-h2:#152a5e;--pal-h3:#081333;--pal-hl:#9fc0ff}
+  :root[data-pal="morandi"]:not([data-theme="dark"]){--bg:#f2efea;--white:#fbfaf7;--card:#fbfaf7;--bg-sub:#e9e4dc;--bg-soft:#e9e4dc;--text:#2f2c28;--text-sub:#6b645b;--border:#dfd8cc;--primary:#56625a;--primary-light:#6c786b;--primary-fill:#56625a;--accent:#8f746b;--accent-soft:#efe7e3;--info-line:#d5cdbf;--pal-h1:#8e9a8c;--pal-h2:#6c776a;--pal-h3:#4a5249;--pal-hl:#eadfcf}
+  :root[data-pal="morandi"][data-theme="dark"]{--bg:#1a1917;--white:#23221f;--card:#23221f;--bg-sub:#2b2a26;--bg-soft:#2b2a26;--text:#ece7df;--text-sub:#b2ab9f;--border:#3a3833;--primary:#b4c0b2;--primary-light:#c6d0c4;--primary-fill:#5f6b61;--accent:#c9aaa0;--accent-soft:#2f2a28;--info-line:#45423b;--pal-h1:#6c776a;--pal-h2:#4f574d;--pal-h3:#2f342e;--pal-hl:#eadfcf}
+  :root[data-pal="vermeer"]:not([data-theme="dark"]){--bg:#f6f2e8;--white:#fffdf8;--card:#fffdf8;--bg-sub:#eee8d9;--bg-soft:#eee8d9;--text:#1d2130;--text-sub:#5c5a55;--border:#e4dccb;--primary:#23397a;--primary-light:#31509f;--primary-fill:#23397a;--accent:#8a6d24;--accent-soft:#f6edd2;--info-line:#d8d2bf;--pal-h1:#31509f;--pal-h2:#23397a;--pal-h3:#141f45;--pal-hl:#e9dcb5}
+  :root[data-pal="vermeer"][data-theme="dark"]{--bg:#0e1220;--white:#151b2e;--card:#151b2e;--bg-sub:#1c2439;--bg-soft:#1c2439;--text:#f1ebdc;--text-sub:#b7b0a0;--border:#2a3249;--primary:#8ea4e2;--primary-light:#a8badf;--primary-fill:#31509f;--accent:#c9b38a;--accent-soft:#2a2619;--info-line:#313d5f;--pal-h1:#2a4590;--pal-h2:#1b2c63;--pal-h3:#0c1330;--pal-hl:#e9dcb5}
+  :root[data-pal="hokusai"]:not([data-theme="dark"]){--bg:#f4f0e6;--white:#fffcf4;--card:#fffcf4;--bg-sub:#ebe5d6;--bg-soft:#ebe5d6;--text:#14222f;--text-sub:#546270;--border:#e0d8c6;--primary:#1d3a5c;--primary-light:#2b5079;--primary-fill:#1d3a5c;--accent:#4f6e83;--accent-soft:#e7edf0;--info-line:#cfd8de;--pal-h1:#2b5079;--pal-h2:#1d3a5c;--pal-h3:#0f2238;--pal-hl:#e9dfc7}
+  :root[data-pal="hokusai"][data-theme="dark"]{--bg:#0c141d;--white:#122030;--card:#122030;--bg-sub:#182a3c;--bg-soft:#182a3c;--text:#ece6d6;--text-sub:#a9b6c0;--border:#24384c;--primary:#8fb3d1;--primary-light:#a8c4dc;--primary-fill:#2b5079;--accent:#9fb8c6;--accent-soft:#172a3a;--info-line:#2b4258;--pal-h1:#24476b;--pal-h2:#173350;--pal-h3:#0a1622;--pal-hl:#e9dfc7}
+  :root[data-pal="monet"]:not([data-theme="dark"]){--bg:#f1f4f2;--white:#fcfdfc;--card:#fcfdfc;--bg-sub:#e6ece9;--bg-soft:#e6ece9;--text:#1c2a2b;--text-sub:#566868;--border:#d9e2df;--primary:#3f6f73;--primary-light:#4f8488;--primary-fill:#3f6f73;--accent:#7468a3;--accent-soft:#ece9f4;--info-line:#cad8d6;--pal-h1:#4f8488;--pal-h2:#3a6468;--pal-h3:#24403f;--pal-hl:#d7c9ef}
+  :root[data-pal="monet"][data-theme="dark"]{--bg:#0f1716;--white:#15201f;--card:#15201f;--bg-sub:#1b2928;--bg-soft:#1b2928;--text:#e6efed;--text-sub:#a8bbb8;--border:#273837;--primary:#8fc1c3;--primary-light:#a8d0d2;--primary-fill:#3f6f73;--accent:#b2a7d6;--accent-soft:#221f33;--info-line:#2e4645;--pal-h1:#3a6468;--pal-h2:#284a4c;--pal-h3:#142826;--pal-hl:#d7c9ef}
+  :root[data-pal="hopper"]:not([data-theme="dark"]){--bg:#f3f1ea;--white:#fdfcf8;--card:#fdfcf8;--bg-sub:#e9e6dc;--bg-soft:#e9e6dc;--text:#1c2422;--text-sub:#59625e;--border:#ddd9cc;--primary:#2f5d58;--primary-light:#3d746e;--primary-fill:#2f5d58;--accent:#8f6624;--accent-soft:#f4ead6;--info-line:#cfd6cc;--pal-h1:#3d746e;--pal-h2:#2a4f4b;--pal-h3:#18302d;--pal-hl:#d9e3b8}
+  :root[data-pal="hopper"][data-theme="dark"]{--bg:#10161a;--white:#172026;--card:#172026;--bg-sub:#1d2a30;--bg-soft:#1d2a30;--text:#ece9df;--text-sub:#aab4b0;--border:#2a383d;--primary:#86bdb5;--primary-light:#a1cdc6;--primary-fill:#3d746e;--accent:#d0a77a;--accent-soft:#2e2419;--info-line:#2f4547;--pal-h1:#23413e;--pal-h2:#172c2b;--pal-h3:#0b1516;--pal-hl:#d9e3b8}
+  :root[data-pal="wada"]:not([data-theme="dark"]){--bg:#f4f1e9;--white:#fefcf6;--card:#fefcf6;--bg-sub:#ebe6da;--bg-soft:#ebe6da;--text:#1f2421;--text-sub:#5b605b;--border:#e0dacb;--primary:#2e5e4e;--primary-light:#3c7562;--primary-fill:#2e5e4e;--accent:#6e6192;--accent-soft:#ece8f3;--info-line:#cfd6cd;--pal-h1:#3c3a52;--pal-h2:#2a2940;--pal-h3:#17162a;--pal-hl:#d8cfe6}
+  :root[data-pal="wada"][data-theme="dark"]{--bg:#121414;--white:#191d1c;--card:#191d1c;--bg-sub:#202625;--bg-soft:#202625;--text:#eee8da;--text-sub:#b0b0a6;--border:#2e3533;--primary:#8cc2ad;--primary-light:#a6d1c0;--primary-fill:#3c7562;--accent:#b9aed4;--accent-soft:#262236;--info-line:#34403c;--pal-h1:#34324a;--pal-h2:#232236;--pal-h3:#121120;--pal-hl:#d8cfe6}
+  html:root[data-pal][data-pal] .q-hero.blue{background:radial-gradient(120% 140% at 30% 20%,var(--pal-h1) 0%,var(--pal-h2) 48%,var(--pal-h3) 100%)}
+  html:root[data-pal][data-pal] .ml-hero{background:radial-gradient(70% 90% at 12% 0%,color-mix(in srgb,var(--pal-h1) 60%,transparent) 0%,transparent 62%),linear-gradient(155deg,var(--pal-h2) 0%,var(--pal-h3) 62%,color-mix(in srgb,var(--pal-h3) 70%,#000) 100%);border-color:color-mix(in srgb,var(--pal-h1) 45%,transparent)}
+  :root[data-pal]:not([data-theme="dark"]) header.top{background:color-mix(in srgb,var(--card) 94%,transparent)}
+  :root[data-pal][data-theme="dark"] header.top{background:color-mix(in srgb,var(--card) 96%,transparent)}
+  :root[data-pal] .cv-card{--ml-y:var(--pal-hl)}
+  /* 설정 › 색 조합 카드 */
+  .pal-gh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:18px 0 0}
+  .pal-gh b{font-size:13px;color:var(--text)}
+  .pal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:14px}
+  .pal-opt{display:flex;flex-direction:column;gap:8px;text-align:left;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);cursor:pointer;font:inherit;transition:border-color .15s,box-shadow .15s}
+  .pal-opt:hover{border-color:var(--text-sub)}
+  .pal-opt.on{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary)}
+  .pal-opt:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  .pal-sw{display:flex;height:36px;border-radius:8px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+  .pal-sw i{flex:1}
+  .pal-nm{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13.5px}
+  .pal-nm b{font-weight:700}
+  .pal-nm em{font-style:normal;font-size:11px;font-weight:700;color:var(--primary);white-space:nowrap}
+  .pal-wk{font-size:11.5px;color:var(--text-sub)}
+  .pal-ds{font-size:12px;line-height:1.5;color:var(--text)}
+  @media (max-width:560px){ .pal-grid{grid-template-columns:1fr 1fr;gap:8px} .pal-opt{padding:10px} .pal-sw{height:28px} .pal-ds{display:none} }
   /* (36차 4 설립자: '기업 재무에 주가 탭 없애자 - 재무제표 탭에서 추가 가능') */
   #coTab-price{display:none!important}
   /* (36차 4) 원가 곡선 - 한눈에 보기 (뜻 · 기회 · 손해 · 사는 쪽 · 볼 것) */
@@ -6833,6 +6879,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
 @media (max-width:600px){ .at-t th:nth-child(5),.at-t td:nth-child(5){display:none} }
 @media (max-width:420px){ .at-seg button{padding:5px 8px} .at-del{margin-left:0} }
 </style><!--/css23-->
+<script>try{var __p=localStorage.getItem('safe_pal');if(__p&&__p!=='base')document.documentElement.setAttribute('data-pal',__p)}catch(e){}</script>
 </head>
 <body>
 
@@ -10628,6 +10675,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-402aa35d.js"></script>
-<script src="app2-049068b1.js"></script>
+<script src="app2-dbda26c4.js"></script>
 </body>
 </html>
