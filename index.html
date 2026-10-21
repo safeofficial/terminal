@@ -1133,6 +1133,12 @@
   #pane-company.co-on #coTiles .tile .d{font-size:11px;color:var(--text-sub)}
   #pane-company.co-on #coTiles .cx-spark{opacity:.35;height:16px;margin-top:4px}
   @media (max-width:640px){ #pane-company.co-on #coTiles .tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px 18px!important} }
+  #pane-company.co-on #coTiles .tiles{display:grid!important;flex-wrap:initial!important}
+  #pane-company.co-on #coTiles .tile{min-width:0!important;width:auto!important;flex:initial!important}
+  #pane-company.co-on #coTiles .tile .v,#pane-company.co-on #coTiles .tile .d{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #pane-company.co-on #coName > span{border:0!important;background:none!important;padding:0 0 0 4px!important;box-shadow:none!important}
+  #pane-company.co-on #coSeg{background:none!important;border:0!important;box-shadow:none!important;padding:8px 0 10px!important}
+  #pane-company.co-on #coTiles .tiles{grid-auto-flow:row!important;grid-template-rows:none!important;grid-auto-columns:auto!important}
   /* (36차 4) 단계별 분석 → 커버리지 개시 리포트 */
   .crw-rpt{padding-top:14px}
   .rp-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:0 0 12px;border-bottom:1px solid var(--border)}
