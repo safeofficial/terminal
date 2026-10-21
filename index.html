@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-402aa35d.js">
-<link rel="preload" as="script" href="app2-26596957.js">
+<link rel="preload" as="script" href="app2-ae475310.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,118 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (36차 4) 단계별 분석 → 커버리지 개시 리포트 */
+  .crw-rpt{padding-top:14px}
+  .rp-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:0 0 12px;border-bottom:1px solid var(--border)}
+  .rp-bar b{font-size:14px}
+  .rp-act{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+  .rp{max-width:860px;margin:0 auto;padding:18px 4px 6px;color:var(--text)}
+  .rp-cover{padding:0 0 18px;border-bottom:2px solid var(--text)}
+  .rp-k{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--text-sub)}
+  .rp-cover h2{margin:6px 0 4px;font-size:26px;line-height:1.2}
+  .rp-cover h2 span{font-size:14px;font-weight:600;color:var(--text-sub);margin-left:6px}
+  .rp-title{margin:0 0 14px;font-size:16px;font-weight:700;line-height:1.5}
+  .rp-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .rp-kpi span{display:flex;flex-direction:column;gap:2px;padding:10px 12px 10px 0}
+  .rp-kpi span + span{padding-left:12px;border-left:1px solid var(--border)}
+  .rp-kpi em{font-style:normal;font-size:11px;color:var(--text-sub)}
+  .rp-kpi b{font-size:18px;font-variant-numeric:tabular-nums}
+  .rp-kpi b.up,.rp b.up{color:var(--up)} .rp-kpi b.down,.rp b.down{color:var(--down)}
+  .rp-meta{margin:8px 0 0;font-size:11.5px;color:var(--text-sub)}
+  .rp-s{padding:16px 0 4px;border-bottom:1px solid var(--border)}
+  .rp-s h3{display:flex;align-items:baseline;gap:8px;margin:0 0 10px;font-size:15px}
+  .rp-s h3 em{font-style:normal;font-size:11px;font-weight:700;color:var(--text-sub);letter-spacing:.06em}
+  .rp-s p{margin:0 0 8px;font-size:13px;line-height:1.7}
+  .rp-ul{margin:0 0 8px;padding-left:18px;font-size:13px;line-height:1.75}
+  .rp-pt{margin:0 0 10px}
+  .rp-pt b{display:block;font-size:13.5px;margin:0 0 2px}
+  .rp-pt p{margin:0}
+  .rp-n{font-size:11.5px!important;color:var(--text-sub)}
+  .rp-tw{overflow-x:auto;margin:0 0 8px}
+  .rp-t{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+  .rp-t thead th{font-size:11px;font-weight:600;color:var(--text-sub);text-align:right;padding:6px 0 6px 10px;border-bottom:1px solid var(--text);white-space:nowrap}
+  .rp-t thead th:first-child{text-align:left;padding-left:0}
+  .rp-t tbody th{text-align:left;font-weight:600;padding:7px 10px 7px 0;border-bottom:1px solid var(--border);white-space:nowrap;background:none}
+  .rp-t td{text-align:right;padding:7px 0 7px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+  .rp-kv td{text-align:left;white-space:normal}
+  .rp-kv thead th{text-align:left}
+  .rp-tot th,.rp-tot td{font-weight:700;border-top:1px solid var(--text)}
+  .rp-g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin:0 0 6px}
+  .rp-foot{margin:14px 0 0;font-size:11px;color:var(--text-sub);text-align:center}
+  @media (max-width:640px){ .rp-kpi{grid-template-columns:1fr 1fr} .rp-kpi span:nth-child(3){padding-left:0;border-left:0} .rp-kpi span:nth-child(n+3){border-top:1px solid var(--border)} .rp-g2{grid-template-columns:1fr} .rp-cover h2{font-size:22px} }
+  @media print{
+    body.crw-print *{visibility:hidden!important}
+    body.crw-print #crwRpt,body.crw-print #crwRpt *{visibility:visible!important}
+    body.crw-print #crwRpt{position:absolute;left:0;top:0;width:100%}
+    body.crw-print #crwRpt .rp-bar{display:none}
+    body.crw-print #crwRpt .card{border:0;box-shadow:none;background:#fff}
+    body.crw-print .rp{color:#111}
+    body.crw-print .rp-s{break-inside:avoid}
+  }
+  .rp table.rp-t{min-width:0!important}
+  .rp .rp-tw table.rp-t:not(.rp-kv){min-width:560px!important}
+  .rp table.rp-t th,.rp table.rp-t td{border-bottom:1px solid var(--border)!important;background:none!important;position:static!important}
+  .rp table.rp-t thead th{border-bottom:1px solid var(--text)!important}
+  .rp table.rp-t .rp-tot th,.rp table.rp-t .rp-tot td{border-top:1px solid var(--text)!important}
+  .rp-g2{align-items:start}
+  .rp-note{margin:10px 0 0}
+  .rp-pre{padding:16px 0 4px}
+  .rp-pre .crw-kpi{margin:0 0 10px}
+  .rp-cover h2{border-left:0!important;padding-left:0!important} .rp-cover h2::before,.rp-cover h2::after{content:none!important;display:none!important}
+  /* (36차 4) 자금 흐름 › 포지셔닝 (CTA 추정 · 펀드매니저 서베이) */
+  .cta-lead{margin:-2px 0 12px;line-height:1.55}
+  .cta-tw{overflow-x:auto;margin:0 0 4px}
+  .cta-t{width:100%;border-collapse:collapse;font-size:12.5px;min-width:720px}
+  .cta-t thead th{font-size:11px;font-weight:600;color:var(--text-sub);text-align:left;padding:6px 10px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap}
+  .cta-t tbody th{text-align:left;font-weight:700;padding:9px 10px 9px 0;white-space:nowrap}
+  .cta-t td{padding:9px 10px 9px 0;border-top:1px solid var(--border);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .cta-t tbody th{border-top:1px solid var(--border);background:none}
+  .cta-ins li.up::marker{color:var(--up)} .cta-ins li.down::marker{color:var(--down)}
+  .cta-t tbody tr{cursor:pointer}
+  .cta-t tbody tr:hover td,.cta-t tbody tr:hover th{background:var(--bg-sub)}
+  .cta-t tbody tr.on th{color:var(--primary)}
+  .cta-t td em{font-style:normal;font-size:11px;color:var(--text-sub)}
+  .cta-t td.up,.cta-t b.up,.cta-fl b.up,.cta-fl i.up,.fms-k b.up{color:var(--up)} .cta-t td.down,.cta-t b.down,.cta-fl b.down,.cta-fl i.down,.fms-k b.down{color:var(--down)}
+  .cta-p{display:flex;align-items:center;gap:8px}
+  .cta-p b{min-width:34px;text-align:right}
+  .cta-p span{font-size:11.5px;color:var(--text-sub)}
+  .cta-bar{position:relative;display:inline-block;width:92px;height:8px;border-radius:4px;background:var(--bg-sub);overflow:hidden;flex:0 0 auto}
+  .cta-bar:after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border)}
+  .cta-bar i{position:absolute;top:0;bottom:0}
+  .cta-bar i.up{background:var(--up)} .cta-bar i.down{background:var(--down)}
+  .cta-cot{background:none;border:1px solid var(--border);border-radius:999px;padding:2px 9px;font:inherit;font-size:11.5px;color:var(--text);cursor:pointer;white-space:nowrap}
+  .cta-cot:hover{border-color:var(--text-sub)}
+  .cta-det{margin:14px 0 0;padding:14px 0 0;border-top:1px solid var(--border)}
+  .cta-dh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:0 0 6px}
+  .cta-dh b{font-size:14px}
+  .cta-ins{margin:6px 0 12px;padding-left:18px;font-size:12.5px;line-height:1.65}
+  .cta-g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin:0 0 10px}
+  .cta-sub{font-size:12px;font-weight:700;margin:0 0 6px}
+  .cta-sub .st-hint{font-weight:400;margin-left:4px}
+  .cta-fl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .cta-fl.cta-sh{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .cta-fl span{display:flex;flex-direction:column;gap:1px;padding:8px 10px;border:1px solid var(--border);border-radius:9px;min-width:0}
+  .cta-fl span.z{border-color:var(--text-sub)}
+  .cta-fl em{font-style:normal;font-size:11px;color:var(--text-sub)}
+  .cta-fl b{font-size:13px;font-variant-numeric:tabular-nums}
+  .cta-fl i{font-style:normal;font-size:11px}
+  .cta-ch{height:330px;margin:6px 0 0}
+  .fms-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:0 0 10px}
+  .fms-hd b{font-size:15px}
+  .fms-k{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+  .fms-k span{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;min-width:0}
+  .fms-k em{font-style:normal;font-size:11px;color:var(--text-sub)}
+  .fms-k b{font-size:17px;font-variant-numeric:tabular-nums}
+  .fms-src{margin:0 0 12px}
+  .fms-t{min-width:640px}
+  .fms-t td:last-child{white-space:normal}
+  .fms-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 0}
+  .fms-form{margin:12px 0 0;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-sub)}
+  .fms-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 10px}
+  .fms-g .fms-w{grid-column:span 2}
+  .fms-form > .fms-w textarea{width:100%;box-sizing:border-box;font:inherit;font-size:12.5px}
+  @media (max-width:760px){ .cta-g2{grid-template-columns:1fr} .fms-k{grid-template-columns:repeat(2,minmax(0,1fr))} .fms-g{grid-template-columns:1fr 1fr} .cta-ch{height:300px} }
+  @media (max-width:420px){ .cta-fl.cta-sh{grid-template-columns:repeat(3,minmax(0,1fr))} .cta-fl{grid-template-columns:repeat(2,minmax(0,1fr))} }
   /* (36차 4) 기업 리서치 › 단계별 분석 */
   .crw-mode{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:0 0 12px}
   .crw-mode .mode-seg{margin-left:0}
@@ -10740,6 +10852,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-402aa35d.js"></script>
-<script src="app2-26596957.js"></script>
+<script src="app2-ae475310.js"></script>
 </body>
 </html>
