@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-3a312486.js">
-<link rel="preload" as="script" href="app2-d7bc9571.js">
+<link rel="preload" as="script" href="app2-33e728e0.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1143,22 +1143,11 @@
   .vm-fr.on i{background:linear-gradient(90deg,#13306a,#2f4bd1)!important} html[data-theme="dark"] .vm-fr.on i{background:linear-gradient(90deg,#8fa6ff,#e9c97b)!important}
   @media (max-width:900px){ .vm-hero{padding:26px 20px 24px!important} .vm-en{font-size:44px!important} .vm-big b{font-size:52px!important} .vm-rec b{font-size:30px!important} }
   /* 파생상품 랩 - 터미널 테마를 따름 (밝게 = 흰 카드 · 어둡게 = 터미널 다크 카드) */
-  .dx-p{--dx-bg:var(--card,#fff);--dx-card:var(--bg-soft,#f7f8fa);--dx-line:var(--border,#e3e6eb);--dx-ink:var(--text,#14171f);--dx-sub:var(--text-sub,#5b6272);--dx-acc:#3d52a0;
-    position:relative;border-radius:22px!important;padding:34px 34px 28px!important;background:var(--dx-bg)!important;color:var(--dx-ink)!important;border:1px solid var(--dx-line);box-shadow:0 1px 2px rgba(20,23,31,.04),0 18px 40px -28px rgba(20,23,31,.18)}
-  html[data-theme="dark"] .dx-p{--dx-bg:#141822;--dx-card:#191e2a;--dx-line:#262d3b;--dx-ink:#eceff5;--dx-sub:#a3acbf;--dx-acc:#8fa6ff;box-shadow:0 18px 40px -28px rgba(0,0,0,.6)}
-  .dx-p::before{content:"";position:absolute;left:34px;right:34px;top:0;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--dx-acc),transparent 70%);opacity:.7}
-  .dx-h .dx-en{background:linear-gradient(100deg,var(--ttl-a,#1c2a63) 0%,var(--ttl-a,#1c2a63) 35%,var(--ttl-b,#4a63ff) 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;--ttl-a:#1c2a63;--ttl-b:#4a63ff}
-  html[data-theme="dark"] .dx-h .dx-en{--ttl-a:#f1f4ff;--ttl-b:#8fa6ff}
-  .dx-hr b{color:var(--dx-ink)!important} .dx-hr p{color:var(--dx-sub)!important}
+  .dx-p{--dx-bg:var(--white,#fff);--dx-card:var(--bg-soft,#f7f8fa);--dx-line:var(--border,#e3e6eb);--dx-ink:var(--text,#14171f);--dx-sub:var(--text-sub,#5b6272);--dx-acc:#3d52a0}
+  html[data-theme="dark"] .dx-p{--dx-card:rgba(255,255,255,.025);--dx-acc:#8fa6ff}
   .dx-c{background:var(--dx-card)!important;border:1px solid var(--dx-line)!important;border-radius:16px!important;padding:18px 20px!important;backdrop-filter:none!important}
   .dx-ct{color:var(--dx-sub)!important} .dx-ct b{color:var(--dx-ink)!important}
   .dx .dx-in{background:var(--dx-bg)!important;border:1px solid var(--dx-line)!important;color:var(--dx-ink)!important}
-  .dx .px-seg{background:var(--dx-card)!important;border:1px solid var(--dx-line)!important}
-  .dx .px-seg > button{color:var(--dx-sub)!important}
-  .dx .px-seg > button.on{background:var(--dx-acc)!important;color:#fff!important;box-shadow:none}
-  html[data-theme="dark"] .dx .px-seg > button.on{color:#0f1424!important}
-  .dx .btn-solid{background:var(--dx-acc)!important;border:0!important;color:#fff!important;box-shadow:none}
-  html[data-theme="dark"] .dx .btn-solid{color:#0f1424!important}
   .dx-pill{border-color:var(--dx-line)!important;color:var(--dx-sub)!important} .dx-pill b{color:var(--dx-ink)!important}
   .dx-wait,.dx-sub,.dx-note{color:var(--dx-sub)!important}
   .dx-note,.dx-why{color:var(--dx-ink)!important}
@@ -1262,23 +1251,16 @@
   @media (max-width:900px){ .vm-hero{grid-template-columns:minmax(0,1fr);gap:24px;padding:24px 20px} .vm-en{font-size:40px} .vm-big b{font-size:38px} .vm-t .vm-w{display:none} .vm-fr{grid-template-columns:110px minmax(0,1fr) 60px} .vm-sgh,.vm-sgr{grid-template-columns:minmax(0,1fr) 70px 52px 70px 22px} }
   /* (39차) 파생상품 랩 - 남색 바탕 · 파란 빛 선 · 영문 이탤릭 제목 */
   .dx{margin-top:6px}
-  .dx-p{display:flex;flex-direction:column;gap:16px;background:#070d1f;color:#e6ebff;border-radius:20px;padding:30px 30px 26px;word-break:keep-all}
-  .dx-h .dx-en{font-family:'Instrument Serif',serif;font-style:italic;font-size:54px;line-height:1.05;letter-spacing:-.015em;padding:0 8px 4px 0;display:inline-block;background:linear-gradient(100deg,#f1f4ff 0%,#f1f4ff 35%,#8fa6ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .dx-hr{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-top:10px}
-  .dx-hr b{font-size:18px;color:#fff}
-  .dx-hr p{margin:6px 0 0;font-size:14px;line-height:1.6;color:#a9b4d6;max-width:640px}
+  .dx-p{display:flex;flex-direction:column;gap:16px;word-break:keep-all}
   .dx-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .dx .dx-in{width:110px;background:#0c1636!important;border:1px solid #2a3768!important;color:#e6ebff!important;border-radius:8px;padding:7px 10px;font:inherit;font-size:13px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase}
-  .dx .px-seg{background:#0c1636!important;border:1px solid #1c2752!important}
-  .dx .px-seg > button{color:#a9b4d6!important}
-  .dx .px-seg > button.on{background:#4a63ff!important;color:#fff!important}
   .dx-pill{font-size:12.5px;border:1px solid #2a3768;border-radius:999px;padding:6px 12px;color:#a9b4d6}
   .dx-pill b{color:#e6ebff;font-family:'IBM Plex Mono',monospace}
   .dx-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px}
   .dx-grid.dx-g15{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
   .dx-two{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px}
   .dx-c{background:linear-gradient(180deg,#0c1636,#0a1230);border:1px solid #1c2752;border-radius:16px;padding:16px 18px;min-width:0;display:flex;flex-direction:column;gap:10px}
-  .dx-ct{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:11.5px;color:#8a96bf;font-family:'IBM Plex Mono','Pretendard',monospace}
+  .dx-ct{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:#8a96bf}
   .dx-ct b{color:#e6ebff}
   .dx-ch{width:100%;height:400px}
   .dx-ch3{height:420px}
@@ -1331,7 +1313,7 @@
   @keyframes dxIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
   @keyframes dxOrb{0%{transform:translate(0,0)}15%{transform:translate(0,-33px)}50%{transform:translate(270px,-33px)}65%{transform:translate(270px,61px)}95%{transform:translate(0,61px)}100%{transform:translate(0,0)}}
   @media (prefers-reduced-motion:reduce){ .dx-dot,.dx-live > div{animation:none!important} }
-  @media (max-width:900px){ .dx-grid,.dx-grid.dx-g15,.dx-two,.dx-eg{grid-template-columns:minmax(0,1fr)} .dx-p{padding:22px 16px} .dx-h .dx-en{font-size:38px} .dx-dist{border-left:0;padding-left:0} .dx-ch{height:340px} }
+  @media (max-width:900px){ .dx-grid,.dx-grid.dx-g15,.dx-two,.dx-eg{grid-template-columns:minmax(0,1fr)} .dx-dist{border-left:0;padding-left:0} .dx-ch{height:340px} }
   /* (40차) 감마 · 유동성 지도 - 위아래로 · 크게 */
   .dx-stack{display:flex;flex-direction:column;gap:16px}
   .dx-chl{height:600px}
@@ -1356,10 +1338,16 @@
   #dxP-earn .dx-bt{font-size:15px}
   #dxP-earn .dx-brief ul{font-size:15.5px;line-height:1.8}
   #dxP-earn .dx-qs{font-size:14px}
-  .dx-hr b{font-size:20px}
-  .dx-hr p{font-size:15px}
   .dx-in,.dx .px-seg > button{font-size:13.5px!important}
   @media (max-width:900px){ #dxECh{height:400px} #dxP-earn .dx-eg{grid-template-columns:minmax(0,1fr)} }
+
+  /* (43차) 트레이딩뷰 차트 · 범례 */
+  #dxLv{position:relative;overflow:hidden}
+  .dx-lg{position:absolute;left:10px;top:8px;z-index:3;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;font-size:12.5px;color:var(--dx-sub);pointer-events:none;font-family:'IBM Plex Mono','Pretendard',monospace}
+  .dx-lg b{font-weight:600} .dx-lg .nm{color:var(--dx-ink);font-family:'Pretendard',sans-serif;font-weight:700;font-size:13px}
+  .dx-help{font-size:12px;color:var(--dx-sub)}
+  #dxP-gex .dx-ct > span:first-child{color:var(--dx-ink);font-weight:600}
+  .dx-p > h2{margin-bottom:2px}
   /* (38차 설립자: '이걸 C안으로 고를 수 있게') - 재무제표 보기 C 커버 */
   .co-vc #coSumCard{display:none!important}
   #coPane-fin > #coCv{order:-1!important;grid-column:1/-1;grid-row:auto}
@@ -11648,6 +11636,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-3a312486.js"></script>
-<script src="app2-d7bc9571.js"></script>
+<script src="app2-33e728e0.js"></script>
 </body>
 </html>
