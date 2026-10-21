@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-402aa35d.js">
-<link rel="preload" as="script" href="app2-54b78e92.js">
+<link rel="preload" as="script" href="app2-2ce148e1.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,68 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (36차 4 설립자: '재무제표가 내용은 좋은데 눈에 안 들어옴 - 더 멋있고 읽히고 프로페셔널하게 · 세련 · 미니멀') - 회사를 고른 뒤 화면만
+     ① 큰 머리 그림 접기 · 검색 한 줄  ② 01~04 갈래 + 세부 탭을 얇은 탭 두 줄로 (스크롤해도 위에 붙음)  ③ 실적 추이 → 차트에 더하기 (접힘) → 재무제표 → 한눈에 보기
+     ④ 카드 위 영문 작은 글씨 · 장식 줄이기 · 숫자는 같은 굵기 체계                                                                    */
+  #pane-company.co-on > .page-head{display:none}
+  #pane-company.co-on .co-srch{padding:10px 14px;margin-bottom:14px}
+  #pane-company.co-on .co-srch > h2{display:none}
+  #pane-company.co-on .co-srch .row{margin:0}
+  #pane-company.co-on .co-srch .co-recent{display:none}
+  #pane-company.co-on .co-srch:focus-within .co-recent{display:flex;margin-top:8px}
+  #pane-company.co-on #coNav{position:sticky!important;top:var(--co-top,64px)!important;z-index:30;background:var(--bg);margin:0 0 16px;padding:0;border-bottom:1px solid var(--border)}
+  #pane-company.co-on #coGrp{display:flex!important;gap:4px;margin:0;overflow-x:auto;scrollbar-width:none;grid-template-columns:none!important}
+  #pane-company.co-on #coGrp::-webkit-scrollbar{display:none}
+  #pane-company.co-on #coGrp > button{flex:0 0 auto;display:inline-flex!important;align-items:baseline;gap:6px;min-height:0;height:auto;padding:12px 14px 11px;margin:0;border:0!important;border-bottom:2px solid transparent!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:var(--text-sub);transform:none!important}
+  #pane-company.co-on #coGrp > button em{font-style:normal;font-size:11px;font-weight:700;letter-spacing:.04em;width:auto!important;height:auto!important;padding:0!important;margin:0;border:0!important;background:none!important;color:inherit!important;opacity:.65;line-height:1;display:inline!important}
+  #pane-company.co-on #coGrp > button b{font-size:14px;font-weight:600;color:inherit;line-height:1.2}
+  #pane-company.co-on #coGrp > button span{display:none}
+  #pane-company.co-on #coGrp > button.on{color:var(--text);border-bottom-color:var(--text)!important}
+  #pane-company.co-on #coGrp > button:hover{color:var(--text)}
+  #pane-company.co-on #coSeg{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:2px;margin:0;padding:8px 0 10px;border:0;background:none;box-shadow:none;max-width:none}
+  #pane-company.co-on #coSeg::-webkit-scrollbar{display:none}
+  #pane-company.co-on #coSeg button{flex:0 0 auto;border:0;background:none;box-shadow:none;padding:6px 11px;border-radius:8px;font-size:12.5px;font-weight:500;color:var(--text-sub)}
+  #pane-company.co-on #coSeg button.on{background:var(--bg-sub);color:var(--text);font-weight:700}
+  #pane-company.co-on #coSeg button:hover:not(.on){color:var(--text)}
+  #pane-company.co-on .card-en{display:none}
+  #pane-company.co-on #coBody .card{box-shadow:none;border-radius:14px;padding:20px 22px}
+  #pane-company.co-on #coBody .card > h2{font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:14px}
+  #pane-company.co-on #coViewCard{background:none;border:0;padding:0 2px!important;margin:0 0 10px}
+  #pane-company.co-on #coViewCard > h2{font-size:12px!important;font-weight:600!important;color:var(--text-sub);margin:0 0 4px!important}
+  #pane-company.co-on #coViewCard > h2::before{display:none}
+  #pane-company.co-on #coPane-fin{display:flex;flex-direction:column}
+  #pane-company.co-on #coPane-fin > .co-perf{order:1}
+  #pane-company.co-on #coPane-fin > #coAddCard{order:2}
+  #pane-company.co-on #coPane-fin > .co-stmt{order:3}
+  #pane-company.co-on #coPane-fin > #cxGlanceCard{order:4}
+  #pane-company.co-on #coPane-fin > :not(.co-perf):not(#coAddCard):not(.co-stmt):not(#cxGlanceCard){order:5}
+  #pane-company.co-on #coAddCard[data-fold="1"]{padding-top:14px;padding-bottom:14px}
+  #pane-company.co-on #coTiles .cx-spark{opacity:.5}
+  #pane-company.co-on #coHead .card{box-shadow:none}
+  @media (max-width:640px){ #pane-company.co-on #coGrp > button{padding:11px 10px 10px} #pane-company.co-on #coGrp > button b{font-size:13px} #pane-company.co-on #coBody .card{padding:16px 14px} }
+  /* (36차 4 설립자: '상단에 굳이 상자를 많이 써야 되나') - 회사 머리: 상자 · 테두리 · 알약 빼고 글자와 여백만 */
+  #pane-company.co-on .co-srch{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 0 22px!important}
+  #pane-company.co-on .co-srch input{background:transparent;border:0;border-bottom:1px solid var(--border);border-radius:0;box-shadow:none;padding-left:30px}
+  #pane-company.co-on .co-srch input:focus{border-bottom-color:var(--text);outline:none;box-shadow:none}
+  #pane-company.co-on .co-srch .btn-solid{background:none;border:0;color:var(--text-sub);box-shadow:none;padding:6px 4px;font-weight:600}
+  #pane-company.co-on .co-srch .btn-solid:hover{color:var(--text)}
+  #pane-company.co-on #coHead .card{background:none!important;border:0!important;box-shadow:none!important;padding:0 2px!important;margin:0 0 6px}
+  #pane-company.co-on #coHead .card > h2{margin:0 0 4px}
+  #pane-company.co-on #coHead .card > h2::before{display:none!important}
+  #pane-company.co-on #coHead .tk,#pane-company.co-on #coHead .tg{border:0!important;background:none!important;padding:0 6px 0 0!important;color:var(--text-sub)}
+  #pane-company.co-on #coHead .card > h2 .btn-sm{border:0;background:none;color:var(--text-sub);padding:4px 2px}
+  #pane-company.co-on #coHead .card > h2 .btn-sm:hover{color:var(--text)}
+  #pane-company.co-on #coRibbon{border:0!important;padding:4px 0 18px!important;margin:0!important}
+  #pane-company.co-on #coRibbon::after,#pane-company.co-on #coRibbon::before{content:none!important;display:none!important}
+  #pane-company.co-on #coRibbon em.up,#pane-company.co-on #coRibbon em.down{background:none!important;padding:0!important;border:0!important}
+  #pane-company.co-on #coTiles .tiles{border:0!important;gap:22px 28px!important;padding:16px 0 4px!important;border-top:1px solid var(--border)!important;grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  #pane-company.co-on #coTiles .tile{border:0!important;box-shadow:none!important;background:none!important;padding:0!important;outline:0!important}
+  #pane-company.co-on #coTiles .tile::before,#pane-company.co-on #coTiles .tile::after{display:none!important}
+  #pane-company.co-on #coTiles .tile .k{font-size:11.5px;color:var(--text-sub);font-weight:500;letter-spacing:0}
+  #pane-company.co-on #coTiles .tile .v{font-size:22px;margin:2px 0 1px}
+  #pane-company.co-on #coTiles .tile .d{font-size:11px;color:var(--text-sub)}
+  #pane-company.co-on #coTiles .cx-spark{opacity:.35;height:16px;margin-top:4px}
+  @media (max-width:640px){ #pane-company.co-on #coTiles .tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px 18px!important} }
   /* (36차 4) 단계별 분석 → 커버리지 개시 리포트 */
   .crw-rpt{padding-top:14px}
   .rp-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:0 0 12px;border-bottom:1px solid var(--border)}
@@ -10852,6 +10914,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-402aa35d.js"></script>
-<script src="app2-54b78e92.js"></script>
+<script src="app2-2ce148e1.js"></script>
 </body>
 </html>
