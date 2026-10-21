@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-402aa35d.js">
-<link rel="preload" as="script" href="app2-2ce148e1.js">
+<link rel="preload" as="script" href="app2-2df31636.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,148 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (36차 5 설립자: '재무제표는 A · B 디자인을 페이지에서 고르게 · 다른 탭도 같은 디자인 · 모션 넣을 수 있는 곳 넣고')
+     공통: 갈래 + 세부 탭 한 줄 (갈래는 눌러서 펼침) · 밑줄이 따라 움직임 · 보기 고르기 · 표시 설정은 실적 추이 머리로
+     A 기본: 상자 없이 여백 · 선  /  B 밀도: 얇은 테두리 칸 · 고정폭 숫자 · 핵심 숫자는 그래프 옆 · 항목별 작은 그래프          */
+  #pane-company.co-on{--co-up:#c0392b;--co-dn:#1b5fa8;--co-mute:color-mix(in srgb,var(--text-sub) 58%,var(--card))}
+  html[data-theme="dark"] #pane-company.co-on{--co-up:#ef6b5e;--co-dn:#5b9cf0;--co-mute:color-mix(in srgb,var(--text-sub) 52%,var(--card))}
+  #pane-company.co-on #coNav{display:flex!important;align-items:stretch;flex-wrap:nowrap;gap:0}
+  #pane-company.co-on #coGrp{flex:0 0 auto;position:relative;overflow:visible!important;align-items:center;padding-right:12px;margin:0 6px 0 0!important}
+  #pane-company.co-on #coGrp::after{content:"";position:absolute;right:0;top:50%;width:1px;height:16px;margin-top:-8px;background:var(--border)}
+  #pane-company.co-on #coGrp > button:not(.on){display:none!important}
+  #pane-company.co-on #coGrp > button.on{border-bottom-color:transparent!important;padding-left:0!important;color:var(--text);align-items:center!important;flex-direction:row!important;flex-wrap:nowrap!important}
+  #pane-company.co-on #coGrp > button.on::after{content:"";display:block!important;flex:0 0 auto;position:static!important;background:none!important;border-radius:0!important;border-top:0!important;border-left:0!important;box-shadow:none!important;opacity:.7;width:6px;height:6px;margin:-3px 0 0 2px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg);transition:transform .2s ease,margin .2s ease}
+  #pane-company.co-on #coGrp.open > button.on::after{transform:rotate(225deg);margin-top:3px}
+  .co-gm{position:absolute;left:0;top:calc(100% + 4px);z-index:45;min-width:270px;padding:6px;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 14px 34px rgba(15,18,26,.14);display:flex;flex-direction:column;gap:2px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .16s ease,transform .18s cubic-bezier(.2,.7,.2,1),visibility 0s linear .18s}
+  #coGrp.open .co-gm{opacity:1;visibility:visible;transform:none;transition:opacity .16s ease,transform .18s cubic-bezier(.2,.7,.2,1),visibility 0s}
+  .co-gm button{display:grid;grid-template-columns:26px minmax(0,1fr);gap:1px 6px;text-align:left;border:0;background:none;padding:9px 10px;border-radius:8px;color:var(--text);font:inherit;cursor:pointer;transition:background-color .12s}
+  .co-gm button em{font-style:normal;font-size:11px;font-weight:700;color:var(--text-sub);grid-row:span 2;padding-top:3px}
+  .co-gm button b{font-size:14px;font-weight:600}
+  .co-gm button span{font-size:12px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .co-gm button:hover,.co-gm button:focus-visible{background:var(--bg-sub);outline:0}
+  .co-gm button[aria-current="true"] b{color:var(--primary)}
+  #pane-company.co-on #coSeg{position:relative;flex:1 1 auto;min-width:0;padding:0!important;gap:0;align-items:stretch}
+  #pane-company.co-on #coSeg button{padding:12px 11px 11px!important;border-radius:0!important;background:none!important;font-size:13.5px;transition:color .15s}
+  #pane-company.co-on #coSeg button.on{font-weight:600!important;color:var(--text)!important;-webkit-text-fill-color:currentColor}
+  #coSeg .co-ind{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--text);pointer-events:none;transition:transform .3s cubic-bezier(.2,.7,.2,1),width .3s cubic-bezier(.2,.7,.2,1),opacity .2s}
+  .co-vt{flex:0 0 auto;display:flex;align-items:center;gap:2px;margin-left:8px;padding-left:12px;position:relative}
+  .co-vt::before{content:"";position:absolute;left:0;top:50%;width:1px;height:16px;margin-top:-8px;background:var(--border)}
+  .co-vt > span{font-size:12px;color:var(--text-sub);margin-right:4px}
+  .co-vt button{border:0;background:none;font:inherit;font-size:12.5px;color:var(--text-sub);padding:5px 9px;border-radius:7px;cursor:pointer;transition:background-color .15s,color .15s}
+  .co-vt button.on{background:var(--bg-sub);color:var(--text);font-weight:600}
+  .co-vt button:hover:not(.on){color:var(--text)}
+  #pane-company.co-on #coBody #coViewCard:not(.hidden){display:flex!important;flex-wrap:wrap;align-items:center;gap:8px 14px;background:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 0 14px!important;border-radius:0!important}
+  #pane-company.co-on #coBody #coViewCard > h2{order:2;margin-left:auto!important;font-size:0!important;margin:0!important;padding:0!important;border:0!important}
+  #pane-company.co-on #coBody #coViewCard > h2 .tools{display:inline-flex}
+  #pane-company.co-on #coBody #coViewCard > h2 .btn-sm{font-size:12.5px;border:0;background:none;color:var(--text-sub);padding:4px 2px}
+  #pane-company.co-on #coBody #coViewCard > .row{order:1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0}
+  #pane-company.co-on #coBody #coViewCard .co-rng-note{flex:0 1 auto;width:auto;margin:0 0 0 4px;font-size:11.5px}
+  #pane-company.co-on #coBody #coViewCard > .row > label{min-width:0!important;font-size:12px;color:var(--text-sub);margin:0}
+  #pane-company.co-on #coBody #coViewCard > :not(h2):not(.row){order:3;flex:1 0 100%}
+  #pane-company.co-on .co-perf > h2 .co-smt{display:none}
+  .co-kv,.co-sm{display:none}
+  @keyframes coIn{from{opacity:0}to{opacity:1}}
+  @keyframes coRise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @keyframes coGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  #pane-company.co-on [id^="coPane-"]:not(.hidden){animation:coIn .24s ease-out}
+  #pane-company.co-vx #coHead,#pane-company.co-vx #coBody{animation:coIn .3s ease-out}
+  #pane-company.co-on #coTiles .tile{animation:coRise .45s cubic-bezier(.2,.7,.2,1) both}
+  #pane-company.co-on #coTiles .tile:nth-child(2){animation-delay:.03s} #pane-company.co-on #coTiles .tile:nth-child(3){animation-delay:.06s}
+  #pane-company.co-on #coTiles .tile:nth-child(4){animation-delay:.09s} #pane-company.co-on #coTiles .tile:nth-child(5){animation-delay:.12s}
+  #pane-company.co-on #coTiles .tile:nth-child(6){animation-delay:.15s} #pane-company.co-on #coTiles .tile:nth-child(7){animation-delay:.18s}
+  #pane-company.co-on #coTiles .tile:nth-child(n+8){animation-delay:.21s}
+  #pane-company.co-on #coBody table{font-variant-numeric:tabular-nums}
+  #pane-company.co-on #coBody table tbody tr > td{transition:background-image .12s}
+  #pane-company.co-on #coBody table tbody tr:hover > td{background-image:linear-gradient(color-mix(in srgb,var(--primary) 7%,transparent),color-mix(in srgb,var(--primary) 7%,transparent))}
+
+  /* A 기본 - 상자 없이 제목 · 여백 · 선 */
+  #pane-company.co-on.co-va #coBody .card{background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;margin:0 0 44px!important}
+  #pane-company.co-on.co-va #coBody .card > h2{font-size:19px;font-weight:700;letter-spacing:-.015em;margin:0 0 16px}
+  #pane-company.co-on.co-va #coBody table th{font-size:12.5px;font-weight:500;color:var(--text-sub);border:0!important;border-bottom:1px solid var(--text)!important;padding:9px 10px}
+  #pane-company.co-on.co-va #coBody table td{border:0!important;border-bottom:1px solid var(--border)!important;padding:10px 10px}
+  #pane-company.co-on.co-va #coPane-fin > #coAddCard[data-fold="1"]{padding:0!important}
+
+  /* B 밀도 - 얇은 테두리 칸 · 고정폭 숫자 · 촘촘한 줄 */
+  #pane-company.co-on.co-vb #coHead .card{border-top:2px solid var(--text)!important;padding:10px 0 0!important}
+  #pane-company.co-on.co-vb #coHead .card > h2{font-size:20px;letter-spacing:-.01em}
+  #pane-company.co-on.co-vb #coRibbon{padding:2px 0 10px!important}
+  #pane-company.co-on.co-vb #coHead #coTiles .tiles{grid-template-columns:none!important;grid-auto-flow:column!important;grid-auto-columns:minmax(0,1fr)!important;gap:0!important;padding:0!important;border-top:1px solid var(--border)!important;border-bottom:1px solid var(--border)!important}
+  #pane-company.co-on.co-vb #coHead #coTiles .tile{padding:8px 10px!important;border-left:1px solid var(--border)!important}
+  #pane-company.co-on.co-vb #coHead #coTiles .tile:first-child{border-left:0!important;padding-left:0!important}
+  #pane-company.co-on.co-vb #coTiles .tile .v{font-family:'IBM Plex Mono',ui-monospace,'Pretendard',sans-serif;font-size:15px;font-weight:600;margin:1px 0 0}
+  #pane-company.co-on.co-vb #coTiles .tile .k{font-size:11px}
+  #pane-company.co-on.co-vb #coTiles .cx-spark{display:none}
+  @media (max-width:1100px){ #pane-company.co-on.co-vb #coHead #coTiles .tiles{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-auto-flow:row!important} #pane-company.co-on.co-vb #coHead #coTiles .tile:nth-child(4n+1){border-left:0!important;padding-left:0!important} }
+  @media (max-width:560px){ #pane-company.co-on.co-vb #coHead #coTiles .tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-flow:row!important} #pane-company.co-on.co-vb #coHead #coTiles .tile:nth-child(odd){border-left:0!important;padding-left:0!important} #pane-company.co-on.co-vb #coHead #coTiles .tile:nth-child(4n+1){padding-left:0!important} #pane-company.co-on.co-vb #coHead #coTiles .tile:nth-child(even){border-left:1px solid var(--border)!important;padding-left:10px!important} }
+  #pane-company.co-on.co-vb #coBody .card{background:var(--card)!important;border:1px solid var(--border)!important;border-radius:2px!important;box-shadow:none!important;padding:0 0 12px!important;margin:0 0 12px!important}
+  #pane-company.co-on.co-vb #coBody .card > h2{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:13px;font-weight:600;letter-spacing:0;margin:0 0 10px;padding:9px 12px;border-bottom:1px solid var(--border)}
+  #pane-company.co-on.co-vb #coBody .card > h2 .tools{margin-left:auto}
+  #pane-company.co-on.co-vb #coBody .card > :not(h2){margin-left:12px!important;margin-right:12px!important}
+  #pane-company.co-on.co-vb #coBody .card > .scroll{margin-left:0!important;margin-right:0!important}
+  #pane-company.co-on.co-vb #coBody .card > h2 + .scroll{margin-top:-10px!important}
+  #pane-company.co-on.co-vb #coBody #coViewCard{margin:0 12px 10px!important;padding:0 0 10px!important;border-bottom:1px solid var(--border)!important}
+  #pane-company.co-on.co-vb #coBody table{font-size:12.5px}
+  #pane-company.co-on.co-vb #coBody table th{font-size:11.5px;font-weight:500;color:var(--text-sub);background-color:var(--card);border:0!important;border-bottom:1px solid var(--border)!important;padding:6px 12px}
+  #pane-company.co-on.co-vb #coBody table td{border:0!important;border-bottom:1px solid var(--border)!important;padding:5px 12px}
+  #pane-company.co-on.co-vb #coBody td.co-n{font-family:'IBM Plex Mono',ui-monospace,'Pretendard',sans-serif;font-size:12px}
+  #pane-company.co-on.co-vb #coPane-fin:not(.hidden){display:grid!important;grid-template-columns:minmax(0,1fr) 270px;gap:0 12px;align-items:start}
+  #pane-company.co-on.co-vb #coPane-fin > *{grid-column:1/-1;min-width:0}
+  #pane-company.co-on.co-vb #coPane-fin > .co-perf{grid-column:1;grid-row:1}
+  #pane-company.co-on.co-vb #coPane-fin > .co-kv{display:block;grid-column:2;grid-row:1;background:var(--card);border:1px solid var(--border);border-radius:2px;margin:0 0 12px}
+  @media (max-width:1000px){ #pane-company.co-on.co-vb #coPane-fin{grid-template-columns:minmax(0,1fr)} #pane-company.co-on.co-vb #coPane-fin > .co-kv{grid-column:1;grid-row:2} }
+  .co-kvh{display:flex;justify-content:space-between;align-items:baseline;padding:9px 12px;border-bottom:1px solid var(--border);font-size:13px}
+  .co-kvh b{font-weight:600}
+  #pane-company.co-on.co-vb .co-kv #coTiles .tiles{display:block!important;border:0!important;padding:0!important;margin:0!important}
+  #pane-company.co-on.co-vb .co-kv #coTiles .tile{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:0 10px;padding:7px 12px!important;border:0!important;border-bottom:1px solid var(--border)!important}
+  #pane-company.co-on.co-vb .co-kv #coTiles .tile:last-child{border-bottom:0!important}
+  #pane-company.co-on.co-vb .co-kv #coTiles .tile .k{grid-column:1;grid-row:1;font-size:12.5px}
+  #pane-company.co-on.co-vb .co-kv #coTiles .tile .v{grid-column:2;grid-row:1;font-size:14px;margin:0;text-align:right}
+  #pane-company.co-on.co-vb .co-kv #coTiles .tile .d{grid-column:1/-1;text-align:right;font-size:11px;margin-top:1px}
+  #pane-company.co-on.co-vb .co-kv #coTiles .tile > :not(.k):not(.v):not(.d){display:none}
+  #pane-company.co-on.co-vb .co-perf > h2 .co-smt{display:inline-flex;border:1px solid var(--border);margin-left:auto}
+  #pane-company.co-on.co-vb .co-perf > h2 .co-smt + .tools{margin-left:0}
+  .co-smt button{border:0;background:none;font:inherit;font-size:12px;font-weight:500;color:var(--text-sub);padding:3px 9px;cursor:pointer;transition:background-color .15s,color .15s}
+  .co-smt button + button{border-left:1px solid var(--border)}
+  .co-smt button.on{background:var(--bg-sub);color:var(--text);font-weight:600}
+  #pane-company.co-on.co-vb .co-perf[data-sm="1"] .co-sm{display:grid}
+  #pane-company.co-on.co-vb .co-perf[data-sm="1"] #coFinBox{position:absolute!important;left:-99999px!important;top:0;width:960px!important}
+  .co-sm{grid-template-columns:repeat(var(--c,2),minmax(0,1fr));gap:10px;margin-bottom:10px}
+  @media (max-width:640px){ .co-sm{grid-template-columns:minmax(0,1fr)} }
+  .co-sme{grid-column:1/-1;padding:18px 0;color:var(--text-sub);font-size:12.5px}
+  .co-smp{border:1px solid var(--border);padding:9px 11px 8px;display:flex;flex-direction:column;gap:7px;min-width:0}
+  .co-smh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px;min-width:0}
+  .co-smh > b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .co-smh > b i{font-style:normal;font-weight:400;color:var(--text-sub);font-size:11.5px;margin-left:4px}
+  .co-smr{font-family:'IBM Plex Mono',ui-monospace,'Pretendard',sans-serif;font-size:12.5px;white-space:nowrap}
+  .co-smr small{font-size:11px;color:var(--text-sub);margin-right:6px}
+  .co-smr strong{font-weight:600}
+  .co-smr em{font-style:normal;margin-left:6px}
+  .co-smr em.u{color:var(--co-up)} .co-smr em.d{color:var(--co-dn)}
+  .co-smc{position:relative;height:104px;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:var(--g,4px)}
+  .co-smc > i{position:absolute;left:0;right:0;height:1px;background:color-mix(in srgb,var(--text-sub) 45%,transparent);pointer-events:none}
+  .co-smc > span{position:relative;display:block;height:100%;cursor:crosshair}
+  .co-smc > span > u{position:absolute;left:0;right:0;display:block;background:var(--co-mute);border-radius:2px 2px 0 0;transform-origin:50% 100%;animation:coGrow .55s cubic-bezier(.2,.7,.2,1) both;transition:background-color .12s}
+  .co-sm.na .co-smc > span > u{animation:none}
+  .co-smc > span > u.n{border-radius:0 0 2px 2px;transform-origin:50% 0}
+  .co-smc > span.l > u{background:var(--primary)}
+  .co-smc > span:hover > u{background:var(--text-sub)}
+  .co-smc > span.l:hover > u{background:var(--primary)}
+  .co-smx{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:var(--g,4px);font-family:'IBM Plex Mono',ui-monospace,'Pretendard',sans-serif;font-size:10px;color:var(--text-sub);text-align:center}
+  .co-smx > span{white-space:nowrap;overflow:visible;min-width:0}
+  .co-smx > span.e{display:flex;justify-content:flex-end}
+  @media (max-width:640px){ .co-vt > span{display:none} .co-vt{margin-left:4px;padding-left:8px} }
+  #pane-company.co-on.co-vb .co-kv #coTiles .tile .d em{font-style:normal}
+  #pane-company.co-on #coTiles .tile .d em.up,#pane-company.co-on #coFinSum em.up{color:var(--co-up)}
+  #pane-company.co-on #coTiles .tile .d em.down,#pane-company.co-on #coFinSum em.down{color:var(--co-dn)}
+  @media (prefers-reduced-motion:reduce){ #pane-company *,#pane-company *::after,.co-gm{animation:none!important;transition:none!important} }
+  /* 다른 탭 (개요 · 컨센서스 · 공시 · 지분 · 배당 · 가치 평가) - 안쪽 작은 상자도 같은 규칙 */
+  #pane-company.co-on.co-va #coBody :not(#coTiles) > .tiles{gap:18px 26px!important}
+  #pane-company.co-on.co-va #coBody :not(#coTiles) > .tiles > .tile{background:none!important;border:0!important;border-top:1px solid var(--border)!important;border-radius:0!important;box-shadow:none!important;padding:12px 0 0!important}
+  #pane-company.co-on.co-va #coBody .note.info{background:none!important;border:0!important;border-left:2px solid var(--border)!important;border-radius:0!important;box-shadow:none!important;padding:4px 0 4px 14px!important;margin-bottom:28px}
+  #pane-company.co-on.co-vb #coBody :not(#coTiles) > .tiles{gap:0!important;border-top:1px solid var(--border)!important;border-left:1px solid var(--border)!important}
+  #pane-company.co-on.co-vb #coBody :not(#coTiles) > .tiles > .tile{background:none!important;border:0!important;border-right:1px solid var(--border)!important;border-bottom:1px solid var(--border)!important;border-radius:0!important;box-shadow:none!important;padding:8px 10px!important;margin:0!important}
+  #pane-company.co-on.co-vb #coBody :not(#coTiles) > .tiles > .tile .v{font-family:'IBM Plex Mono',ui-monospace,'Pretendard',sans-serif;font-size:15px}
+  #pane-company.co-on.co-vb #coBody .note.info{border-radius:2px!important;box-shadow:none!important;padding:8px 12px!important;margin-bottom:12px;font-size:12.5px}
   /* (36차 4 설립자: '재무제표가 내용은 좋은데 눈에 안 들어옴 - 더 멋있고 읽히고 프로페셔널하게 · 세련 · 미니멀') - 회사를 고른 뒤 화면만
      ① 큰 머리 그림 접기 · 검색 한 줄  ② 01~04 갈래 + 세부 탭을 얇은 탭 두 줄로 (스크롤해도 위에 붙음)  ③ 실적 추이 → 차트에 더하기 (접힘) → 재무제표 → 한눈에 보기
      ④ 카드 위 영문 작은 글씨 · 장식 줄이기 · 숫자는 같은 굵기 체계                                                                    */
@@ -10920,6 +11062,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-402aa35d.js"></script>
-<script src="app2-2ce148e1.js"></script>
+<script src="app2-2df31636.js"></script>
 </body>
 </html>
