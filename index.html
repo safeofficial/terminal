@@ -1072,21 +1072,21 @@
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
   /* (42차) 재무제표 도구 막대 - 1줄 갈래 · 2줄 탭 + 이름 붙은 옵션 */
-  #pane-company.co-on #coNav{flex-wrap:wrap!important;row-gap:0;align-items:center!important}
-  #pane-company.co-on #coGrp{flex:1 0 100%!important;margin:0!important;padding:0!important;border-bottom:1px solid var(--border);gap:2px!important;overflow-x:auto!important}
-  #pane-company.co-on #coGrp::after{display:none!important}
-  #pane-company.co-on #coGrp > button,#pane-company.co-on #coGrp > button:not(.on){display:inline-flex!important;align-items:baseline!important;gap:7px;padding:12px 14px 11px!important;border:0!important;border-bottom:2px solid transparent!important;background:none!important;color:var(--text-sub);cursor:pointer}
-  #pane-company.co-on #coGrp > button.on{color:var(--text)!important;border-bottom-color:var(--primary-light,#3d52a0)!important;padding-left:14px!important}
-  #pane-company.co-on #coGrp > button.on::after{display:none!important}
-  #pane-company.co-on #coGrp > button:hover{color:var(--text)}
-  #pane-company.co-on #coGrp > button em{font-size:11px!important;color:var(--text-sub)}
-  #pane-company.co-on #coGrp > button.on em{color:var(--primary-light,#3d52a0)}
-  html[data-theme="dark"] #pane-company.co-on #coGrp > button.on{border-bottom-color:#8fa6ff!important} html[data-theme="dark"] #pane-company.co-on #coGrp > button.on em{color:#8fa6ff}
-  #pane-company.co-on #coGrp > button b{font-size:14.5px!important}
-  #coGrp .co-gm{display:none!important}
-  #pane-company.co-on #coSeg{flex:1 1 auto}
-  #pane-company .co-vt{display:none!important}
-  #coViewCard > .row:first-of-type{display:none!important}
+  html body #pane-company.co-on #coNav{flex-wrap:wrap!important;row-gap:0;align-items:center!important}
+  #pane-company.co-on #coNav #coGrp{flex:1 0 100%!important;margin:0!important;padding:0!important;border-bottom:1px solid var(--border);gap:2px!important;overflow-x:auto!important}
+  #pane-company.co-on #coNav #coGrp::after{display:none!important}
+  #pane-company.co-on #coNav #coGrp > button,#pane-company.co-on #coNav #coGrp > button:not(.on){display:inline-flex!important;align-items:baseline!important;gap:7px;padding:12px 14px 11px!important;border:0!important;border-bottom:2px solid transparent!important;background:none!important;color:var(--text-sub);cursor:pointer}
+  #pane-company.co-on #coNav #coGrp > button.on{color:var(--text)!important;border-bottom-color:var(--primary-light,#3d52a0)!important;padding-left:14px!important}
+  #pane-company.co-on #coNav #coGrp > button.on::after{display:none!important}
+  #pane-company.co-on #coNav #coGrp > button:hover{color:var(--text)}
+  #pane-company.co-on #coNav #coGrp > button em{font-size:11px!important;color:var(--text-sub)}
+  #pane-company.co-on #coNav #coGrp > button.on em{color:var(--primary-light,#3d52a0)}
+  html[data-theme="dark"] #pane-company.co-on #coNav #coGrp > button.on{border-bottom-color:#8fa6ff!important} html[data-theme="dark"] #pane-company.co-on #coNav #coGrp > button.on em{color:#8fa6ff}
+  #pane-company.co-on #coNav #coGrp > button b{font-size:14.5px!important}
+  #coNav #coGrp .co-gm{display:none!important}
+  #pane-company.co-on #coNav #coSeg{flex:1 1 auto}
+  #pane-company #coNav .co-vt{display:none!important}
+  #pane-company #coBody #coViewCard > .row:first-of-type{display:none!important}
   .co-ctl{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-left:auto;padding:6px 0}
   .co-ctl .cc-g{display:inline-flex;align-items:center;gap:7px}
   .co-ctl .cc-g em{font-style:normal;font-size:12px;font-weight:600;color:var(--text-sub)}
@@ -1099,8 +1099,8 @@
   .co-ctl.cc-off{opacity:.45;pointer-events:none}
   .co-ctl-hint{flex:1 0 100%;font-size:12.5px;color:var(--text-sub);padding:6px 2px 10px}
   #pane-company.co-nocomp #coSeg button:disabled{opacity:.45}
-  @media (max-width:900px){ .co-ctl{margin-left:0;flex:1 0 100%;gap:10px} #pane-company.co-on #coGrp > button{padding:10px 10px 9px!important} }
-  #coEmpty.hidden{display:none!important}
+  @media (max-width:900px){ .co-ctl{margin-left:0;flex:1 0 100%;gap:10px} #pane-company.co-on #coNav #coGrp > button{padding:10px 10px 9px!important} }
+  #pane-company #coEmpty.hidden{display:none!important}
   /* (42차) 회사 고르기 전 - 고른 뒤와 같은 모양 · 탭은 흐리게 (누를 수 없음) */
   #pane-company.co-nocomp #coSeg button:disabled{opacity:.45;cursor:default}
   #pane-company.co-nocomp .co-vt{opacity:.55;pointer-events:none}
