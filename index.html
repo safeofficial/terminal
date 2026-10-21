@@ -25,8 +25,8 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
-<link rel="preload" as="script" href="app1-402aa35d.js">
-<link rel="preload" as="script" href="app2-479ce13a.js">
+<link rel="preload" as="script" href="app1-35833a9b.js">
+<link rel="preload" as="script" href="app2-6edcd75f.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,19 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (40차 설립자: '핵심 지표 상자 크게 · 크기 일정하게 · 한눈에 흐름') */
+  #pane-research #mtmGrid{grid-template-columns:minmax(0,1fr)!important;gap:18px 0!important}
+  #pane-research #mtmGrid .mtm-gbox{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))!important;gap:12px!important}
+  #pane-research #mtmGrid .mtm-card{padding:16px 18px 14px!important;min-height:184px;display:flex;flex-direction:column;gap:4px}
+  #pane-research #mtmGrid .mtm-h{font-size:13.5px!important}
+  #pane-research #mtmGrid .mtm-mid{flex-direction:column!important;align-items:stretch!important;gap:6px!important;overflow:visible!important}
+  #pane-research #mtmGrid .mtm-big b{font-size:27px!important}
+  #pane-research #mtmGrid .mtm-big span{font-size:12.5px!important}
+  #pane-research #mtmGrid .mtm-mid .mtm-spark{flex:none!important;width:100%!important;height:60px!important;margin:2px 0 0!important}
+  #pane-research #mtmGrid .mtm-sub{font-size:12.5px!important}
+  #pane-research #mtmGrid .mtm-f{font-size:12px!important}
+  /* 파생상품 보기 줄 - 잘리지 않게 두 줄까지 */
+  #pane-deriv #dvView{flex-wrap:wrap!important;overflow:visible!important;row-gap:2px}
   /* (40차 설립자: '히어로 아래 여백도 위와 같게 · 소제목 더 크게') */
   [id^="pane-"]:not(#pane-home) .q-hero{padding-top:24px!important;padding-bottom:34px!important}
   [id^="pane-"]:not(#pane-home) .q-hero .qh-act{margin-top:6px}
@@ -1141,7 +1154,7 @@
   /* (39차) 파생상품 랩 - 남색 바탕 · 파란 빛 선 · 영문 이탤릭 제목 */
   .dx{margin-top:6px}
   .dx-p{display:flex;flex-direction:column;gap:16px;background:#070d1f;color:#e6ebff;border-radius:20px;padding:30px 30px 26px;word-break:keep-all}
-  .dx-h .dx-en{font-family:'Instrument Serif',serif;font-style:italic;font-size:50px;line-height:1;color:#6f8cff;letter-spacing:-.01em}
+  .dx-h .dx-en{font-family:'Instrument Serif',serif;font-style:italic;font-size:54px;line-height:1.05;letter-spacing:-.015em;padding:0 8px 4px 0;display:inline-block;background:linear-gradient(100deg,#f1f4ff 0%,#f1f4ff 35%,#8fa6ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
   .dx-hr{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-top:10px}
   .dx-hr b{font-size:18px;color:#fff}
   .dx-hr p{margin:6px 0 0;font-size:14px;line-height:1.6;color:#a9b4d6;max-width:640px}
@@ -1210,6 +1223,34 @@
   @keyframes dxOrb{0%{transform:translate(0,0)}15%{transform:translate(0,-33px)}50%{transform:translate(270px,-33px)}65%{transform:translate(270px,61px)}95%{transform:translate(0,61px)}100%{transform:translate(0,0)}}
   @media (prefers-reduced-motion:reduce){ .dx-dot,.dx-live > div{animation:none!important} }
   @media (max-width:900px){ .dx-grid,.dx-grid.dx-g15,.dx-two,.dx-eg{grid-template-columns:minmax(0,1fr)} .dx-p{padding:22px 16px} .dx-h .dx-en{font-size:38px} .dx-dist{border-left:0;padding-left:0} .dx-ch{height:340px} }
+  /* (40차) 감마 · 유동성 지도 - 위아래로 · 크게 */
+  .dx-stack{display:flex;flex-direction:column;gap:16px}
+  .dx-chl{height:600px}
+  #dxP-gex .dx-ct{font-size:13px}
+  #dxP-gex .dx-why{font-size:15px;line-height:1.8}
+  table.dx-heat{font-size:13.5px}
+  table.dx-heat th,table.dx-heat td{padding:7px 10px!important}
+  #dxHeatBox table.dx-tb{font-size:14.5px}
+  #dxHeatBox{display:block}
+  #dxHeatBox table.dx-tb{width:calc(50% - 10px);display:inline-table;vertical-align:top;margin-right:16px}
+  #dxHeatBox table.dx-tb + table.dx-tb{margin-right:0}
+  @media (max-width:900px){ .dx-chl{height:440px} #dxHeatBox table.dx-tb{width:100%;display:table;margin:0 0 12px} }
+  /* (40차) 어닝 콜 - 크게 · 잘 읽히게 */
+  #dxECh{height:500px}
+  #dxP-earn .dx-ct{font-size:13px}
+  #dxP-earn .dx-eg{grid-template-columns:minmax(0,1fr) 260px}
+  #dxP-earn .dx-db{font-size:14px;grid-template-columns:40px 1fr 46px}
+  #dxP-earn .dx-db i{height:10px}
+  #dxP-earn .dx-big{font-size:46px}
+  #dxP-earn table.dx-tb{font-size:14.5px}
+  #dxP-earn table.dx-tb th{font-size:12.5px}
+  #dxP-earn .dx-bt{font-size:15px}
+  #dxP-earn .dx-brief ul{font-size:15.5px;line-height:1.8}
+  #dxP-earn .dx-qs{font-size:14px}
+  .dx-hr b{font-size:20px}
+  .dx-hr p{font-size:15px}
+  .dx-in,.dx .px-seg > button{font-size:13.5px!important}
+  @media (max-width:900px){ #dxECh{height:400px} #dxP-earn .dx-eg{grid-template-columns:minmax(0,1fr)} }
   /* (38차 설립자: '이걸 C안으로 고를 수 있게') - 재무제표 보기 C 커버 */
   .co-vc #coSumCard{display:none!important}
   #coPane-fin > #coCv{order:-1!important;grid-column:1/-1;grid-row:auto}
@@ -7975,7 +8016,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
             서고, 아래 ‘지표 추가’ 목록은 전부 그대로 남습니다.               -->
       <div class="card" id="macroTeamCard">
         <div class="mtm-head">
-          <div class="ttl"><b id="mtmTitle">팀 핵심 지표</b><span id="mtmSub"></span></div>
+          <div class="ttl"><b id="mtmTitle">핵심 지표</b><span id="mtmSub"></span></div>
           <div class="tools">
             <span class="seg" role="group" aria-label="보기">
               <button type="button" id="mtmVCard" onclick="setMcView('card')" title="카드로 보기">카드</button><button type="button" id="mtmVTable" onclick="setMcView('table')" title="표로 보기 · 한 화면에 다">표</button>
@@ -11497,7 +11538,7 @@ var LSX = {
   } catch(e){}
 })();
 </script>
-<script src="app1-402aa35d.js"></script>
-<script src="app2-479ce13a.js"></script>
+<script src="app1-35833a9b.js"></script>
+<script src="app2-6edcd75f.js"></script>
 </body>
 </html>
