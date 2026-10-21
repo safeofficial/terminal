@@ -25,8 +25,8 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
-<link rel="preload" as="script" href="app1-35833a9b.js">
-<link rel="preload" as="script" href="app2-66fee350.js">
+<link rel="preload" as="script" href="app1-3a312486.js">
+<link rel="preload" as="script" href="app2-d7bc9571.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,39 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (42차) 재무제표 도구 막대 - 1줄 갈래 · 2줄 탭 + 이름 붙은 옵션 */
+  #pane-company.co-on #coNav{flex-wrap:wrap!important;row-gap:0;align-items:center!important}
+  #pane-company.co-on #coGrp{flex:1 0 100%!important;margin:0!important;padding:0!important;border-bottom:1px solid var(--border);gap:2px!important;overflow-x:auto!important}
+  #pane-company.co-on #coGrp::after{display:none!important}
+  #pane-company.co-on #coGrp > button,#pane-company.co-on #coGrp > button:not(.on){display:inline-flex!important;align-items:baseline!important;gap:7px;padding:12px 14px 11px!important;border:0!important;border-bottom:2px solid transparent!important;background:none!important;color:var(--text-sub);cursor:pointer}
+  #pane-company.co-on #coGrp > button.on{color:var(--text)!important;border-bottom-color:var(--primary-light,#3d52a0)!important;padding-left:14px!important}
+  #pane-company.co-on #coGrp > button.on::after{display:none!important}
+  #pane-company.co-on #coGrp > button:hover{color:var(--text)}
+  #pane-company.co-on #coGrp > button em{font-size:11px!important;color:var(--text-sub)}
+  #pane-company.co-on #coGrp > button.on em{color:var(--primary-light,#3d52a0)}
+  html[data-theme="dark"] #pane-company.co-on #coGrp > button.on{border-bottom-color:#8fa6ff!important} html[data-theme="dark"] #pane-company.co-on #coGrp > button.on em{color:#8fa6ff}
+  #pane-company.co-on #coGrp > button b{font-size:14.5px!important}
+  #coGrp .co-gm{display:none!important}
+  #pane-company.co-on #coSeg{flex:1 1 auto}
+  #pane-company .co-vt{display:none!important}
+  #coViewCard > .row:first-of-type{display:none!important}
+  .co-ctl{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-left:auto;padding:6px 0}
+  .co-ctl .cc-g{display:inline-flex;align-items:center;gap:7px}
+  .co-ctl .cc-g em{font-style:normal;font-size:12px;font-weight:600;color:var(--text-sub)}
+  .co-ctl .cc-s{display:inline-flex;background:var(--bg-sub);border-radius:9px;padding:2px;gap:2px}
+  .co-ctl .cc-s button{border:0;background:none;font:inherit;font-size:12.5px;color:var(--text-sub);padding:5px 10px;border-radius:7px;cursor:pointer;transition:background-color .15s,color .15s}
+  .co-ctl .cc-s button:hover{color:var(--text)}
+  .co-ctl .cc-s button.on{background:var(--card);color:var(--text);font-weight:700;box-shadow:0 1px 2px rgba(20,23,31,.12)}
+  html[data-theme="dark"] .co-ctl .cc-s button.on{background:#2a3244;box-shadow:none}
+  .co-ctl .cc-s button:focus-visible{outline:2px solid var(--primary-light,#3d52a0);outline-offset:1px}
+  .co-ctl.cc-off{opacity:.45;pointer-events:none}
+  .co-ctl-hint{flex:1 0 100%;font-size:12.5px;color:var(--text-sub);padding:6px 2px 10px}
+  #pane-company.co-nocomp #coSeg button:disabled{opacity:.45}
+  @media (max-width:900px){ .co-ctl{margin-left:0;flex:1 0 100%;gap:10px} #pane-company.co-on #coGrp > button{padding:10px 10px 9px!important} }
+  #coEmpty.hidden{display:none!important}
+  /* (42차) 회사 고르기 전 - 고른 뒤와 같은 모양 · 탭은 흐리게 (누를 수 없음) */
+  #pane-company.co-nocomp #coSeg button:disabled{opacity:.45;cursor:default}
+  #pane-company.co-nocomp .co-vt{opacity:.55;pointer-events:none}
   /* (40차 설립자: '밸류에이션 톤 · 색 조합 더 놀랍게') - 미드나잇 네이비 · 샴페인 골드 · 아이보리 */
   .vm-hero{position:relative;isolation:isolate;overflow:hidden;border-radius:24px!important;padding:38px 42px 36px!important;gap:48px!important;color:#f5f1e6!important;
     background:radial-gradient(120% 140% at 100% 0%,rgba(233,201,123,.16) 0%,rgba(233,201,123,0) 42%),radial-gradient(90% 120% at 0% 100%,rgba(74,99,255,.22) 0%,rgba(74,99,255,0) 55%),linear-gradient(150deg,#081227 0%,#0c1d42 48%,#13306a 100%)!important;
@@ -1158,7 +1191,8 @@
   #pane-research #mtmGrid .mtm-sub{font-size:12.5px!important}
   #pane-research #mtmGrid .mtm-f{font-size:12px!important}
   /* 파생상품 보기 줄 - 잘리지 않게 두 줄까지 */
-  #pane-deriv #dvView{flex-wrap:wrap!important;overflow:visible!important;row-gap:2px}
+  #pane-deriv #dvView{flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden;scrollbar-width:thin;-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);mask-image:linear-gradient(90deg,#000 92%,transparent)}
+  #pane-deriv #dvView > button{flex:0 0 auto!important;white-space:nowrap}
   /* (40차 설립자: '히어로 아래 여백도 위와 같게 · 소제목 더 크게') */
   [id^="pane-"]:not(#pane-home) .q-hero{padding-top:24px!important;padding-bottom:34px!important}
   [id^="pane-"]:not(#pane-home) .q-hero .qh-act{margin-top:6px}
@@ -11613,7 +11647,7 @@ var LSX = {
   } catch(e){}
 })();
 </script>
-<script src="app1-35833a9b.js"></script>
-<script src="app2-66fee350.js"></script>
+<script src="app1-3a312486.js"></script>
+<script src="app2-d7bc9571.js"></script>
 </body>
 </html>
