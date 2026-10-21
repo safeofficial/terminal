@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-402aa35d.js">
-<link rel="preload" as="script" href="app2-1b30361d.js">
+<link rel="preload" as="script" href="app2-f9b84ddf.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,21 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (37차 설립자: '다듬기는 바로') - 매크로 핵심 지표 표식 · 모의투자 요약 줄 · 영문 작은 줄 */
+  /* 매크로 카드: 중요도 별은 회색으로 작게 (★★★ 는 왼쪽 막대가 이미 말해 줌) · 상태 점은 작게 */
+  #mtmGrid .mtm-stars{opacity:1}
+  #mtmGrid .mtm-stars i{color:color-mix(in srgb,var(--text-sub) 28%,transparent)!important;font-size:9.5px;letter-spacing:-1px}
+  #mtmGrid .mtm-stars i.on{color:var(--text-sub)!important}
+  #mtmGrid .mtm-dot{width:6px!important;height:6px!important;box-shadow:none!important}
+  /* 모의투자 히트맵 위 요약 4칸: 이름 · 값 · 설명 줄을 같은 높이에 */
+  #hmSum .hm-k{display:flex;flex-direction:column;gap:6px}
+  #hmSum .hm-k > span:first-child{font-size:12px;font-weight:500;color:var(--text-sub)}
+  #hmSum .hm-k > b{min-height:26px;display:flex;align-items:center;line-height:1}
+  #hmSum .hm-k > div{min-height:26px}
+  #hmSum .hm-k > i{margin-top:auto;font-size:11.5px;font-style:normal;color:var(--text-sub)}
+  /* 영문 작은 줄 (대제목 오른쪽 · 그림판 아래) 너무 작지 않게 */
+  [id^="pane-"]:not(#pane-home) .page-head.ph19 .ph-mono{font-size:11.5px!important}
+  [id^="pane-"]:not(#pane-home) .q-hero .qh-sub{font-size:11.5px!important}
   /* (37차 설립자: '다 한 번에 · 꼭 멋있게 완성') - 디자인 원칙 한 장
      ① 위계: 대제목(영문 66) > 그림판 제목(46) > 칸 제목(15) > 본문(13.5) > 보조(12, 이보다 작게 쓰지 않음)
      ② 단추 3종: 주 단추(꽉 찬 남색) · 보조 단추(흰 바탕 + 가는 테두리) · 글자 단추
@@ -11244,6 +11259,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-402aa35d.js"></script>
-<script src="app2-1b30361d.js"></script>
+<script src="app2-f9b84ddf.js"></script>
 </body>
 </html>
