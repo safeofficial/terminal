@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-402aa35d.js">
-<link rel="preload" as="script" href="app2-2df31636.js">
+<link rel="preload" as="script" href="app2-6d5d7395.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,86 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (37차 설립자: '홈 · 상단은 그대로, 나머지는 정말 이쁘게 · 블룸버그처럼 빽빽해도 데이터가 잘 정리되게')
+     ① 탭 제목판 + 큰 그림판 두 장이 겹치면 제목판은 한 줄로  ② 매크로 차트 작업대: 왼쪽 도구는 접는 칸 · 차트 아래는 탭
+     ③ COT 한 시장: 판단 · 숫자 먼저, 쉬운 설명 · 차트는 그 다음  ④ 긴 표는 10줄 + 더 보기 · '읽는 법' 은 위쪽 접힌 줄       */
+
+  /* 매크로 작업대 - 왼쪽 도구 칸은 눌러서 펼치기 (한 번에 하나) */
+  .mx-acc > h2{cursor:pointer;user-select:none;position:relative;padding-right:26px!important;margin-bottom:0!important;transition:color .15s}
+  .mx-acc > h2::after{content:"";position:absolute;right:6px;top:50%;width:7px;height:7px;margin-top:-6px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg);opacity:.55;transition:transform .22s ease,margin .22s ease}
+  .mx-acc.mx-open > h2{margin-bottom:12px!important}
+  .mx-acc.mx-open > h2::after{transform:rotate(225deg);margin-top:-2px}
+  .mx-acc:not(.mx-open) > :not(h2){display:none!important}
+  .mx-acc:not(.mx-open){padding-top:14px!important;padding-bottom:14px!important}
+  .mx-acc > h2:hover{color:var(--primary-light)}
+  .mx-acc.mx-open > :not(h2){animation:mxIn .22s ease-out}
+  @keyframes mxIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .mx-tabs{display:flex;align-items:center;gap:10px;margin:2px 0 10px}
+  .mx-tabs .px-seg{margin:0}
+  .mx-tabs .mx-tl{font-size:12px;color:var(--text-sub)}
+  .mx-tab:not(.mx-on){display:none!important}
+  .mx-tab.mx-on{animation:mxIn .22s ease-out}
+
+  /* COT 한 시장 - 판단 · 숫자 → 쉬운 설명 → 차트 */
+  #cotDet.cot-re{display:flex;flex-direction:column}
+  #cotDet.cot-re > .cot-dir{order:1}
+  #cotDet.cot-re > .cot-tiles{order:2}
+  #cotDet.cot-re > .cot-ex{order:3}
+  #cotDet.cot-re > *{order:4}
+  #cotDet.cot-re > .cot-dir,#cotDet.cot-re > .cot-tiles,#cotDet.cot-re > .cot-ex{flex:0 0 auto}
+
+  /* 긴 표 - 10줄 + 더 보기 */
+  table.tb-clip tbody tr:nth-child(n+11){display:none}
+  .tb-more{display:flex;justify-content:center;padding:10px 0 2px}
+  .tb-more button{border:1px solid var(--border);background:var(--card);color:var(--primary-light);border-radius:999px;padding:6px 16px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:background-color .15s,border-color .15s}
+  .tb-more button:hover{background:var(--bg-sub);border-color:var(--primary-light)}
+
+  /* '이 화면 읽는 법' - 위쪽 한 줄로 접어 둠 */
+  .rd-fold > h2{cursor:pointer;user-select:none;position:relative;margin-bottom:0!important;padding-right:26px!important;font-size:14px!important}
+  .rd-fold > h2::before{display:none!important}
+  .rd-fold > h2::after{content:"";position:absolute;right:6px;top:50%;width:7px;height:7px;margin-top:-6px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg);opacity:.55;transition:transform .22s ease,margin .22s ease}
+  .rd-fold.rd-open > h2{margin-bottom:12px!important}
+  .rd-fold.rd-open > h2::after{transform:rotate(225deg);margin-top:-2px}
+  .rd-fold:not(.rd-open){padding-top:12px!important;padding-bottom:12px!important;background:var(--bg-soft)!important;box-shadow:none!important}
+  .rd-fold:not(.rd-open) > :not(h2){display:none!important}
+  @media (prefers-reduced-motion:reduce){ .mx-acc > *,.mx-tab,.mx-acc > h2::after,.rd-fold > h2::after{animation:none!important;transition:none!important} }
+  #cotDet.cot-re > .cot-tiles{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+  #cotDet.cot-re > .cot-tiles > .cot-t{min-width:0!important;width:auto!important;margin:0!important}
+  @media (max-width:1000px){ #cotDet.cot-re > .cot-tiles{grid-template-columns:repeat(3,minmax(0,1fr))} }
+  @media (max-width:560px){ #cotDet.cot-re > .cot-tiles{grid-template-columns:repeat(2,minmax(0,1fr))} }
+
+  /* (37차 설립자: '제목이 내용보다 큰 게 어색 · 디자이너로서 프로하게 · 홈 말고는 색 · 상자 배치 바꿔도 되고 상자 안 써도 됨')
+     홈 · 재무제표 · 퀀트 · 전략 빼고 - 내용이 주인공: 제목 22px · 큰 숫자 32px · 상자 대신 여백과 가는 선 · 색은 방향(빨강 ↑ · 파랑 ↓)과 강조 한 가지만 */
+    [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:6px 28px;min-height:0!important;background:none!important;background-image:none!important;border:0!important;border-bottom:1px solid var(--border)!important;border-radius:0!important;box-shadow:none!important;padding:2px 0 18px!important;margin:0 0 22px!important;color:var(--text)!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19::before,[id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19::after{display:none!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 svg{display:none!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 > *{margin:0!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 .ph-top{grid-column:1;grid-row:1;display:flex!important;align-items:center;gap:8px}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 .ph-top h1{font-size:13px!important;font-weight:600!important;letter-spacing:0;line-height:1.3!important;color:var(--text-sub)!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 .ph-cat{background:var(--bg-sub)!important;color:var(--text-sub)!important;border:0!important;font-size:11px!important;font-weight:600!important;padding:2px 7px!important;border-radius:5px!important;letter-spacing:.04em}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19{--ttl-a:#1c2a63;--ttl-b:#4a63ff;box-shadow:inset 4px 0 0 var(--ttl-b)!important;padding-left:20px!important}
+  html[data-theme="dark"] [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19{--ttl-a:#f1f4ff;--ttl-b:#8fa6ff}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 .ph-en{grid-column:1;grid-row:2;font-size:66px!important;line-height:1.02!important;letter-spacing:-.015em!important;padding:0 8px 4px 0!important;opacity:1!important;background:linear-gradient(100deg,var(--ttl-a) 0%,var(--ttl-a) 35%,var(--ttl-b) 100%);-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 .ph-top h1{color:var(--ttl-b)!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 .ph-mono{grid-column:2;grid-row:2;align-self:end;text-align:right;padding-bottom:6px;font-size:10.5px!important;color:var(--text-sub)!important;opacity:.8!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 > :not(.ph-top):not(.ph-en):not(.ph-mono){grid-column:1 / -1;grid-row:3;max-width:none!important;font-size:13px!important;color:var(--text-sub)!important;line-height:1.55;margin-top:8px!important}
+  @media (max-width:640px){ [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 .ph-mono{display:none!important} [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 .ph-en{font-size:44px!important} }
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .card{background:none!important;border:0!important;border-top:1px solid var(--border)!important;border-radius:0!important;box-shadow:none!important;padding:20px 0 24px!important;margin:0!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .card .card{border-top:0!important;padding:0!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .card > h2{font-size:15px!important;font-weight:700!important;letter-spacing:-.005em;margin:0 0 14px!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .card > h2 .st-hint{font-size:12px!important;font-weight:400!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mode-seg{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:0!important;background:none!important;border:0!important;border-bottom:1px solid var(--border)!important;border-radius:0!important;box-shadow:none!important;padding:0!important;margin:0 0 18px!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mode-seg::-webkit-scrollbar{display:none}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mode-seg > button{flex:0 0 auto;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:10px 14px 9px!important;margin:0!important;color:var(--text-sub)!important;font-size:13.5px!important;font-weight:500!important;transition:color .15s,box-shadow .2s}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mode-seg > button.on{color:var(--text)!important;font-weight:700!important;box-shadow:inset 0 -2px 0 var(--text)!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mode-seg > button:hover:not(.on){color:var(--text)!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .px-seg{background:var(--bg-sub)!important;border:0!important;border-radius:9px!important;padding:2px!important;box-shadow:none!important;gap:2px}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .px-seg > button{background:none!important;border:0!important;border-radius:7px!important;box-shadow:none!important;color:var(--text-sub)!important;padding:4px 10px!important;font-size:12.5px!important;transition:background-color .15s,color .15s}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .px-seg > button.on{background:var(--card)!important;color:var(--text)!important;font-weight:600!important;box-shadow:0 1px 2px rgba(16,24,40,.10)!important}
+  html[data-theme="dark"] [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .px-seg > button.on{background:#2a3244!important;box-shadow:none!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) table{font-variant-numeric:tabular-nums}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) table th{font-size:12px;font-weight:500;color:var(--text-sub)}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mx-tabs .px-seg{margin:0!important}
   /* (36차 5 설립자: '재무제표는 A · B 디자인을 페이지에서 고르게 · 다른 탭도 같은 디자인 · 모션 넣을 수 있는 곳 넣고')
      공통: 갈래 + 세부 탭 한 줄 (갈래는 눌러서 펼침) · 밑줄이 따라 움직임 · 보기 고르기 · 표시 설정은 실적 추이 머리로
      A 기본: 상자 없이 여백 · 선  /  B 밀도: 얇은 테두리 칸 · 고정폭 숫자 · 핵심 숫자는 그래프 옆 · 항목별 작은 그래프          */
@@ -11062,6 +11142,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-402aa35d.js"></script>
-<script src="app2-2df31636.js"></script>
+<script src="app2-6d5d7395.js"></script>
 </body>
 </html>
