@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-402aa35d.js">
-<link rel="preload" as="script" href="app2-a56523ed.js">
+<link rel="preload" as="script" href="app2-683b9d44.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1089,20 +1089,6 @@
   .co-sumt.b tr.co-sub th[scope=row]{font-weight:400;color:var(--text-sub);padding-left:24px}
   .co-sumt.b tr.co-sub td{font-size:12px}
   .co-sumt tbody tr:hover > *{background-image:linear-gradient(color-mix(in srgb,var(--primary) 6%,transparent),color-mix(in srgb,var(--primary) 6%,transparent))}
-  /* 매크로 - 왼쪽 도구 칸 대신 차트 위 한 줄 도구 · 고른 도구만 차트 위에 펼침 · 차트는 전체 폭 */
-  #pane-research .grid2.mx-stack{display:flex!important;flex-direction:column;align-items:stretch!important;gap:12px!important;grid-template-columns:none!important}
-  #pane-research .grid2.mx-stack > div{width:auto!important;max-width:none!important;min-width:0}
-  #pane-research .mx-stack > .mx-bar + div .mx-acc:not(.mx-open){display:none!important}
-  #pane-research .mx-stack > .mx-bar + div{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:0 28px;align-items:start}
-  #pane-research .mx-stack > .mx-bar + div:not(:has(.mx-open)){display:none}
-  .mx-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 0 4px;border-top:1px solid var(--border)}
-  .mx-bl{font-size:12px;color:var(--text-sub);margin-right:4px}
-  .mx-bb{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
-  .mx-bb:hover{border-color:var(--primary-light)}
-  .mx-bb.pri{background:var(--primary);border-color:transparent;color:#fff}
-  html[data-theme="dark"] .mx-bb.pri{background:#3d52a0}
-  .mx-bb.on:not(.pri){background:var(--bg-sub);border-color:var(--primary-light);color:var(--text)}
-  .mx-bb.pri.on{box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-light,#3d52a0) 30%,transparent)}
   /* (37차 설립자: '다듬기는 바로') - 매크로 핵심 지표 표식 · 모의투자 요약 줄 · 영문 작은 줄 */
   /* 매크로 카드: 중요도 별은 회색으로 작게 (★★★ 는 왼쪽 막대가 이미 말해 줌) · 상태 점은 작게 */
   #mtmGrid .mtm-stars{opacity:1}
@@ -1141,15 +1127,15 @@
   @media (max-width:900px){ [id^="pane-"]:not(#pane-home) .q-hero.q-hero h3{font-size:40px!important} }
   @media (max-width:560px){ [id^="pane-"]:not(#pane-home) .q-hero.q-hero h3{font-size:34px!important} }
   /* 보조 글자 최소 12px */
-  [id^="pane-"]:not(#pane-home) .st-hint{font-size:max(12px,1em)}
-  [id^="pane-"]:not(#pane-home) .card > h2 .st-hint,[id^="pane-"]:not(#pane-home) .card .st-hint{font-size:12px}
+  [id^="pane-"]:not(#pane-home):not(#pane-market) .st-hint{font-size:max(12px,1em)}
+  [id^="pane-"]:not(#pane-home):not(#pane-market) .card > h2 .st-hint,[id^="pane-"]:not(#pane-home):not(#pane-market) .card .st-hint{font-size:12px}
   /* 단추 3종 */
-  [id^="pane-"]:not(#pane-home) .btn-sm:not(.btn-solid):not(.danger):not(.btn-danger):not(.xbtn){background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;font-weight:600;font-size:12.5px;box-shadow:none;transition:border-color .15s,background-color .15s,color .15s}
-  [id^="pane-"]:not(#pane-home) .btn-sm:not(.btn-solid):not(.danger):not(.btn-danger):not(.xbtn):hover{border-color:var(--primary-light);color:var(--primary-light)}
-  [id^="pane-"]:not(#pane-home) .btn-sm.btn-solid{background:var(--primary);border:1px solid transparent;color:#fff;border-radius:8px;font-weight:600;font-size:12.5px;box-shadow:0 1px 2px rgba(16,24,40,.12);transition:filter .15s,transform .15s}
-  [id^="pane-"]:not(#pane-home) .btn-sm.btn-solid:hover{filter:brightness(1.12)}
-  [id^="pane-"]:not(#pane-home) .btn-sm.btn-solid:active{transform:translateY(1px)}
-  html[data-theme="dark"] [id^="pane-"]:not(#pane-home) .btn-sm.btn-solid{background:#3d52a0}
+  [id^="pane-"]:not(#pane-home):not(#pane-market) .btn-sm:not(.btn-solid):not(.danger):not(.btn-danger):not(.xbtn){background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;font-weight:600;font-size:12.5px;box-shadow:none;transition:border-color .15s,background-color .15s,color .15s}
+  [id^="pane-"]:not(#pane-home):not(#pane-market) .btn-sm:not(.btn-solid):not(.danger):not(.btn-danger):not(.xbtn):hover{border-color:var(--primary-light);color:var(--primary-light)}
+  [id^="pane-"]:not(#pane-home):not(#pane-market) .btn-sm.btn-solid{background:var(--primary);border:1px solid transparent;color:#fff;border-radius:8px;font-weight:600;font-size:12.5px;box-shadow:0 1px 2px rgba(16,24,40,.12);transition:filter .15s,transform .15s}
+  [id^="pane-"]:not(#pane-home):not(#pane-market) .btn-sm.btn-solid:hover{filter:brightness(1.12)}
+  [id^="pane-"]:not(#pane-home):not(#pane-market) .btn-sm.btn-solid:active{transform:translateY(1px)}
+  html[data-theme="dark"] [id^="pane-"]:not(#pane-home):not(#pane-market) .btn-sm.btn-solid{background:#3d52a0}
   /* 떠 있는 단추(세이피 · 뉴스) - 내리면 아래로 숨고, 올리면 다시 */
   #aicFab,#nfFab{transition:translate .28s cubic-bezier(.2,.7,.2,1),opacity .2s}
   body.fab-tuck #aicFab,body.fab-tuck #nfFab{translate:0 120px;opacity:0;pointer-events:none}
@@ -1205,29 +1191,14 @@
   .px-seg > button:focus-visible,.mode-seg > button:focus-visible{outline:2px solid var(--primary-light,#3d52a0)!important;outline-offset:1px}
   /* 휴대폰: 표 글자가 4줄로 꺾이지 않게 - 한 줄 + 옆으로 밀기 */
   @media (max-width:640px){
-    [id^="pane-"]:not(#pane-home) .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-    [id^="pane-"]:not(#pane-home) table td{white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+    [id^="pane-"]:not(#pane-home):not(#pane-market) .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    [id^="pane-"]:not(#pane-home):not(#pane-market) table td{white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
     main{padding-bottom:120px!important}
   }
   /* (37차 설립자: '홈 · 상단은 그대로, 나머지는 정말 이쁘게 · 블룸버그처럼 빽빽해도 데이터가 잘 정리되게')
      ① 탭 제목판 + 큰 그림판 두 장이 겹치면 제목판은 한 줄로  ② 매크로 차트 작업대: 왼쪽 도구는 접는 칸 · 차트 아래는 탭
      ③ COT 한 시장: 판단 · 숫자 먼저, 쉬운 설명 · 차트는 그 다음  ④ 긴 표는 10줄 + 더 보기 · '읽는 법' 은 위쪽 접힌 줄       */
 
-  /* 매크로 작업대 - 왼쪽 도구 칸은 눌러서 펼치기 (한 번에 하나) */
-  .mx-acc > h2{cursor:pointer;user-select:none;position:relative;padding-right:26px!important;margin-bottom:0!important;transition:color .15s}
-  .mx-acc > h2::after{content:"";position:absolute;right:6px;top:50%;width:7px;height:7px;margin-top:-6px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg);opacity:.55;transition:transform .22s ease,margin .22s ease}
-  .mx-acc.mx-open > h2{margin-bottom:12px!important}
-  .mx-acc.mx-open > h2::after{transform:rotate(225deg);margin-top:-2px}
-  .mx-acc:not(.mx-open) > :not(h2){display:none!important}
-  .mx-acc:not(.mx-open){padding-top:14px!important;padding-bottom:14px!important}
-  .mx-acc > h2:hover{color:var(--primary-light)}
-  .mx-acc.mx-open > :not(h2){animation:mxIn .22s ease-out}
-  @keyframes mxIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-  .mx-tabs{display:flex;align-items:center;gap:10px;margin:2px 0 10px}
-  .mx-tabs .px-seg{margin:0}
-  .mx-tabs .mx-tl{font-size:12px;color:var(--text-sub)}
-  .mx-tab:not(.mx-on){display:none!important}
-  .mx-tab.mx-on{animation:mxIn .22s ease-out}
 
   /* COT 한 시장 - 판단 · 숫자 → 쉬운 설명 → 차트 */
   #cotDet.cot-re{display:flex;flex-direction:column}
@@ -1251,7 +1222,7 @@
   .rd-fold.rd-open > h2::after{transform:rotate(225deg);margin-top:-2px}
   .rd-fold:not(.rd-open){padding-top:12px!important;padding-bottom:12px!important;background:var(--bg-soft)!important;box-shadow:none!important}
   .rd-fold:not(.rd-open) > :not(h2){display:none!important}
-  @media (prefers-reduced-motion:reduce){ .mx-acc > *,.mx-tab,.mx-acc > h2::after,.rd-fold > h2::after{animation:none!important;transition:none!important} }
+  @media (prefers-reduced-motion:reduce){ .rd-fold > h2::after{animation:none!important;transition:none!important} }
   #cotDet.cot-re > .cot-tiles{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
   #cotDet.cot-re > .cot-tiles > .cot-t{min-width:0!important;width:auto!important;margin:0!important}
   @media (max-width:1000px){ #cotDet.cot-re > .cot-tiles{grid-template-columns:repeat(3,minmax(0,1fr))} }
@@ -1273,22 +1244,21 @@
   [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 .ph-mono{grid-column:2;grid-row:2;align-self:end;text-align:right;padding-bottom:6px;font-size:10.5px!important;color:var(--text-sub)!important;opacity:.8!important}
   [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 > :not(.ph-top):not(.ph-en):not(.ph-mono){grid-column:1 / -1;grid-row:3;max-width:none!important;font-size:13px!important;color:var(--text-sub)!important;line-height:1.55;margin-top:8px!important}
   @media (max-width:640px){ [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 .ph-mono{display:none!important} [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .page-head.ph19 .ph-en{font-size:44px!important} }
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .card{background:none!important;border:0!important;border-top:1px solid var(--border)!important;border-radius:0!important;box-shadow:none!important;padding:20px 0 24px!important;margin:0!important}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .card .card{border-top:0!important;padding:0!important}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .card > h2{font-size:15px!important;font-weight:700!important;letter-spacing:-.005em;margin:0 0 14px!important}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .card > h2 .st-hint{font-size:12px!important;font-weight:400!important}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mode-seg{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:0!important;background:none!important;border:0!important;border-bottom:1px solid var(--border)!important;border-radius:0!important;box-shadow:none!important;padding:0!important;margin:0 0 18px!important}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mode-seg::-webkit-scrollbar{display:none}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mode-seg > button{flex:0 0 auto;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:10px 14px 9px!important;margin:0!important;color:var(--text-sub)!important;font-size:13.5px!important;font-weight:500!important;transition:color .15s,box-shadow .2s}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mode-seg > button.on{color:var(--text)!important;font-weight:700!important;box-shadow:inset 0 -2px 0 var(--text)!important}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mode-seg > button:hover:not(.on){color:var(--text)!important}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .px-seg{background:var(--bg-sub)!important;border:0!important;border-radius:9px!important;padding:2px!important;box-shadow:none!important;gap:2px}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .px-seg > button{background:none!important;border:0!important;border-radius:7px!important;box-shadow:none!important;color:var(--text-sub)!important;padding:4px 10px!important;font-size:12.5px!important;transition:background-color .15s,color .15s}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .px-seg > button.on{background:var(--card)!important;color:var(--text)!important;font-weight:600!important;box-shadow:0 1px 2px rgba(16,24,40,.10)!important}
-  html[data-theme="dark"] [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .px-seg > button.on{background:#2a3244!important;box-shadow:none!important}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) table{font-variant-numeric:tabular-nums}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) table th{font-size:12px;font-weight:500;color:var(--text-sub)}
-  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat) .mx-tabs .px-seg{margin:0!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .card{background:none!important;border:0!important;border-top:1px solid var(--border)!important;border-radius:0!important;box-shadow:none!important;padding:20px 0 24px!important;margin:0!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .card .card{border-top:0!important;padding:0!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .card > h2{font-size:15px!important;font-weight:700!important;letter-spacing:-.005em;margin:0 0 14px!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .card > h2 .st-hint{font-size:12px!important;font-weight:400!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .mode-seg{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:0!important;background:none!important;border:0!important;border-bottom:1px solid var(--border)!important;border-radius:0!important;box-shadow:none!important;padding:0!important;margin:0 0 18px!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .mode-seg::-webkit-scrollbar{display:none}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .mode-seg > button{flex:0 0 auto;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:10px 14px 9px!important;margin:0!important;color:var(--text-sub)!important;font-size:13.5px!important;font-weight:500!important;transition:color .15s,box-shadow .2s}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .mode-seg > button.on{color:var(--text)!important;font-weight:700!important;box-shadow:inset 0 -2px 0 var(--text)!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .mode-seg > button:hover:not(.on){color:var(--text)!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .px-seg{background:var(--bg-sub)!important;border:0!important;border-radius:9px!important;padding:2px!important;box-shadow:none!important;gap:2px}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .px-seg > button{background:none!important;border:0!important;border-radius:7px!important;box-shadow:none!important;color:var(--text-sub)!important;padding:4px 10px!important;font-size:12.5px!important;transition:background-color .15s,color .15s}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .px-seg > button.on{background:var(--card)!important;color:var(--text)!important;font-weight:600!important;box-shadow:0 1px 2px rgba(16,24,40,.10)!important}
+  html[data-theme="dark"] [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) .px-seg > button.on{background:#2a3244!important;box-shadow:none!important}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) table{font-variant-numeric:tabular-nums}
+  [id^="pane-"]:not(#pane-home):not(#pane-company):not(#pane-quant):not(#pane-qmodel):not(#pane-strat):not(#pane-market) table th{font-size:12px;font-weight:500;color:var(--text-sub)}
   /* (36차 5 설립자: '재무제표는 A · B 디자인을 페이지에서 고르게 · 다른 탭도 같은 디자인 · 모션 넣을 수 있는 곳 넣고')
      공통: 갈래 + 세부 탭 한 줄 (갈래는 눌러서 펼침) · 밑줄이 따라 움직임 · 보기 고르기 · 표시 설정은 실적 추이 머리로
      A 기본: 상자 없이 여백 · 선  /  B 밀도: 얇은 테두리 칸 · 고정폭 숫자 · 핵심 숫자는 그래프 옆 · 항목별 작은 그래프          */
@@ -11280,6 +11250,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-402aa35d.js"></script>
-<script src="app2-a56523ed.js"></script>
+<script src="app2-683b9d44.js"></script>
 </body>
 </html>
