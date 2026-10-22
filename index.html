@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-435a2b7a.js">
-<link rel="preload" as="script" href="app2-d2d7840d.js">
+<link rel="preload" as="script" href="app2-a50e0765.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1072,6 +1072,20 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (52차 설립자) 실적 추이 머리 - 크기 단추들을 '크기 ▾' 하나로 · 화면 크기와 저장 크기 모두 직접 입력 (매크로 차트처럼) */
+  .co-szm{position:relative;display:inline-flex}
+  .co-szm > button{white-space:nowrap}
+  .co-szpop{position:absolute;right:0;top:calc(100% + 6px);z-index:40;display:grid;gap:14px;min-width:360px;padding:16px 18px;background:var(--card,var(--white));border:1px solid var(--border);border-radius:12px;box-shadow:0 14px 36px rgba(10,16,40,.22)}
+  .co-szpop[hidden]{display:none}
+  .co-szpop .g{display:grid;gap:8px}
+  .co-szpop .g > b{font-size:12.5px;font-weight:700;color:var(--text)}
+  .co-szpop .r{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--text-sub)}
+  .co-szpop input[type=number]{width:78px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font:600 12.5px 'IBM Plex Mono',ui-monospace,monospace}
+  .co-szpop input[type=number]:focus{outline:none;border-color:var(--accent)}
+  .co-szpop .x{font-size:12px;color:var(--text-sub)}
+  .co-szpop select{max-width:220px}
+  .co-szpop .ft{font-size:11.5px;color:var(--text-sub);margin:0;line-height:1.5}
+  .co-szpop #coXsWH{display:none!important}
   /* 자금흐름 전략 - 빈 줄은 '지금은 없음' · 숫자 색은 부호를 따름 (빨강 = +, 파랑 = -) */
   .str-flow .str-none{display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;border:1px dashed var(--border);font-size:12px;color:var(--text-sub)}
   /* (52차 설립자: '디자인 전체 점검 · 간격이 너무 붙으면 없어 보임') */
@@ -11981,6 +11995,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-435a2b7a.js"></script>
-<script src="app2-d2d7840d.js"></script>
+<script src="app2-a50e0765.js"></script>
 </body>
 </html>
