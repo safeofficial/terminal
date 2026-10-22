@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-55f222f6.js">
-<link rel="preload" as="script" href="app2-6fa05d73.js">
+<link rel="preload" as="script" href="app2-f82d467f.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1087,6 +1087,21 @@
   #clipCard .clip-s{margin:8px 0 0;padding-left:16px;font-size:13px;line-height:1.65;color:var(--text-sub)}
   #clipCard .clip-s li::marker{color:var(--border)}
   @media (max-width:640px){ #clipCard .clip-l{grid-template-columns:minmax(0,1fr)} #clipCard .clip-i:first-child .clip-t{font-size:17px} }
+  /* (51차) 국내 · 외신 색 구분 + 카드에 질감 · 겹 */
+  #clipCard{position:relative;isolation:isolate;overflow:hidden}
+  #clipCard::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:radial-gradient(circle at 1px 1px,var(--clip-dot,rgba(20,23,31,.07)) 1px,transparent 1.4px);background-size:14px 14px;-webkit-mask-image:linear-gradient(180deg,#000 0%,transparent 70%);mask-image:linear-gradient(180deg,#000 0%,transparent 70%)}
+  #clipCard::after{content:"";position:absolute;right:-120px;top:-140px;width:420px;height:420px;z-index:-1;pointer-events:none;border-radius:50%;background:radial-gradient(closest-side,var(--clip-glow,rgba(61,82,160,.10)),transparent)}
+  html[data-theme="dark"] #clipCard{--clip-dot:rgba(255,255,255,.05);--clip-glow:rgba(143,166,255,.10)}
+  #clipCard .clip-i{transition:background .15s}
+  #clipCard .clip-m{font-size:12.5px;gap:9px}
+  #clipCard .clip-m > span:last-child{font-weight:600;color:var(--text)}
+  #clipCard .clip-k,.bk-k{border:0!important;border-radius:999px!important;padding:2px 9px!important;font-size:11.5px!important;font-weight:700;letter-spacing:.01em}
+  #clipCard .clip-k.ko,.bk-k.ko{background:rgba(14,124,107,.13);color:#0b6b5c}
+  #clipCard .clip-k.en,.bk-k.en{background:rgba(111,66,193,.13);color:#5b34a8}
+  html[data-theme="dark"] #clipCard .clip-k.ko,html[data-theme="dark"] .bk-k.ko{background:rgba(78,201,176,.16);color:#7ee0c9}
+  html[data-theme="dark"] #clipCard .clip-k.en,html[data-theme="dark"] .bk-k.en{background:rgba(177,151,252,.16);color:#c7b3ff}
+  #clipCard .clip-i.ko .clip-n{color:#0e7c6b} #clipCard .clip-i.en .clip-n{color:#6f42c1}
+  html[data-theme="dark"] #clipCard .clip-i.ko .clip-n{color:#7ee0c9} html[data-theme="dark"] #clipCard .clip-i.en .clip-n{color:#c7b3ff}
   /* (48차) 속보 - 단추 · 화면 알림 · 목록 */
   .bk-btn{position:relative}
   .bk-ic{display:block;width:16px;height:16px;margin:auto;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19h16M6 19V9a6 6 0 0 1 12 0v10M12 3v1'/%3E%3Cpath d='M10 13l2-3 2 3'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19h16M6 19V9a6 6 0 0 1 12 0v10M12 3v1'/%3E%3Cpath d='M10 13l2-3 2 3'/%3E%3C/svg%3E") center/contain no-repeat}
@@ -1331,15 +1346,15 @@
   table.dx-heat td:hover{box-shadow:0 0 0 1px var(--dx-ink)}
   /* (40차 설립자: '핵심 지표 상자 크게 · 크기 일정하게 · 한눈에 흐름') */
   #pane-research #mtmGrid{grid-template-columns:minmax(0,1fr)!important;gap:18px 0!important}
-  #pane-research #mtmGrid .mtm-gbox{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))!important;gap:12px!important}
-  #pane-research #mtmGrid .mtm-card{padding:16px 18px 14px!important;min-height:184px;display:flex;flex-direction:column;gap:4px}
-  #pane-research #mtmGrid .mtm-h{font-size:13.5px!important}
+  #pane-research #mtmGrid .mtm-gbox{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))!important;gap:10px!important}
+  #pane-research #mtmGrid .mtm-card{padding:12px 14px 11px!important;min-height:150px;display:flex;flex-direction:column;gap:4px}
+  #pane-research #mtmGrid .mtm-h{font-size:13px!important}
   #pane-research #mtmGrid .mtm-mid{flex-direction:column!important;align-items:stretch!important;gap:6px!important;overflow:visible!important}
-  #pane-research #mtmGrid .mtm-big b{font-size:27px!important}
-  #pane-research #mtmGrid .mtm-big span{font-size:12.5px!important}
-  #pane-research #mtmGrid .mtm-mid .mtm-spark{flex:none!important;width:100%!important;height:60px!important;margin:2px 0 0!important}
-  #pane-research #mtmGrid .mtm-sub{font-size:12.5px!important}
-  #pane-research #mtmGrid .mtm-f{font-size:12px!important}
+  #pane-research #mtmGrid .mtm-big b{font-size:22px!important}
+  #pane-research #mtmGrid .mtm-big span{font-size:12px!important}
+  #pane-research #mtmGrid .mtm-mid .mtm-spark{flex:none!important;width:100%!important;height:44px!important;margin:2px 0 0!important}
+  #pane-research #mtmGrid .mtm-sub{font-size:12px!important}
+  #pane-research #mtmGrid .mtm-f{font-size:11.5px!important}
   /* 파생상품 보기 줄 - 잘리지 않게 두 줄까지 */
   #pane-deriv #dvView{flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden;scrollbar-width:thin;-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);mask-image:linear-gradient(90deg,#000 92%,transparent)}
   #pane-deriv #dvView > button{flex:0 0 auto!important;white-space:nowrap}
@@ -11797,6 +11812,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-55f222f6.js"></script>
-<script src="app2-6fa05d73.js"></script>
+<script src="app2-f82d467f.js"></script>
 </body>
 </html>
