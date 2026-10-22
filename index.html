@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-435a2b7a.js">
-<link rel="preload" as="script" href="app2-0c466136.js">
+<link rel="preload" as="script" href="app2-a2b32535.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1073,6 +1073,8 @@
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
   #dxLv .dx-lg .t{color:var(--dx-sub);font-size:11.5px}
+  .dx .dx-read{margin:12px 2px 0;padding:0 0 0 18px;display:grid;gap:5px;font-size:12.5px;line-height:1.55;color:var(--dx-sub,var(--text-sub))}
+  .dx .dx-read li::marker{color:var(--dx-acc,#8fa6ff)}
   /* (52차 설립자) 실적 추이 머리 - 크기 단추들을 '크기 ▾' 하나로 · 화면 크기와 저장 크기 모두 직접 입력 (매크로 차트처럼) */
   .co-szm{position:relative;display:inline-flex}
   .co-szm > button{white-space:nowrap}
@@ -10361,15 +10363,15 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
       </div>
       <div id="dvPane-cot" class="hidden">
         <!--  (10/10 5차 학회장: ‘COT 항목을 누르면 차트랑 설명이 페이지 위에 · 매번 아래로 내려가기 힘들어’) — 자세히 칸이 먼저 · 보드는 아래  -->
-        <div class="card" id="cotDetCard">
-          <h2 id="cotDetT">시장</h2>
-          <div id="cotDet"></div>
-        </div>
         <div class="card" id="cotBoardCard">
-          <h2>방향성 보드 <span class="st-hint" style="font-weight:400">선물 23개 · 큰손(투기) 포지션이 어디로 쏠렸나 · 누르면 위에서 자세히</span></h2>
+          <h2>방향성 보드 <span class="st-hint" style="font-weight:400">선물 23개 · 큰손(투기) 포지션이 어디로 쏠렸나 · 누르면 아래에서 자세히</span></h2>
           <span class="px-seg cot-gseg" id="cotGseg" role="group" aria-label="묶음"></span>
           <div id="cotSum"></div>
           <div class="cot-board" id="cotBoard"><div class="mk-wait">로딩 중…</div></div>
+        </div>
+        <div class="card" id="cotDetCard">
+          <h2 id="cotDetT">시장</h2>
+          <div id="cotDet"></div>
         </div>
       </div>
       <div id="dvPane-sent" class="hidden">
@@ -11990,6 +11992,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-435a2b7a.js"></script>
-<script src="app2-0c466136.js"></script>
+<script src="app2-a2b32535.js"></script>
 </body>
 </html>
