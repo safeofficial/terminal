@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-8e26afae.js">
-<link rel="preload" as="script" href="app2-0ba32d4a.js">
+<link rel="preload" as="script" href="app2-58e0f3ee.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1108,6 +1108,9 @@
   #cotDet > .cot-dir + .cot-ex{margin-top:16px}
   #cotDet > .cot-ex + .cot-tiles{margin-top:16px}
   #cotDet > .cot-tiles + .cot-chh{margin-top:20px}
+  /* 감마 · 청산 지도: 차트 키움 */
+  html body .dx-chl{height:clamp(640px,78vh,1000px)}
+  @media (max-width:900px){ html body .dx-chl{height:520px} }
   /* 가치 평가 미리 그리기 - 숨은 칸을 화면 밖에서 실제 폭으로 */
   #coPane-val.co-offs.hidden{display:block!important;position:fixed!important;left:-30000px!important;top:0!important;width:var(--offw)!important;visibility:hidden!important;pointer-events:none!important;contain:layout paint}
   #dxLv .dx-lg .t{color:var(--dx-sub);font-size:11.5px}
@@ -1119,6 +1122,13 @@
   .dx .dx-picks button{padding:3px 10px;border-radius:999px;border:1px solid var(--dx-line,var(--border));background:transparent;color:var(--dx-ink,var(--text));font:600 12px 'IBM Plex Mono',ui-monospace,monospace;cursor:pointer}
   .dx .dx-picks button:hover{border-color:var(--dx-acc,var(--accent))}
   .dx .dx-picks button.on{background:var(--dx-acc,var(--accent));border-color:var(--dx-acc,var(--accent));color:#fff}
+  /* 봉 차트 전체 화면 단추 (마우스를 올리면 보임) · 전체 화면일 때 바탕 */
+  .tv-fs{position:absolute;top:6px;right:6px;z-index:6;width:28px;height:28px;padding:0;border-radius:7px;border:1px solid var(--border);background:var(--card,var(--white));color:var(--text-sub);display:grid;place-items:center;opacity:0;transition:opacity .15s,color .15s;cursor:pointer}
+  [_echarts_instance_]:hover > .tv-fs,.tv-fs:focus-visible{opacity:1}
+  .tv-fs:hover{color:var(--text);border-color:var(--text-sub)}
+  @media (hover:none){ .tv-fs{opacity:.85} }
+  [_echarts_instance_]:fullscreen{width:100vw!important;height:100vh!important;max-height:none!important;background:var(--card,#151922)!important;margin:0!important;border-radius:0!important}
+  [_echarts_instance_]:fullscreen > .tv-fs{opacity:.9}
   /* (52차 설립자) 실적 추이 머리 - 크기 단추들을 '크기 ▾' 하나로 · 화면 크기와 저장 크기 모두 직접 입력 (매크로 차트처럼) */
   .co-szm{position:relative;display:inline-flex}
   .co-szm > button{white-space:nowrap}
@@ -12036,6 +12046,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-8e26afae.js"></script>
-<script src="app2-0ba32d4a.js"></script>
+<script src="app2-58e0f3ee.js"></script>
 </body>
 </html>
