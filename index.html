@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-4e6e8d18.js">
-<link rel="preload" as="script" href="app2-2c09d68e.js">
+<link rel="preload" as="script" href="app2-c3036028.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1100,6 +1100,24 @@
   #qmcW:fullscreen .qmc-hint{display:none}
   #qmcW:fullscreen::before{content:"";position:absolute;left:50%;top:4px;width:44px;height:4px;margin-left:-22px;border-radius:4px;background:var(--border);z-index:29;opacity:.9}
   @media (prefers-reduced-motion:reduce){ #qmcW:fullscreen .qmc-bar{transition:none} }
+  /* 호가창 차트 칸 종목 바꾸기 */
+  #qmcGrid .qmc-h .nm.qp-nm{cursor:pointer;border-bottom:1px dashed transparent}
+  #qmcGrid .qmc-h .nm.qp-nm:hover{border-bottom-color:var(--text-sub)}
+  #qmcGrid .qmc-h .nm.qp-nm::after{content:"▾";font-size:10px;margin-left:4px;color:var(--text-sub)}
+  .qmc-pick{position:absolute;z-index:60;width:290px;max-height:min(420px,70vh);display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 16px 40px -14px rgba(0,0,0,.5);overflow:hidden}
+  .qmc-pick .qp-h{display:flex;gap:6px;padding:8px;border-bottom:1px solid var(--border)}
+  .qmc-pick .qp-h input{flex:1;min-width:0;padding:7px 9px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px}
+  .qmc-pick .qp-x{width:30px;border:0;background:transparent;color:var(--text-sub);font-size:18px;cursor:pointer}
+  .qmc-pick .qp-l{overflow-y:auto;overscroll-behavior:contain;padding:4px}
+  .qmc-pick .qp-o{display:flex;align-items:baseline;gap:8px;width:100%;padding:7px 9px;border:0;border-radius:6px;background:transparent;color:var(--text);text-align:left;cursor:pointer;font:inherit}
+  .qmc-pick .qp-o:hover,.qmc-pick .qp-o:focus-visible{background:var(--bg)}
+  .qmc-pick .qp-o.on{box-shadow:inset 2px 0 0 var(--text)}
+  .qmc-pick .qp-o b{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .qmc-pick .qp-s{font-size:11px;color:var(--text-sub);font-family:'IBM Plex Mono',ui-monospace,monospace}
+  .qmc-pick .qp-c{margin-left:auto;font-size:11.5px;font-family:'IBM Plex Mono',ui-monospace,monospace}
+  .qmc-pick .qp-c.up{color:var(--up)} .qmc-pick .qp-c.down{color:var(--down)}
+  .qmc-pick .qp-f{font-style:normal;color:#f5c542;font-size:11px}
+  #qmcW{position:relative}
   /* (52차 설립자) 기업 · 재무 / 가치 평가 / 기업 리서치 / 추정 · 리포트 고른 칸: 다크에서는 그냥 흰색 · 밑 뾰족 삼각형 없앰 */
   html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles.co-tiles > button.on,html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles.co-tiles > button.on{background:#ffffff!important;border-color:#ffffff!important;color:#11141b!important}
   html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles.co-tiles > button.on b,html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles.co-tiles > button.on b{color:#11141b!important}
@@ -12075,6 +12093,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-4e6e8d18.js"></script>
-<script src="app2-2c09d68e.js"></script>
+<script src="app2-c3036028.js"></script>
 </body>
 </html>
