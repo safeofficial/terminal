@@ -25,8 +25,8 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
-<link rel="preload" as="script" href="app1-3a312486.js">
-<link rel="preload" as="script" href="app2-ea2b868b.js">
+<link rel="preload" as="script" href="app1-f9f29508.js">
+<link rel="preload" as="script" href="app2-0a9e2941.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,66 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (46차) CTA 가격 · 추정 포지션 차트 - 높이 2배 */
+  .cta-det #ctaCh.cta-ch{height:660px;margin:16px 0 0}
+  @media (max-width:760px){ .cta-det #ctaCh.cta-ch{height:520px} }
+  /* (46차) 사이클 시계 - 오른쪽 4상자를 차트 높이에 맞춰 꽉 채움 · 글 크게 */
+  #cycCard .cyc-g{align-items:stretch;gap:18px}
+  #cycCard .cyc-ch{height:380px}
+  #cycCard .cyc-q{grid-template-rows:repeat(2,minmax(0,1fr));gap:12px;height:100%}
+  #cycCard .cyc-q .q{display:flex;flex-direction:column;padding:16px 18px;border-radius:12px;border-top-width:4px}
+  #cycCard .cyc-q .q .h{font-size:16px;gap:8px} #cycCard .cyc-q .q .h span{font-size:13px}
+  #cycCard .cyc-q .q p{margin:6px 0 10px;font-size:13px;line-height:1.55}
+  #cycCard .cyc-q .q .l{font-size:14px;gap:6px 12px;line-height:1.5} #cycCard .cyc-q .q .l i{font-size:13px}
+  @media (max-width:900px){ #cycCard .cyc-q{height:auto;grid-template-rows:none} #cycCard .cyc-ch{height:330px} }
+  /* (46차 설립자: '공매도 차트 위아래 간격 같게 · 높이 1.5배 · 잔고에 주가') */
+  #flowPane-short .sht-two{margin:30px 0 30px!important;gap:20px!important}
+  #flowPane-short .sht-ch{height:420px}
+  #flowPane-short .sht-sum{margin-top:0!important}
+  @media (max-width:760px){ #flowPane-short .sht-ch{height:380px} #flowPane-short .sht-two{margin:22px 0!important} }
+  /* (45차) 분석 갈래 - 검색창 위 큰 타일 4개 · 고른 갈래는 진하게 + 아래로 화살표 */
+  html body #pane-company #coGrp#coGrp.co-tiles,  /* (45차) 분석 갈래 - 검색창 위 큰 타일 4개 · 고른 갈래는 진하게 + 아래로 화살표 */
+  html body #pane-cores #crGrp#crGrp.co-tiles{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:0 0 14px!important;padding:0!important;border:0!important;overflow:visible!important;position:static!important;background:none!important}
+  html body #pane-company #coGrp#coGrp.co-tiles::after,
+  html body #pane-cores #crGrp#crGrp.co-tiles::after{display:none!important}
+  html body #pane-company #coGrp#coGrp.co-tiles > button,
+  html body #pane-cores #crGrp#crGrp.co-tiles > button,html body #pane-company #coGrp#coGrp.co-tiles > button:not(.on),html body #pane-cores #crGrp#crGrp.co-tiles > button:not(.on){position:relative;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start;gap:4px!important;min-height:96px;height:auto!important;padding:16px 18px 15px!important;margin:0!important;text-align:left;border:1px solid var(--border)!important;border-radius:14px!important;background:var(--white)!important;color:var(--text)!important;box-shadow:0 1px 2px rgba(20,23,31,.04)!important;cursor:pointer;transform:none!important;transition:border-color .15s,box-shadow .15s,background .15s}
+  html body #pane-company #coGrp#coGrp.co-tiles > button:hover,
+  html body #pane-cores #crGrp#crGrp.co-tiles > button:hover{border-color:var(--text-sub)!important;box-shadow:0 8px 22px -14px rgba(20,23,31,.35)!important}
+  html body #pane-company #coGrp#coGrp.co-tiles > button em,
+  html body #pane-cores #crGrp#crGrp.co-tiles > button em{display:inline-block!important;font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:12px!important;font-weight:600;letter-spacing:0;width:auto!important;height:auto!important;padding:0!important;margin:0 0 2px!important;border:0!important;background:none!important;color:var(--text-sub)!important;opacity:1!important}
+  html body #pane-company #coGrp#coGrp.co-tiles > button b,
+  html body #pane-cores #crGrp#crGrp.co-tiles > button b{display:block!important;font-size:17px!important;font-weight:700!important;line-height:1.25;color:inherit!important;letter-spacing:-.01em}
+  html body #pane-company #coGrp#coGrp.co-tiles > button span,
+  html body #pane-cores #crGrp#crGrp.co-tiles > button span{display:block!important;font-size:12.5px!important;line-height:1.5;color:var(--text-sub)!important;font-weight:400;white-space:normal}
+  html body #pane-company #coGrp#coGrp.co-tiles > button.on,
+  html body #pane-cores #crGrp#crGrp.co-tiles > button.on{background:#1f2433!important;border-color:#1f2433!important;color:#fff!important;box-shadow:0 14px 30px -18px rgba(16,24,40,.55)!important}
+  html body #pane-company #coGrp#coGrp.co-tiles > button.on em,
+  html body #pane-cores #crGrp#crGrp.co-tiles > button.on em{color:rgba(255,255,255,.62)!important;background:none!important}
+  html body #pane-company #coGrp#coGrp.co-tiles > button.on b,
+  html body #pane-cores #crGrp#crGrp.co-tiles > button.on b{color:#fff!important}
+  html body #pane-company #coGrp#coGrp.co-tiles > button.on span,
+  html body #pane-cores #crGrp#crGrp.co-tiles > button.on span{color:rgba(255,255,255,.74)!important}
+  html body #pane-company #coGrp#coGrp.co-tiles > button.on::after,
+  html body #pane-cores #crGrp#crGrp.co-tiles > button.on::after{content:""!important;display:block!important;position:absolute!important;left:26px!important;right:auto!important;top:auto!important;bottom:-7px!important;width:12px!important;height:12px!important;margin:0!important;background:#1f2433!important;border:0!important;border-radius:0 0 2px 0!important;transform:rotate(45deg)!important;box-shadow:none!important;opacity:1!important}
+  html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles > button,
+  html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles > button{background:var(--white)!important;box-shadow:none!important}
+  html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles > button.on,
+  html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles > button.on{background:#e8ecf6!important;border-color:#e8ecf6!important;color:#141822!important}
+  html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles > button.on b,
+  html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles > button.on b{color:#141822!important}
+  html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles > button.on em,
+  html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles > button.on em{color:rgba(20,24,34,.55)!important}
+  html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles > button.on span,
+  html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles > button.on span{color:rgba(20,24,34,.7)!important}
+  html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles > button.on::after,
+  html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles > button.on::after{background:#e8ecf6!important}
+  html body #pane-company #coGrp#coGrp.co-tiles > button:focus-visible,
+  html body #pane-cores #crGrp#crGrp.co-tiles > button:focus-visible{outline:2px solid var(--primary-light,#3d52a0);outline-offset:2px}
+  html body #pane-company #coGrp#coGrp.co-tiles > button[hidden],
+  html body #pane-cores #crGrp#crGrp.co-tiles > button[hidden],html body #pane-company #coGrp#coGrp.co-tiles > button.hidden,html body #pane-cores #crGrp#crGrp.co-tiles > button.hidden{display:none!important}
+  @media (max-width:760px){ html body #pane-company #coGrp#coGrp.co-tiles, html body #pane-cores #crGrp#crGrp.co-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important} html body #pane-company #coGrp#coGrp.co-tiles > button, html body #pane-cores #crGrp#crGrp.co-tiles > button{min-height:0;padding:12px 14px!important} html body #pane-company #coGrp#coGrp.co-tiles > button span, html body #pane-cores #crGrp#crGrp.co-tiles > button span{display:none!important} html body #pane-company #coGrp#coGrp.co-tiles > button b, html body #pane-cores #crGrp#crGrp.co-tiles > button b{font-size:15px!important} }
+  html body #pane-company #coGrp#coGrp.co-tiles > button[style*="display: none"],html body #pane-cores #crGrp#crGrp.co-tiles > button[style*="display: none"],html body #pane-company #coGrp#coGrp.co-tiles.co-tiles-off,html body #pane-cores #crGrp#crGrp.co-tiles.co-tiles-off{display:none!important}
   /* (42차) 재무제표 도구 막대 - 1줄 갈래 · 2줄 탭 + 이름 붙은 옵션 */
   html body #pane-company.co-on #coNav{flex-wrap:wrap!important;row-gap:0;align-items:center!important}
   #pane-company.co-on #coNav #coGrp{flex:1 0 100%!important;margin:0!important;padding:0!important;border-bottom:1px solid var(--border);gap:2px!important;overflow-x:auto!important}
@@ -11404,7 +11464,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
 
       <!--  (10/11 12차 학회장: ‘나라나 산업분석에 수퍼사이클 / 사이클 관련해서도’ · 13차: ‘제일 위에 배치’) — 산업 사이클 시계 · 원자재 슈퍼사이클 · 반도체 · 설비투자 사이클  -->
       <div class="card ind-v-ind" id="cycCard">
-        <h2>사이클 · 슈퍼사이클 <span class="st-hint" style="font-weight:400;margin-left:8px">업황이 어느 국면인지 · 원자재 장기 흐름 · 반도체 · 설비투자 순환</span></h2>
+        <h2>사이클 <span class="st-hint" style="font-weight:400;margin-left:8px">업황이 어느 국면인지 · 원자재 장기 흐름 · 반도체 · 설비투자 순환</span></h2>
         <div class="cyc-seg px-seg" id="cycSeg" role="group" aria-label="사이클"></div>
         <div id="cycBody"></div>
       </div>
@@ -11635,7 +11695,7 @@ var LSX = {
   } catch(e){}
 })();
 </script>
-<script src="app1-3a312486.js"></script>
-<script src="app2-ea2b868b.js"></script>
+<script src="app1-f9f29508.js"></script>
+<script src="app2-0a9e2941.js"></script>
 </body>
 </html>
