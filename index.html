@@ -25,11 +25,12 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
-<link rel="preload" as="script" href="app1-55f222f6.js">
-<link rel="preload" as="script" href="app2-f82d467f.js">
+<link rel="preload" as="script" href="app1-f89fb42d.js">
+<link rel="preload" as="script" href="app2-ffea5b00.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <!--  (18차) 본문 · 차트 글꼴 (한글 · 영문 · 숫자를 한 글꼴로 · 예전엔 주석 글꼴용으로만 받았음). 주석 글꼴 고르기에도 씁니다.
       (10/7) 첫 화면을 막지 않게 뒤에서 받고(media=print → all), 글꼴 파일은 <쓰는 글자 조각만> 받는 판(dynamic-subset)으로.
       예전 판은 굵기 하나에 한글 전체(수백 KB)를 통째로 받았습니다. 글꼴 이름(Pretendard)은 같습니다. -->
@@ -1071,6 +1072,79 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  .co-cmb-hd .co-cmb-for{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--accent-soft,rgba(43,63,214,.1));color:var(--primary);vertical-align:1px}
+  #coCombo .co-cmb-hd .cx-tipb{margin-left:auto}
+  /* (52차 설립자: '로그인 페이지도 세이프 톤과 폰트에 맞게 · 인트로 모션') - 홈 코발트 히어로와 같은 색 · 글꼴 */
+  #loginView.lg100{position:relative;overflow:hidden;padding:48px 40px;background:radial-gradient(120% 140% at 22% 18%,var(--pal-h1,#4a63ff) 0%,var(--pal-h2,#2b3fd6) 46%,var(--pal-h3,#1c2aa3) 100%);color:#fff;isolation:isolate}
+  :root[data-theme="dark"] #loginView.lg100{background:radial-gradient(120% 140% at 22% 18%,#3a52e8 0%,#2232b8 46%,#121c78 100%)}
+  #loginView.lg100::before{content:"";position:absolute;inset:0;z-index:-1;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1.2px);background-size:22px 22px;-webkit-mask-image:radial-gradient(90% 80% at 30% 40%,#000 30%,transparent 85%);mask-image:radial-gradient(90% 80% at 30% 40%,#000 30%,transparent 85%)}
+  #loginView.lg100::after{content:"";position:absolute;z-index:-1;width:720px;height:720px;right:-220px;bottom:-320px;border-radius:50%;background:radial-gradient(closest-side,rgba(245,197,66,.22),transparent);filter:blur(10px)}
+  #loginView.lg100.hidden{display:none}
+  .lg100 .lg-wrap{width:100%;max-width:1180px;display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:72px;align-items:center}
+  .lg100 .lg-hero{min-width:0}
+  .lg100 .lg-brand{display:flex;align-items:center;gap:8px;margin-bottom:22px}
+  .lg100 .lg-brand .logo-mark{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 1px rgba(255,255,255,.32);font-weight:800;font-size:15px;margin-right:4px}
+  .lg100 .lg-chip{display:inline-block;padding:3px 9px;border-radius:7px;font-weight:800;font-size:13px;color:#141414;line-height:1.35}
+  .lg100 .lg-chip.y{background:#f7d24c} .lg100 .lg-chip.g{background:#62cf93}
+  .lg100 .lg-title{margin:0;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-style:italic;font-weight:400;font-size:96px;line-height:.95;letter-spacing:-.015em;color:#fff}
+  .lg100 .lg-sub{--ls:2.6px;margin-top:16px;font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;letter-spacing:var(--ls);color:rgba(255,255,255,.72)}
+  .lg100 .lg-line{margin:26px 0 0;font-size:21px;font-weight:700;letter-spacing:-.01em;color:#fff;line-height:1.45}
+  .lg100 .lg-line em{font-style:normal;color:#f5c542}
+  .lg100 .lg-tag{margin:8px 0 0;font-size:15px;color:rgba(255,255,255,.82)} .lg100 .lg-tag b{color:#f5c542;font-weight:800}
+  .lg100 .lg-curve{display:block;width:100%;max-width:640px;height:auto;margin-top:30px;overflow:visible}
+  .lg100 .lg-curve .c-area{fill:rgba(255,255,255,.12)}
+  .lg100 .lg-curve .c-base{stroke:rgba(255,255,255,.55);stroke-width:1.5}
+  .lg100 .lg-curve .c-line{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round}
+  .lg100 .lg-curve .c-k{stroke:rgba(255,255,255,.7);stroke-width:1.3;stroke-dasharray:3 4}
+  .lg100 .lg-curve .c-s{fill:#f5c542;stroke:#1c2aa3;stroke-width:2}
+  .lg100 .lg-curve .c-ring{fill:none;stroke:#f5c542;stroke-width:2;opacity:0}
+  .lg100 .lg-curve .c-ax{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:11.5px;letter-spacing:1.4px;font-weight:600;fill:rgba(255,255,255,.88)}
+  .lg100 .lg-curve .cd rect{fill:rgba(255,255,255,.2)} .lg100 .lg-curve .cd.dn rect{fill:none;stroke:rgba(255,255,255,.3);stroke-width:1}
+  .lg100 .lg-curve .cd line{stroke:rgba(255,255,255,.26);stroke-width:1}
+  /* 로그인 카드 */
+  .lg100 .login-card{position:relative;max-width:410px;padding:38px 34px 30px;border:0;border-radius:20px;color:var(--text);box-shadow:0 2px 0 rgba(255,255,255,.4) inset,0 30px 80px rgba(8,16,90,.42),0 0 0 1px rgba(255,255,255,.16)}
+  :root[data-theme="dark"] .lg100 .login-card{box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.1)}
+  .lg100 .lg-ch{margin-bottom:24px}
+  .lg100 .lg-ch b{display:block;font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+  .lg100 .lg-ch span{display:block;margin-top:5px;font-size:13.5px;color:var(--text-sub)}
+  .lg100 .login-card .field input{padding:12px 14px;border-radius:10px;background:var(--bg)}
+  .lg100 .login-card .field input:focus{border-color:#2b3fd6;box-shadow:0 0 0 3px rgba(43,63,214,.14);background:var(--white)}
+  :root[data-theme="dark"] .lg100 .login-card .field input:focus{border-color:#8fa2ff;box-shadow:0 0 0 3px rgba(143,162,255,.18)}
+  .lg100 .login-card .btn{padding:13px;border-radius:11px;background:#2b3fd6;font-weight:700;font-size:15.5px;box-shadow:0 8px 20px rgba(43,63,214,.28)}
+  .lg100 .login-card .btn:hover:not(:disabled){background:#1c2aa3}
+  :root[data-theme="dark"] .lg100 .login-card .btn{background:#4a63ff} :root[data-theme="dark"] .lg100 .login-card .btn:hover:not(:disabled){background:#3a52e8}
+  .lg100 .login-foot{text-align:left}
+  /* 인트로 모션 - 한 번 · 캔들이 차오르고 → 곡선이 그려지고 → 점 셋이 켜짐 */
+  .lg100.go .lg-brand,.lg100.go .lg-title,.lg100.go .lg-sub,.lg100.go .lg-line,.lg100.go .lg-tag{animation:lgUp .7s cubic-bezier(.2,.7,.2,1) both}
+  .lg100.go .lg-brand{animation-delay:.05s} .lg100.go .lg-title{animation-delay:.12s} .lg100.go .lg-sub{animation-name:lgSpread;animation-delay:.3s;animation-duration:.9s}
+  .lg100.go .lg-line{animation-delay:.42s} .lg100.go .lg-tag{animation-delay:.5s}
+  .lg100.go .login-card{animation:lgCard .8s cubic-bezier(.2,.7,.2,1) .35s both}
+  .lg100.go .lg-curve .cd{animation:lgCd .5s cubic-bezier(.2,.7,.2,1) both}
+  .lg100.go .lg-curve .c-area{animation:lgFade .8s ease 1.3s both}
+  .lg100.go .lg-curve .c-line{stroke-dasharray:800;stroke-dashoffset:800;animation:lgDraw 1.2s cubic-bezier(.45,0,.2,1) .95s forwards}
+  .lg100.go .lg-curve .c-k{animation:lgFade .4s ease both}
+  .lg100.go .lg-curve .c-s{transform-box:fill-box;transform-origin:center;animation:lgPop .45s cubic-bezier(.3,1.6,.5,1) both}
+  .lg100.go .lg-curve .c-ax{animation:lgFade .5s ease both}
+  .lg100.go .lg-curve .c-ring{transform-box:fill-box;transform-origin:center;animation:lgRing 2.6s ease-out 2.4s infinite}
+  @keyframes lgUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes lgSpread{from{opacity:0;letter-spacing:8px}to{opacity:1;letter-spacing:var(--ls)}}
+  @keyframes lgCard{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
+  @keyframes lgCd{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  @keyframes lgFade{from{opacity:0}to{opacity:1}}
+  @keyframes lgDraw{to{stroke-dashoffset:0}}
+  @keyframes lgPop{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+  @keyframes lgRing{0%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(3.2)}}
+  @media (prefers-reduced-motion: reduce){ .lg100.go *{animation:none!important} .lg100 .lg-curve .c-line{stroke-dashoffset:0!important;stroke-dasharray:none!important} }
+  @media (max-width:1020px){ .lg100 .lg-wrap{gap:44px;grid-template-columns:minmax(0,1fr) 380px} .lg100 .lg-title{font-size:76px} }
+  @media (max-width:860px){
+    #loginView.lg100{padding:36px 16px 28px;align-items:flex-start}
+    .lg100 .lg-wrap{grid-template-columns:1fr;gap:26px;max-width:460px}
+    .lg100 .lg-brand{margin-bottom:14px} .lg100 .lg-title{font-size:58px} .lg100 .lg-sub{font-size:10.5px;--ls:1.6px}
+    .lg100 .lg-line{margin-top:16px;font-size:17px} .lg100 .lg-tag{font-size:13.5px}
+    .lg100 .lg-curve{margin-top:16px;max-height:150px}
+    .lg100 .lg-curve .c-ax{font-size:15px;letter-spacing:.6px}
+    .lg100 .login-card{max-width:none;padding:28px 22px 24px}
+  }
   /* (49차) 아침 뉴스 클리핑 - 홈 */
   #clipCard .clip-l{list-style:none;margin:4px 0 0;padding:0;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr);gap:0 36px}
   #clipCard .clip-i:first-child{grid-row:span 2;border-right:1px solid var(--border);padding-right:32px}
@@ -1632,6 +1706,12 @@
     #coCv .kcv-mid{grid-template-columns:minmax(0,1fr);gap:32px}
   }
   @media (max-width:560px){ #coCv .kcv-k{padding:14px 12px} #coCv .kcv-k b{font-size:24px} #coCv .kcv-sp{display:none} #coCv .kcv-big b{font-size:56px} #coCv .kcv-big.s b{font-size:44px} #coCv .kcv-en{font-size:36px} }
+  /* (37차) 매크로 비교 · 차이 도구 */
+  .mcc-pre{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+  .mcc-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 8px}
+  .mcc-row label{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-sub)}
+  .mcc-row select{min-width:170px;max-width:240px}
+  .mcc-op{margin:0}
   /* (37차 설립자: '왜 시안처럼 안 하고?') - 재무제표 손익 요약 · 8개 기간 표 / 매크로 차트 도구 한 줄 */
   #coSumCard{order:1!important}
   #pane-company.co-on #coSumCard > h2{display:flex;align-items:baseline;gap:10px}
@@ -8020,16 +8100,27 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
 <body>
 
 <!-- ══════════ 로그인 ══════════ -->
-<div id="loginView">
+<div id="loginView" class="lg100 go">
+ <div class="lg-wrap">
+  <section class="lg-hero" aria-label="SAFE Terminal">
+    <div class="lg-brand"><div class="logo-mark">SF</div><span class="lg-chip y">SAFE</span><span class="lg-chip g">Sogang</span></div>
+    <h1 class="lg-title">SAFE Terminal</h1>
+    <div class="lg-sub">SOGANG ANALYSIS OF FINANCE &amp; ECONOMICS</div>
+    <p class="lg-line">학회원을 위한 <em>금융 데이터 · 리서치 플랫폼</em></p>
+    <p class="lg-tag"><b>Analyze.</b> Understand. Invest.</p>
+    <svg class="lg-curve" viewBox="0 0 640 196" aria-hidden="true">
+      <g class="lg-cdl"><g class="cd" style="animation-delay:0.080s"><line x1="96.0" x2="96.0" y1="136.4" y2="156.7"/><rect x="92.5" y="140.2" width="7" height="11.8" rx="1"/></g><g class="cd" style="animation-delay:0.110s"><line x1="115.8" x2="115.8" y1="141.0" y2="157.0"/><rect x="112.3" y="144.6" width="7" height="3.7" rx="1"/></g><g class="cd" style="animation-delay:0.140s"><line x1="135.5" x2="135.5" y1="138.4" y2="156.0"/><rect x="132.0" y="143.4" width="7" height="4.1" rx="1"/></g><g class="cd" style="animation-delay:0.170s"><line x1="155.3" x2="155.3" y1="134.4" y2="149.6"/><rect x="151.8" y="140.9" width="7" height="4.0" rx="1"/></g><g class="cd dn" style="animation-delay:0.200s"><line x1="175.0" x2="175.0" y1="132.5" y2="149.8"/><rect x="171.5" y="139.4" width="7" height="4.0" rx="1"/></g><g class="cd" style="animation-delay:0.230s"><line x1="194.8" x2="194.8" y1="125.2" y2="151.7"/><rect x="191.3" y="134.8" width="7" height="7.1" rx="1"/></g><g class="cd" style="animation-delay:0.260s"><line x1="214.6" x2="214.6" y1="122.2" y2="140.6"/><rect x="211.1" y="131.9" width="7" height="4.4" rx="1"/></g><g class="cd" style="animation-delay:0.290s"><line x1="234.3" x2="234.3" y1="122.6" y2="139.8"/><rect x="230.8" y="130.3" width="7" height="4.6" rx="1"/></g><g class="cd" style="animation-delay:0.320s"><line x1="254.1" x2="254.1" y1="122.5" y2="136.4"/><rect x="250.6" y="128.6" width="7" height="3.2" rx="1"/></g><g class="cd" style="animation-delay:0.350s"><line x1="273.8" x2="273.8" y1="114.6" y2="137.0"/><rect x="270.3" y="118.7" width="7" height="9.9" rx="1"/></g><g class="cd" style="animation-delay:0.380s"><line x1="293.6" x2="293.6" y1="107.9" y2="128.2"/><rect x="290.1" y="111.4" width="7" height="7.3" rx="1"/></g><g class="cd" style="animation-delay:0.410s"><line x1="313.4" x2="313.4" y1="103.6" y2="117.6"/><rect x="309.9" y="109.9" width="7" height="3.1" rx="1"/></g><g class="cd" style="animation-delay:0.440s"><line x1="333.1" x2="333.1" y1="95.5" y2="119.0"/><rect x="329.6" y="103.8" width="7" height="7.6" rx="1"/></g><g class="cd" style="animation-delay:0.470s"><line x1="352.9" x2="352.9" y1="85.3" y2="107.4"/><rect x="349.4" y="91.4" width="7" height="12.4" rx="1"/></g><g class="cd" style="animation-delay:0.500s"><line x1="372.6" x2="372.6" y1="79.5" y2="99.0"/><rect x="369.1" y="87.2" width="7" height="4.2" rx="1"/></g><g class="cd dn" style="animation-delay:0.530s"><line x1="392.4" x2="392.4" y1="79.7" y2="97.7"/><rect x="388.9" y="85.7" width="7" height="5.5" rx="1"/></g><g class="cd" style="animation-delay:0.560s"><line x1="412.2" x2="412.2" y1="79.3" y2="95.8"/><rect x="408.7" y="85.4" width="7" height="4.3" rx="1"/></g><g class="cd" style="animation-delay:0.590s"><line x1="431.9" x2="431.9" y1="63.2" y2="89.4"/><rect x="428.4" y="71.4" width="7" height="14.1" rx="1"/></g><g class="cd dn" style="animation-delay:0.620s"><line x1="451.7" x2="451.7" y1="60.8" y2="84.2"/><rect x="448.2" y="69.9" width="7" height="4.6" rx="1"/></g><g class="cd dn" style="animation-delay:0.650s"><line x1="471.4" x2="471.4" y1="64.7" y2="83.5"/><rect x="467.9" y="72.9" width="7" height="3.1" rx="1"/></g><g class="cd" style="animation-delay:0.680s"><line x1="491.2" x2="491.2" y1="52.6" y2="81.5"/><rect x="487.7" y="57.9" width="7" height="18.1" rx="1"/></g><g class="cd" style="animation-delay:0.710s"><line x1="511.0" x2="511.0" y1="47.0" y2="66.1"/><rect x="507.5" y="54.8" width="7" height="3.1" rx="1"/></g><g class="cd dn" style="animation-delay:0.740s"><line x1="530.7" x2="530.7" y1="51.8" y2="63.7"/><rect x="527.2" y="54.8" width="7" height="3.4" rx="1"/></g><g class="cd" style="animation-delay:0.770s"><line x1="550.5" x2="550.5" y1="47.9" y2="68.2"/><rect x="547.0" y="51.6" width="7" height="6.7" rx="1"/></g><g class="cd dn" style="animation-delay:0.800s"><line x1="570.2" x2="570.2" y1="43.0" y2="59.7"/><rect x="566.7" y="50.1" width="7" height="3.4" rx="1"/></g><g class="cd" style="animation-delay:0.830s"><line x1="590.0" x2="590.0" y1="35.1" y2="56.8"/><rect x="586.5" y="44.4" width="7" height="7.6" rx="1"/></g></g>
+      <path class="c-area" d="M24,160 C150,156 210,128 300,104 C390,80 450,58 600,34 L600,160 Z"/>
+      <line class="c-base" x1="24" x2="616" y1="160" y2="160"/>
+      <path class="c-line" pathLength="800" d="M24,160 C150,156 210,128 300,104 C390,80 450,58 600,34"/>
+      <line class="c-k" style="animation-delay:1.15s" x1="120" x2="120" y1="152" y2="160"/><line class="c-k" style="animation-delay:1.5s" x1="300" x2="300" y1="104" y2="160"/><line class="c-k" style="animation-delay:2.05s" x1="600" x2="600" y1="34" y2="160"/>
+      <circle class="c-ring" cx="600" cy="34" r="7"/>
+      <circle class="c-s" style="animation-delay:1.15s" cx="120" cy="152" r="5"/><circle class="c-s" style="animation-delay:1.5s" cx="300" cy="104" r="5"/><circle class="c-s" style="animation-delay:2.05s;stroke-width:2.5" cx="600" cy="34" r="7"/>
+      <text class="c-ax" style="animation-delay:1.2s" x="120" y="184" text-anchor="middle">ANALYZE</text><text class="c-ax" style="animation-delay:1.55s" x="300" y="184" text-anchor="middle">UNDERSTAND</text><text class="c-ax" style="animation-delay:2.1s" x="600" y="184" text-anchor="end">INVEST</text>
+    </svg>
+  </section>
   <div class="login-card">
-    <div class="brand">
-      <div class="logo-mark">SF</div>
-      <div class="brand-text">
-        <div class="n">SAFE Terminal</div>
-        <div class="s">Sogang Analysis of Finance &amp; Economics</div>
-      </div>
-    </div>
-    <p class="login-sub">활동 기수 학회원 전용입니다.</p>
+    <div class="lg-ch"><b>학회원 로그인</b><span>활동 기수 학회원 전용입니다.</span></div>
     <div class="field">
       <label for="sid">학번</label>
       <input type="text" id="sid" inputmode="numeric" autocomplete="username"
@@ -8049,6 +8140,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
       <p class="login-disc">SAFE Terminal 은 학회 학습용 자료입니다. 강세 · 약세 신호는 과거 자료와 모형 가정에 기댄 계산이며 투자 권유가 아닙니다. 투자 판단과 결과는 본인 몫이며, 세이피(AI) 답은 틀릴 수 있습니다.</p>
     </div>
   </div>
+</div>
 </div>
 
 <!-- ══════════ 접근 거부 ══════════ -->
@@ -11811,7 +11903,7 @@ var LSX = {
   } catch(e){}
 })();
 </script>
-<script src="app1-55f222f6.js"></script>
-<script src="app2-f82d467f.js"></script>
+<script src="app1-f89fb42d.js"></script>
+<script src="app2-ffea5b00.js"></script>
 </body>
 </html>
