@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-55f222f6.js">
-<link rel="preload" as="script" href="app2-a10d50e2.js">
+<link rel="preload" as="script" href="app2-6fa05d73.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1071,6 +1071,22 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (49차) 아침 뉴스 클리핑 - 홈 */
+  #clipCard .clip-l{list-style:none;margin:4px 0 0;padding:0;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr);gap:0 36px}
+  #clipCard .clip-i:first-child{grid-row:span 2;border-right:1px solid var(--border);padding-right:32px}
+  #clipCard .clip-i:first-child .clip-t{font-size:20px;line-height:1.4}
+  #clipCard .clip-i:first-child .clip-s{font-size:14px;line-height:1.75;margin-top:12px}
+  #clipCard .clip-i:first-child .clip-n{font-size:40px}
+  @media (max-width:1100px){ #clipCard .clip-l{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} #clipCard .clip-i:first-child{grid-row:auto;grid-column:1/-1;border-right:0;padding-right:0} }
+  #clipCard .clip-i{display:grid;grid-template-columns:34px minmax(0,1fr);gap:4px 10px;padding:16px 0 18px;border-top:1px solid var(--border)}
+  #clipCard .clip-n{font-family:'Instrument Serif',serif;font-style:italic;font-size:30px;line-height:1;color:var(--text-sub);opacity:.7}
+  #clipCard .clip-m{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--text-sub);margin:0 0 5px}
+  #clipCard .clip-k{border:1px solid var(--border);border-radius:4px;padding:0 5px;font-size:11px}
+  #clipCard .clip-t{display:block;font-size:15.5px;font-weight:700;line-height:1.45;color:var(--text);text-decoration:none;word-break:keep-all}
+  #clipCard .clip-t:hover{text-decoration:underline;text-underline-offset:3px}
+  #clipCard .clip-s{margin:8px 0 0;padding-left:16px;font-size:13px;line-height:1.65;color:var(--text-sub)}
+  #clipCard .clip-s li::marker{color:var(--border)}
+  @media (max-width:640px){ #clipCard .clip-l{grid-template-columns:minmax(0,1fr)} #clipCard .clip-i:first-child .clip-t{font-size:17px} }
   /* (48차) 속보 - 단추 · 화면 알림 · 목록 */
   .bk-btn{position:relative}
   .bk-ic{display:block;width:16px;height:16px;margin:auto;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19h16M6 19V9a6 6 0 0 1 12 0v10M12 3v1'/%3E%3Cpath d='M10 13l2-3 2 3'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19h16M6 19V9a6 6 0 0 1 12 0v10M12 3v1'/%3E%3Cpath d='M10 13l2-3 2 3'/%3E%3C/svg%3E") center/contain no-repeat}
@@ -11781,6 +11797,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-55f222f6.js"></script>
-<script src="app2-a10d50e2.js"></script>
+<script src="app2-6fa05d73.js"></script>
 </body>
 </html>
