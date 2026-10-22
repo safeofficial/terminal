@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-f89fb42d.js">
-<link rel="preload" as="script" href="app2-ffea5b00.js">
+<link rel="preload" as="script" href="app2-a704c211.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1072,6 +1072,52 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (52차 설립자) 재무제표 순서 - 차트에 더하기 → 실적 추이 → 재무제표 → 손익 요약 · 8개 기간 */
+  html body #pane-company.co-on #coPane-fin > #coAddCard{order:1}
+  html body #pane-company.co-on #coPane-fin > .co-perf{order:2}
+  html body #pane-company.co-on #coPane-fin > .co-stmt{order:3}
+  html body #pane-company.co-on #coPane-fin > #coSumCard{order:4}
+  html body #pane-company.co-on #coPane-fin > #cxGlanceCard{order:5}
+  html body #pane-company.co-on #coPane-fin > :not(.co-perf):not(#coAddCard):not(.co-stmt):not(#coSumCard):not(#cxGlanceCard){order:6}
+  html body #pane-company.co-on.co-vb #coPane-fin > #coAddCard{grid-column:1/-1;grid-row:1}
+  html body #pane-company.co-on.co-vb #coPane-fin > .co-perf{grid-column:1;grid-row:2}
+  html body #pane-company.co-on.co-vb #coPane-fin > .co-kv{grid-column:2;grid-row:2}
+  @media (max-width:1000px){ html body #pane-company.co-on.co-vb #coPane-fin > .co-perf{grid-column:1;grid-row:2} html body #pane-company.co-on.co-vb #coPane-fin > .co-kv{grid-column:1;grid-row:3} }
+  /* 실적 추이 그림 크기 - 작게 · 보통 · 크게 + 오른쪽 아래 손잡이로 끌어서 (기기마다 기억) */
+  #coFinBox{position:relative}
+  .co-fsz{display:inline-flex;align-items:center;gap:6px}
+  .co-fsz .seg button{min-width:40px}
+  .co-frz-w{position:relative}
+  .co-frz{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;cursor:nwse-resize;touch-action:none;z-index:3;border-radius:4px}
+  .co-frz::before{content:"";position:absolute;right:4px;bottom:4px;width:9px;height:9px;border-right:2px solid var(--text-sub);border-bottom:2px solid var(--text-sub);opacity:.55;border-radius:0 0 2px 0}
+  .co-frz:hover::before,.co-frz.on::before{opacity:1;border-color:var(--accent)}
+  .co-frz-y{position:absolute;left:30%;right:30%;bottom:-6px;height:10px;cursor:ns-resize;touch-action:none;z-index:2}
+  .co-frz-y::before{content:"";position:absolute;left:50%;top:4px;width:40px;height:3px;margin-left:-20px;border-radius:3px;background:var(--border)}
+  .co-frz-y:hover::before,.co-frz-y.on::before{background:var(--accent)}
+  .co-fwh{position:absolute;right:22px;bottom:6px;z-index:3;padding:2px 7px;border-radius:5px;background:var(--text);color:var(--card,#fff);font:600 11px 'IBM Plex Mono',ui-monospace,monospace;opacity:0;transition:opacity .15s;pointer-events:none}
+  .co-fwh.on{opacity:.85}
+  @media (max-width:760px){ .co-frz,.co-frz-y{display:none} }
+  /* (52차) 파생상품 세부 탭 - 폭 제한(560px) 때문에 '어닝 콜 감성' 이 흐려져 잘려 보였음 */
+  @media (min-width:761px){ html body #pane-deriv #dvView.dv-view{max-width:none!important;-webkit-mask-image:none!important;mask-image:none!important;overflow:visible!important} }
+  /* (52차 설립자: '핵심지표 상자 크기를 조절할 수 있게') - 작게 · 보통 · 크게 (기기마다 따로 기억) */
+  #pane-research #mtmGrid[data-sz="s"] .mtm-gbox{grid-template-columns:repeat(auto-fill,minmax(176px,1fr))!important;gap:8px!important}
+  #pane-research #mtmGrid[data-sz="s"] .mtm-card{padding:9px 11px 8px!important;min-height:112px;gap:2px}
+  #pane-research #mtmGrid[data-sz="s"] .mtm-h{font-size:12px!important}
+  #pane-research #mtmGrid[data-sz="s"] .mtm-big b{font-size:18px!important}
+  #pane-research #mtmGrid[data-sz="s"] .mtm-big span{font-size:11px!important}
+  #pane-research #mtmGrid[data-sz="s"] .mtm-mid .mtm-spark{height:30px!important}
+  #pane-research #mtmGrid[data-sz="s"] .mtm-sub{font-size:11px!important}
+  #pane-research #mtmGrid[data-sz="s"] .mtm-f{font-size:10.5px!important}
+  #pane-research #mtmGrid[data-sz="l"] .mtm-gbox{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))!important;gap:14px!important}
+  #pane-research #mtmGrid[data-sz="l"] .mtm-card{padding:16px 18px 14px!important;min-height:196px;gap:6px}
+  #pane-research #mtmGrid[data-sz="l"] .mtm-h{font-size:14.5px!important}
+  #pane-research #mtmGrid[data-sz="l"] .mtm-big b{font-size:29px!important}
+  #pane-research #mtmGrid[data-sz="l"] .mtm-big span{font-size:13px!important}
+  #pane-research #mtmGrid[data-sz="l"] .mtm-mid .mtm-spark{height:66px!important}
+  #pane-research #mtmGrid[data-sz="l"] .mtm-sub{font-size:13px!important}
+  #pane-research #mtmGrid[data-sz="l"] .mtm-f{font-size:12.5px!important}
+  #mtmSz button{min-width:42px}
+  #pane-research #macroTeamCard.mtm-tbl #mtmSz{display:none}
   .co-cmb-hd .co-cmb-for{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--accent-soft,rgba(43,63,214,.1));color:var(--primary);vertical-align:1px}
   #coCombo .co-cmb-hd .cx-tipb{margin-left:auto}
   /* (52차 설립자: '로그인 페이지도 세이프 톤과 폰트에 맞게 · 인트로 모션') - 홈 코발트 히어로와 같은 색 · 글꼴 */
@@ -1210,7 +1256,7 @@
   #bbCard .bb-wrap{display:grid;grid-template-columns:minmax(340px,1.15fr) minmax(0,1fr);gap:36px;align-items:center}
   #bbCard .bb-art{max-width:480px;width:100%;justify-self:center}
   #bbCard .bb-svg{width:100%;height:auto;display:block;overflow:visible}
-  #bbCard .bb-max{stroke:var(--border);stroke-width:1;stroke-dasharray:3 4}
+  #bbCard .bb-max{fill:rgba(127,135,155,.05);stroke:var(--border);stroke-width:1;stroke-dasharray:3 4}
   #bbCard .bb-n{font-family:'Instrument Serif',serif;font-style:italic;font-size:62px;fill:var(--text);font-variant-numeric:tabular-nums}
   #bbCard .bb-l{font-size:15px;font-weight:700;letter-spacing:.02em}
   #bbCard .bb-ring{fill:none;stroke:var(--border);stroke-width:1;stroke-dasharray:2 5;opacity:.8} #bbCard .bb-ring.on{stroke:var(--text-sub);opacity:.45}
@@ -11904,6 +11950,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-f89fb42d.js"></script>
-<script src="app2-ffea5b00.js"></script>
+<script src="app2-a704c211.js"></script>
 </body>
 </html>
