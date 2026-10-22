@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-4e6e8d18.js">
-<link rel="preload" as="script" href="app2-14cddfeb.js">
+<link rel="preload" as="script" href="app2-95efbcca.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1088,6 +1088,18 @@
   #qbdGrid .qbd-t.qbd-before{box-shadow:inset 3px 0 0 #f5c542}
   #qbdGrid .qbd-t.qbd-after{box-shadow:inset -3px 0 0 #f5c542}
   #qbdGrid.qbd-fav-on::after{content:"끌어서 순서를 바꿀 수 있어요";display:block;width:100%;flex:0 0 100%;grid-column:1/-1;font-size:11px;color:var(--text-sub);margin-top:6px}
+  /* 호가창 여러 종목 - 전체 화면 */
+  .qmc-fsb{display:inline-flex;align-items:center;gap:6px;margin-left:auto}
+  #qmcW:fullscreen{background:var(--bg);padding:8px;display:flex;flex-direction:column;overflow:hidden;position:relative;box-sizing:border-box}
+  #qmcW:fullscreen .qmc-grid{flex:1;min-height:0;height:100%;grid-auto-rows:minmax(0,1fr);align-content:stretch}
+  #qmcW:fullscreen .qmc-c{display:flex;flex-direction:column;min-height:0}
+  #qmcW:fullscreen .qmc-ch{flex:1 1 auto;height:auto!important;min-height:0}
+  #qmcW:fullscreen .qmc-c.empty{min-height:0!important}
+  #qmcW:fullscreen .qmc-bar{position:absolute;left:0;right:0;top:0;z-index:30;margin:0;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--border);box-shadow:0 10px 30px -12px rgba(0,0,0,.45);transform:translateY(-102%);transition:transform .2s cubic-bezier(.2,.7,.2,1)}
+  #qmcW:fullscreen.bar-on .qmc-bar{transform:none}
+  #qmcW:fullscreen .qmc-hint{display:none}
+  #qmcW:fullscreen::before{content:"";position:absolute;left:50%;top:4px;width:44px;height:4px;margin-left:-22px;border-radius:4px;background:var(--border);z-index:29;opacity:.9}
+  @media (prefers-reduced-motion:reduce){ #qmcW:fullscreen .qmc-bar{transition:none} }
   /* (52차 설립자) 기업 · 재무 / 가치 평가 / 기업 리서치 / 추정 · 리포트 고른 칸: 다크에서는 그냥 흰색 · 밑 뾰족 삼각형 없앰 */
   html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles.co-tiles > button.on,html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles.co-tiles > button.on{background:#ffffff!important;border-color:#ffffff!important;color:#11141b!important}
   html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles.co-tiles > button.on b,html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles.co-tiles > button.on b{color:#11141b!important}
@@ -12063,6 +12075,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-4e6e8d18.js"></script>
-<script src="app2-14cddfeb.js"></script>
+<script src="app2-95efbcca.js"></script>
 </body>
 </html>
