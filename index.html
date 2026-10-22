@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-8e26afae.js">
-<link rel="preload" as="script" href="app2-7109e3ee.js">
+<link rel="preload" as="script" href="app2-4d695b80.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1080,6 +1080,14 @@
   @media (hover:none){ .qbd-t .qbd-star{opacity:.6} }
   .qbd-t .n{padding-right:14px}
   .qbd-chip-fav{color:var(--text)}
+  /* 이상 움직임 목록: 5줄 높이 고정 · 안에서 스크롤 (페이지는 안 늘어남) */
+  #lvAnom ol.lv-feed-fix{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-right:2px}
+  /* 즐겨찾기 끌어서 순서 바꾸기 */
+  #qbdGrid.qbd-fav-on .qbd-t.qbd-drag{cursor:grab}
+  #qbdGrid .qbd-t.qbd-dragging{opacity:.4}
+  #qbdGrid .qbd-t.qbd-before{box-shadow:inset 3px 0 0 #f5c542}
+  #qbdGrid .qbd-t.qbd-after{box-shadow:inset -3px 0 0 #f5c542}
+  #qbdGrid.qbd-fav-on::after{content:"끌어서 순서를 바꿀 수 있어요";display:block;width:100%;flex:0 0 100%;grid-column:1/-1;font-size:11px;color:var(--text-sub);margin-top:6px}
   /* (52차 설립자) 기업 · 재무 / 가치 평가 / 기업 리서치 / 추정 · 리포트 고른 칸: 다크에서는 그냥 흰색 · 밑 뾰족 삼각형 없앰 */
   html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles.co-tiles > button.on,html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles.co-tiles > button.on{background:#ffffff!important;border-color:#ffffff!important;color:#11141b!important}
   html[data-theme="dark"] body #pane-company #coGrp#coGrp.co-tiles.co-tiles > button.on b,html[data-theme="dark"] body #pane-cores #crGrp#crGrp.co-tiles.co-tiles > button.on b{color:#11141b!important}
@@ -12054,6 +12062,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-8e26afae.js"></script>
-<script src="app2-7109e3ee.js"></script>
+<script src="app2-4d695b80.js"></script>
 </body>
 </html>
