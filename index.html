@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-4e6e8d18.js">
-<link rel="preload" as="script" href="app2-d5d8255d.js">
+<link rel="preload" as="script" href="app2-13830bb3.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1155,6 +1155,37 @@
   html[data-skin="bb"] .co-tiles>button.on,html[data-skin="bb"] .co-tiles>button.on *:not(b):not(em){color:#e6e6e6!important}
   html[data-skin="bb"]:not(#z1):not(#z2):not(#z3):not(#z4):not(#z5):not(#z6):not(#z7) .px-seg>button.on,html[data-skin="bb"]:not(#z1):not(#z2):not(#z3):not(#z4):not(#z5):not(#z6):not(#z7) .q-seg>button.on,html[data-skin="bb"]:not(#z1):not(#z2):not(#z3):not(#z4):not(#z5):not(#z6):not(#z7) .co-ctl .cc-s button.on{background:#fb8b1e!important;color:#000!important;box-shadow:none!important}
   html[data-fsk="ciq"]:not(#z1):not(#z2):not(#z3):not(#z4):not(#z5):not(#z6):not(#z7):not(#z8) .sk-fsbox .px-seg>button.on{background:#2b3fd6!important;color:#fff!important}
+  /* 블룸버그 틀 · 모든 화면 */
+  html[data-skin="bb"] body,html[data-skin="bb"] body *{font-family:'IBM Plex Mono',ui-monospace,Menlo,'Pretendard','Apple SD Gothic Neo','Malgun Gothic',monospace!important;font-style:normal!important}
+  html[data-skin="bb"] .tabs-in{counter-reset:bbt}
+  html[data-skin="bb"] .tabs-in>.tab{counter-increment:bbt}
+  html[data-skin="bb"] .tabs-in>.tab::before{content:counter(bbt) ") ";color:#9a9a9a;font-weight:400}
+  html[data-skin="bb"] .tabs-in>.tab.on::before{color:#fb8b1e}
+  html[data-skin="bb"] .subtabs-in{counter-reset:bbs 10}
+  html[data-skin="bb"] .subtabs-in>.subtab{counter-increment:bbs}
+  html[data-skin="bb"] .subtabs-in>.subtab::before{content:counter(bbs) ") ";color:#9a9a9a;font-weight:400}
+  html[data-skin="bb"] .subtabs-in>.subtab.on::before{color:#fb8b1e}
+  html[data-skin="bb"] .card>h2{border-bottom:1px solid #2b2b2b;padding-bottom:6px}
+  html[data-skin="bb"] .card-en{color:#7a7a7a!important}
+  html[data-skin="bb"] #ckBtn{min-width:260px;justify-content:flex-start;border:1px solid #fb8b1e!important;background:#000!important;color:#ffd27a!important;border-radius:0!important}
+  html[data-skin="bb"] #ckBtn .t::before{content:"명령 > "}
+  html[data-skin="bb"] #ckBtn kbd{margin-left:auto;border-radius:0!important;background:#fb8b1e!important;color:#000!important;border-color:#fb8b1e!important}
+  .skb-band{display:flex;flex-wrap:wrap;align-items:stretch;max-width:1560px;margin:0 auto 14px;border-bottom:1px solid #333;background:#000}
+  .skb-band .skb-tk{background:#fb8b1e;color:#000;font-weight:600;padding:5px 14px}
+  .skb-band .skb-nm{color:#fb8b1e;font-weight:600;padding:5px 12px}
+  .skb-band .skb-btns{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:3px 6px}
+  .skb-band .skb-btns button{background:#b3161b;color:#fff;border:0;border-radius:0;font:inherit;font-size:12.5px;padding:3px 10px;cursor:pointer;white-space:nowrap}
+  .skb-band .skb-btns button:hover{background:#d11d23}
+  .skb-band .skb-sp{flex:1}
+  .skb-band .skb-fn{background:#b3161b;color:#fff;padding:5px 16px;display:flex;align-items:center}
+  .skb-bar{position:fixed;left:0;right:0;bottom:0;z-index:60;height:24px;display:flex;align-items:center;gap:18px;padding:0 14px;background:#0d0d0d;border-top:1px solid #333;color:#9a9a9a;font-size:11.5px;white-space:nowrap;overflow:hidden}
+  .skb-bar b{color:#fb8b1e;font-weight:600}
+  .skb-bar .skb-sp{flex:1}
+  html[data-skin="bb"] body{padding-bottom:24px}
+  html[data-skin="bb"] #aicFab,html[data-skin="bb"] #nfFab{margin-bottom:26px}
+  @media (max-width:640px){ .skb-band .skb-btns{display:none} .skb-bar span:not(:first-of-type){display:none} html[data-skin="bb"] #ckBtn{min-width:0} }
+  html[data-fsk="ciq"] .sk-fsbox,html[data-fsk="ciq"] .sk-fsbox *{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif!important}
+  html[data-skin="bb"][data-fsk="bb"] .sk-band{display:none!important}
   /* 전광판 즐겨찾기 별 */
   .qbd-t .qbd-star{position:absolute;top:3px;right:5px;z-index:2;font-size:12px;line-height:1;padding:2px;color:var(--text-sub);opacity:0;cursor:pointer;transition:opacity .12s,color .12s}
   .qbd-t:hover .qbd-star,.qbd-t .qbd-star:focus-visible{opacity:.85}
@@ -12178,6 +12209,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-4e6e8d18.js"></script>
-<script src="app2-d5d8255d.js"></script>
+<script src="app2-13830bb3.js"></script>
 </body>
 </html>
