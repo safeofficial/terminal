@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-5cee9f51.js">
-<link rel="preload" as="script" href="app2-3f00dff8.js">
+<link rel="preload" as="script" href="app2-55afa585.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1072,6 +1072,12 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (61차 설립자: '다크풀 차트 height 2배 · y축 잘 조절 · 색 · 디자인 개선') */
+  #dkBox{height:680px!important}
+  .dk-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:-4px 0 8px;font-size:12px;color:var(--text-sub)}
+  .dk-ctl .px-seg button{padding:3px 9px;font-size:12px}
+  .dk-ctl .hint{margin-left:auto;font-size:11.5px}
+  @media (max-width:640px){ #dkBox{height:460px!important} .dk-ctl .hint{display:none} }
   /* (59차 설립자: '호가창 풀스크린에서 윗줄 종목 바꾸려 하면 상단 탭 설정이 자꾸 뜬다') - 마우스 올리면 열리던 판을 손잡이 클릭으로만 */
   #qmcW:fullscreen::before{display:none}
   .qmc-grip{display:none}
@@ -12309,6 +12315,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-5cee9f51.js"></script>
-<script src="app2-3f00dff8.js"></script>
+<script src="app2-55afa585.js"></script>
 </body>
 </html>
