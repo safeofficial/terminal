@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-5cee9f51.js">
-<link rel="preload" as="script" href="app2-37d855ea.js">
+<link rel="preload" as="script" href="app2-ff862fbb.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1072,6 +1072,32 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (57차 설립자: '외국 자금 흐름 거래동향도 추가') - 분석 › 자금흐름 › 외국인 · 펀드 */
+  #flowPane-xf .xf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  #flowPane-xf .xf-grid>.card{margin:0;min-width:0}
+  #flowPane-xf .xf-hd{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;margin-bottom:6px}
+  #flowPane-xf .xf-hd h2{margin:0}
+  #flowPane-xf .xf-src{font-size:11.5px;color:var(--text-sub)}
+  #flowPane-xf .xf-read{display:grid;gap:4px;margin:8px 0 10px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-sub)}
+  #flowPane-xf .xf-read>div{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;font-size:12.5px;line-height:1.5}
+  #flowPane-xf .xf-read b{font-weight:600;color:var(--text-sub)}
+  #flowPane-xf .xf-read em{font-style:normal;font-weight:600}
+  #flowPane-xf em.up,#flowPane-xf td.up{color:var(--up)}
+  #flowPane-xf em.down,#flowPane-xf td.down{color:var(--down)}
+  #flowPane-xf .xf-ch{height:240px;width:100%}
+  #flowPane-xf table.xf-t{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums;margin-top:8px}
+  #flowPane-xf .xf-t th,#flowPane-xf .xf-t td{padding:5px 6px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
+  #flowPane-xf .xf-t th:first-child,#flowPane-xf .xf-t td:first-child{text-align:left}
+  #flowPane-xf .xf-t th{font-weight:600;color:var(--text-sub);font-size:11.5px}
+  #flowPane-xf .xf-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  #flowPane-xf .xf-two h3{font-size:12.5px;margin:10px 0 0}
+  #flowPane-xf .xf-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}
+  #flowPane-xf .xf-tiles>div{border:1px solid var(--border);border-radius:8px;padding:7px 9px;display:flex;flex-direction:column;gap:2px;min-width:0}
+  #flowPane-xf .xf-tiles span{font-size:11px;color:var(--text-sub)}
+  #flowPane-xf .xf-tiles b{font-size:15px;font-variant-numeric:tabular-nums}
+  #flowPane-xf .xf-empty{font-size:12.5px;color:var(--text-sub);padding:18px 0}
+  @media (max-width:1100px){ #flowPane-xf .xf-grid{grid-template-columns:minmax(0,1fr)} }
+  @media (max-width:560px){ #flowPane-xf .xf-two,#flowPane-xf .xf-tiles{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} #flowPane-xf .xf-two{grid-template-columns:minmax(0,1fr)} #flowPane-xf .xf-read>div{grid-template-columns:minmax(0,1fr);gap:1px} }
   /* (54차 설립자: 'COT 보고서에서 교육용 방향성은 제일 상단') - COT 화면 맨 위 카드로 · 시장 하나 안은 쉽게 읽기 → 숫자 칸 */
   #cotDirTop .cot-dir{margin:0}
   #cotDirTop h2 .sub{font-size:12px;font-weight:500;color:var(--text-sub);margin-left:6px}
@@ -12245,6 +12271,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-5cee9f51.js"></script>
-<script src="app2-37d855ea.js"></script>
+<script src="app2-ff862fbb.js"></script>
 </body>
 </html>
