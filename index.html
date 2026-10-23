@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-5cee9f51.js">
-<link rel="preload" as="script" href="app2-2dc98114.js">
+<link rel="preload" as="script" href="app2-1ecbf51c.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1072,6 +1072,11 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (65차 설립자: '모의투자 봉 차트 디자인 개선') - 차트 칸 머리 · 평단 줄 · 호가창과 한 세트로 */
+  #mtChartCard > h2{align-items:center}
+  #mtChartCard .mt-avg{font-size:12.5px}
+  #mtChartCard .mt-ob{margin-top:6px}
+  #mtChartCard #mtSymBox{border:1px solid var(--border);border-radius:10px;background:var(--bg-sub);box-sizing:border-box;padding:6px 2px 2px}
   /* (64차 설립자: '호가창 마켓메이킹을 모의투자 각 팀 상단에 · 차트 누르면 차트 오른쪽에 호가창 · 없는 종목이면 호가창은 비워 둠') */
   #mtChartCard .mt-ob{display:grid;grid-template-columns:minmax(0,1fr) 272px;gap:12px;align-items:stretch}
   #mtChartCard .mt-ob > #mtSymBox{min-width:0}
@@ -1082,8 +1087,8 @@
   .mob-h .dot.on{background:#1f8a70;opacity:1;box-shadow:0 0 0 3px rgba(31,138,112,.18)}
   .mob-cols{display:grid;grid-template-columns:1fr 1fr 1fr;padding:4px 10px;font-size:10.5px;color:var(--text-sub);border-bottom:1px solid var(--border)}
   .mob-cols span:last-child,.mob-cols span:nth-child(2){text-align:right}
-  .mob-body{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;justify-content:center}
-  .mob-r{position:relative;display:grid;grid-template-columns:1fr 1fr 1fr;padding:3px 10px;font-size:12px;line-height:1.35}
+  .mob-body{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:stretch}
+  .mob-r{position:relative;flex:1 1 auto;min-height:20px;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;padding:0 10px;font-size:12px;line-height:1.3}
   .mob-r i{position:absolute;top:2px;bottom:2px;right:0;opacity:.18;border-radius:2px 0 0 2px}
   .mob-r.a i{background:var(--down)} .mob-r.b i{background:var(--up)}
   .mob-r b{font-weight:600} .mob-r.a b{color:var(--down)} .mob-r.b b{color:var(--up)}
@@ -1095,6 +1100,10 @@
   .mob-f{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding:7px 10px;border-top:1px solid var(--border);font-size:11px;color:var(--text-sub)}
   .mob-f b{display:block;font-size:12.5px;color:var(--text);font-weight:600}
   @media (max-width:900px){ #mtChartCard .mt-ob{grid-template-columns:minmax(0,1fr)} .mob{max-height:420px} }
+  .mob-tape{border-top:1px solid var(--border);padding:4px 0 2px;font-variant-numeric:tabular-nums}
+  .mob-th{display:flex;justify-content:space-between;padding:3px 10px 4px;font-size:11px;font-weight:600;color:var(--text-sub)} .mob-th span{font-weight:400;font-size:10.5px}
+  .mob-tr{display:grid;grid-template-columns:1fr 1fr 1fr;padding:1px 10px;font-size:11.5px;line-height:1.5}
+  .mob-tr b{font-weight:600} .mob-tr.b b{color:var(--up)} .mob-tr.s b{color:var(--down)} .mob-tr em,.mob-tr s{font-style:normal;text-decoration:none;text-align:right} .mob-tr s{color:var(--text-sub)}
   /* (63차 설립자: '다양한 탭을 한번에 · 최대 4분할로 세이프 터미널을 동시에') - 분할 보기 */
   html.mv-embed header.top,html.mv-embed nav.tabs,html.mv-embed #nfFab,html.mv-embed #aicFab,html.mv-embed .nf-fab,html.mv-embed .aic-fab,html.mv-embed #ckBtn{display:none!important}
   html.mv-embed .subtabs{top:0!important}
@@ -12370,6 +12379,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-5cee9f51.js"></script>
-<script src="app2-2dc98114.js"></script>
+<script src="app2-1ecbf51c.js"></script>
 </body>
 </html>
