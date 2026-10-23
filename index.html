@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-5cee9f51.js">
-<link rel="preload" as="script" href="app2-b406c982.js">
+<link rel="preload" as="script" href="app2-11d5e239.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1072,6 +1072,39 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (63차 설립자: '다양한 탭을 한번에 · 최대 4분할로 세이프 터미널을 동시에') - 분할 보기 */
+  html.mv-embed header.top,html.mv-embed nav.tabs,html.mv-embed #nfFab,html.mv-embed #aicFab,html.mv-embed .nf-fab,html.mv-embed .aic-fab,html.mv-embed #ckBtn{display:none!important}
+  html.mv-embed .subtabs{top:0!important}
+  html.mv-embed body{padding-top:0!important}
+  body.mv-on{overflow:hidden}
+  #mvW{position:fixed;inset:0;z-index:900;display:flex;flex-direction:column;background:var(--bg)}
+  #mvW .mv-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:7px 14px;border-bottom:1px solid var(--border);background:var(--card);font-size:12.5px}
+  #mvW .mv-bar>b{font-size:13px}
+  #mvW .mv-lays{display:flex;gap:4px}
+  #mvW .mv-lay{display:grid;gap:2px;width:30px;height:22px;padding:2px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer}
+  #mvW .mv-lay i{display:block;background:var(--text-sub);opacity:.45;border-radius:2px}
+  #mvW .mv-lay.on{border-color:var(--primary);background:var(--accent-soft)} #mvW .mv-lay.on i{background:var(--primary);opacity:.9}
+  #mvW .mv-lay[data-l="1"]{grid-template-columns:1fr} #mvW .mv-lay[data-l="2h"]{grid-template-columns:1fr 1fr} #mvW .mv-lay[data-l="2v"]{grid-template-rows:1fr 1fr}
+  #mvW .mv-lay[data-l="3l"]{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr} #mvW .mv-lay[data-l="3l"] i:first-child{grid-row:1/3}
+  #mvW .mv-lay[data-l="3t"]{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr} #mvW .mv-lay[data-l="3t"] i:first-child{grid-column:1/3}
+  #mvW .mv-lay[data-l="2x2"]{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+  #mvW .mv-sp{flex:1}
+  #mvW .mv-grid{flex:1;min-height:0;display:grid;gap:6px;padding:6px;background:var(--bg)}
+  #mvW .mv-grid[data-lay="1"]{grid-template-areas:"a"} #mvW .mv-grid[data-lay="2h"]{grid-template-columns:1fr 1fr;grid-template-areas:"a b"} #mvW .mv-grid[data-lay="2v"]{grid-template-rows:1fr 1fr;grid-template-areas:"a" "b"}
+  #mvW .mv-grid[data-lay="3l"]{grid-template-columns:3fr 2fr;grid-template-rows:1fr 1fr;grid-template-areas:"a b" "a c"} #mvW .mv-grid[data-lay="3t"]{grid-template-columns:1fr 1fr;grid-template-rows:3fr 2fr;grid-template-areas:"a a" "b c"}
+  #mvW .mv-grid[data-lay="2x2"]{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;grid-template-areas:"a b" "c d"}
+  #mvW .mv-c{display:flex;flex-direction:column;min-width:0;min-height:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card)}
+  #mvW .mv-c[data-i="0"]{grid-area:a} #mvW .mv-c[data-i="1"]{grid-area:b} #mvW .mv-c[data-i="2"]{grid-area:c} #mvW .mv-c[data-i="3"]{grid-area:d}
+  #mvW .mv-c.off{display:none}
+  #mvW .mv-grid.max .mv-c{display:none} #mvW .mv-grid.max .mv-c.big{display:flex;grid-area:1/1/-1/-1}
+  #mvW .mv-h{display:flex;align-items:center;gap:6px;padding:4px 6px 4px 8px;border-bottom:1px solid var(--border);background:var(--bg-sub);font-size:12px}
+  #mvW .mv-h select{flex:1;min-width:0;font:inherit;font-size:12.5px;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:6px;padding:3px 8px}
+  #mvW .mv-h button{width:26px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text-sub);cursor:pointer;font-size:13px;line-height:1}
+  #mvW .mv-h button:hover{color:var(--text);border-color:var(--primary)}
+  #mvW iframe{flex:1;width:100%;border:0;background:var(--bg)}
+  #mvBtn{display:inline-flex;align-items:center;gap:6px;width:auto;padding:0 10px;font-size:12px;font-weight:600;white-space:nowrap}
+  #mvBtn svg{width:15px;height:15px}
+  @media (max-width:760px){ #mvW .mv-grid[data-lay]{grid-template-columns:1fr!important;grid-template-rows:none!important;grid-template-areas:"a" "b" "c" "d"!important;overflow:auto} #mvW .mv-c{min-height:70vh} #mvBtn span{display:none} }
   /* (62차 설립자: 'COT 전체 추이가 너무 플랫 · 길이를 늘려 차이를 부각') */
   #pane-deriv .cot-ch#cotChA{height:1040px}
   @media (max-width:640px){ #pane-deriv .cot-ch#cotChA{height:760px} }
@@ -12314,6 +12347,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-5cee9f51.js"></script>
-<script src="app2-b406c982.js"></script>
+<script src="app2-11d5e239.js"></script>
 </body>
 </html>
