@@ -25,8 +25,8 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
-<link rel="preload" as="script" href="app1-4e6e8d18.js">
-<link rel="preload" as="script" href="app2-939e15a9.js">
+<link rel="preload" as="script" href="app1-5cee9f51.js">
+<link rel="preload" as="script" href="app2-37d855ea.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1078,6 +1078,23 @@
   #cotDet.cot-re > .cot-ex{order:2}
   #cotDet.cot-re > .cot-tiles{order:3}
   #cotDirTop .cot-dir .l > .st-hint:first-child{display:none}
+  #cotDirTop .cot-how{margin-top:10px;border-top:1px solid var(--border);padding-top:8px}
+  #cotDirTop .cot-how summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--primary);list-style:none;width:max-content}
+  #cotDirTop .cot-how summary::-webkit-details-marker{display:none}
+  #cotDirTop .cot-how summary::before{content:'▸ ';display:inline-block;transition:transform .15s}
+  #cotDirTop .cot-how[open] summary::before{transform:rotate(90deg)}
+  #cotDirTop .cot-how ul{margin:8px 0 2px;padding:0;list-style:none;display:grid;gap:5px}
+  #cotDirTop .cot-how li{display:grid;grid-template-columns:84px minmax(0,1fr);gap:10px;font-size:12.5px;line-height:1.5;color:var(--text-sub)}
+  #cotDirTop .cot-how li b{color:var(--text);font-weight:600}
+  @media (max-width:560px){ #cotDirTop .cot-how li{grid-template-columns:minmax(0,1fr);gap:2px} }
+  #cotDirTop .cot-story{display:grid;gap:5px;margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px}
+  #cotDirTop .cot-story>div{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;font-size:12.5px;line-height:1.5}
+  #cotDirTop .cot-story b{font-weight:600;color:var(--text-sub)}
+  #cotDirTop .cot-story span{color:var(--text)}
+  #cotDirTop .cot-story em{font-style:normal;font-weight:600}
+  #cotDirTop .cot-story em.up{color:var(--up)}
+  #cotDirTop .cot-story em.down{color:var(--down)}
+  @media (max-width:560px){ #cotDirTop .cot-story>div{grid-template-columns:minmax(0,1fr);gap:1px} }
   /* (53차 설립자: '세이프 터미널 전체 블룸버그 터미널 디자인으로 바꾸는 설정 · 설립자 한정' · '캡큐는 재무제표 탭들만') */
   html:root[data-skin="bb"][data-skin]{--bg:#000;--white:#0a0a0a;--card:#0a0a0a;--bg-sub:#141414;--bg-soft:#141414;--text:#e6e6e6;--text-sub:#9a9a9a;--border:#2b2b2b;--primary:#fb8b1e;--primary-light:#ffa94d;--primary-fill:#b3161b;--accent:#fb8b1e;--accent-soft:#1d1306;--info-line:#3a2a10;--pal-h1:#1a1a1a;--pal-h2:#0d0d0d;--pal-h3:#000;--pal-hl:#fb8b1e;color-scheme:dark}
   html[data-skin="bb"] body{background:#000!important;font-family:'IBM Plex Mono',ui-monospace,Menlo,'Pretendard','Apple SD Gothic Neo','Malgun Gothic',monospace}
@@ -10600,7 +10617,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
       <div id="dvPane-cot" class="hidden">
         <!--  (10/10 5차 학회장: ‘COT 항목을 누르면 차트랑 설명이 페이지 위에 · 매번 아래로 내려가기 힘들어’) — 자세히 칸이 먼저 · 보드는 아래  -->
         <div class="card" id="cotBoardCard">
-          <h2>방향성 보드 <span class="st-hint" style="font-weight:400">선물 23개 · 큰손(투기) 포지션이 어디로 쏠렸나 · 누르면 아래에서 자세히</span></h2>
+          <h2>방향성 보드 <span class="st-hint" style="font-weight:400">선물 23개 · 헤지펀드 (가격 방향에 돈을 거는 쪽) 포지션이 어디로 쏠렸나 · 누르면 아래에서 자세히</span></h2>
           <span class="px-seg cot-gseg" id="cotGseg" role="group" aria-label="묶음"></span>
           <div id="cotSum"></div>
           <div class="cot-board" id="cotBoard"><div class="mk-wait">로딩 중…</div></div>
@@ -12227,7 +12244,7 @@ var LSX = {
   } catch(e){}
 })();
 </script>
-<script src="app1-4e6e8d18.js"></script>
-<script src="app2-939e15a9.js"></script>
+<script src="app1-5cee9f51.js"></script>
+<script src="app2-37d855ea.js"></script>
 </body>
 </html>
