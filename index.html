@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-5cee9f51.js">
-<link rel="preload" as="script" href="app2-1ecbf51c.js">
+<link rel="preload" as="script" href="app2-79163a24.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1137,6 +1137,30 @@
   #mvBtn{display:inline-flex;align-items:center;gap:6px;width:auto;padding:0 10px;font-size:12px;font-weight:600;white-space:nowrap}
   #mvBtn svg{width:15px;height:15px}
   @media (max-width:760px){ #mvW .mv-grid[data-lay]{grid-template-columns:1fr!important;grid-template-rows:none!important;grid-template-areas:"a" "b" "c" "d"!important;overflow:auto} #mvW .mv-c{min-height:70vh} #mvBtn span{display:none} }
+  /* (65차 설립자: '분할 탭 - 경계 드래그로 크기 조절 · 홈탭부터 시작하는 버그 · 탭 목록 카테고리화') */
+  #mvW .mv-grid{position:relative;--mvc:50fr;--mvc2:50fr;--mvr:50fr;--mvr2:50fr;--mvcf:.5;--mvrf:.5}
+  #mvW .mv-grid[data-lay="2h"]{grid-template-columns:minmax(0,var(--mvc)) minmax(0,var(--mvc2))}
+  #mvW .mv-grid[data-lay="2v"]{grid-template-rows:minmax(0,var(--mvr)) minmax(0,var(--mvr2))}
+  #mvW .mv-grid[data-lay="3l"],#mvW .mv-grid[data-lay="3t"],#mvW .mv-grid[data-lay="2x2"]{grid-template-columns:minmax(0,var(--mvc)) minmax(0,var(--mvc2));grid-template-rows:minmax(0,var(--mvr)) minmax(0,var(--mvr2))}
+  #mvW .mv-gut{position:absolute;z-index:3;display:none;touch-action:none;user-select:none}
+  #mvW .mv-gut::after{content:"";position:absolute;inset:0;margin:auto;border-radius:3px;background:var(--border);opacity:0;transition:opacity .15s}
+  #mvW .mv-gut:hover::after,#mvW .mv-gut.on::after{opacity:1;background:var(--primary)}
+  #mvW .mv-gut.v{top:6px;bottom:6px;width:14px;left:calc(6px + (100% - 18px) * var(--mvcf) - 4px);cursor:col-resize} #mvW .mv-gut.v::after{width:4px;height:44px}
+  #mvW .mv-gut.h{left:6px;right:6px;height:14px;top:calc(6px + (100% - 18px) * var(--mvrf) - 4px);cursor:row-resize} #mvW .mv-gut.h::after{height:4px;width:44px}
+  #mvW .mv-grid[data-lay="2h"] .mv-gut.v,#mvW .mv-grid[data-lay="2v"] .mv-gut.h,#mvW .mv-grid[data-lay="3l"] .mv-gut,#mvW .mv-grid[data-lay="3t"] .mv-gut,#mvW .mv-grid[data-lay="2x2"] .mv-gut{display:block}
+  #mvW .mv-grid[data-lay="3l"] .mv-gut.h{left:calc(6px + (100% - 18px) * var(--mvcf) + 6px)}
+  #mvW .mv-grid[data-lay="3t"] .mv-gut.v{top:calc(6px + (100% - 18px) * var(--mvrf) + 6px)}
+  #mvW .mv-grid.max .mv-gut,#mvW .mv-grid[data-lay="1"] .mv-gut{display:none!important}
+  #mvW .mv-grid.rs iframe{pointer-events:none}
+  #mvW .mv-grid.rs,#mvW .mv-grid.rs *{cursor:inherit}
+  #mvW .mv-h .mv-g{flex:0 0 auto;max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:600;color:var(--text-sub);padding:2px 7px;border-radius:5px;background:var(--card);border:1px solid var(--border)}
+  #mvW .mv-h select optgroup{font-weight:700;font-style:normal;color:var(--text-sub)}
+  #mvW .mv-h select option{font-weight:500;color:var(--text);padding-left:10px}
+  #mvW .mv-bar .mv-hint2{font-size:11.5px;color:var(--text-sub)}
+  html.mv-embed:not(.mv-ready) #loginView,html.mv-embed:not(.mv-ready) #appView{visibility:hidden!important}
+  html.mv-embed #mvVeil{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text-sub);font-size:13px;letter-spacing:.02em}
+  html.mv-embed.mv-ready #mvVeil{display:none}
+  @media (max-width:760px){ #mvW .mv-gut{display:none!important} }
   /* (62차 설립자: 'COT 전체 추이가 너무 플랫 · 길이를 늘려 차이를 부각') */
   #pane-deriv .cot-ch#cotChA{height:1040px}
   @media (max-width:640px){ #pane-deriv .cot-ch#cotChA{height:760px} }
@@ -12379,6 +12403,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-5cee9f51.js"></script>
-<script src="app2-1ecbf51c.js"></script>
+<script src="app2-79163a24.js"></script>
 </body>
 </html>
