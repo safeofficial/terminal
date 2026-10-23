@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-5cee9f51.js">
-<link rel="preload" as="script" href="app2-6e61d080.js">
+<link rel="preload" as="script" href="app2-dde20fce.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1072,6 +1072,13 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (59차 설립자: '호가창 풀스크린에서 윗줄 종목 바꾸려 하면 상단 탭 설정이 자꾸 뜬다') - 마우스 올리면 열리던 판을 손잡이 클릭으로만 */
+  #qmcW:fullscreen::before{display:none}
+  .qmc-grip{display:none}
+  #qmcW:fullscreen .qmc-grip{display:flex;align-items:center;gap:7px;position:absolute;left:50%;top:0;transform:translateX(-50%);z-index:31;height:22px;padding:0 12px;border:1px solid var(--border);border-top:0;border-radius:0 0 9px 9px;background:var(--card);color:var(--text-sub);font:inherit;font-size:11.5px;cursor:pointer;opacity:.75;transition:opacity .15s,top .2s cubic-bezier(.2,.7,.2,1)}
+  #qmcW:fullscreen .qmc-grip:hover,#qmcW:fullscreen.bar-on .qmc-grip{opacity:1;color:var(--text)}
+  #qmcW:fullscreen .qmc-grip i{width:18px;height:3px;border-radius:3px;background:currentColor;opacity:.6}
+  #qmcW:fullscreen.bar-on .qmc-grip{top:var(--qmc-bar-h,60px)}
   /* (58차 설립자: '경제지표 서프라이즈 인덱스' · 매크로 경제에 탭 하나) */
   .sur-card .sur-hd{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;margin-bottom:6px}
   .sur-card .sur-hd h2{margin:0}
@@ -12294,6 +12301,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-5cee9f51.js"></script>
-<script src="app2-6e61d080.js"></script>
+<script src="app2-dde20fce.js"></script>
 </body>
 </html>
