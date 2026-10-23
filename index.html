@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-4e6e8d18.js">
-<link rel="preload" as="script" href="app2-3a5aaa77.js">
+<link rel="preload" as="script" href="app2-d5d8255d.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1072,6 +1072,81 @@
   .vtp-sc td i{font-style:normal;color:var(--text-sub);font-size:11px;margin-left:2px}
   .vtp-sc td.t b{font-variant-numeric:tabular-nums}
   .vtp-ff{width:100%;min-height:150px}
+  /* (53차 설립자: '세이프 터미널 전체 블룸버그 터미널 디자인으로 바꾸는 설정 · 설립자 한정' · '캡큐는 재무제표 탭들만') */
+  html:root[data-skin="bb"][data-skin]{--bg:#000;--white:#0a0a0a;--card:#0a0a0a;--bg-sub:#141414;--bg-soft:#141414;--text:#e6e6e6;--text-sub:#9a9a9a;--border:#2b2b2b;--primary:#fb8b1e;--primary-light:#ffa94d;--primary-fill:#b3161b;--accent:#fb8b1e;--accent-soft:#1d1306;--info-line:#3a2a10;--pal-h1:#1a1a1a;--pal-h2:#0d0d0d;--pal-h3:#000;--pal-hl:#fb8b1e;color-scheme:dark}
+  html[data-skin="bb"] body{background:#000!important;font-family:'IBM Plex Mono',ui-monospace,Menlo,'Pretendard','Apple SD Gothic Neo','Malgun Gothic',monospace}
+  html[data-skin="bb"] header.top{background:#000!important;backdrop-filter:none!important;border-bottom:1px solid #333!important}
+  html[data-skin="bb"] .top-brand .logo-mark{background:#fb8b1e!important;color:#000!important;border-radius:0!important}
+  html[data-skin="bb"] .top-brand .n{color:#fb8b1e!important}
+  html[data-skin="bb"] nav.tabs{background:#0d0d0d!important;border-bottom:1px solid #333!important}
+  html[data-skin="bb"] .tab{color:#fff}
+  html[data-skin="bb"] .tab:hover{color:#fb8b1e}
+  html[data-skin="bb"] .tab.on{color:#fb8b1e!important;background:#262626}
+  html[data-skin="bb"] .tabs-in .nav-ink{background:#fb8b1e!important;border-radius:0!important}
+  html[data-skin="bb"] .subtabs{background:#262626!important;border-bottom:1px solid #333!important}
+  html[data-skin="bb"] .subtab{border-radius:0!important;color:#fff}
+  html[data-skin="bb"] .subtab.on{background:#000!important;color:#fb8b1e!important;border-color:#fb8b1e!important}
+  html[data-skin="bb"] .card{background:#0a0a0a!important;border-color:#2b2b2b!important;border-radius:2px!important;box-shadow:none!important}
+  html[data-skin="bb"] .card h2,html[data-skin="bb"] .card h3{color:#fb8b1e}
+  html[data-skin="bb"] .btn-sm,html[data-skin="bb"] .btn-ghost,html[data-skin="bb"] .btn,html[data-skin="bb"] .theme-btn{border-radius:0!important}
+  html[data-skin="bb"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),html[data-skin="bb"] select,html[data-skin="bb"] textarea{border-radius:0!important;background:#000!important;color:#ffd27a!important;border-color:#555!important}
+  html[data-skin="bb"] .px-seg,html[data-skin="bb"] .mode-seg,html[data-skin="bb"] .px-seg button,html[data-skin="bb"] .mode-seg button{border-radius:0!important}
+  html[data-skin="bb"] .px-seg button.on,html[data-skin="bb"] .mode-seg button.on{background:#fb8b1e!important;color:#000!important}
+  html[data-skin="bb"] table th{color:#fb8b1e}
+  html[data-skin="bb"] table td+td{border-left:1px solid #1e1e1e}
+  html[data-skin="bb"] tbody tr:hover>*{background:#151515}
+  /* 재무제표 표 · 공통 머리띠 */
+  html[data-fsk] .sk-fsbox>h2{display:none}
+  .sk-band{display:none}
+  html[data-fsk] .sk-band{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:0 0 12px}
+  /* 재무제표 · 블룸버그 */
+  html[data-fsk="bb"] .sk-fsbox{--card:#000;--white:#000;--bg:#000;--bg-sub:#141414;--bg-soft:#141414;--text:#e8e8e8;--text-sub:#9a9a9a;--border:#262626;--primary:#fb8b1e;--primary-light:#ffa94d;--primary-fill:#b3161b;--accent-soft:#1d1306;background:#000!important;color:#e8e8e8;border-color:#333!important;border-radius:2px!important;box-shadow:none!important;color-scheme:dark;font-family:'IBM Plex Mono',ui-monospace,Menlo,'Pretendard','Apple SD Gothic Neo','Malgun Gothic',monospace}
+  html[data-fsk="bb"] .sk-band{gap:0;border-bottom:1px solid #333;padding-bottom:0}
+  html[data-fsk="bb"] .skb-tk{background:#fb8b1e;color:#000;font-weight:600;padding:5px 12px}
+  html[data-fsk="bb"] .skb-nm{color:#fb8b1e;font-weight:600;padding:5px 12px}
+  html[data-fsk="bb"] .skb-sp{flex:1}
+  html[data-fsk="bb"] .skb-fn{background:#b3161b;color:#fff;padding:5px 14px}
+  html[data-fsk="bb"] #coFsSeg{counter-reset:skn;display:flex;flex-wrap:wrap;gap:2px;background:#0d0d0d!important;border:0!important;border-bottom:1px solid #333!important;border-radius:0!important;padding:4px 6px 0!important;box-shadow:none!important}
+  html[data-fsk="bb"] #coFsSeg button{flex:0 0 auto!important;border-radius:0!important;background:transparent!important;color:#fff!important;border:0!important;border-top:2px solid transparent!important;box-shadow:none!important;padding:4px 10px!important;font-weight:500!important}
+  html[data-fsk="bb"] #coFsSeg button::before{counter-increment:skn;content:counter(skn) ") "}
+  html[data-fsk="bb"] #coFsSeg button.on{background:#2c2c2c!important;color:#fb8b1e!important;border-top-color:#fb8b1e!important}
+  html[data-fsk="bb"] #coFsSeg button i{color:#9a9a9a}
+  html[data-fsk="bb"] #coFsSeg::after,html[data-fsk="bb"] #coFsSeg .seg-ink{display:none!important}
+  html[data-fsk="bb"] .sk-fsbox .btn-sm,html[data-fsk="bb"] .sk-fsbox .px-seg,html[data-fsk="bb"] .sk-fsbox .px-seg button{border-radius:0!important}
+  html[data-fsk="bb"] .sk-fsbox .px-seg button.on{background:#fb8b1e!important;color:#000!important}
+  html[data-fsk="bb"] #coFinTable th{color:#fff;font-weight:500}
+  html[data-fsk="bb"] #coFinTable td,html[data-fsk="bb"] #coFinTable th{border-bottom:1px solid #1a1a1a!important}
+  html[data-fsk="bb"] #coFinTable td+td,html[data-fsk="bb"] #coFinTable th+th{border-left:1px solid #2a2a2a!important}
+  html[data-fsk="bb"] #coFinTable .fs-nm{color:#fb8b1e}
+  html[data-fsk="bb"] #coFinTable .lvl2 .fs-nm,html[data-fsk="bb"] #coFinTable .lvl3 .fs-nm{color:#cfcfcf}
+  html[data-fsk="bb"] #coFinTable .fs-num{color:#fff}
+  html[data-fsk="bb"] #coFinTable .fs-num.zero{color:#666}
+  html[data-fsk="bb"] #coFinTable tbody tr:hover>*{background:#151515!important}
+  /* 재무제표 · 캐피털IQ (재무제표 칸만) */
+  html[data-fsk="ciq"] .sk-fsbox{--card:#fff;--white:#fff;--bg:#fff;--bg-sub:#f4f6fa;--bg-soft:#f4f6fa;--text:#1d2433;--text-sub:#5a6278;--border:#d5dae4;--primary:#2b3fd6;--primary-light:#4a5ce0;--primary-fill:#2b3fd6;--accent-soft:#eef1fd;background:#fff!important;color:#1d2433;border-color:#d5dae4!important;border-radius:0!important;box-shadow:none!important;color-scheme:light;font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif}
+  html[data-fsk="ciq"] .sk-band{font-size:17px;border-bottom:1px solid #d5dae4;padding-bottom:8px;gap:4px 8px}
+  html[data-fsk="ciq"] .sk-band b{font-weight:600}
+  html[data-fsk="ciq"] .sk-band span{color:#5a6278}
+  html[data-fsk="ciq"] #coFsSeg{margin-bottom:0!important;display:flex;flex-wrap:wrap;gap:0;background:#f4f6fa!important;border:1px solid #d5dae4!important;border-radius:0!important;padding:0!important;box-shadow:none!important}
+  html[data-fsk="ciq"] #coFsSeg button{flex:0 0 auto!important;border-radius:0!important;background:transparent!important;color:#2b3fd6!important;border:0!important;border-right:1px solid #d5dae4!important;box-shadow:none!important;padding:7px 14px!important;font-weight:500!important}
+  html[data-fsk="ciq"] #coFsSeg button.on{background:#fff!important;color:#1d2433!important;font-weight:600!important;box-shadow:inset 0 3px 0 #2b3fd6!important}
+  html[data-fsk="ciq"] #coFsSeg button i{display:none}
+  html[data-fsk="ciq"] #coFsSeg::after,html[data-fsk="ciq"] #coFsSeg .seg-ink{display:none!important}
+  html[data-fsk="ciq"] #coFsExpand,html[data-fsk="ciq"] #cxFsBar{background:#f4f6fa;border:1px solid #d5dae4;padding:6px 10px!important}
+  html[data-fsk="ciq"] #coFsExpand{margin:8px 0 0!important;border-bottom:0}
+  html[data-fsk="ciq"] #cxFsBar{margin:0 0 8px!important}
+  html[data-fsk="ciq"] .sk-fsbox .btn-sm,html[data-fsk="ciq"] .sk-fsbox .px-seg,html[data-fsk="ciq"] .sk-fsbox .px-seg button{border-radius:3px!important}
+  html[data-fsk="ciq"] #coFinTable{font-size:12.5px}
+  html[data-fsk="ciq"] #coFinTable thead th,html[data-fsk="ciq"] #coFinTable tr:first-child>th{background:#e9edf5!important;color:#1d2433;font-weight:600}
+  html[data-fsk="ciq"] #coFinTable td,html[data-fsk="ciq"] #coFinTable th{border-bottom:1px solid #edf0f5!important}
+  html[data-fsk="ciq"] #coFinTable .fs-num{color:#2b3fd6}
+  html[data-fsk="ciq"] #coFinTable .fs-num.zero{color:#8a93a6}
+  html[data-fsk="ciq"] #coFinTable .fs-row.sub td{font-weight:700;border-top:1px solid #8a93a6!important}
+  html[data-fsk="ciq"] #coFinTable tbody tr:hover>*{background:#f2f5fd!important}
+  /* 설정 카드 */
+  .skn-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:10px}
+  .skn-row>i{font-style:normal;font-size:12.5px;color:var(--text-sub);min-width:84px}
+  .skn-tag{display:inline-block;margin-left:6px;padding:0 7px;border-radius:999px;font-size:11px;font-weight:700;line-height:17px;vertical-align:2px;background:var(--accent-soft);color:var(--primary)}
   /* 전광판 즐겨찾기 별 */
   .qbd-t .qbd-star{position:absolute;top:3px;right:5px;z-index:2;font-size:12px;line-height:1;padding:2px;color:var(--text-sub);opacity:0;cursor:pointer;transition:opacity .12s,color .12s}
   .qbd-t:hover .qbd-star,.qbd-t .qbd-star:focus-visible{opacity:.85}
@@ -12095,6 +12170,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-4e6e8d18.js"></script>
-<script src="app2-3a5aaa77.js"></script>
+<script src="app2-d5d8255d.js"></script>
 </body>
 </html>
