@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-64d64074.js">
-<link rel="preload" as="script" href="app2-03b6a194.js">
+<link rel="preload" as="script" href="app2-84dcc87b.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1170,6 +1170,61 @@
   .cal-row .ec-fc small.up{color:var(--up);font-weight:600} .cal-row .ec-fc small.dn{color:var(--down);font-weight:600}
   .cal-row.head .ec-fc{color:var(--text-sub);font-weight:600}
   @media (max-width:640px){ #ecBody .cal-row{grid-template-columns:50px minmax(0,1fr) 80px 74px} #ecBody .cal-row .ec-fc{display:none} }
+  /* (66차 2단계) 모든 탭 머리 아래 '지금' 줄 · 히어로 높이 · 소제목 통일 · 개념 배우기 글꼴 */
+  .nowbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 22px;margin:-6px 0 20px;padding:9px 0 10px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .nowbar .nb-k{display:flex;align-items:center;gap:0;min-width:0;overflow-x:auto;scrollbar-width:none}
+  .nowbar .nb-k::-webkit-scrollbar{display:none}
+  .nowbar .nb-i{flex:none;display:flex;flex-direction:column;gap:1px;padding:0 18px 0 0;margin-right:18px;border-right:1px solid var(--border);min-width:92px}
+  .nowbar .nb-i:last-child{border-right:0;margin-right:0;padding-right:0}
+  .nowbar .nb-i .l{font-size:11px;color:var(--text-sub);white-space:nowrap;letter-spacing:.01em}
+  .nowbar .nb-i .v{font-family:'IBM Plex Mono',ui-monospace,'Pretendard',monospace;font-size:17px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.15;white-space:nowrap}
+  .nowbar .nb-i .v small{font-family:'Pretendard',sans-serif;font-size:11px;font-weight:500;color:var(--text-sub);margin-left:3px}
+  .nowbar .nb-i .d{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11.5px;font-weight:600;color:var(--text-sub);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .nowbar .nb-i .d.up{color:var(--up)} .nowbar .nb-i .d.dn{color:var(--down)}
+  .nowbar .nb-i .d i{font-style:normal;font-family:'Pretendard',sans-serif;font-weight:500;color:var(--text-sub);margin-left:4px;font-size:11px}
+  .nowbar .nb-r{display:flex;flex-direction:column;align-items:flex-end;gap:3px;max-width:520px;text-align:right}
+  .nowbar .nb-read{font-size:12.5px;line-height:1.5;color:var(--text);word-break:keep-all}
+  .nowbar .nb-read b{font-weight:600}
+  .nowbar .nb-meta{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10.5px;color:var(--text-sub);letter-spacing:.06em;opacity:.8}
+  .nowbar.empty{display:none}
+  @media (max-width:900px){ .nowbar{grid-template-columns:1fr} .nowbar .nb-r{align-items:flex-start;text-align:left;max-width:none} }
+  /* 히어로 - 높이 줄이기 (372 → 약 320) */
+  [id^="pane-"]:not(#pane-home) .q-hero{padding-top:18px!important;padding-bottom:24px!important}
+  /* 소제목 - 카드 제목 16px · 설명은 13px 회색으로 통일 */
+  [id^="pane-"]:not(#pane-home) .card > h2{font-size:16px!important;line-height:1.3}
+  [id^="pane-"]:not(#pane-home) .card > h2 .st-hint{font-size:12px!important;font-weight:400!important}
+  /* 개념 배우기 - 터미널 글꼴 · 색으로 */
+  .lrn-no{font-family:'IBM Plex Mono',ui-monospace,monospace!important;font-size:12px!important;font-weight:600!important;letter-spacing:.16em!important;color:var(--primary)!important}
+  .lrn-t h3{font-family:'Instrument Serif',serif!important;font-style:italic!important;font-weight:400!important;font-size:42px!important;letter-spacing:-.01em!important}
+  .hl-box{background:var(--primary)!important;border-radius:6px!important;font-style:normal!important}
+  .lrn-nav button i{color:var(--primary)!important} .lrn-nav button:hover{border-color:var(--primary)!important}
+  .lrn-sl input[type=range]{accent-color:var(--primary)!important}
+  /* (66차 3단계) 기업 띠 (재무제표 · 기업 리서치 · AI 가 같은 회사를 이어 봄) · 자금흐름 묶음 · 설정 바로가기 */
+  .co-strip{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;margin:-8px 0 18px;padding:9px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-sub);font-size:12.5px}
+  .co-strip .cs-l{color:var(--text-sub);white-space:nowrap}
+  .co-strip .cs-n{font-weight:700;color:var(--text);white-space:nowrap}
+  .co-strip .cs-n small{font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500;color:var(--text-sub);margin-left:6px;font-size:11px;letter-spacing:.04em}
+  .co-strip .cs-tabs{display:flex;gap:4px;margin-left:auto}
+  .co-strip .cs-tabs button{font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text-sub);cursor:pointer}
+  .co-strip .cs-tabs button:hover{border-color:var(--primary);color:var(--text)}
+  .co-strip .cs-tabs button.on{background:var(--primary);border-color:var(--primary);color:#fff}
+  .co-strip .cs-ch{font-size:12px;color:var(--primary);background:none;border:0;cursor:pointer;padding:0 2px;white-space:nowrap}
+  .co-strip .cs-ch:hover{text-decoration:underline}
+  .co-strip.empty{display:none}
+  #flowSeg{max-width:none!important;flex-wrap:wrap;align-items:center}
+  #flowSeg .flow-grp{font-size:11px;font-weight:600;color:var(--text-sub);letter-spacing:.04em;padding:0 4px 0 10px;white-space:nowrap}
+  #flowSeg .flow-grp:first-child{padding-left:2px}
+  #flowSeg .flow-sep{width:1px;height:18px;background:var(--border);margin:0 8px}
+  .fed-liq{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:9px 14px;border:1px dashed var(--border);border-radius:10px;font-size:12.5px;color:var(--text-sub)}
+  .fed-liq b{color:var(--text)}
+  .fed-liq button{margin-left:auto;font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer}
+  .fed-liq button:hover{border-color:var(--primary)}
+  #admIdx{position:sticky;top:calc(var(--hdr-h,0px) + 2px);z-index:6;display:flex;flex-wrap:wrap;gap:5px;padding:8px 0 10px;margin:0 0 14px;background:var(--bg);border-bottom:1px solid var(--border)}
+  #admIdx .ai-l{font-size:11px;color:var(--text-sub);align-self:center;margin-right:4px;letter-spacing:.04em}
+  #admIdx button{font-size:11.5px;font-weight:500;padding:3px 10px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text-sub);cursor:pointer;white-space:nowrap}
+  #admIdx button:hover{border-color:var(--primary);color:var(--text)}
+  #admIdx button.on{border-color:var(--primary);color:var(--primary);background:var(--accent-soft)}
+  #admIdx.empty{display:none}
   /* (62차 설립자: 'COT 전체 추이가 너무 플랫 · 길이를 늘려 차이를 부각') */
   #pane-deriv .cot-ch#cotChA{height:1040px}
   @media (max-width:640px){ #pane-deriv .cot-ch#cotChA{height:760px} }
@@ -12412,6 +12467,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-64d64074.js"></script>
-<script src="app2-03b6a194.js"></script>
+<script src="app2-84dcc87b.js"></script>
 </body>
 </html>
