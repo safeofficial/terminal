@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-de654bfe.js">
-<link rel="preload" as="script" href="app2-39ece159.js">
+<link rel="preload" as="script" href="app2-e38b79d4.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1622,8 +1622,8 @@
   /* (133차) 자금흐름 차트 - 두꺼운 막대 · 증권사 리포트 색 */
   .xf-ch{min-height:280px}
   /* (134차 설립자: '제목들 크게 · 내용에 소속감') - 한 가지 크기 체계: 단계 제목 30 · 칸 제목 19 · 칸 설명 13 */
-  html:not([data-skin="bb"]) body [id^="pane-"]:not(#pane-home):not(#z1):not(#z2):not(#z3):not(#z4):not(#z5):not(#z6):not(#z7) :not(#coHead):not(#cotDetCard) > .card:not(#cotDetCard) > h2{font-size:19px!important;font-weight:800!important;letter-spacing:-.018em!important;line-height:1.3!important;margin:0 0 16px!important}
-  html:not([data-skin="bb"]) body [id^="pane-"]:not(#pane-home):not(#z1):not(#z2):not(#z3):not(#z4):not(#z5):not(#z6):not(#z7) :not(#coHead) > .card > h2::before{height:18px!important;width:4px!important}
+  html:not([data-skin="bb"]) body :is([id^="pane-"]:not(#pane-home),[id^="pane-"]:not(#pane-home) :not(#coHead)):not(#z1):not(#z2):not(#z3):not(#z4):not(#z5):not(#z6):not(#z7) > .card:not(#cotDetCard) > h2{font-size:21px!important;font-weight:800!important;letter-spacing:-.018em!important;line-height:1.3!important;margin:0 0 16px!important}
+  html:not([data-skin="bb"]) body :is([id^="pane-"]:not(#pane-home),[id^="pane-"]:not(#pane-home) :not(#coHead)):not(#z1):not(#z2):not(#z3):not(#z4):not(#z5):not(#z6):not(#z7) > .card:not(#cotDetCard) > h2::before{height:19px!important;width:4px!important}
   html:not([data-skin="bb"]) body [id^="pane-"]:not(#pane-home):not(#z1):not(#z2):not(#z3):not(#z4):not(#z5):not(#z6):not(#z7) .card > h2 :is(.st-hint,.cx-sub,.mna-meta),html:not([data-skin="bb"]) body [id^="pane-"]:not(#pane-home):not(#z1):not(#z2):not(#z3):not(#z4):not(#z5):not(#z6):not(#z7) .card > h2 > span:not([class]){font-size:13px!important;font-weight:500!important;letter-spacing:0!important;color:var(--text-sub)!important;margin-left:4px}
   html body .cr-step:not(#z1):not(#z2){display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:48px 0 20px!important;padding:0 2px 14px!important;border-bottom:1px solid var(--border)}
   html body #crBody > .cr-step:first-child:not(#z1),html body .cr-main > .cr-step:first-child:not(#z1){margin-top:20px!important}
@@ -1636,6 +1636,45 @@
   #mnaCard .mna-co .nm button{font-size:18px!important;font-weight:800!important;letter-spacing:-.02em!important}
   #mnaCard .mna-sum p{font-size:13.5px!important;font-weight:400!important;line-height:1.6!important}
   #mnaCard .mna-top .am b{font-size:22px!important}
+  /* 기업 리서치 지분 · 공시: 날짜가 세로로 한 글자씩 꺾이던 것 */
+  #pane-cores .cr-list li .t,#pane-cores .cr-side li > :first-child{flex:none!important;white-space:nowrap!important}
+  #pane-cores .cr-list li .d{min-width:0;flex:1 1 auto!important}
+  /* (설립자: '호가창 아래 체결 줄이 3·4·5줄로 바뀌어 아래 상자가 출렁') - 체결 띠 높이 3줄로 고정 */
+  .qmb-tape{height:56px!important;min-height:56px!important;overflow:hidden!important;align-content:flex-start!important;line-height:16px!important}
+  .qmb-tape > *{white-space:nowrap}
+  #pane-cores .cr-side li{min-width:0}
+  #pane-cores .cr-side li > :last-child:not(:first-child):has(a){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* (135차 설립자: 'M&A 상자 사이즈 동일하게') - 모든 칸 같은 높이 · 이름 2줄 · 요약 2줄 자리 고정 · 출처는 맨 아래 */
+  #mnaCard .mna-list{align-items:stretch!important;grid-auto-rows:1fr}
+  #mnaCard .mna-r{height:100%;box-sizing:border-box}
+  #mnaCard .mna-pair{min-height:50px;align-items:center}
+  #mnaCard .mna-co .nm button{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-align:left}
+  #mnaCard .mna-sum{margin-top:auto}
+  #mnaCard .mna-sum p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.6em * 2)}
+  #mnaCard .mna-top .am span{display:block;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* (135차 설립자: 'COT 보고서 시장과 오른쪽 내용 사이가 너무 커') - 시장 칸은 내용만큼 · 늘어나는 건 COT 지수 막대 */
+  @media (min-width:901px){ html body #pane-deriv .cot-row{grid-template-columns:minmax(120px,190px) 96px minmax(160px,1fr) 84px 120px 100px 96px} }
+  /* 기업 리서치 밸류에이션 - 풋볼 필드 표 */
+  #crVal.crv{height:auto!important;min-height:0!important;display:flex;flex-direction:column;padding:2px 0 0}
+  .crv-r{display:grid;grid-template-columns:92px minmax(0,1fr) 104px 74px;align-items:center;gap:0 14px;height:40px;border-bottom:1px solid var(--border)}
+  .crv-r > b{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap}
+  .crv-r .v{font-size:14.5px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .crv-r em{font-style:normal;font-size:13.5px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .crv-r em.up{color:var(--up)} .crv-r em.down{color:var(--down)}
+  .crv-t{position:relative;height:100%}
+  .crv-t .ln{position:absolute;top:0;bottom:-1px;width:0;border-left:1.5px solid var(--text-sub);z-index:1}
+  .crv-t .ln.tg{border-left:1.5px dashed #d39a2c}
+  .crv-t .br{position:absolute;top:50%;height:10px;margin-top:-5px;border-radius:3px;z-index:2}
+  .crv-t .br.u{background:color-mix(in srgb,var(--up) 34%,transparent)} .crv-t .br.d{background:color-mix(in srgb,var(--down) 34%,transparent)}
+  .crv-t .dt{position:absolute;top:50%;width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;border:2px solid var(--card,#141821);z-index:3}
+  .crv-t .dt.u{background:var(--up)} .crv-t .dt.d{background:var(--down)}
+  .crv-h{height:34px;border-bottom:1px solid var(--border)}
+  .crv-h .v,.crv-h em{font-size:12px!important;font-weight:500!important;color:var(--text-sub)!important}
+  .crv-h .tg{position:absolute;bottom:6px;transform:translateX(-50%);font-size:12px;white-space:nowrap;padding:2px 7px;border-radius:5px;background:var(--surface-2,rgba(140,150,170,.14));color:var(--text)}
+  .crv-h .tg b{font-weight:700} .crv-h .tg.px b{color:var(--text-sub)} .crv-h .tg.tg b{color:#d39a2c}
+  .crv-f{display:flex;flex-wrap:wrap;gap:6px 22px;padding:12px 2px 2px;font-size:13px;color:var(--text-sub)}
+  .crv-f b{color:var(--text);font-weight:700;font-variant-numeric:tabular-nums} .crv-f em{font-style:normal;font-weight:700} .crv-f em.up{color:var(--up)} .crv-f em.down{color:var(--down)}
+  @media (max-width:640px){ .crv-r{grid-template-columns:70px minmax(0,1fr) 84px 58px;gap:0 8px} }
   #soBoard .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
   #soBoard .mt-team.tc{padding:18px 20px 14px;gap:9px;text-align:left;align-items:stretch}
   #soBoard .mt-team.tc .rk{height:26px;padding:0 11px;font-size:14px;border-radius:7px}
@@ -12887,6 +12926,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-de654bfe.js"></script>
-<script src="app2-39ece159.js"></script>
+<script src="app2-e38b79d4.js"></script>
 </body>
 </html>
