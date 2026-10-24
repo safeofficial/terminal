@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-64ab4cea.js">
-<link rel="preload" as="script" href="app2-28978c49.js">
+<link rel="preload" as="script" href="app2-d7807aa1.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1524,6 +1524,12 @@
   #pane-solo #soRankCard{margin-bottom:16px}
   .so-forever{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;padding:6px 0}
   .so-forever span{font-size:12px;font-weight:500;color:var(--text-sub)}
+  /* (73차 설립자: '재무제표 - 최신부터 왼쪽 끝에서 열리게 · 추이는 최신 쪽(왼쪽) · 오른쪽으로 넘길 때 위 기간이 계정 칸 밑으로 비치지 않게') */
+  #pane-company table thead th{z-index:3}
+  #pane-company table thead th:first-child{z-index:6!important;background:var(--card)!important;background-clip:padding-box}
+  #pane-company table tbody td:first-child{z-index:4}
+  #pane-company table thead th:first-child::after,#pane-company table tbody td:first-child::after{content:"";position:absolute;top:0;bottom:0;right:-1px;width:1px;background:var(--border);pointer-events:none}
+  #pane-company table.co-trend-l td.fs-spk,#pane-company table.co-trend-l th.fs-spk-h{border-right:1px solid var(--border)}
 
 
   /* (62차 설립자: 'COT 전체 추이가 너무 플랫 · 길이를 늘려 차이를 부각') */
@@ -12768,6 +12774,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-64ab4cea.js"></script>
-<script src="app2-28978c49.js"></script>
+<script src="app2-d7807aa1.js"></script>
 </body>
 </html>
