@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-de654bfe.js">
-<link rel="preload" as="script" href="app2-39ece159.js">
+<link rel="preload" as="script" href="app2-dcabe9af.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1644,6 +1644,14 @@
   .qmb-tape > *{white-space:nowrap}
   #pane-cores .cr-side li{min-width:0}
   #pane-cores .cr-side li > :last-child:not(:first-child):has(a){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* (135차 설립자: 'M&A 상자 사이즈 동일하게') - 모든 칸 같은 높이 · 이름 2줄 · 요약 2줄 자리 고정 · 출처는 맨 아래 */
+  #mnaCard .mna-list{align-items:stretch!important;grid-auto-rows:1fr}
+  #mnaCard .mna-r{height:100%;box-sizing:border-box}
+  #mnaCard .mna-pair{min-height:50px;align-items:center}
+  #mnaCard .mna-co .nm button{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-align:left}
+  #mnaCard .mna-sum{margin-top:auto}
+  #mnaCard .mna-sum p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.6em * 2)}
+  #mnaCard .mna-top .am span{display:block;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #soBoard .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
   #soBoard .mt-team.tc{padding:18px 20px 14px;gap:9px;text-align:left;align-items:stretch}
   #soBoard .mt-team.tc .rk{height:26px;padding:0 11px;font-size:14px;border-radius:7px}
@@ -12895,6 +12903,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-de654bfe.js"></script>
-<script src="app2-39ece159.js"></script>
+<script src="app2-dcabe9af.js"></script>
 </body>
 </html>
