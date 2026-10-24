@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-64d64074.js">
-<link rel="preload" as="script" href="app2-a88f2aa9.js">
+<link rel="preload" as="script" href="app2-03b6a194.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1163,13 +1163,13 @@
   @media (max-width:760px){ #mvW .mv-gut{display:none!important} }
   /* (66차 1단계) 빈 화면 없애기 · 모의투자 차트 높이 · 증시 캘린더 예상(컨센서스) 열 */
   #mtChartCard #mtSymBox{height:min(72vh,820px)!important}
-  .cal-row{grid-template-columns:88px 1fr 116px 112px 116px}
+  #ecBody .cal-row{grid-template-columns:88px 1fr 116px 112px 116px}
   .cal-row .ec-fc{color:var(--text-sub);font-weight:500}
   .cal-row .ec-fc.has{color:var(--text)}
   .cal-row .ec-fc small{display:block;font-size:10.5px;color:var(--text-sub);font-weight:500}
   .cal-row .ec-fc small.up{color:var(--up);font-weight:600} .cal-row .ec-fc small.dn{color:var(--down);font-weight:600}
   .cal-row.head .ec-fc{color:var(--text-sub);font-weight:600}
-  @media (max-width:640px){ .cal-row{grid-template-columns:50px minmax(0,1fr) 80px 74px} .cal-row .ec-fc{display:none} }
+  @media (max-width:640px){ #ecBody .cal-row{grid-template-columns:50px minmax(0,1fr) 80px 74px} #ecBody .cal-row .ec-fc{display:none} }
   /* (62차 설립자: 'COT 전체 추이가 너무 플랫 · 길이를 늘려 차이를 부각') */
   #pane-deriv .cot-ch#cotChA{height:1040px}
   @media (max-width:640px){ #pane-deriv .cot-ch#cotChA{height:760px} }
@@ -12412,6 +12412,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-64d64074.js"></script>
-<script src="app2-a88f2aa9.js"></script>
+<script src="app2-03b6a194.js"></script>
 </body>
 </html>
