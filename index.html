@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-d9462fa5.js">
-<link rel="preload" as="script" href="app2-5334d247.js">
+<link rel="preload" as="script" href="app2-88123462.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1407,6 +1407,33 @@
   #mtChartCard .mob-mid{padding:4px 10px}
   #mtChartCard .mob-tape{flex:none}
   @media (max-width:900px){ #mtChartCard .mt-ob > .mob{height:auto;max-height:420px} }
+  /* (70차 설립자: '모의투자 상단에 실시간 틱 보드 - LED 전광판처럼 계속 틱 반영') */
+  #tkbCard{margin:0 0 16px!important;padding:0!important;background:#05070b!important;border:1px solid #1a2130!important;border-radius:14px!important;box-shadow:none!important;overflow:hidden;color:#dfe6f3}
+  .tkb-h{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid #1a2130;font-size:12px;color:#8f9bb3}
+  .tkb-h b{color:#f1f4fa;font-weight:700;font-size:13px;letter-spacing:.04em}
+  .tkb-h .dot{width:8px;height:8px;border-radius:50%;background:#4b5565;flex:none}
+  .tkb-h .dot.on{background:#2fd27a;box-shadow:0 0 0 3px rgba(47,210,122,.18),0 0 10px #2fd27a;animation:tkbPulse 1.6s ease-in-out infinite}
+  @keyframes tkbPulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .tkb-h .sp{flex:1} .tkb-h button{font:inherit;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid #2a3344;background:#0d121b;color:#aeb8cc;cursor:pointer}
+  .tkb-h button:hover{border-color:#5b9cf0;color:#fff}
+  .tkb-g{position:relative;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 28px;padding:10px 18px 12px;font-family:'IBM Plex Mono',ui-monospace,'Cascadia Mono',Menlo,monospace;font-variant-numeric:tabular-nums}
+  .tkb-r{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) minmax(0,1fr);gap:0 10px;align-items:baseline;height:28px;line-height:28px;font-size:15px;letter-spacing:.06em;white-space:nowrap;overflow:hidden}
+  .tkb-r > span{overflow:hidden;text-overflow:ellipsis}
+  .tkb-r .n{color:#e9eef9;font-weight:700;text-shadow:0 0 6px rgba(233,238,249,.35)} .tkb-r .n i{font-style:normal;font-family:Pretendard,sans-serif;font-size:10.5px;color:#6f7b93;margin-left:6px;letter-spacing:0;font-weight:500}
+  .tkb-r .p,.tkb-r .c{text-align:right;font-weight:700}
+  .tkb-r.up .p,.tkb-r.up .c{color:#ff6a5c;text-shadow:0 0 7px rgba(255,106,92,.6)}
+  .tkb-r.dn .p,.tkb-r.dn .c{color:#4cc9ff;text-shadow:0 0 7px rgba(76,201,255,.6)}
+  .tkb-r.fl .p,.tkb-r.fl .c{color:#c9d2e3;text-shadow:0 0 6px rgba(201,210,227,.35)}
+  .tkb-r.off .p,.tkb-r.off .c{opacity:.78;text-shadow:none}
+  .tkb-r.tk .p,.tkb-r.tk .c{animation:tkbFlash .45s ease-out}
+  @keyframes tkbFlash{0%{filter:brightness(2.2)}100%{filter:brightness(1)}}
+  .tkb-led .tkb-r .n,.tkb-led .tkb-r .p,.tkb-led .tkb-r .c{-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;background-image:radial-gradient(circle,currentColor 62%,transparent 74%);background-size:2.5px 2.5px}
+  .tkb-led .tkb-r .n i{-webkit-text-fill-color:#6f7b93;background:none}
+  .tkb-f{display:flex;flex-wrap:wrap;gap:6px 16px;padding:7px 14px 9px;border-top:1px solid #1a2130;font-size:11px;color:#6f7b93}
+  .tkb-f b{color:#aeb8cc;font-weight:600}
+  #tkbCard.min .tkb-g,#tkbCard.min .tkb-f{display:none}
+  @media (max-width:1100px){ .tkb-g{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:640px){ .tkb-g{grid-template-columns:minmax(0,1fr);padding:8px 12px} .tkb-r{font-size:13px} }
 
 
   /* (62차 설립자: 'COT 전체 추이가 너무 플랫 · 길이를 늘려 차이를 부각') */
@@ -12651,6 +12678,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-d9462fa5.js"></script>
-<script src="app2-5334d247.js"></script>
+<script src="app2-88123462.js"></script>
 </body>
 </html>
