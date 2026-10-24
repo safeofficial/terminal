@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-64ab4cea.js">
-<link rel="preload" as="script" href="app2-aec79dc3.js">
+<link rel="preload" as="script" href="app2-b19af243.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1584,6 +1584,20 @@
   .fs-lw-grip{position:absolute;top:0;right:-4px;bottom:0;width:9px;cursor:col-resize;z-index:8;touch-action:none}
   .fs-lw-grip::after{content:"";position:absolute;top:22%;bottom:22%;left:3px;width:3px;border-radius:2px;background:var(--border);transition:background .15s}
   .fs-lw-grip:hover::after,.fs-lw-grip.on::after{background:var(--primary)}
+  /* (75차 설립자: '재무제표 색도 매크로 경제처럼 증권사 리포트 색으로') - 학회 보고서 배색: 네이비 #2c3e6b · 오커 #b26a00 · 틸 #1f8a70 · 스틸 #2f7d95 (빨강 · 파랑은 늘 · 줄 방향에만) */
+  #pane-company{--rp-navy:#2c3e6b;--rp-ochre:#b26a00;--rp-teal:#1f8a70;--rp-steel:#2f7d95;--rp-tint:color-mix(in srgb,#2c3e6b 6%,var(--card));--rp-line:color-mix(in srgb,#2c3e6b 22%,var(--border))}
+  html[data-theme="dark"] #pane-company{--rp-navy:#9fb3e6;--rp-ochre:#e3a84a;--rp-teal:#4fb3a9;--rp-steel:#6fb7cf;--rp-tint:color-mix(in srgb,#9fb3e6 7%,var(--card));--rp-line:color-mix(in srgb,#9fb3e6 22%,var(--border))}
+  #coFinTable.cx-fs thead th{border-bottom:2px solid var(--rp-navy)!important;color:var(--rp-navy)!important;letter-spacing:.01em}
+  #coFinTable.cx-fs thead th:first-child{color:var(--text-sub)!important}
+  #coFinTable.cx-fs tbody td{border-bottom-color:var(--rp-line)}
+  #coFinTable.cx-fs .fs-row.sub td,#coFinTable.cx-fs .fs-row.sub td:first-child{background:var(--rp-tint)!important}
+  #coFinTable.cx-fs .fs-row.sub td:first-child{box-shadow:inset 3px 0 0 var(--rp-navy)!important;color:var(--rp-navy)}
+  #coFinTable.cx-fs .fs-row.sub.neg td:first-child{box-shadow:inset 3px 0 0 var(--down)!important}
+  #coFinTable.cx-fs .fs-row:hover td,#coFinTable.cx-fs .fs-row:hover td:first-child{background:color-mix(in srgb,var(--rp-navy) 11%,var(--card))!important}
+  #pane-company .cx-bars rect{fill:var(--rp-navy);opacity:.28}
+  #pane-company .cx-bars rect.l{opacity:1}
+  #pane-company .cx-bars rect.l.u{fill:var(--up)} #pane-company .cx-bars rect.l.d{fill:var(--down)}
+  #pane-company .cx-bars rect.n{fill:var(--down);opacity:.4}
   #soBoard .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
   #soBoard .mt-team.tc{padding:18px 20px 14px;gap:9px;text-align:left;align-items:stretch}
   #soBoard .mt-team.tc .rk{height:26px;padding:0 11px;font-size:13px;border-radius:7px}
@@ -12835,6 +12849,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-64ab4cea.js"></script>
-<script src="app2-aec79dc3.js"></script>
+<script src="app2-b19af243.js"></script>
 </body>
 </html>
