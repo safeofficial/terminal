@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-64ab4cea.js">
-<link rel="preload" as="script" href="app2-d7807aa1.js">
+<link rel="preload" as="script" href="app2-425c1b82.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1530,6 +1530,26 @@
   #pane-company table tbody td:first-child{z-index:4}
   #pane-company table thead th:first-child::after,#pane-company table tbody td:first-child::after{content:"";position:absolute;top:0;bottom:0;right:-1px;width:1px;background:var(--border);pointer-events:none}
   #pane-company table.co-trend-l td.fs-spk,#pane-company table.co-trend-l th.fs-spk-h{border-right:1px solid var(--border)}
+  /* (73차 설립자: '개인 대회도 팀 대회와 똑같이 - 참가하면 각자 방 · 순위 카드 · 남의 방도 보기 · 대회 설정은 임원진 · 설립자만 맨 아래') */
+  #pane-solo.so-league #soAccCard,#pane-solo.so-league #soOrderCard,#pane-solo.so-league #soPosCard{display:none!important}
+  #pane-solo.so-room #soRankCard,#pane-solo.so-room #stkHeatCard{display:none!important}
+  #pane-solo.so-peek #soOrderCard{display:none!important}
+  #pane-solo.so-peek #soAccCard,#pane-solo.so-peek #soPosCard{display:block!important}
+  #pane-solo.so-peek #soPosCard button,#pane-solo.so-peek #soPosCard .so-sell{display:none!important}
+  #soRoomHead h2{align-items:center}
+  #soRoomHead .so-rn{font-size:17px;font-weight:700;margin-left:8px}
+  #soRoomHead .so-rb{display:inline-flex;gap:6px;margin-left:8px}
+  #soRoomHead .so-rb span{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--bg-sub);border:1px solid var(--border)}
+  #soRoomHead .so-rb span.up{color:var(--up)} #soRoomHead .so-rb span.dn{color:var(--down)}
+  #soRoomHead .so-rb span.me{background:color-mix(in srgb,var(--primary) 14%,var(--card));border-color:var(--primary);color:var(--primary)}
+  #soRankCard .mt-teams .tc-sp.none{display:flex;align-items:center;justify-content:center;min-height:56px;font-size:11.5px;color:var(--text-sub)}
+  #soBoard .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
+  #soBoard .mt-team.tc{padding:18px 20px 14px;gap:9px;text-align:left;align-items:stretch}
+  #soBoard .mt-team.tc .rk{height:26px;padding:0 11px;font-size:13px;border-radius:7px}
+  #soBoard .mt-team.tc.r1{border-top:3px solid #e8b923}
+  #soBoard .mt-team.tc .nm{font-size:21px;margin-top:2px;line-height:1.2;overflow-wrap:anywhere}
+  #soBoard .mt-team.tc .pl{font-size:36px;line-height:1.05}
+  #soBoard .mt-team.tc .go{margin-top:2px}
 
 
   /* (62차 설립자: 'COT 전체 추이가 너무 플랫 · 길이를 늘려 차이를 부각') */
@@ -12774,6 +12794,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-64ab4cea.js"></script>
-<script src="app2-d7807aa1.js"></script>
+<script src="app2-425c1b82.js"></script>
 </body>
 </html>
