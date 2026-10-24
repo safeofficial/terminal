@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-d9462fa5.js">
-<link rel="preload" as="script" href="app2-c9b5412a.js">
+<link rel="preload" as="script" href="app2-5334d247.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1355,6 +1355,58 @@
   .wcx-bar i.e{background:#4c8dff} .wcx-bar i.d{background:#f5b942} .wcx-bar i.rf{background:#5b6b8f} .wcx-bar i.pr{background:#4c8dff}
   .wcx-lab{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;color:#c8d0e0}
   .wcx-lab b{color:#f1f1f4;font-weight:600}
+  /* (69차 설립자: '모의투자 히트맵 위에 시장 요약 (트레이딩뷰 식)') */
+  #msmCard{margin-bottom:16px}
+  #msmCard > h2{align-items:center}
+  .msm-g{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:14px}
+  .msm-g2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+  .msm-box{border:1px solid var(--border);border-radius:12px;background:var(--bg-sub);padding:14px 16px;min-width:0;display:flex;flex-direction:column}
+  .msm-hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .msm-hd .msm-ic{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:#fff;background:#c0392b;letter-spacing:-.02em;flex:none}
+  .msm-hd b{font-size:14px;font-weight:700}
+  .msm-hd .msm-tag{font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;background:var(--card);border:1px solid var(--border);color:var(--text-sub)}
+  .msm-px{display:flex;align-items:baseline;gap:8px;margin-top:4px;font-variant-numeric:tabular-nums}
+  .msm-px b{font-size:24px;font-weight:800;letter-spacing:-.01em}
+  .msm-px .u{font-size:10px;color:var(--text-sub);font-weight:600}
+  .msm-px .c{font-size:13px;font-weight:700}
+  .up-t{color:var(--up)} .dn-t{color:var(--down)} .fl-t{color:var(--text-sub)}
+  .msm-seg{display:inline-flex;gap:2px;margin-left:auto}
+  .msm-seg button{font:inherit;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text-sub);cursor:pointer}
+  .msm-seg button.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .msm-big{position:relative;height:270px;margin-top:8px;min-width:0}
+  .msm-big svg,.msm-sp svg{display:block;width:100%;height:100%;overflow:visible}
+  .msm-big .ax{font-size:10.5px;fill:var(--text-sub);font-variant-numeric:tabular-nums}
+  .msm-big .gl{stroke:var(--border);stroke-width:1;stroke-dasharray:3 3}
+  .msm-list{display:flex;flex-direction:column;margin-top:4px}
+  .msm-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}
+  .msm-row:last-child{border-bottom:0}
+  .msm-row .msm-ic{width:26px;height:26px;font-size:9.5px}
+  .msm-row .nm{display:flex;flex-direction:column;gap:2px;min-width:0} .msm-row .nm b{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .msm-row .nm span{font-size:10px;color:var(--text-sub);font-weight:600}
+  .msm-row .v{text-align:right;display:flex;flex-direction:column;gap:2px} .msm-row .v b{font-size:12.5px;font-weight:600} .msm-row .v b i{font-style:normal;font-size:9.5px;color:var(--text-sub);margin-left:3px} .msm-row .v span{font-size:11.5px;font-weight:600}
+  .msm-sp{height:64px;margin:8px 0 2px}
+  .msm-sp-l{font-size:10px;color:var(--text-sub);text-align:center;margin-bottom:6px}
+  .msm-box .msm-px b{font-size:16px} .msm-box .msm-px .c{font-size:12px}
+  .msm-sub{font-size:12px;font-weight:700;margin:10px 0 2px}
+  .msm-bars{display:flex;align-items:flex-end;gap:5px;height:66px;margin-top:6px;position:relative;padding-right:28px}
+  .msm-bars i{flex:1;background:#4c8dff;border-radius:3px 3px 0 0;min-height:2px;position:relative}
+  .msm-bars i.last{background:#c0392b}
+  .msm-bars i:hover::after{content:attr(data-t);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;background:var(--text);color:var(--bg);padding:2px 6px;border-radius:4px;margin-bottom:3px}
+  .msm-bars .yl{position:absolute;right:0;font-size:9.5px;color:var(--text-sub);line-height:1}
+  .msm-bx{display:flex;justify-content:space-between;font-size:10px;color:var(--text-sub);margin-top:4px}
+  .msm-rate{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;font-size:11px;color:var(--text-sub)}
+  .msm-rate b{display:block;font-size:13px;color:var(--text);font-weight:700;margin-top:2px}
+  .msm-rate b.nx{color:var(--up)}
+  .msm-meta{margin-top:10px;font-size:11px;color:var(--text-sub)}
+  .msm-sk{opacity:.5}
+  @media (max-width:1100px){ .msm-g{grid-template-columns:minmax(0,1fr)} .msm-g2{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:700px){ .msm-g2{grid-template-columns:minmax(0,1fr)} .msm-big{height:220px} }
+  /* (69차 설립자: '호가창 차트 height 맞춰줘') - 호가창 칸을 차트 칸과 같은 높이로 · 줄은 그 안에서 나눠 가짐 */
+  #mtChartCard .mt-ob > .mob{height:min(72vh,820px);max-height:min(72vh,820px)}
+  #mtChartCard .mob-body{overflow:hidden}
+  #mtChartCard .mob-r{min-height:0;flex:1 1 0;font-size:11.5px;line-height:1.2}
+  #mtChartCard .mob-mid{padding:4px 10px}
+  #mtChartCard .mob-tape{flex:none}
+  @media (max-width:900px){ #mtChartCard .mt-ob > .mob{height:auto;max-height:420px} }
 
 
   /* (62차 설립자: 'COT 전체 추이가 너무 플랫 · 길이를 늘려 차이를 부각') */
@@ -12599,6 +12651,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-d9462fa5.js"></script>
-<script src="app2-c9b5412a.js"></script>
+<script src="app2-5334d247.js"></script>
 </body>
 </html>
