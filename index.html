@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-64ab4cea.js">
-<link rel="preload" as="script" href="app2-e11a3c28.js">
+<link rel="preload" as="script" href="app2-aec79dc3.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1576,10 +1576,14 @@
   #soBoard .tc-sp{width:100%;height:56px}
   /* (74차 설립자: '계정 · 추이 · 숫자 사이가 너무 멀다') - 추이가 왼쪽일 땐 오른쪽 끝 붙박이를 풀고 · 계정 칸은 글 길이만큼 */
   #coFinTable.co-trend-l th.fs-spk.fs-end,#coFinTable.co-trend-l td.fs-spk.fs-end{position:static!important;box-shadow:none!important;width:80px;min-width:80px;max-width:80px}
-  #coFinTable th:first-child,#coFinTable td:first-child{width:1%;min-width:150px!important;max-width:250px;white-space:nowrap}
-  #coFinTable td:first-child > *{white-space:nowrap}
   #coFinTable thead th:first-child{white-space:normal!important;max-width:220px;font-size:11px;line-height:1.35}
   #coFinTable .fs-spk .cx-spark.fs-bars{display:block;width:68px;height:22px;margin:0 auto}
+  /* (75차 설립자: '재무제표 과목명이 길면 알아서 맞게 길어지고 · 직접 조절도') */
+  #coFinTable th:first-child,#coFinTable td:first-child{width:var(--fs-lw,auto);min-width:var(--fs-lw,150px)!important;max-width:var(--fs-lw,none);white-space:normal;overflow-wrap:anywhere}
+  #coFinTable thead th:first-child{position:sticky}
+  .fs-lw-grip{position:absolute;top:0;right:-4px;bottom:0;width:9px;cursor:col-resize;z-index:8;touch-action:none}
+  .fs-lw-grip::after{content:"";position:absolute;top:22%;bottom:22%;left:3px;width:3px;border-radius:2px;background:var(--border);transition:background .15s}
+  .fs-lw-grip:hover::after,.fs-lw-grip.on::after{background:var(--primary)}
   #soBoard .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
   #soBoard .mt-team.tc{padding:18px 20px 14px;gap:9px;text-align:left;align-items:stretch}
   #soBoard .mt-team.tc .rk{height:26px;padding:0 11px;font-size:13px;border-radius:7px}
@@ -12831,6 +12835,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-64ab4cea.js"></script>
-<script src="app2-e11a3c28.js"></script>
+<script src="app2-aec79dc3.js"></script>
 </body>
 </html>
