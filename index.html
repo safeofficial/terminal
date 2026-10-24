@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-64ab4cea.js">
-<link rel="preload" as="script" href="app2-b19af243.js">
+<link rel="preload" as="script" href="app2-f5443c12.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1598,6 +1598,21 @@
   #pane-company .cx-bars rect.l{opacity:1}
   #pane-company .cx-bars rect.l.u{fill:var(--up)} #pane-company .cx-bars rect.l.d{fill:var(--down)}
   #pane-company .cx-bars rect.n{fill:var(--down);opacity:.4}
+  /* (76차 설립자: 'M&A 부분은 폰트도 저렇게 스타일리쉬하게 해서 명확하게') - 잡지 머리 (굵은 세리프 · 자간 넓은 날짜 · 굵은 밑줄) · 회사 이름 굵은 세리프 · 한 줄 설명 명조 · 금액 굵은 고딕 */
+  #mnaCard .mna-mast{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin:2px 0 6px}
+  #mnaCard .mna-date{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11.5px;font-weight:600;letter-spacing:.34em;color:var(--text-sub);text-transform:uppercase}
+  #mnaCard .mna-ttl{font-family:'Playfair Display','DM Serif Display',Georgia,'Times New Roman',serif;font-weight:900;font-size:40px;line-height:1.02;letter-spacing:-.02em;color:var(--text);margin:0;padding-bottom:8px;border-bottom:3px solid var(--text)}
+  #mnaCard .mna-ttl em{font-style:normal;color:var(--text)}
+  #mnaCard .mna-kr{font-size:12px;color:var(--text-sub);font-weight:600}
+  #mnaCard .mna-bar{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 16px;margin:0 0 4px}
+  #mnaCard .mna-co .nm button{font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-weight:800;font-size:18px;letter-spacing:-.01em;line-height:1.15}
+  #mnaCard .mna-co .mg{font-family:'Playfair Display',Georgia,serif;font-weight:900;font-size:14px;border-radius:8px}
+  #mnaCard .mna-sum p{font-family:'Noto Serif KR','Nanum Myeongjo',Georgia,serif;font-weight:500;font-size:13.5px;line-height:1.65}
+  #mnaCard .mna-top .am b{font-family:'Inter','Pretendard',system-ui,sans-serif;font-weight:800;font-size:24px;letter-spacing:-.03em;color:var(--tc)}
+  #mnaCard .mna-top .am b.na{font-family:inherit;font-size:12px;color:var(--text-sub);font-weight:600}
+  #mnaCard .mna-top .tg{font-family:'Inter','Pretendard',sans-serif;font-weight:800;letter-spacing:.02em}
+  #mnaCard .mna-top .dt{font-family:'IBM Plex Mono',ui-monospace,monospace;letter-spacing:.08em}
+  @media (max-width:640px){ #mnaCard .mna-ttl{font-size:30px} }
   #soBoard .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
   #soBoard .mt-team.tc{padding:18px 20px 14px;gap:9px;text-align:left;align-items:stretch}
   #soBoard .mt-team.tc .rk{height:26px;padding:0 11px;font-size:13px;border-radius:7px}
@@ -12849,6 +12864,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-64ab4cea.js"></script>
-<script src="app2-b19af243.js"></script>
+<script src="app2-f5443c12.js"></script>
 </body>
 </html>
