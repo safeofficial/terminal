@@ -25,8 +25,8 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
-<link rel="preload" as="script" href="app1-5cee9f51.js">
-<link rel="preload" as="script" href="app2-79163a24.js">
+<link rel="preload" as="script" href="app1-64d64074.js">
+<link rel="preload" as="script" href="app2-a88f2aa9.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1161,6 +1161,15 @@
   html.mv-embed #mvVeil{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text-sub);font-size:13px;letter-spacing:.02em}
   html.mv-embed.mv-ready #mvVeil{display:none}
   @media (max-width:760px){ #mvW .mv-gut{display:none!important} }
+  /* (66차 1단계) 빈 화면 없애기 · 모의투자 차트 높이 · 증시 캘린더 예상(컨센서스) 열 */
+  #mtChartCard #mtSymBox{height:min(72vh,820px)!important}
+  .cal-row{grid-template-columns:88px 1fr 116px 112px 116px}
+  .cal-row .ec-fc{color:var(--text-sub);font-weight:500}
+  .cal-row .ec-fc.has{color:var(--text)}
+  .cal-row .ec-fc small{display:block;font-size:10.5px;color:var(--text-sub);font-weight:500}
+  .cal-row .ec-fc small.up{color:var(--up);font-weight:600} .cal-row .ec-fc small.dn{color:var(--down);font-weight:600}
+  .cal-row.head .ec-fc{color:var(--text-sub);font-weight:600}
+  @media (max-width:640px){ .cal-row{grid-template-columns:50px minmax(0,1fr) 80px 74px} .cal-row .ec-fc{display:none} }
   /* (62차 설립자: 'COT 전체 추이가 너무 플랫 · 길이를 늘려 차이를 부각') */
   #pane-deriv .cot-ch#cotChA{height:1040px}
   @media (max-width:640px){ #pane-deriv .cot-ch#cotChA{height:760px} }
@@ -8813,7 +8822,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
               <span class="cal-key up">이전치 상회</span>
               <span class="cal-key dn">이전치 하회</span>
               <span class="cal-key soon">발표 전</span>
-              <span style="margin-left:8px">★ 는 시장 영향이 큰 지표입니다. 예측치(컨센서스)는 제공하지 않습니다.</span>
+              <span style="margin-left:8px">★ 는 시장 영향이 큰 지표입니다. 예상 = 시장 컨센서스 (미국 지표 · 그 주 월요일부터)</span>
             </p>
           </div>
         </div>
@@ -9936,9 +9945,9 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
               </select>
               <select id="mtChartRange" class="mt-own" onchange="mtDrawSymChart()" style="width:110px">
                 <option value="60">60개</option>
-                <option value="130">130개</option>
+                <option value="130" selected>130개</option>
                 <option value="260">260개</option>
-                <option value="0" selected>전부</option>
+                <option value="0">전부</option>
               </select>
               <button class="btn-sm" onclick="mtCloseSymChart()">닫기</button>
             </span>
@@ -12402,7 +12411,7 @@ var LSX = {
   } catch(e){}
 })();
 </script>
-<script src="app1-5cee9f51.js"></script>
-<script src="app2-79163a24.js"></script>
+<script src="app1-64d64074.js"></script>
+<script src="app2-a88f2aa9.js"></script>
 </body>
 </html>
