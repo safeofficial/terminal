@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-d9462fa5.js">
-<link rel="preload" as="script" href="app2-88123462.js">
+<link rel="preload" as="script" href="app2-389b43c4.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1434,6 +1434,20 @@
   #tkbCard.min .tkb-g,#tkbCard.min .tkb-f{display:none}
   @media (max-width:1100px){ .tkb-g{grid-template-columns:repeat(2,minmax(0,1fr))} }
   @media (max-width:640px){ .tkb-g{grid-template-columns:minmax(0,1fr);padding:8px 12px} .tkb-r{font-size:13px} }
+  /* (70차) 틱 보드 - 코인 시장 집계 줄 (코인게코 · 1분) */
+  .tkb-cg{display:flex;flex-wrap:wrap;gap:4px 22px;align-items:baseline;padding:7px 18px 8px;border-top:1px solid #1a2130;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;font-size:12.5px;color:#aeb8cc;letter-spacing:.03em}
+  .tkb-cg span i{font-style:normal;font-family:Pretendard,sans-serif;font-size:11px;color:#6f7b93;margin-right:6px;letter-spacing:0}
+  .tkb-cg b{font-weight:700;color:#e9eef9} .tkb-cg b.up-t{color:#ff6a5c} .tkb-cg b.dn-t{color:#4cc9ff}
+  .tkb-cg .tkb-dom{display:inline-flex;height:7px;width:120px;border-radius:4px;overflow:hidden;background:#1a2130;vertical-align:middle;margin-left:6px}
+  .tkb-cg .tkb-dom i{display:block;height:100%;margin:0} .tkb-cg .tkb-dom i.b{background:#f7931a} .tkb-cg .tkb-dom i.e{background:#627eea}
+  #tkbCard.min .tkb-cg{display:none}
+  /* (70차 설립자: '틱 보드 24시간 주말 포함 최대한 실시간으로') - 묶음 머리 · 4열 · 토큰 주식 · 원화 코인 */
+  .tkb-r.tkb-grp{display:flex;align-items:center;gap:8px;margin-top:4px;font-family:Pretendard,sans-serif;font-size:10.5px;letter-spacing:.14em;color:#6f7b93;font-weight:700;text-transform:uppercase}
+  .tkb-r.tkb-grp::after{content:"";flex:1;height:1px;background:#1a2130}
+  .tkb-led .tkb-r.tkb-grp{-webkit-text-fill-color:#6f7b93;background:none}
+  .tkb-r .n i.x{color:#8a6d2f}
+  .tkb-r.kimp .p{color:#f5b942;text-shadow:0 0 7px rgba(245,185,66,.55)}
+  @media (min-width:1500px){ .tkb-g{grid-template-columns:repeat(4,minmax(0,1fr));gap:0 24px} }
 
 
   /* (62차 설립자: 'COT 전체 추이가 너무 플랫 · 길이를 늘려 차이를 부각') */
@@ -12678,6 +12692,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-d9462fa5.js"></script>
-<script src="app2-88123462.js"></script>
+<script src="app2-389b43c4.js"></script>
 </body>
 </html>
