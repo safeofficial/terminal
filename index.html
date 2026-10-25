@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-39f8d5bb.js">
-<link rel="preload" as="script" href="app2-62b1847d.js">
+<link rel="preload" as="script" href="app2-b2488000.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1705,6 +1705,30 @@
   .tkb-pk-f{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--border)}
   .tkb-pk-f .st-hint{margin-left:auto}
   @media (max-width:640px){ .tkb-pick{padding:0;align-items:flex-end} .tkb-pk{max-height:88vh;border-radius:16px 16px 0 0} .tkb-pk-g{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  /* (138차) 실적 발표 캘린더 · 세이피 명령 목록 */
+  #ernCard .ern-g{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+  #ernCard .ern-d{display:flex;flex-direction:column;gap:6px;min-width:0;padding:10px;border:1px solid var(--border);border-radius:12px;background:color-mix(in srgb,var(--card) 92%,var(--text) 3%)}
+  #ernCard .ern-d.t{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
+  #ernCard .ern-dh{display:flex;align-items:baseline;gap:8px;padding:0 2px 6px;border-bottom:1px solid var(--border);margin-bottom:2px}
+  #ernCard .ern-dh b{font-size:16px;font-weight:800} #ernCard .ern-dh span{font-size:13px;color:var(--text-sub);font-variant-numeric:tabular-nums}
+  #ernCard .ern-dh em{margin-left:auto;font-style:normal;font-size:12px;font-weight:700;color:var(--text-sub)}
+  #ernCard .ern-c{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"t s h" "n n u";align-items:baseline;gap:1px 6px;width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);text-align:left;cursor:pointer;min-width:0}
+  #ernCard .ern-c:hover{border-color:var(--primary)}
+  #ernCard .ern-c b{grid-area:t;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13.5px;font-weight:700}
+  #ernCard .ern-c s{grid-area:h;text-decoration:none;font-size:11px;color:var(--text-sub);white-space:nowrap}
+  #ernCard .ern-c i{grid-area:n;font-style:normal;font-size:12px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:15px}
+  #ernCard .ern-c u{grid-area:u;text-decoration:none;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+  #ernCard .ern-c.up{border-left:3px solid var(--up)} #ernCard .ern-c.up u{color:var(--up)}
+  #ernCard .ern-c.dn{border-left:3px solid var(--down)} #ernCard .ern-c.dn u{color:var(--down)}
+  #ernCard .ern-c.fl u{color:var(--text-sub)}
+  #ernCard .ern-more,#ernCard .ern-none{font-size:12px;color:var(--text-sub);padding:2px 4px}
+  #ernCard .ern-n{margin:12px 2px 0}
+  @media (max-width:900px){ #ernCard .ern-g{grid-template-columns:minmax(0,1fr);gap:8px} #ernCard .ern-d.p:not(.t){opacity:.85} }
+  .cr-step .cr-cov{margin-left:auto;align-self:center}
+  .aic-cmd{display:flex;flex-direction:column;gap:2px;max-height:260px;overflow:auto;margin:0 0 6px;padding:4px;border:1px solid var(--border);border-radius:10px;background:var(--card)}
+  .aic-cmd button{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:baseline;gap:8px;padding:7px 9px;border:0;border-radius:7px;background:none;color:var(--text);text-align:left;cursor:pointer}
+  .aic-cmd button:hover{background:rgba(90,120,255,.12)}
+  .aic-cmd b{font-size:13.5px;font-weight:800} .aic-cmd em{font-style:normal;font-size:11.5px;color:var(--primary)} .aic-cmd span{font-size:12.5px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #soBoard .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
   #soBoard .mt-team.tc{padding:18px 20px 14px;gap:9px;text-align:left;align-items:stretch}
   #soBoard .mt-team.tc .rk{height:26px;padding:0 11px;font-size:14px;border-radius:7px}
@@ -12956,6 +12980,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-39f8d5bb.js"></script>
-<script src="app2-62b1847d.js"></script>
+<script src="app2-b2488000.js"></script>
 </body>
 </html>
