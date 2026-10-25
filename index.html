@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-96d39bd0.js">
-<link rel="preload" as="script" href="app2-f9a2c4a3.js">
+<link rel="preload" as="script" href="app2-9b277ef2.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1756,6 +1756,15 @@
   #bbCard .bb-hm{stroke:var(--text-sub);stroke-width:1;stroke-dasharray:4 4;opacity:.6;vector-effect:non-scaling-stroke}
   #bbCard .bb-hf{display:flex;gap:18px;font-size:12.5px;color:var(--text-sub)} #bbCard .bb-hf b{color:var(--text);font-variant-numeric:tabular-nums}
   @media (max-width:900px){ #bbCard .bb-wrap{grid-template-columns:minmax(0,1fr)!important;gap:18px!important} #bbCard .bb-art{max-width:300px!important;margin:0 auto} }
+  /* (142차) 3D 곡면 칸 */
+  .s3d{margin:18px 0 6px;padding:14px 16px 6px;border:1px solid var(--border);border-radius:12px;background:color-mix(in srgb,var(--card) 94%,var(--text) 2%)}
+  .s3d-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+  .s3d-h b{font-size:16px;font-weight:800;color:var(--text)}
+  .s3d-h .st-hint{font-size:12.5px}
+  .s3d-h em{margin-left:auto;font-style:normal;font-size:11.5px;font-family:'IBM Plex Mono',monospace;color:var(--text-sub);border:1px solid var(--border);border-radius:999px;padding:1px 8px}
+  .s3d-c{height:440px;margin-top:6px}
+  .s3d-c.q3d-off{display:none}
+  @media (max-width:640px){ .s3d-c{height:320px} }
 
   #soBoard .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
   #soBoard .mt-team.tc{padding:18px 20px 14px;gap:9px;text-align:left;align-items:stretch}
@@ -13008,6 +13017,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-96d39bd0.js"></script>
-<script src="app2-f9a2c4a3.js"></script>
+<script src="app2-9b277ef2.js"></script>
 </body>
 </html>
