@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-25fbad2f.js">
-<link rel="preload" as="script" href="app2-2d63e89a.js">
+<link rel="preload" as="script" href="app2-dd836633.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2006,6 +2006,14 @@
   .gls-pop .gls-sw button i{width:26px;height:26px;border-radius:50%;border:1px solid rgba(0,0,0,.1);box-shadow:inset 0 1px 2px rgba(255,255,255,.8)}
   .gls-pop .gls-sw button.on{border-color:var(--primary);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary) 25%,transparent)}
   .gls-pop.hidden{display:none}
+  /* (164차 설립자: '마켓 맵 전체 화면 - 글라스 이펙트') 전체 화면은 페이지 배경(body)이 안 보여 반투명 판이 검게 비치던 것 → 그 색감 배경을 판 자체에 */
+  html[data-glass="1"]:not([data-skin="bb"]) body:not(#_v1):not(#_v2):not(#_v3):not(#_v4):not(#_v5):not(#_v6):not(#_v7):not(#_v8):not(#_v9):not(#_v10):not(#_v11):not(#_v12):not(#_v13):not(#_v14):not(#_v15):not(#_v16):not(#_v17):not(#_v18):not(#_v19):not(#_v20):not(#_v21):not(#_v22):not(#_v23):not(#_v24):not(#_v25):not(#_v26):not(#_v27):not(#_v28):not(#_v29):not(#_v30):not(#_v31) :is(.mk-card.mk-full,.stk-heat-card.stk-full,.mk-card:fullscreen,.stk-heat-card:fullscreen,#qmcW:fullscreen){border-radius:0!important;border:0!important;background:radial-gradient(900px 620px at 12% 10%,color-mix(in srgb,var(--gl-acc,#7fb2ff) 22%,transparent),transparent 62%),radial-gradient(820px 600px at 88% 88%,color-mix(in srgb,var(--gl-acc2,#c69cff) 20%,transparent),transparent 64%),linear-gradient(165deg,var(--gl-solid,#f2f3f6) 0%,color-mix(in srgb,var(--gl-solid,#f2f3f6) 90%,#8a90a0) 100%)!important}
+  html[data-glass="1"][data-theme="dark"]:not([data-skin="bb"]) body:not(#_v1):not(#_v2):not(#_v3):not(#_v4):not(#_v5):not(#_v6):not(#_v7):not(#_v8):not(#_v9):not(#_v10):not(#_v11):not(#_v12):not(#_v13):not(#_v14):not(#_v15):not(#_v16):not(#_v17):not(#_v18):not(#_v19):not(#_v20):not(#_v21):not(#_v22):not(#_v23):not(#_v24):not(#_v25):not(#_v26):not(#_v27):not(#_v28):not(#_v29):not(#_v30):not(#_v31) :is(.mk-card.mk-full,.stk-heat-card.stk-full,.mk-card:fullscreen,.stk-heat-card:fullscreen,#qmcW:fullscreen){border-radius:0!important;border:0!important;background:radial-gradient(900px 620px at 12% 10%,color-mix(in srgb,var(--gl-acc,#5a6ad0) 20%,transparent),transparent 62%),radial-gradient(820px 600px at 88% 88%,color-mix(in srgb,var(--gl-acc2,#8a5ad0) 16%,transparent),transparent 64%),linear-gradient(165deg,var(--gl-solid,#15171d) 0%,color-mix(in srgb,var(--gl-solid,#15171d) 80%,#000) 100%)!important}
+  html[data-glass="1"]:not([data-skin="bb"]) :fullscreen::backdrop{background:var(--gl-solid,#f2f3f6)}
+  /* (164차 설립자: '애플 색 좀 과해') 애플 색감 배경 번짐을 절반쯤으로 */
+  html[data-glass="1"][data-gtone="apple"]:not([data-theme="dark"]):not([data-skin="bb"]) body:not(#_u1):not(#_u2)::before{background:radial-gradient(900px 640px at 8% 6%,rgba(127,178,255,.46),transparent 60%),radial-gradient(820px 600px at 92% 4%,rgba(198,156,255,.38),transparent 60%),radial-gradient(900px 720px at 86% 92%,rgba(255,158,199,.28),transparent 62%),radial-gradient(780px 600px at 12% 94%,rgba(255,198,138,.30),transparent 62%),radial-gradient(640px 460px at 50% 48%,rgba(142,230,214,.18),transparent 70%),linear-gradient(170deg,#f1f3f9 0%,#f5f3f8 50%,#f8f5f2 100%)!important}
+  html[data-glass="1"][data-gtone="apple"][data-theme="dark"]:not([data-skin="bb"]) body:not(#_u1):not(#_u2)::before{filter:saturate(.7) brightness(.9)}
+  html[data-glass="1"][data-gtone="apple"]:not([data-skin="bb"]) body::after{opacity:.6}
   /* (163차 설립자: '좀 더 glassy 하게') 유리가 '비쳐 보이게': 뒤에 색 번짐(라이트에도) + 카드는 더 맑게 · 더 흐리게 · 위쪽 빛 반사 · 깊은 그림자 */
   html[data-glass="1"]:not([data-theme="dark"]):not([data-skin="bb"]) body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(640px 460px at 18% 28%,color-mix(in srgb,var(--gl-acc,#7fb2ff) 28%,transparent),transparent 68%),radial-gradient(560px 420px at 82% 62%,color-mix(in srgb,var(--gl-acc2,#c69cff) 24%,transparent),transparent 70%),radial-gradient(520px 380px at 50% 96%,color-mix(in srgb,var(--gl-acc,#7fb2ff) 18%,transparent),transparent 70%)}
   html[data-glass="1"]:not([data-theme="dark"]):not([data-skin="bb"]) body:not(#_y1):not(#_y2):not(#_y3):not(#_y4):not(#_y5):not(#_y6):not(#_y7):not(#_y8):not(#_y9):not(#_y10):not(#_y11):not(#_y12):not(#_y13):not(#_y14):not(#_y15):not(#_y16):not(#_y17):not(#_y18):not(#_y19):not(#_y20):not(#_y21) .card:not(.card .card):not(#tkbCard):not(.ml-hero):not(.q-hero):not(.vm-hero){background:linear-gradient(150deg,rgba(255,255,255,.50) 0%,rgba(255,255,255,.17) 46%,rgba(255,255,255,.28) 100%)!important;border:1px solid rgba(255,255,255,.72)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.98),inset 0 0 0 .5px rgba(255,255,255,.30),inset 0 -14px 28px -22px rgba(255,255,255,.75),0 1px 1px rgba(20,30,60,.05),0 8px 18px -8px rgba(20,30,60,.12),0 34px 72px -26px rgba(30,40,90,.30)!important;-webkit-backdrop-filter:blur(30px) saturate(190%)!important;backdrop-filter:blur(30px) saturate(190%)!important}
@@ -13324,6 +13332,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-25fbad2f.js"></script>
-<script src="app2-2d63e89a.js"></script>
+<script src="app2-dd836633.js"></script>
 </body>
 </html>
