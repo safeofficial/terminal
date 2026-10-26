@@ -25,8 +25,8 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
-<link rel="preload" as="script" href="app1-b582112c.js">
-<link rel="preload" as="script" href="app2-0a6a757e.js">
+<link rel="preload" as="script" href="app1-e661ed36.js">
+<link rel="preload" as="script" href="app2-1ccbda58.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -5429,7 +5429,7 @@
   .mk-steo-kv .kv{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;font-variant-numeric:tabular-nums} .mk-steo-kv .kv i{font-style:normal;font-weight:700;min-width:7em}
   .mk-steo-kv em{font-style:normal;color:var(--text-sub);white-space:nowrap} .mk-steo-kv em b{color:var(--text)} .mk-steo-kv em.u{font-size:12px}
   .mk-steo-ch{width:100%;height:200px}
-  /*  (10/10 11차) 분석 › 환율 분석 탭 (환율 모델 · 선물환 커브 카드) · 주식분석 ‘섹터 | 주식’ · 나라 자금 흐름 · 모의투자 › 시장 히트맵  */
+  /*  (10/10 11차) 분석 › 환율 분석 탭 (환율 모델 · 선물환 커브 카드) · 주식분석 ‘섹터 | 주식’ · 나라 자금 흐름 · 트레이딩 › 시장 히트맵  */
   :root{--hc-fxa:#0f766e;--hc-heat:#b45309} :root[data-theme="dark"]{--hc-fxa:#2dd4bf;--hc-heat:#f59e0b}
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--hc-fxa:#2dd4bf;--hc-heat:#f59e0b} }
   #pane-fxa .an-head{--hc:var(--hc-fxa)} #pane-heat .an-head{--hc:var(--hc-heat)}
@@ -8015,7 +8015,7 @@
   @media (max-width:760px){ .str-me .cs .c.mil{grid-template-columns:minmax(0,1fr) 64px} .str-me .cs .c.mil .e{grid-column:1 / -1} }
 </style>
 <style id="css18">
-  /* ══ (18차) 모의투자 › 시장 히트맵 트리맵 · 홈 오늘의 시장 ══ */
+  /* ══ (18차) 트레이딩 › 시장 히트맵 트리맵 · 홈 오늘의 시장 ══ */
   .stk-heat-card{position:relative}
   .hm-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:2px 0 10px}
   .hm-tools{display:flex;align-items:center;gap:12px;margin-left:auto;flex-wrap:wrap}
@@ -9537,7 +9537,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
       <button class="tab" data-tab="industry" data-group="analysis" onmouseenter="tabPre('analysis')" onclick="showGroup('analysis')">분석</button>
       <!--  (10/11 13차) 퀀트 (퀀트 랩 · 모델) — 처음엔 임원진만 (설정 › 탭 공개)  -->
       <button class="tab hidden" data-tab="quant" data-group="quant" onclick="showGroup('quant')">퀀트</button>
-      <button class="tab" data-tab="trading" data-group="invest" onclick="showGroup('invest')">모의투자</button>
+      <button class="tab" data-tab="trading" data-group="invest" onclick="showGroup('invest')">트레이딩</button>
       <button class="tab" data-tab="links" data-group="links" onclick="showGroup('links')">자료실</button>
       <button class="tab hidden" id="tabAdmin" data-tab="admin" data-group="admin" onclick="showTab('admin')">설정</button>
     </div>
@@ -10348,7 +10348,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
     <div id="pane-trading" class="hidden">
       <div class="page-head an-head">
         <div class="an-eyebrow">TEAM CONTEST</div>
-        <h1 id="mtTitle">모의투자</h1>
+        <h1 id="mtTitle">트레이딩</h1>
         <p id="mtSub">팀별 1억. 미국·코인은 누를 때의 시세로, 국내는 그날 종가로 체결됩니다.</p>
       </div>
       <div id="tradingWarn"></div>
@@ -10922,7 +10922,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
       <!--  팀 관리(임원진)는 설정 탭으로 옮겼습니다. 학기 초에 한 번 하는 일이라
             매매 화면 아래에 늘 펼쳐져 있을 이유가 없습니다.  -->
     
-      <!--  (23차 학회장: ‘시장 히트맵 탭 지우고 그냥 팀 대회 탭 맨 아래에’) — 예전 모의투자 › 시장 히트맵 칸을 그대로 옮김
+      <!--  (23차 학회장: ‘시장 히트맵 탭 지우고 그냥 팀 대회 탭 맨 아래에’) — 예전 트레이딩 › 시장 히트맵 칸을 그대로 옮김
             · 화면에 가까워지면 그때 불러옴 (팀 대회를 여는 속도는 그대로) · 예전 길(showTab('heat') · 텔레그램 · 세이피)은 여기로 와서 이 칸으로 내려감  -->
       <div class="card stk-heat-card mt-heat" id="stkHeatCard">
         <h2 class="stk-heat-h">시장 히트맵
@@ -12246,7 +12246,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
               보려고 들어와서 학회원 관리를 스크롤로 지나치게 됩니다.
               성격이 다른 것끼리 묶어 나눕니다.                        -->
         <div class="mode-seg" id="adSeg">
-          <button id="adSeg-mt" class="on" onclick="adTab('mt')">모의투자</button>
+          <button id="adSeg-mt" class="on" onclick="adTab('mt')">트레이딩</button>
           <button id="adSeg-home" class="" onclick="adTab('home')">홈</button>
           <button id="adSeg-ai" class="" onclick="adTab('ai')">AI</button>
           <button id="adSeg-who" class="" onclick="adTab('who')">학회원</button>
@@ -12883,7 +12883,7 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
 
     <!-- ════ 주식분석 (10/8) ════
           학회장: ‘산업분석에서 주식은 빼줬으면 · 주식 분석 탭 따로’.
-          (10/10 11차) 섹터 | 주식 두 보기 · 시장 히트맵은 모의투자 › 시장 히트맵으로 옮김. 산업분석은 산업 데이터만.  -->
+          (10/10 11차) 섹터 | 주식 두 보기 · 시장 히트맵은 트레이딩 › 시장 히트맵으로 옮김. 산업분석은 산업 데이터만.  -->
     <div id="pane-stocks" class="hidden" data-v="sec">
       <div class="page-head an-head stk-head">
         <div class="an-eyebrow">EQUITY MONITOR</div>
@@ -13257,7 +13257,7 @@ var LSX = {
   } catch(e){}
 })();
 </script>
-<script src="app1-b582112c.js"></script>
-<script src="app2-0a6a757e.js"></script>
+<script src="app1-e661ed36.js"></script>
+<script src="app2-1ccbda58.js"></script>
 </body>
 </html>
