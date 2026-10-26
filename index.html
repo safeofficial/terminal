@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-b582112c.js">
-<link rel="preload" as="script" href="app2-73ad4373.js">
+<link rel="preload" as="script" href="app2-f02a5330.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1778,6 +1778,53 @@
   .cal-row.ec-earn .nm .ec-fin em.up{color:var(--up)}
   .cal-row.ec-earn .nm .ec-fin em.dn{color:var(--down)}
   .cal-row.ec-earn .nm .ec-fin .ec-fin-n{font-size:11px;color:var(--text-sub)}
+  /* (151차) 컨센서스 · 시총 대비 지표 */
+  #vConsCard .cs-top{display:flex;flex-wrap:wrap;gap:6px 22px;margin:2px 0 10px;font-size:13.5px}
+  #vConsCard .cs-top b{font-size:16px;font-variant-numeric:tabular-nums}
+  #vConsCard .cs-top small{color:var(--text-sub);font-size:12px}
+  #vConsCard .cs-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #vConsCard .cs-t{width:auto;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  #vConsCard .cs-t tr > :first-child{width:230px;min-width:200px;text-align:left}
+  #vConsCard .cs-t tr > :not(:first-child){min-width:150px}
+  #vConsCard .cs-t thead th{background:transparent}
+  #vConsCard .cs-t th,#vConsCard .cs-t td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;vertical-align:top;font-size:13px}
+  #vConsCard .cs-t thead th{font-size:12px;color:var(--text-sub);font-weight:600;white-space:nowrap}
+  #vConsCard .cs-t thead th small{display:block;font-weight:400;font-size:11px}
+  #vConsCard .cs-t tbody th{text-align:left;font-weight:700;white-space:nowrap}
+  #vConsCard .cs-t tbody th small{display:block;font-weight:400;font-size:11px;color:var(--text-sub);white-space:normal;max-width:190px}
+  #vConsCard .cs-t td b{font-size:14px}
+  #vConsCard .cs-t td small{display:block;font-size:11px;color:var(--text-sub);white-space:nowrap}
+  #vConsCard .cs-t td small.up{color:var(--up)}
+  #vConsCard .cs-t td small.dn{color:var(--down)}
+  #vConsCard .cs-t .cs-na{color:var(--text-sub)}
+  #vConsCard .cs-t .cs-e{background:color-mix(in srgb,var(--primary) 6%,transparent)}
+  #vConsCard .cs-h{margin:18px 0 6px;font-size:16px;font-weight:800}
+  #vConsCard .cs-h small{font-size:12px;font-weight:400;color:var(--text-sub);margin-left:6px}
+  #vConsCard .cs-n{margin-top:6px}
+  #vConsCard .cs-dcf{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:12px}
+  #vConsCard .cs-dcf .st-hint{flex:1;min-width:220px;margin:0}
+  /* (151차) 장부 · 월별 지출 */
+  #lgMonth .lgm-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:4px 0 10px}
+  #lgMonth .lgm-y{font-size:14px}
+  #lgMonth .lgm-y b{font-size:18px;margin-left:6px;font-variant-numeric:tabular-nums}
+  #lgMonth .lgm-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+  #lgMonth .lgm-h{border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+  #lgMonth .lgm-hh{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+  #lgMonth .lgm-hh b{font-size:16px;font-weight:800}
+  #lgMonth .lgm-k{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+  #lgMonth .lgm-k span{font-size:12px;color:var(--text-sub);display:flex;flex-direction:column;gap:2px}
+  #lgMonth .lgm-k b{font-size:15px;color:var(--text);font-variant-numeric:tabular-nums}
+  #lgMonth .lgm-k .tot b{font-size:17px;color:var(--primary)}
+  #lgMonth .lgm-t{width:100%;font-variant-numeric:tabular-nums}
+  #lgMonth .lgm-t td,#lgMonth .lgm-t th{padding:6px 6px;font-size:13px;white-space:nowrap}
+  #lgMonth .lgm-t tr.next td{color:var(--text-sub)}
+  #lgMonth .lgm-t tr.now td{background:color-mix(in srgb,var(--primary) 7%,transparent)}
+  #lgMonth .lgm-now{font-size:10.5px;padding:0 5px;border-radius:4px;background:var(--primary);color:#fff;margin-left:4px}
+  #lgMonth .lgm-bar{width:28%;min-width:60px;position:relative}
+  #lgMonth .lgm-bar i,#lgMonth .lgm-bar em{position:absolute;left:6px;top:50%;height:8px;margin-top:-4px;border-radius:4px;max-width:calc(100% - 12px)}
+  #lgMonth .lgm-bar i{background:color-mix(in srgb,var(--primary) 22%,transparent)}
+  #lgMonth .lgm-bar em{background:var(--primary)}
+  @media (max-width:520px){ #lgMonth .lgm-g{grid-template-columns:1fr} #lgMonth .lgm-bar{display:none} }
 
   #soBoard .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
   #soBoard .mt-team.tc{padding:18px 20px 14px;gap:9px;text-align:left;align-items:stretch}
@@ -13030,6 +13077,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-b582112c.js"></script>
-<script src="app2-73ad4373.js"></script>
+<script src="app2-f02a5330.js"></script>
 </body>
 </html>
