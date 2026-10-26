@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-b582112c.js">
-<link rel="preload" as="script" href="app2-67f6c24a.js">
+<link rel="preload" as="script" href="app2-0a6a757e.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1995,6 +1995,17 @@
   /* 작은 손질: 뉴스 번호 · 베이지 큰 머리 글자 */
   html[data-glass="1"]:not([data-skin="bb"]) body:not(#_v1):not(#_v2):not(#_v3):not(#_v4):not(#_v5):not(#_v6):not(#_v7):not(#_v8):not(#_v9):not(#_v10):not(#_v11):not(#_v12):not(#_v13):not(#_v14):not(#_v15):not(#_v16):not(#_v17) .clip-n{opacity:1!important;color:color-mix(in srgb,var(--primary) 82%,var(--gl-ink))!important}
   html[data-glass="1"][data-gtone="beige"]:not([data-theme="dark"]):not([data-skin="bb"]){--ttl-b:#9a5a2a}
+  /* (159차) 위쪽 '유리' 단추 · 작은 창 */
+  #glsBtn{display:inline-flex;align-items:center;justify-content:center}
+  #glsBtn .gls-ico{width:16px;height:16px;border-radius:50%;border:1.5px solid currentColor;display:inline-block;box-shadow:inset 0 1px 2px rgba(255,255,255,.7)}
+  #glsBtn .gls-ico.on{border-color:rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(0,0,0,.12),inset 0 1px 2px rgba(255,255,255,.9)}
+  .gls-pop .gls-seg{display:flex;gap:4px;margin:8px 0 10px}
+  .gls-pop .gls-seg button{flex:1}
+  .gls-pop .gls-sw{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .gls-pop .gls-sw button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px 6px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);font:inherit;font-size:12px;cursor:pointer}
+  .gls-pop .gls-sw button i{width:26px;height:26px;border-radius:50%;border:1px solid rgba(0,0,0,.1);box-shadow:inset 0 1px 2px rgba(255,255,255,.8)}
+  .gls-pop .gls-sw button.on{border-color:var(--primary);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary) 25%,transparent)}
+  .gls-pop.hidden{display:none}
 
   #soBoard .mt-teams{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
   #soBoard .mt-team.tc{padding:18px 20px 14px;gap:9px;text-align:left;align-items:stretch}
@@ -13247,6 +13258,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-b582112c.js"></script>
-<script src="app2-67f6c24a.js"></script>
+<script src="app2-0a6a757e.js"></script>
 </body>
 </html>
