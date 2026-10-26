@@ -25,8 +25,8 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
-<link rel="preload" as="script" href="app1-25fbad2f.js">
-<link rel="preload" as="script" href="app2-5c6165a1.js">
+<link rel="preload" as="script" href="app1-64bc919c.js">
+<link rel="preload" as="script" href="app2-82a6a333.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2032,6 +2032,24 @@
   @media (max-width:700px){ body:not(#_n1):not(#_n2):not(#_n3) .sur-card .sur-ch{height:320px!important} }
   body:not(#_n1):not(#_n2):not(#_n3) .sur-card :is(.sur-read,.sur-kpi>div){border:1px solid color-mix(in srgb,var(--text) 16%,transparent)!important;box-shadow:0 1px 2px rgba(20,30,60,.05),0 8px 20px -14px rgba(20,30,60,.25)!important}
   :root[data-theme="dark"] body:not(#_n1):not(#_n2):not(#_n3) .sur-card :is(.sur-read,.sur-kpi>div){border-color:rgba(255,255,255,.14)!important;box-shadow:0 10px 24px -14px rgba(0,0,0,.6)!important}
+  body:not(#_n1):not(#_n2) .mk-smile-ch{height:300px!important}
+  @media (max-width:640px){ body:not(#_n1):not(#_n2) .mk-smile-ch{height:240px!important} }
+  /* (166차 설립자: '재무제표에 있는 줄 하나 글래스 모드에 adapt 안 됨') 기업 화면 고정 줄 (재무제표 · 개요 … 기간 · 개수 · 화면) = 유리 카드 띠 */
+  html[data-glass="1"]:not([data-theme="dark"]):not([data-skin="bb"]) body:not(#_m1):not(#_m2):not(#_m3):not(#_m4):not(#_m5):not(#_m6):not(#_m7):not(#_m8):not(#_m9):not(#_m10):not(#_m11):not(#_m12):not(#_m13):not(#_m14):not(#_m15):not(#_m16):not(#_m17):not(#_m18):not(#_m19):not(#_m20):not(#_m21):not(#_m22):not(#_m23):not(#_m24):not(#_m25) #pane-company.co-on #coNav{background:linear-gradient(150deg,rgba(255,255,255,.72) 0%,rgba(255,255,255,.46) 100%)!important;border:1px solid rgba(255,255,255,.78)!important;border-radius:18px!important;box-shadow:inset 0 1px 0 #fff,0 1px 1px rgba(20,30,60,.05),0 14px 34px -20px rgba(30,40,90,.30)!important;-webkit-backdrop-filter:blur(26px) saturate(180%)!important;backdrop-filter:blur(26px) saturate(180%)!important;padding:4px 8px!important}
+  html[data-glass="1"][data-theme="dark"]:not([data-skin="bb"]) body:not(#_m1):not(#_m2):not(#_m3):not(#_m4):not(#_m5):not(#_m6):not(#_m7):not(#_m8):not(#_m9):not(#_m10):not(#_m11):not(#_m12):not(#_m13):not(#_m14):not(#_m15):not(#_m16):not(#_m17):not(#_m18):not(#_m19):not(#_m20):not(#_m21):not(#_m22):not(#_m23):not(#_m24):not(#_m25) #pane-company.co-on #coNav{background:linear-gradient(150deg,rgba(40,44,58,.78) 0%,rgba(22,24,32,.72) 100%)!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:18px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 16px 36px -20px rgba(0,0,0,.7)!important;-webkit-backdrop-filter:blur(26px) saturate(170%)!important;backdrop-filter:blur(26px) saturate(170%)!important;padding:4px 8px!important}
+  html[data-glass="1"]:not([data-skin="bb"]) body:not(#_m1):not(#_m2):not(#_m3):not(#_m4):not(#_m5):not(#_m6):not(#_m7):not(#_m8):not(#_m9):not(#_m10):not(#_m11):not(#_m12):not(#_m13):not(#_m14):not(#_m15):not(#_m16):not(#_m17):not(#_m18):not(#_m19):not(#_m20):not(#_m21):not(#_m22):not(#_m23):not(#_m24):not(#_m25) #pane-company.co-on #coNav #coGrp{border-bottom:0!important;background:none!important;box-shadow:none!important}
+  /* (166차 설립자: '금일은 날짜 옆 불렛 빨간색') */
+  #ecBody .cal-row.on .dt.first::before{background:#e5484d!important;box-shadow:0 0 0 3px rgba(229,72,77,.22)!important}
+  /* (166차 설립자: '차트 · 2023년 11월 ~ 2026년 9월 - 글 크기 다른 제목들과 동일하게') */
+  body:not(#_n1):not(#_n2):not(#_n3) #chartTitle .mc-period{font-size:1em!important;font-weight:inherit!important;color:inherit!important;margin-left:0!important}
+  /* (166차 설립자: '호가창 아래 옵션 스큐 - 위 차트 사이 간격과 같게 · 3D 모델 공간 더 아래로') */
+  body:not(#_n1):not(#_n2):not(#_n3) #skwOb{margin-top:12px!important}
+  body:not(#_n1):not(#_n2):not(#_n3) .s3d-c{height:600px!important}
+  @media (max-width:700px){ body:not(#_n1):not(#_n2):not(#_n3) .s3d-c{height:420px!important} }
+  /* (166차 설립자: '브라질 고치랬더니 숫자가 안 보이게') 지도 위 나라 숫자 칩 = 글라스에서 반투명 카드색이라 진한 나라 색에 묻힘 → 거의 불투명한 바탕 */
+  html[data-glass="1"]:not([data-skin="bb"]) body:not(#_n1):not(#_n2):not(#_n3) #mkMapBox > .mkl-bdg .mkl-b{background:color-mix(in srgb,var(--gl-solid,#f4f5f8) 94%,transparent)!important;border-color:color-mix(in srgb,var(--text) 18%,transparent)!important;box-shadow:0 2px 8px rgba(0,0,0,.22)!important}
+  html[data-glass="1"]:not([data-skin="bb"]) body:not(#_n1):not(#_n2):not(#_n3) #mkMapBox > .mkl-bdg .mkl-b .n{color:var(--text)!important}
+  html[data-glass="1"]:not([data-skin="bb"]) #mkMapBox{--card:var(--gl-solid,#f4f5f8)}
   /* (164차 설립자: '남은 시간 디자인 바꿔줘 · 잘 안 맞는 느낌 · 글래스로도 · 개인 / 팀 대회 둘 다') 모눈 타일 4개 → 한 줄 판에 숫자 · 단위, 칸 사이는 가는 선 */
   body:not(#_t1):not(#_t2):not(#_t3):not(#_t4):not(#_t5):not(#_t6) :is(#pane-trading,#pane-solo) .mt-clock{display:inline-flex!important;flex-wrap:nowrap!important;gap:0!important;align-items:stretch!important;padding:4px!important;border-radius:18px;background:var(--bg-sub,var(--bg));border:1px solid var(--border);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 10px 28px -18px rgba(20,30,60,.35);max-width:100%}
   body:not(#_t1):not(#_t2):not(#_t3):not(#_t4):not(#_t5):not(#_t6) :is(#pane-trading,#pane-solo) .mt-clock .u{position:relative;min-width:96px!important;flex:0 0 auto!important;padding:12px 20px 10px!important;border:0!important;border-radius:14px!important;background:none!important;text-align:center}
@@ -13387,7 +13405,7 @@ var LSX = {
   } catch(e){}
 })();
 </script>
-<script src="app1-25fbad2f.js"></script>
-<script src="app2-5c6165a1.js"></script>
+<script src="app1-64bc919c.js"></script>
+<script src="app2-82a6a333.js"></script>
 </body>
 </html>
