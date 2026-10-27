@@ -25,8 +25,8 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
-<link rel="preload" as="script" href="app1-64bc919c.js">
-<link rel="preload" as="script" href="app2-82a6a333.js">
+<link rel="preload" as="script" href="app1-9fd3b620.js">
+<link rel="preload" as="script" href="app2-2e7d38cc.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2006,6 +2006,141 @@
   .gls-pop .gls-sw button i{width:26px;height:26px;border-radius:50%;border:1px solid rgba(0,0,0,.1);box-shadow:inset 0 1px 2px rgba(255,255,255,.8)}
   .gls-pop .gls-sw button.on{border-color:var(--primary);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary) 25%,transparent)}
   .gls-pop.hidden{display:none}
+  .mle-card{padding:18px 20px!important;margin-bottom:14px}
+  .mle-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .mle-hd h3{margin:0;font-size:1.22rem;font-weight:800}
+  .mle-hd .st-hint{margin:4px 0 0;font-size:.86rem}
+  .mle-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0}
+  .mle-st{border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;background:color-mix(in srgb,var(--card) 70%,transparent)}
+  .mle-st span{font-size:.82rem;color:var(--muted)}
+  .mle-st b{font-size:1.45rem;font-weight:800;font-variant-numeric:tabular-nums}
+  .mle-st i{font-style:normal;font-size:.78rem;color:var(--muted)}
+  .mle-st.up b{color:var(--up)} .mle-st.dn b{color:var(--down)}
+  .mle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+  .mle-box{border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+  .mle-t{font-size:.92rem;font-weight:700;margin-bottom:6px}
+  .mle-ch{height:280px}
+  .mle-picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-top:12px}
+  .mle-chip{display:inline-flex;gap:6px;align-items:baseline;padding:4px 9px;margin:0 6px 6px 0;border-radius:999px;border:1px solid var(--border);font-size:.86rem;font-variant-numeric:tabular-nums}
+  .mle-chip b{font-weight:700}
+  .mle-chip.up{color:var(--up)} .mle-chip.up b,.mle-chip.dn b{color:var(--text)} .mle-chip.dn{color:var(--down)}
+  .mle-note{margin:10px 0 0!important;font-size:.8rem}
+  /* (167차 설립자: '다크모드 주식 섹터 셀렉트 안 보여 · 모든 모드 모든 글 색 조합 테스트') 10가지 모드 자동 대비 검사에서 걸린 곳 */
+  html[data-glass="1"][data-theme="dark"]:not([data-skin="bb"]) body:not(#_k1):not(#_k2):not(#_k3):not(#_k4):not(#_k5):not(#_k6):not(#_k7):not(#_k8):not(#_k9):not(#_k10):not(#_k11):not(#_k12):not(#_k13):not(#_k14):not(#_k15):not(#_k16):not(#_k17):not(#_k18):not(#_k19):not(#_k20):not(#_k21):not(#_k22):not(#_k23):not(#_k24):not(#_k25) :is(.px-seg,.cc-s) button.on{background:rgba(255,255,255,.92)!important;color:#141418!important;-webkit-text-fill-color:#141418!important;box-shadow:0 2px 8px rgba(0,0,0,.35)!important}
+  html[data-glass="1"][data-theme="dark"]:not([data-skin="bb"]) body:not(#_k1):not(#_k2):not(#_k3):not(#_k4):not(#_k5):not(#_k6):not(#_k7):not(#_k8):not(#_k9):not(#_k10):not(#_k11):not(#_k12):not(#_k13):not(#_k14):not(#_k15):not(#_k16):not(#_k17):not(#_k18):not(#_k19):not(#_k20):not(#_k21):not(#_k22):not(#_k23):not(#_k24):not(#_k25) :is(.px-seg,.cc-s) button:not(.on){color:rgba(235,235,245,.72)!important;-webkit-text-fill-color:rgba(235,235,245,.72)!important}
+  :root[data-theme="dark"]:not([data-skin="bb"]) body:not(#_k1):not(#_k2):not(#_k3):not(#_k4):not(#_k5):not(#_k6):not(#_k7):not(#_k8):not(#_k9):not(#_k10):not(#_k11):not(#_k12):not(#_k13):not(#_k14):not(#_k15):not(#_k16):not(#_k17):not(#_k18):not(#_k19):not(#_k20):not(#_k21):not(#_k22):not(#_k23):not(#_k24):not(#_k25) #pane-deriv .g button.on{color:#0b1020!important;-webkit-text-fill-color:#0b1020!important}
+  :root[data-theme="dark"]:not([data-skin="bb"]) body:not(#_k1):not(#_k2):not(#_k3):not(#_k4):not(#_k5):not(#_k6):not(#_k7):not(#_k8):not(#_k9):not(#_k10):not(#_k11):not(#_k12):not(#_k13):not(#_k14):not(#_k15):not(#_k16):not(#_k17):not(#_k18):not(#_k19):not(#_k20):not(#_k21):not(#_k22):not(#_k23):not(#_k24):not(#_k25) .st-h .st-n{color:#0b1020!important}
+  :root[data-theme="dark"]:not([data-skin="bb"]) body:not(#_k1):not(#_k2):not(#_k3):not(#_k4):not(#_k5):not(#_k6):not(#_k7):not(#_k8):not(#_k9):not(#_k10):not(#_k11):not(#_k12):not(#_k13):not(#_k14):not(#_k15):not(#_k16):not(#_k17):not(#_k18):not(#_k19):not(#_k20):not(#_k21):not(#_k22):not(#_k23):not(#_k24):not(#_k25) .top-brand .logo-mark{background:var(--primary-fill,#3a4bb0)!important;color:#fff!important}
+  html[data-glass="1"]:not([data-theme="dark"]):not([data-skin="bb"]) body:not(#_k1):not(#_k2):not(#_k3):not(#_k4):not(#_k5):not(#_k6):not(#_k7):not(#_k8):not(#_k9):not(#_k10):not(#_k11):not(#_k12):not(#_k13):not(#_k14):not(#_k15):not(#_k16):not(#_k17):not(#_k18):not(#_k19):not(#_k20):not(#_k21):not(#_k22):not(#_k23):not(#_k24):not(#_k25){--up:#c62f27;--down:#1658b5}
+  html[data-glass="1"][data-gtone="apple"]:not([data-theme="dark"]):not([data-skin="bb"]) body:not(#_k1):not(#_k2):not(#_k3):not(#_k4):not(#_k5):not(#_k6):not(#_k7):not(#_k8):not(#_k9):not(#_k10):not(#_k11):not(#_k12):not(#_k13):not(#_k14):not(#_k15):not(#_k16):not(#_k17):not(#_k18):not(#_k19):not(#_k20):not(#_k21):not(#_k22):not(#_k23):not(#_k24):not(#_k25) :is(.btn-sm:not(.btn-solid):not(#homeHero *),.note.info,.note.info b,.note.info code){color:#0a58c2!important}
+  html[data-glass="1"][data-gtone="apple"][data-theme="dark"]:not([data-skin="bb"]) body:not(#_k1):not(#_k2):not(#_k3):not(#_k4):not(#_k5):not(#_k6):not(#_k7):not(#_k8):not(#_k9):not(#_k10):not(#_k11):not(#_k12):not(#_k13):not(#_k14):not(#_k15):not(#_k16):not(#_k17):not(#_k18):not(#_k19):not(#_k20):not(#_k21):not(#_k22):not(#_k23):not(#_k24):not(#_k25) :is(.note.info,.note.info b,.note.info code){color:#9cc7ff!important}
+  html[data-glass="1"][data-gtone="apple"]:not([data-theme="dark"]):not([data-skin="bb"]) body:not(#_k1):not(#_k2):not(#_k3) #homeHero .hh-fold{color:var(--text)!important}
+  /* (167차 설립자: 'S&P 500 히트맵 칸 사이 하얀 선이 작은 칸으로 갈수록 희미') 칸 테두리를 안쪽 선으로도 그려 화면 배율과 상관없이 또렷하게 */
+  .hm-t:not(:hover):not(.act){box-shadow:inset 0 0 0 1px rgba(255,255,255,.62)}
+  :root[data-theme="dark"] .hm-t:not(:hover):not(.act){box-shadow:inset 0 0 0 1px rgba(10,12,18,.70)}
+  /* (167차 설립자: "누가 사나 너무 왼쪽") 자금흐름 탭 줄 첫 묶음 이름에 왼쪽 여백 · 묶음 이름 굵기 */
+  body:not(#_k1):not(#_k2) #flowSeg .flow-grp:first-child{padding-left:14px!important}
+  body:not(#_k1):not(#_k2) #flowSeg .flow-grp{padding:0 6px 0 14px!important;font-size:12.5px!important;font-weight:700!important}
+  /* (167차) 스마일 커브 판 = 초록 빛 빼고 무채색 */
+  body:not(#_k1):not(#_k2) .mk-smile{background:linear-gradient(180deg,color-mix(in srgb,var(--text) 4%,transparent),transparent 60%)!important}
+  body:not(#_k1):not(#_k2) .mk-smile-h b{color:var(--text)!important}
+  /* 밸류체인 심층 : 글자 +1.5px */
+  body:not(#_g1) :where(#vcxCard){font-size:15.5px}
+  body:not(#_g1) :where(#vcxCard) :is(.st-hint,.note,p,li){font-size:14.5px!important}
+  body:not(#_g1) :where(#vcxCard) :is(td,th){font-size:14.5px!important}
+  body:not(#_g1) :where(#vcxCard) :is(.btn-sm,.q-chip,select,input){font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-ch{font-size:14.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-scope button i{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-chg .g{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-sum .k{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-sum .v{font-size:17.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-sum .v small{font-size:14.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-sum .n{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-h2{font-size:15.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-st{font-size:14.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-st.h{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-st .n em{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-st .sb span{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-st .hh i{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-det{font-size:14.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-cr{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-cr .rk{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-notes{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-co-r{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-co-r .n i{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-co-r.h{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-fl{font-size:14.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-fl i{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-bnr{font-size:14.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-bnr .sg{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-bnr .ic{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-rs .k{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-mapseg button{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-mapseg button i{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-leg{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-cox{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-cox .k{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-cox span i{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-play .h b{font-size:14.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-play li{font-size:14.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-play .t{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-play .r{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-fn b{font-size:15.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-fn .c{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-fn .p{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-fb{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-fll{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .vcx-fll li i{font-size:13.5px!important}
+  /* 병목 모니터 : 글자 +1.5px */
+  body:not(#_g1) :where(#bnCard){font-size:15.5px}
+  body:not(#_g1) :where(#bnCard) :is(.st-hint,.note,p,li){font-size:14.5px!important}
+  body:not(#_g1) :where(#bnCard) :is(td,th){font-size:14.5px!important}
+  body:not(#_g1) :where(#bnCard) :is(.btn-sm,.q-chip,select,input){font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-title{font-size:17.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-tag{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-tagrow .k{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-tagstrip .k{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-pulse .pc .k{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-pulse .pc .v{font-size:22.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-pulse .pc .n{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-filter .bn-q{font-size:15.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-filter.stk .nf-chip{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-ic{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-heat-head{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-heat .grp{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-tile .n{font-size:14.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-tile .s{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-tile .v span{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-tile .v b{font-size:15.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .bn-tile .zz{font-size:13.5px!important}
+  /* 공매도 (두 단계) : 글자 +3.0px */
+  body:not(#_g1) :where(#shtCard){font-size:17px}
+  body:not(#_g1) :where(#shtCard) :is(.st-hint,.note,p,li){font-size:16px!important}
+  body:not(#_g1) :where(#shtCard) :is(td,th){font-size:16px!important}
+  body:not(#_g1) :where(#shtCard) :is(.btn-sm,.q-chip,select,input){font-size:15.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .sht-sh > b{font-size:18.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .sht-t h4{font-size:17.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .sht-t h4 .st-hint{font-size:15.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .sht-tb{font-size:16.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .sht-tb td .sht-n{font-size:15.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .sht-ft{font-size:15.0px!important}
+  /* 국민연금 : 글자 +1.5px */
+  body:not(#_g1) :where(#npsCard){font-size:15.5px}
+  body:not(#_g1) :where(#npsCard) :is(.st-hint,.note,p,li){font-size:14.5px!important}
+  body:not(#_g1) :where(#npsCard) :is(td,th){font-size:14.5px!important}
+  body:not(#_g1) :where(#npsCard) :is(.btn-sm,.q-chip,select,input){font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .nps-tiles > div > span{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .nps-tiles b{font-size:20.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .nps-tiles em{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .nps-mv .k{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .nps-chip{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .nps-out{font-size:14.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .nps-t{font-size:15.0px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .nps-tag{font-size:13.5px!important}
+  body:not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6) .nps-dv-h b{font-size:15.5px!important}
+  /* (167차 설립자: '공매도 지난번 대비 · 잔고 · 소진일수 다 행 중간에') */
+  body:not(#_k1):not(#_k2):not(#_k3) #shtCard table :is(td,th){vertical-align:middle!important}
+  body:not(#_k1) .krt-none{margin:6px 0;padding:12px 14px;border:1px dashed var(--border);border-radius:12px;font-size:13.5px;line-height:1.6;color:var(--text-sub)} body:not(#_k1) .krt-none b{color:var(--text)}
   /* (165차 설립자: '전광판은 그냥 럭셔리 블랙으로') 모든 모드 · 글라스 색감과 상관없이 같은 검정 판: 깊은 검정 + 위쪽 은은한 빛 + 아주 옅은 금색 테두리 */
   html:not([data-skin="bb"]) body:not(#_p1):not(#_p2):not(#_p3):not(#_p4):not(#_p5):not(#_p6):not(#_p7):not(#_p8):not(#_p9):not(#_p10):not(#_p11):not(#_p12):not(#_p13):not(#_p14):not(#_p15):not(#_p16):not(#_p17):not(#_p18):not(#_p19):not(#_p20):not(#_p21):not(#_p22):not(#_p23):not(#_p24):not(#_p25):not(#_p26):not(#_p27):not(#_p28):not(#_p29) #tkbCard{background:radial-gradient(1400px 260px at 50% -40px,rgba(255,255,255,.055),transparent 70%),linear-gradient(180deg,#0b0c0f 0%,#060607 55%,#030304 100%)!important;border:1px solid rgba(214,186,120,.16)!important;border-radius:18px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 0 0 1px rgba(255,255,255,.02),0 2px 6px rgba(0,0,0,.25),0 34px 80px -34px rgba(0,0,0,.85)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;color:#e8e8ec!important;--text:#ececf0;--text-sub:rgba(235,235,245,.52);--border:rgba(255,255,255,.07);--gl-ink:#ececf0;--gl-chip:rgba(255,255,255,.07);--gl-line:rgba(255,255,255,.10)}
   html:not([data-skin="bb"]) body:not(#_p1):not(#_p2):not(#_p3):not(#_p4):not(#_p5):not(#_p6):not(#_p7):not(#_p8):not(#_p9):not(#_p10):not(#_p11):not(#_p12):not(#_p13):not(#_p14):not(#_p15):not(#_p16):not(#_p17):not(#_p18):not(#_p19):not(#_p20):not(#_p21):not(#_p22):not(#_p23):not(#_p24):not(#_p25):not(#_p26):not(#_p27):not(#_p28):not(#_p29) #tkbCard .tkb-g{background-image:none!important}
@@ -2043,8 +2178,8 @@
   /* (166차 설립자: '차트 · 2023년 11월 ~ 2026년 9월 - 글 크기 다른 제목들과 동일하게') */
   body:not(#_n1):not(#_n2):not(#_n3) #chartTitle .mc-period{font-size:1em!important;font-weight:inherit!important;color:inherit!important;margin-left:0!important}
   /* (166차 설립자: '호가창 아래 옵션 스큐 - 위 차트 사이 간격과 같게 · 3D 모델 공간 더 아래로') */
-  body:not(#_n1):not(#_n2):not(#_n3) #skwOb{margin-top:12px!important}
-  body:not(#_n1):not(#_n2):not(#_n3) .s3d-c{height:600px!important}
+  body:not(#_j1):not(#_j2):not(#_j3):not(#_j4):not(#_j5):not(#_j6):not(#_j7):not(#_j8):not(#_j9):not(#_j10):not(#_j11):not(#_j12):not(#_j13):not(#_j14):not(#_j15):not(#_j16):not(#_j17):not(#_j18):not(#_j19):not(#_j20):not(#_j21):not(#_j22):not(#_j23):not(#_j24):not(#_j25):not(#_j26):not(#_j27):not(#_j28):not(#_j29):not(#_j30):not(#_j31) :is(#skwOb,#skwQo,#skwDv){margin-top:14px!important}
+  body:not(#_n1):not(#_n2):not(#_n3) .s3d-c{height:520px!important}
   @media (max-width:700px){ body:not(#_n1):not(#_n2):not(#_n3) .s3d-c{height:420px!important} }
   /* (166차 설립자: '브라질 고치랬더니 숫자가 안 보이게') 지도 위 나라 숫자 칩 = 글라스에서 반투명 카드색이라 진한 나라 색에 묻힘 → 거의 불투명한 바탕 */
   html[data-glass="1"]:not([data-skin="bb"]) body:not(#_n1):not(#_n2):not(#_n3) #mkMapBox > .mkl-bdg .mkl-b{background:color-mix(in srgb,var(--gl-solid,#f4f5f8) 94%,transparent)!important;border-color:color-mix(in srgb,var(--text) 18%,transparent)!important;box-shadow:0 2px 8px rgba(0,0,0,.22)!important}
@@ -13405,7 +13540,7 @@ var LSX = {
   } catch(e){}
 })();
 </script>
-<script src="app1-64bc919c.js"></script>
-<script src="app2-82a6a333.js"></script>
+<script src="app1-9fd3b620.js"></script>
+<script src="app2-2e7d38cc.js"></script>
 </body>
 </html>
