@@ -26,7 +26,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-9fd3b620.js">
-<link rel="preload" as="script" href="app2-82f3def6.js">
+<link rel="preload" as="script" href="app2-1c4e9d5e.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2042,6 +2042,10 @@
   .vcs-tog{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:0 10px 4px}
   .vcs-tog>span{font-size:12px;color:var(--text-sub);font-weight:600}
   .vcs-tog .mode-seg button{font-size:12px;padding:4px 10px}
+  /* (169차) 순위표 첫 숫자 기다리는 동안 - 옛 값 대신 흐린 자리 */
+  .mt-teams.mtb-wait .tc-mid .pl,.mt-teams.mtb-wait .tc-gap,.mt-teams.mtb-wait .tc-kv b,.mt-teams.mtb-wait .rk{color:transparent!important;background:linear-gradient(90deg,color-mix(in srgb,var(--text) 8%,transparent),color-mix(in srgb,var(--text) 15%,transparent),color-mix(in srgb,var(--text) 8%,transparent));background-size:200% 100%;border-radius:6px;animation:mtbShim 1.2s linear infinite}
+  @keyframes mtbShim{0%{background-position:100% 0}100%{background-position:-100% 0}}
+  @media (prefers-reduced-motion:reduce){ .mt-teams.mtb-wait *{animation:none!important} }
   .mle-card{padding:18px 20px!important;margin-bottom:14px}
   .mle-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
   .mle-hd h3{margin:0;font-size:1.22rem;font-weight:800}
@@ -13577,6 +13581,6 @@ var LSX = {
 })();
 </script>
 <script src="app1-9fd3b620.js"></script>
-<script src="app2-82f3def6.js"></script>
+<script src="app2-1c4e9d5e.js"></script>
 </body>
 </html>
