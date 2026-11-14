@@ -5210,7 +5210,27 @@ html[data-theme="light"] .ow-t th{background:#f3f5fa!important}
 @media (max-width:700px){.fc-charts{grid-template-columns:minmax(0,1fr)}}
 #ddOwn .ow-card{margin:0}
 </style>
+<style>
+/* up598: chart windows look the same (rounded, 2nd-window colours) */
+.cwf{border-radius:14px!important;overflow:hidden!important}
+html:not(.cw-pop) #cwRoot .cw-win{background:var(--bg,#0f121a)!important;border:1px solid var(--accent,#9fb0f0)!important;border-radius:14px!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 10px 40px rgba(0,0,0,.6)!important;overflow:hidden}
+#cwRoot .cw-top .cw-fd,.cwf>.cwf-h .cw-fd{color:var(--text-sub,#b8bfcd)!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:0!important;background:transparent!important}
+html[data-theme="light"] #cwRoot .cw-top .cw-fd,html[data-theme="light"] .cwf>.cwf-h .cw-fd{border-color:rgba(20,30,60,.2)!important}
+#cwRoot .cw-top .cwf-x,.cwf>.cwf-h .cwf-x{border:0!important;background:transparent!important;border-radius:0!important;color:var(--text-sub,#b8bfcd)!important}
+#cwRoot .cw-top,.cwf>.cwf-h{background:rgba(255,255,255,.06)!important;border-bottom:1px solid rgba(255,255,255,.14)!important}
+html[data-theme="light"] #cwRoot .cw-top,html[data-theme="light"] .cwf>.cwf-h{background:rgba(20,30,60,.05)!important;border-bottom-color:rgba(20,30,60,.14)!important}
+/* symbol suggestions */
+.cw-sug{position:fixed;z-index:100000;background:var(--bg,#0f121a);border:1px solid var(--accent,#9fb0f0);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.5);overflow:hidden;font-size:12.5px}
+.cw-sug>div{display:flex;align-items:baseline;gap:8px;padding:6px 10px;cursor:pointer;white-space:nowrap}
+.cw-sug>div.on,.cw-sug>div:hover{background:rgba(159,176,240,.18)}
+.cw-sug b{min-width:58px;font-weight:700}.cw-sug span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--text-sub,#b8bfcd)}.cw-sug i{font-style:normal;font-size:10.5px;color:var(--text-sub,#b8bfcd)}
+/* home hero: next-event block blends in, fold button only on hover */
+html:not([data-skin="bb"]) #homeHero .qh-n{background:none!important;border:0!important;box-shadow:none!important}
+#homeHero .hh-fold{opacity:0!important;transition:opacity .15s}
+#homeHero:hover .hh-fold,#homeHero .hh-fold:focus-visible{opacity:1!important}
+@media (hover:none){#homeHero .hh-fold{opacity:1!important}}
+</style>
 <script src="app1-eaeb75cf.js"></script>
-<script src="app2-746863fe.js"></script>
+<script src="app2-a1a0de7f.js"></script>
 </body>
 </html>
