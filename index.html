@@ -5047,6 +5047,13 @@ body.eco *,body.eco *::before,body.eco *::after{animation-duration:0.001s!import
 #cwRoot .cw-hd>#cwTk{max-width:none!important;flex:1 1 auto!important}
 #cwRoot .cw-hd>.cw-sp{flex:0 0 0!important}
 </style>
+<style>
+/* up563: 차트 창이 좁을 때 회사 이름이 먼저 자리를 차지 (종목 바꾸기 칸 · 시장 표시가 먼저 줄어듦) */
+#cwRoot .cw-hd>#cwTk{flex:1 1 auto!important;min-width:60px!important}
+#cwRoot .cw-hd>.cw-q{flex:0 100 150px!important;min-width:56px!important}
+#cwRoot .cw-hd>#cwNm{flex:0 50 auto!important}
+@container cw (max-width:460px){ #cwRoot .cw-hd>#cwNm{display:none!important} #cwRoot .cw-hd{gap:8px!important} }
+</style>
 <script src="app1-eaeb75cf.js"></script>
 <script src="app2-2329d431.js"></script>
 </body>
