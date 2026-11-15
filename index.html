@@ -5404,6 +5404,31 @@ html body #pane-company .vx-grid2[data-vxc] #vConsBody#vConsBody#vConsBody#vCons
 /* up621 assumptions card: source note spans the full row */
 #valInputCard#valInputCard#valInputCard#valInputCard#valInputCard#valInputCard .row:has(#vDep)>:nth-child(n+7){grid-column:1/-1;grid-row:auto;width:auto!important}
 </style>
+<style>
+/* up623 advanced assumptions: controls sit next to labels · capex plan table squared to the numbers below */
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-r{justify-content:flex-start!important;gap:6px 14px!important}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-r>label:first-child{flex:0 1 230px;min-width:120px}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-r>label.cx-ck{flex:0 1 auto!important;min-width:0}
+#vxAdvCard{container-type:inline-size;container-name:vxadv}
+#vxAdv#vxAdv#vxAdv#vxAdv .cx-scroll:has(>.vx-dept){overflow-x:auto}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept{width:100%!important;min-width:560px!important;max-width:none!important;table-layout:fixed!important;border-collapse:collapse;margin:8px 0 4px}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept th,#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept td{padding:6px 12px!important;text-align:right!important;white-space:nowrap;font-variant-numeric:tabular-nums;box-sizing:border-box}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept th:first-child,#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept td:first-child{width:190px;text-align:left!important}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept td:has(>input){padding-top:4px!important;padding-bottom:4px!important}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept td>input{display:block;box-sizing:border-box!important;width:calc(100% + 9px)!important;margin:0 -9px 0 0!important;padding:4px 9px!important;border:0!important;box-shadow:inset 0 0 0 1px var(--border)!important;text-align:right!important;font-size:13px!important;font-variant-numeric:tabular-nums;font-family:inherit!important;min-width:0!important;max-width:none!important;-moz-appearance:textfield;appearance:textfield}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept td>input:focus{box-shadow:inset 0 0 0 1.5px var(--accent,#8fa3d9)!important;outline:0}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept td>input::-webkit-outer-spin-button,#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept td>input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+@container vxadv (max-width:700px){
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept{min-width:410px!important}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept th,#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept td{padding-left:6px!important;padding-right:6px!important;font-size:11.5px!important}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept th:first-child,#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept td:first-child{width:96px;white-space:normal}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept td>input{width:calc(100% + 3px)!important;margin-right:-3px!important;padding:4px 3px!important;font-size:11.5px!important;border-radius:6px!important}
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-r>label:first-child{flex-basis:150px}
+}
+@container vxadv (max-width:540px){
+#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept th:first-child,#vxAdv#vxAdv#vxAdv#vxAdv .vx-dept td:first-child{width:68px}
+}
+</style>
 <script src="app1-eaeb75cf.js"></script>
 <script src="app2-01e36c77.js"></script>
 </body>
