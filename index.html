@@ -5338,6 +5338,18 @@ html[data-skin="bb"]:not(.cw-pop) body:not(#z1):not(#z2):not(#z3):not(#z4):not(#
 #pane-company .vx-grid2[data-vxf="w"] #valBandBox{flex:1 1 0!important;height:0!important;min-height:360px!important;overflow:hidden;display:block!important}
 #pane-company .vx-grid2[data-vxf="w"] #valBandBox>div:first-child{flex:none;min-height:0!important}
 </style>
+<style>
+/* up615 consensus card: both tables same top and bottom + divider */
+#pane-company .vx-grid2[data-vxf="w"] #vConsBody{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)!important;grid-template-rows:auto 1fr auto auto!important;column-gap:16px}
+#pane-company .vx-grid2[data-vxf="w"] #vConsBody>.cs-top{grid-column:1!important;grid-row:1!important}
+#pane-company .vx-grid2[data-vxf="w"] #vConsBody>.cs-h{grid-column:2!important;grid-row:1!important;align-self:end;margin:0 0 6px!important;padding-left:17px}
+#pane-company .vx-grid2[data-vxf="w"] #vConsBody>.cs-top+.cs-wrap{grid-column:1!important;grid-row:2!important;align-self:stretch}
+#pane-company .vx-grid2[data-vxf="w"] #vConsBody>.cs-top+.cs-wrap>table{height:100%}
+#pane-company .vx-grid2[data-vxf="w"] #vConsBody>.cs-h+.cs-wrap{grid-column:2!important;grid-row:2!important;border-left:1px solid var(--border);padding-left:16px}
+#pane-company .vx-grid2[data-vxf="w"] #vConsBody>.cs-h+.cs-wrap th{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+#pane-company .vx-grid2[data-vxf="w"] #vConsBody>.cs-n{grid-row:3!important}
+#pane-company .vx-grid2[data-vxf="w"] #vConsBody>.cs-dcf{grid-row:4!important}
+</style>
 <script src="app1-eaeb75cf.js"></script>
 <script src="app2-57c9074d.js"></script>
 </body>
