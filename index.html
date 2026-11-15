@@ -5332,6 +5332,12 @@ html[data-skin="bb"]:not(.cw-pop) body:not(#z1):not(#z2):not(#z3):not(#z4):not(#
 #pane-company .vx-grid2[data-vxf="w"] #vxMcCard>.vz{flex:1 1 auto;display:flex;flex-direction:column}
 #pane-company .vx-grid2[data-vxf="w"] #vxMcCh{flex:1 1 auto;height:auto!important;min-height:340px}
 </style>
+<style>
+/* up614 stretched charts must not hold the row taller than its partner */
+#pane-company .vx-grid2[data-vxf="w"] #vxMcCh{flex:1 1 0!important;height:0!important;min-height:340px!important;overflow:hidden}
+#pane-company .vx-grid2[data-vxf="w"] #valBandBox{flex:1 1 0!important;height:0!important;min-height:360px!important;overflow:hidden;display:block!important}
+#pane-company .vx-grid2[data-vxf="w"] #valBandBox>div:first-child{flex:none;min-height:0!important}
+</style>
 <script src="app1-eaeb75cf.js"></script>
 <script src="app2-57c9074d.js"></script>
 </body>
