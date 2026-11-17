@@ -33,7 +33,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-cbbbd385.js">
-<link rel="preload" as="script" href="app2-115c2c82.js">
+<link rel="preload" as="script" href="app2-825b94a4.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5605,7 +5605,53 @@ html[data-theme="light"] table.vx-dcf tr.vx-cpr2 .vx-gv,html[data-theme="light"]
 .co-kvrz::after{content:"";position:absolute;left:3px;top:40%;width:2px;height:60px;background:var(--border)}
 .co-kvrz:hover::after{background:var(--accent,#fb8b1e)}
 </style>
+<style>
+/* up646 EE window */
+#vxHw.vx-ee{font-size:12px}
+#vxHw.vx-ee .vx-hw-b{padding:6px 8px 8px;display:flex;flex-direction:column;gap:6px}
+#vxHw.vx-ee .ee-pane{min-width:0;border:1px solid var(--border,rgba(255,255,255,.12));padding:4px 6px 6px}
+#vxHw.vx-ee .ee-ph{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;font-weight:700;color:var(--text-sub,#9aa3b5);margin:0 0 4px;min-height:20px}
+#vxHw.vx-ee .ee-top,#vxHw.vx-ee .ee-bot{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:6px}
+#vxHw.vx-ee .ee-bot{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+#vxHw.vx-ee .ee-t{width:100%;border-collapse:collapse;table-layout:fixed;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11.5px;min-width:0!important}
+#vxHw.vx-ee .ee-t th,#vxHw.vx-ee .ee-t td{padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-bottom:1px solid var(--border,rgba(255,255,255,.06))}
+#vxHw.vx-ee .ee-t thead th{color:var(--text-sub,#9aa3b5);font-weight:600;text-align:right}
+#vxHw.vx-ee .ee-t thead th:first-child,#vxHw.vx-ee .ee-t tbody th{text-align:left;color:var(--text-sub,#9aa3b5);font-weight:600;width:38px}
+#vxHw.vx-ee .ee-t .r{text-align:right;font-variant-numeric:tabular-nums}
+#vxHw.vx-ee .ee-t td.a{color:#fb8b1e}
+#vxHw.vx-ee .ee-t td.e{color:var(--text,#f2f2f2);font-weight:600}
+#vxHw.vx-ee .ee-t td.d{color:#7fb2ff}
+#vxHw.vx-ee .ee-t td.n{color:var(--text-sub,#6b7386)}
+#vxHw.vx-ee .ee-t tr.tot th,#vxHw.vx-ee .ee-t tr.tot td{border-top:1px solid var(--border,rgba(255,255,255,.25));font-weight:700}
+#vxHw.vx-ee .ee-key,#vxHw.vx-ee .ee-lg{display:inline-flex;gap:10px;flex-wrap:wrap;font-weight:500;align-items:center}
+#vxHw.vx-ee .ee-lg span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+#vxHw.vx-ee .ee-key i,#vxHw.vx-ee .ee-lg i{display:inline-block;width:9px;height:9px;margin-right:3px;vertical-align:-1px}
+#vxHw.vx-ee i.a{background:#fb8b1e}
+#vxHw.vx-ee i.e{background:var(--text,#f2f2f2)}
+#vxHw.vx-ee i.g{background:rgba(46,204,113,.25);border:1px solid rgba(46,204,113,.6)}
+#vxHw.vx-ee i.d{height:0!important;width:14px!important;border-top:2px dashed #7fb2ff}
+#vxHw.vx-ee .ee-ch{height:300px;width:100%}
+#vxHw.vx-ee .ee-card{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:6px}
+#vxHw.vx-ee .ee-c1,#vxHw.vx-ee .ee-c2{border:1px solid var(--border,rgba(255,255,255,.12));padding:5px 8px;min-width:0}
+#vxHw.vx-ee .ee-big{font:700 26px/1.1 'IBM Plex Mono',ui-monospace,monospace;color:#fb8b1e}
+#vxHw.vx-ee .ee-sub{color:var(--text-sub,#9aa3b5);font-size:11.5px;margin:1px 0 4px}
+#vxHw.vx-ee .ee-kv{display:grid;grid-template-columns:auto auto 1fr auto;gap:2px 10px;align-items:baseline;padding:1px 0}
+#vxHw.vx-ee .ee-kv span{color:var(--text-sub,#9aa3b5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#vxHw.vx-ee .ee-kv b{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+#vxHw.vx-ee .ee-kv b.a{color:#fb8b1e}
+#vxHw.vx-ee .up{color:#2ecc71}
+#vxHw.vx-ee .dn{color:#ef5350}
+#vxHw.vx-ee .ee-kv a,#vxHw.vx-ee .vx-hw-sd a{color:#4a8af4}
+#vxHw.vx-ee .ee-src{color:var(--text-sub,#6b7386);font-size:10.5px;margin-top:3px}
+#vxHw.vx-ee .ee-mch{height:110px;width:100%}
+#vxHw.vx-ee .vx-hw-sd{max-height:340px;overflow:auto}
+#vxHw.vx-ee .vx-hw-seg button{padding:3px 8px;font-size:11px}
+@media (max-width:760px){#vxHw.vx-ee .ee-top,#vxHw.vx-ee .ee-bot,#vxHw.vx-ee .ee-card{grid-template-columns:minmax(0,1fr)}}
+.vx-erpc{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:6px}
+.vx-erpc .vx-ein{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text-sub,#9aa3b5)}
+.vx-erpc input{width:64px}
+</style>
 <script src="app1-cbbbd385.js"></script>
-<script src="app2-115c2c82.js"></script>
+<script src="app2-825b94a4.js"></script>
 </body>
 </html>
