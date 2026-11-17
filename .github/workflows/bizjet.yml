@@ -1,18 +1,19 @@
 name: bizjet-snapshot
-# every 15 min: business-jet positions for SAFE Terminal (public data, no secrets) -> branch "jetdata" (one commit, replaced each run)
+# listed-company (S&P 500) jets only: one run takes a snapshot every 10 min for ~50 min, then starts the next run (public data, no secrets) -> branch "jetdata"
 on:
   schedule:
-    - cron: "7,22,37,52 * * * *"
+    - cron: "7 * * * *"
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: bizjet
   cancel-in-progress: false
 jobs:
   snap:
     runs-on: ubuntu-latest
-    timeout-minutes: 14
+    timeout-minutes: 58
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,20 +22,28 @@ jobs:
         run: |
           mkdir -p out
           git fetch origin jetdata --depth=1 && git --work-tree=out checkout origin/jetdata -- . || true
+          rm -f out/faa.json
           ls -la out || true
       - name: reference data (weekly)
         run: |
-          if [ ! -s out/faa.json ] || [ "$(cat out/ref_at 2>/dev/null)" != "$(date -u +%G%V)c" ]; then
+          if [ ! -s out/pub.json ] || [ "$(cat out/ref_at 2>/dev/null)" != "$(date -u +%G%V)p" ]; then
             curl -sSL -A "Mozilla/5.0 SAFE-Terminal-research" -o faa.zip https://registry.faa.gov/database/ReleasableAircraft.zip && unzip -o -q faa.zip MASTER.txt || echo "faa download failed"
             curl -sSL -o airports.csv https://davidmegginson.github.io/ourairports-data/airports.csv || echo "airports download failed"
-            node scripts/bizjet-ref.mjs MASTER.txt airports.csv out && echo "$(date -u +%G%V)c" > out/ref_at
+            curl -sSL -o sp500.csv https://raw.githubusercontent.com/datasets/s-and-p-500-companies/main/data/constituents.csv || echo "sp500 download failed"
+            node scripts/bizjet-ref.mjs MASTER.txt airports.csv out sp500.csv && echo "$(date -u +%G%V)p" > out/ref_at
           fi
-      - name: snapshot
-        run: node scripts/bizjet.mjs out
-      - name: publish
+      - name: snapshots every 10 min
         run: |
-          cd out
-          git init -q -b jetdata
-          git config user.name "safe-bot" && git config user.email "safe-bot@users.noreply.github.com"
-          git add -A && git commit -q -m "jets $(date -u +%FT%TZ)"
-          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" jetdata
+          for i in 1 2 3 4 5; do
+            t0=$(date +%s)
+            node scripts/bizjet.mjs out || true
+            ( cd out && rm -rf .git && git init -q -b jetdata && git config user.name "safe-bot" && git config user.email "safe-bot@users.noreply.github.com" \
+              && git add -A && git commit -q -m "jets $(date -u +%FT%TZ)" \
+              && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" jetdata ) || echo "publish failed"
+            if [ $i -lt 5 ]; then s=$((600 - $(date +%s) + t0)); [ $s -gt 0 ] && sleep $s; fi
+          done
+      - name: start the next run
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run bizjet.yml --ref main -R ${{ github.repository }}
