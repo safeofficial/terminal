@@ -29,14 +29,27 @@ function near(lat, lon, km) {
   return best ? { icao: best[0], name: best[1], iso: best[4] } : null;
 }
 
-const ac = [];
+const ac = [], log = {};
+const SRC = ["https://api.adsb.lol/v2/type/", "https://api.airplanes.live/v2/type/", "https://opendata.adsb.fi/api/v2/type/"];
+async function get(u) {
+  for (let k = 0; k < 2; k++) {
+    try {
+      const r = await fetch(u, { headers: UA });
+      log[u.split("/")[2] + ":" + r.status] = (log[u.split("/")[2] + ":" + r.status] || 0) + 1;
+      if (r.ok) return await r.json();
+      if (r.status === 429) await sleep(3000);
+    } catch (e) { log[u.split("/")[2] + ":err"] = (log[u.split("/")[2] + ":err"] || 0) + 1; }
+    await sleep(1200);
+  }
+  return null;
+}
 for (const t of TYPES) {
-  try {
-    const r = await fetch("https://api.adsb.lol/v2/type/" + t, { headers: UA });
-    if (r.ok) { const j = await r.json(); for (const x of j.ac || []) ac.push(x); }
-  } catch {}
+  let j = null;
+  for (const s of SRC) { j = await get(s + t); if (j) break; }
+  for (const x of (j && (j.ac || j.aircraft)) || []) ac.push(x);
   await sleep(1100);
 }
+console.log(JSON.stringify(log));
 const seen = {};
 const out = [];
 for (const x of ac) {
@@ -67,5 +80,5 @@ for (const [h, L] of Object.entries(st.legs)) {
 st.trips = st.trips.filter((x) => now - x.t1 < 72 * 3600e3).slice(-3000);
 for (const a of out) { const L = st.legs[a.h]; if (L && L.from) a.from = L.from.icao; }
 fs.writeFileSync(OUT + "/state.json", JSON.stringify(st));
-fs.writeFileSync(OUT + "/jets.json", JSON.stringify({ at: new Date(now).toISOString(), n: out.length, ac: out, trips: st.trips.slice(-800) }));
+fs.writeFileSync(OUT + "/jets.json", JSON.stringify({ at: new Date(now).toISOString(), n: out.length, src: log, ac: out, trips: st.trips.slice(-800) }));
 console.log("aircraft", out.length, "legs", Object.keys(st.legs).length, "trips", st.trips.length);
