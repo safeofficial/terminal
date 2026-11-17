@@ -14,7 +14,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const rd = (f, d) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return d; } };
 const now = Date.now();
 const faa = rd(OUT + "/faa.json", {});        // hex -> [name, city, state, kind]
-const aps = rd(OUT + "/airports.json", []);    // [icao, name, lat, lon, iso]
+const aps = rd(OUT + "/airports.json", []);    // [icao, name, lat, lon, iso, city]
 const st = rd(OUT + "/state.json", { legs: {}, trips: [] });
 
 function near(lat, lon, km) {
@@ -26,7 +26,7 @@ function near(lat, lon, km) {
     const d = Math.hypot(dx, dy);
     if (d < bd) { bd = d; best = a; }
   }
-  return best ? { icao: best[0], name: best[1], iso: best[4] } : null;
+  return best ? { icao: best[0], name: best[1], iso: best[4], city: best[5] || "" } : null;
 }
 
 const ac = [], log = {};
@@ -74,11 +74,11 @@ for (const a of out) {
 for (const [h, L] of Object.entries(st.legs)) {
   if (now - L.ts < 25 * 60e3) continue;
   const a = L.last, to = a.al < 10000 && a.vr <= 0 ? near(a.la, a.lo, 40) : null;
-  if (L.from || to) st.trips.push({ h, r: a.r, t: a.t, op: a.op, own: a.own, from: L.from, to, t0: L.t0, t1: L.ts });
+  if ((L.from || to) && !(L.from && to && L.from.icao === to.icao)) st.trips.push({ h, r: a.r, t: a.t, op: a.op, own: a.own, from: L.from, to, t0: L.t0, t1: L.ts });
   delete st.legs[h];
 }
 st.trips = st.trips.filter((x) => now - x.t1 < 72 * 3600e3).slice(-3000);
-for (const a of out) { const L = st.legs[a.h]; if (L && L.from) a.from = L.from.icao; }
+for (const a of out) { const L = st.legs[a.h]; if (L && L.from) { a.from = L.from.icao; a.fromc = L.from.city || ""; a.fromi = L.from.iso || ""; } }
 fs.writeFileSync(OUT + "/state.json", JSON.stringify(st));
 fs.writeFileSync(OUT + "/jets.json", JSON.stringify({ at: new Date(now).toISOString(), n: out.length, src: log, ac: out, trips: st.trips.slice(-800) }));
 console.log("aircraft", out.length, "legs", Object.keys(st.legs).length, "trips", st.trips.length);

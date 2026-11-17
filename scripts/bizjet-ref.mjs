@@ -27,14 +27,14 @@ if (apcsv && fs.existsSync(apcsv)) {
   const L = fs.readFileSync(apcsv, "utf8").split(/\r?\n/);
   const parse = (s) => { const r = []; let q = false, f = ""; for (const ch of s) { if (ch === '"') q = !q; else if (ch === "," && !q) { r.push(f); f = ""; } else f += ch; } r.push(f); return r; };
   const H = parse(L[0]), g = (n) => H.indexOf(n);
-  const iT = g("type"), iN = g("name"), iLa = g("latitude_deg"), iLo = g("longitude_deg"), iC = g("iso_country"), iI = g("icao_code"), iG = g("gps_code"), iId = g("ident");
+  const iT = g("type"), iN = g("name"), iLa = g("latitude_deg"), iLo = g("longitude_deg"), iC = g("iso_country"), iI = g("icao_code"), iG = g("gps_code"), iId = g("ident"), iM = g("municipality");
   for (let i = 1; i < L.length; i++) {
     const c = parse(L[i]);
     if (!/^(large_airport|medium_airport|small_airport)$/.test(c[iT])) continue;
     const code = c[iI] || c[iG] || "";
     if (!/^[A-Z]{4}$/.test(code)) continue;
     if (c[iT] === "small_airport" && !/^K/.test(code)) continue;        // small fields: US only (bizjet heavy) to keep the file small
-    ap.push([code, c[iN], Math.round(+c[iLa] * 1e4) / 1e4, Math.round(+c[iLo] * 1e4) / 1e4, c[iC]]);
+    ap.push([code, c[iN], Math.round(+c[iLa] * 1e4) / 1e4, Math.round(+c[iLo] * 1e4) / 1e4, c[iC], c[iM] || ""]);
   }
 }
 fs.writeFileSync(OUT + "/airports.json", JSON.stringify(ap));
