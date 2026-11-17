@@ -24,10 +24,10 @@ jobs:
           ls -la out || true
       - name: reference data (weekly)
         run: |
-          if [ ! -s out/faa.json ] || [ "$(cat out/ref_at 2>/dev/null)" != "$(date -u +%G%V)" ]; then
+          if [ ! -s out/faa.json ] || [ "$(cat out/ref_at 2>/dev/null)" != "$(date -u +%G%V)c" ]; then
             curl -sSL -A "Mozilla/5.0 SAFE-Terminal-research" -o faa.zip https://registry.faa.gov/database/ReleasableAircraft.zip && unzip -o -q faa.zip MASTER.txt || echo "faa download failed"
             curl -sSL -o airports.csv https://davidmegginson.github.io/ourairports-data/airports.csv || echo "airports download failed"
-            node scripts/bizjet-ref.mjs MASTER.txt airports.csv out && date -u +%G%V > out/ref_at
+            node scripts/bizjet-ref.mjs MASTER.txt airports.csv out && echo "$(date -u +%G%V)c" > out/ref_at
           fi
       - name: snapshot
         run: node scripts/bizjet.mjs out
