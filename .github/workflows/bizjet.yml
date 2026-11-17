@@ -1,0 +1,40 @@
+name: bizjet-snapshot
+# every 15 min: business-jet positions for SAFE Terminal (public data, no secrets) -> branch "jetdata" (one commit, replaced each run)
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: bizjet
+  cancel-in-progress: false
+jobs:
+  snap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+      - name: previous data
+        run: |
+          mkdir -p out
+          git fetch origin jetdata --depth=1 && git --work-tree=out checkout origin/jetdata -- . || true
+          ls -la out || true
+      - name: reference data (weekly)
+        run: |
+          if [ ! -s out/faa.json ] || [ "$(cat out/ref_at 2>/dev/null)" != "$(date -u +%G%V)" ]; then
+            curl -sSL -A "Mozilla/5.0 SAFE-Terminal-research" -o faa.zip https://registry.faa.gov/database/ReleasableAircraft.zip && unzip -o -q faa.zip MASTER.txt || echo "faa download failed"
+            curl -sSL -o airports.csv https://davidmegginson.github.io/ourairports-data/airports.csv || echo "airports download failed"
+            node scripts/bizjet-ref.mjs MASTER.txt airports.csv out && date -u +%G%V > out/ref_at
+          fi
+      - name: snapshot
+        run: node scripts/bizjet.mjs out
+      - name: publish
+        run: |
+          cd out
+          git init -q -b jetdata
+          git config user.name "safe-bot" && git config user.email "safe-bot@users.noreply.github.com"
+          git add -A && git commit -q -m "jets $(date -u +%FT%TZ)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" jetdata
