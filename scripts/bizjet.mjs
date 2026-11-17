@@ -30,16 +30,16 @@ function near(lat, lon, km) {
 }
 
 const ac = [], log = {};
-const SRC = ["https://api.adsb.lol/v2/type/", "https://api.airplanes.live/v2/type/", "https://opendata.adsb.fi/api/v2/type/"];
+const SRC = ["https://api.adsb.lol/v2/type/"];   // airplanes.live blocks cloud runners (403) · adsb.fi has no type search
 async function get(u) {
-  for (let k = 0; k < 2; k++) {
+  for (let k = 0; k < 4; k++) {
     try {
       const r = await fetch(u, { headers: UA });
-      log[u.split("/")[2] + ":" + r.status] = (log[u.split("/")[2] + ":" + r.status] || 0) + 1;
+      const key = u.split("/")[2] + ":" + r.status; log[key] = (log[key] || 0) + 1;
       if (r.ok) return await r.json();
-      if (r.status === 429) await sleep(3000);
-    } catch (e) { log[u.split("/")[2] + ":err"] = (log[u.split("/")[2] + ":err"] || 0) + 1; }
-    await sleep(1200);
+      if (r.status === 429) { await sleep(12000 * (k + 1)); continue; }
+      return null;
+    } catch (e) { log.err = (log.err || 0) + 1; await sleep(3000); }
   }
   return null;
 }
@@ -47,7 +47,7 @@ for (const t of TYPES) {
   let j = null;
   for (const s of SRC) { j = await get(s + t); if (j) break; }
   for (const x of (j && (j.ac || j.aircraft)) || []) ac.push(x);
-  await sleep(1100);
+  await sleep(2200);
 }
 console.log(JSON.stringify(log));
 const seen = {};
