@@ -33,7 +33,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-cbbbd385.js">
-<link rel="preload" as="script" href="app2-f4393530.js">
+<link rel="preload" as="script" href="app2-471a8a54.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -6114,7 +6114,15 @@ html.sd-narrow .sd-c .sd-h.sd-open>button:nth-of-type(3){top:74px}
 html.sd-narrow .sd-c .sd-h.sd-open>button:nth-of-type(4){top:98px}
 html.sd-narrow .sd-c .sd-h.sd-open>button:nth-of-type(5){top:122px}
 </style>
+<style>
+/* up705: home 학회 일정 - events sit side by side across the card instead of one left column */
+#evCard .ev-line{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:6px 28px;align-items:start}
+#evCard .ev-line::before{display:none!important}
+#evCard .ev-line>.ev-more{grid-column:1/-1;margin-top:6px}
+#evCard .ev-line>div:not(.ev-row):not(.ev-more):not(.hidden){grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:6px 28px;align-items:start}
+#evCard .ev-row{padding-bottom:10px}
+</style>
 <script src="app1-cbbbd385.js"></script>
-<script src="app2-f4393530.js"></script>
+<script src="app2-471a8a54.js"></script>
 </body>
 </html>
