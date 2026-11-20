@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko" translate="no">
-<head>
+<head><script>/* up714: while the tab is not visible, the app's repeating jobs are skipped (voice call, audio, auto trading, saving and socket pings keep running); when the tab comes back, slow jobs (5s or longer) run once, spaced out, so the page does not jam */
+(function(){var W=window;if(W.__ivg)return;var oSI=W.setInterval,oCI=W.clearInterval,oST=W.setTimeout;var G=W.__ivg={on:1,recs:[],skip:0,keep:0,bt:0,bv:false,t0:Date.now()};
+var KEEP=/speech|audio|tts|voice|[cC]all[A-Z(]|aiv|aic[A-Z]|spk|sag|\bws\b|\.send\(|[Nn]otif|alarm|[Tt]rade|[Oo]rder|telegram|record|upload|pod[A-Z]|KA\.|[sS]ave|[sS]ync|flush|persist/;
+function mine(){try{var l=((new Error).stack||"").split("\n")[3]||"";return l.indexOf("/terminal/")>=0}catch(e){return false}}
+function busy(){var n=Date.now();if(n-G.bt<1000)return G.bv;G.bt=n;var b=false;try{b=typeof CALL!=="undefined"&&!!CALL.on||typeof AIV!=="undefined"&&!!(AIV.on||AIV.speaking)||!!(W.speechSynthesis&&W.speechSynthesis.speaking);if(!b){var M=document.querySelectorAll("audio,video");for(var i=0;i<M.length;i++)if(!M[i].paused&&!M[i].ended){b=true;break}}}catch(e){}G.bv=b;return b}
+W.setInterval=function(fn,ms){if(typeof fn!=="function"||!mine())return oSI.apply(W,arguments);var src="";try{src=(fn.name||"")+" "+Function.prototype.toString.call(fn).slice(0,400)}catch(e){}if(KEEP.test(src)){G.keep++;return oSI.apply(W,arguments)}var a=[].slice.call(arguments,2),rec={ms:+ms||0,miss:0,fn:fn,a:a,id:0};rec.id=oSI.call(W,function(){if(G.on&&document.hidden&&Date.now()-G.t0>20000&&!busy()){rec.miss++;G.skip++;return}return fn.apply(this,a)},ms);G.recs.push(rec);return rec.id};
+W.clearInterval=function(id){for(var i=G.recs.length-1;i>=0;i--)if(G.recs[i].id===id){G.recs.splice(i,1);break}return oCI.call(W,id)};
+document.addEventListener("visibilitychange",function(){if(document.hidden)return;var L=[];G.recs.forEach(function(r){if(r.miss>0&&r.ms>=5000)L.push(r);r.miss=0});var i=0;(function next(){var r=L[i++];if(!r||document.hidden)return;try{r.fn.apply(W,r.a)}catch(e){}oST(next,250)})()})})();</script>
 <meta name="google" content="notranslate">
 <script>window.__sbSess=function(){try{var t=JSON.parse(localStorage.getItem("sb-vxccyrwnrewsnbmgqiqd-auth-token")||"null");return!!(t&&t.refresh_token)}catch(e){return false}};try{if(localStorage.getItem("safe_bb_last")==="1"&&window.__sbSess()){var _r=document.documentElement,_n=0;_r.setAttribute("data-skin","bb");_r.setAttribute("data-fsk","bb");_r.setAttribute("data-theme","dark");var _mo=new MutationObserver(function(){if(window.__bbAuth||!window.__sbSess()||++_n>20){_mo.disconnect();return}if(_r.getAttribute("data-skin")!=="bb"){_r.setAttribute("data-skin","bb");_r.setAttribute("data-fsk","bb")}});_mo.observe(_r,{attributes:true,attributeFilter:["data-skin"]})}}catch(e){}
 </script>
@@ -33,7 +40,7 @@
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-cbbbd385.js">
-<link rel="preload" as="script" href="app2-2c126e49.js">
+<link rel="preload" as="script" href="app2-8d732d79.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -6152,6 +6159,6 @@ html.sd-narrow .sd-c .sd-h.sd-open>button:nth-of-type(5){top:122px}
 html[data-glass="1"]:not([data-skin=bb]) body:not(#_h1):not(#_h2):not(#_h3):not(#_h4):not(#_h5):not(#_h6):not(#_h7):not(#_h8):not(#_h9):not(#_h10):not(#_h11):not(#_h12):not(#_h13):not(#_h14):not(#_h15):not(#_h16):not(#_h17):not(#_h18):not(#_h19):not(#_h20) :is(.qx-dd,.mk-pop,.eco-ask,.qmc-pick,.bk-panel,.pod-mini,.sw-pop,.nf-dock,.wd-pop,.aic-dock,.co-szpop,#sdMenu,.app-toast,#hdrHot,#pvHov,.ck-box,.tkb-pk,.pv-box,.spk-pv,.et-ov>*,.dt-dlg>*){background:color-mix(in srgb,var(--gl-solid,var(--bg,#12151c)) 94%,transparent)!important;-webkit-backdrop-filter:blur(24px) saturate(1.4)!important;backdrop-filter:blur(24px) saturate(1.4)!important;box-shadow:0 14px 40px rgba(0,0,0,.34),0 0 0 1px var(--gl-line,rgba(255,255,255,.14))!important}
 </style>
 <script src="app1-cbbbd385.js"></script>
-<script src="app2-2c126e49.js"></script>
+<script src="app2-8d732d79.js"></script>
 </body>
 </html>
