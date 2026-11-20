@@ -40,7 +40,7 @@ document.addEventListener("visibilitychange",function(){if(document.hidden)retur
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-cbbbd385.js">
-<link rel="preload" as="script" href="app2-1a5f8002.js">
+<link rel="preload" as="script" href="app2-c2b75ab7.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -6172,7 +6172,22 @@ html[data-glass="1"][data-theme=dark]{--pop-base:#12151c}
 html[data-glass="1"]:not([data-skin=bb]) body:not(#_h1):not(#_h2):not(#_h3):not(#_h4):not(#_h5):not(#_h6):not(#_h7):not(#_h8):not(#_h9):not(#_h10):not(#_h11):not(#_h12):not(#_h13):not(#_h14):not(#_h15):not(#_h16):not(#_h17):not(#_h18):not(#_h19):not(#_h20) :is(#pane-quant,#pane-qmodel,#pane-lab) :is(.q3d-pop,.hm-tip,.hm-pop,.mk-sat-tip,.tc-tip,.qmc-pick,.qx-dd){background:linear-gradient(var(--gl-solid,#1b1e26),var(--gl-solid,#1b1e26)),var(--pop-base,#12151c)!important;-webkit-backdrop-filter:blur(24px) saturate(1.4)!important;backdrop-filter:blur(24px) saturate(1.4)!important;box-shadow:0 14px 40px rgba(0,0,0,.34),0 0 0 1px var(--gl-line,rgba(255,255,255,.14))!important}
 html[data-glass="1"]:not([data-skin=bb]) :is(#pane-quant,#pane-qmodel,#pane-lab){--tip-bg:linear-gradient(var(--gl-solid,#1b1e26),var(--gl-solid,#1b1e26)),var(--pop-base,#12151c)}
 </style>
+<style>
+/* up718: 환율 분석 - left and right cards end on the same line (left card stretches, the probability chart takes the extra height); 모델 vs 선물환 table: no dark box, number columns right-aligned with their headers, even column gaps */
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #fxaHH>#fxaModelCard{position:static!important;top:auto!important;align-self:stretch!important;display:flex!important;flex-direction:column!important}
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #fxaModelCard>#mkV-fx{flex:1 1 auto!important;display:flex!important;flex-direction:column!important;min-height:0}
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #mkV-fx>*{flex:0 0 auto}
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #mkV-fx>#mkFxPairs{align-self:flex-start}
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #mkV-fx>#mkFxEasy{margin-top:0!important}
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #mkV-fx>#mkFxDist{flex:1 1 auto!important;display:flex!important;flex-direction:column!important}
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #mkFxDist>.fxd-g{flex:1 1 auto!important;grid-template-rows:minmax(240px,1fr)!important}
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #mkFxDist .fxd-ch{height:100%!important;min-height:240px}
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #fxaFwdCard .fwd-cmp>.scroll{border:0!important;background:none!important;border-radius:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #fxaFwdCard .fwd-cmp-t :is(th,td):nth-child(-n+4){width:1%!important;white-space:nowrap!important}
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #fxaFwdCard .fwd-cmp-t :is(th,td):nth-child(n+2):nth-child(-n+4){text-align:right!important;padding-left:28px!important}
+html body:not(#_f0):not(#_f1):not(#_f2):not(#_f3):not(#_f4):not(#_f5):not(#_f6):not(#_f7):not(#_f8):not(#_f9):not(#_f10):not(#_f11) #fxaFwdCard .fwd-cmp-t :is(th,td):nth-child(5){text-align:left!important;padding-left:28px!important;width:auto!important}
+</style>
 <script src="app1-cbbbd385.js"></script>
-<script src="app2-1a5f8002.js"></script>
+<script src="app2-c2b75ab7.js"></script>
 </body>
 </html>
