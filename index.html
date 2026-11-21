@@ -6387,11 +6387,11 @@ html[data-skin=bb] #mkFxSum .fxh-tbl .mk-dir,html[data-skin=bb] #mkFxSum .fxh-tb
 #fabBarDock>#nfFab .dot{position:static!important;flex:none;width:6px!important;height:6px!important;margin:0!important}
 </style>
 <style>
-/* up751 2-14b 블룸버그 모드: 방향성 카드의 4줄 설명을 점수 표 옆으로 올림 (넓은 화면에서만) */
-@media(min-width:1500px){html[data-skin=bb] #cotDirTop{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);column-gap:10px;align-items:start}
-html[data-skin=bb] #cotDirTop>*{min-width:0;grid-column:1 / -1}
-html[data-skin=bb] #cotDirTop>.cot-dir{grid-column:1}
-html[data-skin=bb] #cotDirTop>.cot-story{grid-column:2;margin-top:0;align-self:stretch;align-content:center}}
+/* up751 2-14b 블룸버그 모드: 방향성 카드의 4줄 설명을 점수 표 옆으로 올림 (넓은 화면 · 한국어에서만. 영어는 문장이 길어 줄이 넘쳐서 전과 같이 아래에 둠) */
+@media(min-width:1500px){html[data-skin=bb]:not([data-lang=en]) #cotDirTop{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);column-gap:10px;align-items:start}
+html[data-skin=bb]:not([data-lang=en]) #cotDirTop>*{min-width:0;grid-column:1 / -1}
+html[data-skin=bb]:not([data-lang=en]) #cotDirTop>.cot-dir{grid-column:1}
+html[data-skin=bb]:not([data-lang=en]) #cotDirTop>.cot-story{grid-column:2;margin-top:0;align-self:stretch;align-content:center}}
 </style>
 <script src="app1-cbbbd385.js"></script>
 <script src="app2-edf9e918.js"></script>
