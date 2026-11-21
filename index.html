@@ -6513,6 +6513,23 @@ html[data-skin=bb] #vcxBody .vcx-sum>.c>.n{grid-column:1/-1;color:#8a8a8a;font-s
 html[data-skin=bb][data-lang=en] #vcxBody .vcx-sum>.c{grid-template-columns:minmax(0,1fr)}
 @media(max-width:1800px){html[data-skin=bb] #vcxBody .vcx-sum>.c{grid-template-columns:minmax(0,1fr)}html[data-skin=bb] #vcxBody .vcx-sum>.c>.v{overflow:hidden;text-overflow:ellipsis}}
 </style>
+<style>
+/* up776 3-19a: AI 분석 블룸버그 - 새 리포트 칸을 한 줄로 (리포트 만들기 단추는 검색 줄 오른쪽 작은 단추), 찾기 칸도 한 줄로 해서 최근 리포트 표를 첫 화면에 */
+html[data-skin=bb] #aiPane-new>.card{display:flex;flex-wrap:wrap;align-items:center;column-gap:12px;row-gap:6px}
+html[data-skin=bb] #aiPane-new>.card>h2{flex:0 0 100%}
+html[data-skin=bb] #aiPane-new>.card>.row{margin:0}
+html[data-skin=bb] #aiPane-new>.card>.row:has(#aiQ){flex:1 1 480px;min-width:0}
+html[data-skin=bb] #aiPane-new>.card>.row:has(#aiDepth){flex:0 1 auto;min-width:0;flex-wrap:nowrap}
+html[data-skin=bb] #aiPane-new #aiDepthHint{flex:0 1 auto;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-skin=bb] #aiPane-new>.card>.row:has(#aiRunBtn){flex:0 0 auto;flex-wrap:nowrap}
+html[data-skin=bb] #aiPane-new #aiRunBtn{flex:0 0 auto;padding-left:16px;padding-right:16px}
+html[data-skin=bb] #aiPane-new>.card>p.st-hint{flex:0 0 100%;margin:0}
+html[data-skin=bb] #aiLibFilterCard{display:flex;flex-wrap:wrap;align-items:center;column-gap:12px;row-gap:6px}
+html[data-skin=bb] #aiLibFilterCard>h2,html[data-skin=bb] #aiLibFilterCard>p,html[data-skin=bb] #aiLibFilterCard>#aiSectors{flex:0 0 100%;margin:0}
+html[data-skin=bb] #aiLibFilterCard>.row{margin:0}
+html[data-skin=bb] #aiLibFilterCard>.row:has(#aiLibQ){flex:1 1 480px;min-width:0}
+html[data-skin=bb] #aiLibFilterCard>.row:has(#aiLibSort){flex:0 0 auto;flex-wrap:nowrap}
+</style>
 <script src="app1-cbbbd385.js"></script>
 <script src="app2-452d1f9d.js"></script>
 </body>
