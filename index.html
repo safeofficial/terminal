@@ -6499,6 +6499,20 @@ html[data-skin=bb] #imapCard .imap-x{display:grid}
 .vx-old>span{display:inline-block;border:1px solid currentColor;padding:0 5px;margin-right:6px;font-size:11px;line-height:15px;font-weight:700}
 html[data-skin=bb] .vx-old{color:#fff}
 </style>
+<style>
+/* up775 3-17a: 산업분석 블룸버그 - 요약 5칸을 한 줄 표시줄로, 산업 고르기 칩 묶음을 가로로 이어 붙임 */
+html[data-skin=bb] #vcxChains.vcx-chains.all{flex-direction:row;flex-wrap:wrap;column-gap:28px;row-gap:6px;align-items:flex-start}
+html[data-skin=bb] #vcxChains .vcx-chg{flex:0 0 auto;max-width:100%;margin:0}
+html[data-skin=bb] #vcxChains .vcx-chg>.cs{flex-wrap:nowrap}
+html[data-skin=bb] #vcxBody .vcx-sum{gap:0;border-top:1px solid #333;border-bottom:1px solid #333}
+html[data-skin=bb] #vcxBody .vcx-sum>.c{background:none;border:0;border-radius:0;border-right:1px solid #333;padding:4px 12px;display:grid;grid-template-columns:minmax(0,max-content) max-content;column-gap:10px;align-items:baseline}
+html[data-skin=bb] #vcxBody .vcx-sum>.c:last-child{border-right:0}
+html[data-skin=bb] #vcxBody .vcx-sum>.c>.k{color:#FB8B1E;font-size:13px;line-height:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+html[data-skin=bb] #vcxBody .vcx-sum>.c>.v{color:#fff;font-size:15px;line-height:22px;margin:0;white-space:nowrap;font-weight:700}
+html[data-skin=bb] #vcxBody .vcx-sum>.c>.n{grid-column:1/-1;color:#8a8a8a;font-size:12px;line-height:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-skin=bb][data-lang=en] #vcxBody .vcx-sum>.c{grid-template-columns:minmax(0,1fr)}
+@media(max-width:1800px){html[data-skin=bb] #vcxBody .vcx-sum>.c{grid-template-columns:minmax(0,1fr)}html[data-skin=bb] #vcxBody .vcx-sum>.c>.v{overflow:hidden;text-overflow:ellipsis}}
+</style>
 <script src="app1-cbbbd385.js"></script>
 <script src="app2-452d1f9d.js"></script>
 </body>
