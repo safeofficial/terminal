@@ -40,7 +40,7 @@ document.addEventListener("visibilitychange",function(){if(document.hidden)retur
 <!--  (35차) 미리 받기 — 화면 뼈대를 읽는 동안 큰 파일들을 같이 받습니다 · 서버 주소에는 미리 연결 -->
 <link rel="preconnect" href="https://vxccyrwnrewsnbmgqiqd.supabase.co" crossorigin>
 <link rel="preload" as="script" href="app1-cbbbd385.js">
-<link rel="preload" as="script" href="app2-04c74b64.js">
+<link rel="preload" as="script" href="app2-91f56fbc.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js">
 <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -6445,7 +6445,20 @@ html[data-skin=bb]:not(#q1):not(#q2):not(#q3):not(#q4):not(#q5):not(#q6):not(#q7
 html[data-skin=bb]:not(#q1):not(#q2):not(#q3):not(#q4):not(#q5):not(#q6):not(#q7):not(#q8):not(#q9):not(#q10):not(#q11):not(#q12) #pane-stocks #h19Stk .qh-v{order:9;flex:0 0 100%;width:100%;margin:2px 0 0!important;padding:0!important;height:150px!important;min-height:0!important}
 html[data-skin=bb]:not(#q1):not(#q2):not(#q3):not(#q4):not(#q5):not(#q6):not(#q7):not(#q8):not(#q9):not(#q10):not(#q11):not(#q12) #pane-stocks #h19Stk .qh-v svg{display:block;width:100%!important;height:150px!important}
 </style>
+<style>
+/* up761 2-16b 블룸버그 모드 섹터 지도: 도넛 칸 폭을 줄이고 표 줄 22px, 아래에 오른 · 내린 종목 표 */
+html[data-skin=bb] #imapCard .imap-g{grid-template-columns:minmax(380px,500px) minmax(0,1fr)}
+html[data-skin=bb] #imapCard .imap-tb{overflow-x:hidden}
+html[data-skin=bb] #imapCard .imap-t th,html[data-skin=bb] #imapCard .imap-t td{padding-top:0;padding-bottom:0;line-height:20px}
+html[data-skin=bb] #imapCard .imap-x{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 14px;margin-top:8px}
+html[data-skin=bb] #imapCard .imap-x table{width:100%}
+html[data-skin=bb] #imapCard .imap-x td,html[data-skin=bb] #imapCard .imap-x th{white-space:nowrap}
+html[data-skin=bb] #imapCard .imap-x td.nm{overflow:hidden;text-overflow:ellipsis;max-width:0;width:46%}
+html[data-skin=bb] #imapCard .imap-x tbody tr{cursor:pointer}
+#imapCard .imap-x{display:none}
+html[data-skin=bb] #imapCard .imap-x{display:grid}
+</style>
 <script src="app1-cbbbd385.js"></script>
-<script src="app2-04c74b64.js"></script>
+<script src="app2-91f56fbc.js"></script>
 </body>
 </html>
